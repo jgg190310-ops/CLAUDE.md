@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FinanceOS — App</title>
+  <link rel="stylesheet" href="styles/app.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <svg width="30" height="30" viewBox="0 0 32 32" fill="none">
+      <rect width="32" height="32" rx="8" fill="url(#sg)"/>
+      <path d="M8 22L13 14l4 5 3-4 4 6" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+      <defs><linearGradient id="sg" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse"><stop stop-color="#6366f1"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient></defs>
+    </svg>
+    <span class="logo-text">FinanceOS</span>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-group">
+      <span class="nav-label">Principal</span>
+      <a href="#" class="nav-item active" data-page="dashboard">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Dashboard
+      </a>
+      <a href="#" class="nav-item" data-page="goals">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+        Metas
+      </a>
+      <a href="#" class="nav-item" data-page="budgets">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+        Orçamentos
+      </a>
+    </div>
+    <div class="nav-group">
+      <span class="nav-label">Investimentos</span>
+      <a href="#" class="nav-item" data-page="stocks">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+        Bolsa de Valores
+      </a>
+      <a href="#" class="nav-item" data-page="calculator">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 16c.5-2 1.5-7 4-7s3 7 5.5 7 3-5 3-5"/></svg>
+        Calculadora
+      </a>
+    </div>
+    <div class="nav-group">
+      <span class="nav-label">Conta</span>
+      <a href="#" class="nav-item" data-page="profile">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Perfil
+      </a>
+    </div>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="user-card">
+      <div class="user-avatar">JG</div>
+      <div class="user-info">
+        <span class="user-name">João Gustavo</span>
+        <span class="user-plan">Pro Member</span>
+      </div>
+      <a href="index.html" class="logout-btn" title="Sair">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </a>
+    </div>
+  </div>
+</aside>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <button class="sidebar-toggle" id="sidebarToggle">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </button>
+  <div class="topbar-title" id="pageTitle">Dashboard</div>
+  <div class="topbar-actions">
+    <button class="icon-btn" title="Notificações">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      <span class="notif-dot"></span>
+    </button>
+    <div class="topbar-date">Seg, 9 Jun 2026</div>
+  </div>
+</header>
+
+<!-- MAIN CONTENT -->
+<main class="main-content">
+
+  <!-- ═══════════════════════════════ DASHBOARD ═══════════════════════════════ -->
+  <section class="page active" id="dashboard">
+    <div class="page-header">
+      <div>
+        <h1>Bom dia, João! 👋</h1>
+        <p class="page-sub">Aqui está o resumo financeiro de hoje.</p>
+      </div>
+      <div class="page-header-actions">
+        <select class="period-select">
+          <option>Junho 2026</option>
+          <option>Maio 2026</option>
+          <option>Abril 2026</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- KPI CARDS -->
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-header">
+          <span class="kpi-label">Patrimônio Total</span>
+          <div class="kpi-icon" style="--ic:#6366f1">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          </div>
+        </div>
+        <div class="kpi-value">R$ 284.750</div>
+        <div class="kpi-change positive">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 15l-6-6-6 6"/></svg>
+          +12,4% este mês
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-header">
+          <span class="kpi-label">Renda Mensal</span>
+          <div class="kpi-icon" style="--ic:#10b981">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          </div>
+        </div>
+        <div class="kpi-value">R$ 12.800</div>
+        <div class="kpi-change positive">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 15l-6-6-6 6"/></svg>
+          +5,2% vs mês anterior
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-header">
+          <span class="kpi-label">Gastos do Mês</span>
+          <div class="kpi-icon" style="--ic:#ef4444">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          </div>
+        </div>
+        <div class="kpi-value">R$ 7.420</div>
+        <div class="kpi-change negative">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+          +3,1% vs mês anterior
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-header">
+          <span class="kpi-label">Economias</span>
+          <div class="kpi-icon" style="--ic:#f59e0b">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/></svg>
+          </div>
+        </div>
+        <div class="kpi-value">R$ 5.380</div>
+        <div class="kpi-change positive">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 15l-6-6-6 6"/></svg>
+          Taxa de 42% da renda
+        </div>
+      </div>
+    </div>
+
+    <!-- CHARTS ROW -->
+    <div class="charts-row">
+      <div class="chart-card wide">
+        <div class="chart-card-header">
+          <div>
+            <h3>Evolução Patrimonial</h3>
+            <p>Últimos 12 meses</p>
+          </div>
+          <div class="chart-legend">
+            <span class="legend-dot" style="background:#6366f1"></span> Patrimônio
+            <span class="legend-dot" style="background:#10b981; margin-left:12px"></span> Investimentos
+          </div>
+        </div>
+        <div class="chart-wrap"><canvas id="patrimonioChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-card-header">
+          <div>
+            <h3>Distribuição de Gastos</h3>
+            <p>Por categoria</p>
+          </div>
+        </div>
+        <div class="chart-wrap"><canvas id="gastosChart"></canvas></div>
+      </div>
+    </div>
+
+    <!-- TRANSACTIONS + ALERTS -->
+    <div class="bottom-row">
+      <div class="table-card">
+        <div class="table-header">
+          <h3>Últimas Transações</h3>
+          <button class="btn-sm">Ver todas</button>
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr><th>Descrição</th><th>Categoria</th><th>Data</th><th>Valor</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><div class="tx-name"><div class="tx-icon" style="background:rgba(16,185,129,0.1);color:#10b981">S</div>Salário</div></td>
+              <td><span class="tag green">Receita</span></td>
+              <td>05/06/2026</td>
+              <td class="positive">+R$ 12.800</td>
+            </tr>
+            <tr>
+              <td><div class="tx-name"><div class="tx-icon" style="background:rgba(239,68,68,0.1);color:#ef4444">M</div>Mercado</div></td>
+              <td><span class="tag red">Alimentação</span></td>
+              <td>07/06/2026</td>
+              <td class="negative">-R$ 480</td>
+            </tr>
+            <tr>
+              <td><div class="tx-name"><div class="tx-icon" style="background:rgba(99,102,241,0.1);color:#6366f1">I</div>ITSA4 — Aporte</div></td>
+              <td><span class="tag indigo">Investimento</span></td>
+              <td>06/06/2026</td>
+              <td class="negative">-R$ 2.000</td>
+            </tr>
+            <tr>
+              <td><div class="tx-name"><div class="tx-icon" style="background:rgba(245,158,11,0.1);color:#f59e0b">A</div>Aluguel</div></td>
+              <td><span class="tag amber">Moradia</span></td>
+              <td>05/06/2026</td>
+              <td class="negative">-R$ 2.200</td>
+            </tr>
+            <tr>
+              <td><div class="tx-name"><div class="tx-icon" style="background:rgba(6,182,212,0.1);color:#06b6d4">N</div>Netflix / Serviços</div></td>
+              <td><span class="tag cyan">Lazer</span></td>
+              <td>04/06/2026</td>
+              <td class="negative">-R$ 89</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="alerts-card">
+        <div class="table-header"><h3>Alertas & Insights</h3></div>
+        <div class="alert-list">
+          <div class="alert-item info">
+            <div class="alert-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </div>
+            <div>
+              <p class="alert-title">Meta no prazo</p>
+              <p class="alert-desc">Viagem para Europa está 68% concluída. Faltam R$ 1.600 em 2 aportes.</p>
+            </div>
+          </div>
+          <div class="alert-item warning">
+            <div class="alert-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </div>
+            <div>
+              <p class="alert-title">Orçamento de lazer</p>
+              <p class="alert-desc">82% do limite mensal utilizado. Restam R$ 211.</p>
+            </div>
+          </div>
+          <div class="alert-item success">
+            <div class="alert-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div>
+              <p class="alert-title">ITSA4 em alta</p>
+              <p class="alert-desc">Sua ação favorita subiu +3.2% hoje. Lucro potencial de R$ 640.</p>
+            </div>
+          </div>
+          <div class="alert-item info">
+            <div class="alert-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            </div>
+            <div>
+              <p class="alert-title">Rendimento CDB</p>
+              <p class="alert-desc">Seu CDB rendeu R$ 312 esse mês. Reinvestimento automático ativo.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════ METAS ═══════════════════════════════ -->
+  <section class="page" id="goals">
+    <div class="page-header">
+      <div>
+        <h1>Minhas Metas</h1>
+        <p class="page-sub">Acompanhe e gerencie seus objetivos financeiros.</p>
+      </div>
+      <button class="btn-add" onclick="openGoalModal()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Nova Meta
+      </button>
+    </div>
+
+    <div class="goals-summary">
+      <div class="goal-stat">
+        <span class="gs-value">6</span>
+        <span class="gs-label">Total de Metas</span>
+      </div>
+      <div class="goal-stat">
+        <span class="gs-value" style="color:#10b981">2</span>
+        <span class="gs-label">Concluídas</span>
+      </div>
+      <div class="goal-stat">
+        <span class="gs-value" style="color:#6366f1">3</span>
+        <span class="gs-label">Em Progresso</span>
+      </div>
+      <div class="goal-stat">
+        <span class="gs-value" style="color:#f59e0b">1</span>
+        <span class="gs-label">Atrasada</span>
+      </div>
+    </div>
+
+    <div class="goals-grid" id="goalsGrid">
+      <!-- rendered by JS -->
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════ ORÇAMENTOS ═══════════════════════════════ -->
+  <section class="page" id="budgets">
+    <div class="page-header">
+      <div>
+        <h1>Orçamentos</h1>
+        <p class="page-sub">Controle seus gastos por categoria.</p>
+      </div>
+      <button class="btn-add" onclick="openBudgetModal()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Novo Orçamento
+      </button>
+    </div>
+
+    <div class="budget-overview">
+      <div class="bo-card">
+        <div class="bo-label">Orçamento Total</div>
+        <div class="bo-value">R$ 10.000</div>
+        <div class="bo-bar-wrap">
+          <div class="bo-bar"><div class="bo-fill" style="width:74.2%; background:linear-gradient(90deg,#6366f1,#8b5cf6)"></div></div>
+        </div>
+        <div class="bo-sub">R$ 7.420 utilizados de R$ 10.000</div>
+      </div>
+      <div class="bo-card">
+        <div class="bo-label">Saldo Disponível</div>
+        <div class="bo-value" style="color:#10b981">R$ 2.580</div>
+        <div class="bo-sub">25,8% do orçamento restante</div>
+      </div>
+      <div class="bo-card">
+        <div class="bo-label">Maior Gasto</div>
+        <div class="bo-value">Moradia</div>
+        <div class="bo-sub">R$ 2.200 — 22% do total</div>
+      </div>
+    </div>
+
+    <div class="budgets-list" id="budgetsList">
+      <!-- rendered by JS -->
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════ BOLSA ═══════════════════════════════ -->
+  <section class="page" id="stocks">
+    <div class="page-header">
+      <div>
+        <h1>Bolsa de Valores</h1>
+        <p class="page-sub">Acompanhe seus ativos e o mercado em tempo real.</p>
+      </div>
+      <div class="stock-search-wrap">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" placeholder="Buscar ativo..." class="stock-search" id="stockSearch" />
+      </div>
+    </div>
+
+    <div class="market-overview">
+      <div class="market-card">
+        <div class="mc-name">IBOVESPA</div>
+        <div class="mc-val">128.450</div>
+        <div class="mc-chg positive">+1,24%</div>
+        <canvas class="mini-chart" id="ibovChart" width="100" height="40"></canvas>
+      </div>
+      <div class="market-card">
+        <div class="mc-name">IFIX</div>
+        <div class="mc-val">3.218</div>
+        <div class="mc-chg positive">+0,63%</div>
+        <canvas class="mini-chart" id="ifixChart" width="100" height="40"></canvas>
+      </div>
+      <div class="market-card">
+        <div class="mc-name">BTC/BRL</div>
+        <div class="mc-val">R$ 352.140</div>
+        <div class="mc-chg negative">-2,14%</div>
+        <canvas class="mini-chart" id="btcChart" width="100" height="40"></canvas>
+      </div>
+      <div class="market-card">
+        <div class="mc-name">USD/BRL</div>
+        <div class="mc-val">R$ 5,82</div>
+        <div class="mc-chg positive">+0,31%</div>
+        <canvas class="mini-chart" id="usdChart" width="100" height="40"></canvas>
+      </div>
+    </div>
+
+    <div class="stocks-layout">
+      <div class="stocks-table-wrap">
+        <div class="table-header">
+          <h3>Minha Carteira</h3>
+          <div class="tab-group">
+            <button class="tab active" onclick="switchTab(this,'acoes')">Ações</button>
+            <button class="tab" onclick="switchTab(this,'fiis')">FIIs</button>
+            <button class="tab" onclick="switchTab(this,'crypto')">Crypto</button>
+          </div>
+        </div>
+        <table class="data-table stocks-tbl">
+          <thead>
+            <tr><th>Ativo</th><th>Qtd.</th><th>Preço Médio</th><th>Preço Atual</th><th>Rentab.</th><th>Total</th><th>%</th></tr>
+          </thead>
+          <tbody id="stocksBody">
+            <!-- rendered by JS -->
+          </tbody>
+        </table>
+      </div>
+      <div class="portfolio-chart-card">
+        <h3>Alocação da Carteira</h3>
+        <div class="chart-wrap"><canvas id="alocacaoChart"></canvas></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════ CALCULADORA ═══════════════════════════════ -->
+  <section class="page" id="calculator">
+    <div class="page-header">
+      <div>
+        <h1>Calculadora de Juros Compostos</h1>
+        <p class="page-sub">Simule o crescimento exponencial dos seus investimentos.</p>
+      </div>
+    </div>
+
+    <div class="calc-layout">
+      <div class="calc-form-card">
+        <h3>Parâmetros da Simulação</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Capital Inicial (R$)</label>
+            <div class="input-wrap">
+              <span class="input-prefix">R$</span>
+              <input type="number" id="calcPrincipal" value="10000" min="0" step="1000" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Aporte Mensal (R$)</label>
+            <div class="input-wrap">
+              <span class="input-prefix">R$</span>
+              <input type="number" id="calcMonthly" value="1000" min="0" step="100" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Taxa de Juros Anual (%)</label>
+            <div class="input-wrap">
+              <span class="input-suffix">%</span>
+              <input type="number" id="calcRate" value="12" min="0" max="100" step="0.5" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Período (anos)</label>
+            <div class="input-wrap">
+              <input type="number" id="calcYears" value="20" min="1" max="50" step="1" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Tipo de Indexação</label>
+            <select id="calcType">
+              <option value="fixed">Taxa fixa</option>
+              <option value="cdi">CDI (12,5% a.a.)</option>
+              <option value="ipca">IPCA + 6%</option>
+              <option value="selic">SELIC (10,75%)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Imposto de Renda</label>
+            <select id="calcIR">
+              <option value="0">Isento</option>
+              <option value="0.15">15% (acima 2 anos)</option>
+              <option value="0.175">17,5% (1-2 anos)</option>
+              <option value="0.20">20% (até 6 meses)</option>
+              <option value="0.225">22,5% (até 6 meses)</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn-calc" onclick="calcInvestment()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          Calcular Projeção
+        </button>
+      </div>
+
+      <div class="calc-results-card" id="calcResults">
+        <h3>Resultado da Simulação</h3>
+        <div class="results-kpis" id="resultsKpis">
+          <div class="result-kpi">
+            <div class="rk-label">Valor Final</div>
+            <div class="rk-value" id="rk-final">—</div>
+          </div>
+          <div class="result-kpi">
+            <div class="rk-label">Total Investido</div>
+            <div class="rk-value" id="rk-invested">—</div>
+          </div>
+          <div class="result-kpi">
+            <div class="rk-label">Juros Gerados</div>
+            <div class="rk-value green" id="rk-interest">—</div>
+          </div>
+          <div class="result-kpi">
+            <div class="rk-label">Retorno Total</div>
+            <div class="rk-value green" id="rk-return">—</div>
+          </div>
+        </div>
+        <div class="chart-wrap" style="height:280px"><canvas id="calcChart"></canvas></div>
+        <div class="calc-table-wrap">
+          <table class="data-table" id="calcTable">
+            <thead><tr><th>Ano</th><th>Aportado</th><th>Juros Acum.</th><th>Total</th><th>Rendimento</th></tr></thead>
+            <tbody id="calcTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════ PERFIL ═══════════════════════════════ -->
+  <section class="page" id="profile">
+    <div class="page-header">
+      <div>
+        <h1>Configurações do Perfil</h1>
+        <p class="page-sub">Gerencie suas informações e preferências.</p>
+      </div>
+    </div>
+
+    <div class="profile-layout">
+      <div class="profile-sidebar-nav">
+        <a class="psn-item active" data-tab="personal">Dados Pessoais</a>
+        <a class="psn-item" data-tab="investor">Perfil Investidor</a>
+        <a class="psn-item" data-tab="security">Segurança</a>
+        <a class="psn-item" data-tab="notifications">Notificações</a>
+        <a class="psn-item" data-tab="integrations">Integrações</a>
+      </div>
+      <div class="profile-content">
+
+        <!-- PERSONAL -->
+        <div class="profile-tab active" id="tab-personal">
+          <div class="profile-avatar-section">
+            <div class="profile-avatar-big">JG</div>
+            <div>
+              <h3>João Gustavo</h3>
+              <p>membro Pro desde Jan/2025</p>
+              <button class="btn-sm">Alterar foto</button>
+            </div>
+          </div>
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label>Nome completo</label>
+              <input type="text" value="João Gustavo" />
+            </div>
+            <div class="form-group">
+              <label>Email</label>
+              <input type="email" value="jgg190310@gmail.com" />
+            </div>
+            <div class="form-group">
+              <label>CPF</label>
+              <input type="text" value="123.456.789-00" />
+            </div>
+            <div class="form-group">
+              <label>Telefone</label>
+              <input type="tel" value="+55 (11) 99999-0000" />
+            </div>
+            <div class="form-group">
+              <label>Data de nascimento</label>
+              <input type="date" value="2003-01-03" />
+            </div>
+            <div class="form-group">
+              <label>Ocupação</label>
+              <input type="text" value="Desenvolvedor de Software" />
+            </div>
+            <div class="form-group full">
+              <label>Renda Mensal Bruta</label>
+              <div class="input-wrap">
+                <span class="input-prefix">R$</span>
+                <input type="number" value="12800" />
+              </div>
+            </div>
+          </div>
+          <button class="btn-save">Salvar Alterações</button>
+        </div>
+
+        <!-- INVESTOR -->
+        <div class="profile-tab" id="tab-investor">
+          <h3 class="tab-section-title">Perfil de Investidor</h3>
+          <p class="tab-desc">Seu perfil define as recomendações e alertas personalizados.</p>
+          <div class="investor-profiles">
+            <div class="ip-card" data-profile="conservador">
+              <div class="ip-icon">🛡️</div>
+              <h4>Conservador</h4>
+              <p>Prioriza segurança e liquidez. Renda fixa e CDBs.</p>
+            </div>
+            <div class="ip-card active" data-profile="moderado">
+              <div class="ip-icon">⚖️</div>
+              <h4>Moderado</h4>
+              <p>Equilíbrio entre risco e retorno. Diversificação.</p>
+              <div class="ip-current">Perfil atual</div>
+            </div>
+            <div class="ip-card" data-profile="arrojado">
+              <div class="ip-icon">🚀</div>
+              <h4>Arrojado</h4>
+              <p>Aceita volatilidade buscando rentabilidade alta.</p>
+            </div>
+          </div>
+          <div class="allocation-targets">
+            <h4>Alocação Alvo</h4>
+            <div class="alloc-row">
+              <span>Renda Fixa</span>
+              <input type="range" min="0" max="100" value="40" class="range-input" id="rfRange" oninput="updateRange()"/>
+              <span id="rfVal">40%</span>
+            </div>
+            <div class="alloc-row">
+              <span>Renda Variável</span>
+              <input type="range" min="0" max="100" value="40" class="range-input" id="rvRange" oninput="updateRange()"/>
+              <span id="rvVal">40%</span>
+            </div>
+            <div class="alloc-row">
+              <span>FIIs</span>
+              <input type="range" min="0" max="100" value="15" class="range-input" id="fiiRange" oninput="updateRange()"/>
+              <span id="fiiVal">15%</span>
+            </div>
+            <div class="alloc-row">
+              <span>Internacional</span>
+              <input type="range" min="0" max="100" value="5" class="range-input" id="intRange" oninput="updateRange()"/>
+              <span id="intVal">5%</span>
+            </div>
+          </div>
+          <button class="btn-save">Salvar Perfil</button>
+        </div>
+
+        <!-- SECURITY -->
+        <div class="profile-tab" id="tab-security">
+          <h3 class="tab-section-title">Segurança da Conta</h3>
+          <div class="form-grid-2">
+            <div class="form-group full">
+              <label>Senha atual</label>
+              <input type="password" placeholder="••••••••" />
+            </div>
+            <div class="form-group">
+              <label>Nova senha</label>
+              <input type="password" placeholder="••••••••" />
+            </div>
+            <div class="form-group">
+              <label>Confirmar nova senha</label>
+              <input type="password" placeholder="••••••••" />
+            </div>
+          </div>
+          <div class="security-options">
+            <div class="so-row">
+              <div>
+                <h4>Autenticação em 2 fatores</h4>
+                <p>Adicione uma camada extra de segurança via app autenticador.</p>
+              </div>
+              <div class="toggle-wrap" onclick="this.classList.toggle('on')">
+                <div class="toggle-thumb"></div>
+              </div>
+            </div>
+            <div class="so-row">
+              <div>
+                <h4>Alertas de login suspeito</h4>
+                <p>Receba notificações sobre acessos incomuns.</p>
+              </div>
+              <div class="toggle-wrap on" onclick="this.classList.toggle('on')">
+                <div class="toggle-thumb"></div>
+              </div>
+            </div>
+          </div>
+          <button class="btn-save">Atualizar Senha</button>
+        </div>
+
+        <!-- NOTIFICATIONS -->
+        <div class="profile-tab" id="tab-notifications">
+          <h3 class="tab-section-title">Preferências de Notificações</h3>
+          <div class="notif-list">
+            <div class="notif-item">
+              <div>
+                <h4>Resumo diário</h4>
+                <p>Receba um resumo das suas finanças todo dia às 8h.</p>
+              </div>
+              <div class="toggle-wrap on" onclick="this.classList.toggle('on')"><div class="toggle-thumb"></div></div>
+            </div>
+            <div class="notif-item">
+              <div>
+                <h4>Alertas de orçamento</h4>
+                <p>Notificação quando 80% de um orçamento for atingido.</p>
+              </div>
+              <div class="toggle-wrap on" onclick="this.classList.toggle('on')"><div class="toggle-thumb"></div></div>
+            </div>
+            <div class="notif-item">
+              <div>
+                <h4>Variações de mercado</h4>
+                <p>Alertas de variação > 3% em ativos da carteira.</p>
+              </div>
+              <div class="toggle-wrap on" onclick="this.classList.toggle('on')"><div class="toggle-thumb"></div></div>
+            </div>
+            <div class="notif-item">
+              <div>
+                <h4>Lembretes de metas</h4>
+                <p>Sugestões de aporte mensais para atingir suas metas.</p>
+              </div>
+              <div class="toggle-wrap" onclick="this.classList.toggle('on')"><div class="toggle-thumb"></div></div>
+            </div>
+            <div class="notif-item">
+              <div>
+                <h4>Novidades da plataforma</h4>
+                <p>Informações sobre novas funcionalidades e melhorias.</p>
+              </div>
+              <div class="toggle-wrap" onclick="this.classList.toggle('on')"><div class="toggle-thumb"></div></div>
+            </div>
+          </div>
+          <button class="btn-save">Salvar Preferências</button>
+        </div>
+
+        <!-- INTEGRATIONS -->
+        <div class="profile-tab" id="tab-integrations">
+          <h3 class="tab-section-title">Integrações</h3>
+          <div class="integrations-list">
+            <div class="int-card">
+              <div class="int-logo" style="background:#0066b2">BB</div>
+              <div class="int-info">
+                <h4>Banco do Brasil</h4>
+                <p>Sincronize transações automaticamente</p>
+              </div>
+              <div class="int-status connected">Conectado</div>
+              <button class="btn-sm danger">Desconectar</button>
+            </div>
+            <div class="int-card">
+              <div class="int-logo" style="background:#ff6600">NU</div>
+              <div class="int-info">
+                <h4>Nubank</h4>
+                <p>Importe extrato e faturas do cartão</p>
+              </div>
+              <div class="int-status connected">Conectado</div>
+              <button class="btn-sm danger">Desconectar</button>
+            </div>
+            <div class="int-card">
+              <div class="int-logo" style="background:#1a1a2e">B3</div>
+              <div class="int-info">
+                <h4>B3 — CEI</h4>
+                <p>Sincronize sua carteira de investimentos</p>
+              </div>
+              <div class="int-status">Não conectado</div>
+              <button class="btn-sm">Conectar</button>
+            </div>
+            <div class="int-card">
+              <div class="int-logo" style="background:#00aa5b">CI</div>
+              <div class="int-info">
+                <h4>Clear Investimentos</h4>
+                <p>Importe operações de renda variável</p>
+              </div>
+              <div class="int-status">Não conectado</div>
+              <button class="btn-sm">Conectar</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- MODAL GOAL -->
+<div class="modal-backdrop" id="goalModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Nova Meta Financeira</h3>
+      <button class="modal-close" onclick="closeModal('goalModal')">✕</button>
+    </div>
+    <div class="form-grid-2">
+      <div class="form-group full"><label>Nome da meta</label><input type="text" id="goalName" placeholder="Ex: Viagem para Europa" /></div>
+      <div class="form-group"><label>Valor Alvo (R$)</label><input type="number" id="goalTarget" placeholder="5000" /></div>
+      <div class="form-group"><label>Valor Atual (R$)</label><input type="number" id="goalCurrent" placeholder="0" /></div>
+      <div class="form-group"><label>Prazo</label><input type="date" id="goalDeadline" /></div>
+      <div class="form-group"><label>Ícone</label>
+        <select id="goalIcon">
+          <option value="✈️">✈️ Viagem</option>
+          <option value="🏠">🏠 Casa própria</option>
+          <option value="🚗">🚗 Carro</option>
+          <option value="📚">📚 Educação</option>
+          <option value="💍">💍 Casamento</option>
+          <option value="💰">💰 Reserva de emergência</option>
+          <option value="📱">📱 Tecnologia</option>
+          <option value="🎯">🎯 Outro</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Cor</label>
+        <select id="goalColor">
+          <option value="#6366f1">Índigo</option>
+          <option value="#10b981">Verde</option>
+          <option value="#f59e0b">Âmbar</option>
+          <option value="#ef4444">Vermelho</option>
+          <option value="#8b5cf6">Roxo</option>
+          <option value="#06b6d4">Ciano</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('goalModal')">Cancelar</button>
+      <button class="btn-confirm" onclick="addGoal()">Criar Meta</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL BUDGET -->
+<div class="modal-backdrop" id="budgetModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Novo Orçamento</h3>
+      <button class="modal-close" onclick="closeModal('budgetModal')">✕</button>
+    </div>
+    <div class="form-grid-2">
+      <div class="form-group full"><label>Categoria</label><input type="text" id="budgetName" placeholder="Ex: Alimentação" /></div>
+      <div class="form-group"><label>Limite (R$)</label><input type="number" id="budgetLimit" placeholder="1000" /></div>
+      <div class="form-group"><label>Já gasto (R$)</label><input type="number" id="budgetSpent" placeholder="0" /></div>
+      <div class="form-group"><label>Ícone</label>
+        <select id="budgetIcon">
+          <option value="🍔">🍔 Alimentação</option>
+          <option value="🏠">🏠 Moradia</option>
+          <option value="🚗">🚗 Transporte</option>
+          <option value="🎭">🎭 Lazer</option>
+          <option value="💊">💊 Saúde</option>
+          <option value="📚">📚 Educação</option>
+          <option value="👗">👗 Vestuário</option>
+          <option value="💡">💡 Utilidades</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Cor</label>
+        <select id="budgetColor">
+          <option value="#6366f1">Índigo</option>
+          <option value="#10b981">Verde</option>
+          <option value="#f59e0b">Âmbar</option>
+          <option value="#ef4444">Vermelho</option>
+          <option value="#8b5cf6">Roxo</option>
+          <option value="#06b6d4">Ciano</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('budgetModal')">Cancelar</button>
+      <button class="btn-confirm" onclick="addBudget()">Criar Orçamento</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script src="js/app.js"></script>
+</body>
+</html>

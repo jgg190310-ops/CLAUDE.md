@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FinanceOS — Gestão Financeira Inteligente</title>
+  <link rel="stylesheet" href="styles/landing.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav" id="nav">
+  <div class="nav-inner">
+    <a href="#" class="nav-logo">
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+        <rect width="32" height="32" rx="8" fill="url(#logoGrad)"/>
+        <path d="M8 22L13 14l4 5 3-4 4 6" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        <defs><linearGradient id="logoGrad" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse"><stop stop-color="#6366f1"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient></defs>
+      </svg>
+      <span>FinanceOS</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#features">Funcionalidades</a></li>
+      <li><a href="#how">Como funciona</a></li>
+      <li><a href="#pricing">Planos</a></li>
+    </ul>
+    <div class="nav-cta">
+      <a href="app.html" class="btn-ghost">Entrar</a>
+      <a href="app.html" class="btn-primary">Começar grátis</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+    <div class="grid-overlay"></div>
+  </div>
+  <div class="hero-content">
+    <div class="hero-badge">
+      <span class="badge-dot"></span>
+      Plataforma #1 em gestão financeira pessoal
+    </div>
+    <h1 class="hero-title">
+      Controle total<br/>
+      das suas <span class="gradient-text">finanças</span><br/>
+      em um só lugar.
+    </h1>
+    <p class="hero-subtitle">
+      Dashboard inteligente, metas personalizadas, acompanhamento de investimentos e muito mais. Tome decisões financeiras com dados reais.
+    </p>
+    <div class="hero-actions">
+      <a href="app.html" class="btn-hero-primary">
+        Começar agora — é grátis
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+      <a href="#features" class="btn-hero-ghost">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+        Ver demonstração
+      </a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat">
+        <span class="stat-value">127k+</span>
+        <span class="stat-label">Usuários ativos</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat">
+        <span class="stat-value">R$2.4bi</span>
+        <span class="stat-label">Gerenciados</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat">
+        <span class="stat-value">4.9★</span>
+        <span class="stat-label">Avaliação média</span>
+      </div>
+    </div>
+  </div>
+  <div class="hero-visual">
+    <div class="dashboard-preview">
+      <div class="preview-header">
+        <div class="preview-dots">
+          <span></span><span></span><span></span>
+        </div>
+        <span class="preview-title">Dashboard — Junho 2026</span>
+      </div>
+      <div class="preview-cards">
+        <div class="preview-card green">
+          <div class="pc-label">Patrimônio Total</div>
+          <div class="pc-value">R$ 284.750</div>
+          <div class="pc-change up">▲ +12.4% este mês</div>
+        </div>
+        <div class="preview-card blue">
+          <div class="pc-label">Renda Mensal</div>
+          <div class="pc-value">R$ 12.800</div>
+          <div class="pc-change up">▲ +5.2%</div>
+        </div>
+        <div class="preview-card purple">
+          <div class="pc-label">Meta: Viagem</div>
+          <div class="pc-value">68%</div>
+          <div class="pc-bar"><div class="pc-bar-fill" style="width:68%"></div></div>
+        </div>
+      </div>
+      <div class="preview-chart">
+        <div class="chart-bars">
+          <div class="bar" style="height:45%"><span>Jan</span></div>
+          <div class="bar" style="height:60%"><span>Fev</span></div>
+          <div class="bar" style="height:50%"><span>Mar</span></div>
+          <div class="bar" style="height:75%"><span>Abr</span></div>
+          <div class="bar" style="height:65%"><span>Mai</span></div>
+          <div class="bar active" style="height:88%"><span>Jun</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <div class="section-inner">
+    <div class="section-tag">Funcionalidades</div>
+    <h2 class="section-title">Tudo que você precisa para<br/>prosperar financeiramente</h2>
+    <p class="section-sub">Uma plataforma completa, projetada para quem leva as finanças a sério.</p>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="fc-icon" style="--ic:#6366f1">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        </div>
+        <h3>Dashboard Inteligente</h3>
+        <p>Visão 360° das suas finanças com gráficos em tempo real, indicadores de performance e alertas automáticos.</p>
+      </div>
+      <div class="feature-card">
+        <div class="fc-icon" style="--ic:#10b981">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        </div>
+        <h3>Gestão de Metas</h3>
+        <p>Defina objetivos financeiros claros, acompanhe o progresso e receba sugestões personalizadas de aporte.</p>
+      </div>
+      <div class="feature-card">
+        <div class="fc-icon" style="--ic:#f59e0b">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+        </div>
+        <h3>Orçamentos Dinâmicos</h3>
+        <p>Crie orçamentos por categoria, receba alertas de gastos excessivos e identifique padrões de consumo.</p>
+      </div>
+      <div class="feature-card">
+        <div class="fc-icon" style="--ic:#ef4444">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+        </div>
+        <h3>Bolsa de Valores</h3>
+        <p>Acompanhe ações, FIIs e criptoativos com cotações atualizadas, histórico de preços e análise de tendências.</p>
+      </div>
+      <div class="feature-card">
+        <div class="fc-icon" style="--ic:#8b5cf6">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 16c.5-2 1.5-7 4-7s3 7 5.5 7 3-5 3-5"/></svg>
+        </div>
+        <h3>Calculadora de Juros</h3>
+        <p>Simule o crescimento exponencial dos seus investimentos com aportes mensais e diferentes cenários de rentabilidade.</p>
+      </div>
+      <div class="feature-card">
+        <div class="fc-icon" style="--ic:#06b6d4">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </div>
+        <h3>Perfil Personalizado</h3>
+        <p>Configure sua conta, defina seu perfil de investidor, conecte contas bancárias e gerencie notificações.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how" id="how">
+  <div class="section-inner">
+    <div class="section-tag">Como funciona</div>
+    <h2 class="section-title">Em 3 passos simples</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step-number">01</div>
+        <h3>Crie sua conta</h3>
+        <p>Cadastro em menos de 2 minutos, sem cartão de crédito. Comece gratuitamente hoje.</p>
+      </div>
+      <div class="step-arrow">→</div>
+      <div class="step">
+        <div class="step-number">02</div>
+        <h3>Configure seu perfil</h3>
+        <p>Adicione suas receitas, despesas, metas e defina seu perfil de investidor.</p>
+      </div>
+      <div class="step-arrow">→</div>
+      <div class="step">
+        <div class="step-number">03</div>
+        <h3>Tome decisões melhores</h3>
+        <p>Use os insights da plataforma para otimizar seus gastos e acelerar seus investimentos.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing" id="pricing">
+  <div class="section-inner">
+    <div class="section-tag">Planos</div>
+    <h2 class="section-title">Escolha o plano ideal para você</h2>
+    <div class="pricing-grid">
+      <div class="pricing-card">
+        <div class="plan-name">Starter</div>
+        <div class="plan-price">Grátis</div>
+        <div class="plan-desc">Para quem está começando</div>
+        <ul class="plan-features">
+          <li>✓ Dashboard básico</li>
+          <li>✓ Até 3 metas</li>
+          <li>✓ Orçamento por categoria</li>
+          <li>✓ Calculadora de juros</li>
+        </ul>
+        <a href="app.html" class="btn-plan-ghost">Começar grátis</a>
+      </div>
+      <div class="pricing-card featured">
+        <div class="plan-badge">Mais popular</div>
+        <div class="plan-name">Pro</div>
+        <div class="plan-price">R$ 29<span>/mês</span></div>
+        <div class="plan-desc">Para quem quer resultados reais</div>
+        <ul class="plan-features">
+          <li>✓ Dashboard avançado</li>
+          <li>✓ Metas ilimitadas</li>
+          <li>✓ Bolsa de valores completa</li>
+          <li>✓ Relatórios detalhados</li>
+          <li>✓ Alertas inteligentes</li>
+          <li>✓ Suporte prioritário</li>
+        </ul>
+        <a href="app.html" class="btn-plan-primary">Assinar Pro</a>
+      </div>
+      <div class="pricing-card">
+        <div class="plan-name">Enterprise</div>
+        <div class="plan-price">Custom</div>
+        <div class="plan-desc">Para famílias e empresas</div>
+        <ul class="plan-features">
+          <li>✓ Tudo do Pro</li>
+          <li>✓ Multi-usuário</li>
+          <li>✓ API de integração</li>
+          <li>✓ Consultoria financeira</li>
+        </ul>
+        <a href="#" class="btn-plan-ghost">Falar com vendas</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA FINAL -->
+<section class="cta-final">
+  <div class="cta-inner">
+    <h2>Pronto para transformar suas finanças?</h2>
+    <p>Junte-se a 127.000 pessoas que já estão no controle do seu dinheiro.</p>
+    <a href="app.html" class="btn-hero-primary">
+      Criar conta gratuita
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <a href="#" class="nav-logo">
+        <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+          <rect width="32" height="32" rx="8" fill="url(#logoGrad2)"/>
+          <path d="M8 22L13 14l4 5 3-4 4 6" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          <defs><linearGradient id="logoGrad2" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse"><stop stop-color="#6366f1"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient></defs>
+        </svg>
+        <span>FinanceOS</span>
+      </a>
+      <p>Gestão financeira inteligente para todos.</p>
+    </div>
+    <div class="footer-links">
+      <div class="fl-col">
+        <h4>Produto</h4>
+        <a href="#">Funcionalidades</a>
+        <a href="#">Planos</a>
+        <a href="#">Segurança</a>
+      </div>
+      <div class="fl-col">
+        <h4>Empresa</h4>
+        <a href="#">Sobre nós</a>
+        <a href="#">Blog</a>
+        <a href="#">Carreiras</a>
+      </div>
+      <div class="fl-col">
+        <h4>Suporte</h4>
+        <a href="#">Central de ajuda</a>
+        <a href="#">Contato</a>
+        <a href="#">Privacidade</a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 FinanceOS. Todos os direitos reservados.</span>
+  </div>
+</footer>
+
+<script>
+  // Nav scroll effect
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 20);
+  });
+
+  // Intersection Observer for animations
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) e.target.classList.add('visible');
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.feature-card, .step, .pricing-card').forEach(el => {
+    observer.observe(el);
+  });
+</script>
+</body>
+</html>
