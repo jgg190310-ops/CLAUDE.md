@@ -4,6 +4,15 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>FinanceOS — App</title>
+  <!-- session guard: se não tem usuário, volta para a landing -->
+  <script>
+    (function(){
+      try {
+        const s = JSON.parse(localStorage.getItem('financeos-store') || '{}');
+        if (!s.user?.uid) window.location.replace('index.html');
+      } catch(e) { window.location.replace('index.html'); }
+    })();
+  </script>
   <link rel="stylesheet" href="styles/app.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
@@ -65,7 +74,7 @@
         <span class="user-name">João Gustavo</span>
         <span class="user-plan">Pro Member</span>
       </div>
-      <a href="index.html" class="logout-btn" title="Sair">
+      <a href="#" onclick="doLogout();return false;" class="logout-btn" title="Sair">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
       </a>
     </div>

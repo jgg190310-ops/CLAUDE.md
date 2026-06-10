@@ -7,18 +7,17 @@
   <link rel="stylesheet" href="styles/landing.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
-  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 </head>
 <body>
 
-<!-- NAV -->
+<!-- ══════════════ NAV ══════════════ -->
 <nav class="nav" id="nav">
   <div class="nav-inner">
     <a href="#" class="nav-logo">
       <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-        <rect width="32" height="32" rx="8" fill="url(#logoGrad)"/>
+        <rect width="32" height="32" rx="8" fill="url(#lg1)"/>
         <path d="M8 22L13 14l4 5 3-4 4 6" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-        <defs><linearGradient id="logoGrad" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse"><stop stop-color="#6366f1"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient></defs>
+        <defs><linearGradient id="lg1" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse"><stop stop-color="#6366f1"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient></defs>
       </svg>
       <span>FinanceOS</span>
     </a>
@@ -28,46 +27,70 @@
       <li><a href="#pricing">Planos</a></li>
     </ul>
     <div class="nav-cta">
-      <a href="app.html" class="btn-ghost">Entrar</a>
-      <a href="app.html" class="btn-primary">Começar grátis</a>
+      <button class="btn-ghost" onclick="openAuth('login')">Entrar</button>
+      <button class="btn-primary" onclick="openAuth('signup')">Começar grátis</button>
     </div>
+    <button class="nav-hamburger" id="navHamburger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
   </div>
 </nav>
 
-<!-- HERO -->
-<section class="hero">
-  <div class="hero-bg">
-    <div class="orb orb-1"></div>
-    <div class="orb orb-2"></div>
-    <div class="orb orb-3"></div>
+<!-- mobile menu -->
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#features" onclick="closeMobileMenu()">Funcionalidades</a>
+  <a href="#how" onclick="closeMobileMenu()">Como funciona</a>
+  <a href="#pricing" onclick="closeMobileMenu()">Planos</a>
+  <button class="btn-ghost" onclick="closeMobileMenu();openAuth('login')">Entrar</button>
+  <button class="btn-primary" onclick="closeMobileMenu();openAuth('signup')">Começar grátis</button>
+</div>
+
+<!-- ══════════════ HERO ══════════════ -->
+<section class="hero" id="hero">
+  <!-- parallax layers -->
+  <div class="parallax-bg" id="parallaxBg">
+    <div class="orb orb-1" data-speed="0.3"></div>
+    <div class="orb orb-2" data-speed="0.5"></div>
+    <div class="orb orb-3" data-speed="0.2"></div>
+    <div class="orb orb-4" data-speed="0.4"></div>
     <div class="grid-overlay"></div>
+    <!-- floating particles -->
+    <div class="particles" id="particles"></div>
   </div>
-  <div class="hero-content">
+
+  <div class="hero-content reveal-hero">
     <div class="hero-badge">
       <span class="badge-dot"></span>
       Gestão financeira completa e inteligente
     </div>
     <h1 class="hero-title">
-      Controle total<br/>
-      das suas <span class="gradient-text">finanças</span><br/>
-      em um só lugar.
+      <span class="word-reveal" style="--d:0ms">Controle</span>
+      <span class="word-reveal" style="--d:80ms">total</span><br/>
+      <span class="word-reveal" style="--d:160ms">das</span>
+      <span class="word-reveal" style="--d:240ms">suas</span>
+      <span class="word-reveal gradient-text" style="--d:320ms">finanças</span><br/>
+      <span class="word-reveal" style="--d:400ms">em</span>
+      <span class="word-reveal" style="--d:480ms">um</span>
+      <span class="word-reveal" style="--d:560ms">só</span>
+      <span class="word-reveal" style="--d:640ms">lugar.</span>
     </h1>
-    <p class="hero-subtitle">
-      Dashboard inteligente, metas personalizadas, acompanhamento de investimentos e muito mais. Tome decisões financeiras com dados reais.
+    <p class="hero-subtitle fade-up" style="--d:700ms">
+      Dashboard inteligente, metas personalizadas, bolsa em tempo real e muito mais.
+      Tome decisões financeiras com dados reais.
     </p>
-    <div class="hero-actions">
-      <a href="app.html" class="btn-hero-primary">
-        Começar agora — é grátis
+    <div class="hero-actions fade-up" style="--d:850ms">
+      <button class="btn-hero-primary" onclick="openAuth('signup')">
+        Criar conta grátis
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-      </a>
-      <a href="#features" class="btn-hero-ghost">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
-        Ver demonstração
-      </a>
+      </button>
+      <button class="btn-hero-ghost" onclick="openAuth('login')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+        Já tenho conta
+      </button>
     </div>
-    <div class="hero-stats">
+    <div class="hero-stats fade-up" style="--d:1000ms">
       <div class="stat">
-        <span class="stat-value">6</span>
+        <span class="stat-value counter" data-target="6">0</span>
         <span class="stat-label">Módulos integrados</span>
       </div>
       <div class="stat-divider"></div>
@@ -77,29 +100,29 @@
       </div>
       <div class="stat-divider"></div>
       <div class="stat">
-        <span class="stat-value">Grátis</span>
-        <span class="stat-label">Para começar</span>
+        <span class="stat-value">100%</span>
+        <span class="stat-label">Gratuito para começar</span>
       </div>
     </div>
   </div>
-  <div class="hero-visual">
-    <div class="dashboard-preview">
+
+  <div class="hero-visual fade-up" style="--d:600ms">
+    <div class="dashboard-preview" data-speed="0.15">
       <div class="preview-header">
-        <div class="preview-dots">
-          <span></span><span></span><span></span>
-        </div>
-        <span class="preview-title">Dashboard — Junho 2026</span>
+        <div class="preview-dots"><span></span><span></span><span></span></div>
+        <span class="preview-title">Dashboard — FinanceOS</span>
+        <span class="preview-live"><span class="live-blink"></span>AO VIVO</span>
       </div>
       <div class="preview-cards">
         <div class="preview-card green">
-          <div class="pc-label">Patrimônio Total</div>
+          <div class="pc-label">Patrimônio</div>
           <div class="pc-value">R$ 284.750</div>
-          <div class="pc-change up">▲ +12.4% este mês</div>
+          <div class="pc-change up">▲ +12,4%</div>
         </div>
         <div class="preview-card blue">
-          <div class="pc-label">Renda Mensal</div>
+          <div class="pc-label">Renda</div>
           <div class="pc-value">R$ 12.800</div>
-          <div class="pc-change up">▲ +5.2%</div>
+          <div class="pc-change up">▲ +5,2%</div>
         </div>
         <div class="preview-card purple">
           <div class="pc-label">Meta: Viagem</div>
@@ -109,105 +132,156 @@
       </div>
       <div class="preview-chart">
         <div class="chart-bars">
-          <div class="bar" style="height:45%"><span>Jan</span></div>
-          <div class="bar" style="height:60%"><span>Fev</span></div>
-          <div class="bar" style="height:50%"><span>Mar</span></div>
-          <div class="bar" style="height:75%"><span>Abr</span></div>
-          <div class="bar" style="height:65%"><span>Mai</span></div>
-          <div class="bar active" style="height:88%"><span>Jun</span></div>
+          <div class="bar" style="--h:45%"><span>Jan</span></div>
+          <div class="bar" style="--h:60%"><span>Fev</span></div>
+          <div class="bar" style="--h:50%"><span>Mar</span></div>
+          <div class="bar" style="--h:75%"><span>Abr</span></div>
+          <div class="bar" style="--h:65%"><span>Mai</span></div>
+          <div class="bar active" style="--h:88%"><span>Jun</span></div>
         </div>
       </div>
+      <div class="preview-ticker">
+        <div class="ticker-item up">ITSA4 <b>R$10,88</b> <small>+1,2%</small></div>
+        <div class="ticker-item down">VALE3 <b>R$58,50</b> <small>-0,8%</small></div>
+        <div class="ticker-item up">BTC <b>R$580k</b> <small>+2,1%</small></div>
+        <div class="ticker-item up">USD <b>R$5,76</b> <small>+0,3%</small></div>
+      </div>
     </div>
+    <!-- floating badge cards -->
+    <div class="float-badge badge-1 float-anim">
+      <span>🎯</span> Meta atingida!
+    </div>
+    <div class="float-badge badge-2 float-anim" style="--delay:1.2s">
+      <span>📈</span> +23% este ano
+    </div>
+    <div class="float-badge badge-3 float-anim" style="--delay:0.6s">
+      <span>🔔</span> Alerta de orçamento
+    </div>
+  </div>
+
+  <!-- scroll indicator -->
+  <div class="scroll-hint">
+    <div class="scroll-dot"></div>
+    <span>Role para baixo</span>
   </div>
 </section>
 
-<!-- FEATURES -->
+<!-- ══════════════ MARQUEE ══════════════ -->
+<div class="marquee-section">
+  <div class="marquee-track">
+    <div class="marquee-item">📊 Dashboard Inteligente</div>
+    <div class="marquee-item">🎯 Gestão de Metas</div>
+    <div class="marquee-item">💼 Bolsa em Tempo Real</div>
+    <div class="marquee-item">📦 Orçamentos Dinâmicos</div>
+    <div class="marquee-item">📈 Juros Compostos</div>
+    <div class="marquee-item">☁ Salvamento na Nuvem</div>
+    <div class="marquee-item">🔐 Dados Seguros</div>
+    <div class="marquee-item">📊 Dashboard Inteligente</div>
+    <div class="marquee-item">🎯 Gestão de Metas</div>
+    <div class="marquee-item">💼 Bolsa em Tempo Real</div>
+    <div class="marquee-item">📦 Orçamentos Dinâmicos</div>
+    <div class="marquee-item">📈 Juros Compostos</div>
+    <div class="marquee-item">☁ Salvamento na Nuvem</div>
+    <div class="marquee-item">🔐 Dados Seguros</div>
+  </div>
+</div>
+
+<!-- ══════════════ FEATURES ══════════════ -->
 <section class="features" id="features">
   <div class="section-inner">
-    <div class="section-tag">Funcionalidades</div>
-    <h2 class="section-title">Tudo que você precisa para<br/>prosperar financeiramente</h2>
-    <p class="section-sub">Uma plataforma completa, projetada para quem leva as finanças a sério.</p>
+    <div class="section-tag reveal">Funcionalidades</div>
+    <h2 class="section-title reveal">Tudo que você precisa para<br/>prosperar financeiramente</h2>
+    <p class="section-sub reveal">Uma plataforma completa, projetada para quem leva as finanças a sério.</p>
     <div class="features-grid">
-      <div class="feature-card">
+      <div class="feature-card reveal-card" style="--ci:0">
         <div class="fc-icon" style="--ic:#6366f1">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
         </div>
         <h3>Dashboard Inteligente</h3>
-        <p>Visão 360° das suas finanças com gráficos em tempo real, indicadores de performance e alertas automáticos.</p>
+        <p>Visão 360° das suas finanças com gráficos em tempo real, KPIs e alertas automáticos.</p>
+        <div class="fc-arrow">→</div>
       </div>
-      <div class="feature-card">
+      <div class="feature-card reveal-card" style="--ci:1">
         <div class="fc-icon" style="--ic:#10b981">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
         </div>
         <h3>Gestão de Metas</h3>
-        <p>Defina objetivos financeiros claros, acompanhe o progresso e receba sugestões personalizadas de aporte.</p>
+        <p>Defina objetivos, acompanhe o progresso e receba sugestões de aporte mensais.</p>
+        <div class="fc-arrow">→</div>
       </div>
-      <div class="feature-card">
+      <div class="feature-card reveal-card" style="--ci:2">
         <div class="fc-icon" style="--ic:#f59e0b">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
         </div>
         <h3>Orçamentos Dinâmicos</h3>
-        <p>Crie orçamentos por categoria, receba alertas de gastos excessivos e identifique padrões de consumo.</p>
+        <p>Crie orçamentos por categoria, receba alertas e identifique padrões de consumo.</p>
+        <div class="fc-arrow">→</div>
       </div>
-      <div class="feature-card">
+      <div class="feature-card reveal-card" style="--ci:3">
         <div class="fc-icon" style="--ic:#ef4444">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
         </div>
-        <h3>Bolsa de Valores</h3>
-        <p>Acompanhe ações, FIIs e criptoativos com cotações atualizadas, histórico de preços e análise de tendências.</p>
+        <h3>Bolsa em Tempo Real</h3>
+        <p>Ações, FIIs e criptoativos com cotações automáticas — sem cadastro em API.</p>
+        <div class="fc-arrow">→</div>
       </div>
-      <div class="feature-card">
+      <div class="feature-card reveal-card" style="--ci:4">
         <div class="fc-icon" style="--ic:#8b5cf6">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 16c.5-2 1.5-7 4-7s3 7 5.5 7 3-5 3-5"/></svg>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 16c.5-2 1.5-7 4-7s3 7 5.5 7 3-5 3-5"/></svg>
         </div>
         <h3>Calculadora de Juros</h3>
-        <p>Simule o crescimento exponencial dos seus investimentos com aportes mensais e diferentes cenários de rentabilidade.</p>
+        <p>Simule o crescimento exponencial com aportes mensais e diferentes cenários.</p>
+        <div class="fc-arrow">→</div>
       </div>
-      <div class="feature-card">
+      <div class="feature-card reveal-card" style="--ci:5">
         <div class="fc-icon" style="--ic:#06b6d4">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
         </div>
-        <h3>Perfil Personalizado</h3>
-        <p>Configure sua conta, defina seu perfil de investidor, conecte contas bancárias e gerencie notificações.</p>
+        <h3>Conta na Nuvem</h3>
+        <p>Dados salvos em tempo real no Firebase. Acesse de qualquer dispositivo.</p>
+        <div class="fc-arrow">→</div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- HOW IT WORKS -->
+<!-- ══════════════ HOW IT WORKS ══════════════ -->
 <section class="how" id="how">
   <div class="section-inner">
-    <div class="section-tag">Como funciona</div>
-    <h2 class="section-title">Em 3 passos simples</h2>
+    <div class="section-tag reveal">Como funciona</div>
+    <h2 class="section-title reveal">Em 3 passos simples</h2>
     <div class="steps">
-      <div class="step">
+      <div class="step reveal-card" style="--ci:0">
         <div class="step-number">01</div>
+        <div class="step-icon">🚀</div>
         <h3>Crie sua conta</h3>
-        <p>Cadastro em menos de 2 minutos, sem cartão de crédito. Comece gratuitamente hoje.</p>
+        <p>Cadastro em segundos, sem cartão. Comece gratuitamente agora mesmo.</p>
       </div>
-      <div class="step-arrow">→</div>
-      <div class="step">
+      <div class="step-connector reveal"><div class="connector-line"></div></div>
+      <div class="step reveal-card" style="--ci:1">
         <div class="step-number">02</div>
+        <div class="step-icon">⚙️</div>
         <h3>Configure seu perfil</h3>
-        <p>Adicione suas receitas, despesas, metas e defina seu perfil de investidor.</p>
+        <p>Adicione receitas, despesas e metas. Defina seu perfil de investidor.</p>
       </div>
-      <div class="step-arrow">→</div>
-      <div class="step">
+      <div class="step-connector reveal"><div class="connector-line"></div></div>
+      <div class="step reveal-card" style="--ci:2">
         <div class="step-number">03</div>
+        <div class="step-icon">💰</div>
         <h3>Tome decisões melhores</h3>
-        <p>Use os insights da plataforma para otimizar seus gastos e acelerar seus investimentos.</p>
+        <p>Use os insights para otimizar gastos e acelerar seus investimentos.</p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- PRICING -->
+<!-- ══════════════ PRICING ══════════════ -->
 <section class="pricing" id="pricing">
   <div class="section-inner">
-    <div class="section-tag">Planos</div>
-    <h2 class="section-title">Escolha o plano ideal para você</h2>
+    <div class="section-tag reveal">Planos</div>
+    <h2 class="section-title reveal">Escolha o plano ideal</h2>
     <div class="pricing-grid">
-      <div class="pricing-card">
+      <div class="pricing-card reveal-card" style="--ci:0">
         <div class="plan-name">Starter</div>
         <div class="plan-price">Grátis</div>
         <div class="plan-desc">Para quem está começando</div>
@@ -217,9 +291,9 @@
           <li>✓ Orçamento por categoria</li>
           <li>✓ Calculadora de juros</li>
         </ul>
-        <a href="app.html" class="btn-plan-ghost">Começar grátis</a>
+        <button class="btn-plan-ghost" onclick="openAuth('signup')">Começar grátis</button>
       </div>
-      <div class="pricing-card featured">
+      <div class="pricing-card featured reveal-card" style="--ci:1">
         <div class="plan-badge">Mais popular</div>
         <div class="plan-name">Pro</div>
         <div class="plan-price">R$ 29<span>/mês</span></div>
@@ -232,9 +306,9 @@
           <li>✓ Alertas inteligentes</li>
           <li>✓ Suporte prioritário</li>
         </ul>
-        <a href="app.html" class="btn-plan-primary">Assinar Pro</a>
+        <button class="btn-plan-primary" onclick="openAuth('signup')">Assinar Pro</button>
       </div>
-      <div class="pricing-card">
+      <div class="pricing-card reveal-card" style="--ci:2">
         <div class="plan-name">Enterprise</div>
         <div class="plan-price">Custom</div>
         <div class="plan-desc">Para famílias e empresas</div>
@@ -244,33 +318,34 @@
           <li>✓ API de integração</li>
           <li>✓ Consultoria financeira</li>
         </ul>
-        <a href="#" class="btn-plan-ghost">Falar com vendas</a>
+        <button class="btn-plan-ghost" onclick="openAuth('signup')">Falar com vendas</button>
       </div>
     </div>
   </div>
 </section>
 
-<!-- CTA FINAL -->
+<!-- ══════════════ CTA FINAL ══════════════ -->
 <section class="cta-final">
   <div class="cta-inner">
-    <h2>Pronto para transformar suas finanças?</h2>
-    <p>Organize, planeje e invista — tudo em um só lugar, com dados de mercado em tempo real.</p>
-    <a href="app.html" class="btn-hero-primary">
+    <div class="cta-glow"></div>
+    <h2 class="reveal">Pronto para transformar suas finanças?</h2>
+    <p class="reveal">Organize, planeje e invista — tudo em um só lugar, com dados de mercado em tempo real.</p>
+    <button class="btn-hero-primary reveal" onclick="openAuth('signup')">
       Criar conta gratuita
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-    </a>
+    </button>
   </div>
 </section>
 
-<!-- FOOTER -->
+<!-- ══════════════ FOOTER ══════════════ -->
 <footer class="footer">
   <div class="footer-inner">
     <div class="footer-brand">
       <a href="#" class="nav-logo">
         <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
-          <rect width="32" height="32" rx="8" fill="url(#logoGrad2)"/>
+          <rect width="32" height="32" rx="8" fill="url(#lg2)"/>
           <path d="M8 22L13 14l4 5 3-4 4 6" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-          <defs><linearGradient id="logoGrad2" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse"><stop stop-color="#6366f1"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient></defs>
+          <defs><linearGradient id="lg2" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse"><stop stop-color="#6366f1"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient></defs>
         </svg>
         <span>FinanceOS</span>
       </a>
@@ -279,20 +354,17 @@
     <div class="footer-links">
       <div class="fl-col">
         <h4>Produto</h4>
-        <a href="#">Funcionalidades</a>
-        <a href="#">Planos</a>
-        <a href="#">Segurança</a>
+        <a href="#features">Funcionalidades</a>
+        <a href="#pricing">Planos</a>
       </div>
       <div class="fl-col">
-        <h4>Empresa</h4>
-        <a href="#">Sobre nós</a>
-        <a href="#">Blog</a>
-        <a href="#">Carreiras</a>
+        <h4>Acesso</h4>
+        <a href="#" onclick="openAuth('login');return false">Entrar</a>
+        <a href="#" onclick="openAuth('signup');return false">Criar conta</a>
       </div>
       <div class="fl-col">
         <h4>Suporte</h4>
         <a href="#">Central de ajuda</a>
-        <a href="#">Contato</a>
         <a href="#">Privacidade</a>
       </div>
     </div>
@@ -302,23 +374,113 @@
   </div>
 </footer>
 
-<script>
-  // Nav scroll effect
-  const nav = document.getElementById('nav');
-  window.addEventListener('scroll', () => {
-    nav.classList.toggle('scrolled', window.scrollY > 20);
-  });
+<!-- ══════════════ AUTH MODAL ══════════════ -->
+<div class="auth-backdrop" id="authBackdrop">
+  <div class="auth-modal" id="authModal">
+    <button class="auth-close" onclick="closeAuth()">✕</button>
 
-  // Intersection Observer for animations
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(e => {
-      if (e.isIntersecting) e.target.classList.add('visible');
-    });
-  }, { threshold: 0.1 });
+    <!-- LOGIN -->
+    <div class="auth-panel" id="panelLogin">
+      <div class="auth-logo">
+        <svg width="36" height="36" viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="8" fill="url(#alg)"/><path d="M8 22L13 14l4 5 3-4 4 6" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><defs><linearGradient id="alg" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse"><stop stop-color="#6366f1"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient></defs></svg>
+        <span>FinanceOS</span>
+      </div>
+      <h2>Bem-vindo de volta</h2>
+      <p class="auth-sub">Entre na sua conta para continuar</p>
+      <div class="auth-form" id="loginForm">
+        <div class="auth-field">
+          <label>E-mail</label>
+          <input type="email" id="loginEmail" placeholder="seu@email.com" autocomplete="email"/>
+        </div>
+        <div class="auth-field">
+          <label>Senha</label>
+          <div class="pass-wrap">
+            <input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password"/>
+            <button class="pass-toggle" onclick="togglePass('loginPass',this)" type="button">👁</button>
+          </div>
+        </div>
+        <div class="auth-row">
+          <label class="auth-check"><input type="checkbox" id="rememberMe"/> Lembrar de mim</label>
+          <a href="#" class="auth-link">Esqueci a senha</a>
+        </div>
+        <div class="auth-error" id="loginError"></div>
+        <button class="auth-btn" id="loginBtn" onclick="doLogin()">
+          <span>Entrar</span>
+        </button>
+        <div class="auth-divider"><span>ou</span></div>
+        <button class="auth-btn-ghost" onclick="doGuestLogin()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Entrar como visitante
+        </button>
+      </div>
+      <p class="auth-switch">Não tem conta? <button onclick="switchPanel('signup')">Criar conta grátis</button></p>
+    </div>
 
-  document.querySelectorAll('.feature-card, .step, .pricing-card').forEach(el => {
-    observer.observe(el);
-  });
-</script>
+    <!-- SIGNUP -->
+    <div class="auth-panel hidden" id="panelSignup">
+      <div class="auth-logo">
+        <svg width="36" height="36" viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="8" fill="url(#asg)"/><path d="M8 22L13 14l4 5 3-4 4 6" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><defs><linearGradient id="asg" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse"><stop stop-color="#6366f1"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient></defs></svg>
+        <span>FinanceOS</span>
+      </div>
+      <h2>Crie sua conta</h2>
+      <p class="auth-sub">Grátis para sempre no plano Starter</p>
+      <div class="auth-form">
+        <div class="auth-field">
+          <label>Nome completo</label>
+          <input type="text" id="signupName" placeholder="João Silva" autocomplete="name"/>
+        </div>
+        <div class="auth-field">
+          <label>E-mail</label>
+          <input type="email" id="signupEmail" placeholder="seu@email.com" autocomplete="email"/>
+        </div>
+        <div class="auth-field">
+          <label>Senha</label>
+          <div class="pass-wrap">
+            <input type="password" id="signupPass" placeholder="Mínimo 6 caracteres" autocomplete="new-password"/>
+            <button class="pass-toggle" onclick="togglePass('signupPass',this)" type="button">👁</button>
+          </div>
+          <div class="pass-strength" id="passStrength">
+            <div class="ps-bar"><div class="ps-fill" id="psFill"></div></div>
+            <span id="psLabel"></span>
+          </div>
+        </div>
+        <div class="auth-field">
+          <label>Confirmar senha</label>
+          <div class="pass-wrap">
+            <input type="password" id="signupPass2" placeholder="Repita a senha" autocomplete="new-password"/>
+          </div>
+        </div>
+        <label class="auth-check terms-check">
+          <input type="checkbox" id="acceptTerms"/>
+          Aceito os <a href="#" class="auth-link">Termos de Uso</a> e <a href="#" class="auth-link">Privacidade</a>
+        </label>
+        <div class="auth-error" id="signupError"></div>
+        <button class="auth-btn" id="signupBtn" onclick="doSignup()">
+          <span>Criar conta grátis</span>
+        </button>
+        <div class="auth-divider"><span>ou</span></div>
+        <button class="auth-btn-ghost" onclick="doGuestLogin()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Continuar como visitante
+        </button>
+      </div>
+      <p class="auth-switch">Já tem conta? <button onclick="switchPanel('login')">Entrar</button></p>
+    </div>
+
+    <!-- SUCCESS -->
+    <div class="auth-panel hidden" id="panelSuccess">
+      <div class="success-anim">
+        <div class="success-circle">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+      </div>
+      <h2 id="successTitle">Bem-vindo!</h2>
+      <p class="auth-sub" id="successSub">Entrando no seu painel…</p>
+      <div class="auth-progress"><div class="auth-progress-fill"></div></div>
+    </div>
+  </div>
+</div>
+
+<script src="styles/../js/landing.js"></script>
 </body>
 </html>

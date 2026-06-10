@@ -20,6 +20,28 @@ function saveStore(patch) {
 
 const _store = loadStore();
 
+// ── Carrega dados do usuário logado na UI ──
+(function applySession() {
+  const user = _store.user;
+  if (!user) return;
+  const name = user.name || user.email?.split('@')[0] || 'Usuário';
+  const initials = name.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase() || 'U';
+  const greet = document.getElementById('dashGreeting');
+  if (greet) {
+    const hr = new Date().getHours();
+    const saudacao = hr < 12 ? 'Bom dia' : hr < 18 ? 'Boa tarde' : 'Boa noite';
+    greet.textContent = `${saudacao}, ${name.split(' ')[0]}! 👋`;
+  }
+  const ua = document.querySelector('.user-avatar');
+  const un = document.querySelector('.user-name');
+  if (ua) ua.textContent = initials;
+  if (un) un.textContent = name;
+  // popula campos de perfil se ainda não foram salvos
+  if (!_store.profile) {
+    saveStore({ profile: { name, email: user.email || '' } });
+  }
+})();
+
 // ══════════════════════════════════════════════
 //  NAVIGATION
 // ══════════════════════════════════════════════
@@ -1045,6 +1067,12 @@ document.querySelectorAll('.notif-item .toggle-wrap, .so-row .toggle-wrap').forE
     cloudSave('toggles', snap);
   });
 });
+
+function doLogout() {
+  if (!confirm('Deseja sair da sua conta?')) return;
+  saveStore({ user: null });
+  window.location.href = 'index.html';
+}
 
 // Close modals on backdrop click
 document.querySelectorAll('.modal-backdrop').forEach(bd => {
