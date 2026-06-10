@@ -1,24 +1,13 @@
-<!-- ════════════════════════════════════════════════════════════════
-  FinanceOS — Site de Finanças Pessoais (arquivo único)
-  Cole TUDO no painel HTML do CodePen (ou salve como .html e abra).
-
-  PERSISTÊNCIA EM NUVEM:
-  Clique em "☁ Nuvem" no topo do app e siga os 5 passos para
-  conectar seu Firebase Realtime Database gratuito. Todos os dados
-  (metas, orçamentos, perfil) ficam salvos em tempo real na nuvem
-  e sincronizados entre dispositivos.
-
-  BOLSA EM TEMPO REAL:
-  · Cripto (BTC/ETH): CoinGecko — sem chave, funciona na hora
-  · Câmbio (USD/BRL): AwesomeAPI — sem chave, funciona na hora
-  · B3 (ações/FIIs):  brapi.dev — token gratuito, botão na página
-═════════════════════════════════════════════════════════════════ -->
+<!-- FinanceOS — arquivo único para CodePen.
+  Cole TUDO no painel HTML do CodePen (CSS e JS ficam vazios).
+  B3 ao vivo: clique em "Conectar B3 real" e cadastre-se em brapi.dev (grátis).
+  Cripto e câmbio: ao vivo automaticamente (CoinGecko + AwesomeAPI).
+-->
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-/* ════════════ LANDING ════════════ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
@@ -568,7 +557,6 @@ body {
   .nav-links { display: none; }
 }
 
-/* ════════════ APP ════════════ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
@@ -1691,16 +1679,14 @@ td.tick-down, .market-card.tick-down { animation: tickDownAnim 1.2s ease-out; }
 }
 
 
-/* ── VIEW SWITCHING (single-file/CodePen) ── */
+/* VIEW SWITCHING */
 #appView { display: none; }
 body.in-app #landingView { display: none; }
 body.in-app #appView { display: block; }
 
 </style>
 
-<!-- ════════════ LANDING PAGE ════════════ -->
 <div id="landingView">
-
 
 <!-- NAV -->
 <nav class="nav" id="nav">
@@ -1993,12 +1979,8 @@ body.in-app #appView { display: block; }
   </div>
 </footer>
 
-
 </div>
-
-<!-- ════════════ APP ════════════ -->
 <div id="appView">
-
 
 <!-- SIDEBAR -->
 <aside class="sidebar" id="sidebar">
@@ -2913,7 +2895,6 @@ body.in-app #appView { display: block; }
 <div class="toast" id="toast"></div>
 
 
-
 </div>
 
 <script>
@@ -3296,22 +3277,30 @@ function deleteBudget(id) {
 // ══════════════════════════════════════════════
 //  STOCKS
 // ══════════════════════════════════════════════
+// ══════════════════════════════════════════════
+//  STOCKS DATA
+//  Preços base = últimos valores conhecidos (Jun/2026).
+//  Quando brapi.dev não está conectado, o simulador
+//  oscila em torno desse preço BASE (mean-reverting),
+//  sem jamais se afastar da realidade. Ao conectar o
+//  token brapi, os preços reais substituem tudo.
+// ══════════════════════════════════════════════
 const stocksData = {
   acoes: [
-    { ticker: 'ITSA4', name: 'Itaúsa', qty: 500, avgPrice: 9.20, price: 10.80, total: 5400 },
-    { ticker: 'PETR4', name: 'Petrobras', qty: 200, avgPrice: 35.50, price: 38.20, total: 7640 },
-    { ticker: 'VALE3', name: 'Vale', qty: 100, avgPrice: 65.00, price: 72.40, total: 7240 },
-    { ticker: 'BBAS3', name: 'Banco do Brasil', qty: 150, avgPrice: 55.00, price: 58.70, total: 8805 },
-    { ticker: 'WEGE3', name: 'WEG', qty: 80, avgPrice: 38.00, price: 52.30, total: 4184 },
+    { ticker: 'ITSA4', name: 'Itaúsa',        qty: 500, avgPrice:  9.20, price: 10.88, base: 10.88, total:  5440 },
+    { ticker: 'PETR4', name: 'Petrobras',      qty: 200, avgPrice: 35.50, price: 37.90, base: 37.90, total:  7580 },
+    { ticker: 'VALE3', name: 'Vale',           qty: 100, avgPrice: 65.00, price: 58.50, base: 58.50, total:  5850 },
+    { ticker: 'BBAS3', name: 'Banco do Brasil',qty: 150, avgPrice: 55.00, price: 24.80, base: 24.80, total:  3720 },
+    { ticker: 'WEGE3', name: 'WEG',            qty:  80, avgPrice: 38.00, price: 50.20, base: 50.20, total:  4016 },
   ],
   fiis: [
-    { ticker: 'MXRF11', name: 'Maxi Renda', qty: 200, avgPrice: 9.80, price: 10.20, total: 2040 },
-    { ticker: 'HGLG11', name: 'CSHG Logística', qty: 50, avgPrice: 160.00, price: 175.40, total: 8770 },
-    { ticker: 'XPML11', name: 'XP Malls', qty: 100, avgPrice: 95.00, price: 102.60, total: 10260 },
+    { ticker: 'MXRF11', name: 'Maxi Renda',      qty: 200, avgPrice:  9.80, price:  9.98, base:  9.98, total:  1996 },
+    { ticker: 'HGLG11', name: 'CSHG Logística',  qty:  50, avgPrice:160.00, price:162.50, base:162.50, total:  8125 },
+    { ticker: 'XPML11', name: 'XP Malls',        qty: 100, avgPrice: 95.00, price: 96.40, base: 96.40, total:  9640 },
   ],
   crypto: [
-    { ticker: 'BTC', name: 'Bitcoin', qty: 0.12, avgPrice: 280000, price: 352140, total: 42256.8 },
-    { ticker: 'ETH', name: 'Ethereum', qty: 1.5, avgPrice: 12000, price: 18420, total: 27630 },
+    { ticker: 'BTC', name: 'Bitcoin',   qty: 0.12, avgPrice: 280000, price: 580000, base: 580000, total: 69600 },
+    { ticker: 'ETH', name: 'Ethereum',  qty:  1.5, avgPrice:  12000, price:  16800, base:  16800, total: 25200 },
   ],
 };
 
@@ -3417,14 +3406,20 @@ const _prevRow = {};
 const _prevCard = {};
 
 const marketIndices = {
-  ibov: { val: 128450, chg: 1.24, live: false, fmt: v => Math.round(v).toLocaleString('pt-BR') },
-  ifix: { val: 3218, chg: 0.63, live: false, fmt: v => Math.round(v).toLocaleString('pt-BR') },
-  btc:  { val: 352140, chg: -2.14, live: false, fmt: v => 'R$ ' + Math.round(v).toLocaleString('pt-BR') },
-  usd:  { val: 5.82, chg: 0.31, live: false, fmt: v => 'R$ ' + v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) },
+  // val = preço atual, base = âncora para o simulador mean-reverting
+  ibov: { val: 134800, base: 134800, chg:  0.42, live: false, fmt: v => Math.round(v).toLocaleString('pt-BR') },
+  ifix: { val:   3312, base:   3312, chg:  0.18, live: false, fmt: v => Math.round(v).toLocaleString('pt-BR') },
+  btc:  { val:  580000, base: 580000, chg: -1.20, live: false, fmt: v => 'R$ ' + Math.round(v).toLocaleString('pt-BR') },
+  usd:  { val:   5.76, base:   5.76, chg:  0.12, live: false, fmt: v => 'R$ ' + v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) },
 };
 
-function walk(value, vol) {
-  return value * (1 + (Math.random() - 0.5) * 2 * vol);
+// Ornstein-Uhlenbeck: oscila em torno de 'base' com reversão à média.
+// theta = força de reversão (0.08 ≈ volta ~8% em direção ao base a cada tick)
+// sigma = volatilidade por tick
+function ouWalk(val, base, theta, sigma) {
+  const drift = theta * (base - val);
+  const noise = base * sigma * (Math.random() - 0.5) * 2;
+  return val + drift + noise;
 }
 
 function touchUpdate() { liveState.lastUpdate = Date.now(); }
@@ -3435,15 +3430,16 @@ async function fetchCrypto() {
     if (!r.ok) throw new Error(r.status);
     const d = await r.json();
     if (d.bitcoin?.brl) {
-      marketIndices.btc.val = d.bitcoin.brl;
+      marketIndices.btc.val  = d.bitcoin.brl;
+      marketIndices.btc.base = d.bitcoin.brl;
       if (typeof d.bitcoin.brl_24h_change === 'number') marketIndices.btc.chg = d.bitcoin.brl_24h_change;
       marketIndices.btc.live = true;
       const btc = stocksData.crypto.find(c => c.ticker === 'BTC');
-      if (btc) { btc.price = d.bitcoin.brl; btc.total = btc.qty * btc.price; btc.live = true; }
+      if (btc) { btc.price = d.bitcoin.brl; btc.base = d.bitcoin.brl; btc.total = btc.qty * btc.price; btc.live = true; }
     }
     if (d.ethereum?.brl) {
       const eth = stocksData.crypto.find(c => c.ticker === 'ETH');
-      if (eth) { eth.price = d.ethereum.brl; eth.total = eth.qty * eth.price; eth.live = true; }
+      if (eth) { eth.price = d.ethereum.brl; eth.base = d.ethereum.brl; eth.total = eth.qty * eth.price; eth.live = true; }
     }
     touchUpdate();
   } catch (e) { /* sem rede/limite — simulação continua */ }
@@ -3476,14 +3472,20 @@ async function fetchB3() {
     (d.results || []).forEach(res => {
       if (!res.regularMarketPrice) return;
       if (res.symbol === '^BVSP') {
-        marketIndices.ibov.val = res.regularMarketPrice;
+        marketIndices.ibov.val  = res.regularMarketPrice;
+        marketIndices.ibov.base = res.regularMarketPrice; // ancora o simulador
         if (typeof res.regularMarketChangePercent === 'number') marketIndices.ibov.chg = res.regularMarketChangePercent;
         marketIndices.ibov.live = true;
         return;
       }
       ['acoes', 'fiis'].forEach(cat => {
         const a = stocksData[cat].find(s => s.ticker === res.symbol);
-        if (a) { a.price = res.regularMarketPrice; a.total = a.qty * a.price; a.live = true; }
+        if (a) {
+          a.price = res.regularMarketPrice;
+          a.base  = res.regularMarketPrice; // ancora o simulador no preço real
+          a.total = a.qty * a.price;
+          a.live  = true;
+        }
       });
     });
     touchUpdate();
@@ -3509,13 +3511,25 @@ function configureBrapi() {
 }
 
 function simTick() {
-  // random walk apenas nos ativos SEM fonte de dados real
-  Object.values(marketIndices).forEach(m => { if (!m.live) m.val = walk(m.val, 0.0012); });
+  // Ornstein-Uhlenbeck: oscila em torno do preço BASE real, não deriva
+  if (!marketIndices.ibov.live) marketIndices.ibov.val = ouWalk(marketIndices.ibov.val, marketIndices.ibov.base, 0.05, 0.0008);
+  if (!marketIndices.ifix.live) marketIndices.ifix.val = ouWalk(marketIndices.ifix.val, marketIndices.ifix.base, 0.05, 0.0006);
+  if (!marketIndices.btc.live)  marketIndices.btc.val  = ouWalk(marketIndices.btc.val,  marketIndices.btc.base,  0.04, 0.003);
+  if (!marketIndices.usd.live)  marketIndices.usd.val  = ouWalk(marketIndices.usd.val,  marketIndices.usd.base,  0.06, 0.0008);
+
   ['acoes', 'fiis'].forEach(cat => stocksData[cat].forEach(s => {
-    if (!s.live) { s.price = walk(s.price, 0.002); s.total = s.qty * s.price; }
+    if (!s.live) {
+      s.price = ouWalk(s.price, s.base, 0.06, 0.0012);
+      s.price = Math.max(s.base * 0.85, Math.min(s.base * 1.15, s.price)); // ±15% de limite
+      s.total = s.qty * s.price;
+    }
   }));
   stocksData.crypto.forEach(s => {
-    if (!s.live) { s.price = walk(s.price, 0.004); s.total = s.qty * s.price; }
+    if (!s.live) {
+      s.price = ouWalk(s.price, s.base, 0.04, 0.003);
+      s.price = Math.max(s.base * 0.80, Math.min(s.base * 1.20, s.price));
+      s.total = s.qty * s.price;
+    }
   });
   touchUpdate();
   renderLive();
@@ -3567,11 +3581,13 @@ function setSourceLabel() {
   if (!el) return;
   const b3Live = marketIndices.ibov.live || stocksData.acoes.some(s => s.live);
   const parts = [
-    marketIndices.btc.live ? 'Cripto: CoinGecko (ao vivo)' : 'Cripto: simulado',
-    marketIndices.usd.live ? 'Câmbio: AwesomeAPI (ao vivo)' : 'Câmbio: simulado',
-    b3Live ? 'B3: brapi.dev (ao vivo)' : 'B3: simulado — conecte um token p/ dados reais',
+    marketIndices.btc.live ? '🟢 Cripto: CoinGecko (ao vivo)' : '🟡 Cripto: simulado',
+    marketIndices.usd.live ? '🟢 Câmbio: AwesomeAPI (ao vivo)' : '🟡 Câmbio: simulado',
+    b3Live
+      ? '🟢 B3: brapi.dev (ao vivo)'
+      : '🟡 B3: simulado (±oscilação em torno do preço base) — clique em "Conectar B3 real" para cotações reais',
   ];
-  el.textContent = parts.join(' · ');
+  el.textContent = parts.join('   ');
 }
 
 function startLiveMarket() {
@@ -4036,9 +4052,6 @@ if (_savedCfg?.databaseURL) {
 }
 
 
-// ══════════════════════════════════════════════
-//  VIEW SWITCHING (landing <-> app)
-// ══════════════════════════════════════════════
 function enterApp() {
   document.body.classList.add('in-app');
   window.scrollTo(0, 0);
@@ -4050,9 +4063,6 @@ function exitApp() {
   window.scrollTo(0, 0);
 }
 
-// ══════════════════════════════════════════════
-//  LANDING PAGE
-// ══════════════════════════════════════════════
 // Nav scroll effect
   const nav = document.getElementById('nav');
   window.addEventListener('scroll', () => {
