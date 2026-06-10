@@ -135,11 +135,8 @@
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
           </div>
         </div>
-        <div class="kpi-value">R$ 284.750</div>
-        <div class="kpi-change positive">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 15l-6-6-6 6"/></svg>
-          +12,4% este mês
-        </div>
+        <div class="kpi-value" id="kpiPatrimonio">R$ 0</div>
+        <div class="kpi-change positive" id="kpiPatrimonioSub">Adicione ativos na Bolsa</div>
       </div>
       <div class="kpi-card">
         <div class="kpi-header">
@@ -148,11 +145,8 @@
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
           </div>
         </div>
-        <div class="kpi-value">R$ 12.800</div>
-        <div class="kpi-change positive">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 15l-6-6-6 6"/></svg>
-          +5,2% vs mês anterior
-        </div>
+        <div class="kpi-value" id="kpiRenda">R$ 0</div>
+        <div class="kpi-change positive">Definida no seu perfil</div>
       </div>
       <div class="kpi-card">
         <div class="kpi-header">
@@ -161,11 +155,8 @@
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
           </div>
         </div>
-        <div class="kpi-value">R$ 7.420</div>
-        <div class="kpi-change negative">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
-          +3,1% vs mês anterior
-        </div>
+        <div class="kpi-value" id="kpiGastos">R$ 0</div>
+        <div class="kpi-change negative">Soma dos seus orçamentos</div>
       </div>
       <div class="kpi-card">
         <div class="kpi-header">
@@ -174,11 +165,8 @@
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/></svg>
           </div>
         </div>
-        <div class="kpi-value">R$ 5.380</div>
-        <div class="kpi-change positive">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 15l-6-6-6 6"/></svg>
-          Taxa de 42% da renda
-        </div>
+        <div class="kpi-value" id="kpiEconomias">R$ 0</div>
+        <div class="kpi-change positive" id="kpiEconomiasSub">Defina sua renda no perfil</div>
       </div>
     </div>
 
@@ -443,7 +431,7 @@
         </div>
         <table class="data-table stocks-tbl">
           <thead>
-            <tr><th>Ativo</th><th>Qtd.</th><th>Preço Médio</th><th>Preço Atual</th><th>Rentab.</th><th>Total</th><th>%</th></tr>
+            <tr><th>Ativo</th><th>Qtd.</th><th>Preço Médio</th><th>Preço Atual</th><th>Rentab.</th><th>Total</th><th></th></tr>
           </thead>
           <tbody id="stocksBody">
             <!-- rendered by JS -->

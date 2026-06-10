@@ -1233,3 +1233,18 @@ td.tick-down, .market-card.tick-down { animation: tickDownAnim 1.2s ease-out; }
 .page.active {
   animation: pageSlideIn .35s cubic-bezier(.16,1,.3,1);
 }
+
+/* ── CARTEIRA EDITÁVEL ── */
+.btn-edit-holding {
+  width: 28px; height: 28px;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: rgba(99,102,241,.1);
+  border: 1px solid rgba(99,102,241,.25);
+  border-radius: 8px;
+  color: var(--indigo);
+  cursor: pointer;
+  transition: background .2s, border-color .2s;
+}
+.btn-edit-holding:hover { background: rgba(99,102,241,.22); border-color: rgba(99,102,241,.5); }
+.row-owned td { background: rgba(99,102,241,.03); }
+.row-owned .asset-name { color: var(--indigo); }

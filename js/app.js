@@ -240,6 +240,27 @@ function doughnutOptions() {
   };
 }
 
+// ── KPIs do dashboard calculados a partir dos SEUS dados ──
+// Patrimônio = carteira de investimentos; Renda = perfil; Gastos = orçamentos.
+function updateDashKpis() {
+  const fmtBRL = v => 'R$ ' + Math.round(v).toLocaleString('pt-BR');
+  const tot = (typeof portfolioTotals === 'function') ? portfolioTotals() : { all: 0 };
+  const income = parseFloat(_store.profile?.income) || 0;
+  const spent  = (typeof budgets !== 'undefined' ? budgets : []).reduce((s, b) => s + b.spent, 0);
+  const savings = Math.max(0, income - spent);
+
+  const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  set('kpiPatrimonio', fmtBRL(tot.all));
+  set('kpiRenda',      fmtBRL(income));
+  set('kpiGastos',     fmtBRL(spent));
+  set('kpiEconomias',  fmtBRL(savings));
+
+  const sub = document.getElementById('kpiEconomiasSub');
+  if (sub) sub.textContent = income > 0 ? `Taxa de ${Math.round(savings / income * 100)}% da renda` : 'Defina sua renda no perfil';
+  const pSub = document.getElementById('kpiPatrimonioSub');
+  if (pSub) pSub.textContent = tot.all > 0 ? 'Valor da sua carteira' : 'Adicione ativos na Bolsa';
+}
+
 // Init on load
 initDashboardCharts();
 
@@ -440,31 +461,117 @@ function deleteBudget(id) {
 //  sem jamais se afastar da realidade. Ao conectar o
 //  token brapi, os preços reais substituem tudo.
 // ══════════════════════════════════════════════
+// Catálogo de mercado: preços de referência. A POSIÇÃO do usuário
+// (qty/avgPrice) vem de _store.holdings — conta nova começa ZERADA.
 const stocksData = {
   acoes: [
-    { ticker: 'ITSA4', name: 'Itaúsa',        qty: 500, avgPrice:  9.20, price: 10.88, base: 10.88, total:  5440 },
-    { ticker: 'PETR4', name: 'Petrobras',      qty: 200, avgPrice: 35.50, price: 37.90, base: 37.90, total:  7580 },
-    { ticker: 'VALE3', name: 'Vale',           qty: 100, avgPrice: 65.00, price: 58.50, base: 58.50, total:  5850 },
-    { ticker: 'BBAS3', name: 'Banco do Brasil',qty: 150, avgPrice: 55.00, price: 24.80, base: 24.80, total:  3720 },
-    { ticker: 'WEGE3', name: 'WEG',            qty:  80, avgPrice: 38.00, price: 50.20, base: 50.20, total:  4016 },
+    { ticker: 'ITSA4', name: 'Itaúsa',           price:  10.88, base:  10.88 },
+    { ticker: 'PETR4', name: 'Petrobras',         price:  37.90, base:  37.90 },
+    { ticker: 'VALE3', name: 'Vale',              price:  58.50, base:  58.50 },
+    { ticker: 'BBAS3', name: 'Banco do Brasil',   price:  24.80, base:  24.80 },
+    { ticker: 'WEGE3', name: 'WEG',               price:  50.20, base:  50.20 },
+    { ticker: 'ITUB4', name: 'Itaú Unibanco',     price:  36.50, base:  36.50 },
+    { ticker: 'BBDC4', name: 'Bradesco',          price:  16.50, base:  16.50 },
+    { ticker: 'ABEV3', name: 'Ambev',             price:  13.20, base:  13.20 },
+    { ticker: 'B3SA3', name: 'B3',                price:  13.50, base:  13.50 },
+    { ticker: 'MGLU3', name: 'Magazine Luiza',    price:   9.80, base:   9.80 },
+    { ticker: 'RENT3', name: 'Localiza',          price:  42.00, base:  42.00 },
+    { ticker: 'PRIO3', name: 'PetroRio',          price:  44.00, base:  44.00 },
+    { ticker: 'RADL3', name: 'Raia Drogasil',     price:  21.00, base:  21.00 },
+    { ticker: 'SUZB3', name: 'Suzano',            price:  52.00, base:  52.00 },
+    { ticker: 'EMBR3', name: 'Embraer',           price:  65.00, base:  65.00 },
   ],
   fiis: [
-    { ticker: 'MXRF11', name: 'Maxi Renda',      qty: 200, avgPrice:  9.80, price:  9.98, base:  9.98, total:  1996 },
-    { ticker: 'HGLG11', name: 'CSHG Logística',  qty:  50, avgPrice:160.00, price:162.50, base:162.50, total:  8125 },
-    { ticker: 'XPML11', name: 'XP Malls',        qty: 100, avgPrice: 95.00, price: 96.40, base: 96.40, total:  9640 },
+    { ticker: 'MXRF11', name: 'Maxi Renda',        price:   9.98, base:   9.98 },
+    { ticker: 'HGLG11', name: 'CSHG Logística',    price: 162.50, base: 162.50 },
+    { ticker: 'XPML11', name: 'XP Malls',          price:  96.40, base:  96.40 },
+    { ticker: 'KNRI11', name: 'Kinea Renda Imob.', price: 145.00, base: 145.00 },
+    { ticker: 'VISC11', name: 'Vinci Shopping',    price: 105.00, base: 105.00 },
+    { ticker: 'BTLG11', name: 'BTG Logística',     price:  98.00, base:  98.00 },
+    { ticker: 'HGRE11', name: 'CSHG Real Estate',  price: 120.00, base: 120.00 },
+    { ticker: 'XPLG11', name: 'XP Log',            price: 102.00, base: 102.00 },
   ],
   crypto: [
-    { ticker: 'BTC', name: 'Bitcoin',   qty: 0.12, avgPrice: 280000, price: 580000, base: 580000, total: 69600 },
-    { ticker: 'ETH', name: 'Ethereum',  qty:  1.5, avgPrice:  12000, price:  16800, base:  16800, total: 25200 },
+    { ticker: 'BTC',  name: 'Bitcoin',    price: 580000, base: 580000 },
+    { ticker: 'ETH',  name: 'Ethereum',   price:  16800, base:  16800 },
+    { ticker: 'SOL',  name: 'Solana',     price:    950, base:    950 },
+    { ticker: 'BNB',  name: 'BNB',        price:   3300, base:   3300 },
+    { ticker: 'XRP',  name: 'XRP',        price:  12.50, base:  12.50 },
+    { ticker: 'ADA',  name: 'Cardano',    price:   4.20, base:   4.20 },
+    { ticker: 'DOGE', name: 'Dogecoin',   price:   1.10, base:   1.10 },
+    { ticker: 'DOT',  name: 'Polkadot',   price:  38.00, base:  38.00 },
   ],
   acoes_us: [
-    { ticker: 'AAPL',  name: 'Apple Inc.',       qty:  5, avgPrice: 170.00, price: 211.00, base: 211.00, total: 1055.00, currency: 'USD' },
-    { ticker: 'MSFT',  name: 'Microsoft Corp.',  qty:  3, avgPrice: 310.00, price: 425.00, base: 425.00, total: 1275.00, currency: 'USD' },
-    { ticker: 'NVDA',  name: 'NVIDIA Corp.',     qty:  4, avgPrice: 500.00, price: 135.00, base: 135.00, total:  540.00, currency: 'USD' },
-    { ticker: 'AMZN',  name: 'Amazon.com Inc.',  qty:  2, avgPrice: 150.00, price: 196.00, base: 196.00, total:  392.00, currency: 'USD' },
-    { ticker: 'TSLA',  name: 'Tesla Inc.',       qty:  6, avgPrice: 200.00, price: 248.00, base: 248.00, total: 1488.00, currency: 'USD' },
+    { ticker: 'AAPL',  name: 'Apple Inc.',        price: 211.00, base: 211.00, currency: 'USD' },
+    { ticker: 'MSFT',  name: 'Microsoft Corp.',   price: 425.00, base: 425.00, currency: 'USD' },
+    { ticker: 'NVDA',  name: 'NVIDIA Corp.',      price: 135.00, base: 135.00, currency: 'USD' },
+    { ticker: 'AMZN',  name: 'Amazon.com Inc.',   price: 196.00, base: 196.00, currency: 'USD' },
+    { ticker: 'TSLA',  name: 'Tesla Inc.',        price: 248.00, base: 248.00, currency: 'USD' },
+    { ticker: 'GOOGL', name: 'Alphabet Inc.',     price: 175.00, base: 175.00, currency: 'USD' },
+    { ticker: 'META',  name: 'Meta Platforms',    price: 560.00, base: 560.00, currency: 'USD' },
+    { ticker: 'NFLX',  name: 'Netflix Inc.',      price: 680.00, base: 680.00, currency: 'USD' },
+    { ticker: 'AMD',   name: 'AMD Inc.',          price: 160.00, base: 160.00, currency: 'USD' },
+    { ticker: 'JPM',   name: 'JPMorgan Chase',    price: 210.00, base: 210.00, currency: 'USD' },
   ],
 };
+
+// ── CARTEIRA DO USUÁRIO (editável, começa vazia) ──
+let holdings = (_store.holdings && typeof _store.holdings === 'object') ? _store.holdings : {};
+
+function applyHoldings() {
+  Object.values(stocksData).forEach(list => list.forEach(s => {
+    const h = holdings[s.ticker];
+    s.qty      = h ? h.qty : 0;
+    s.avgPrice = h ? h.avgPrice : 0;
+    s.total    = s.qty * s.price;
+  }));
+}
+applyHoldings();
+
+function editHolding(ticker) {
+  let asset = null;
+  Object.values(stocksData).forEach(list => {
+    const f = list.find(s => s.ticker === ticker);
+    if (f) asset = f;
+  });
+  if (!asset) return;
+  const cur = holdings[ticker] || { qty: 0, avgPrice: 0 };
+  const qtyStr = prompt(`Quantidade de ${ticker} que você possui:\n(0 para remover da carteira)`, cur.qty || '');
+  if (qtyStr === null) return;
+  const qty = parseFloat(String(qtyStr).replace(',', '.'));
+  if (isNaN(qty) || qty < 0) { showToast('Quantidade inválida', 'error'); return; }
+  if (qty === 0) {
+    delete holdings[ticker];
+  } else {
+    const priceStr = prompt(
+      `Preço médio de compra de ${ticker} (${asset.currency === 'USD' ? 'US$' : 'R$'}):`,
+      cur.avgPrice || asset.price.toFixed(2)
+    );
+    if (priceStr === null) return;
+    const avgPrice = parseFloat(String(priceStr).replace(',', '.'));
+    if (isNaN(avgPrice) || avgPrice <= 0) { showToast('Preço inválido', 'error'); return; }
+    holdings[ticker] = { qty, avgPrice };
+  }
+  saveStore({ holdings });
+  if (typeof cloudSave === 'function') cloudSave('holdings', holdings);
+  applyHoldings();
+  renderStocks(currentTab);
+  updateAlocacaoChart();
+  updateDashKpis();
+  showToast(qty === 0 ? `${ticker} removido da carteira` : `${ticker}: posição salva!`, 'success');
+}
+
+function portfolioTotals() {
+  const usd = marketIndices.usd?.val || 5.76;
+  const tot = { acoes: 0, fiis: 0, crypto: 0, acoes_us: 0 };
+  Object.entries(stocksData).forEach(([cat, list]) => list.forEach(s => {
+    if (!s.qty) return;
+    const v = s.qty * s.price * (s.currency === 'USD' ? usd : 1);
+    tot[cat] += v;
+  }));
+  tot.all = tot.acoes + tot.fiis + tot.crypto + tot.acoes_us;
+  return tot;
+}
 
 let currentTab = 'acoes';
 
@@ -476,16 +583,31 @@ function initStocksPage() {
     window._alocacaoChart = new Chart(ctx, {
       type: 'doughnut',
       data: {
-        labels: ['Ações', 'FIIs', 'Crypto', 'Renda Fixa'],
+        labels: ['Ações BR', 'FIIs', 'Crypto', 'Ações EUA'],
         datasets: [{
-          data: [33420, 21070, 69886, 160374],
-          backgroundColor: ['#6366f1','#10b981','#f59e0b','#8b5cf6'],
+          data: [0, 0, 0, 0],
+          backgroundColor: ['#6366f1','#10b981','#f59e0b','#06b6d4'],
           borderWidth: 0,
           hoverOffset: 8,
         }],
       },
       options: { ...doughnutOptions(), cutout: '65%' },
     });
+  }
+  updateAlocacaoChart();
+}
+
+function updateAlocacaoChart() {
+  const chart = window._alocacaoChart;
+  if (!chart) return;
+  const tot = portfolioTotals();
+  chart.data.datasets[0].data = [tot.acoes, tot.fiis, tot.crypto, tot.acoes_us];
+  chart.update('none');
+  const card = document.querySelector('.portfolio-chart-card h3');
+  if (card) {
+    card.textContent = tot.all > 0
+      ? `Alocação — R$ ${Math.round(tot.all).toLocaleString('pt-BR')}`
+      : 'Alocação da Carteira (vazia)';
   }
 }
 
@@ -495,7 +617,9 @@ function renderStocks(tab) {
   const body = document.getElementById('stocksBody');
   const query = (document.getElementById('stockSearch')?.value || '').toLowerCase();
   body.innerHTML = data.map(s => {
-    const rentab = ((s.price - s.avgPrice) / s.avgPrice * 100);
+    const owned = s.qty > 0;
+    const cur = s.currency === 'USD' ? 'US$' : 'R$';
+    const rentab = owned && s.avgPrice > 0 ? ((s.price - s.avgPrice) / s.avgPrice * 100) : 0;
     const rentabClass = rentab >= 0 ? 'positive' : 'negative';
     const rentabSign = rentab >= 0 ? '+' : '';
     const prevP = _prevRow[s.ticker];
@@ -503,17 +627,23 @@ function renderStocks(tab) {
     _prevRow[s.ticker] = s.price;
     const hidden = query && !`${s.ticker} ${s.name}`.toLowerCase().includes(query) ? ' style="display:none"' : '';
     return `
-    <tr${hidden}>
+    <tr${hidden}${owned ? ' class="row-owned"' : ''}>
       <td>
         <div class="asset-name">${s.ticker}${s.live ? ' <span class="live-tag">●</span>' : ''}</div>
         <div class="asset-desc">${s.name}</div>
       </td>
-      <td>${s.qty.toLocaleString('pt-BR')}</td>
-      <td>${s.currency === 'USD' ? 'US$' : 'R$'} ${s.avgPrice.toLocaleString('pt-BR', {minimumFractionDigits:2})}</td>
-      <td class="${tickCls}">${s.currency === 'USD' ? 'US$' : 'R$'} ${s.price.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2})}</td>
-      <td class="${rentabClass}">${rentabSign}${rentab.toFixed(2)}%</td>
-      <td>R$ ${s.total.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2})}</td>
-      <td><span class="tag ${rentab >= 0 ? 'green' : 'red'}">${rentabSign}${rentab.toFixed(1)}%</span></td>
+      <td>${owned ? s.qty.toLocaleString('pt-BR') : '—'}</td>
+      <td>${owned ? cur + ' ' + s.avgPrice.toLocaleString('pt-BR', {minimumFractionDigits:2}) : '—'}</td>
+      <td class="${tickCls}">${cur} ${s.price.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2})}</td>
+      <td class="${owned ? rentabClass : ''}">${owned ? rentabSign + rentab.toFixed(2) + '%' : '—'}</td>
+      <td>${owned ? cur + ' ' + s.total.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2}) : '—'}</td>
+      <td>
+        <button class="btn-edit-holding" onclick="editHolding('${s.ticker}')" title="${owned ? 'Editar posição' : 'Adicionar à carteira'}">
+          ${owned
+            ? '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>'
+            : '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>'}
+        </button>
+      </td>
     </tr>`;
   }).join('');
 }
@@ -586,23 +716,29 @@ function ouWalk(val, base, theta, sigma) {
 
 function touchUpdate() { liveState.lastUpdate = Date.now(); }
 
+const CRYPTO_IDS = {
+  bitcoin: 'BTC', ethereum: 'ETH', solana: 'SOL', binancecoin: 'BNB',
+  ripple: 'XRP', cardano: 'ADA', dogecoin: 'DOGE', polkadot: 'DOT',
+};
+
 async function fetchCrypto() {
   try {
-    const r = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=brl&include_24hr_change=true');
+    const ids = Object.keys(CRYPTO_IDS).join(',');
+    const r = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=brl&include_24hr_change=true`);
     if (!r.ok) throw new Error(r.status);
     const d = await r.json();
-    if (d.bitcoin?.brl) {
-      marketIndices.btc.val  = d.bitcoin.brl;
-      marketIndices.btc.base = d.bitcoin.brl;
-      if (typeof d.bitcoin.brl_24h_change === 'number') marketIndices.btc.chg = d.bitcoin.brl_24h_change;
-      marketIndices.btc.live = true;
-      const btc = stocksData.crypto.find(c => c.ticker === 'BTC');
-      if (btc) { btc.price = d.bitcoin.brl; btc.base = d.bitcoin.brl; btc.total = btc.qty * btc.price; btc.live = true; }
-    }
-    if (d.ethereum?.brl) {
-      const eth = stocksData.crypto.find(c => c.ticker === 'ETH');
-      if (eth) { eth.price = d.ethereum.brl; eth.base = d.ethereum.brl; eth.total = eth.qty * eth.price; eth.live = true; }
-    }
+    Object.entries(CRYPTO_IDS).forEach(([id, ticker]) => {
+      const q = d[id];
+      if (!q?.brl) return;
+      const c = stocksData.crypto.find(x => x.ticker === ticker);
+      if (c) { c.price = q.brl; c.base = q.brl; c.total = c.qty * c.price; c.live = true; }
+      if (ticker === 'BTC') {
+        marketIndices.btc.val  = q.brl;
+        marketIndices.btc.base = q.brl;
+        if (typeof q.brl_24h_change === 'number') marketIndices.btc.chg = q.brl_24h_change;
+        marketIndices.btc.live = true;
+      }
+    });
     touchUpdate();
   } catch (e) { /* sem rede/limite — simulação continua */ }
   setSourceLabel();
@@ -684,7 +820,11 @@ async function fetchYahooViaProxy(ticker) {
 // Busca B3 sem precisar de token: tenta brapi público → Yahoo Finance via proxy
 async function fetchB3() {
   const token = localStorage.getItem('brapiToken');
-  const tickers = ['ITSA4', 'PETR4', 'VALE3', 'BBAS3', 'WEGE3', 'MXRF11', 'HGLG11', 'XPML11', '^BVSP'];
+  const tickers = [
+    ...stocksData.acoes.map(s => s.ticker),
+    ...stocksData.fiis.map(s => s.ticker),
+    '^BVSP',
+  ];
 
   // 1) brapi.dev com token (prioridade máxima)
   if (token) {
@@ -842,7 +982,8 @@ function renderLive() {
     }
   });
   const stocksPage = document.getElementById('stocks');
-  if (stocksPage?.classList.contains('active')) renderStocks(currentTab);
+  if (stocksPage?.classList.contains('active')) { renderStocks(currentTab); updateAlocacaoChart(); }
+  updateDashKpis();
 }
 
 function flashEl(el, cls) {
@@ -1076,8 +1217,10 @@ document.getElementById('savePersonal')?.addEventListener('click', () => {
     income: document.getElementById('pfIncome').value,
   };
   saveStore({ profile: data });
+  Object.assign(_store, { profile: data });
   cloudSave('profile', data);
   refreshProfileUI(data);
+  updateDashKpis();
   showToast('Perfil salvo na nuvem!', 'success');
 });
 
@@ -1171,6 +1314,7 @@ document.querySelectorAll('.modal-backdrop').forEach(bd => {
 
 // Start live market engine
 startLiveMarket();
+updateDashKpis();
 
 // ══════════════════════════════════════════════
 //  FIREBASE CLOUD SYNC
