@@ -1,8 +1,17 @@
 <!-- ════════════════════════════════════════════════════════════════
   FinanceOS — Site de Finanças Pessoais (arquivo único)
   Cole TUDO no painel HTML do CodePen (ou salve como .html e abra).
-  Bolsa em tempo real: cripto (CoinGecko) e câmbio (AwesomeAPI) sem
-  chave; B3 real com token gratuito do brapi.dev (botão na página).
+
+  PERSISTÊNCIA EM NUVEM:
+  Clique em "☁ Nuvem" no topo do app e siga os 5 passos para
+  conectar seu Firebase Realtime Database gratuito. Todos os dados
+  (metas, orçamentos, perfil) ficam salvos em tempo real na nuvem
+  e sincronizados entre dispositivos.
+
+  BOLSA EM TEMPO REAL:
+  · Cripto (BTC/ETH): CoinGecko — sem chave, funciona na hora
+  · Câmbio (USD/BRL): AwesomeAPI — sem chave, funciona na hora
+  · B3 (ações/FIIs):  brapi.dev — token gratuito, botão na página
 ═════════════════════════════════════════════════════════════════ -->
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
@@ -1533,6 +1542,52 @@ body {
   cursor: pointer;
 }
 
+/* ── CLOUD MODAL ── */
+.cloud-steps { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+.cs-step { display: flex; align-items: flex-start; gap: 12px; font-size: 13px; color: var(--text-2); }
+.cs-num {
+  width: 22px; height: 22px; border-radius: 50%;
+  background: rgba(99,102,241,0.2); border: 1px solid rgba(99,102,241,0.4);
+  color: #a5b4fc; font-size: 11px; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; margin-top: 1px;
+}
+.cs-step strong { color: var(--text); }
+.cs-step code { background: rgba(255,255,255,0.07); border-radius: 4px; padding: 1px 6px; font-size: 12px; }
+.code-block {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 12px 14px;
+  font-size: 12px; color: #10b981; font-family: monospace;
+  white-space: pre; overflow-x: auto; margin-top: 6px;
+}
+.form-group textarea {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 10px 14px;
+  color: #a5b4fc; font-size: 12px; font-family: monospace;
+  outline: none; resize: vertical; width: 100%;
+  transition: border-color 0.2s;
+}
+.form-group textarea:focus { border-color: rgba(99,102,241,0.5); }
+.cloud-status-row { margin-top: 8px; }
+.cloud-status-msg { font-size: 13px; font-weight: 600; }
+.cloud-status-msg.ok  { color: var(--green); }
+.cloud-status-msg.err { color: var(--red); }
+.btn-sm.cloud-online { border-color: rgba(16,185,129,0.5); color: var(--green); }
+.btn-sm.cloud-error  { border-color: rgba(239,68,68,0.4); color: var(--red); }
+
+/* ── DELETE BUTTON ── */
+.card-del {
+  background: none; border: none; cursor: pointer;
+  color: var(--text-3); font-size: 12px; font-weight: 700;
+  width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.2s, color 0.2s;
+}
+.card-del:hover { background: rgba(239,68,68,0.15); color: var(--red); }
+.goal-head-right { display: flex; align-items: center; gap: 8px; }
+.budget-item { grid-template-columns: 48px 1fr auto auto; }
+
 /* ── TOAST ── */
 .toast {
   position: fixed;
@@ -2013,11 +2068,12 @@ body.in-app #appView { display: block; }
   </button>
   <div class="topbar-title" id="pageTitle">Dashboard</div>
   <div class="topbar-actions">
+    <button class="btn-sm" id="cloudBtn" onclick="openCloudModal()" title="Salvar dados na nuvem via Firebase">☁ Nuvem</button>
     <button class="icon-btn" title="Notificações">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
       <span class="notif-dot"></span>
     </button>
-    <div class="topbar-date">Seg, 9 Jun 2026</div>
+    <div class="topbar-date" id="topbarDate"></div>
   </div>
 </header>
 
@@ -2028,7 +2084,7 @@ body.in-app #appView { display: block; }
   <section class="page active" id="dashboard">
     <div class="page-header">
       <div>
-        <h1>Bom dia, João! 👋</h1>
+        <h1 id="dashGreeting">Bom dia! 👋</h1>
         <p class="page-sub">Aqui está o resumo financeiro de hoje.</p>
       </div>
       <div class="page-header-actions">
@@ -2226,20 +2282,20 @@ body.in-app #appView { display: block; }
 
     <div class="goals-summary">
       <div class="goal-stat">
-        <span class="gs-value">6</span>
+        <span class="gs-value" id="gsTotal">0</span>
         <span class="gs-label">Total de Metas</span>
       </div>
       <div class="goal-stat">
-        <span class="gs-value" style="color:#10b981">2</span>
+        <span class="gs-value" style="color:#10b981" id="gsDone">0</span>
         <span class="gs-label">Concluídas</span>
       </div>
       <div class="goal-stat">
-        <span class="gs-value" style="color:#6366f1">3</span>
+        <span class="gs-value" style="color:#6366f1" id="gsProgress">0</span>
         <span class="gs-label">Em Progresso</span>
       </div>
       <div class="goal-stat">
-        <span class="gs-value" style="color:#f59e0b">1</span>
-        <span class="gs-label">Atrasada</span>
+        <span class="gs-value" style="color:#f59e0b" id="gsLate">0</span>
+        <span class="gs-label">Atrasadas</span>
       </div>
     </div>
 
@@ -2264,21 +2320,21 @@ body.in-app #appView { display: block; }
     <div class="budget-overview">
       <div class="bo-card">
         <div class="bo-label">Orçamento Total</div>
-        <div class="bo-value">R$ 10.000</div>
+        <div class="bo-value" id="boTotal">R$ 0</div>
         <div class="bo-bar-wrap">
-          <div class="bo-bar"><div class="bo-fill" style="width:74.2%; background:linear-gradient(90deg,#6366f1,#8b5cf6)"></div></div>
+          <div class="bo-bar"><div class="bo-fill" id="boFill" style="width:0%; background:linear-gradient(90deg,#6366f1,#8b5cf6)"></div></div>
         </div>
-        <div class="bo-sub">R$ 7.420 utilizados de R$ 10.000</div>
+        <div class="bo-sub" id="boTotalSub">—</div>
       </div>
       <div class="bo-card">
         <div class="bo-label">Saldo Disponível</div>
-        <div class="bo-value" style="color:#10b981">R$ 2.580</div>
-        <div class="bo-sub">25,8% do orçamento restante</div>
+        <div class="bo-value" style="color:#10b981" id="boSaldo">R$ 0</div>
+        <div class="bo-sub" id="boSaldoSub">—</div>
       </div>
       <div class="bo-card">
         <div class="bo-label">Maior Gasto</div>
-        <div class="bo-value">Moradia</div>
-        <div class="bo-sub">R$ 2.200 — 22% do total</div>
+        <div class="bo-value" id="boTop">—</div>
+        <div class="bo-sub" id="boTopSub">—</div>
       </div>
     </div>
 
@@ -2480,9 +2536,9 @@ body.in-app #appView { display: block; }
         <!-- PERSONAL -->
         <div class="profile-tab active" id="tab-personal">
           <div class="profile-avatar-section">
-            <div class="profile-avatar-big">JG</div>
+            <div class="profile-avatar-big" id="pfAvatarBig">JG</div>
             <div>
-              <h3>João Gustavo</h3>
+              <h3 id="pfDisplayName">João Gustavo</h3>
               <p>membro Pro desde Jan/2025</p>
               <button class="btn-sm">Alterar foto</button>
             </div>
@@ -2490,37 +2546,37 @@ body.in-app #appView { display: block; }
           <div class="form-grid-2">
             <div class="form-group">
               <label>Nome completo</label>
-              <input type="text" value="João Gustavo" />
+              <input type="text" id="pfName" value="João Gustavo" />
             </div>
             <div class="form-group">
               <label>Email</label>
-              <input type="email" value="jgg190310@gmail.com" />
+              <input type="email" id="pfEmail" value="jgg190310@gmail.com" />
             </div>
             <div class="form-group">
               <label>CPF</label>
-              <input type="text" value="123.456.789-00" />
+              <input type="text" id="pfCpf" placeholder="000.000.000-00" />
             </div>
             <div class="form-group">
               <label>Telefone</label>
-              <input type="tel" value="+55 (11) 99999-0000" />
+              <input type="tel" id="pfPhone" placeholder="+55 (00) 00000-0000" />
             </div>
             <div class="form-group">
               <label>Data de nascimento</label>
-              <input type="date" value="2003-01-03" />
+              <input type="date" id="pfBirth" />
             </div>
             <div class="form-group">
               <label>Ocupação</label>
-              <input type="text" value="Desenvolvedor de Software" />
+              <input type="text" id="pfJob" placeholder="Sua profissão" />
             </div>
             <div class="form-group full">
               <label>Renda Mensal Bruta</label>
               <div class="input-wrap">
                 <span class="input-prefix">R$</span>
-                <input type="number" value="12800" />
+                <input type="number" id="pfIncome" placeholder="0" />
               </div>
             </div>
           </div>
-          <button class="btn-save">Salvar Alterações</button>
+          <button class="btn-save" id="savePersonal">Salvar Alterações</button>
         </div>
 
         <!-- INVESTOR -->
@@ -2568,7 +2624,7 @@ body.in-app #appView { display: block; }
               <span id="intVal">5%</span>
             </div>
           </div>
-          <button class="btn-save">Salvar Perfil</button>
+          <button class="btn-save" id="saveInvestor">Salvar Perfil</button>
         </div>
 
         <!-- SECURITY -->
@@ -2786,6 +2842,73 @@ body.in-app #appView { display: block; }
   </div>
 </div>
 
+<!-- MODAL CLOUD -->
+<div class="modal-backdrop" id="cloudModal">
+  <div class="modal" style="max-width:580px">
+    <div class="modal-header">
+      <h3>☁ Salvar na Nuvem (Firebase)</h3>
+      <button class="modal-close" onclick="closeModal('cloudModal')">✕</button>
+    </div>
+    <div class="cloud-setup">
+      <div class="cloud-steps">
+        <div class="cs-step">
+          <span class="cs-num">1</span>
+          <span>Acesse <strong>console.firebase.google.com</strong> e crie um projeto gratuito</span>
+        </div>
+        <div class="cs-step">
+          <span class="cs-num">2</span>
+          <span>Em <strong>Realtime Database</strong>, crie o banco e copie a URL (termina em <code>.firebaseio.com</code>)</span>
+        </div>
+        <div class="cs-step">
+          <span class="cs-num">3</span>
+          <span>Em <strong>Configurações &gt; Seus apps</strong>, copie o trecho <code>firebaseConfig</code> e cole abaixo</span>
+        </div>
+        <div class="cs-step">
+          <span class="cs-num">4</span>
+          <span>Em <strong>Authentication &gt; Sign-in method</strong>, ative <strong>Anônimo</strong></span>
+        </div>
+        <div class="cs-step">
+          <span class="cs-num">5</span>
+          <span>Em <strong>Realtime Database &gt; Regras</strong>, cole as regras abaixo e publique</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Regras do Realtime Database (copie e cole no Firebase)</label>
+        <pre class="code-block">{
+  "rules": {
+    "users": {
+      "$uid": {
+        ".read": "$uid === auth.uid",
+        ".write": "$uid === auth.uid"
+      }
+    }
+  }
+}</pre>
+      </div>
+      <div class="form-group">
+        <label>Cole aqui o objeto <code>firebaseConfig</code> completo</label>
+        <textarea id="fbConfigInput" rows="8" placeholder='{
+  "apiKey": "AIza...",
+  "authDomain": "meu-projeto.firebaseapp.com",
+  "databaseURL": "https://meu-projeto-default-rtdb.firebaseio.com",
+  "projectId": "meu-projeto",
+  "storageBucket": "meu-projeto.appspot.com",
+  "messagingSenderId": "123456789",
+  "appId": "1:123:web:abc"
+}'></textarea>
+      </div>
+      <div class="cloud-status-row">
+        <div id="cloudStatusMsg" class="cloud-status-msg"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('cloudModal')">Fechar</button>
+      <button class="btn-cancel" onclick="cloudDisconnect()" style="color:#ef4444;border-color:rgba(239,68,68,0.3)">Desconectar</button>
+      <button class="btn-confirm" onclick="connectCloud()">Conectar à nuvem</button>
+    </div>
+  </div>
+</div>
+
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
 
@@ -2795,6 +2918,26 @@ body.in-app #appView { display: block; }
 
 <script>
 'use strict';
+
+// ══════════════════════════════════════════════
+//  PERSISTENCE — tudo salvo no localStorage
+// ══════════════════════════════════════════════
+const STORE_KEY = 'financeos-store';
+
+function loadStore() {
+  try { return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; }
+  catch (e) { return {}; }
+}
+
+function saveStore(patch) {
+  try {
+    const s = loadStore();
+    Object.assign(s, patch);
+    localStorage.setItem(STORE_KEY, JSON.stringify(s));
+  } catch (e) { /* storage indisponível — segue sem persistir */ }
+}
+
+const _store = loadStore();
 
 // ══════════════════════════════════════════════
 //  NAVIGATION
@@ -2962,29 +3105,36 @@ function doughnutOptions() {
   };
 }
 
-// (dashboard charts inicializam em enterApp)
+// (charts init via enterApp)
 
 // ══════════════════════════════════════════════
 //  GOALS
 // ══════════════════════════════════════════════
-let goals = [
-  { id: 1, name: 'Viagem para Europa', icon: '✈️', color: '#6366f1', target: 15000, current: 10200, deadline: '2026-12-01', status: 'on-track' },
-  { id: 2, name: 'Casa Própria', icon: '🏠', color: '#10b981', target: 150000, current: 48000, deadline: '2030-06-01', status: 'on-track' },
-  { id: 3, name: 'Reserva de Emergência', icon: '💰', color: '#f59e0b', target: 50000, current: 50000, deadline: '2025-12-01', status: 'done' },
-  { id: 4, name: 'Carro Novo', icon: '🚗', color: '#8b5cf6', target: 80000, current: 12000, deadline: '2026-09-01', status: 'late' },
-  { id: 5, name: 'MBA Internacional', icon: '📚', color: '#ef4444', target: 30000, current: 30000, deadline: '2025-08-01', status: 'done' },
-  { id: 6, name: 'Casamento', icon: '💍', color: '#06b6d4', target: 40000, current: 18000, deadline: '2027-04-01', status: 'on-track' },
+const defaultGoals = [
+  { id: 1, name: 'Viagem para Europa', icon: '✈️', color: '#6366f1', target: 15000, current: 10200, deadline: '2026-12-01' },
+  { id: 2, name: 'Casa Própria', icon: '🏠', color: '#10b981', target: 150000, current: 48000, deadline: '2030-06-01' },
+  { id: 3, name: 'Reserva de Emergência', icon: '💰', color: '#f59e0b', target: 50000, current: 50000, deadline: '2025-12-01' },
+  { id: 4, name: 'Carro Novo', icon: '🚗', color: '#8b5cf6', target: 80000, current: 12000, deadline: '2026-09-01' },
+  { id: 5, name: 'MBA Internacional', icon: '📚', color: '#ef4444', target: 30000, current: 30000, deadline: '2025-08-01' },
+  { id: 6, name: 'Casamento', icon: '💍', color: '#06b6d4', target: 40000, current: 18000, deadline: '2027-04-01' },
 ];
+let goals = Array.isArray(_store.goals) ? _store.goals : defaultGoals;
+
+function goalStatus(g) {
+  if (g.current >= g.target) return 'done';
+  return new Date(g.deadline) < new Date() ? 'late' : 'on-track';
+}
 
 function renderGoals() {
   const grid = document.getElementById('goalsGrid');
   grid.innerHTML = goals.map(g => {
+    const status = goalStatus(g);
     const pct = Math.min(100, Math.round((g.current / g.target) * 100));
     const remaining = Math.max(0, g.target - g.current);
     const deadline = new Date(g.deadline);
     const monthsLeft = Math.max(1, Math.ceil((deadline - Date.now()) / (1000 * 60 * 60 * 24 * 30)));
     const monthly = (remaining / monthsLeft).toFixed(0);
-    const statusLabel = { 'on-track': 'No prazo', late: 'Atrasada', done: 'Concluída' }[g.status];
+    const statusLabel = { 'on-track': 'No prazo', late: 'Atrasada', done: 'Concluída' }[status];
     return `
     <div class="goal-card">
       <div class="goal-card-header">
@@ -2995,7 +3145,10 @@ function renderGoals() {
             <div class="goal-deadline">Meta: ${deadline.toLocaleDateString('pt-BR',{month:'short',year:'numeric'})}</div>
           </div>
         </div>
-        <span class="goal-status ${g.status}">${statusLabel}</span>
+        <div class="goal-head-right">
+          <span class="goal-status ${status}">${statusLabel}</span>
+          <button class="card-del" onclick="deleteGoal(${g.id})" title="Excluir meta">✕</button>
+        </div>
       </div>
       <div class="goal-values">
         <span class="gv-current">R$ ${g.current.toLocaleString('pt-BR')}</span>
@@ -3013,6 +3166,14 @@ function renderGoals() {
       </div>
     </div>`;
   }).join('');
+
+  // resumo calculado dos dados reais
+  const done = goals.filter(g => goalStatus(g) === 'done').length;
+  const late = goals.filter(g => goalStatus(g) === 'late').length;
+  document.getElementById('gsTotal').textContent = goals.length;
+  document.getElementById('gsDone').textContent = done;
+  document.getElementById('gsProgress').textContent = goals.length - done - late;
+  document.getElementById('gsLate').textContent = late;
 }
 
 renderGoals();
@@ -3028,16 +3189,29 @@ function addGoal() {
   const icon = document.getElementById('goalIcon').value;
   const color = document.getElementById('goalColor').value;
   if (!name || !target || !deadline) { showToast('Preencha todos os campos', 'error'); return; }
-  goals.push({ id: Date.now(), name, icon, color, target, current, deadline, status: 'on-track' });
+  goals.push({ id: Date.now(), name, icon, color, target, current, deadline });
+  saveStore({ goals });
   renderGoals();
   closeModal('goalModal');
-  showToast('Meta criada com sucesso!', 'success');
+  document.getElementById('goalName').value = '';
+  document.getElementById('goalTarget').value = '';
+  document.getElementById('goalCurrent').value = '';
+  document.getElementById('goalDeadline').value = '';
+  showToast('Meta criada e salva!', 'success');
+}
+function deleteGoal(id) {
+  const g = goals.find(x => x.id === id);
+  if (!g || !confirm(`Excluir a meta "${g.name}"?`)) return;
+  goals = goals.filter(x => x.id !== id);
+  saveStore({ goals });
+  renderGoals();
+  showToast('Meta excluída');
 }
 
 // ══════════════════════════════════════════════
 //  BUDGETS
 // ══════════════════════════════════════════════
-let budgets = [
+const defaultBudgets = [
   { id: 1, name: 'Moradia', icon: '🏠', color: '#6366f1', limit: 2500, spent: 2200 },
   { id: 2, name: 'Alimentação', icon: '🍔', color: '#10b981', limit: 1500, spent: 1200 },
   { id: 3, name: 'Transporte', icon: '🚗', color: '#f59e0b', limit: 1000, spent: 800 },
@@ -3045,6 +3219,7 @@ let budgets = [
   { id: 5, name: 'Saúde', icon: '💊', color: '#8b5cf6', limit: 600, spent: 200 },
   { id: 6, name: 'Educação', icon: '📚', color: '#06b6d4', limit: 800, spent: 36 },
 ];
+let budgets = Array.isArray(_store.budgets) ? _store.budgets : defaultBudgets;
 
 function renderBudgets() {
   const list = document.getElementById('budgetsList');
@@ -3067,8 +3242,25 @@ function renderBudgets() {
         <div class="ba-spent" style="color:${barColor}">R$ ${b.spent.toLocaleString('pt-BR')}</div>
         <div class="ba-limit">de R$ ${b.limit.toLocaleString('pt-BR')}</div>
       </div>
+      <button class="card-del" onclick="deleteBudget(${b.id})" title="Excluir orçamento">✕</button>
     </div>`;
   }).join('');
+
+  // visão geral calculada dos dados reais
+  const totalLimit = budgets.reduce((s, b) => s + b.limit, 0);
+  const totalSpent = budgets.reduce((s, b) => s + b.spent, 0);
+  const pctUsed = totalLimit ? (totalSpent / totalLimit) * 100 : 0;
+  const top = budgets.reduce((m, b) => (b.spent > (m?.spent || 0) ? b : m), null);
+  document.getElementById('boTotal').textContent = `R$ ${totalLimit.toLocaleString('pt-BR')}`;
+  document.getElementById('boFill').style.width = `${Math.min(100, pctUsed).toFixed(1)}%`;
+  document.getElementById('boTotalSub').textContent =
+    `R$ ${totalSpent.toLocaleString('pt-BR')} utilizados de R$ ${totalLimit.toLocaleString('pt-BR')}`;
+  document.getElementById('boSaldo').textContent = `R$ ${Math.max(0, totalLimit - totalSpent).toLocaleString('pt-BR')}`;
+  document.getElementById('boSaldoSub').textContent = `${Math.max(0, 100 - pctUsed).toFixed(1).replace('.', ',')}% do orçamento restante`;
+  document.getElementById('boTop').textContent = top ? top.name : '—';
+  document.getElementById('boTopSub').textContent = top
+    ? `R$ ${top.spent.toLocaleString('pt-BR')} — ${totalSpent ? Math.round((top.spent / totalSpent) * 100) : 0}% do total`
+    : '—';
 }
 
 renderBudgets();
@@ -3084,9 +3276,21 @@ function addBudget() {
   const color = document.getElementById('budgetColor').value;
   if (!name || !limit) { showToast('Preencha todos os campos', 'error'); return; }
   budgets.push({ id: Date.now(), name, icon, color, limit, spent });
+  saveStore({ budgets });
   renderBudgets();
   closeModal('budgetModal');
-  showToast('Orçamento criado!', 'success');
+  document.getElementById('budgetName').value = '';
+  document.getElementById('budgetLimit').value = '';
+  document.getElementById('budgetSpent').value = '';
+  showToast('Orçamento criado e salvo!', 'success');
+}
+function deleteBudget(id) {
+  const b = budgets.find(x => x.id === id);
+  if (!b || !confirm(`Excluir o orçamento "${b.name}"?`)) return;
+  budgets = budgets.filter(x => x.id !== id);
+  saveStore({ budgets });
+  renderBudgets();
+  showToast('Orçamento excluído');
 }
 
 // ══════════════════════════════════════════════
@@ -3501,6 +3705,8 @@ function calcInvestment() {
   });
 }
 
+calcInvestment();
+
 // ══════════════════════════════════════════════
 //  PROFILE TABS
 // ══════════════════════════════════════════════
@@ -3550,9 +3756,96 @@ function showToast(msg, type = '') {
   setTimeout(() => toast.classList.remove('show'), 3000);
 }
 
-// Save buttons feedback
-document.querySelectorAll('.btn-save').forEach(btn => {
-  btn.addEventListener('click', () => showToast('Alterações salvas com sucesso!', 'success'));
+// Profile — personal data
+document.getElementById('savePersonal')?.addEventListener('click', () => {
+  const data = {
+    name:   document.getElementById('pfName').value.trim(),
+    email:  document.getElementById('pfEmail').value.trim(),
+    cpf:    document.getElementById('pfCpf').value.trim(),
+    phone:  document.getElementById('pfPhone').value.trim(),
+    birth:  document.getElementById('pfBirth').value,
+    job:    document.getElementById('pfJob').value.trim(),
+    income: document.getElementById('pfIncome').value,
+  };
+  saveStore({ profile: data });
+  cloudSave('profile', data);
+  refreshProfileUI(data);
+  showToast('Perfil salvo na nuvem!', 'success');
+});
+
+// Profile — investor profile
+document.getElementById('saveInvestor')?.addEventListener('click', () => {
+  const investor = {
+    profile: document.querySelector('.ip-card.active')?.dataset.profile || 'moderado',
+    alloc: {
+      rf:  document.getElementById('rfRange').value,
+      rv:  document.getElementById('rvRange').value,
+      fii: document.getElementById('fiiRange').value,
+      int: document.getElementById('intRange').value,
+    },
+  };
+  saveStore({ investor });
+  cloudSave('investor', investor);
+  showToast('Perfil de investidor salvo na nuvem!', 'success');
+});
+
+function refreshProfileUI(data) {
+  if (!data) return;
+  const name = data.name || 'Usuário';
+  const initials = name.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase() || 'U';
+  const greet = document.getElementById('dashGreeting');
+  if (greet) greet.textContent = `Bom dia, ${name.split(' ')[0]}! 👋`;
+  ['pfAvatarBig','pfAvatarBig'].forEach(() => {});
+  const big = document.getElementById('pfAvatarBig');
+  const dn  = document.getElementById('pfDisplayName');
+  const ua  = document.querySelector('.user-avatar');
+  const un  = document.querySelector('.user-name');
+  if (big) big.textContent = initials;
+  if (dn)  dn.textContent  = name;
+  if (ua)  ua.textContent  = initials;
+  if (un)  un.textContent  = name;
+  const map = { pfName:'name', pfEmail:'email', pfCpf:'cpf', pfPhone:'phone', pfBirth:'birth', pfJob:'job', pfIncome:'income' };
+  Object.entries(map).forEach(([id, key]) => {
+    const el = document.getElementById(id);
+    if (el && data[key] !== undefined) el.value = data[key];
+  });
+}
+
+function restoreInvestorUI(investor) {
+  if (!investor) return;
+  document.querySelectorAll('.ip-card').forEach(c => { c.classList.remove('active'); c.querySelector('.ip-current')?.remove(); });
+  const active = document.querySelector(`.ip-card[data-profile="${investor.profile}"]`);
+  if (active) {
+    active.classList.add('active');
+    const b = document.createElement('div');
+    b.className = 'ip-current'; b.textContent = 'Perfil atual';
+    active.appendChild(b);
+  }
+  if (investor.alloc) {
+    ['rf','rv','fii','int'].forEach(k => {
+      const r = document.getElementById(`${k}Range`);
+      const v = document.getElementById(`${k}Val`);
+      if (r && investor.alloc[k] !== undefined) { r.value = investor.alloc[k]; if (v) v.textContent = investor.alloc[k] + '%'; }
+    });
+  }
+}
+
+refreshProfileUI(_store.profile);
+restoreInvestorUI(_store.investor);
+
+// Notification + security toggles — save state
+document.querySelectorAll('.notif-item .toggle-wrap, .so-row .toggle-wrap').forEach((tw, i) => {
+  const key = `toggle_${i}`;
+  if (_store[key] === 'on')  tw.classList.add('on');
+  if (_store[key] === 'off') tw.classList.remove('on');
+  tw.addEventListener('click', () => {
+    saveStore({ [key]: tw.classList.contains('on') ? 'on' : 'off' });
+    const snap = Object.fromEntries(
+      [...document.querySelectorAll('.notif-item .toggle-wrap, .so-row .toggle-wrap')]
+        .map((t, j) => [`toggle_${j}`, t.classList.contains('on') ? 'on' : 'off'])
+    );
+    cloudSave('toggles', snap);
+  });
 });
 
 // Close modals on backdrop click
@@ -3565,6 +3858,183 @@ document.querySelectorAll('.modal-backdrop').forEach(bd => {
 // Start live market engine
 startLiveMarket();
 
+// ══════════════════════════════════════════════
+//  FIREBASE CLOUD SYNC
+//  Usa Firebase Realtime Database (plano Spark
+//  gratuito). Cada usuário acessa /users/{uid}/.
+//  Configuração via botão "☁ Nuvem" no topo.
+// ══════════════════════════════════════════════
+let _db = null;     // firebase database ref
+let _uid = null;    // user id (anônimo ou email/senha)
+let _syncTimer = null;
+
+const FB_SDK = 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js';
+const FB_DB  = 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js';
+const FB_AUTH= 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js';
+
+function loadScript(src) {
+  return new Promise((res, rej) => {
+    if (document.querySelector(`script[src="${src}"]`)) { res(); return; }
+    const s = document.createElement('script');
+    s.src = src; s.onload = res; s.onerror = rej;
+    document.head.appendChild(s);
+  });
+}
+
+async function initFirebase(config) {
+  try {
+    await loadScript(FB_SDK);
+    await loadScript(FB_DB);
+    await loadScript(FB_AUTH);
+    if (!firebase.apps.length) firebase.initializeApp(config);
+    const auth = firebase.auth();
+    // login anônimo — nenhum dado pessoal necessário
+    let user = auth.currentUser;
+    if (!user) {
+      const cred = await auth.signInAnonymously();
+      user = cred.user;
+    }
+    _uid = user.uid;
+    _db = firebase.database();
+    saveStore({ fbConfig: config, fbUid: _uid });
+    cloudPull(); // carrega dados salvos na nuvem
+    setCloudStatus('online');
+    showToast('Nuvem conectada! Dados sincronizando…', 'success');
+  } catch (e) {
+    setCloudStatus('error');
+    showToast('Erro ao conectar: ' + e.message, 'error');
+    console.error('Firebase init error:', e);
+  }
+}
+
+function cloudRef(path) {
+  if (!_db || !_uid) return null;
+  return _db.ref(`users/${_uid}/${path}`);
+}
+
+function cloudSave(path, data) {
+  const ref = cloudRef(path);
+  if (!ref) return;
+  ref.set(data).catch(e => console.warn('cloudSave error:', e));
+}
+
+function cloudPull() {
+  if (!_db || !_uid) return;
+  const ref = _db.ref(`users/${_uid}`);
+  ref.once('value').then(snap => {
+    const remote = snap.val();
+    if (!remote) return;
+    // metas
+    if (Array.isArray(remote.goals)) {
+      goals = remote.goals;
+      saveStore({ goals });
+      renderGoals();
+    }
+    // orçamentos
+    if (Array.isArray(remote.budgets)) {
+      budgets = remote.budgets;
+      saveStore({ budgets });
+      renderBudgets();
+    }
+    // perfil
+    if (remote.profile) {
+      saveStore({ profile: remote.profile });
+      refreshProfileUI(remote.profile);
+    }
+    if (remote.investor) {
+      saveStore({ investor: remote.investor });
+      restoreInvestorUI(remote.investor);
+    }
+    showToast('Dados sincronizados da nuvem!', 'success');
+  }).catch(e => console.warn('cloudPull error:', e));
+}
+
+// sincronização em tempo real: escuta mudanças remotas (multi-dispositivo)
+function cloudListen() {
+  if (!_db || !_uid) return;
+  _db.ref(`users/${_uid}/goals`).on('value', snap => {
+    const v = snap.val();
+    if (Array.isArray(v)) { goals = v; saveStore({ goals }); renderGoals(); }
+  });
+  _db.ref(`users/${_uid}/budgets`).on('value', snap => {
+    const v = snap.val();
+    if (Array.isArray(v)) { budgets = v; saveStore({ budgets }); renderBudgets(); }
+  });
+}
+
+function setCloudStatus(status) {
+  const btn = document.getElementById('cloudBtn');
+  if (!btn) return;
+  const map = {
+    offline: { text: '☁ Nuvem', cls: '' },
+    online:  { text: '✅ Nuvem', cls: 'cloud-online' },
+    error:   { text: '❌ Nuvem', cls: 'cloud-error' },
+  };
+  const s = map[status] || map.offline;
+  btn.textContent = s.text;
+  btn.className = 'btn-sm ' + s.cls;
+}
+
+function openCloudModal() {
+  const cfg = _store.fbConfig;
+  if (cfg) {
+    document.getElementById('fbConfigInput').value = JSON.stringify(cfg, null, 2);
+  }
+  const msg = document.getElementById('cloudStatusMsg');
+  if (_db && _uid) {
+    msg.textContent = `✅ Conectado (UID: ${_uid.slice(0, 8)}…)`; msg.className = 'cloud-status-msg ok';
+  } else {
+    msg.textContent = 'Não conectado — dados salvos apenas localmente.'; msg.className = 'cloud-status-msg';
+  }
+  document.getElementById('cloudModal').classList.add('open');
+}
+
+async function connectCloud() {
+  const raw = document.getElementById('fbConfigInput').value.trim();
+  const msg = document.getElementById('cloudStatusMsg');
+  if (!raw) { msg.textContent = 'Cole o firebaseConfig acima.'; msg.className = 'cloud-status-msg err'; return; }
+  let cfg;
+  try { cfg = JSON.parse(raw); } catch (e) {
+    msg.textContent = 'JSON inválido — verifique o formato.'; msg.className = 'cloud-status-msg err'; return;
+  }
+  if (!cfg.databaseURL) {
+    msg.textContent = 'databaseURL não encontrado. Confira o passo 2.'; msg.className = 'cloud-status-msg err'; return;
+  }
+  msg.textContent = 'Conectando…'; msg.className = 'cloud-status-msg';
+  await initFirebase(cfg);
+  cloudListen();
+  const ok = !!_db;
+  msg.textContent = ok ? `✅ Conectado com sucesso! UID: ${_uid?.slice(0, 8)}…` : '❌ Falha ao conectar.';
+  msg.className = 'cloud-status-msg ' + (ok ? 'ok' : 'err');
+}
+
+function cloudDisconnect() {
+  _db = null; _uid = null;
+  saveStore({ fbConfig: null, fbUid: null });
+  setCloudStatus('offline');
+  closeModal('cloudModal');
+  showToast('Nuvem desconectada — dados salvos localmente');
+}
+
+// Data dinâmica na topbar
+(function() {
+  const el = document.getElementById('topbarDate');
+  if (!el) return;
+  const d = new Date();
+  const dias = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  const meses = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  el.textContent = `${dias[d.getDay()]}, ${d.getDate()} ${meses[d.getMonth()]} ${d.getFullYear()}`;
+})();
+
+// Tenta reconectar com config salva ao abrir o app
+const _savedCfg = _store.fbConfig;
+if (_savedCfg?.databaseURL) {
+  setTimeout(async () => {
+    await initFirebase(_savedCfg);
+    if (_db) cloudListen();
+  }, 800);
+}
+
 
 // ══════════════════════════════════════════════
 //  VIEW SWITCHING (landing <-> app)
@@ -3573,6 +4043,7 @@ function enterApp() {
   document.body.classList.add('in-app');
   window.scrollTo(0, 0);
   initDashboardCharts();
+  calcInvestment();
 }
 function exitApp() {
   document.body.classList.remove('in-app');

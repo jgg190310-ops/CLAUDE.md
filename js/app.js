@@ -1,6 +1,26 @@
 'use strict';
 
 // ══════════════════════════════════════════════
+//  PERSISTENCE — tudo salvo no localStorage
+// ══════════════════════════════════════════════
+const STORE_KEY = 'financeos-store';
+
+function loadStore() {
+  try { return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; }
+  catch (e) { return {}; }
+}
+
+function saveStore(patch) {
+  try {
+    const s = loadStore();
+    Object.assign(s, patch);
+    localStorage.setItem(STORE_KEY, JSON.stringify(s));
+  } catch (e) { /* storage indisponível — segue sem persistir */ }
+}
+
+const _store = loadStore();
+
+// ══════════════════════════════════════════════
 //  NAVIGATION
 // ══════════════════════════════════════════════
 const pageTitles = {
@@ -172,24 +192,31 @@ initDashboardCharts();
 // ══════════════════════════════════════════════
 //  GOALS
 // ══════════════════════════════════════════════
-let goals = [
-  { id: 1, name: 'Viagem para Europa', icon: '✈️', color: '#6366f1', target: 15000, current: 10200, deadline: '2026-12-01', status: 'on-track' },
-  { id: 2, name: 'Casa Própria', icon: '🏠', color: '#10b981', target: 150000, current: 48000, deadline: '2030-06-01', status: 'on-track' },
-  { id: 3, name: 'Reserva de Emergência', icon: '💰', color: '#f59e0b', target: 50000, current: 50000, deadline: '2025-12-01', status: 'done' },
-  { id: 4, name: 'Carro Novo', icon: '🚗', color: '#8b5cf6', target: 80000, current: 12000, deadline: '2026-09-01', status: 'late' },
-  { id: 5, name: 'MBA Internacional', icon: '📚', color: '#ef4444', target: 30000, current: 30000, deadline: '2025-08-01', status: 'done' },
-  { id: 6, name: 'Casamento', icon: '💍', color: '#06b6d4', target: 40000, current: 18000, deadline: '2027-04-01', status: 'on-track' },
+const defaultGoals = [
+  { id: 1, name: 'Viagem para Europa', icon: '✈️', color: '#6366f1', target: 15000, current: 10200, deadline: '2026-12-01' },
+  { id: 2, name: 'Casa Própria', icon: '🏠', color: '#10b981', target: 150000, current: 48000, deadline: '2030-06-01' },
+  { id: 3, name: 'Reserva de Emergência', icon: '💰', color: '#f59e0b', target: 50000, current: 50000, deadline: '2025-12-01' },
+  { id: 4, name: 'Carro Novo', icon: '🚗', color: '#8b5cf6', target: 80000, current: 12000, deadline: '2026-09-01' },
+  { id: 5, name: 'MBA Internacional', icon: '📚', color: '#ef4444', target: 30000, current: 30000, deadline: '2025-08-01' },
+  { id: 6, name: 'Casamento', icon: '💍', color: '#06b6d4', target: 40000, current: 18000, deadline: '2027-04-01' },
 ];
+let goals = Array.isArray(_store.goals) ? _store.goals : defaultGoals;
+
+function goalStatus(g) {
+  if (g.current >= g.target) return 'done';
+  return new Date(g.deadline) < new Date() ? 'late' : 'on-track';
+}
 
 function renderGoals() {
   const grid = document.getElementById('goalsGrid');
   grid.innerHTML = goals.map(g => {
+    const status = goalStatus(g);
     const pct = Math.min(100, Math.round((g.current / g.target) * 100));
     const remaining = Math.max(0, g.target - g.current);
     const deadline = new Date(g.deadline);
     const monthsLeft = Math.max(1, Math.ceil((deadline - Date.now()) / (1000 * 60 * 60 * 24 * 30)));
     const monthly = (remaining / monthsLeft).toFixed(0);
-    const statusLabel = { 'on-track': 'No prazo', late: 'Atrasada', done: 'Concluída' }[g.status];
+    const statusLabel = { 'on-track': 'No prazo', late: 'Atrasada', done: 'Concluída' }[status];
     return `
     <div class="goal-card">
       <div class="goal-card-header">
@@ -200,7 +227,10 @@ function renderGoals() {
             <div class="goal-deadline">Meta: ${deadline.toLocaleDateString('pt-BR',{month:'short',year:'numeric'})}</div>
           </div>
         </div>
-        <span class="goal-status ${g.status}">${statusLabel}</span>
+        <div class="goal-head-right">
+          <span class="goal-status ${status}">${statusLabel}</span>
+          <button class="card-del" onclick="deleteGoal(${g.id})" title="Excluir meta">✕</button>
+        </div>
       </div>
       <div class="goal-values">
         <span class="gv-current">R$ ${g.current.toLocaleString('pt-BR')}</span>
@@ -218,6 +248,14 @@ function renderGoals() {
       </div>
     </div>`;
   }).join('');
+
+  // resumo calculado dos dados reais
+  const done = goals.filter(g => goalStatus(g) === 'done').length;
+  const late = goals.filter(g => goalStatus(g) === 'late').length;
+  document.getElementById('gsTotal').textContent = goals.length;
+  document.getElementById('gsDone').textContent = done;
+  document.getElementById('gsProgress').textContent = goals.length - done - late;
+  document.getElementById('gsLate').textContent = late;
 }
 
 renderGoals();
@@ -233,16 +271,29 @@ function addGoal() {
   const icon = document.getElementById('goalIcon').value;
   const color = document.getElementById('goalColor').value;
   if (!name || !target || !deadline) { showToast('Preencha todos os campos', 'error'); return; }
-  goals.push({ id: Date.now(), name, icon, color, target, current, deadline, status: 'on-track' });
+  goals.push({ id: Date.now(), name, icon, color, target, current, deadline });
+  saveStore({ goals });
   renderGoals();
   closeModal('goalModal');
-  showToast('Meta criada com sucesso!', 'success');
+  document.getElementById('goalName').value = '';
+  document.getElementById('goalTarget').value = '';
+  document.getElementById('goalCurrent').value = '';
+  document.getElementById('goalDeadline').value = '';
+  showToast('Meta criada e salva!', 'success');
+}
+function deleteGoal(id) {
+  const g = goals.find(x => x.id === id);
+  if (!g || !confirm(`Excluir a meta "${g.name}"?`)) return;
+  goals = goals.filter(x => x.id !== id);
+  saveStore({ goals });
+  renderGoals();
+  showToast('Meta excluída');
 }
 
 // ══════════════════════════════════════════════
 //  BUDGETS
 // ══════════════════════════════════════════════
-let budgets = [
+const defaultBudgets = [
   { id: 1, name: 'Moradia', icon: '🏠', color: '#6366f1', limit: 2500, spent: 2200 },
   { id: 2, name: 'Alimentação', icon: '🍔', color: '#10b981', limit: 1500, spent: 1200 },
   { id: 3, name: 'Transporte', icon: '🚗', color: '#f59e0b', limit: 1000, spent: 800 },
@@ -250,6 +301,7 @@ let budgets = [
   { id: 5, name: 'Saúde', icon: '💊', color: '#8b5cf6', limit: 600, spent: 200 },
   { id: 6, name: 'Educação', icon: '📚', color: '#06b6d4', limit: 800, spent: 36 },
 ];
+let budgets = Array.isArray(_store.budgets) ? _store.budgets : defaultBudgets;
 
 function renderBudgets() {
   const list = document.getElementById('budgetsList');
@@ -272,8 +324,25 @@ function renderBudgets() {
         <div class="ba-spent" style="color:${barColor}">R$ ${b.spent.toLocaleString('pt-BR')}</div>
         <div class="ba-limit">de R$ ${b.limit.toLocaleString('pt-BR')}</div>
       </div>
+      <button class="card-del" onclick="deleteBudget(${b.id})" title="Excluir orçamento">✕</button>
     </div>`;
   }).join('');
+
+  // visão geral calculada dos dados reais
+  const totalLimit = budgets.reduce((s, b) => s + b.limit, 0);
+  const totalSpent = budgets.reduce((s, b) => s + b.spent, 0);
+  const pctUsed = totalLimit ? (totalSpent / totalLimit) * 100 : 0;
+  const top = budgets.reduce((m, b) => (b.spent > (m?.spent || 0) ? b : m), null);
+  document.getElementById('boTotal').textContent = `R$ ${totalLimit.toLocaleString('pt-BR')}`;
+  document.getElementById('boFill').style.width = `${Math.min(100, pctUsed).toFixed(1)}%`;
+  document.getElementById('boTotalSub').textContent =
+    `R$ ${totalSpent.toLocaleString('pt-BR')} utilizados de R$ ${totalLimit.toLocaleString('pt-BR')}`;
+  document.getElementById('boSaldo').textContent = `R$ ${Math.max(0, totalLimit - totalSpent).toLocaleString('pt-BR')}`;
+  document.getElementById('boSaldoSub').textContent = `${Math.max(0, 100 - pctUsed).toFixed(1).replace('.', ',')}% do orçamento restante`;
+  document.getElementById('boTop').textContent = top ? top.name : '—';
+  document.getElementById('boTopSub').textContent = top
+    ? `R$ ${top.spent.toLocaleString('pt-BR')} — ${totalSpent ? Math.round((top.spent / totalSpent) * 100) : 0}% do total`
+    : '—';
 }
 
 renderBudgets();
@@ -289,9 +358,21 @@ function addBudget() {
   const color = document.getElementById('budgetColor').value;
   if (!name || !limit) { showToast('Preencha todos os campos', 'error'); return; }
   budgets.push({ id: Date.now(), name, icon, color, limit, spent });
+  saveStore({ budgets });
   renderBudgets();
   closeModal('budgetModal');
-  showToast('Orçamento criado!', 'success');
+  document.getElementById('budgetName').value = '';
+  document.getElementById('budgetLimit').value = '';
+  document.getElementById('budgetSpent').value = '';
+  showToast('Orçamento criado e salvo!', 'success');
+}
+function deleteBudget(id) {
+  const b = budgets.find(x => x.id === id);
+  if (!b || !confirm(`Excluir o orçamento "${b.name}"?`)) return;
+  budgets = budgets.filter(x => x.id !== id);
+  saveStore({ budgets });
+  renderBudgets();
+  showToast('Orçamento excluído');
 }
 
 // ══════════════════════════════════════════════
@@ -757,9 +838,96 @@ function showToast(msg, type = '') {
   setTimeout(() => toast.classList.remove('show'), 3000);
 }
 
-// Save buttons feedback
-document.querySelectorAll('.btn-save').forEach(btn => {
-  btn.addEventListener('click', () => showToast('Alterações salvas com sucesso!', 'success'));
+// Profile — personal data
+document.getElementById('savePersonal')?.addEventListener('click', () => {
+  const data = {
+    name:   document.getElementById('pfName').value.trim(),
+    email:  document.getElementById('pfEmail').value.trim(),
+    cpf:    document.getElementById('pfCpf').value.trim(),
+    phone:  document.getElementById('pfPhone').value.trim(),
+    birth:  document.getElementById('pfBirth').value,
+    job:    document.getElementById('pfJob').value.trim(),
+    income: document.getElementById('pfIncome').value,
+  };
+  saveStore({ profile: data });
+  cloudSave('profile', data);
+  refreshProfileUI(data);
+  showToast('Perfil salvo na nuvem!', 'success');
+});
+
+// Profile — investor profile
+document.getElementById('saveInvestor')?.addEventListener('click', () => {
+  const investor = {
+    profile: document.querySelector('.ip-card.active')?.dataset.profile || 'moderado',
+    alloc: {
+      rf:  document.getElementById('rfRange').value,
+      rv:  document.getElementById('rvRange').value,
+      fii: document.getElementById('fiiRange').value,
+      int: document.getElementById('intRange').value,
+    },
+  };
+  saveStore({ investor });
+  cloudSave('investor', investor);
+  showToast('Perfil de investidor salvo na nuvem!', 'success');
+});
+
+function refreshProfileUI(data) {
+  if (!data) return;
+  const name = data.name || 'Usuário';
+  const initials = name.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase() || 'U';
+  const greet = document.getElementById('dashGreeting');
+  if (greet) greet.textContent = `Bom dia, ${name.split(' ')[0]}! 👋`;
+  ['pfAvatarBig','pfAvatarBig'].forEach(() => {});
+  const big = document.getElementById('pfAvatarBig');
+  const dn  = document.getElementById('pfDisplayName');
+  const ua  = document.querySelector('.user-avatar');
+  const un  = document.querySelector('.user-name');
+  if (big) big.textContent = initials;
+  if (dn)  dn.textContent  = name;
+  if (ua)  ua.textContent  = initials;
+  if (un)  un.textContent  = name;
+  const map = { pfName:'name', pfEmail:'email', pfCpf:'cpf', pfPhone:'phone', pfBirth:'birth', pfJob:'job', pfIncome:'income' };
+  Object.entries(map).forEach(([id, key]) => {
+    const el = document.getElementById(id);
+    if (el && data[key] !== undefined) el.value = data[key];
+  });
+}
+
+function restoreInvestorUI(investor) {
+  if (!investor) return;
+  document.querySelectorAll('.ip-card').forEach(c => { c.classList.remove('active'); c.querySelector('.ip-current')?.remove(); });
+  const active = document.querySelector(`.ip-card[data-profile="${investor.profile}"]`);
+  if (active) {
+    active.classList.add('active');
+    const b = document.createElement('div');
+    b.className = 'ip-current'; b.textContent = 'Perfil atual';
+    active.appendChild(b);
+  }
+  if (investor.alloc) {
+    ['rf','rv','fii','int'].forEach(k => {
+      const r = document.getElementById(`${k}Range`);
+      const v = document.getElementById(`${k}Val`);
+      if (r && investor.alloc[k] !== undefined) { r.value = investor.alloc[k]; if (v) v.textContent = investor.alloc[k] + '%'; }
+    });
+  }
+}
+
+refreshProfileUI(_store.profile);
+restoreInvestorUI(_store.investor);
+
+// Notification + security toggles — save state
+document.querySelectorAll('.notif-item .toggle-wrap, .so-row .toggle-wrap').forEach((tw, i) => {
+  const key = `toggle_${i}`;
+  if (_store[key] === 'on')  tw.classList.add('on');
+  if (_store[key] === 'off') tw.classList.remove('on');
+  tw.addEventListener('click', () => {
+    saveStore({ [key]: tw.classList.contains('on') ? 'on' : 'off' });
+    const snap = Object.fromEntries(
+      [...document.querySelectorAll('.notif-item .toggle-wrap, .so-row .toggle-wrap')]
+        .map((t, j) => [`toggle_${j}`, t.classList.contains('on') ? 'on' : 'off'])
+    );
+    cloudSave('toggles', snap);
+  });
 });
 
 // Close modals on backdrop click
@@ -771,3 +939,180 @@ document.querySelectorAll('.modal-backdrop').forEach(bd => {
 
 // Start live market engine
 startLiveMarket();
+
+// ══════════════════════════════════════════════
+//  FIREBASE CLOUD SYNC
+//  Usa Firebase Realtime Database (plano Spark
+//  gratuito). Cada usuário acessa /users/{uid}/.
+//  Configuração via botão "☁ Nuvem" no topo.
+// ══════════════════════════════════════════════
+let _db = null;     // firebase database ref
+let _uid = null;    // user id (anônimo ou email/senha)
+let _syncTimer = null;
+
+const FB_SDK = 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js';
+const FB_DB  = 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js';
+const FB_AUTH= 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js';
+
+function loadScript(src) {
+  return new Promise((res, rej) => {
+    if (document.querySelector(`script[src="${src}"]`)) { res(); return; }
+    const s = document.createElement('script');
+    s.src = src; s.onload = res; s.onerror = rej;
+    document.head.appendChild(s);
+  });
+}
+
+async function initFirebase(config) {
+  try {
+    await loadScript(FB_SDK);
+    await loadScript(FB_DB);
+    await loadScript(FB_AUTH);
+    if (!firebase.apps.length) firebase.initializeApp(config);
+    const auth = firebase.auth();
+    // login anônimo — nenhum dado pessoal necessário
+    let user = auth.currentUser;
+    if (!user) {
+      const cred = await auth.signInAnonymously();
+      user = cred.user;
+    }
+    _uid = user.uid;
+    _db = firebase.database();
+    saveStore({ fbConfig: config, fbUid: _uid });
+    cloudPull(); // carrega dados salvos na nuvem
+    setCloudStatus('online');
+    showToast('Nuvem conectada! Dados sincronizando…', 'success');
+  } catch (e) {
+    setCloudStatus('error');
+    showToast('Erro ao conectar: ' + e.message, 'error');
+    console.error('Firebase init error:', e);
+  }
+}
+
+function cloudRef(path) {
+  if (!_db || !_uid) return null;
+  return _db.ref(`users/${_uid}/${path}`);
+}
+
+function cloudSave(path, data) {
+  const ref = cloudRef(path);
+  if (!ref) return;
+  ref.set(data).catch(e => console.warn('cloudSave error:', e));
+}
+
+function cloudPull() {
+  if (!_db || !_uid) return;
+  const ref = _db.ref(`users/${_uid}`);
+  ref.once('value').then(snap => {
+    const remote = snap.val();
+    if (!remote) return;
+    // metas
+    if (Array.isArray(remote.goals)) {
+      goals = remote.goals;
+      saveStore({ goals });
+      renderGoals();
+    }
+    // orçamentos
+    if (Array.isArray(remote.budgets)) {
+      budgets = remote.budgets;
+      saveStore({ budgets });
+      renderBudgets();
+    }
+    // perfil
+    if (remote.profile) {
+      saveStore({ profile: remote.profile });
+      refreshProfileUI(remote.profile);
+    }
+    if (remote.investor) {
+      saveStore({ investor: remote.investor });
+      restoreInvestorUI(remote.investor);
+    }
+    showToast('Dados sincronizados da nuvem!', 'success');
+  }).catch(e => console.warn('cloudPull error:', e));
+}
+
+// sincronização em tempo real: escuta mudanças remotas (multi-dispositivo)
+function cloudListen() {
+  if (!_db || !_uid) return;
+  _db.ref(`users/${_uid}/goals`).on('value', snap => {
+    const v = snap.val();
+    if (Array.isArray(v)) { goals = v; saveStore({ goals }); renderGoals(); }
+  });
+  _db.ref(`users/${_uid}/budgets`).on('value', snap => {
+    const v = snap.val();
+    if (Array.isArray(v)) { budgets = v; saveStore({ budgets }); renderBudgets(); }
+  });
+}
+
+function setCloudStatus(status) {
+  const btn = document.getElementById('cloudBtn');
+  if (!btn) return;
+  const map = {
+    offline: { text: '☁ Nuvem', cls: '' },
+    online:  { text: '✅ Nuvem', cls: 'cloud-online' },
+    error:   { text: '❌ Nuvem', cls: 'cloud-error' },
+  };
+  const s = map[status] || map.offline;
+  btn.textContent = s.text;
+  btn.className = 'btn-sm ' + s.cls;
+}
+
+function openCloudModal() {
+  const cfg = _store.fbConfig;
+  if (cfg) {
+    document.getElementById('fbConfigInput').value = JSON.stringify(cfg, null, 2);
+  }
+  const msg = document.getElementById('cloudStatusMsg');
+  if (_db && _uid) {
+    msg.textContent = `✅ Conectado (UID: ${_uid.slice(0, 8)}…)`; msg.className = 'cloud-status-msg ok';
+  } else {
+    msg.textContent = 'Não conectado — dados salvos apenas localmente.'; msg.className = 'cloud-status-msg';
+  }
+  document.getElementById('cloudModal').classList.add('open');
+}
+
+async function connectCloud() {
+  const raw = document.getElementById('fbConfigInput').value.trim();
+  const msg = document.getElementById('cloudStatusMsg');
+  if (!raw) { msg.textContent = 'Cole o firebaseConfig acima.'; msg.className = 'cloud-status-msg err'; return; }
+  let cfg;
+  try { cfg = JSON.parse(raw); } catch (e) {
+    msg.textContent = 'JSON inválido — verifique o formato.'; msg.className = 'cloud-status-msg err'; return;
+  }
+  if (!cfg.databaseURL) {
+    msg.textContent = 'databaseURL não encontrado. Confira o passo 2.'; msg.className = 'cloud-status-msg err'; return;
+  }
+  msg.textContent = 'Conectando…'; msg.className = 'cloud-status-msg';
+  await initFirebase(cfg);
+  cloudListen();
+  const ok = !!_db;
+  msg.textContent = ok ? `✅ Conectado com sucesso! UID: ${_uid?.slice(0, 8)}…` : '❌ Falha ao conectar.';
+  msg.className = 'cloud-status-msg ' + (ok ? 'ok' : 'err');
+}
+
+function cloudDisconnect() {
+  _db = null; _uid = null;
+  saveStore({ fbConfig: null, fbUid: null });
+  setCloudStatus('offline');
+  closeModal('cloudModal');
+  showToast('Nuvem desconectada — dados salvos localmente');
+}
+
+// Data dinâmica na topbar
+(function() {
+  const el = document.getElementById('topbarDate');
+  if (!el) return;
+  const d = new Date();
+  const dias = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  const meses = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  el.textContent = `${dias[d.getDay()]}, ${d.getDate()} ${meses[d.getMonth()]} ${d.getFullYear()}`;
+})();
+
+// Tenta reconectar com config salva ao abrir o app
+const _savedCfg = _store.fbConfig;
+if (_savedCfg?.databaseURL) {
+  setTimeout(async () => {
+    await initFirebase(_savedCfg);
+    if (_db) cloudListen();
+  }, 800);
+}
