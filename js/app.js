@@ -72,6 +72,13 @@ function budgetIconSvg(iconKey) {
   if (!_store.profile) {
     saveStore({ profile: { name, email: user.email || '' } });
   }
+  // aplica foto salva
+  if (_store.profile?.photo) {
+    const photoStyle = `background-image:url(${_store.profile.photo});background-size:cover;background-position:center;`;
+    const bigEl = document.getElementById('pfAvatarBig');
+    if (bigEl) { bigEl.textContent = ''; bigEl.setAttribute('style', photoStyle); }
+    if (ua)    { ua.textContent = ''; ua.setAttribute('style', photoStyle); }
+  }
 })();
 
 // ══════════════════════════════════════════════
@@ -248,9 +255,11 @@ function updateDashKpis() {
   const income = parseFloat(_store.profile?.income) || 0;
   const spent  = (typeof budgets !== 'undefined' ? budgets : []).reduce((s, b) => s + b.spent, 0);
   const savings = Math.max(0, income - spent);
+  const cash = parseFloat(_store.profile?.cash) || 0;
 
   const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
   set('kpiPatrimonio', fmtBRL(tot.all));
+  set('kpiCash',       fmtBRL(cash));
   set('kpiRenda',      fmtBRL(income));
   set('kpiGastos',     fmtBRL(spent));
   set('kpiEconomias',  fmtBRL(savings));
@@ -259,6 +268,107 @@ function updateDashKpis() {
   if (sub) sub.textContent = income > 0 ? `Taxa de ${Math.round(savings / income * 100)}% da renda` : 'Defina sua renda no perfil';
   const pSub = document.getElementById('kpiPatrimonioSub');
   if (pSub) pSub.textContent = tot.all > 0 ? 'Valor da sua carteira' : 'Adicione ativos na Bolsa';
+}
+
+function editCash() {
+  const cur = parseFloat(_store.profile?.cash) || 0;
+  const val = prompt('Saldo de dinheiro líquido (conta corrente, poupança, carteira):\nR$', cur.toFixed(2));
+  if (val === null) return;
+  const v = parseFloat(String(val).replace(',', '.'));
+  if (isNaN(v) || v < 0) { showToast('Valor inválido', 'error'); return; }
+  const profile = { ...(_store.profile || {}), cash: v };
+  saveStore({ profile });
+  Object.assign(_store, { profile });
+  cloudSave('profile', profile);
+  updateDashKpis();
+  showToast('Saldo atualizado!', 'success');
+}
+
+// ══════════════════════════════════════════════
+//  TRANSACTIONS
+// ══════════════════════════════════════════════
+const TX_COLORS = {
+  income:     { bg: 'rgba(16,185,129,0.12)', color: '#10b981', tag: 'green' },
+  expense:    { bg: 'rgba(239,68,68,0.10)',  color: '#ef4444', tag: 'red'   },
+  investment: { bg: 'rgba(99,102,241,0.10)', color: '#6366f1', tag: 'indigo' },
+};
+const CAT_TYPE_MAP = {
+  'Receita': 'income', 'Alimentação': 'expense', 'Moradia': 'expense',
+  'Transporte': 'expense', 'Lazer': 'expense', 'Saúde': 'expense',
+  'Educação': 'expense', 'Investimento': 'investment', 'Outro': 'expense',
+};
+
+const defaultTransactions = [
+  { id: 1, desc: 'Salário',          category: 'Receita',      type: 'income',     value: 12800, date: '2026-06-05' },
+  { id: 2, desc: 'Mercado',          category: 'Alimentação',  type: 'expense',    value: 480,   date: '2026-06-07' },
+  { id: 3, desc: 'ITSA4 — Aporte',   category: 'Investimento', type: 'investment', value: 2000,  date: '2026-06-06' },
+  { id: 4, desc: 'Aluguel',          category: 'Moradia',      type: 'expense',    value: 2200,  date: '2026-06-05' },
+  { id: 5, desc: 'Netflix / Serviços', category: 'Lazer',      type: 'expense',    value: 89,    date: '2026-06-04' },
+];
+let transactions = Array.isArray(_store.transactions) ? _store.transactions : defaultTransactions;
+
+function renderTransactions() {
+  const body = document.getElementById('txBody');
+  if (!body) return;
+  const sorted = [...transactions].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 10);
+  if (sorted.length === 0) {
+    body.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-3);padding:20px">Nenhuma transação ainda</td></tr>';
+    return;
+  }
+  body.innerHTML = sorted.map(tx => {
+    const c = TX_COLORS[tx.type] || TX_COLORS.expense;
+    const init = tx.desc[0].toUpperCase();
+    const sign = tx.type === 'income' ? '+' : '−';
+    const cls  = tx.type === 'income' ? 'positive' : 'negative';
+    const d = new Date(tx.date + 'T12:00:00');
+    const dateStr = d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    return `<tr>
+      <td><div class="tx-name"><div class="tx-icon" style="background:${c.bg};color:${c.color}">${init}</div>${tx.desc}</div></td>
+      <td><span class="tag ${c.tag}">${tx.category}</span></td>
+      <td>${dateStr}</td>
+      <td class="${cls}">${sign}R$ ${tx.value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+      <td><button class="btn-del-tx" onclick="deleteTx(${tx.id})" title="Excluir">✕</button></td>
+    </tr>`;
+  }).join('');
+}
+
+renderTransactions();
+
+function openTxModal() {
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('txDate').value = today;
+  document.getElementById('txModal').classList.add('open');
+}
+
+function addTransaction() {
+  const desc  = document.getElementById('txDesc').value.trim();
+  const type  = document.getElementById('txType').value;
+  const value = parseFloat(document.getElementById('txValue').value);
+  const cat   = document.getElementById('txCategory').value;
+  const date  = document.getElementById('txDate').value;
+  if (!desc || !value || !date) { showToast('Preencha todos os campos', 'error'); return; }
+  transactions.unshift({ id: Date.now(), desc, type, value, category: cat, date });
+  saveStore({ transactions });
+  cloudSave('transactions', transactions);
+  renderTransactions();
+  closeModal('txModal');
+  document.getElementById('txDesc').value = '';
+  document.getElementById('txValue').value = '';
+  showToast('Transação adicionada!', 'success');
+}
+
+function deleteTx(id) {
+  transactions = transactions.filter(t => t.id !== id);
+  saveStore({ transactions });
+  cloudSave('transactions', transactions);
+  renderTransactions();
+}
+
+function updateTxTypeColor() {
+  const t = document.getElementById('txType').value;
+  const catSel = document.getElementById('txCategory');
+  const defaults = { income: 'Receita', expense: 'Alimentação', investment: 'Investimento' };
+  if (defaults[t]) catSel.value = defaults[t];
 }
 
 // Init on load
@@ -1240,20 +1350,49 @@ document.getElementById('saveInvestor')?.addEventListener('click', () => {
   showToast('Perfil de investidor salvo na nuvem!', 'success');
 });
 
+function applyAvatarPhoto(photo) {
+  const big = document.getElementById('pfAvatarBig');
+  const ua  = document.querySelector('.user-avatar');
+  if (photo) {
+    const style = `background-image:url(${photo});background-size:cover;background-position:center;`;
+    if (big) { big.textContent = ''; big.setAttribute('style', style); }
+    if (ua)  { ua.textContent  = ''; ua.setAttribute('style', `${ua.getAttribute('style') || ''};${style}`); }
+  }
+}
+
+function handleAvatarUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const photo = ev.target.result;
+    const profile = { ...(_store.profile || {}), photo };
+    saveStore({ profile });
+    Object.assign(_store, { profile });
+    cloudSave('profile', profile);
+    applyAvatarPhoto(photo);
+    showToast('Foto atualizada!', 'success');
+  };
+  reader.readAsDataURL(file);
+}
+
 function refreshProfileUI(data) {
   if (!data) return;
   const name = data.name || 'Usuário';
   const initials = name.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase() || 'U';
   const greet = document.getElementById('dashGreeting');
   if (greet) greet.textContent = `Bom dia, ${name.split(' ')[0]}!`;
-  ['pfAvatarBig','pfAvatarBig'].forEach(() => {});
   const big = document.getElementById('pfAvatarBig');
   const dn  = document.getElementById('pfDisplayName');
   const ua  = document.querySelector('.user-avatar');
   const un  = document.querySelector('.user-name');
-  if (big) big.textContent = initials;
+  if (!data.photo) {
+    if (big) big.textContent = initials;
+    if (ua)  ua.textContent  = initials;
+  } else {
+    applyAvatarPhoto(data.photo);
+  }
   if (dn)  dn.textContent  = name;
-  if (ua)  ua.textContent  = initials;
   if (un)  un.textContent  = name;
   const map = { pfName:'name', pfEmail:'email', pfCpf:'cpf', pfPhone:'phone', pfBirth:'birth', pfJob:'job', pfIncome:'income' };
   Object.entries(map).forEach(([id, key]) => {
@@ -1394,6 +1533,12 @@ function cloudPull() {
       saveStore({ budgets });
       renderBudgets();
     }
+    // transações
+    if (Array.isArray(remote.transactions)) {
+      transactions = remote.transactions;
+      saveStore({ transactions });
+      renderTransactions();
+    }
     // perfil
     if (remote.profile) {
       saveStore({ profile: remote.profile });
@@ -1494,18 +1639,17 @@ if (_savedCfg?.databaseURL) {
 }
 
 // ══════════════════════════════════════════════
-//  APP PARALLAX — mouse tracking
+//  APP PARALLAX — mouse tracking + canvas
 // ══════════════════════════════════════════════
 (function initAppParallax() {
   const bg = document.getElementById('appParallaxBg');
   if (!bg) return;
 
-  const orbs = bg.querySelectorAll('.app-orb');
-  const geos = bg.querySelectorAll('.app-geo');
+  const orbs = [...bg.querySelectorAll('.app-orb')];
+  const geos = [...bg.querySelectorAll('.app-geo')];
 
-  let tx = 0, ty = 0;   // raw
-  let sx = 0, sy = 0;   // smoothed
-  let rafP = null;
+  let tx = 0, ty = 0;
+  let sx = 0, sy = 0;
 
   document.addEventListener('mousemove', (e) => {
     const main = document.querySelector('.main-content');
@@ -1515,15 +1659,71 @@ if (_savedCfg?.databaseURL) {
     ty = ((e.clientY - rect.top)  / rect.height - 0.5) * 2;
   }, { passive: true });
 
-  const speeds = [20, 32, 14];
-  const geoSpeeds = [10, 16, 6];
+  // orb depths — larger index = closer = more movement
+  const orbSpeeds = [22, 36, 15, 8, 42];
+  const geoSpeeds = [10, 18, 6, 12, 7, 14];
+
+  // Canvas particle layer
+  const canvas = document.getElementById('appCanvas');
+  let ctx2, particles2 = [];
+  function initCanvas() {
+    if (!canvas) return;
+    const resize = () => { canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight; };
+    resize();
+    new ResizeObserver(resize).observe(canvas);
+    for (let i = 0; i < 35; i++) {
+      particles2.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        vx: (Math.random() - 0.5) * 0.4,
+        vy: (Math.random() - 0.5) * 0.4,
+        r: Math.random() * 1.8 + 0.8,
+      });
+    }
+    ctx2 = canvas.getContext('2d');
+  }
+  initCanvas();
+
+  function drawParticles() {
+    if (!ctx2) return;
+    ctx2.clearRect(0, 0, canvas.width, canvas.height);
+    particles2.forEach(p => {
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 0) p.x = canvas.width;
+      if (p.x > canvas.width) p.x = 0;
+      if (p.y < 0) p.y = canvas.height;
+      if (p.y > canvas.height) p.y = 0;
+    });
+    for (let i = 0; i < particles2.length; i++) {
+      for (let j = i + 1; j < particles2.length; j++) {
+        const dx = particles2[i].x - particles2[j].x;
+        const dy = particles2[i].y - particles2[j].y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 130) {
+          const alpha = (1 - dist / 130) * 0.10;
+          ctx2.beginPath();
+          ctx2.strokeStyle = `rgba(99,102,241,${alpha})`;
+          ctx2.lineWidth = 0.8;
+          ctx2.moveTo(particles2[i].x, particles2[i].y);
+          ctx2.lineTo(particles2[j].x, particles2[j].y);
+          ctx2.stroke();
+        }
+      }
+    }
+    particles2.forEach(p => {
+      ctx2.beginPath();
+      ctx2.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx2.fillStyle = 'rgba(139,92,246,0.25)';
+      ctx2.fill();
+    });
+  }
 
   function loop() {
     sx += (tx - sx) * 0.05;
     sy += (ty - sy) * 0.05;
 
     orbs.forEach((orb, i) => {
-      const sp = speeds[i] || 20;
+      const sp = orbSpeeds[i] || 20;
       orb.style.transform = `translate(${sx * sp}px, ${sy * sp}px)`;
     });
 
@@ -1532,43 +1732,34 @@ if (_savedCfg?.databaseURL) {
       geo.style.transform = `translate(${sx * sp}px, ${sy * sp}px)`;
     });
 
-    rafP = requestAnimationFrame(loop);
+    drawParticles();
+    requestAnimationFrame(loop);
   }
   loop();
 
   // Color shift per page
   const pageColors = {
-    dashboard:  ['rgba(99,102,241,.18)', 'rgba(139,92,246,.12)'],
-    goals:      ['rgba(16,185,129,.14)', 'rgba(6,182,212,.10)'],
-    budgets:    ['rgba(245,158,11,.12)', 'rgba(239,68,68,.08)'],
-    stocks:     ['rgba(16,185,129,.16)', 'rgba(99,102,241,.10)'],
-    calculator: ['rgba(139,92,246,.14)', 'rgba(99,102,241,.10)'],
-    profile:    ['rgba(6,182,212,.12)',  'rgba(99,102,241,.10)'],
+    dashboard:  ['rgba(99,102,241,.20)', 'rgba(139,92,246,.14)', 'rgba(99,102,241,.08)'],
+    goals:      ['rgba(16,185,129,.16)', 'rgba(6,182,212,.12)',  'rgba(16,185,129,.06)'],
+    budgets:    ['rgba(245,158,11,.14)', 'rgba(239,68,68,.10)',  'rgba(245,158,11,.06)'],
+    stocks:     ['rgba(16,185,129,.18)', 'rgba(99,102,241,.12)', 'rgba(6,182,212,.06)'],
+    calculator: ['rgba(139,92,246,.16)', 'rgba(99,102,241,.12)', 'rgba(139,92,246,.06)'],
+    profile:    ['rgba(6,182,212,.14)',  'rgba(99,102,241,.12)', 'rgba(139,92,246,.06)'],
   };
 
   const orb1 = bg.querySelector('.app-orb-1');
   const orb2 = bg.querySelector('.app-orb-2');
+  const orb3 = bg.querySelector('.app-orb-3');
 
   function shiftParallaxColors(pageId) {
     const cols = pageColors[pageId];
-    if (!cols || !orb1 || !orb2) return;
-    orb1.style.background = `radial-gradient(circle, ${cols[0]} 0%, transparent 70%)`;
-    orb2.style.background = `radial-gradient(circle, ${cols[1]} 0%, transparent 70%)`;
+    if (!cols) return;
+    if (orb1) orb1.style.background = `radial-gradient(circle, ${cols[0]} 0%, transparent 70%)`;
+    if (orb2) orb2.style.background = `radial-gradient(circle, ${cols[1]} 0%, transparent 70%)`;
+    if (orb3) orb3.style.background = `radial-gradient(circle, ${cols[2]} 0%, transparent 70%)`;
   }
 
-  // Hook into the existing navigate function
-  const origNavigate = window.navigate;
-  if (typeof origNavigate === 'function') {
-    window.navigate = function(pageId) {
-      origNavigate(pageId);
-      shiftParallaxColors(pageId);
-    };
-  } else {
-    // Observe nav-item clicks directly
-    document.querySelectorAll('.nav-item[data-page]').forEach(item => {
-      item.addEventListener('click', () => {
-        shiftParallaxColors(item.dataset.page);
-      });
-    });
-  }
+  document.querySelectorAll('.nav-item[data-page]').forEach(item => {
+    item.addEventListener('click', () => shiftParallaxColors(item.dataset.page));
+  });
 })();
