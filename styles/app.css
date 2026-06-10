@@ -1119,3 +1119,98 @@ td.tick-down, .market-card.tick-down { animation: tickDownAnim 1.2s ease-out; }
   .form-group.full { grid-column: span 1; }
   .results-kpis { grid-template-columns: 1fr 1fr; }
 }
+
+/* ══════════════════════════════════════════════
+   APP PARALLAX BACKGROUND
+══════════════════════════════════════════════ */
+.app-parallax-bg {
+  position: fixed;
+  top: var(--topbar-h);
+  left: var(--sidebar-w);
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+.app-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(100px);
+  will-change: transform;
+  transition: transform 0.1s linear;
+}
+.app-orb-1 {
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(99,102,241,.18) 0%, transparent 70%);
+  top: -200px; right: -100px;
+}
+.app-orb-2 {
+  width: 450px; height: 450px;
+  background: radial-gradient(circle, rgba(139,92,246,.12) 0%, transparent 70%);
+  bottom: -100px; left: 0;
+}
+.app-orb-3 {
+  width: 300px; height: 300px;
+  background: radial-gradient(circle, rgba(6,182,212,.08) 0%, transparent 70%);
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+}
+.app-geo {
+  position: absolute;
+  pointer-events: none;
+  will-change: transform;
+}
+.app-ring-1 {
+  width: 300px; height: 300px;
+  border: 1px solid rgba(99,102,241,.1);
+  border-radius: 50%;
+  top: 5%; right: 5%;
+  animation: appRingSpin 50s linear infinite;
+}
+.app-ring-2 {
+  width: 180px; height: 180px;
+  border: 1px solid rgba(139,92,246,.12);
+  border-radius: 50%;
+  bottom: 10%; left: 8%;
+  animation: appRingSpin 35s linear infinite reverse;
+}
+.app-dots {
+  width: 200px; height: 200px;
+  top: 55%; right: 12%;
+  background-image: radial-gradient(rgba(99,102,241,.2) 1px, transparent 1px);
+  background-size: 18px 18px;
+  opacity: .5;
+}
+@keyframes appRingSpin {
+  to { rotate: 360deg; }
+}
+
+/* Ensure page content is above parallax */
+.page { position: relative; z-index: 1; }
+
+/* ── INVESTOR PROFILE ICON (SVG) ── */
+.ip-icon {
+  width: 56px; height: 56px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 14px;
+  background: rgba(99,102,241,.1);
+  border: 1px solid rgba(99,102,241,.2);
+  color: var(--indigo);
+  margin: 0 auto 14px;
+  font-size: 0;
+  transition: background .2s, border-color .2s;
+}
+.ip-card.active .ip-icon {
+  background: rgba(99,102,241,.18);
+  border-color: rgba(99,102,241,.4);
+}
+
+/* Page section reveal animation */
+@keyframes pageSlideIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.page.active {
+  animation: pageSlideIn .35s cubic-bezier(.16,1,.3,1);
+}

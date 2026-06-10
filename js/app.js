@@ -30,7 +30,7 @@ const _store = loadStore();
   if (greet) {
     const hr = new Date().getHours();
     const saudacao = hr < 12 ? 'Bom dia' : hr < 18 ? 'Boa tarde' : 'Boa noite';
-    greet.textContent = `${saudacao}, ${name.split(' ')[0]}! 👋`;
+    greet.textContent = `${saudacao}, ${name.split(' ')[0]}!`;
   }
   const ua = document.querySelector('.user-avatar');
   const un = document.querySelector('.user-name');
@@ -1014,7 +1014,7 @@ function refreshProfileUI(data) {
   const name = data.name || 'Usuário';
   const initials = name.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase() || 'U';
   const greet = document.getElementById('dashGreeting');
-  if (greet) greet.textContent = `Bom dia, ${name.split(' ')[0]}! 👋`;
+  if (greet) greet.textContent = `Bom dia, ${name.split(' ')[0]}!`;
   ['pfAvatarBig','pfAvatarBig'].forEach(() => {});
   const big = document.getElementById('pfAvatarBig');
   const dn  = document.getElementById('pfDisplayName');
@@ -1260,3 +1260,83 @@ if (_savedCfg?.databaseURL) {
     if (_db) cloudListen();
   }, 800);
 }
+
+// ══════════════════════════════════════════════
+//  APP PARALLAX — mouse tracking
+// ══════════════════════════════════════════════
+(function initAppParallax() {
+  const bg = document.getElementById('appParallaxBg');
+  if (!bg) return;
+
+  const orbs = bg.querySelectorAll('.app-orb');
+  const geos = bg.querySelectorAll('.app-geo');
+
+  let tx = 0, ty = 0;   // raw
+  let sx = 0, sy = 0;   // smoothed
+  let rafP = null;
+
+  document.addEventListener('mousemove', (e) => {
+    const main = document.querySelector('.main-content');
+    if (!main) return;
+    const rect = main.getBoundingClientRect();
+    tx = ((e.clientX - rect.left) / rect.width  - 0.5) * 2;
+    ty = ((e.clientY - rect.top)  / rect.height - 0.5) * 2;
+  }, { passive: true });
+
+  const speeds = [20, 32, 14];
+  const geoSpeeds = [10, 16, 6];
+
+  function loop() {
+    sx += (tx - sx) * 0.05;
+    sy += (ty - sy) * 0.05;
+
+    orbs.forEach((orb, i) => {
+      const sp = speeds[i] || 20;
+      orb.style.transform = `translate(${sx * sp}px, ${sy * sp}px)`;
+    });
+
+    geos.forEach((geo, i) => {
+      const sp = geoSpeeds[i] || 10;
+      geo.style.transform = `translate(${sx * sp}px, ${sy * sp}px)`;
+    });
+
+    rafP = requestAnimationFrame(loop);
+  }
+  loop();
+
+  // Color shift per page
+  const pageColors = {
+    dashboard:  ['rgba(99,102,241,.18)', 'rgba(139,92,246,.12)'],
+    goals:      ['rgba(16,185,129,.14)', 'rgba(6,182,212,.10)'],
+    budgets:    ['rgba(245,158,11,.12)', 'rgba(239,68,68,.08)'],
+    stocks:     ['rgba(16,185,129,.16)', 'rgba(99,102,241,.10)'],
+    calculator: ['rgba(139,92,246,.14)', 'rgba(99,102,241,.10)'],
+    profile:    ['rgba(6,182,212,.12)',  'rgba(99,102,241,.10)'],
+  };
+
+  const orb1 = bg.querySelector('.app-orb-1');
+  const orb2 = bg.querySelector('.app-orb-2');
+
+  function shiftParallaxColors(pageId) {
+    const cols = pageColors[pageId];
+    if (!cols || !orb1 || !orb2) return;
+    orb1.style.background = `radial-gradient(circle, ${cols[0]} 0%, transparent 70%)`;
+    orb2.style.background = `radial-gradient(circle, ${cols[1]} 0%, transparent 70%)`;
+  }
+
+  // Hook into the existing navigate function
+  const origNavigate = window.navigate;
+  if (typeof origNavigate === 'function') {
+    window.navigate = function(pageId) {
+      origNavigate(pageId);
+      shiftParallaxColors(pageId);
+    };
+  } else {
+    // Observe nav-item clicks directly
+    document.querySelectorAll('.nav-item[data-page]').forEach(item => {
+      item.addEventListener('click', () => {
+        shiftParallaxColors(item.dataset.page);
+      });
+    });
+  }
+})();

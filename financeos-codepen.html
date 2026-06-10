@@ -130,29 +130,38 @@ body {
 .orb {
   position: absolute;
   border-radius: 50%;
-  filter: blur(80px);
-  opacity: .45;
+  filter: blur(90px);
   will-change: transform;
 }
 .orb-1 {
-  width: 700px; height: 700px;
-  background: radial-gradient(circle, #6366f1 0%, transparent 70%);
-  top: -250px; left: -200px;
+  width: 800px; height: 800px;
+  background: radial-gradient(circle, rgba(99,102,241,.55) 0%, transparent 65%);
+  top: -300px; left: -250px;
 }
 .orb-2 {
-  width: 500px; height: 500px;
-  background: radial-gradient(circle, #8b5cf6 0%, transparent 70%);
-  top: 25%; right: -150px;
+  width: 580px; height: 580px;
+  background: radial-gradient(circle, rgba(139,92,246,.45) 0%, transparent 65%);
+  top: 20%; right: -180px;
 }
 .orb-3 {
-  width: 350px; height: 350px;
-  background: radial-gradient(circle, #06b6d4 0%, transparent 70%);
-  bottom: 5%; left: 25%; opacity: .25;
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(6,182,212,.3) 0%, transparent 65%);
+  bottom: 0; left: 20%;
 }
 .orb-4 {
-  width: 280px; height: 280px;
-  background: radial-gradient(circle, #10b981 0%, transparent 70%);
-  top: 60%; left: 10%; opacity: .2;
+  width: 320px; height: 320px;
+  background: radial-gradient(circle, rgba(16,185,129,.28) 0%, transparent 65%);
+  top: 55%; left: 5%;
+}
+/* depth vignette */
+.parallax-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 120% 60% at 50% 0%, transparent 40%, rgba(5,5,16,.7) 100%),
+    radial-gradient(ellipse 80% 50% at 50% 100%, rgba(5,5,16,.5) 0%, transparent 60%);
+  pointer-events: none;
 }
 /* geometric parallax shapes */
 .geo-shape {
@@ -1968,6 +1977,101 @@ td.tick-down, .market-card.tick-down { animation: tickDownAnim 1.2s ease-out; }
   .results-kpis { grid-template-columns: 1fr 1fr; }
 }
 
+/* ══════════════════════════════════════════════
+   APP PARALLAX BACKGROUND
+══════════════════════════════════════════════ */
+.app-parallax-bg {
+  position: fixed;
+  top: var(--topbar-h);
+  left: var(--sidebar-w);
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+.app-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(100px);
+  will-change: transform;
+  transition: transform 0.1s linear;
+}
+.app-orb-1 {
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(99,102,241,.18) 0%, transparent 70%);
+  top: -200px; right: -100px;
+}
+.app-orb-2 {
+  width: 450px; height: 450px;
+  background: radial-gradient(circle, rgba(139,92,246,.12) 0%, transparent 70%);
+  bottom: -100px; left: 0;
+}
+.app-orb-3 {
+  width: 300px; height: 300px;
+  background: radial-gradient(circle, rgba(6,182,212,.08) 0%, transparent 70%);
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+}
+.app-geo {
+  position: absolute;
+  pointer-events: none;
+  will-change: transform;
+}
+.app-ring-1 {
+  width: 300px; height: 300px;
+  border: 1px solid rgba(99,102,241,.1);
+  border-radius: 50%;
+  top: 5%; right: 5%;
+  animation: appRingSpin 50s linear infinite;
+}
+.app-ring-2 {
+  width: 180px; height: 180px;
+  border: 1px solid rgba(139,92,246,.12);
+  border-radius: 50%;
+  bottom: 10%; left: 8%;
+  animation: appRingSpin 35s linear infinite reverse;
+}
+.app-dots {
+  width: 200px; height: 200px;
+  top: 55%; right: 12%;
+  background-image: radial-gradient(rgba(99,102,241,.2) 1px, transparent 1px);
+  background-size: 18px 18px;
+  opacity: .5;
+}
+@keyframes appRingSpin {
+  to { rotate: 360deg; }
+}
+
+/* Ensure page content is above parallax */
+.page { position: relative; z-index: 1; }
+
+/* ── INVESTOR PROFILE ICON (SVG) ── */
+.ip-icon {
+  width: 56px; height: 56px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 14px;
+  background: rgba(99,102,241,.1);
+  border: 1px solid rgba(99,102,241,.2);
+  color: var(--indigo);
+  margin: 0 auto 14px;
+  font-size: 0;
+  transition: background .2s, border-color .2s;
+}
+.ip-card.active .ip-icon {
+  background: rgba(99,102,241,.18);
+  border-color: rgba(99,102,241,.4);
+}
+
+/* Page section reveal animation */
+@keyframes pageSlideIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.page.active {
+  animation: pageSlideIn .35s cubic-bezier(.16,1,.3,1);
+}
+
 
 /* ══ VIEW SWITCHING ══ */
 #appView   { display: none; }
@@ -2538,7 +2642,7 @@ td.tick-down, .market-card.tick-down { animation: tickDownAnim 1.2s ease-out; }
   </button>
   <div class="topbar-title" id="pageTitle">Dashboard</div>
   <div class="topbar-actions">
-    <button class="btn-sm" id="cloudBtn" onclick="openCloudModal()" title="Salvar dados na nuvem via Firebase">☁ Nuvem</button>
+    <button class="btn-sm" id="cloudBtn" onclick="openCloudModal()" title="Salvar dados na nuvem via Firebase"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:5px"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>Nuvem</button>
     <button class="icon-btn" title="Notificações">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
       <span class="notif-dot"></span>
@@ -2550,11 +2654,21 @@ td.tick-down, .market-card.tick-down { animation: tickDownAnim 1.2s ease-out; }
 <!-- MAIN CONTENT -->
 <main class="main-content">
 
+  <!-- APP PARALLAX BACKGROUND -->
+  <div class="app-parallax-bg" id="appParallaxBg">
+    <div class="app-orb app-orb-1"></div>
+    <div class="app-orb app-orb-2"></div>
+    <div class="app-orb app-orb-3"></div>
+    <div class="app-geo app-ring-1"></div>
+    <div class="app-geo app-ring-2"></div>
+    <div class="app-geo app-dots"></div>
+  </div>
+
   <!-- ═══════════════════════════════ DASHBOARD ═══════════════════════════════ -->
   <section class="page active" id="dashboard">
     <div class="page-header">
       <div>
-        <h1 id="dashGreeting">Bom dia! 👋</h1>
+        <h1 id="dashGreeting">Bom dia!</h1>
         <p class="page-sub">Aqui está o resumo financeiro de hoje.</p>
       </div>
       <div class="page-header-actions">
@@ -2826,7 +2940,7 @@ td.tick-down, .market-card.tick-down { animation: tickDownAnim 1.2s ease-out; }
           <span class="live-badge"><span class="live-dot"></span> AO VIVO</span>
           <span class="live-updated" id="liveUpdated">conectando…</span>
         </div>
-        <button class="btn-sm" id="brapiBtn" onclick="configureBrapi()" title="Token brapi.dev opcional — o app já busca cotações reais automaticamente">🔌 Conectar B3 real</button>
+        <button class="btn-sm" id="brapiBtn" onclick="configureBrapi()" title="Token brapi.dev opcional — o app já busca cotações reais automaticamente"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:5px"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Conectar B3 real</button>
         <div class="stock-search-wrap">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           <input type="text" placeholder="Buscar ativo..." class="stock-search" id="stockSearch" />
@@ -3055,18 +3169,18 @@ td.tick-down, .market-card.tick-down { animation: tickDownAnim 1.2s ease-out; }
           <p class="tab-desc">Seu perfil define as recomendações e alertas personalizados.</p>
           <div class="investor-profiles">
             <div class="ip-card" data-profile="conservador">
-              <div class="ip-icon">🛡️</div>
+              <div class="ip-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
               <h4>Conservador</h4>
               <p>Prioriza segurança e liquidez. Renda fixa e CDBs.</p>
             </div>
             <div class="ip-card active" data-profile="moderado">
-              <div class="ip-icon">⚖️</div>
+              <div class="ip-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="12" y1="3" x2="12" y2="21"/><line x1="3" y1="12" x2="21" y2="12"/><path d="M3 9l3-6 6 3 6-3 3 6"/><path d="M3 15l3 6 6-3 6 3 3-6"/></svg></div>
               <h4>Moderado</h4>
               <p>Equilíbrio entre risco e retorno. Diversificação.</p>
               <div class="ip-current">Perfil atual</div>
             </div>
             <div class="ip-card" data-profile="arrojado">
-              <div class="ip-icon">🚀</div>
+              <div class="ip-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
               <h4>Arrojado</h4>
               <p>Aceita volatilidade buscando rentabilidade alta.</p>
             </div>
@@ -3316,7 +3430,7 @@ td.tick-down, .market-card.tick-down { animation: tickDownAnim 1.2s ease-out; }
 <div class="modal-backdrop" id="cloudModal">
   <div class="modal" style="max-width:580px">
     <div class="modal-header">
-      <h3>☁ Salvar na Nuvem (Firebase)</h3>
+      <h3><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-3px;margin-right:7px"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>Salvar na Nuvem (Firebase)</h3>
       <button class="modal-close" onclick="closeModal('cloudModal')">✕</button>
     </div>
     <div class="cloud-setup">
@@ -3430,7 +3544,7 @@ const _store = loadStore();
   if (greet) {
     const hr = new Date().getHours();
     const saudacao = hr < 12 ? 'Bom dia' : hr < 18 ? 'Boa tarde' : 'Boa noite';
-    greet.textContent = `${saudacao}, ${name.split(' ')[0]}! 👋`;
+    greet.textContent = `${saudacao}, ${name.split(' ')[0]}!`;
   }
   const ua = document.querySelector('.user-avatar');
   const un = document.querySelector('.user-name');
@@ -4414,7 +4528,7 @@ function refreshProfileUI(data) {
   const name = data.name || 'Usuário';
   const initials = name.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase() || 'U';
   const greet = document.getElementById('dashGreeting');
-  if (greet) greet.textContent = `Bom dia, ${name.split(' ')[0]}! 👋`;
+  if (greet) greet.textContent = `Bom dia, ${name.split(' ')[0]}!`;
   ['pfAvatarBig','pfAvatarBig'].forEach(() => {});
   const big = document.getElementById('pfAvatarBig');
   const dn  = document.getElementById('pfDisplayName');
@@ -4661,6 +4775,86 @@ if (_savedCfg?.databaseURL) {
   }, 800);
 }
 
+// ══════════════════════════════════════════════
+//  APP PARALLAX — mouse tracking
+// ══════════════════════════════════════════════
+(function initAppParallax() {
+  const bg = document.getElementById('appParallaxBg');
+  if (!bg) return;
+
+  const orbs = bg.querySelectorAll('.app-orb');
+  const geos = bg.querySelectorAll('.app-geo');
+
+  let tx = 0, ty = 0;   // raw
+  let sx = 0, sy = 0;   // smoothed
+  let rafP = null;
+
+  document.addEventListener('mousemove', (e) => {
+    const main = document.querySelector('.main-content');
+    if (!main) return;
+    const rect = main.getBoundingClientRect();
+    tx = ((e.clientX - rect.left) / rect.width  - 0.5) * 2;
+    ty = ((e.clientY - rect.top)  / rect.height - 0.5) * 2;
+  }, { passive: true });
+
+  const speeds = [20, 32, 14];
+  const geoSpeeds = [10, 16, 6];
+
+  function loop() {
+    sx += (tx - sx) * 0.05;
+    sy += (ty - sy) * 0.05;
+
+    orbs.forEach((orb, i) => {
+      const sp = speeds[i] || 20;
+      orb.style.transform = `translate(${sx * sp}px, ${sy * sp}px)`;
+    });
+
+    geos.forEach((geo, i) => {
+      const sp = geoSpeeds[i] || 10;
+      geo.style.transform = `translate(${sx * sp}px, ${sy * sp}px)`;
+    });
+
+    rafP = requestAnimationFrame(loop);
+  }
+  loop();
+
+  // Color shift per page
+  const pageColors = {
+    dashboard:  ['rgba(99,102,241,.18)', 'rgba(139,92,246,.12)'],
+    goals:      ['rgba(16,185,129,.14)', 'rgba(6,182,212,.10)'],
+    budgets:    ['rgba(245,158,11,.12)', 'rgba(239,68,68,.08)'],
+    stocks:     ['rgba(16,185,129,.16)', 'rgba(99,102,241,.10)'],
+    calculator: ['rgba(139,92,246,.14)', 'rgba(99,102,241,.10)'],
+    profile:    ['rgba(6,182,212,.12)',  'rgba(99,102,241,.10)'],
+  };
+
+  const orb1 = bg.querySelector('.app-orb-1');
+  const orb2 = bg.querySelector('.app-orb-2');
+
+  function shiftParallaxColors(pageId) {
+    const cols = pageColors[pageId];
+    if (!cols || !orb1 || !orb2) return;
+    orb1.style.background = `radial-gradient(circle, ${cols[0]} 0%, transparent 70%)`;
+    orb2.style.background = `radial-gradient(circle, ${cols[1]} 0%, transparent 70%)`;
+  }
+
+  // Hook into the existing navigate function
+  const origNavigate = window.navigate;
+  if (typeof origNavigate === 'function') {
+    window.navigate = function(pageId) {
+      origNavigate(pageId);
+      shiftParallaxColors(pageId);
+    };
+  } else {
+    // Observe nav-item clicks directly
+    document.querySelectorAll('.nav-item[data-page]').forEach(item => {
+      item.addEventListener('click', () => {
+        shiftParallaxColors(item.dataset.page);
+      });
+    });
+  }
+})();
+
 
 /* ══ LANDING JS ══ */
 'use strict';
@@ -4754,27 +4948,100 @@ function parallaxLoop() {
 parallaxLoop();
 
 // ══════════════════════════════════════════════
-//  FLOATING PARTICLES
+//  FLOATING PARTICLES  (canvas-based for lines)
 // ══════════════════════════════════════════════
 function spawnParticles() {
   const container = document.getElementById('particles');
   if (!container) return;
-  const colors = ['#6366f1','#8b5cf6','#06b6d4','#10b981'];
-  for (let i = 0; i < 28; i++) {
+
+  // DOM dots (existing style, more of them)
+  const colors = ['#6366f1','#8b5cf6','#06b6d4','#10b981','#a5b4fc'];
+  for (let i = 0; i < 40; i++) {
     const p = document.createElement('div');
     p.className = 'particle';
-    const size = Math.random() * 4 + 2;
+    const size = Math.random() * 3 + 1.5;
     p.style.cssText = `
       width:${size}px; height:${size}px;
       left:${Math.random() * 100}%;
-      top:${40 + Math.random() * 60}%;
+      top:${20 + Math.random() * 80}%;
       background:${colors[Math.floor(Math.random() * colors.length)]};
-      --dur:${6 + Math.random() * 10}s;
-      --del:${Math.random() * 8}s;
-      --travel:${200 + Math.random() * 400}px;
+      --dur:${8 + Math.random() * 12}s;
+      --del:${Math.random() * 10}s;
+      --travel:${150 + Math.random() * 350}px;
     `;
     container.appendChild(p);
   }
+
+  // Canvas for connecting lines
+  const canvas = document.createElement('canvas');
+  canvas.id = 'particleCanvas';
+  canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;pointer-events:none;';
+  container.appendChild(canvas);
+
+  const particleData = [];
+  const COUNT = 55;
+  const CONNECT_DIST = 140;
+
+  function resize() {
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize, { passive: true });
+
+  // Seed positions
+  for (let i = 0; i < COUNT; i++) {
+    particleData.push({
+      x:  Math.random() * window.innerWidth,
+      y:  Math.random() * window.innerHeight,
+      vx: (Math.random() - 0.5) * 0.35,
+      vy: (Math.random() - 0.5) * 0.25,
+      r:  Math.random() * 1.8 + 0.8,
+      c:  colors[Math.floor(Math.random() * colors.length)],
+    });
+  }
+
+  const ctx = canvas.getContext('2d');
+
+  function drawFrame() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const w = canvas.width, h = canvas.height;
+
+    particleData.forEach(p => {
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 0) p.x = w; if (p.x > w) p.x = 0;
+      if (p.y < 0) p.y = h; if (p.y > h) p.y = 0;
+    });
+
+    // Draw connecting lines
+    for (let i = 0; i < COUNT; i++) {
+      for (let j = i + 1; j < COUNT; j++) {
+        const dx = particleData[i].x - particleData[j].x;
+        const dy = particleData[i].y - particleData[j].y;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        if (dist < CONNECT_DIST) {
+          ctx.beginPath();
+          ctx.moveTo(particleData[i].x, particleData[i].y);
+          ctx.lineTo(particleData[j].x, particleData[j].y);
+          const alpha = (1 - dist / CONNECT_DIST) * 0.18;
+          ctx.strokeStyle = `rgba(99,102,241,${alpha})`;
+          ctx.lineWidth = 0.8;
+          ctx.stroke();
+        }
+      }
+    }
+
+    // Draw dots
+    particleData.forEach(p => {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = p.c + 'bb';
+      ctx.fill();
+    });
+
+    requestAnimationFrame(drawFrame);
+  }
+  drawFrame();
 }
 spawnParticles();
 

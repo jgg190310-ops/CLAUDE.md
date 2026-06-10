@@ -89,27 +89,100 @@ function parallaxLoop() {
 parallaxLoop();
 
 // ══════════════════════════════════════════════
-//  FLOATING PARTICLES
+//  FLOATING PARTICLES  (canvas-based for lines)
 // ══════════════════════════════════════════════
 function spawnParticles() {
   const container = document.getElementById('particles');
   if (!container) return;
-  const colors = ['#6366f1','#8b5cf6','#06b6d4','#10b981'];
-  for (let i = 0; i < 28; i++) {
+
+  // DOM dots (existing style, more of them)
+  const colors = ['#6366f1','#8b5cf6','#06b6d4','#10b981','#a5b4fc'];
+  for (let i = 0; i < 40; i++) {
     const p = document.createElement('div');
     p.className = 'particle';
-    const size = Math.random() * 4 + 2;
+    const size = Math.random() * 3 + 1.5;
     p.style.cssText = `
       width:${size}px; height:${size}px;
       left:${Math.random() * 100}%;
-      top:${40 + Math.random() * 60}%;
+      top:${20 + Math.random() * 80}%;
       background:${colors[Math.floor(Math.random() * colors.length)]};
-      --dur:${6 + Math.random() * 10}s;
-      --del:${Math.random() * 8}s;
-      --travel:${200 + Math.random() * 400}px;
+      --dur:${8 + Math.random() * 12}s;
+      --del:${Math.random() * 10}s;
+      --travel:${150 + Math.random() * 350}px;
     `;
     container.appendChild(p);
   }
+
+  // Canvas for connecting lines
+  const canvas = document.createElement('canvas');
+  canvas.id = 'particleCanvas';
+  canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;pointer-events:none;';
+  container.appendChild(canvas);
+
+  const particleData = [];
+  const COUNT = 55;
+  const CONNECT_DIST = 140;
+
+  function resize() {
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize, { passive: true });
+
+  // Seed positions
+  for (let i = 0; i < COUNT; i++) {
+    particleData.push({
+      x:  Math.random() * window.innerWidth,
+      y:  Math.random() * window.innerHeight,
+      vx: (Math.random() - 0.5) * 0.35,
+      vy: (Math.random() - 0.5) * 0.25,
+      r:  Math.random() * 1.8 + 0.8,
+      c:  colors[Math.floor(Math.random() * colors.length)],
+    });
+  }
+
+  const ctx = canvas.getContext('2d');
+
+  function drawFrame() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const w = canvas.width, h = canvas.height;
+
+    particleData.forEach(p => {
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 0) p.x = w; if (p.x > w) p.x = 0;
+      if (p.y < 0) p.y = h; if (p.y > h) p.y = 0;
+    });
+
+    // Draw connecting lines
+    for (let i = 0; i < COUNT; i++) {
+      for (let j = i + 1; j < COUNT; j++) {
+        const dx = particleData[i].x - particleData[j].x;
+        const dy = particleData[i].y - particleData[j].y;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        if (dist < CONNECT_DIST) {
+          ctx.beginPath();
+          ctx.moveTo(particleData[i].x, particleData[i].y);
+          ctx.lineTo(particleData[j].x, particleData[j].y);
+          const alpha = (1 - dist / CONNECT_DIST) * 0.18;
+          ctx.strokeStyle = `rgba(99,102,241,${alpha})`;
+          ctx.lineWidth = 0.8;
+          ctx.stroke();
+        }
+      }
+    }
+
+    // Draw dots
+    particleData.forEach(p => {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = p.c + 'bb';
+      ctx.fill();
+    });
+
+    requestAnimationFrame(drawFrame);
+  }
+  drawFrame();
 }
 spawnParticles();
 
