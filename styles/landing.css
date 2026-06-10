@@ -143,6 +143,72 @@ body {
   background: radial-gradient(circle, #10b981 0%, transparent 70%);
   top: 60%; left: 10%; opacity: .2;
 }
+/* geometric parallax shapes */
+.geo-shape {
+  position: absolute;
+  pointer-events: none;
+  will-change: transform;
+}
+.geo-ring-1 {
+  width: 320px; height: 320px;
+  border: 1px solid rgba(99,102,241,.18);
+  border-radius: 50%;
+  top: 8%; right: 18%;
+  animation: spinSlow 40s linear infinite;
+}
+.geo-ring-2 {
+  width: 180px; height: 180px;
+  border: 1.5px solid rgba(139,92,246,.22);
+  border-radius: 50%;
+  top: 55%; left: 8%;
+  animation: spinSlow 28s linear infinite reverse;
+}
+.geo-hex {
+  width: 100px; height: 115px;
+  top: 30%; right: 6%;
+  opacity: .15;
+  background: transparent;
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  border: 1px solid rgba(6,182,212,.4);
+  background: rgba(6,182,212,.06);
+  animation: floatGeo 8s ease-in-out infinite;
+}
+.geo-cross {
+  width: 24px; height: 24px;
+  top: 70%; right: 30%;
+  opacity: .35;
+}
+.geo-cross::before, .geo-cross::after {
+  content: '';
+  position: absolute;
+  background: rgba(99,102,241,.5);
+  border-radius: 2px;
+}
+.geo-cross::before { width: 2px; height: 100%; left: 50%; transform: translateX(-50%); }
+.geo-cross::after  { width: 100%; height: 2px; top: 50%; transform: translateY(-50%); }
+
+.geo-dot-grid {
+  width: 200px; height: 200px;
+  top: 15%; left: 55%;
+  background-image: radial-gradient(rgba(99,102,241,.35) 1.5px, transparent 1.5px);
+  background-size: 20px 20px;
+  border-radius: 8px;
+  opacity: .4;
+}
+.geo-line-v {
+  width: 1px; height: 120px;
+  background: linear-gradient(to bottom, transparent, rgba(139,92,246,.5), transparent);
+  top: 40%; left: 45%;
+  animation: floatGeo 6s ease-in-out infinite 2s;
+}
+@keyframes spinSlow {
+  to { rotate: 360deg; }
+}
+@keyframes floatGeo {
+  0%,100% { transform: translateY(0px); }
+  50%     { transform: translateY(-14px); }
+}
+
 .grid-overlay {
   position: absolute; inset: 0;
   background-image:
@@ -377,10 +443,11 @@ body {
 }
 .float-anim {
   animation: floatBadge 4s var(--delay,0s) ease-in-out infinite;
+  transition: translate .15s ease-out;
 }
 @keyframes floatBadge {
-  0%,100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+  0%,100% { translate: var(--mx,0px) var(--my,0px); }
+  50%     { translate: var(--mx,0px) calc(var(--my,0px) - 10px); }
 }
 .badge-1 { bottom: 20%; left: -30px; }
 .badge-2 { top: 15%; right: -20px; }
@@ -401,6 +468,7 @@ body {
 .marquee-item {
   font-size: 14px; font-weight: 600; color: var(--text-3);
   white-space: nowrap; flex-shrink: 0;
+  display: inline-flex; align-items: center; gap: 7px;
 }
 @keyframes marquee { from{transform:translateX(0)} to{transform:translateX(-50%)} }
 
@@ -476,7 +544,13 @@ body {
   -webkit-background-clip: text; -webkit-text-fill-color: transparent;
   background-clip: text; margin-bottom: 8px;
 }
-.step-icon { font-size: 28px; margin-bottom: 12px; }
+.step-icon {
+  display: flex; align-items: center; justify-content: center;
+  width: 56px; height: 56px; border-radius: 14px;
+  background: rgba(99,102,241,.1); border: 1px solid rgba(99,102,241,.2);
+  color: var(--indigo);
+  margin-bottom: 16px;
+}
 .step h3 { font-size: 19px; font-weight: 700; margin-bottom: 8px; }
 .step p  { font-size: 14px; color: var(--text-2); line-height: 1.65; }
 .step-connector {
@@ -637,9 +711,12 @@ body {
 .pass-wrap input { padding-right: 42px; }
 .pass-toggle {
   position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
-  background: none; border: none; cursor: pointer; font-size: 16px;
-  line-height: 1; padding: 2px;
+  background: none; border: none; cursor: pointer;
+  line-height: 1; padding: 4px;
+  color: var(--text-3); transition: color .2s; display: flex;
 }
+.pass-toggle:hover { color: var(--text-2); }
+.eye-icon { display: block; }
 .pass-strength { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
 .ps-bar { flex: 1; height: 3px; background: rgba(255,255,255,.1); border-radius: 2px; }
 .ps-fill { height: 100%; border-radius: 2px; transition: width .3s, background .3s; width: 0%; }

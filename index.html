@@ -49,10 +49,17 @@
 <section class="hero" id="hero">
   <!-- parallax layers -->
   <div class="parallax-bg" id="parallaxBg">
-    <div class="orb orb-1" data-speed="0.3"></div>
-    <div class="orb orb-2" data-speed="0.5"></div>
-    <div class="orb orb-3" data-speed="0.2"></div>
-    <div class="orb orb-4" data-speed="0.4"></div>
+    <div class="orb orb-1" data-speed="0.3" data-mspeed="18"></div>
+    <div class="orb orb-2" data-speed="0.5" data-mspeed="32"></div>
+    <div class="orb orb-3" data-speed="0.2" data-mspeed="10"></div>
+    <div class="orb orb-4" data-speed="0.4" data-mspeed="24"></div>
+    <!-- geometric depth shapes -->
+    <div class="geo-shape geo-ring-1"   data-speed="0.18" data-mspeed="22"></div>
+    <div class="geo-shape geo-ring-2"   data-speed="0.35" data-mspeed="40"></div>
+    <div class="geo-shape geo-hex"      data-speed="0.25" data-mspeed="15"></div>
+    <div class="geo-shape geo-cross"    data-speed="0.45" data-mspeed="50"></div>
+    <div class="geo-shape geo-dot-grid" data-speed="0.12" data-mspeed="8"></div>
+    <div class="geo-shape geo-line-v"   data-speed="0.38" data-mspeed="44"></div>
     <div class="grid-overlay"></div>
     <!-- floating particles -->
     <div class="particles" id="particles"></div>
@@ -147,16 +154,19 @@
         <div class="ticker-item up">USD <b>R$5,76</b> <small>+0,3%</small></div>
       </div>
     </div>
-    <!-- floating badge cards -->
-    <div class="float-badge badge-1 float-anim">
-      <span>🎯</span> Meta atingida!
-    </div>
-    <div class="float-badge badge-2 float-anim" style="--delay:1.2s">
-      <span>📈</span> +23% este ano
-    </div>
-    <div class="float-badge badge-3 float-anim" style="--delay:0.6s">
-      <span>🔔</span> Alerta de orçamento
-    </div>
+  <!-- floating badge cards -->
+  <div class="float-badge badge-1 float-anim">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+    Meta atingida
+  </div>
+  <div class="float-badge badge-2 float-anim" style="--delay:1.2s">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2.5"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+    +23% este ano
+  </div>
+  <div class="float-badge badge-3 float-anim" style="--delay:0.6s">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+    Alerta de orçamento
+  </div>
   </div>
 
   <!-- scroll indicator -->
@@ -169,20 +179,22 @@
 <!-- ══════════════ MARQUEE ══════════════ -->
 <div class="marquee-section">
   <div class="marquee-track">
-    <div class="marquee-item">📊 Dashboard Inteligente</div>
-    <div class="marquee-item">🎯 Gestão de Metas</div>
-    <div class="marquee-item">💼 Bolsa em Tempo Real</div>
-    <div class="marquee-item">📦 Orçamentos Dinâmicos</div>
-    <div class="marquee-item">📈 Juros Compostos</div>
-    <div class="marquee-item">☁ Salvamento na Nuvem</div>
-    <div class="marquee-item">🔐 Dados Seguros</div>
-    <div class="marquee-item">📊 Dashboard Inteligente</div>
-    <div class="marquee-item">🎯 Gestão de Metas</div>
-    <div class="marquee-item">💼 Bolsa em Tempo Real</div>
-    <div class="marquee-item">📦 Orçamentos Dinâmicos</div>
-    <div class="marquee-item">📈 Juros Compostos</div>
-    <div class="marquee-item">☁ Salvamento na Nuvem</div>
-    <div class="marquee-item">🔐 Dados Seguros</div>
+    <div class="marquee-item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg> Dashboard Inteligente</div>
+    <div class="marquee-item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg> Gestão de Metas</div>
+    <div class="marquee-item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/></svg> Bolsa em Tempo Real</div>
+    <div class="marquee-item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg> Orçamentos Dinâmicos</div>
+    <div class="marquee-item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 16c.5-2 1.5-7 4-7s3 7 5.5 7 3-5 3-5"/></svg> Juros Compostos</div>
+    <div class="marquee-item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg> Análise de Carteira</div>
+    <div class="marquee-item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg> Multi-dispositivos</div>
+    <div class="marquee-item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Dados Seguros</div>
+    <div class="marquee-item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg> Dashboard Inteligente</div>
+    <div class="marquee-item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg> Gestão de Metas</div>
+    <div class="marquee-item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/></svg> Bolsa em Tempo Real</div>
+    <div class="marquee-item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg> Orçamentos Dinâmicos</div>
+    <div class="marquee-item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 16c.5-2 1.5-7 4-7s3 7 5.5 7 3-5 3-5"/></svg> Juros Compostos</div>
+    <div class="marquee-item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg> Análise de Carteira</div>
+    <div class="marquee-item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg> Multi-dispositivos</div>
+    <div class="marquee-item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Dados Seguros</div>
   </div>
 </div>
 
@@ -253,21 +265,27 @@
     <div class="steps">
       <div class="step reveal-card" style="--ci:0">
         <div class="step-number">01</div>
-        <div class="step-icon">🚀</div>
+        <div class="step-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/><path d="M19 8l2-2m0 0l-2-2m2 2h-4"/></svg>
+        </div>
         <h3>Crie sua conta</h3>
         <p>Cadastro em segundos, sem cartão. Comece gratuitamente agora mesmo.</p>
       </div>
       <div class="step-connector reveal"><div class="connector-line"></div></div>
       <div class="step reveal-card" style="--ci:1">
         <div class="step-number">02</div>
-        <div class="step-icon">⚙️</div>
+        <div class="step-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </div>
         <h3>Configure seu perfil</h3>
         <p>Adicione receitas, despesas e metas. Defina seu perfil de investidor.</p>
       </div>
       <div class="step-connector reveal"><div class="connector-line"></div></div>
       <div class="step reveal-card" style="--ci:2">
         <div class="step-number">03</div>
-        <div class="step-icon">💰</div>
+        <div class="step-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        </div>
         <h3>Tome decisões melhores</h3>
         <p>Use os insights para otimizar gastos e acelerar seus investimentos.</p>
       </div>
@@ -396,7 +414,7 @@
           <label>Senha</label>
           <div class="pass-wrap">
             <input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password"/>
-            <button class="pass-toggle" onclick="togglePass('loginPass',this)" type="button">👁</button>
+            <button class="pass-toggle" onclick="togglePass('loginPass',this)" type="button" aria-label="Mostrar senha"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="eye-icon"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
           </div>
         </div>
         <div class="auth-row">
@@ -437,7 +455,7 @@
           <label>Senha</label>
           <div class="pass-wrap">
             <input type="password" id="signupPass" placeholder="Mínimo 6 caracteres" autocomplete="new-password"/>
-            <button class="pass-toggle" onclick="togglePass('signupPass',this)" type="button">👁</button>
+            <button class="pass-toggle" onclick="togglePass('signupPass',this)" type="button" aria-label="Mostrar senha"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="eye-icon"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
           </div>
           <div class="pass-strength" id="passStrength">
             <div class="ps-bar"><div class="ps-fill" id="psFill"></div></div>

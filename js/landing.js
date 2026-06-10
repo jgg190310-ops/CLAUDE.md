@@ -22,25 +22,71 @@ function closeMobileMenu() {
 }
 
 // ══════════════════════════════════════════════
-//  PARALLAX
+//  PARALLAX — scroll + mouse-tracking + tilt
 // ══════════════════════════════════════════════
 const orbs = document.querySelectorAll('.orb[data-speed]');
 const dashboardPreview = document.querySelector('.dashboard-preview');
+const geoShapes = document.querySelectorAll('.geo-shape');
+const floatBadges = document.querySelectorAll('.float-badge');
 
-function onScroll() {
-  const sy = window.scrollY;
+// Smoothed mouse position (lerp)
+let mx = 0, my = 0;   // raw normalized [-1, 1]
+let smx = 0, smy = 0; // smoothed
+let scrollY = 0;
+let rafId = null;
+
+window.addEventListener('mousemove', (e) => {
+  mx = (e.clientX / window.innerWidth  - 0.5) * 2;
+  my = (e.clientY / window.innerHeight - 0.5) * 2;
+}, { passive: true });
+
+window.addEventListener('scroll', () => { scrollY = window.scrollY; }, { passive: true });
+
+function parallaxLoop() {
+  // Lerp towards target mouse
+  smx += (mx - smx) * 0.06;
+  smy += (my - smy) * 0.06;
+
+  // Scroll-based orb movement + mouse offset
   orbs.forEach(orb => {
-    const speed = parseFloat(orb.dataset.speed) || 0.3;
-    orb.style.transform = `translateY(${sy * speed}px)`;
+    const sp  = parseFloat(orb.dataset.speed) || 0.3;
+    const msp = parseFloat(orb.dataset.mspeed) || sp * 30;
+    const tx  = smx * msp;
+    const ty  = smy * msp + scrollY * sp;
+    orb.style.transform = `translate(${tx}px, ${ty}px)`;
   });
-  if (dashboardPreview) {
-    const speed = parseFloat(dashboardPreview.dataset.speed) || 0.15;
-    dashboardPreview.style.transform =
-      `rotateY(-4deg) rotateX(3deg) translateY(${sy * speed}px)`;
-  }
-}
 
-window.addEventListener('scroll', onScroll, { passive: true });
+  // Geometric shapes — different mouse speeds for depth
+  geoShapes.forEach(s => {
+    const sp  = parseFloat(s.dataset.speed) || 0.2;
+    const msp = parseFloat(s.dataset.mspeed) || sp * 50;
+    const tx  = smx * msp;
+    const ty  = smy * msp + scrollY * sp;
+    s.style.transform = `translate(${tx}px, ${ty}px) rotate(${scrollY * sp * 0.1}deg)`;
+  });
+
+  // Dashboard card: 3D tilt following mouse
+  if (dashboardPreview) {
+    const sp  = parseFloat(dashboardPreview.dataset.speed) || 0.15;
+    const rx  =  smy * 8;   // pitch
+    const ry  = -smx * 12;  // yaw
+    const ty  = scrollY * sp;
+    dashboardPreview.style.transform =
+      `perspective(1000px) rotateX(${rx}deg) rotateY(${ry - 4}deg) translateY(${ty}px)`;
+  }
+
+  // Float badges subtle sway with mouse
+  floatBadges.forEach((b, i) => {
+    const dir = i % 2 === 0 ? 1 : -1;
+    const tx  = smx * 8 * dir;
+    const ty  = smy * 5;
+    b.style.setProperty('--mx', `${tx}px`);
+    b.style.setProperty('--my', `${ty}px`);
+  });
+
+  rafId = requestAnimationFrame(parallaxLoop);
+}
+parallaxLoop();
 
 // ══════════════════════════════════════════════
 //  FLOATING PARTICLES
@@ -191,12 +237,15 @@ document.getElementById('signupPass')?.addEventListener('input', function() {
   label.style.color   = l.color;
 });
 
+const EYE_OPEN  = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="eye-icon"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+const EYE_SLASH = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="eye-icon"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`;
+
 function togglePass(inputId, btn) {
   const inp = document.getElementById(inputId);
   if (!inp) return;
   const isText = inp.type === 'text';
   inp.type = isText ? 'password' : 'text';
-  btn.textContent = isText ? '👁' : '🙈';
+  btn.innerHTML = isText ? EYE_OPEN : EYE_SLASH;
 }
 
 // ── Local auth (sem Firebase) — persiste no localStorage ──
