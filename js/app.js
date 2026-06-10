@@ -562,53 +562,129 @@ async function fetchUsd() {
   setSourceLabel();
 }
 
+// Aplica resultado brapi (token ou público) nos ativos
+function applyB3Results(results) {
+  let updated = 0;
+  (results || []).forEach(res => {
+    if (!res.regularMarketPrice) return;
+    if (res.symbol === '^BVSP' || res.symbol === 'BVSP') {
+      marketIndices.ibov.val  = res.regularMarketPrice;
+      marketIndices.ibov.base = res.regularMarketPrice;
+      if (typeof res.regularMarketChangePercent === 'number') marketIndices.ibov.chg = res.regularMarketChangePercent;
+      marketIndices.ibov.live = true;
+      updated++;
+      return;
+    }
+    ['acoes', 'fiis'].forEach(cat => {
+      const a = stocksData[cat].find(s => s.ticker === res.symbol);
+      if (a) {
+        a.price = res.regularMarketPrice;
+        a.base  = res.regularMarketPrice;
+        a.total = a.qty * a.price;
+        a.live  = true;
+        updated++;
+      }
+    });
+  });
+  if (updated > 0) touchUpdate();
+  return updated;
+}
+
+// Tenta Yahoo Finance via proxy CORS público (sem cadastro)
+async function fetchYahooViaProxy(ticker) {
+  const symbol = ticker === '^BVSP' ? '%5EBVSP' : `${ticker}.SA`;
+  const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=1d`;
+  const proxies = [
+    `https://corsproxy.io/?${encodeURIComponent(url)}`,
+    `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
+  ];
+  for (const proxy of proxies) {
+    try {
+      const r = await fetch(proxy, { signal: AbortSignal.timeout(6000) });
+      if (!r.ok) continue;
+      const raw = await r.json();
+      // allorigins envolve em { contents: "..." }
+      const text = raw.contents !== undefined ? raw.contents : JSON.stringify(raw);
+      const d = typeof text === 'string' ? JSON.parse(text) : text;
+      const meta = d?.chart?.result?.[0]?.meta;
+      if (!meta?.regularMarketPrice) continue;
+      return {
+        symbol: ticker,
+        regularMarketPrice: meta.regularMarketPrice,
+        regularMarketChangePercent: meta.regularMarketPrice && meta.chartPreviousClose
+          ? ((meta.regularMarketPrice - meta.chartPreviousClose) / meta.chartPreviousClose) * 100
+          : 0,
+      };
+    } catch (e) { /* tenta o próximo proxy */ }
+  }
+  return null;
+}
+
+// Busca B3 sem precisar de token: tenta brapi público → Yahoo Finance via proxy
 async function fetchB3() {
   const token = localStorage.getItem('brapiToken');
-  if (!token) { setSourceLabel(); return; }
-  try {
-    const tickers = ['ITSA4', 'PETR4', 'VALE3', 'BBAS3', 'WEGE3', 'MXRF11', 'HGLG11', 'XPML11', '^BVSP'];
-    const r = await fetch(`https://brapi.dev/api/quote/${tickers.join(',')}?token=${encodeURIComponent(token)}`);
-    if (!r.ok) throw new Error(r.status);
-    const d = await r.json();
-    (d.results || []).forEach(res => {
-      if (!res.regularMarketPrice) return;
-      if (res.symbol === '^BVSP') {
-        marketIndices.ibov.val  = res.regularMarketPrice;
-        marketIndices.ibov.base = res.regularMarketPrice; // ancora o simulador
-        if (typeof res.regularMarketChangePercent === 'number') marketIndices.ibov.chg = res.regularMarketChangePercent;
-        marketIndices.ibov.live = true;
-        return;
+  const tickers = ['ITSA4', 'PETR4', 'VALE3', 'BBAS3', 'WEGE3', 'MXRF11', 'HGLG11', 'XPML11', '^BVSP'];
+
+  // 1) brapi.dev com token (prioridade máxima)
+  if (token) {
+    try {
+      const r = await fetch(
+        `https://brapi.dev/api/quote/${tickers.join(',')}?token=${encodeURIComponent(token)}`,
+        { signal: AbortSignal.timeout(8000) }
+      );
+      if (r.ok) {
+        const d = await r.json();
+        const n = applyB3Results(d.results);
+        if (n > 0) { setSourceLabel(); return; }
       }
-      ['acoes', 'fiis'].forEach(cat => {
-        const a = stocksData[cat].find(s => s.ticker === res.symbol);
-        if (a) {
-          a.price = res.regularMarketPrice;
-          a.base  = res.regularMarketPrice; // ancora o simulador no preço real
-          a.total = a.qty * a.price;
-          a.live  = true;
-        }
-      });
-    });
-    touchUpdate();
-  } catch (e) { /* token inválido/limite — simulação continua */ }
+    } catch (e) { /* cai para próxima fonte */ }
+  }
+
+  // 2) brapi.dev SEM token (tier público — funciona com limite de requisições)
+  try {
+    const r = await fetch(
+      `https://brapi.dev/api/quote/${tickers.join(',')}`,
+      { signal: AbortSignal.timeout(8000) }
+    );
+    if (r.ok) {
+      const d = await r.json();
+      const n = applyB3Results(d.results);
+      if (n > 0) { setSourceLabel(); return; }
+    }
+  } catch (e) { /* cai para próxima fonte */ }
+
+  // 3) Yahoo Finance via proxy CORS — busca individualmente (mais lento mas sem cadastro)
+  let yahooBatch = 0;
+  for (const ticker of tickers) {
+    try {
+      const res = await fetchYahooViaProxy(ticker);
+      if (res) { applyB3Results([res]); yahooBatch++; }
+    } catch (e) { /* continua */ }
+  }
+  if (yahooBatch > 0) { setSourceLabel(); return; }
+
+  // 4) nenhuma fonte funcionou → simulação OU notifica que mercado está fechado
   setSourceLabel();
 }
 
 function configureBrapi() {
   const cur = localStorage.getItem('brapiToken') || '';
-  const t = prompt('Cotações REAIS da B3 (ações, FIIs e IBOV):\n\n1. Crie uma conta gratuita em https://brapi.dev\n2. Copie seu token e cole abaixo\n\n(deixe vazio para voltar à simulação)', cur);
+  const t = prompt(
+    'Token brapi.dev (opcional — melhora a estabilidade das cotações):\n\n' +
+    '1. Crie uma conta gratuita em https://brapi.dev\n' +
+    '2. Copie seu token e cole abaixo\n\n' +
+    'Obs: sem token o app já tenta buscar cotações reais automaticamente.\n' +
+    '(deixe vazio para remover o token salvo)', cur
+  );
   if (t === null) return;
   if (t.trim()) {
     localStorage.setItem('brapiToken', t.trim());
-    showToast('Token salvo! Buscando cotações reais da B3…', 'success');
-    fetchB3();
+    showToast('Token salvo! Buscando cotações…', 'success');
   } else {
     localStorage.removeItem('brapiToken');
-    ['acoes', 'fiis'].forEach(cat => stocksData[cat].forEach(s => { s.live = false; }));
-    marketIndices.ibov.live = false;
-    showToast('Token removido — B3 em modo simulação');
-    setSourceLabel();
+    showToast('Token removido');
   }
+  fetchB3();
 }
 
 function simTick() {
@@ -680,15 +756,20 @@ function updateLiveLabel() {
 function setSourceLabel() {
   const el = document.getElementById('liveSource');
   if (!el) return;
-  const b3Live = marketIndices.ibov.live || stocksData.acoes.some(s => s.live);
+  const b3Live   = marketIndices.ibov.live || stocksData.acoes.some(s => s.live);
+  const liveCount = [...stocksData.acoes, ...stocksData.fiis].filter(s => s.live).length;
   const parts = [
-    marketIndices.btc.live ? '🟢 Cripto: CoinGecko (ao vivo)' : '🟡 Cripto: simulado',
-    marketIndices.usd.live ? '🟢 Câmbio: AwesomeAPI (ao vivo)' : '🟡 Câmbio: simulado',
+    marketIndices.btc.live ? '🟢 Cripto: ao vivo'     : '🟡 Cripto: simulado',
+    marketIndices.usd.live ? '🟢 Câmbio: ao vivo'     : '🟡 Câmbio: simulado',
     b3Live
-      ? '🟢 B3: brapi.dev (ao vivo)'
-      : '🟡 B3: simulado (±oscilação em torno do preço base) — clique em "Conectar B3 real" para cotações reais',
+      ? `🟢 B3: ${liveCount} ativos ao vivo`
+      : '🟡 B3: buscando cotações reais… (simulado enquanto aguarda)',
   ];
   el.textContent = parts.join('   ');
+
+  // botão de configuração: muda texto conforme estado
+  const btn = document.getElementById('brapiBtn');
+  if (btn) btn.textContent = b3Live ? '🔌 B3 conectada' : '🔌 Conectar B3 real';
 }
 
 function startLiveMarket() {
