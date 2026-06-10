@@ -509,8 +509,8 @@ function renderStocks(tab) {
         <div class="asset-desc">${s.name}</div>
       </td>
       <td>${s.qty.toLocaleString('pt-BR')}</td>
-      <td>R$ ${s.avgPrice.toLocaleString('pt-BR', {minimumFractionDigits:2})}</td>
-      <td class="${tickCls}">R$ ${s.price.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2})}</td>
+      <td>${s.currency === 'USD' ? 'US$' : 'R$'} ${s.avgPrice.toLocaleString('pt-BR', {minimumFractionDigits:2})}</td>
+      <td class="${tickCls}">${s.currency === 'USD' ? 'US$' : 'R$'} ${s.price.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2})}</td>
       <td class="${rentabClass}">${rentabSign}${rentab.toFixed(2)}%</td>
       <td>R$ ${s.total.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2})}</td>
       <td><span class="tag ${rentab >= 0 ? 'green' : 'red'}">${rentabSign}${rentab.toFixed(1)}%</span></td>
@@ -864,18 +864,21 @@ function setSourceLabel() {
   if (!el) return;
   const b3Live   = marketIndices.ibov.live || stocksData.acoes.some(s => s.live);
   const liveCount = [...stocksData.acoes, ...stocksData.fiis].filter(s => s.live).length;
+  const dot = (live) => live ? '● ' : '○ ';
   const parts = [
-    marketIndices.btc.live ? '🟢 Cripto: ao vivo'     : '🟡 Cripto: simulado',
-    marketIndices.usd.live ? '🟢 Câmbio: ao vivo'     : '🟡 Câmbio: simulado',
+    dot(marketIndices.btc.live) + (marketIndices.btc.live ? 'Cripto ao vivo'  : 'Cripto: simulado'),
+    dot(marketIndices.usd.live) + (marketIndices.usd.live ? 'Câmbio ao vivo'  : 'Câmbio: simulado'),
     b3Live
-      ? `🟢 B3: ${liveCount} ativos ao vivo`
-      : '🟡 B3: buscando cotações reais… (simulado enquanto aguarda)',
+      ? `● B3: ${liveCount} ativos ao vivo`
+      : '○ B3: buscando cotações…',
   ];
-  el.textContent = parts.join('   ');
+  el.textContent = parts.join('   ·   ');
 
-  // botão de configuração: muda texto conforme estado
   const btn = document.getElementById('brapiBtn');
-  if (btn) btn.textContent = b3Live ? '🔌 B3 conectada' : '🔌 Conectar B3 real';
+  if (btn) {
+    const svgCloud = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:5px"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>`;
+    btn.innerHTML = svgCloud + (b3Live ? 'B3 conectada' : 'Conectar B3 real');
+  }
 }
 
 function startLiveMarket() {
