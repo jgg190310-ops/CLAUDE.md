@@ -396,7 +396,15 @@ body {
   align-items: center;
   gap: 12px;
 }
-.goal-emoji { font-size: 28px; }
+.goal-icon-svg {
+  width: 46px; height: 46px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  background: color-mix(in srgb, var(--ic, #6366f1) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ic, #6366f1) 20%, transparent);
+  color: var(--ic, #6366f1);
+  flex-shrink: 0;
+}
 .goal-name { font-size: 15px; font-weight: 700; }
 .goal-deadline { font-size: 12px; color: var(--text-3); margin-top: 2px; }
 .goal-status { padding: 4px 10px; border-radius: 50px; font-size: 11px; font-weight: 700; }
@@ -465,8 +473,9 @@ body {
   width: 44px; height: 44px;
   border-radius: 12px;
   display: flex; align-items: center; justify-content: center;
-  font-size: 22px;
-  background: rgba(255,255,255,0.05);
+  background: color-mix(in srgb, var(--ic, #6366f1) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ic, #6366f1) 18%, transparent);
+  color: var(--ic, #6366f1);
   flex-shrink: 0;
 }
 .budget-main { flex: 1; }
@@ -1136,25 +1145,25 @@ td.tick-down, .market-card.tick-down { animation: tickDownAnim 1.2s ease-out; }
 .app-orb {
   position: absolute;
   border-radius: 50%;
-  filter: blur(100px);
+  filter: blur(110px);
   will-change: transform;
-  transition: transform 0.1s linear;
+  transition: background 1.2s ease;
 }
 .app-orb-1 {
-  width: 600px; height: 600px;
-  background: radial-gradient(circle, rgba(99,102,241,.18) 0%, transparent 70%);
-  top: -200px; right: -100px;
+  width: 700px; height: 700px;
+  background: radial-gradient(circle, rgba(99,102,241,.22) 0%, transparent 70%);
+  top: -280px; right: -150px;
 }
 .app-orb-2 {
-  width: 450px; height: 450px;
-  background: radial-gradient(circle, rgba(139,92,246,.12) 0%, transparent 70%);
-  bottom: -100px; left: 0;
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(139,92,246,.16) 0%, transparent 70%);
+  bottom: -150px; left: -80px;
 }
 .app-orb-3 {
-  width: 300px; height: 300px;
-  background: radial-gradient(circle, rgba(6,182,212,.08) 0%, transparent 70%);
+  width: 350px; height: 350px;
+  background: radial-gradient(circle, rgba(6,182,212,.1) 0%, transparent 70%);
   top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
+  translate: -50% -50%;
 }
 .app-geo {
   position: absolute;
@@ -1162,25 +1171,25 @@ td.tick-down, .market-card.tick-down { animation: tickDownAnim 1.2s ease-out; }
   will-change: transform;
 }
 .app-ring-1 {
-  width: 300px; height: 300px;
-  border: 1px solid rgba(99,102,241,.1);
+  width: 360px; height: 360px;
+  border: 1px solid rgba(99,102,241,.12);
   border-radius: 50%;
-  top: 5%; right: 5%;
-  animation: appRingSpin 50s linear infinite;
+  top: 4%; right: 3%;
+  animation: appRingSpin 55s linear infinite;
 }
 .app-ring-2 {
-  width: 180px; height: 180px;
-  border: 1px solid rgba(139,92,246,.12);
+  width: 200px; height: 200px;
+  border: 1px solid rgba(139,92,246,.14);
   border-radius: 50%;
-  bottom: 10%; left: 8%;
-  animation: appRingSpin 35s linear infinite reverse;
+  bottom: 8%; left: 6%;
+  animation: appRingSpin 38s linear infinite reverse;
 }
 .app-dots {
-  width: 200px; height: 200px;
-  top: 55%; right: 12%;
-  background-image: radial-gradient(rgba(99,102,241,.2) 1px, transparent 1px);
-  background-size: 18px 18px;
-  opacity: .5;
+  width: 220px; height: 220px;
+  top: 50%; right: 10%;
+  background-image: radial-gradient(rgba(99,102,241,.25) 1px, transparent 1px);
+  background-size: 20px 20px;
+  opacity: .45;
 }
 @keyframes appRingSpin {
   to { rotate: 360deg; }
@@ -1188,6 +1197,16 @@ td.tick-down, .market-card.tick-down { animation: tickDownAnim 1.2s ease-out; }
 
 /* Ensure page content is above parallax */
 .page { position: relative; z-index: 1; }
+
+/* Cards get subtle 3D depth on hover */
+.kpi-card, .chart-card, .goal-card, .budget-item, .market-card, .calc-form-card, .calc-results-card {
+  transition: border-color .2s, box-shadow .3s, transform .3s;
+  transform-style: preserve-3d;
+}
+.kpi-card:hover, .chart-card:hover, .goal-card:hover, .market-card:hover {
+  transform: translateY(-3px) scale(1.005);
+  box-shadow: 0 16px 40px rgba(0,0,0,.4), 0 0 0 1px rgba(99,102,241,.12);
+}
 
 /* ── INVESTOR PROFILE ICON (SVG) ── */
 .ip-icon {

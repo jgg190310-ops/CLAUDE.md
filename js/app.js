@@ -20,6 +20,38 @@ function saveStore(patch) {
 
 const _store = loadStore();
 
+// ══════════════════════════════════════════════
+//  SVG ICON MAPS
+// ══════════════════════════════════════════════
+const GOAL_ICONS = {
+  travel:    `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 8.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>`,
+  home:      `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`,
+  savings:   `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>`,
+  car:       `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>`,
+  education: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>`,
+  wedding:   `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`,
+  tech:      `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>`,
+  other:     `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>`,
+};
+
+const BUDGET_ICONS = {
+  food:      `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></svg>`,
+  home:      `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`,
+  transport: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>`,
+  leisure:   `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>`,
+  health:    `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>`,
+  education: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>`,
+  clothing:  `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="20.38 3.46 16 2 12 8 8 2 3.62 3.46"/><path d="M3.62 3.46 2 16l10 2 10-2-1.62-12.54"/></svg>`,
+  utilities: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`,
+};
+
+function goalIconSvg(iconKey) {
+  return GOAL_ICONS[iconKey] || GOAL_ICONS.other;
+}
+function budgetIconSvg(iconKey) {
+  return BUDGET_ICONS[iconKey] || BUDGET_ICONS.food;
+}
+
 // ── Carrega dados do usuário logado na UI ──
 (function applySession() {
   const user = _store.user;
@@ -215,12 +247,12 @@ initDashboardCharts();
 //  GOALS
 // ══════════════════════════════════════════════
 const defaultGoals = [
-  { id: 1, name: 'Viagem para Europa', icon: '✈️', color: '#6366f1', target: 15000, current: 10200, deadline: '2026-12-01' },
-  { id: 2, name: 'Casa Própria', icon: '🏠', color: '#10b981', target: 150000, current: 48000, deadline: '2030-06-01' },
-  { id: 3, name: 'Reserva de Emergência', icon: '💰', color: '#f59e0b', target: 50000, current: 50000, deadline: '2025-12-01' },
-  { id: 4, name: 'Carro Novo', icon: '🚗', color: '#8b5cf6', target: 80000, current: 12000, deadline: '2026-09-01' },
-  { id: 5, name: 'MBA Internacional', icon: '📚', color: '#ef4444', target: 30000, current: 30000, deadline: '2025-08-01' },
-  { id: 6, name: 'Casamento', icon: '💍', color: '#06b6d4', target: 40000, current: 18000, deadline: '2027-04-01' },
+  { id: 1, name: 'Viagem para Europa',    icon: 'travel',    color: '#6366f1', target:  15000, current: 10200, deadline: '2026-12-01' },
+  { id: 2, name: 'Casa Própria',          icon: 'home',      color: '#10b981', target: 150000, current: 48000, deadline: '2030-06-01' },
+  { id: 3, name: 'Reserva de Emergência', icon: 'savings',   color: '#f59e0b', target:  50000, current: 50000, deadline: '2025-12-01' },
+  { id: 4, name: 'Carro Novo',            icon: 'car',       color: '#8b5cf6', target:  80000, current: 12000, deadline: '2026-09-01' },
+  { id: 5, name: 'MBA Internacional',     icon: 'education', color: '#ef4444', target:  30000, current: 30000, deadline: '2025-08-01' },
+  { id: 6, name: 'Casamento',             icon: 'wedding',   color: '#06b6d4', target:  40000, current: 18000, deadline: '2027-04-01' },
 ];
 let goals = Array.isArray(_store.goals) ? _store.goals : defaultGoals;
 
@@ -243,7 +275,7 @@ function renderGoals() {
     <div class="goal-card">
       <div class="goal-card-header">
         <div class="goal-icon-wrap">
-          <span class="goal-emoji">${g.icon}</span>
+          <div class="goal-icon-svg" style="--ic:${g.color}">${goalIconSvg(g.icon)}</div>
           <div>
             <div class="goal-name">${g.name}</div>
             <div class="goal-deadline">Meta: ${deadline.toLocaleDateString('pt-BR',{month:'short',year:'numeric'})}</div>
@@ -316,12 +348,12 @@ function deleteGoal(id) {
 //  BUDGETS
 // ══════════════════════════════════════════════
 const defaultBudgets = [
-  { id: 1, name: 'Moradia', icon: '🏠', color: '#6366f1', limit: 2500, spent: 2200 },
-  { id: 2, name: 'Alimentação', icon: '🍔', color: '#10b981', limit: 1500, spent: 1200 },
-  { id: 3, name: 'Transporte', icon: '🚗', color: '#f59e0b', limit: 1000, spent: 800 },
-  { id: 4, name: 'Lazer', icon: '🎭', color: '#ef4444', limit: 1200, spent: 984 },
-  { id: 5, name: 'Saúde', icon: '💊', color: '#8b5cf6', limit: 600, spent: 200 },
-  { id: 6, name: 'Educação', icon: '📚', color: '#06b6d4', limit: 800, spent: 36 },
+  { id: 1, name: 'Moradia',      icon: 'home',      color: '#6366f1', limit: 2500, spent: 2200 },
+  { id: 2, name: 'Alimentação',  icon: 'food',      color: '#10b981', limit: 1500, spent: 1200 },
+  { id: 3, name: 'Transporte',   icon: 'transport', color: '#f59e0b', limit: 1000, spent:  800 },
+  { id: 4, name: 'Lazer',        icon: 'leisure',   color: '#ef4444', limit: 1200, spent:  984 },
+  { id: 5, name: 'Saúde',        icon: 'health',    color: '#8b5cf6', limit:  600, spent:  200 },
+  { id: 6, name: 'Educação',     icon: 'education', color: '#06b6d4', limit:  800, spent:   36 },
 ];
 let budgets = Array.isArray(_store.budgets) ? _store.budgets : defaultBudgets;
 
@@ -332,7 +364,7 @@ function renderBudgets() {
     const barColor = pct >= 90 ? '#ef4444' : pct >= 75 ? '#f59e0b' : b.color;
     return `
     <div class="budget-item">
-      <div class="budget-item-icon">${b.icon}</div>
+      <div class="budget-item-icon" style="--ic:${b.color}">${budgetIconSvg(b.icon)}</div>
       <div class="budget-main">
         <div class="budget-name">${b.name}</div>
         <div class="budget-bar-row">
@@ -424,6 +456,13 @@ const stocksData = {
   crypto: [
     { ticker: 'BTC', name: 'Bitcoin',   qty: 0.12, avgPrice: 280000, price: 580000, base: 580000, total: 69600 },
     { ticker: 'ETH', name: 'Ethereum',  qty:  1.5, avgPrice:  12000, price:  16800, base:  16800, total: 25200 },
+  ],
+  acoes_us: [
+    { ticker: 'AAPL',  name: 'Apple Inc.',       qty:  5, avgPrice: 170.00, price: 211.00, base: 211.00, total: 1055.00, currency: 'USD' },
+    { ticker: 'MSFT',  name: 'Microsoft Corp.',  qty:  3, avgPrice: 310.00, price: 425.00, base: 425.00, total: 1275.00, currency: 'USD' },
+    { ticker: 'NVDA',  name: 'NVIDIA Corp.',     qty:  4, avgPrice: 500.00, price: 135.00, base: 135.00, total:  540.00, currency: 'USD' },
+    { ticker: 'AMZN',  name: 'Amazon.com Inc.',  qty:  2, avgPrice: 150.00, price: 196.00, base: 196.00, total:  392.00, currency: 'USD' },
+    { ticker: 'TSLA',  name: 'Tesla Inc.',       qty:  6, avgPrice: 200.00, price: 248.00, base: 248.00, total: 1488.00, currency: 'USD' },
   ],
 };
 
@@ -689,6 +728,44 @@ async function fetchB3() {
   setSourceLabel();
 }
 
+// Busca ações americanas via Yahoo Finance proxy
+async function fetchUS() {
+  const tickers = stocksData.acoes_us.map(s => s.ticker);
+  for (const ticker of tickers) {
+    try {
+      const url = `https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?interval=1d&range=1d`;
+      const proxies = [
+        `https://corsproxy.io/?${encodeURIComponent(url)}`,
+        `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
+      ];
+      for (const proxy of proxies) {
+        try {
+          const r = await fetch(proxy, { signal: AbortSignal.timeout(6000) });
+          if (!r.ok) continue;
+          const raw = await r.json();
+          const text = raw.contents !== undefined ? raw.contents : JSON.stringify(raw);
+          const d = typeof text === 'string' ? JSON.parse(text) : text;
+          const meta = d?.chart?.result?.[0]?.meta;
+          if (!meta?.regularMarketPrice) continue;
+          const s = stocksData.acoes_us.find(x => x.ticker === ticker);
+          if (s) {
+            s.price = meta.regularMarketPrice;
+            s.base  = meta.regularMarketPrice;
+            s.total = s.qty * s.price;
+            s.live  = true;
+            s.chgPct = meta.chartPreviousClose
+              ? ((meta.regularMarketPrice - meta.chartPreviousClose) / meta.chartPreviousClose) * 100
+              : 0;
+          }
+          touchUpdate();
+          break;
+        } catch (e) { /* tenta próximo proxy */ }
+      }
+    } catch (e) { /* continua */ }
+  }
+  setSourceLabel();
+}
+
 function configureBrapi() {
   const cur = localStorage.getItem('brapiToken') || '';
   const t = prompt(
@@ -727,6 +804,13 @@ function simTick() {
     if (!s.live) {
       s.price = ouWalk(s.price, s.base, 0.04, 0.003);
       s.price = Math.max(s.base * 0.80, Math.min(s.base * 1.20, s.price));
+      s.total = s.qty * s.price;
+    }
+  });
+  stocksData.acoes_us.forEach(s => {
+    if (!s.live) {
+      s.price = ouWalk(s.price, s.base, 0.06, 0.0015);
+      s.price = Math.max(s.base * 0.85, Math.min(s.base * 1.15, s.price));
       s.total = s.qty * s.price;
     }
   });
@@ -797,10 +881,11 @@ function setSourceLabel() {
 function startLiveMarket() {
   if (liveState.started) return;
   liveState.started = true;
-  fetchCrypto(); fetchUsd(); fetchB3();
+  fetchCrypto(); fetchUsd(); fetchB3(); fetchUS();
   setInterval(fetchCrypto, 30000);
   setInterval(fetchUsd, 30000);
   setInterval(fetchB3, 60000);
+  setInterval(fetchUS, 45000);
   setInterval(simTick, 4000);
   setInterval(updateLiveLabel, 1000);
 }
