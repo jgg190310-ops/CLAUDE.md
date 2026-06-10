@@ -343,21 +343,26 @@ function renderStocks(tab) {
   currentTab = tab;
   const data = stocksData[tab];
   const body = document.getElementById('stocksBody');
+  const query = (document.getElementById('stockSearch')?.value || '').toLowerCase();
   body.innerHTML = data.map(s => {
     const rentab = ((s.price - s.avgPrice) / s.avgPrice * 100);
     const rentabClass = rentab >= 0 ? 'positive' : 'negative';
     const rentabSign = rentab >= 0 ? '+' : '';
+    const prevP = _prevRow[s.ticker];
+    const tickCls = prevP !== undefined && prevP !== s.price ? (s.price > prevP ? 'tick-up' : 'tick-down') : '';
+    _prevRow[s.ticker] = s.price;
+    const hidden = query && !`${s.ticker} ${s.name}`.toLowerCase().includes(query) ? ' style="display:none"' : '';
     return `
-    <tr>
+    <tr${hidden}>
       <td>
-        <div class="asset-name">${s.ticker}</div>
+        <div class="asset-name">${s.ticker}${s.live ? ' <span class="live-tag">●</span>' : ''}</div>
         <div class="asset-desc">${s.name}</div>
       </td>
       <td>${s.qty.toLocaleString('pt-BR')}</td>
       <td>R$ ${s.avgPrice.toLocaleString('pt-BR', {minimumFractionDigits:2})}</td>
-      <td>R$ ${s.price.toLocaleString('pt-BR', {minimumFractionDigits:2})}</td>
+      <td class="${tickCls}">R$ ${s.price.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2})}</td>
       <td class="${rentabClass}">${rentabSign}${rentab.toFixed(2)}%</td>
-      <td>R$ ${s.total.toLocaleString('pt-BR', {minimumFractionDigits:2})}</td>
+      <td>R$ ${s.total.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2})}</td>
       <td><span class="tag ${rentab >= 0 ? 'green' : 'red'}">${rentabSign}${rentab.toFixed(1)}%</span></td>
     </tr>`;
   }).join('');
@@ -370,21 +375,23 @@ function switchTab(el, tab) {
 }
 
 function initMiniCharts() {
+  if (window._miniCharts) return;
+  window._miniCharts = {};
   const configs = [
-    { id: 'ibovChart', data: [124000, 125200, 123800, 126100, 127400, 128450], color: '#10b981' },
-    { id: 'ifixChart', data: [3180, 3195, 3188, 3202, 3210, 3218], color: '#6366f1' },
-    { id: 'btcChart', data: [365000, 358000, 360000, 355000, 350000, 352140], color: '#ef4444' },
-    { id: 'usdChart', data: [5.75, 5.78, 5.76, 5.80, 5.81, 5.82], color: '#10b981' },
+    { key: 'ibov', id: 'ibovChart', data: [124000, 125200, 123800, 126100, 127400, 128450], color: '#10b981' },
+    { key: 'ifix', id: 'ifixChart', data: [3180, 3195, 3188, 3202, 3210, 3218], color: '#6366f1' },
+    { key: 'btc', id: 'btcChart', data: [365000, 358000, 360000, 355000, 350000, 352140], color: '#ef4444' },
+    { key: 'usd', id: 'usdChart', data: [5.75, 5.78, 5.76, 5.80, 5.81, 5.82], color: '#10b981' },
   ];
-  configs.forEach(({ id, data, color }) => {
+  configs.forEach(({ key, id, data, color }) => {
     const canvas = document.getElementById(id);
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
-    new Chart(ctx, {
+    window._miniCharts[key] = new Chart(ctx, {
       type: 'line',
       data: {
         labels: data.map((_, i) => i),
-        datasets: [{ data, borderColor: color, borderWidth: 2, pointRadius: 0, tension: 0.4 }],
+        datasets: [{ data: [...data], borderColor: color, borderWidth: 2, pointRadius: 0, tension: 0.4 }],
       },
       options: {
         responsive: true,
@@ -397,13 +404,187 @@ function initMiniCharts() {
   });
 }
 
-// stock search filter
-document.getElementById('stockSearch')?.addEventListener('input', function() {
-  const q = this.value.toLowerCase();
-  document.querySelectorAll('#stocksBody tr').forEach(row => {
-    row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+// stock search filter (aplicado no render, pois a tabela re-renderiza a cada tick)
+document.getElementById('stockSearch')?.addEventListener('input', () => renderStocks(currentTab));
+
+// ══════════════════════════════════════════════
+//  LIVE MARKET ENGINE — tempo real
+//  · Cripto: CoinGecko (real, sem chave)
+//  · Câmbio: AwesomeAPI (real, sem chave)
+//  · B3: brapi.dev (real, com token gratuito) ou simulação
+// ══════════════════════════════════════════════
+const liveState = { lastUpdate: null, started: false };
+const _prevRow = {};
+const _prevCard = {};
+
+const marketIndices = {
+  ibov: { val: 128450, chg: 1.24, live: false, fmt: v => Math.round(v).toLocaleString('pt-BR') },
+  ifix: { val: 3218, chg: 0.63, live: false, fmt: v => Math.round(v).toLocaleString('pt-BR') },
+  btc:  { val: 352140, chg: -2.14, live: false, fmt: v => 'R$ ' + Math.round(v).toLocaleString('pt-BR') },
+  usd:  { val: 5.82, chg: 0.31, live: false, fmt: v => 'R$ ' + v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) },
+};
+
+function walk(value, vol) {
+  return value * (1 + (Math.random() - 0.5) * 2 * vol);
+}
+
+function touchUpdate() { liveState.lastUpdate = Date.now(); }
+
+async function fetchCrypto() {
+  try {
+    const r = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=brl&include_24hr_change=true');
+    if (!r.ok) throw new Error(r.status);
+    const d = await r.json();
+    if (d.bitcoin?.brl) {
+      marketIndices.btc.val = d.bitcoin.brl;
+      if (typeof d.bitcoin.brl_24h_change === 'number') marketIndices.btc.chg = d.bitcoin.brl_24h_change;
+      marketIndices.btc.live = true;
+      const btc = stocksData.crypto.find(c => c.ticker === 'BTC');
+      if (btc) { btc.price = d.bitcoin.brl; btc.total = btc.qty * btc.price; btc.live = true; }
+    }
+    if (d.ethereum?.brl) {
+      const eth = stocksData.crypto.find(c => c.ticker === 'ETH');
+      if (eth) { eth.price = d.ethereum.brl; eth.total = eth.qty * eth.price; eth.live = true; }
+    }
+    touchUpdate();
+  } catch (e) { /* sem rede/limite — simulação continua */ }
+  setSourceLabel();
+}
+
+async function fetchUsd() {
+  try {
+    const r = await fetch('https://economia.awesomeapi.com.br/json/last/USD-BRL');
+    if (!r.ok) throw new Error(r.status);
+    const d = await r.json();
+    if (d.USDBRL?.bid) {
+      marketIndices.usd.val = parseFloat(d.USDBRL.bid);
+      marketIndices.usd.chg = parseFloat(d.USDBRL.pctChange) || 0;
+      marketIndices.usd.live = true;
+      touchUpdate();
+    }
+  } catch (e) { /* fallback simulação */ }
+  setSourceLabel();
+}
+
+async function fetchB3() {
+  const token = localStorage.getItem('brapiToken');
+  if (!token) { setSourceLabel(); return; }
+  try {
+    const tickers = ['ITSA4', 'PETR4', 'VALE3', 'BBAS3', 'WEGE3', 'MXRF11', 'HGLG11', 'XPML11', '^BVSP'];
+    const r = await fetch(`https://brapi.dev/api/quote/${tickers.join(',')}?token=${encodeURIComponent(token)}`);
+    if (!r.ok) throw new Error(r.status);
+    const d = await r.json();
+    (d.results || []).forEach(res => {
+      if (!res.regularMarketPrice) return;
+      if (res.symbol === '^BVSP') {
+        marketIndices.ibov.val = res.regularMarketPrice;
+        if (typeof res.regularMarketChangePercent === 'number') marketIndices.ibov.chg = res.regularMarketChangePercent;
+        marketIndices.ibov.live = true;
+        return;
+      }
+      ['acoes', 'fiis'].forEach(cat => {
+        const a = stocksData[cat].find(s => s.ticker === res.symbol);
+        if (a) { a.price = res.regularMarketPrice; a.total = a.qty * a.price; a.live = true; }
+      });
+    });
+    touchUpdate();
+  } catch (e) { /* token inválido/limite — simulação continua */ }
+  setSourceLabel();
+}
+
+function configureBrapi() {
+  const cur = localStorage.getItem('brapiToken') || '';
+  const t = prompt('Cotações REAIS da B3 (ações, FIIs e IBOV):\n\n1. Crie uma conta gratuita em https://brapi.dev\n2. Copie seu token e cole abaixo\n\n(deixe vazio para voltar à simulação)', cur);
+  if (t === null) return;
+  if (t.trim()) {
+    localStorage.setItem('brapiToken', t.trim());
+    showToast('Token salvo! Buscando cotações reais da B3…', 'success');
+    fetchB3();
+  } else {
+    localStorage.removeItem('brapiToken');
+    ['acoes', 'fiis'].forEach(cat => stocksData[cat].forEach(s => { s.live = false; }));
+    marketIndices.ibov.live = false;
+    showToast('Token removido — B3 em modo simulação');
+    setSourceLabel();
+  }
+}
+
+function simTick() {
+  // random walk apenas nos ativos SEM fonte de dados real
+  Object.values(marketIndices).forEach(m => { if (!m.live) m.val = walk(m.val, 0.0012); });
+  ['acoes', 'fiis'].forEach(cat => stocksData[cat].forEach(s => {
+    if (!s.live) { s.price = walk(s.price, 0.002); s.total = s.qty * s.price; }
+  }));
+  stocksData.crypto.forEach(s => {
+    if (!s.live) { s.price = walk(s.price, 0.004); s.total = s.qty * s.price; }
   });
-});
+  touchUpdate();
+  renderLive();
+}
+
+function renderLive() {
+  Object.entries(marketIndices).forEach(([key, m]) => {
+    const valEl = document.getElementById('mcVal-' + key);
+    const chgEl = document.getElementById('mcChg-' + key);
+    if (!valEl) return;
+    const prev = _prevCard[key];
+    valEl.textContent = m.fmt(m.val);
+    chgEl.textContent = (m.chg >= 0 ? '+' : '') + m.chg.toFixed(2).replace('.', ',') + '%';
+    chgEl.className = 'mc-chg ' + (m.chg >= 0 ? 'positive' : 'negative');
+    if (prev !== undefined && prev !== m.val) {
+      flashEl(valEl.closest('.market-card'), m.val > prev ? 'tick-up' : 'tick-down');
+    }
+    _prevCard[key] = m.val;
+    const chart = window._miniCharts?.[key];
+    if (chart) {
+      const ds = chart.data.datasets[0];
+      ds.data.push(m.val);
+      chart.data.labels.push(chart.data.labels.length);
+      if (ds.data.length > 40) { ds.data.shift(); chart.data.labels.shift(); }
+      ds.borderColor = m.chg >= 0 ? '#10b981' : '#ef4444';
+      chart.update('none');
+    }
+  });
+  const stocksPage = document.getElementById('stocks');
+  if (stocksPage?.classList.contains('active')) renderStocks(currentTab);
+}
+
+function flashEl(el, cls) {
+  if (!el) return;
+  el.classList.remove('tick-up', 'tick-down');
+  void el.offsetWidth; // reinicia a animação
+  el.classList.add(cls);
+}
+
+function updateLiveLabel() {
+  const el = document.getElementById('liveUpdated');
+  if (!el || !liveState.lastUpdate) return;
+  const s = Math.max(0, Math.round((Date.now() - liveState.lastUpdate) / 1000));
+  el.textContent = s <= 1 ? 'atualizado agora' : `atualizado há ${s}s`;
+}
+
+function setSourceLabel() {
+  const el = document.getElementById('liveSource');
+  if (!el) return;
+  const b3Live = marketIndices.ibov.live || stocksData.acoes.some(s => s.live);
+  const parts = [
+    marketIndices.btc.live ? 'Cripto: CoinGecko (ao vivo)' : 'Cripto: simulado',
+    marketIndices.usd.live ? 'Câmbio: AwesomeAPI (ao vivo)' : 'Câmbio: simulado',
+    b3Live ? 'B3: brapi.dev (ao vivo)' : 'B3: simulado — conecte um token p/ dados reais',
+  ];
+  el.textContent = parts.join(' · ');
+}
+
+function startLiveMarket() {
+  if (liveState.started) return;
+  liveState.started = true;
+  fetchCrypto(); fetchUsd(); fetchB3();
+  setInterval(fetchCrypto, 30000);
+  setInterval(fetchUsd, 30000);
+  setInterval(fetchB3, 60000);
+  setInterval(simTick, 4000);
+  setInterval(updateLiveLabel, 1000);
+}
 
 // ══════════════════════════════════════════════
 //  CALCULATOR
@@ -587,3 +768,6 @@ document.querySelectorAll('.modal-backdrop').forEach(bd => {
     if (e.target === bd) bd.classList.remove('open');
   });
 });
+
+// Start live market engine
+startLiveMarket();

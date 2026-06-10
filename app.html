@@ -359,36 +359,44 @@
       <div>
         <h1>Bolsa de Valores</h1>
         <p class="page-sub">Acompanhe seus ativos e o mercado em tempo real.</p>
+        <p class="live-source" id="liveSource">conectando às fontes de dados…</p>
       </div>
-      <div class="stock-search-wrap">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input type="text" placeholder="Buscar ativo..." class="stock-search" id="stockSearch" />
+      <div class="stocks-header-right">
+        <div class="live-status">
+          <span class="live-badge"><span class="live-dot"></span> AO VIVO</span>
+          <span class="live-updated" id="liveUpdated">conectando…</span>
+        </div>
+        <button class="btn-sm" onclick="configureBrapi()" title="Cotações reais da B3 com token gratuito do brapi.dev">🔌 Conectar B3 real</button>
+        <div class="stock-search-wrap">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" placeholder="Buscar ativo..." class="stock-search" id="stockSearch" />
+        </div>
       </div>
     </div>
 
     <div class="market-overview">
       <div class="market-card">
         <div class="mc-name">IBOVESPA</div>
-        <div class="mc-val">128.450</div>
-        <div class="mc-chg positive">+1,24%</div>
+        <div class="mc-val" id="mcVal-ibov">128.450</div>
+        <div class="mc-chg positive" id="mcChg-ibov">+1,24%</div>
         <canvas class="mini-chart" id="ibovChart" width="100" height="40"></canvas>
       </div>
       <div class="market-card">
         <div class="mc-name">IFIX</div>
-        <div class="mc-val">3.218</div>
-        <div class="mc-chg positive">+0,63%</div>
+        <div class="mc-val" id="mcVal-ifix">3.218</div>
+        <div class="mc-chg positive" id="mcChg-ifix">+0,63%</div>
         <canvas class="mini-chart" id="ifixChart" width="100" height="40"></canvas>
       </div>
       <div class="market-card">
         <div class="mc-name">BTC/BRL</div>
-        <div class="mc-val">R$ 352.140</div>
-        <div class="mc-chg negative">-2,14%</div>
+        <div class="mc-val" id="mcVal-btc">R$ 352.140</div>
+        <div class="mc-chg negative" id="mcChg-btc">-2,14%</div>
         <canvas class="mini-chart" id="btcChart" width="100" height="40"></canvas>
       </div>
       <div class="market-card">
         <div class="mc-name">USD/BRL</div>
-        <div class="mc-val">R$ 5,82</div>
-        <div class="mc-chg positive">+0,31%</div>
+        <div class="mc-val" id="mcVal-usd">R$ 5,82</div>
+        <div class="mc-chg positive" id="mcChg-usd">+0,31%</div>
         <canvas class="mini-chart" id="usdChart" width="100" height="40"></canvas>
       </div>
     </div>

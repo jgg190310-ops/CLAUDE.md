@@ -993,6 +993,53 @@ body {
 .toast.success { border-color: rgba(16,185,129,0.4); color: var(--green); }
 .toast.error { border-color: rgba(239,68,68,0.4); color: var(--red); }
 
+/* ── LIVE MARKET ── */
+.stocks-header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.live-status { display: flex; align-items: center; gap: 10px; }
+.live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 50px;
+  background: rgba(16,185,129,0.1);
+  border: 1px solid rgba(16,185,129,0.35);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: var(--green);
+}
+.live-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 8px var(--green);
+  animation: livePulse 1.6s infinite;
+}
+@keyframes livePulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.35; transform: scale(0.8); }
+}
+.live-updated { font-size: 12px; color: var(--text-3); font-weight: 500; min-width: 116px; }
+.live-source { font-size: 11px; color: var(--text-3); margin-top: 6px; }
+.live-tag { color: var(--green); font-size: 9px; vertical-align: middle; }
+
+@keyframes tickUpAnim {
+  0% { background-color: rgba(16,185,129,0.25); }
+  100% { background-color: transparent; }
+}
+@keyframes tickDownAnim {
+  0% { background-color: rgba(239,68,68,0.25); }
+  100% { background-color: transparent; }
+}
+td.tick-up, .market-card.tick-up { animation: tickUpAnim 1.2s ease-out; }
+td.tick-down, .market-card.tick-down { animation: tickDownAnim 1.2s ease-out; }
+
 /* ── SCROLLBAR ── */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
