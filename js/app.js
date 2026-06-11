@@ -106,6 +106,7 @@ const pageTitles = {
   budgets: 'Orçamentos',
   stocks: 'Bolsa de Valores',
   calculator: 'Calculadora de Juros',
+  assistant: 'Assistente IA',
   profile: 'Configurações do Perfil',
 };
 
@@ -128,6 +129,7 @@ function navigateTo(page) {
   if (page === 'dashboard') initDashboardCharts();
   if (page === 'stocks') initStocksPage();
   if (page === 'calculator') calcInvestment();
+  if (page === 'assistant') initAssistant();
 }
 
 document.getElementById('sidebarToggle').addEventListener('click', () => {
@@ -1926,3 +1928,237 @@ if (_savedCfg?.databaseURL) {
     item.addEventListener('click', () => shiftParallaxColors(item.dataset.page));
   });
 })();
+
+// ══════════════════════════════════════════════
+//  ASSISTENTE IA — análise local das finanças
+// ══════════════════════════════════════════════
+const aiFmt = v => 'R$ ' + Math.round(v).toLocaleString('pt-BR');
+
+function aiSnapshot() {
+  const income  = transactions.filter(t => t.type === 'income').reduce((s, t) => s + t.value, 0);
+  const expense = transactions.filter(t => t.type === 'expense').reduce((s, t) => s + t.value, 0);
+  const invest  = transactions.filter(t => t.type === 'investment').reduce((s, t) => s + t.value, 0);
+  const cash    = parseFloat(_store.profile?.cash) || 0;
+
+  const byCat = {};
+  transactions.filter(t => t.type === 'expense').forEach(t => {
+    byCat[t.category] = (byCat[t.category] || 0) + t.value;
+  });
+  const topCats = Object.entries(byCat).sort((a, b) => b[1] - a[1]);
+
+  const overBudgets = budgets.filter(b => b.spent / b.limit >= 0.9);
+  const warnBudgets = budgets.filter(b => b.spent / b.limit >= 0.75 && b.spent / b.limit < 0.9);
+
+  const now = new Date();
+  const goalPace = goals.filter(g => g.current < g.target).map(g => {
+    const months = Math.max(1, (new Date(g.deadline) - now) / (1000 * 60 * 60 * 24 * 30.4));
+    return { ...g, monthly: (g.target - g.current) / months, months: Math.round(months) };
+  });
+
+  const reserveGoal = goals.find(g => /reserva|emerg/i.test(g.name));
+  const monthlyExpense = expense || 1;
+  const reserveMonths = reserveGoal ? reserveGoal.current / monthlyExpense : cash / monthlyExpense;
+
+  const savingsRate = income > 0 ? ((income - expense) / income) * 100 : 0;
+
+  return { income, expense, invest, cash, topCats, overBudgets, warnBudgets, goalPace, reserveMonths, savingsRate };
+}
+
+function aiInsightCards() {
+  const s = aiSnapshot();
+  const cards = [];
+
+  if (s.savingsRate >= 30) {
+    cards.push({ icon: '✦', color: '#10b981', title: `Taxa de poupança: ${s.savingsRate.toFixed(0)}%`,
+      text: `Excelente! Você guarda ${s.savingsRate.toFixed(0)}% da sua renda. Acima de 30% é nível avançado — considere direcionar o excedente para investimentos.` });
+  } else if (s.savingsRate > 0) {
+    cards.push({ icon: '◐', color: '#f59e0b', title: `Taxa de poupança: ${s.savingsRate.toFixed(0)}%`,
+      text: `Você poupa ${s.savingsRate.toFixed(0)}% da renda. A referência saudável é 20–30%. Pequenos cortes no maior gasto já te aproximam disso.` });
+  } else {
+    cards.push({ icon: '⚠', color: '#ef4444', title: 'Gastos acima da renda',
+      text: 'Suas despesas superam as receitas registradas neste período. Priorize revisar os maiores gastos.' });
+  }
+
+  if (s.topCats.length) {
+    const [cat, val] = s.topCats[0];
+    cards.push({ icon: '◎', color: '#6366f1', title: `Maior gasto: ${cat}`,
+      text: `${aiFmt(val)} no período — ${((val / (s.expense || 1)) * 100).toFixed(0)}% das suas despesas. Reduzir 10% aqui libera ${aiFmt(val * 0.1)}/mês.` });
+  }
+
+  if (s.overBudgets.length) {
+    cards.push({ icon: '⚠', color: '#ef4444', title: `${s.overBudgets.length} orçamento(s) no limite`,
+      text: s.overBudgets.map(b => `${b.name} (${Math.round((b.spent / b.limit) * 100)}%)`).join(', ') + ' — quase ou já estourados.' });
+  }
+
+  if (s.reserveMonths >= 6) {
+    cards.push({ icon: '✦', color: '#10b981', title: 'Reserva de emergência sólida',
+      text: `Sua reserva cobre ~${Math.floor(s.reserveMonths)} meses de despesas. O recomendado (6 meses) está garantido.` });
+  } else {
+    cards.push({ icon: '◐', color: '#f59e0b', title: 'Reserva de emergência',
+      text: `Cobre ~${Math.max(0, Math.floor(s.reserveMonths))} meses de despesas. A meta clássica é 6 meses (${aiFmt(s.expense * 6)}).` });
+  }
+
+  return cards.slice(0, 4);
+}
+
+function renderAiInsights() {
+  const el = document.getElementById('aiInsights');
+  if (!el) return;
+  el.innerHTML = aiInsightCards().map(c => `
+    <div class="ai-insight-card" style="--ic:${c.color}">
+      <div class="ai-insight-icon">${c.icon}</div>
+      <div>
+        <div class="ai-insight-title">${c.title}</div>
+        <div class="ai-insight-text">${c.text}</div>
+      </div>
+    </div>`).join('');
+}
+
+// — chat engine —
+const AI_SUGGESTIONS = [
+  'Onde posso economizar?',
+  'Minhas metas estão no ritmo?',
+  'Como montar uma reserva de emergência?',
+  'Explique juros compostos',
+  'Resumo das minhas finanças',
+  'Como dividir meu orçamento?',
+];
+
+function aiAnswer(q) {
+  const s = aiSnapshot();
+  const t = q.toLowerCase();
+
+  if (/econom|gastar menos|cortar|reduzir/.test(t)) {
+    const lines = s.topCats.slice(0, 3).map(([c, v], i) =>
+      `${i + 1}. <b>${c}</b>: ${aiFmt(v)} — corte de 10–15% libera ${aiFmt(v * 0.12)}/mês`);
+    return `Analisando seus gastos, os maiores pontos de economia são:<br><br>${lines.join('<br>')}<br><br>` +
+      `Dicas práticas: renegocie assinaturas anuais, compare mercado com lista pronta e estabeleça um teto semanal para lazer. ` +
+      `Somando os cortes acima, você liberaria cerca de <b>${aiFmt(s.topCats.slice(0, 3).reduce((a, [, v]) => a + v * 0.12, 0))}/mês</b>.`;
+  }
+
+  if (/meta/.test(t)) {
+    if (!s.goalPace.length) return 'Todas as suas metas estão concluídas! 🎉 Que tal criar uma nova na aba Metas?';
+    const lines = s.goalPace.map(g =>
+      `• <b>${g.name}</b>: faltam ${aiFmt(g.target - g.current)} em ~${g.months} meses → aporte de <b>${aiFmt(g.monthly)}/mês</b>`);
+    const totalMonthly = s.goalPace.reduce((a, g) => a + g.monthly, 0);
+    const feasible = s.income - s.expense >= totalMonthly;
+    return `Ritmo necessário para cada meta:<br><br>${lines.join('<br>')}<br><br>` +
+      `Total mensal: <b>${aiFmt(totalMonthly)}</b>. Sua sobra atual (renda − despesas) é ${aiFmt(Math.max(0, s.income - s.expense))} — ` +
+      (feasible ? 'dá para manter todas no prazo. ✅' : 'abaixo do necessário; considere alongar prazos ou priorizar 1–2 metas. ⚠️');
+  }
+
+  if (/reserva|emerg/.test(t)) {
+    const target = s.expense * 6;
+    return `A reserva de emergência ideal cobre <b>6 meses de despesas</b> — no seu caso, ${aiFmt(target)}.<br><br>` +
+      `Hoje você cobre ~<b>${Math.max(0, Math.floor(s.reserveMonths))} meses</b>. ` +
+      `Onde deixar: liquidez diária e baixo risco (Tesouro Selic, CDB 100%+ do CDI com liquidez, ou conta remunerada). ` +
+      `Evite ações/cripto para esse dinheiro — reserva é segurança, não rentabilidade.`;
+  }
+
+  if (/juros compostos|juro composto/.test(t)) {
+    return `Juros compostos são "juros sobre juros": cada rendimento passa a render também.<br><br>` +
+      `Fórmula: <b>M = C × (1 + i)ᵗ</b> — montante, capital, taxa e tempo.<br><br>` +
+      `Exemplo: R$ 500/mês a 1% a.m. por 10 anos ≈ <b>R$ 115 mil</b> (você depositou R$ 60 mil; os outros R$ 55 mil são juros). ` +
+      `Use a aba <b>Calculadora</b> para simular com seus números!`;
+  }
+
+  if (/50.?30.?20|dividir|orçamento|orcamento/.test(t)) {
+    const inc = s.income || 5000;
+    return `A regra <b>50/30/20</b> divide a renda em:<br><br>` +
+      `• 50% necessidades → ${aiFmt(inc * 0.5)} (moradia, mercado, transporte, saúde)<br>` +
+      `• 30% desejos → ${aiFmt(inc * 0.3)} (lazer, assinaturas, restaurantes)<br>` +
+      `• 20% futuro → ${aiFmt(inc * 0.2)} (investimentos, reserva, quitar dívidas)<br><br>` +
+      `Hoje suas despesas somam ${aiFmt(s.expense)} (${s.income ? Math.round((s.expense / s.income) * 100) : '—'}% da renda). ` +
+      `Configure os limites na aba <b>Orçamentos</b> seguindo essa divisão.`;
+  }
+
+  if (/cdi|selic|tesouro|renda fixa|cdb/.test(t)) {
+    return `Conceitos rápidos de renda fixa:<br><br>` +
+      `• <b>Selic</b>: taxa básica da economia, definida pelo Banco Central.<br>` +
+      `• <b>CDI</b>: taxa de referência entre bancos, anda colada na Selic.<br>` +
+      `• <b>Tesouro Selic</b>: título público que rende a Selic — ideal para reserva.<br>` +
+      `• <b>CDB</b>: empréstimo ao banco; busque 100%+ do CDI com garantia FGC (até R$ 250 mil).<br><br>` +
+      `Quanto maior o prazo e o risco, maior o retorno esperado.`;
+  }
+
+  if (/investir|onde invisto|aplicar|carteira/.test(t)) {
+    return `Uma trilha simples e segura (educacional, não recomendação):<br><br>` +
+      `1. <b>Reserva primeiro</b> — 6 meses em liquidez diária.<br>` +
+      `2. <b>Renda fixa</b> — Tesouro/CDBs para objetivos de até 3 anos.<br>` +
+      `3. <b>Diversificação</b> — ações/fundos imobiliários/ETFs para longo prazo, em parcelas mensais.<br>` +
+      `4. <b>Consistência > timing</b> — aportar todo mês vence tentar acertar o momento.<br><br>` +
+      `Acompanhe o mercado em tempo real na aba <b>Bolsa de Valores</b>.`;
+  }
+
+  if (/d[ií]vida|devendo|empr[ée]stimo|cart[ãa]o/.test(t)) {
+    return `Estratégia para sair das dívidas:<br><br>` +
+      `1. Liste tudo com juros e parcelas.<br>` +
+      `2. Ataque primeiro a de <b>maior juro</b> (método avalanche) — geralmente cartão de crédito (300%+ a.a.) e cheque especial.<br>` +
+      `3. Negocie: troque dívida cara por crédito mais barato (consignado, portabilidade).<br>` +
+      `4. Pause investimentos se o juro da dívida supera o rendimento — quitar é o melhor "investimento".`;
+  }
+
+  if (/resumo|an[áa]lise|vis[ãa]o geral|como est/.test(t)) {
+    return `📊 <b>Resumo das suas finanças:</b><br><br>` +
+      `• Receitas: <b>${aiFmt(s.income)}</b> · Despesas: <b>${aiFmt(s.expense)}</b> · Investido: <b>${aiFmt(s.invest)}</b><br>` +
+      `• Dinheiro líquido: <b>${aiFmt(s.cash)}</b><br>` +
+      `• Taxa de poupança: <b>${s.savingsRate.toFixed(0)}%</b> ${s.savingsRate >= 20 ? '✅' : '⚠️ (meta: 20%+)'}<br>` +
+      `• Reserva: ~<b>${Math.max(0, Math.floor(s.reserveMonths))} meses</b> de despesas<br>` +
+      `• Orçamentos críticos: <b>${s.overBudgets.length}</b><br>` +
+      `• Metas em andamento: <b>${s.goalPace.length}</b><br><br>` +
+      `Pergunte "onde posso economizar?" para um plano de cortes.`;
+  }
+
+  if (/oi|ol[áa]|bom dia|boa tarde|boa noite|hello/.test(t)) {
+    return `Olá! 👋 Sou o FinBot, seu assistente financeiro. Analiso seus dados localmente e posso ajudar com economia, metas, reserva de emergência, orçamento e conceitos de investimento. O que você quer saber?`;
+  }
+
+  return `Posso ajudar com:<br><br>` +
+    `• <b>"Onde posso economizar?"</b> — análise dos seus gastos<br>` +
+    `• <b>"Minhas metas estão no ritmo?"</b> — viabilidade dos aportes<br>` +
+    `• <b>"Reserva de emergência"</b> — quanto e onde guardar<br>` +
+    `• <b>"Juros compostos" / "CDI" / "renda fixa"</b> — conceitos explicados<br>` +
+    `• <b>"Como dividir meu orçamento?"</b> — regra 50/30/20 com a sua renda<br>` +
+    `• <b>"Resumo"</b> — visão geral das suas finanças`;
+}
+
+function aiAppendMsg(html, who) {
+  const box = document.getElementById('aiMessages');
+  const div = document.createElement('div');
+  div.className = `ai-msg ${who}`;
+  div.innerHTML = html;
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+  return div;
+}
+
+let aiBusy = false;
+function aiSend(e, presetText) {
+  if (e) e.preventDefault();
+  if (aiBusy) return false;
+  const input = document.getElementById('aiInput');
+  const text = (presetText || input.value).trim();
+  if (!text) return false;
+  input.value = '';
+  aiAppendMsg(text.replace(/</g, '&lt;'), 'user');
+
+  aiBusy = true;
+  const typing = aiAppendMsg('<span class="ai-typing"><span></span><span></span><span></span></span>', 'bot');
+  setTimeout(() => {
+    typing.innerHTML = aiAnswer(text);
+    document.getElementById('aiMessages').scrollTop = 1e9;
+    aiBusy = false;
+  }, 600 + Math.random() * 600);
+  return false;
+}
+
+let aiInited = false;
+function initAssistant() {
+  renderAiInsights();
+  if (aiInited) return;
+  aiInited = true;
+  const sug = document.getElementById('aiSuggestions');
+  if (sug) sug.innerHTML = AI_SUGGESTIONS.map(s =>
+    `<button class="ai-chip" onclick="aiSend(null, '${s.replace(/'/g, "\\'")}')">${s}</button>`).join('');
+  aiAppendMsg(aiAnswer('olá'), 'bot');
+}

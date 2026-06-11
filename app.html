@@ -59,6 +59,14 @@
       </a>
     </div>
     <div class="nav-group">
+      <span class="nav-label">Inteligência</span>
+      <a href="#" class="nav-item" data-page="assistant">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a7 7 0 0 1 7 7c0 2.4-1.2 4.5-3 5.7V17a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-2.3C6.2 13.5 5 11.4 5 9a7 7 0 0 1 7-7z"/><line x1="9" y1="22" x2="15" y2="22"/></svg>
+        Assistente IA
+        <span class="nav-badge-new">novo</span>
+      </a>
+    </div>
+    <div class="nav-group">
       <span class="nav-label">Conta</span>
       <a href="#" class="nav-item" data-page="profile">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
@@ -537,6 +545,57 @@
             <thead><tr><th>Ano</th><th>Aportado</th><th>Juros Acum.</th><th>Total</th><th>Rendimento</th></tr></thead>
             <tbody id="calcTableBody"></tbody>
           </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════ ASSISTENTE IA ═══════════════════════════════ -->
+  <section class="page" id="assistant">
+    <div class="page-header">
+      <div>
+        <h1>Assistente IA</h1>
+        <p class="page-sub">Análises personalizadas das suas finanças e respostas para suas dúvidas.</p>
+      </div>
+    </div>
+
+    <!-- insights gerados a partir dos seus dados -->
+    <div class="ai-insights" id="aiInsights"></div>
+
+    <div class="ai-layout">
+      <div class="ai-chat-card">
+        <div class="ai-chat-header">
+          <div class="ai-avatar">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a7 7 0 0 1 7 7c0 2.4-1.2 4.5-3 5.7V17a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-2.3C6.2 13.5 5 11.4 5 9a7 7 0 0 1 7-7z"/><line x1="9" y1="22" x2="15" y2="22"/></svg>
+          </div>
+          <div>
+            <h3>FinBot</h3>
+            <span class="ai-status"><span class="ai-status-dot"></span>Analisando seus dados localmente</span>
+          </div>
+        </div>
+        <div class="ai-chat-messages" id="aiMessages"></div>
+        <div class="ai-suggestions" id="aiSuggestions"></div>
+        <form class="ai-input-row" id="aiForm" onsubmit="return aiSend(event)">
+          <input type="text" id="aiInput" placeholder="Pergunte algo sobre suas finanças..." autocomplete="off" />
+          <button type="submit" class="ai-send-btn" title="Enviar">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          </button>
+        </form>
+      </div>
+      <div class="ai-side">
+        <div class="ai-side-card">
+          <h4>O que posso fazer</h4>
+          <ul class="ai-capabilities">
+            <li>Analisar seus gastos e apontar onde economizar</li>
+            <li>Avaliar se suas metas estão no ritmo certo</li>
+            <li>Verificar sua reserva de emergência</li>
+            <li>Explicar conceitos: juros compostos, CDI, renda fixa...</li>
+            <li>Sugerir divisão de orçamento (50/30/20)</li>
+          </ul>
+        </div>
+        <div class="ai-side-card ai-privacy">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <p>A análise roda 100% no seu navegador, sobre os seus dados locais. Nada é enviado para servidores.</p>
         </div>
       </div>
     </div>
