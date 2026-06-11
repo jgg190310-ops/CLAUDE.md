@@ -1,3 +1,19 @@
+
+// ══════════════════════════════════════════════
+//  THEME — claro/escuro (persistido)
+// ══════════════════════════════════════════════
+if (typeof window.toggleTheme !== 'function') {
+  (function initTheme() {
+    const saved = localStorage.getItem('financeos-theme');
+    if (saved) document.documentElement.dataset.theme = saved;
+  })();
+  window.toggleTheme = function () {
+    const next = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
+    document.documentElement.dataset.theme = next;
+    localStorage.setItem('financeos-theme', next);
+  };
+}
+
 'use strict';
 
 // ══════════════════════════════════════════════
