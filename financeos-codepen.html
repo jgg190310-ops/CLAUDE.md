@@ -8244,6 +8244,255 @@ async function aiAnswer(q) {
       `1 livro por mês + prática no FinanceOS = evolução real em 1 ano.`;
   }
 
+  // ───────── PROTEÇÃO E SEGURANÇA ─────────
+  if (/golpe|piramide|fraude|phishing|pix errado|caiu num|esquema/.test(t)) {
+    return `<b>🛡️ Blindagem contra golpes financeiros:</b><br><br>` +
+      `• <b>Pirâmide disfarçada</b>: retorno fixo alto "garantido" (2%+ ao mês) + ganho por indicação = fuja. Verifique se tem registro na CVM.<br>` +
+      `• <b>Golpe do PIX/WhatsApp</b>: parente pedindo dinheiro com número novo? Ligue antes. Sempre.<br>` +
+      `• <b>Falso boleto/banco</b>: nunca clique em link de SMS/e-mail — digite o site do banco manualmente.<br>` +
+      `• <b>Central falsa</b>: banco NUNCA liga pedindo senha, token ou para "transferir por segurança".<br>` +
+      `• Configure: limite de PIX noturno baixo, 2FA em tudo, cartão virtual para compras online.<br>` +
+      `• Caiu? Registre BO, conteste no banco em até 72h (MED do PIX) e avise os birôs.<br><br>` +
+      `Regra de ouro: se o retorno parece bom demais, o produto é você.`;
+  }
+
+  if (/cheque especial/.test(t)) {
+    return `<b>Cheque especial — o crédito mais caro do Brasil (junto do rotativo):</b><br><br>` +
+      `• Juros de ~8% a.m. (≈ 150% a.a.) — limitado por lei, ainda assim brutal.<br>` +
+      `• Entrou no limite? Troque imediatamente por crédito pessoal (~3% a.m.) ou consignado (~2% a.m.).<br>` +
+      `• Peça ao banco para <b>desativar</b> o limite se você cai nele com frequência — sem limite, sem tentação.<br>` +
+      `• Use a reserva de emergência antes do cheque especial, sempre — é exatamente para isso que ela existe.`;
+  }
+
+  if (/consignado/.test(t)) {
+    return `<b>Crédito consignado — o menos pior dos empréstimos:</b><br><br>` +
+      `• Desconto direto na folha/benefício → menor risco para o banco → <b>juros de ~1,5–2,5% a.m.</b><br>` +
+      `• Disponível para: CLT (algumas empresas), servidores públicos, aposentados e pensionistas INSS.<br>` +
+      `• Margem máxima: ~35% da renda — não comprometa tudo, imprevistos continuam existindo.<br>` +
+      `• Ótimo para: quitar dívidas caras (cartão, cheque especial). Péssimo para: consumo por impulso.<br>` +
+      `• Cuidado com o "consignado eterno": refinanciar sempre que abre margem vira bola de neve disfarçada.`;
+  }
+
+  if (/open finance|portabilidade/.test(t)) {
+    return `<b>Open Finance e portabilidade — concorrência a seu favor:</b><br><br>` +
+      `• <b>Open Finance</b>: você autoriza compartilhar seu histórico entre bancos → ofertas melhores de crédito e investimento personalizadas.<br>` +
+      `• <b>Portabilidade de crédito</b>: leve qualquer financiamento para outro banco com juro menor — o banco atual pode cobrir a oferta.<br>` +
+      `• <b>Portabilidade de salário</b>: receba onde quiser, sem precisar da "conta do convênio".<br>` +
+      `• Na prática: a cada 12 meses, cote seu financiamento imobiliário em 2–3 bancos. Queda de 1 ponto na taxa pode economizar dezenas de milhares.`;
+  }
+
+  // ───────── FAMÍLIA E VIDA ─────────
+  if (/casal|casamento e dinheiro|conta conjunta|regime de bens|conjuge|esposa|marido/.test(t)) {
+    return `<b>Finanças a dois sem briga:</b><br><br>` +
+      `• Modelo 3 contas: conta de cada um + conta conjunta para despesas da casa (proporcional à renda de cada um).<br>` +
+      `• Reunião financeira mensal de 30 min: gastos, metas, próximos passos — dinheiro às claras evita 90% dos conflitos.<br>` +
+      `• <b>Regime de bens</b>: comunhão parcial (padrão — o que vier depois do casamento é dos dois), separação total, comunhão universal. Decisão jurídica E financeira.<br>` +
+      `• Metas conjuntas com nome e prazo ("Casa: R$ 80 mil até 2028") engajam mais que "vamos economizar".<br>` +
+      `• Dívida do cônjuge em comunhão parcial pode respingar em você — transparência total antes de casar.`;
+  }
+
+  if (/filho|crianca|mesada|bebe|educacao financeira (infantil|dos filhos)/.test(t)) {
+    return `<b>Filhos e dinheiro:</b><br><br>` +
+      `• Custo médio de um filho até os 18: estimativas brasileiras passam de <b>R$ 700 mil</b> (classe média) — planeje antes.<br>` +
+      `• <b>Poupança do filho</b>: Tesouro IPCA+ longo ou ETF mensal desde o nascimento. R$ 200/mês por 18 anos a juro real de 5% ≈ <b>R$ 70 mil</b> reais de hoje.<br>` +
+      `• <b>Tesouro Educa+</b>: título específico que paga renda mensal por 5 anos na fase da faculdade.<br>` +
+      `• <b>Mesada educativa</b>: valor fixo semanal + 3 potes (gastar/poupar/doar) — ensina escolha, não mimo.<br>` +
+      `• Envolva a criança: deixe errar com pouco dinheiro agora para não errar com muito depois.`;
+  }
+
+  if (/heranca|inventario|sucessao|testamento|holding familiar|doacao em vida/.test(t)) {
+    return `<b>Planejamento sucessório — proteger quem fica:</b><br><br>` +
+      `• Sem planejamento, o inventário custa <b>10–20% do patrimônio</b> (ITCMD, advogado, custas) e trava os bens por anos.<br>` +
+      `• <b>Testamento</b>: você decide 50% livremente; a outra metade é dos herdeiros necessários.<br>` +
+      `• <b>Doação em vida</b> com usufruto: antecipa a transferência pagando ITCMD menor e mantendo o controle.<br>` +
+      `• <b>Previdência (VGBL)</b> não entra em inventário — vai direto ao beneficiário em ~30 dias. Excelente para liquidez imediata da família.<br>` +
+      `• <b>Holding familiar</b>: vale para patrimônios maiores (imóveis múltiplos, empresa) — consulte especialista tributário.<br>` +
+      `• Básico que todo mundo deveria ter: lista de contas/senhas/apólices acessível ao cônjuge + seguro de vida.`;
+  }
+
+  if (/seguro de vida|seguro/.test(t)) {
+    return `<b>Seguros — pagar pouco para não quebrar:</b><br><br>` +
+      `• <b>Seguro de vida</b>: essencial se alguém depende da sua renda. Cobertura sugerida: 5–10× a renda anual. Custa menos do que parece (R$ 50–150/mês aos 30 anos).<br>` +
+      `• <b>Invalidez</b>: estatisticamente mais provável que morte antes dos 60 — inclua na apólice.<br>` +
+      `• <b>Seguro residencial</b>: ~R$ 30/mês protege seu maior patrimônio. Subutilizado no Brasil.<br>` +
+      `• <b>Auto</b>: compare franquia × valor de mercado; carro velho às vezes só vale RCF (danos a terceiros).<br>` +
+      `• Não vale: seguro de eletrônico barato, garantia estendida (margem de 70%+ da loja).<br><br>` +
+      `Seguro é para catástrofe, não para inconveniência.`;
+  }
+
+  if (/demissao|desemprego|fui demitido|perdi o emprego|rescisao|seguro.desemprego/.test(t)) {
+    return `<b>Plano de contingência pós-demissão:</b><br><br>` +
+      `1. <b>Rescisão</b>: confira saldo, aviso, 13º e férias proporcionais, multa de 40% do FGTS.<br>` +
+      `2. <b>Seguro-desemprego</b>: 3–5 parcelas conforme tempo trabalhado — dê entrada imediatamente.<br>` +
+      `3. <b>FGTS</b>: saque liberado na demissão sem justa causa.<br>` +
+      `4. Corte gastos para "modo sobrevivência" no dia 1 — não espere a reserva acabar.<br>` +
+      `5. Plano de saúde: você tem direito de manter o coletivo por 6–24 meses pagando integral (avalie vs individual).<br>` +
+      `6. Reserva + rescisão = sua pista de decolagem. Divida pelo custo mensal e saiba exatamente quantos meses tem.<br><br>` +
+      `Com despesas de ${aiFmt(s.expense)}/mês, cada R$ 10 mil de colchão = ${(10000 / (s.expense || 5000)).toFixed(1)} meses de fôlego.`;
+  }
+
+  if (/clt vs pj|pj ou clt|clt ou pj/.test(t)) {
+    return `<b>CLT vs PJ — a conta completa:</b><br><br>` +
+      `• Regra de bolso: PJ precisa pagar <b>~30–40% a mais</b> para empatar com CLT (13º, férias+1/3, FGTS, INSS patronal, estabilidade).<br>` +
+      `• CLT 10k ≈ PJ 13–14k. Abaixo disso, a CLT costuma ganhar.<br>` +
+      `• PJ vence quando: alíquota baixa (Simples ~6–15%), você se disciplina a provisionar férias/13º/INSS por conta própria.<br>` +
+      `• PJ: provisione TODO mês — 8% "FGTS pessoal", 1/12 de 13º, 1/12 de férias, INSS sobre pró-labore.<br>` +
+      `• Risco PJ: zero estabilidade — reserva de 12 meses, não 6.`;
+  }
+
+  // ───────── INVESTIMENTOS AVANÇADOS ─────────
+  if (/fundo de investimento|fundos|come.cotas|taxa de adm/.test(t)) {
+    return `<b>Fundos de investimento — leia a letra miúda:</b><br><br>` +
+      `• <b>Taxa de administração</b>: acima de 1% a.a. em renda fixa ou 2% em ações precisa entregar MUITO para se justificar.<br>` +
+      `• <b>Taxa de performance</b>: 20% sobre o que exceder o benchmark — ok se o benchmark for justo.<br>` +
+      `• <b>Come-cotas</b>: antecipação de IR em maio/novembro nos fundos abertos — corrói os juros compostos vs ETFs/títulos.<br>` +
+      `• Estudo clássico: a maioria dos fundos ativos <b>perde do índice</b> em janelas de 10+ anos.<br>` +
+      `• Quando fundos valem: multimercados descorrelacionados, crédito privado pulverizado, gestor com histórico longo comprovado.<br><br>` +
+      `Alternativa simples: ETF + Tesouro direto = 90% do resultado com 10% do custo.`;
+  }
+
+  if (/opcoes|derivativo|alavancagem|day trade|short|vender a descoberto/.test(t)) {
+    return `<b>⚠️ Zona de alto risco — opções, alavancagem e day trade:</b><br><br>` +
+      `• Estudo da FGV/CVM: <b>97% dos day traders perdem dinheiro</b> em 300+ pregões; menos de 1% ganha mais que um salário mínimo.<br>` +
+      `• <b>Alavancagem</b> multiplica nos dois sentidos — dá para perder MAIS do que investiu.<br>` +
+      `• <b>Opções</b>: úteis para proteção (hedge) de carteiras grandes; como especulação, viram loteria com taxas.<br>` +
+      `• Corretoras e influencers lucram com seu giro, não com seu ganho — entenda o incentivo de quem te empurra isso.<br>` +
+      `• Se ainda assim quiser testar: máximo 5% do patrimônio, dinheiro que pode virar pó, e registre cada trade.<br><br>` +
+      `Riqueza consistente vem de aporte + tempo + juros compostos. Chato? Sim. Funciona? Sempre funcionou.`;
+  }
+
+  if (/ouro|commodit|prata/.test(t)) {
+    return `<b>Ouro e commodities na carteira:</b><br><br>` +
+      `• Ouro é <b>proteção</b>, não investimento produtivo: não paga dividendo, mas historicamente segura valor em crises.<br>` +
+      `• Posição típica: 0–5% do patrimônio como "seguro de catástrofe".<br>` +
+      `• Como comprar no Brasil: ETF GOLD11 (mais prático), contratos na B3, ou fundos cambiais com ouro.<br>` +
+      `• Commodities agrícolas/petróleo: exposição via ações (Petrobras, SLC, ETFs setoriais) é mais simples que futuros.<br>` +
+      `• Lembre: no longo prazo, ações de empresas produtivas superam ouro por margem larga.`;
+  }
+
+  if (/renda passiva|viver de renda|dividendos mensais/.test(t)) {
+    return `<b>Construindo renda passiva de verdade:</b><br><br>` +
+      `• Meta: patrimônio que gere sua despesa mensal. Com yield médio de 8% a.a., viver com ${aiFmt(s.expense)}/mês exige ~<b>${aiFmt(s.expense * 12 / 0.08)}</b>.<br>` +
+      `• Combinação clássica BR: FIIs (renda mensal isenta) + ações pagadoras (bancos, energia, saneamento) + Tesouro IPCA+ com juros semestrais.<br>` +
+      `• <b>Tesouro RendA+</b>: paga renda mensal por 20 anos a partir da data que você escolher — aposentadoria DIY.<br>` +
+      `• Fase 1 (acumulação): reinvista TUDO. Fase 2 (usufruto): saque só os proventos, nunca o principal.<br>` +
+      `• Armadilha comum: perseguir yield de 15%+ — geralmente é empresa/fundo problemático devolvendo seu próprio capital.`;
+  }
+
+  if (/ipo|oferta publica|estreia na bolsa/.test(t)) {
+    return `<b>IPOs — entrar na estreia vale a pena?</b><br><br>` +
+      `• Estatística global e BR: a maioria dos IPOs <b>perde do índice</b> nos primeiros 2 anos — você compra no preço que os vendedores escolheram.<br>` +
+      `• O hype do lançamento beneficia quem vende, não quem compra.<br>` +
+      `• Estratégia prudente: espere 2–4 trimestres de resultados como empresa listada antes de avaliar.<br>` +
+      `• Exceções existem, mas exigem analisar prospecto (500+ páginas) — se você não vai ler, não é sua praia.<br>` +
+      `• Flipagem (vender no 1º dia) já foi lucrativa em média, mas as corretoras restringem quem flipa.`;
+  }
+
+  if (/stock options|rsu|equity|vesting/.test(t)) {
+    return `<b>Stock options e RSUs — equity como remuneração:</b><br><br>` +
+      `• <b>Options</b>: direito de comprar ações da empresa a preço fixo (strike). Só valem se a empresa valorizar acima do strike.<br>` +
+      `• <b>RSU</b>: ações entregues de graça conforme o vesting — sempre têm valor.<br>` +
+      `• <b>Vesting típico</b>: 4 anos com cliff de 1 (nada no 1º ano, depois mensal/trimestral).<br>` +
+      `• Risco de concentração: salário + carreira + equity na MESMA empresa. Venda parcelas ao vestir e diversifique.<br>` +
+      `• Startups: options podem virar pó (maioria vira) — negocie salário primeiro, equity como upside.<br>` +
+      `• IR: RSU de empresa estrangeira gera obrigações de declaração (carnê-leão/GCAP na venda).`;
+  }
+
+  if (/crowdfunding|p2p|peer to peer|emprestimo coletivo/.test(t)) {
+    return `<b>Investimentos alternativos — P2P e crowdfunding:</b><br><br>` +
+      `• <b>P2P lending</b>: você empresta para empresas via plataforma (taxas de 1,5–2,5% a.m.). Risco real de calote — sem FGC!<br>` +
+      `• <b>Equity crowdfunding</b>: cotas de startups (regulado pela CVM, Resolução 88). Potencial alto, liquidez zero, mortalidade alta.<br>` +
+      `• Regra: máximo 5% do patrimônio somando todos os alternativos, pulverizado em muitas operações.<br>` +
+      `• Só plataformas autorizadas pelo BC/CVM — confira no site do regulador.<br>` +
+      `• Compare sempre com o CDI: risco muito maior tem que pagar MUITO mais que 100% do CDI para compensar.`;
+  }
+
+  // ───────── MORADIA E GRANDES PROJETOS ─────────
+  if (/planta|imovel na planta|leilao de imove/.test(t)) {
+    return `<b>Imóvel na planta e leilões — oportunidade com armadilhas:</b><br><br>` +
+      `<b>Na planta:</b><br>` +
+      `• Desconto típico de 15–30% vs pronto, mas: risco de atraso (comum), INCC corrige as parcelas durante a obra (pode surpreender), e distrato custa caro.<br>` +
+      `• Pesquise a construtora: obras entregues, reclamações, saúde financeira.<br><br>` +
+      `<b>Leilão:</b><br>` +
+      `• Descontos de 30–50%, MAS: avalie dívidas do imóvel (condomínio passa ao arrematante!), ocupação (desocupar leva tempo e custo) e edital com advogado.<br>` +
+      `• Caixa tem leilões frequentes com financiamento disponível — porta de entrada mais segura.`;
+  }
+
+  if (/airbnb|alugar imovel|renda com imovel|investir em imovel/.test(t)) {
+    return `<b>Imóvel para renda — a conta honesta:</b><br><br>` +
+      `• Aluguel tradicional rende <b>0,3–0,5% a.m.</b> do valor do imóvel — frequentemente menos que o CDI, com muito mais trabalho.<br>` +
+      `• Custos que comem o retorno: vacância, condomínio parado, IPTU, manutenção, corretagem, inquilino problemático.<br>` +
+      `• <b>Airbnb</b>: pode render 1,5–2× o aluguel tradicional, mas é um NEGÓCIO (limpeza, gestão, sazonalidade, taxas de 15%+).<br>` +
+      `• Compare com FIIs: renda mensal isenta de IR, liquidez em 2 dias, diversificação em dezenas de imóveis, zero dor de cabeça.<br>` +
+      `• Imóvel físico ganha em: alavancagem barata (financiamento), controle total e valorização em regiões específicas.`;
+  }
+
+  if (/energia solar|painel solar/.test(t)) {
+    return `<b>Energia solar como investimento:</b><br><br>` +
+      `• Payback típico no Brasil: <b>3–5 anos</b>; vida útil dos painéis: 25+ anos — TIR de 15–20% a.a., difícil de bater com baixo risco.<br>` +
+      `• Conta de R$ 500/mês → sistema de ~R$ 18–25 mil. Financiamentos específicos têm juros decentes.<br>` +
+      `• Valoriza o imóvel e protege contra bandeiras tarifárias e reajustes acima da inflação.<br>` +
+      `• Atenção: Lei 14.300 cobra gradualmente o "fio B" — o retorno segue ótimo, mas faça a conta atualizada.<br>` +
+      `• Peça 3 orçamentos e confira a homologação na distribuidora + garantia do inversor (peça que mais quebra).`;
+  }
+
+  // ───────── IMPOSTO DE RENDA PRÁTICO ─────────
+  if (/declarar|declaracao|malha fina|restituicao|carne.leao/.test(t)) {
+    return `<b>IR sem medo — guia prático:</b><br><br>` +
+      `• <b>Completa vs simplificada</b>: simplificada dá desconto padrão de 20% (teto ~R$ 16 mil); completa vale com muitas deduções (saúde sem limite, educação, dependentes, PGBL).<br>` +
+      `• <b>Malha fina — top 3 causas</b>: despesa médica inflada, renda de fonte não declarada (a Receita cruza TUDO), dependente em duas declarações.<br>` +
+      `• <b>Restituição</b>: priorize entregar cedo nos primeiros lotes; corrige pela Selic.<br>` +
+      `• Investimentos: corretoras enviam informes em março — declare ativo por ativo em Bens e Direitos.<br>` +
+      `• <b>Carnê-leão</b>: obrigatório para aluguel recebido de pessoa física e renda do exterior — mensal, não anual.<br>` +
+      `• Autônomos: livro-caixa deduz despesas do consultório/atividade.`;
+  }
+
+  // ───────── CONCEITOS E ESTRATÉGIA ─────────
+  if (/custo de oportunidade|valor do dinheiro no tempo|valor presente/.test(t)) {
+    return `<b>Custo de oportunidade — o conceito que muda tudo:</b><br><br>` +
+      `• Todo gasto tem um custo invisível: o que esse dinheiro renderia investido.<br>` +
+      `• R$ 100/mês de assinatura = ${aiFmt(100 * 12)} por ano = <b>~${aiFmt(23000)}</b> em 10 anos a 1% a.m. que deixaram de existir.<br>` +
+      `• Carro de R$ 90 mil vs R$ 50 mil: os R$ 40 mil de diferença virariam ~${aiFmt(132000)} em 10 anos.<br>` +
+      `• Aplique a "taxa pessoal": antes de comprar, calcule o valor em 10 anos (multiplique por ~3,3 a 1% a.m.) e pergunte se ainda vale.<br>` +
+      `• Não é para nunca gastar — é para gastar SABENDO o preço real da escolha.`;
+  }
+
+  if (/lifestyle|inflacao de estilo|padrao de vida|ganho mais e nao sobra/.test(t)) {
+    return `<b>Inflação de estilo de vida — o ladrão silencioso:</b><br><br>` +
+      `• Sintoma: salário dobrou nos últimos anos, sobra continua zero.<br>` +
+      `• Cada aumento vira carro melhor, apartamento maior, restaurante mais caro — e a liberdade nunca chega.<br>` +
+      `• Antídoto: <b>congele o padrão por 12 meses a cada aumento</b> — destine 50–100% do acréscimo para investimento ANTES de sentir o dinheiro.<br>` +
+      `• Pergunta-filtro: "isso melhora minha vida de verdade ou só sinaliza status?"<br>` +
+      `• Quem segura o padrão enquanto a renda cresce aposenta 10–15 anos mais cedo. É o maior hack de enriquecimento que existe.`;
+  }
+
+  if (/mba|pos.graduacao|vale a pena estudar|investir em educacao|faculdade/.test(t)) {
+    return `<b>Educação como investimento — faça a conta:</b><br><br>` +
+      `• ROI educacional = (aumento salarial anual × anos de carreira) − (custo + salário não ganho durante o curso).<br>` +
+      `• MBA de R$ 60 mil que gera +R$ 2 mil/mês se paga em 2,5 anos — excelente. O mesmo MBA sem mudança de cargo é consumo, não investimento.<br>` +
+      `• Sinal de valor real: empregadores pagam mais POR CAUSA do diploma (pergunte a quem fez, não a quem vende).<br>` +
+      `• Alternativas com ROI altíssimo: certificações técnicas (cloud, dados), inglês fluente (+30–50% em muitas áreas), portfólio público.<br>` +
+      `• Use Tesouro Educa+ ou IPCA+ para poupar para educação dos filhos com data certa.`;
+  }
+
+  if (/minimalismo|frugal|gastar menos e viver|essencialismo/.test(t)) {
+    return `<b>Minimalismo financeiro — riqueza é o que você NÃO gasta:</b><br><br>` +
+      `• Premissa: cada compra carrega custo de dinheiro + manutenção + espaço + atenção.<br>` +
+      `• Teste dos 30 dias: item não essencial vai para uma lista; se em 30 dias ainda fizer sentido, compre.<br>` +
+      `• Qualidade > quantidade: 1 item bom que dura 10 anos vence 5 baratos que duram 1.<br>` +
+      `• "Comprar experiências, não coisas" tem base científica: a felicidade de bens se adapta rápido; memórias valorizam.<br>` +
+      `• Resultado prático: taxa de poupança de 30–50% sem sensação de sacrifício — e cada % a mais antecipa sua liberdade em anos.`;
+  }
+
+  if (/sabatico|pausa na carreira|viajar o mundo|morar fora|intercambio/.test(t)) {
+    return `<b>Sabático e morar fora — bancando o sonho:</b><br><br>` +
+      `• Fundo do sabático = custo mensal no destino × meses × 1,3 (margem) + passagens + seguro + volta (3 meses de colchão para recolocação).<br>` +
+      `• Ex.: 6 meses na Europa a R$ 8 mil/mês ≈ <b>R$ 75 mil</b> com folga.<br>` +
+      `• Guarde em Tesouro Selic/CDB liquidez — data certa, zero risco.<br>` +
+      `• Morar fora: pesquise custo real (Numbeo), visto de trabalho/nômade digital, e mantenha CPF regular + declaração de saída fiscal se for definitivo.<br>` +
+      `• Trabalho remoto em real vs custo em euro/dólar: a conta precisa fechar com o câmbio 20% pior que o atual.`;
+  }
+
   if (/oi|ola|bom dia|boa tarde|boa noite|hello|eai|e ai/.test(t)) {
     return `Olá! 👋 Sou o FinBot — especialista em finanças pessoais, investimentos e negócios. Analiso seus dados localmente e domino: economia doméstica, dívidas, renda fixa/variável, FIIs, cripto, impostos, financiamentos, empreendedorismo, precificação e muito mais.<br><br>Busco indicadores <b>ao vivo do Banco Central</b> (Selic, CDI, IPCA, dólar). Pergunte "indicadores de hoje" ou peça uma <i>"simulação de 500 por mês por 10 anos a 12% ao ano"</i>.`;
   }
@@ -8255,7 +8504,7 @@ async function aiAnswer(q) {
   return `Sou especialista em finanças e negócios. Alguns temas que domino:<br><br>` +
     `💰 <b>Pessoal</b>: "onde economizar?", "resumo", "reserva de emergência", "dividir orçamento", "sair das dívidas", "score de crédito"<br>` +
     `📈 <b>Investimentos</b>: "renda fixa", "ações", "FIIs", "ETFs", "cripto", "dólar", "montar carteira", "aposentadoria", "imposto de renda"<br>` +
-    `🏠 <b>Decisões</b>: "financiamento imobiliário", "comprar ou alugar", "carro", "consórcio"<br>` +
+    `🏠 <b>Decisões</b>: "financiamento imobiliário", "comprar ou alugar", "carro", "consórcio", "imóvel na planta", "energia solar"<br>👨‍👩‍👧 <b>Vida</b>: "finanças do casal", "filhos", "herança", "seguro de vida", "demissão", "CLT vs PJ", "MBA vale a pena?"<br>🛡️ <b>Proteção</b>: "golpes financeiros", "cheque especial", "consignado", "declarar IR", "malha fina"<br>` +
     `🚀 <b>Negócios</b>: "abrir empresa/MEI", "fluxo de caixa", "precificação", "pró-labore", "CAC e LTV", "validar ideia", "renda extra", "negociar salário"<br>` +
     `🧮 <b>Simulações</b>: "simule 500 por mês por 10 anos a 12% ao ano"<br>📡 <b>Ao vivo</b>: "indicadores de hoje", "quanto está o dólar?", "quanto rende a poupança?"`;
 }
