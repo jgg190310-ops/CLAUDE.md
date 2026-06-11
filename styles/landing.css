@@ -1380,3 +1380,42 @@ button:focus-visible, a:focus-visible { outline: 2px solid rgba(99,102,241,.6); 
 .hero-subtitle { max-width: 540px; }
 .feature-card h3 { letter-spacing: -.3px; }
 .section-title { text-wrap: balance; }
+
+/* ── LIGHT THEME: CONTRAST FIX (landing) ── */
+html[data-theme="light"] {
+  --text-2: #334155;
+  --text-3: #64748b;
+}
+html[data-theme="light"] .hero-title { text-shadow: none; }
+html[data-theme="light"] .feature-card,
+html[data-theme="light"] .testi-card,
+html[data-theme="light"] .pricing-card,
+html[data-theme="light"] .faq-item {
+  background: #ffffff;
+  border-color: rgba(15,23,42,0.10);
+}
+html[data-theme="light"] .hero-badge { border-color: rgba(99,102,241,.3); }
+html[data-theme="light"] .preview-title { color: #475569; }
+html[data-theme="light"] .auth-link { color: #4338ca; }
+html[data-theme="light"] .auth-switch button { color: #4338ca; }
+html[data-theme="light"] .auth-switch button:hover { color: #312e81; }
+html[data-theme="light"] .tech-tags span { color: #4338ca; background: rgba(99,102,241,.08); }
+html[data-theme="light"] .section-tag { color: #4f46e5; background: rgba(99,102,241,.08); }
+html[data-theme="light"] .marquee-item { color: #475569; }
+html[data-theme="light"] .sb-label,
+html[data-theme="light"] .stat-label { color: #64748b; }
+html[data-theme="light"] .testi-role { color: #64748b; }
+html[data-theme="light"] .plan-desc,
+html[data-theme="light"] .plan-features li { color: #475569; }
+html[data-theme="light"] .plan-name { color: #0f172a; }
+html[data-theme="light"] .scroll-hint { color: #64748b; }
+html[data-theme="light"] .footer-links a { color: #475569; }
+html[data-theme="light"] .grid-overlay { opacity: .2; }
+html[data-theme="light"] .particles { opacity: .35; }
+html[data-theme="light"] .orb { opacity: .35; }
+html[data-theme="light"] .geo-shape { opacity: .5; }
+html[data-theme="light"] .step h3 { color: #0f172a; }
+html[data-theme="light"] .step p { color: #475569; }
+html[data-theme="light"] .auth-btn-ghost { color: #334155; border-color: rgba(15,23,42,.15); }
+html[data-theme="light"] .auth-btn-ghost:hover { color: #0f172a; background: rgba(15,23,42,.04); }
+html[data-theme="light"] ::selection { background: rgba(99,102,241,.22); color: #0f172a; }
