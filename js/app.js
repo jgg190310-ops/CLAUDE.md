@@ -2016,110 +2016,421 @@ function renderAiInsights() {
 
 // — chat engine —
 const AI_SUGGESTIONS = [
-  'Onde posso economizar?',
-  'Minhas metas estão no ritmo?',
-  'Como montar uma reserva de emergência?',
-  'Explique juros compostos',
   'Resumo das minhas finanças',
-  'Como dividir meu orçamento?',
+  'Onde posso economizar?',
+  'Como montar uma carteira?',
+  'Simule 500 por mês por 10 anos a 12% ao ano',
+  'Como sair das dívidas?',
+  'Comprar ou alugar imóvel?',
+  'Como abrir MEI?',
+  'Como precificar meu produto?',
 ];
+
+function aiNorm(t) {
+  return t.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+}
+
+// — simulador por linguagem natural: "simule 500 por mês por 10 anos a 12% ao ano" —
+function aiTrySimulation(t) {
+  if (!/simul|quanto rende|rendimento de|se eu (investir|aplicar|guardar)/.test(t)) return null;
+  const nums = (t.match(/(\d+[.,]?\d*)\s*(mil|k)?/g) || []).map(m => {
+    let v = parseFloat(m.replace(/[^\d,.]/g, '').replace(',', '.'));
+    if (/mil|k/.test(m)) v *= 1000;
+    return v;
+  }).filter(v => v > 0);
+  if (nums.length < 2) return null;
+
+  const pctMatch = t.match(/(\d+[.,]?\d*)\s*%/);
+  let rate = pctMatch ? parseFloat(pctMatch[1].replace(',', '.')) : 10;
+  const yearly = /ano|a\.a|aa/.test(t) || !/m[e]s|a\.m|am/.test(t);
+  const iMonthly = yearly ? Math.pow(1 + rate / 100, 1 / 12) - 1 : rate / 100;
+
+  const yearsMatch = t.match(/(\d+)\s*anos?/);
+  const monthsMatch = t.match(/(\d+)\s*m[e]s(es)?/);
+  let months = yearsMatch ? parseInt(yearsMatch[1]) * 12 : (monthsMatch ? parseInt(monthsMatch[1]) : 120);
+
+  const monthly = nums[0];
+  let total = 0;
+  for (let m = 0; m < months; m++) total = (total + monthly) * (1 + iMonthly);
+  const invested = monthly * months;
+
+  return `🧮 <b>Simulação:</b> ${aiFmt(monthly)}/mês por ${Math.round(months / 12 * 10) / 10} anos a ${rate}% ${yearly ? 'a.a.' : 'a.m.'}<br><br>` +
+    `• Total investido: <b>${aiFmt(invested)}</b><br>` +
+    `• Montante final: <b>${aiFmt(total)}</b><br>` +
+    `• Juros ganhos: <b>${aiFmt(total - invested)}</b> (${Math.round(((total / invested) - 1) * 100)}% acima do aportado)<br><br>` +
+    `Use a aba <b>Calculadora</b> para ajustar os detalhes.`;
+}
 
 function aiAnswer(q) {
   const s = aiSnapshot();
-  const t = q.toLowerCase();
+  const t = aiNorm(q);
 
-  if (/econom|gastar menos|cortar|reduzir/.test(t)) {
+  const sim = aiTrySimulation(t);
+  if (sim) return sim;
+
+  // ───────── FINANÇAS PESSOAIS (personalizado) ─────────
+  if (/econom|gastar menos|cortar gasto|reduzir gasto|apertar/.test(t)) {
     const lines = s.topCats.slice(0, 3).map(([c, v], i) =>
       `${i + 1}. <b>${c}</b>: ${aiFmt(v)} — corte de 10–15% libera ${aiFmt(v * 0.12)}/mês`);
     return `Analisando seus gastos, os maiores pontos de economia são:<br><br>${lines.join('<br>')}<br><br>` +
-      `Dicas práticas: renegocie assinaturas anuais, compare mercado com lista pronta e estabeleça um teto semanal para lazer. ` +
-      `Somando os cortes acima, você liberaria cerca de <b>${aiFmt(s.topCats.slice(0, 3).reduce((a, [, v]) => a + v * 0.12, 0))}/mês</b>.`;
+      `<b>Táticas que funcionam:</b><br>` +
+      `• Regra das 48h: espere 2 dias antes de qualquer compra não planejada acima de R$ 100.<br>` +
+      `• Audite assinaturas: cancele o que não usou nos últimos 30 dias.<br>` +
+      `• Mercado com lista + comparador de preços: economia média de 15–20%.<br>` +
+      `• Renegocie planos (internet, celular, seguros) a cada 12 meses — a concorrência é sua alavanca.<br><br>` +
+      `Somando os cortes acima: <b>~${aiFmt(s.topCats.slice(0, 3).reduce((a, [, v]) => a + v * 0.12, 0))}/mês</b> liberados.`;
   }
 
-  if (/meta/.test(t)) {
-    if (!s.goalPace.length) return 'Todas as suas metas estão concluídas! 🎉 Que tal criar uma nova na aba Metas?';
+  if (/meta/.test(t) && !/metade/.test(t)) {
+    if (!s.goalPace.length) return 'Todas as suas metas estão concluídas! 🎉 Que tal criar uma nova na aba Metas? Sugestões: reserva reforçada (12 meses), entrada de imóvel, ou liberdade financeira (25× seus gastos anuais).';
     const lines = s.goalPace.map(g =>
       `• <b>${g.name}</b>: faltam ${aiFmt(g.target - g.current)} em ~${g.months} meses → aporte de <b>${aiFmt(g.monthly)}/mês</b>`);
     const totalMonthly = s.goalPace.reduce((a, g) => a + g.monthly, 0);
-    const feasible = s.income - s.expense >= totalMonthly;
+    const surplus = Math.max(0, s.income - s.expense);
+    const feasible = surplus >= totalMonthly;
     return `Ritmo necessário para cada meta:<br><br>${lines.join('<br>')}<br><br>` +
-      `Total mensal: <b>${aiFmt(totalMonthly)}</b>. Sua sobra atual (renda − despesas) é ${aiFmt(Math.max(0, s.income - s.expense))} — ` +
-      (feasible ? 'dá para manter todas no prazo. ✅' : 'abaixo do necessário; considere alongar prazos ou priorizar 1–2 metas. ⚠️');
+      `Total mensal: <b>${aiFmt(totalMonthly)}</b> · Sua sobra atual: <b>${aiFmt(surplus)}</b><br><br>` +
+      (feasible
+        ? '✅ Dá para manter todas no prazo. Dica: automatize os aportes no dia do salário ("pague-se primeiro").'
+        : `⚠️ Faltam ${aiFmt(totalMonthly - surplus)}/mês. Opções: (1) alongar prazos das metas menos urgentes, (2) priorizar 2 metas por vez, (3) buscar renda extra — cada R$ 500/mês a mais fecha boa parte do gap.`);
   }
 
-  if (/reserva|emerg/.test(t)) {
+  if (/reserva|emergencia/.test(t)) {
     const target = s.expense * 6;
-    return `A reserva de emergência ideal cobre <b>6 meses de despesas</b> — no seu caso, ${aiFmt(target)}.<br><br>` +
-      `Hoje você cobre ~<b>${Math.max(0, Math.floor(s.reserveMonths))} meses</b>. ` +
-      `Onde deixar: liquidez diária e baixo risco (Tesouro Selic, CDB 100%+ do CDI com liquidez, ou conta remunerada). ` +
-      `Evite ações/cripto para esse dinheiro — reserva é segurança, não rentabilidade.`;
+    return `A reserva ideal cobre <b>6 meses de despesas</b> — no seu caso, ${aiFmt(target)}. Hoje você cobre ~<b>${Math.max(0, Math.floor(s.reserveMonths))} meses</b>.<br><br>` +
+      `<b>Onde deixar (liquidez diária, baixo risco):</b><br>` +
+      `• Tesouro Selic — o padrão-ouro, garantido pelo governo.<br>` +
+      `• CDB liquidez diária pagando 100%+ do CDI (garantia FGC até R$ 250 mil).<br>` +
+      `• Contas remuneradas de bancos digitais sólidos.<br><br>` +
+      `<b>Nunca</b> em ações, cripto ou fundos com carência — reserva é seguro, não investimento. ` +
+      `Autônomos e PJs: mire 12 meses em vez de 6.`;
   }
 
-  if (/juros compostos|juro composto/.test(t)) {
-    return `Juros compostos são "juros sobre juros": cada rendimento passa a render também.<br><br>` +
-      `Fórmula: <b>M = C × (1 + i)ᵗ</b> — montante, capital, taxa e tempo.<br><br>` +
-      `Exemplo: R$ 500/mês a 1% a.m. por 10 anos ≈ <b>R$ 115 mil</b> (você depositou R$ 60 mil; os outros R$ 55 mil são juros). ` +
-      `Use a aba <b>Calculadora</b> para simular com seus números!`;
-  }
-
-  if (/50.?30.?20|dividir|orçamento|orcamento/.test(t)) {
+  if (/(50.?30.?20|dividir|distribuir).*(orcamento|renda|salario)|orcamento ideal|como dividir/.test(t)) {
     const inc = s.income || 5000;
-    return `A regra <b>50/30/20</b> divide a renda em:<br><br>` +
-      `• 50% necessidades → ${aiFmt(inc * 0.5)} (moradia, mercado, transporte, saúde)<br>` +
-      `• 30% desejos → ${aiFmt(inc * 0.3)} (lazer, assinaturas, restaurantes)<br>` +
-      `• 20% futuro → ${aiFmt(inc * 0.2)} (investimentos, reserva, quitar dívidas)<br><br>` +
-      `Hoje suas despesas somam ${aiFmt(s.expense)} (${s.income ? Math.round((s.expense / s.income) * 100) : '—'}% da renda). ` +
-      `Configure os limites na aba <b>Orçamentos</b> seguindo essa divisão.`;
+    return `A regra <b>50/30/20</b> aplicada à sua renda (${aiFmt(inc)}):<br><br>` +
+      `• 50% necessidades → <b>${aiFmt(inc * 0.5)}</b> (moradia, mercado, transporte, saúde)<br>` +
+      `• 30% desejos → <b>${aiFmt(inc * 0.3)}</b> (lazer, assinaturas, restaurantes)<br>` +
+      `• 20% futuro → <b>${aiFmt(inc * 0.2)}</b> (investimentos, reserva, quitar dívidas)<br><br>` +
+      `Suas despesas atuais: ${aiFmt(s.expense)} (${s.income ? Math.round((s.expense / s.income) * 100) : '—'}% da renda).<br><br>` +
+      `Variações: <b>60/20/20</b> se a moradia pesa muito; <b>50/20/30</b> agressiva se busca independência financeira cedo (movimento FIRE).`;
   }
 
-  if (/cdi|selic|tesouro|renda fixa|cdb/.test(t)) {
-    return `Conceitos rápidos de renda fixa:<br><br>` +
-      `• <b>Selic</b>: taxa básica da economia, definida pelo Banco Central.<br>` +
-      `• <b>CDI</b>: taxa de referência entre bancos, anda colada na Selic.<br>` +
-      `• <b>Tesouro Selic</b>: título público que rende a Selic — ideal para reserva.<br>` +
-      `• <b>CDB</b>: empréstimo ao banco; busque 100%+ do CDI com garantia FGC (até R$ 250 mil).<br><br>` +
-      `Quanto maior o prazo e o risco, maior o retorno esperado.`;
-  }
-
-  if (/investir|onde invisto|aplicar|carteira/.test(t)) {
-    return `Uma trilha simples e segura (educacional, não recomendação):<br><br>` +
-      `1. <b>Reserva primeiro</b> — 6 meses em liquidez diária.<br>` +
-      `2. <b>Renda fixa</b> — Tesouro/CDBs para objetivos de até 3 anos.<br>` +
-      `3. <b>Diversificação</b> — ações/fundos imobiliários/ETFs para longo prazo, em parcelas mensais.<br>` +
-      `4. <b>Consistência > timing</b> — aportar todo mês vence tentar acertar o momento.<br><br>` +
-      `Acompanhe o mercado em tempo real na aba <b>Bolsa de Valores</b>.`;
-  }
-
-  if (/d[ií]vida|devendo|empr[ée]stimo|cart[ãa]o/.test(t)) {
-    return `Estratégia para sair das dívidas:<br><br>` +
-      `1. Liste tudo com juros e parcelas.<br>` +
-      `2. Ataque primeiro a de <b>maior juro</b> (método avalanche) — geralmente cartão de crédito (300%+ a.a.) e cheque especial.<br>` +
-      `3. Negocie: troque dívida cara por crédito mais barato (consignado, portabilidade).<br>` +
-      `4. Pause investimentos se o juro da dívida supera o rendimento — quitar é o melhor "investimento".`;
-  }
-
-  if (/resumo|an[áa]lise|vis[ãa]o geral|como est/.test(t)) {
-    return `📊 <b>Resumo das suas finanças:</b><br><br>` +
+  if (/resumo|analise|visao geral|como esta|diagnostico/.test(t)) {
+    return `📊 <b>Diagnóstico financeiro:</b><br><br>` +
       `• Receitas: <b>${aiFmt(s.income)}</b> · Despesas: <b>${aiFmt(s.expense)}</b> · Investido: <b>${aiFmt(s.invest)}</b><br>` +
       `• Dinheiro líquido: <b>${aiFmt(s.cash)}</b><br>` +
       `• Taxa de poupança: <b>${s.savingsRate.toFixed(0)}%</b> ${s.savingsRate >= 20 ? '✅' : '⚠️ (meta: 20%+)'}<br>` +
-      `• Reserva: ~<b>${Math.max(0, Math.floor(s.reserveMonths))} meses</b> de despesas<br>` +
+      `• Reserva: ~<b>${Math.max(0, Math.floor(s.reserveMonths))} meses</b> ${s.reserveMonths >= 6 ? '✅' : '⚠️ (meta: 6 meses)'}<br>` +
       `• Orçamentos críticos: <b>${s.overBudgets.length}</b><br>` +
       `• Metas em andamento: <b>${s.goalPace.length}</b><br><br>` +
-      `Pergunte "onde posso economizar?" para um plano de cortes.`;
+      `<b>Próximo passo recomendado:</b> ${s.reserveMonths < 6 ? 'completar a reserva de emergência antes de investir em risco.' : s.savingsRate < 20 ? 'elevar a taxa de poupança para 20% — pergunte "onde posso economizar?".' : 'diversificar investimentos de longo prazo. Pergunte "como montar uma carteira?".'}`;
   }
 
-  if (/oi|ol[áa]|bom dia|boa tarde|boa noite|hello/.test(t)) {
-    return `Olá! 👋 Sou o FinBot, seu assistente financeiro. Analiso seus dados localmente e posso ajudar com economia, metas, reserva de emergência, orçamento e conceitos de investimento. O que você quer saber?`;
+  // ───────── DÍVIDAS E CRÉDITO ─────────
+  if (/divida|devendo|emprestimo|inadimpl|nome sujo|negativad/.test(t)) {
+    return `<b>Plano de guerra contra dívidas:</b><br><br>` +
+      `1. <b>Mapeie tudo</b>: valor, juros mensal e parcela de cada dívida.<br>` +
+      `2. <b>Método avalanche</b>: quite primeiro a de maior juro (cartão ~14% a.m., cheque especial ~8% a.m.) — matematicamente ótimo.<br>` +
+      `3. <b>Método bola de neve</b>: quite primeiro a menor dívida — psicologicamente motivador. Escolha o que você consegue sustentar.<br>` +
+      `4. <b>Troque dívida cara por barata</b>: consignado (~2% a.m.) ou portabilidade de crédito.<br>` +
+      `5. <b>Negocie à vista</b>: descontos de 50–90% em feirões como Serasa Limpa Nome são comuns.<br>` +
+      `6. Pause investimentos enquanto houver dívida acima de ~1,5% a.m. — quitar É o melhor investimento.`;
   }
 
-  return `Posso ajudar com:<br><br>` +
-    `• <b>"Onde posso economizar?"</b> — análise dos seus gastos<br>` +
-    `• <b>"Minhas metas estão no ritmo?"</b> — viabilidade dos aportes<br>` +
-    `• <b>"Reserva de emergência"</b> — quanto e onde guardar<br>` +
-    `• <b>"Juros compostos" / "CDI" / "renda fixa"</b> — conceitos explicados<br>` +
-    `• <b>"Como dividir meu orçamento?"</b> — regra 50/30/20 com a sua renda<br>` +
-    `• <b>"Resumo"</b> — visão geral das suas finanças`;
+  if (/cartao de credito|cartao|fatura|rotativo/.test(t)) {
+    return `<b>Cartão de crédito — use a favor, não contra:</b><br><br>` +
+      `• <b>Nunca</b> pague o mínimo: o rotativo cobra ~14% a.m. (≈ 380% ao ano!).<br>` +
+      `• Trate o limite como ferramenta, não renda extra: gaste só o que já existe na conta.<br>` +
+      `• Concentre gastos em 1 cartão com bom programa de pontos e anuidade zero (ou isenta por gasto).<br>` +
+      `• Fatura no débito automático + alerta de 80% do limite.<br>` +
+      `• Parcelado sem juros embute custo no preço — pedir desconto à vista quase sempre vale mais.<br><br>` +
+      `Se a fatura está fora de controle: transfira para um crédito mais barato e corte o cartão temporariamente.`;
+  }
+
+  if (/score|credito|serasa|spc/.test(t)) {
+    return `<b>Como subir seu score de crédito:</b><br><br>` +
+      `• Pague contas em dia (maior peso) — atrasos derrubam o score por até 12 meses.<br>` +
+      `• Cadastro positivo ativado: histórico bom passa a contar a seu favor.<br>` +
+      `• Use 30% ou menos do limite do cartão.<br>` +
+      `• Evite pedir crédito várias vezes em sequência (cada consulta pesa).<br>` +
+      `• Mantenha dados atualizados nos birôs (Serasa, SPC, Quod).<br><br>` +
+      `Score alto = juros menores em financiamentos — a diferença num imóvel pode passar de R$ 100 mil.`;
+  }
+
+  // ───────── INVESTIMENTOS ─────────
+  if (/juros compostos|juro composto/.test(t)) {
+    return `Juros compostos são "juros sobre juros": cada rendimento passa a render também.<br><br>` +
+      `Fórmula: <b>M = C × (1 + i)ᵗ</b><br><br>` +
+      `O que pouca gente percebe: o tempo vale mais que o valor. Começar aos 25 com R$ 300/mês supera começar aos 35 com R$ 600/mês.<br><br>` +
+      `💡 Me peça uma simulação: <i>"simule 500 por mês por 10 anos a 12% ao ano"</i> — eu calculo na hora.`;
+  }
+
+  if (/cdi|selic|tesouro|renda fixa|cdb|lci|lca|debentur|ipca\+|prefixado/.test(t)) {
+    return `<b>Mapa da renda fixa brasileira:</b><br><br>` +
+      `• <b>Selic</b>: taxa básica (Banco Central). <b>CDI</b>: referência interbancária, ~Selic.<br>` +
+      `• <b>Tesouro Selic</b>: pós-fixado, ideal para reserva.<br>` +
+      `• <b>Tesouro IPCA+</b>: inflação + taxa real — protege o poder de compra; ótimo para aposentadoria.<br>` +
+      `• <b>Tesouro Prefixado</b>: taxa travada — ganha se a Selic cair, perde se subir (marcação a mercado).<br>` +
+      `• <b>CDB</b>: busque 100%+ do CDI; garantia FGC até R$ 250 mil por banco.<br>` +
+      `• <b>LCI/LCA</b>: <b>isentas de IR</b> — 90% do CDI isento ≈ 105% do CDI tributado.<br>` +
+      `• <b>Debêntures incentivadas</b>: isentas de IR, mas sem FGC — risco da empresa.<br><br>` +
+      `IR regressivo (CDB/Tesouro): 22,5% até 6 meses → 15% acima de 2 anos. Segure 2+ anos quando puder.`;
+  }
+
+  if (/acao|acoes|bolsa|dividendo|b3|fundamentalista|p\/l/.test(t)) {
+    return `<b>Investir em ações com método:</b><br><br>` +
+      `• <b>Longo prazo + aportes mensais</b> vencem day trade: estudos da CVM mostram que 90%+ dos day traders perdem dinheiro.<br>` +
+      `• Análise fundamentalista básica: empresa lucrativa (ROE > 10%), dívida controlada (dív. líq./EBITDA < 3), histórico de receita crescente.<br>` +
+      `• <b>P/L</b> (preço/lucro): quantos anos de lucro pagam a ação — compare dentro do mesmo setor.<br>` +
+      `• <b>Dividend yield</b>: dividendos/preço. Empresas maduras (bancos, energia) pagam 6–12% a.a. — isentos de IR.<br>` +
+      `• Diversifique: 10–20 empresas de setores diferentes, ou simplifique com ETFs.<br><br>` +
+      `Venda até R$ 20 mil/mês em ações é isenta de IR sobre o ganho (swing trade). Acompanhe tudo na aba <b>Bolsa de Valores</b>.`;
+  }
+
+  if (/fii|fundo imobiliario|imobiliario/.test(t)) {
+    return `<b>FIIs — renda passiva com imóveis:</b><br><br>` +
+      `• Você compra cotas e recebe aluguéis mensais <b>isentos de IR</b> (pessoa física).<br>` +
+      `• Tipos: <b>tijolo</b> (shoppings, galpões, lajes), <b>papel</b> (CRIs — recebíveis), <b>híbridos</b> e FoFs.<br>` +
+      `• Métricas: dividend yield (8–12% a.a. é comum), P/VP (abaixo de 1 = desconto sobre o patrimônio), vacância.<br>` +
+      `• Diversifique entre tijolo e papel: papel rende mais com juros altos; tijolo valoriza com juros baixos.<br>` +
+      `• Atenção: a venda de cotas com lucro paga 20% de IR (sem isenção dos R$ 20 mil).<br><br>` +
+      `Estratégia popular: reinvestir os proventos até a renda mensal cobrir suas despesas.`;
+  }
+
+  if (/etf|indice|ibovespa|ivvb|s&p/.test(t)) {
+    return `<b>ETFs — diversificação em 1 clique:</b><br><br>` +
+      `• Fundo que replica um índice, negociado como ação.<br>` +
+      `• <b>BOVA11</b>: Ibovespa (Brasil) · <b>IVVB11</b>: S&P 500 em reais (EUA + proteção cambial) · <b>SMAL11</b>: small caps.<br>` +
+      `• Taxas baixíssimas (0,1–0,5% a.a.) vs fundos ativos (2%+ que raramente batem o índice).<br>` +
+      `• Estratégia consagrada: aporte mensal constante em ETF global — simples e historicamente eficaz.<br>` +
+      `• Tributação: 15% sobre ganho na venda, sem isenção de R$ 20 mil.<br><br>` +
+      `Buffett recomenda exatamente isso para 99% das pessoas: índice amplo + constância + décadas.`;
+  }
+
+  if (/cripto|bitcoin|btc|ethereum/.test(t)) {
+    return `<b>Cripto com responsabilidade:</b><br><br>` +
+      `• Volatilidade extrema: quedas de 50–80% já aconteceram várias vezes — invista só o que pode ver derreter.<br>` +
+      `• Posição sugerida por especialistas conservadores: <b>1–5% do patrimônio</b>, no máximo.<br>` +
+      `• Bitcoin e Ethereum dominam; altcoins pequenas são loteria.<br>` +
+      `• Segurança: exchanges grandes + autenticação 2FA; valores altos em carteira própria (hardware wallet).<br>` +
+      `• IR Brasil: vendas acima de R$ 35 mil/mês pagam 15% sobre o ganho; declare tudo (exchanges reportam à Receita).<br><br>` +
+      `Acompanhe BTC/ETH em tempo real na aba <b>Bolsa de Valores</b>.`;
+  }
+
+  if (/dolar|cambio|exterior|internacional|dolarizar/.test(t)) {
+    return `<b>Proteção cambial e investimento no exterior:</b><br><br>` +
+      `• Por quê: seu custo de vida é parcialmente dolarizado (eletrônicos, combustível, viagens) — ter 10–30% do patrimônio em dólar protege.<br>` +
+      `• Caminhos: <b>IVVB11</b> (ETF S&P em reais, simples), <b>BDRs</b> (ações estrangeiras na B3), conta internacional (Avenue, Nomad, Inter Global), fundos cambiais.<br>` +
+      `• Evite comprar dólar papel — spread alto e não rende.<br>` +
+      `• Imposto: BDR/ETF seguem regras de ações; conta no exterior tem regras próprias de declaração (e-Financeira/CBE acima de US$ 1 milhão).<br><br>` +
+      `Regra de ouro: dolarize aos poucos (aportes mensais) para diluir o preço médio do câmbio.`;
+  }
+
+  if (/carteira|alocacao|diversific|portfolio|perfil/.test(t)) {
+    return `<b>Montando uma carteira por perfil:</b><br><br>` +
+      `• <b>Conservador</b>: 85% renda fixa (Selic/IPCA+) · 10% FIIs · 5% ações/ETF<br>` +
+      `• <b>Moderado</b>: 60% renda fixa · 15% FIIs · 20% ações/ETF · 5% internacional<br>` +
+      `• <b>Arrojado</b>: 30% renda fixa · 15% FIIs · 35% ações · 15% internacional · 5% cripto<br><br>` +
+      `Princípios: reserva de emergência <b>fora</b> da carteira; rebalanceie 1–2× ao ano (venda o que subiu, compre o que caiu); ` +
+      `regra dos 100: <i>100 − sua idade</i> ≈ % máxima em renda variável.<br><br>` +
+      `Defina seu perfil na aba <b>Perfil → Investimentos</b>.`;
+  }
+
+  if (/aposentadoria|previdencia|pgbl|vgbl|inss|fire|independencia financeira/.test(t)) {
+    return `<b>Aposentadoria e independência financeira:</b><br><br>` +
+      `• <b>Número FIRE</b>: 25× seus gastos anuais. Gastando ${aiFmt(s.expense)}/mês → alvo de <b>${aiFmt(s.expense * 12 * 25)}</b> (regra dos 4% de retirada).<br>` +
+      `• <b>PGBL</b>: deduz até 12% da renda bruta no IR (vale para quem declara completo) — mas IR incide sobre o total no resgate.<br>` +
+      `• <b>VGBL</b>: IR só sobre o rendimento — melhor para declaração simplificada.<br>` +
+      `• Tabela regressiva: 10% de IR após 10 anos — imbatível no longo prazo.<br>` +
+      `• Cuidado com taxas: administração acima de 1% a.a. ou qualquer taxa de carregamento destroem o rendimento.<br>` +
+      `• INSS: vale manter como piso de segurança, mas não conte só com ele.<br><br>` +
+      `Alternativa DIY: Tesouro IPCA+ longo + ETFs, sem taxas de previdência.`;
+  }
+
+  if (/imposto|ir\b|declarar|leao|tributa/.test(t)) {
+    return `<b>IR sobre investimentos — guia rápido:</b><br><br>` +
+      `• <b>Isentos</b>: poupança, LCI/LCA, dividendos de ações, proventos de FIIs, venda de ações até R$ 20 mil/mês.<br>` +
+      `• <b>Renda fixa</b>: tabela regressiva 22,5% → 15% (2+ anos), retido na fonte.<br>` +
+      `• <b>Ações (acima da isenção)</b>: 15% swing / 20% day trade — você emite o DARF até o fim do mês seguinte.<br>` +
+      `• <b>FIIs (venda de cotas)</b>: 20%, sem isenção.<br>` +
+      `• <b>Cripto</b>: 15%+ sobre vendas acima de R$ 35 mil/mês.<br>` +
+      `• Prejuízos compensam lucros futuros da mesma categoria — registre tudo.<br><br>` +
+      `Declare mesmo investimentos isentos: eles entram em "Bens e Direitos".`;
+  }
+
+  if (/inflacao|ipca|poder de compra/.test(t)) {
+    return `<b>Inflação — o imposto invisível:</b><br><br>` +
+      `• IPCA é o índice oficial. A 5% a.a., seu dinheiro parado perde <b>metade do poder de compra em ~14 anos</b>.<br>` +
+      `• Juro <b>real</b> = rendimento − inflação. CDB a 10% com IPCA a 5% rende 4,76% de verdade.<br>` +
+      `• Proteções: Tesouro IPCA+ (garante juro real), FIIs (aluguéis reajustados), ações de empresas com poder de preço.<br>` +
+      `• Poupança frequentemente <b>perde</b> da inflação — é perda disfarçada de segurança.<br><br>` +
+      `Sempre avalie investimentos pelo ganho real, não pelo nominal.`;
+  }
+
+  if (/poupanca/.test(t)) {
+    return `<b>Poupança: o conforto que custa caro.</b><br><br>` +
+      `• Rende 70% da Selic (quando Selic ≤ 8,5%) + TR — quase sempre <b>perde para CDBs e Tesouro Selic</b>.<br>` +
+      `• Só rende na "data de aniversário": sacou um dia antes, perdeu o mês inteiro.<br>` +
+      `• Única vantagem real: isenção de IR e simplicidade — mas LCI/LCA também são isentas e rendem mais.<br><br>` +
+      `Migração simples: Tesouro Selic ou CDB 100%+ CDI com liquidez diária. Mesmo risco prático (FGC), retorno maior todo dia útil.`;
+  }
+
+  // ───────── GRANDES DECISÕES ─────────
+  if (/financiamento|sac|price|imovel|casa propria|comprar casa|apartamento/.test(t)) {
+    return `<b>Financiamento imobiliário inteligente:</b><br><br>` +
+      `• <b>SAC</b>: parcelas começam altas e caem; você paga menos juros no total. Melhor se o orçamento aguenta.<br>` +
+      `• <b>Price</b>: parcelas fixas; mais fáceis no início, mais juros no total.<br>` +
+      `• Entrada ideal: 30%+ (reduz juros e evita LTV alto).<br>` +
+      `• Compare o <b>CET</b> (custo efetivo total), não só a taxa — seguros e tarifas escondem custo.<br>` +
+      `• Use FGTS na entrada e amortizações a cada 2 anos.<br>` +
+      `• Amortize sempre no modo "reduzir prazo" — corta juros exponencialmente.<br>` +
+      `• Renegocie/porte o contrato se a taxa de mercado cair 1+ ponto.<br><br>` +
+      `Parcela máxima saudável: <b>25–30% da renda líquida</b> — no seu caso, ~${aiFmt((s.income || 5000) * 0.28)}.`;
+  }
+
+  if (/alugar|aluguel vs|comprar vs|comprar ou alugar/.test(t)) {
+    return `<b>Comprar vs. alugar — a conta fria:</b><br><br>` +
+      `• Regra rápida: se o aluguel anual é <b>menos de 5%</b> do valor do imóvel, alugar tende a ganhar (investindo a diferença).<br>` +
+      `• Exemplo: imóvel de R$ 500 mil alugado por R$ 1.800/mês = 4,3% a.a. → alugar + investir vence na maioria dos cenários.<br>` +
+      `• Comprar faz sentido: longa permanência (8+ anos), estabilidade, valor emocional, financiamento barato.<br>` +
+      `• Alugar faz sentido: mobilidade de carreira, fase de acumulação, juros altos.<br><br>` +
+      `Não esqueça os custos ocultos da compra: ITBI (~3%), escritura, condomínio, IPTU, manutenção (~1% a.a.).`;
+  }
+
+  if (/carro|veiculo|automovel/.test(t)) {
+    return `<b>Carro — o destruidor silencioso de patrimônio:</b><br><br>` +
+      `• Custo total ≈ <b>o dobro</b> da parcela: deprecia 10–20%/ano + seguro + IPVA + manutenção + combustível.<br>` +
+      `• Regra 20/4/10: entrada de 20%+, financie no máx. 4 anos, custo total ≤ 10% da renda.<br>` +
+      `• Seminovo de 2–4 anos: o primeiro dono pagou a maior depreciação por você.<br>` +
+      `• Consórcio: sem juros mas com taxa de adm (15–20%) e sem garantia de contemplação — bom só para quem não tem pressa.<br>` +
+      `• Faça a conta do "custo por km" vs apps/assinatura — para baixo uso urbano, não ter carro libera centenas de reais/mês.`;
+  }
+
+  if (/consorcio/.test(t)) {
+    return `<b>Consórcio — quando vale (e quando não):</b><br><br>` +
+      `• Não tem juros, mas tem <b>taxa de administração</b> (15–25% no total) + fundo de reserva.<br>` +
+      `• Você só recebe quando contemplado: sorteio (sorte) ou lance (dinheiro extra).<br>` +
+      `• Vale: para disciplinados sem pressa, como "poupança forçada" com custo conhecido.<br>` +
+      `• Não vale: se você tem pressa (financiamento resolve) ou disciplina (investir + comprar à vista é matematicamente superior).<br><br>` +
+      `Alternativa quase sempre melhor: aporte mensal no Tesouro/CDB e compra à vista com desconto.`;
+  }
+
+  // ───────── NEGÓCIOS E EMPREENDEDORISMO ─────────
+  if (/abrir empresa|mei|cnpj|microempre|simples nacional|formalizar/.test(t)) {
+    return `<b>Formalizando seu negócio:</b><br><br>` +
+      `• <b>MEI</b>: faturamento até R$ 81 mil/ano, imposto fixo (~R$ 70/mês), 1 funcionário. Simples e barato — comece aqui se couber.<br>` +
+      `• <b>ME (Simples Nacional)</b>: até R$ 4,8 mi/ano; alíquota começa em 4–6% conforme atividade.<br>` +
+      `• Serviços de profissionais (médicos, devs, consultores): compare Simples vs <b>Lucro Presumido</b> — com fator R, a diferença pode ser grande.<br>` +
+      `• PJ para prestar serviço costuma pagar <b>muito menos imposto</b> que CLT/autônomo PF acima de ~R$ 6 mil/mês.<br><br>` +
+      `Custo de contador (R$ 200–500/mês) se paga em economia tributária. Não pule essa etapa.`;
+  }
+
+  if (/fluxo de caixa|caixa da empresa|capital de giro/.test(t)) {
+    return `<b>Fluxo de caixa — o oxigênio do negócio:</b><br><br>` +
+      `• Lucro ≠ caixa: você pode lucrar no papel e quebrar por falta de caixa (vendas a prazo, estoque parado).<br>` +
+      `• <b>Capital de giro</b>: tenha 3–6 meses de custos fixos em reserva empresarial.<br>` +
+      `• Reduza o ciclo: receba antes (antecipe à vista com desconto, PIX) e pague depois (negocie prazos com fornecedores).<br>` +
+      `• Projete 90 dias à frente, sempre — planilha semanal de entradas/saídas previstas.<br>` +
+      `• Estoque é dinheiro parado: gire rápido, compre conforme demanda.<br><br>` +
+      `Sinal vermelho: usar dinheiro de impostos/13º provisionado para tapar buraco do mês.`;
+  }
+
+  if (/precific|quanto cobrar|margem|markup|preco de venda/.test(t)) {
+    return `<b>Precificação que sustenta o negócio:</b><br><br>` +
+      `• <b>Markup</b>: preço = custo × multiplicador. Ex.: custo R$ 50, markup 2,5 → R$ 125.<br>` +
+      `• <b>Margem</b>: lucro/preço. Margem 40% em R$ 125 = R$ 50 de lucro. (Margem ≠ markup!)<br>` +
+      `• Inclua TODOS os custos: matéria-prima, seu tempo (!), impostos, taxas de cartão (~3–5%), frete, embalagem, marketing, inadimplência.<br>` +
+      `• Serviços: calcule sua hora → (salário desejado + custos) ÷ horas vendáveis (≈ 60% das horas úteis).<br>` +
+      `• Preço também é posicionamento: cobrar barato demais atrai cliente ruim e te mata de trabalhar.<br><br>` +
+      `Teste de sanidade: se vender 30% menos, ainda paga as contas? Se não, sua margem está perigosa.`;
+  }
+
+  if (/pro.?labore|distribuicao de lucro|salario do dono|retirada/.test(t)) {
+    return `<b>Como o dono deve se pagar:</b><br><br>` +
+      `• <b>Pró-labore</b>: "salário" do sócio — paga INSS (11%) e IR. Defina um valor fixo realista (mercado pagaria quanto pela sua função?).<br>` +
+      `• <b>Distribuição de lucros</b>: <b>isenta de IR</b> — mas só sobre lucro real apurado em contabilidade.<br>` +
+      `• Estratégia comum: pró-labore enxuto (mantém INSS/aposentadoria) + distribuição trimestral do excedente.<br>` +
+      `• <b>Nunca</b> misture PF e PJ: conta separada, cartão separado. Mistura = descontrole + risco fiscal.<br>` +
+      `• Pague-se TODO mês, mesmo pouco — negócio que não remunera o dono é hobby caro.`;
+  }
+
+  if (/cac|ltv|ponto de equilibrio|break even|metricas|indicadores do negocio/.test(t)) {
+    return `<b>Métricas que todo dono precisa acompanhar:</b><br><br>` +
+      `• <b>Ponto de equilíbrio</b>: custos fixos ÷ margem de contribuição % — o faturamento mínimo para não ter prejuízo.<br>` +
+      `• <b>CAC</b>: custo de aquisição de cliente = marketing ÷ novos clientes.<br>` +
+      `• <b>LTV</b>: valor do cliente no tempo = ticket × compras/ano × anos de retenção.<br>` +
+      `• Regra de ouro: <b>LTV ≥ 3× CAC</b>. Abaixo disso, você compra clientes no prejuízo.<br>` +
+      `• <b>Margem de contribuição</b>: preço − custos variáveis. É ela que paga os fixos.<br>` +
+      `• <b>Churn</b> (cancelamento): reduzir 5% no churn pode aumentar o lucro em 25–95% (estudo Bain).<br><br>` +
+      `Acompanhe mensalmente em planilha simples — o que não é medido, não melhora.`;
+  }
+
+  if (/validar|ideia de negocio|comecar um negocio|empreender|abrir um negocio/.test(t)) {
+    return `<b>Validando uma ideia antes de investir pesado:</b><br><br>` +
+      `1. <b>Venda antes de construir</b>: landing page + pré-venda ou lista de espera. Interesse real = dinheiro ou cadastro, não elogio.<br>` +
+      `2. <b>MVP em 30 dias</b>: a menor versão que entrega o valor central.<br>` +
+      `3. <b>10 clientes na mão</b>: fale com eles; padrões de dor valem mais que pesquisas genéricas.<br>` +
+      `4. Comece como side project: não largue a renda principal antes do negócio pagar 6+ meses dos seus custos.<br>` +
+      `5. Capital inicial enxuto: prefira validar com < R$ 5 mil a financiar um sonho não testado.<br><br>` +
+      `Estatística fria: ~60% das empresas fecham em 5 anos — quase sempre por falta de caixa e de clientes, não de ideia.`;
+  }
+
+  if (/renda extra|ganhar mais|segunda renda|freela/.test(t)) {
+    return `<b>Renda extra com estratégia:</b><br><br>` +
+      `• <b>Monetize o que já sabe</b>: freelas da sua profissão pagam 2–5× mais por hora que bicos genéricos.<br>` +
+      `• Plataformas: Workana/99Freelas (serviços), Hotmart (infoprodutos), iFood/Uber (imediato, mas teto baixo).<br>` +
+      `• <b>Escada de valor</b>: troque tempo por dinheiro → produtize (curso, template, consultoria em grupo) → renda semi-passiva.<br>` +
+      `• Destine 100% da renda extra para um objetivo (dívida ou investimento) — senão ela evapora no padrão de vida.<br><br>` +
+      `Com ${aiFmt(500)}/mês extras investidos a 1% a.m., você acumula ~${aiFmt(116000)} em 10 anos. Pequenos fluxos somam alto.`;
+  }
+
+  if (/negociar salario|aumento|promocao|crescer na carreira/.test(t)) {
+    return `<b>Negociando salário como um profissional:</b><br><br>` +
+      `• Pesquise a faixa (Glassdoor, levels.fyi, colegas de mercado) — dado vence achismo.<br>` +
+      `• Documente resultados: "aumentei X em Y%" vale mais que "trabalho muito".<br>` +
+      `• Timing: após entrega de impacto ou no ciclo de orçamento da empresa.<br>` +
+      `• Peça um número específico (ex.: R$ 8.700, não "uns 8 mil") — âncoras precisas funcionam.<br>` +
+      `• Proposta externa é a alavanca mais forte — mas só use se toparia sair.<br>` +
+      `• Se não rolar aumento: negocie bônus, remoto, educação paga — tudo tem valor financeiro.<br><br>` +
+      `Cada 10% a mais hoje compõe sobre TODOS os aumentos futuros da carreira.`;
+  }
+
+  // ───────── COMPORTAMENTO ─────────
+  if (/impulso|compulsiv|ansiedade|habito|mentalidade|psicolog/.test(t)) {
+    return `<b>O jogo mental do dinheiro:</b><br><br>` +
+      `• <b>Regra das 48h</b>: desejo de compra não planejada? Espere 2 dias. 80% evapora.<br>` +
+      `• Deixe o cartão fora dos apps e do navegador — fricção reduz impulso.<br>` +
+      `• Automatize ANTES de ver: aporte automático no dia do salário ("pague-se primeiro").<br>` +
+      `• Orçamento de culpa zero: separe uma verba mensal para gastar SEM remorso — restrição total gera farra de rebote.<br>` +
+      `• Acompanhe o patrimônio 1×/mês, não todo dia — ver número crescer vicia mais que gastar.<br><br>` +
+      `Como diz Morgan Housel: "fazer dinheiro exige correr risco; manter dinheiro exige humildade".`;
+  }
+
+  if (/livro|estudar|aprender|curso|conteudo/.test(t)) {
+    return `<b>Trilha de estudos em finanças:</b><br><br>` +
+      `• <b>Básico</b>: "Pai Rico, Pai Pobre" (mentalidade), "Me Poupe!" (Nathalia Arcuri, prático BR).<br>` +
+      `• <b>Comportamento</b>: "A Psicologia Financeira" (Morgan Housel) — talvez o melhor de todos.<br>` +
+      `• <b>Investimentos</b>: "O Investidor Inteligente" (Graham), "Faça Fortuna com Ações" (Décio Bazin, dividendos BR).<br>` +
+      `• <b>Negócios</b>: "A Startup Enxuta" (Eric Ries), "Trabalhe 4 Horas por Semana" (Tim Ferriss).<br>` +
+      `• Grátis: portal do Tesouro Direto, canal do Banco Central, CVM Educacional.<br><br>` +
+      `1 livro por mês + prática no FinanceOS = evolução real em 1 ano.`;
+  }
+
+  if (/oi|ola|bom dia|boa tarde|boa noite|hello|eai|e ai/.test(t)) {
+    return `Olá! 👋 Sou o FinBot — especialista em finanças pessoais, investimentos e negócios. Analiso seus dados localmente e domino: economia doméstica, dívidas, renda fixa/variável, FIIs, cripto, impostos, financiamentos, empreendedorismo, precificação e muito mais.<br><br>Pergunte qualquer coisa ou peça uma <i>"simulação de 500 por mês por 10 anos a 12% ao ano"</i>.`;
+  }
+
+  if (/obrigad|valeu|thanks|show|top|legal/.test(t)) {
+    return `De nada! 💪 Estou aqui sempre que precisar. Lembre-se: consistência vence intensidade — pequenas decisões certas todo mês constroem patrimônio.`;
+  }
+
+  return `Sou especialista em finanças e negócios. Alguns temas que domino:<br><br>` +
+    `💰 <b>Pessoal</b>: "onde economizar?", "resumo", "reserva de emergência", "dividir orçamento", "sair das dívidas", "score de crédito"<br>` +
+    `📈 <b>Investimentos</b>: "renda fixa", "ações", "FIIs", "ETFs", "cripto", "dólar", "montar carteira", "aposentadoria", "imposto de renda"<br>` +
+    `🏠 <b>Decisões</b>: "financiamento imobiliário", "comprar ou alugar", "carro", "consórcio"<br>` +
+    `🚀 <b>Negócios</b>: "abrir empresa/MEI", "fluxo de caixa", "precificação", "pró-labore", "CAC e LTV", "validar ideia", "renda extra", "negociar salário"<br>` +
+    `🧮 <b>Simulações</b>: "simule 500 por mês por 10 anos a 12% ao ano"`;
 }
 
 function aiAppendMsg(html, who) {
