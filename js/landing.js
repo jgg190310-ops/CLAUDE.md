@@ -42,44 +42,54 @@ window.addEventListener('mousemove', (e) => {
 
 window.addEventListener('scroll', () => { scrollY = window.scrollY; }, { passive: true });
 
-function parallaxLoop() {
-  // Lerp towards target mouse
-  smx += (mx - smx) * 0.06;
-  smy += (my - smy) * 0.06;
+// second lerp layer — slower, for background orbs deep parallax
+let smx2 = 0, smy2 = 0;
 
-  // Scroll-based orb movement + mouse offset
+function parallaxLoop() {
+  // fast layer (foreground)
+  smx  += (mx  - smx)  * 0.06;
+  smy  += (my  - smy)  * 0.06;
+  // slow layer (deep background)
+  smx2 += (mx  - smx2) * 0.025;
+  smy2 += (my  - smy2) * 0.025;
+
+  // Scroll-based orb movement + mouse offset, deep layer uses smx2
   orbs.forEach(orb => {
     const sp  = parseFloat(orb.dataset.speed) || 0.3;
     const msp = parseFloat(orb.dataset.mspeed) || sp * 30;
-    const tx  = smx * msp;
-    const ty  = smy * msp + scrollY * sp;
+    // large background orbs use slow layer for more inertia
+    const depth = sp < 0.25 ? 0.5 : 1.0;
+    const lx = depth < 1 ? smx2 : smx;
+    const ly = depth < 1 ? smy2 : smy;
+    const tx  = lx * msp;
+    const ty  = ly * msp + scrollY * sp;
     orb.style.transform = `translate(${tx}px, ${ty}px)`;
   });
 
-  // Geometric shapes — different mouse speeds for depth
+  // Geometric shapes — different depths
   geoShapes.forEach(s => {
     const sp  = parseFloat(s.dataset.speed) || 0.2;
     const msp = parseFloat(s.dataset.mspeed) || sp * 50;
     const tx  = smx * msp;
     const ty  = smy * msp + scrollY * sp;
-    s.style.transform = `translate(${tx}px, ${ty}px) rotate(${scrollY * sp * 0.1}deg)`;
+    s.style.transform = `translate(${tx}px, ${ty}px) rotate(${scrollY * sp * 0.12}deg)`;
   });
 
-  // Dashboard card: 3D tilt following mouse
+  // Dashboard card: stronger 3D tilt
   if (dashboardPreview) {
     const sp  = parseFloat(dashboardPreview.dataset.speed) || 0.15;
-    const rx  =  smy * 8;   // pitch
-    const ry  = -smx * 12;  // yaw
+    const rx  =  smy * 10;
+    const ry  = -smx * 16;
     const ty  = scrollY * sp;
     dashboardPreview.style.transform =
       `perspective(1000px) rotateX(${rx}deg) rotateY(${ry - 4}deg) translateY(${ty}px)`;
   }
 
-  // Float badges subtle sway with mouse
+  // Float badges sway
   floatBadges.forEach((b, i) => {
     const dir = i % 2 === 0 ? 1 : -1;
-    const tx  = smx * 8 * dir;
-    const ty  = smy * 5;
+    const tx  = smx * 10 * dir;
+    const ty  = smy * 6;
     b.style.setProperty('--mx', `${tx}px`);
     b.style.setProperty('--my', `${ty}px`);
   });

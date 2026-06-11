@@ -340,6 +340,19 @@ function openTxModal() {
   document.getElementById('txModal').classList.add('open');
 }
 
+// Receita soma no dinheiro líquido; despesa/investimento subtrai.
+function applyCashDelta(delta) {
+  const cur = parseFloat(_store.profile?.cash) || 0;
+  const profile = { ...(_store.profile || {}), cash: cur + delta };
+  saveStore({ profile });
+  Object.assign(_store, { profile });
+  cloudSave('profile', profile);
+}
+
+function txCashDelta(tx) {
+  return tx.type === 'income' ? tx.value : -tx.value;
+}
+
 function addTransaction() {
   const desc  = document.getElementById('txDesc').value.trim();
   const type  = document.getElementById('txType').value;
@@ -347,21 +360,28 @@ function addTransaction() {
   const cat   = document.getElementById('txCategory').value;
   const date  = document.getElementById('txDate').value;
   if (!desc || !value || !date) { showToast('Preencha todos os campos', 'error'); return; }
-  transactions.unshift({ id: Date.now(), desc, type, value, category: cat, date });
+  const tx = { id: Date.now(), desc, type, value, category: cat, date };
+  transactions.unshift(tx);
   saveStore({ transactions });
   cloudSave('transactions', transactions);
+  applyCashDelta(txCashDelta(tx));
   renderTransactions();
+  updateDashKpis();
   closeModal('txModal');
   document.getElementById('txDesc').value = '';
   document.getElementById('txValue').value = '';
-  showToast('Transação adicionada!', 'success');
+  const newCash = parseFloat(_store.profile?.cash) || 0;
+  showToast(`Transação adicionada! Saldo: R$ ${newCash.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, 'success');
 }
 
 function deleteTx(id) {
+  const tx = transactions.find(t => t.id === id);
   transactions = transactions.filter(t => t.id !== id);
   saveStore({ transactions });
   cloudSave('transactions', transactions);
+  if (tx) applyCashDelta(-txCashDelta(tx)); // reverte o efeito no saldo
   renderTransactions();
+  updateDashKpis();
 }
 
 function updateTxTypeColor() {
@@ -1718,13 +1738,37 @@ if (_savedCfg?.databaseURL) {
     });
   }
 
+  // slow layer for deep orbs
+  let sx2 = 0, sy2 = 0;
+
+  // 3D tilt on KPI cards
+  const kpiCards = document.querySelectorAll('.kpi-card');
+  kpiCards.forEach(card => {
+    card.addEventListener('mousemove', (e) => {
+      const r = card.getBoundingClientRect();
+      const cx = (e.clientX - r.left) / r.width  - 0.5;
+      const cy = (e.clientY - r.top)  / r.height - 0.5;
+      card.style.transform = `perspective(700px) rotateX(${-cy * 10}deg) rotateY(${cx * 12}deg) translateY(-4px) scale(1.01)`;
+      card.style.boxShadow = `0 24px 60px rgba(0,0,0,.6), 0 0 0 1px rgba(99,102,241,.18), ${cx * -10}px ${cy * -10}px 30px rgba(99,102,241,.08)`;
+    });
+    card.addEventListener('mouseleave', () => {
+      card.style.transform = '';
+      card.style.boxShadow = '';
+    });
+  });
+
   function loop() {
-    sx += (tx - sx) * 0.05;
-    sy += (ty - sy) * 0.05;
+    sx  += (tx - sx)  * 0.05;
+    sy  += (ty - sy)  * 0.05;
+    sx2 += (tx - sx2) * 0.022;
+    sy2 += (ty - sy2) * 0.022;
 
     orbs.forEach((orb, i) => {
       const sp = orbSpeeds[i] || 20;
-      orb.style.transform = `translate(${sx * sp}px, ${sy * sp}px)`;
+      // orbs 0,3 (deeper) use slow layer
+      const lx = (i === 0 || i === 3) ? sx2 : sx;
+      const ly = (i === 0 || i === 3) ? sy2 : sy;
+      orb.style.transform = `translate(${lx * sp}px, ${ly * sp}px)`;
     });
 
     geos.forEach((geo, i) => {
