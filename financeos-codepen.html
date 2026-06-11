@@ -292,12 +292,12 @@ body {
 .word-reveal {
   display: inline-block;
   opacity: 0;
-  transform: translateY(40px) rotateX(20deg);
+  transform: translateY(40px);
   animation: wordReveal .7s cubic-bezier(.16,1,.3,1) forwards;
   animation-delay: var(--d, 0ms);
 }
 @keyframes wordReveal {
-  to { opacity: 1; transform: translateY(0) rotateX(0); }
+  to { opacity: 1; transform: translateY(0); }
 }
 .fade-up {
   opacity: 0;
@@ -347,12 +347,15 @@ body {
   letter-spacing: -2px; margin-bottom: 24px;
   text-shadow: 0 0 80px rgba(99,102,241,.3);
 }
-.gradient-text {
-  background: linear-gradient(120deg,#6366f1,#8b5cf6,#06b6d4,#8b5cf6,#6366f1);
-  background-size: 300% 100%;
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  background-clip: text;
-  animation: gradientFlow 6s ease infinite;
+.gradient-text { color: #a5b4fc; }
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+  .gradient-text {
+    background: linear-gradient(120deg,#6366f1,#8b5cf6,#06b6d4,#8b5cf6,#6366f1);
+    background-size: 300% 100%;
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: gradientFlow 6s ease infinite;
+  }
 }
 @keyframes gradientFlow {
   0%,100% { background-position: 0% 50%; }
@@ -6968,13 +6971,7 @@ const CAT_TYPE_MAP = {
   'Educação': 'expense', 'Investimento': 'investment', 'Outro': 'expense',
 };
 
-const defaultTransactions = [
-  { id: 1, desc: 'Salário',          category: 'Receita',      type: 'income',     value: 12800, date: '2026-06-05' },
-  { id: 2, desc: 'Mercado',          category: 'Alimentação',  type: 'expense',    value: 480,   date: '2026-06-07' },
-  { id: 3, desc: 'ITSA4 — Aporte',   category: 'Investimento', type: 'investment', value: 2000,  date: '2026-06-06' },
-  { id: 4, desc: 'Aluguel',          category: 'Moradia',      type: 'expense',    value: 2200,  date: '2026-06-05' },
-  { id: 5, desc: 'Netflix / Serviços', category: 'Lazer',      type: 'expense',    value: 89,    date: '2026-06-04' },
-];
+const defaultTransactions = [];
 let transactions = Array.isArray(_store.transactions) ? _store.transactions : defaultTransactions;
 
 function renderTransactions() {
@@ -7067,14 +7064,7 @@ initDashboardCharts();
 // ══════════════════════════════════════════════
 //  GOALS
 // ══════════════════════════════════════════════
-const defaultGoals = [
-  { id: 1, name: 'Viagem para Europa',    icon: 'travel',    color: '#6366f1', target:  15000, current: 10200, deadline: '2026-12-01' },
-  { id: 2, name: 'Casa Própria',          icon: 'home',      color: '#10b981', target: 150000, current: 48000, deadline: '2030-06-01' },
-  { id: 3, name: 'Reserva de Emergência', icon: 'savings',   color: '#f59e0b', target:  50000, current: 50000, deadline: '2025-12-01' },
-  { id: 4, name: 'Carro Novo',            icon: 'car',       color: '#8b5cf6', target:  80000, current: 12000, deadline: '2026-09-01' },
-  { id: 5, name: 'MBA Internacional',     icon: 'education', color: '#ef4444', target:  30000, current: 30000, deadline: '2025-08-01' },
-  { id: 6, name: 'Casamento',             icon: 'wedding',   color: '#06b6d4', target:  40000, current: 18000, deadline: '2027-04-01' },
-];
+const defaultGoals = [];
 let goals = Array.isArray(_store.goals) ? _store.goals : defaultGoals;
 
 function goalStatus(g) {
@@ -7084,6 +7074,14 @@ function goalStatus(g) {
 
 function renderGoals() {
   const grid = document.getElementById('goalsGrid');
+  if (!goals.length) {
+    grid.innerHTML = '<div class="cf-empty" style="grid-column:1/-1;padding:40px">Nenhuma meta ainda. Clique em "+ Nova Meta" para criar a primeira — sugestão: comece pela reserva de emergência.</div>';
+    ['gsTotal', 'gsDone', 'gsProgress', 'gsLate'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = '0';
+    });
+    return;
+  }
   grid.innerHTML = goals.map(g => {
     const status = goalStatus(g);
     const pct = Math.min(100, Math.round((g.current / g.target) * 100));
@@ -7168,18 +7166,15 @@ function deleteGoal(id) {
 // ══════════════════════════════════════════════
 //  BUDGETS
 // ══════════════════════════════════════════════
-const defaultBudgets = [
-  { id: 1, name: 'Moradia',      icon: 'home',      color: '#6366f1', limit: 2500, spent: 2200 },
-  { id: 2, name: 'Alimentação',  icon: 'food',      color: '#10b981', limit: 1500, spent: 1200 },
-  { id: 3, name: 'Transporte',   icon: 'transport', color: '#f59e0b', limit: 1000, spent:  800 },
-  { id: 4, name: 'Lazer',        icon: 'leisure',   color: '#ef4444', limit: 1200, spent:  984 },
-  { id: 5, name: 'Saúde',        icon: 'health',    color: '#8b5cf6', limit:  600, spent:  200 },
-  { id: 6, name: 'Educação',     icon: 'education', color: '#06b6d4', limit:  800, spent:   36 },
-];
+const defaultBudgets = [];
 let budgets = Array.isArray(_store.budgets) ? _store.budgets : defaultBudgets;
 
 function renderBudgets() {
   const list = document.getElementById('budgetsList');
+  if (!budgets.length) {
+    list.innerHTML = '<div class="cf-empty" style="padding:40px">Nenhum orçamento ainda. Crie categorias (mercado, lazer, transporte...) e defina tetos mensais.</div>';
+    return;
+  }
   list.innerHTML = budgets.map(b => {
     const pct = Math.min(100, Math.round((b.spent / b.limit) * 100));
     const barColor = pct >= 90 ? '#ef4444' : pct >= 75 ? '#f59e0b' : b.color;
@@ -9728,12 +9723,7 @@ function renderCrisis() {
 // ══════════════════════════════════════════════
 //  ASSINATURAS & RECORRENTES
 // ══════════════════════════════════════════════
-const defaultSubs = [
-  { id: 1, name: 'Netflix',     value: 44.90,  cycle: 'm' },
-  { id: 2, name: 'Spotify',     value: 21.90,  cycle: 'm' },
-  { id: 3, name: 'Academia',    value: 119.90, cycle: 'm' },
-  { id: 4, name: 'iCloud 200GB',value: 14.90,  cycle: 'm' },
-];
+const defaultSubs = [];
 let subs = Array.isArray(_store.subs) ? _store.subs : defaultSubs;
 
 function subMonthly(sub) { return sub.cycle === 'y' ? sub.value / 12 : sub.value; }
@@ -9836,17 +9826,7 @@ function renderHealthTips() {
 // ══════════════════════════════════════════════
 //  FLUXO DE CAIXA PROJETADO
 // ══════════════════════════════════════════════
-const defaultPlan = {
-  incomes: [
-    { id: 1, name: 'Salário', value: 5000, recur: 'm', month: new Date().toISOString().slice(0, 7) },
-  ],
-  expenses: [
-    { id: 2, name: 'Luz',            value: 180,  recur: 'm', month: new Date().toISOString().slice(0, 7) },
-    { id: 3, name: 'Água',           value: 90,   recur: 'm', month: new Date().toISOString().slice(0, 7) },
-    { id: 4, name: 'Plano de saúde', value: 420,  recur: 'm', month: new Date().toISOString().slice(0, 7) },
-    { id: 5, name: 'Internet',       value: 110,  recur: 'm', month: new Date().toISOString().slice(0, 7) },
-  ],
-};
+const defaultPlan = { incomes: [], expenses: [] };
 let plan = (_store.plan && Array.isArray(_store.plan.incomes)) ? _store.plan : defaultPlan;
 
 function savePlan() {
