@@ -107,6 +107,9 @@ const pageTitles = {
   stocks: 'Bolsa de Valores',
   calculator: 'Calculadora de Juros',
   assistant: 'Assistente IA',
+  health: 'Saúde Financeira',
+  crisis: 'Modo Crise',
+  subs: 'Assinaturas & Recorrentes',
   profile: 'Configurações do Perfil',
 };
 
@@ -130,6 +133,9 @@ function navigateTo(page) {
   if (page === 'stocks') initStocksPage();
   if (page === 'calculator') calcInvestment();
   if (page === 'assistant') initAssistant();
+  if (page === 'health') { renderHealthScore(); renderLifeHours(); renderHealthTips(); }
+  if (page === 'crisis') renderCrisis();
+  if (page === 'subs') renderSubs();
 }
 
 document.getElementById('sidebarToggle').addEventListener('click', () => {
@@ -2898,16 +2904,128 @@ function renderLifeHours() {
   }).join('') || '<div class="hl-row"><span>Adicione transações para ver</span></div>';
 }
 
-// engancha no fluxo do dashboard
-(function hookHealth() {
-  const orig = typeof initDashboardCharts === 'function' ? initDashboardCharts : null;
-  if (!orig) return;
-  window.initDashboardCharts = function () {
-    orig.apply(this, arguments);
-    renderHealthScore();
-    renderLifeHours();
+// renderizações ocorrem ao navegar para a página Saúde Financeira
+
+// ══════════════════════════════════════════════
+//  MODO CRISE — simulador de sobrevivência
+// ══════════════════════════════════════════════
+function renderCrisis() {
+  const result = document.getElementById('crisisResult');
+  if (!result) return;
+  const s = aiSnapshot();
+  const cutPct = parseInt(document.getElementById('crisisCut').value) || 0;
+  document.getElementById('crisisCutLabel').textContent = cutPct + '%';
+  const extra = parseFloat(document.getElementById('crisisExtra').value) || 0;
+
+  const reserveGoal = goals.find(g => /reserva|emerg/i.test(g.name));
+  const cushion = s.cash + (reserveGoal ? reserveGoal.current : 0);
+  const burn = Math.max(0, s.expense * (1 - cutPct / 100) - extra);
+  const months = burn > 0 ? cushion / burn : Infinity;
+
+  const lvl = months >= 12 ? { c: '#06b6d4', t: 'Fortaleza', d: 'Você aguenta mais de um ano. Tranquilidade para escolher o próximo passo sem desespero.' }
+    : months >= 6 ? { c: '#10b981', t: 'Seguro', d: 'Colchão saudável — tempo de sobra para recolocação na maioria das áreas.' }
+    : months >= 3 ? { c: '#f59e0b', t: 'Apertado', d: 'Dá para respirar, mas reforce a reserva assim que possível.' }
+    : { c: '#ef4444', t: 'Vulnerável', d: 'Prioridade máxima: construir colchão. Pergunte ao FinBot "onde posso economizar?".' };
+
+  result.innerHTML = `
+    <div class="crisis-months" style="--cc:${lvl.c}">
+      <div class="cm-num">${months === Infinity ? '∞' : months.toFixed(1).replace('.', ',')}</div>
+      <div class="cm-unit">meses de sobrevivência</div>
+      <div class="cm-level">${lvl.t}</div>
+    </div>
+    <div class="crisis-detail">
+      <div class="cd-row"><span>Colchão (líquido + reserva)</span><b>${aiFmt(cushion)}</b></div>
+      <div class="cd-row"><span>Queima mensal na crise</span><b>${aiFmt(burn)}</b></div>
+      <div class="cd-row"><span>Gastos atuais</span><b>${aiFmt(s.expense)}</b></div>
+      <p class="cd-note">${lvl.d}</p>
+    </div>`;
+}
+
+// ══════════════════════════════════════════════
+//  ASSINATURAS & RECORRENTES
+// ══════════════════════════════════════════════
+const defaultSubs = [
+  { id: 1, name: 'Netflix',     value: 44.90,  cycle: 'm' },
+  { id: 2, name: 'Spotify',     value: 21.90,  cycle: 'm' },
+  { id: 3, name: 'Academia',    value: 119.90, cycle: 'm' },
+  { id: 4, name: 'iCloud 200GB',value: 14.90,  cycle: 'm' },
+];
+let subs = Array.isArray(_store.subs) ? _store.subs : defaultSubs;
+
+function subMonthly(sub) { return sub.cycle === 'y' ? sub.value / 12 : sub.value; }
+
+function renderSubs() {
+  const list = document.getElementById('subsList');
+  if (!list) return;
+  const s = aiSnapshot();
+  const hourly = (s.income || 1) / 220;
+  const totalM = subs.reduce((a, x) => a + subMonthly(x), 0);
+  const totalY = totalM * 12;
+  // custo de oportunidade: 10 anos investidos a 0,8% a.m.
+  let opp = 0;
+  for (let m = 0; m < 120; m++) opp = (opp + totalM) * 1.008;
+
+  document.getElementById('subsOverview').innerHTML = `
+    <div class="sub-kpi"><div class="sk-label">Total mensal</div><div class="sk-value">${aiFmt(totalM)}</div></div>
+    <div class="sub-kpi"><div class="sk-label">Total anual</div><div class="sk-value">${aiFmt(totalY)}</div></div>
+    <div class="sub-kpi amber"><div class="sk-label">Horas de trabalho/mês</div><div class="sk-value">${(totalM / hourly).toFixed(1).replace('.', ',')}h</div></div>
+    <div class="sub-kpi red"><div class="sk-label">Custo de oportunidade (10 anos investidos)</div><div class="sk-value">${aiFmt(opp)}</div></div>`;
+
+  list.innerHTML = subs.map(x => `
+    <div class="sub-item">
+      <div class="sub-avatar">${x.name.slice(0, 2).toUpperCase()}</div>
+      <div class="sub-info">
+        <div class="sub-name">${x.name}</div>
+        <div class="sub-cycle">${x.cycle === 'y' ? 'Anual' : 'Mensal'} · ${(subMonthly(x) / hourly).toFixed(1).replace('.', ',')}h de trabalho/mês</div>
+      </div>
+      <div class="sub-value">${aiFmt(subMonthly(x))}<small>/mês</small></div>
+      <button class="card-del" onclick="deleteSub(${x.id})" title="Remover">✕</button>
+    </div>`).join('') ||
+    '<div class="subs-empty">Nenhuma assinatura cadastrada. Adicione e descubra quanto elas custam do seu futuro.</div>';
+}
+
+function saveSubs() {
+  saveStore({ subs });
+  Object.assign(_store, { subs });
+  if (typeof cloudSave === 'function') cloudSave('subs', subs);
+}
+
+function deleteSub(id) {
+  subs = subs.filter(x => x.id !== id);
+  saveSubs();
+  renderSubs();
+}
+
+function openSubModal() {
+  const name = prompt('Nome da assinatura (ex.: Netflix, Seguro do carro):');
+  if (!name) return;
+  const value = parseFloat((prompt('Valor (R$):') || '').replace(',', '.'));
+  if (!value || value <= 0) return;
+  const cycle = (prompt('Cobrança: digite M para mensal ou A para anual', 'M') || 'M').toLowerCase().startsWith('a') ? 'y' : 'm';
+  subs.push({ id: Date.now(), name, value, cycle });
+  saveSubs();
+  renderSubs();
+}
+
+// ══════════════════════════════════════════════
+//  DICAS DO SCORE (página Saúde)
+// ══════════════════════════════════════════════
+function renderHealthTips() {
+  const el = document.getElementById('healthTips');
+  if (!el) return;
+  const h = computeHealthScore();
+  const tips = {
+    'Poupança':   { icon: '💰', tip: 'Aumente a sobra mensal: ataque o maior gasto (pergunte ao FinBot "onde posso economizar?") e automatize um aporte no dia do salário.' },
+    'Reserva':    { icon: '🛟', tip: 'Direcione toda renda extra para a reserva até cobrir 6 meses de despesas. Deixe em Tesouro Selic ou CDB com liquidez diária.' },
+    'Orçamentos': { icon: '📊', tip: 'Revise os limites estourados na aba Orçamentos — limites realistas que você cumpre valem mais que metas heroicas que você fura.' },
+    'Metas':      { icon: '🎯', tip: 'Recalcule os aportes das metas atrasadas ou alongue prazos — meta atrasada desanima; meta repactuada anda.' },
   };
-  // primeira renderização
-  renderHealthScore();
-  renderLifeHours();
-})();
+  el.innerHTML = [...h.pillars].sort((a, b) => a.pts - b.pts).map(p => `
+    <div class="ht-row ${p.pts < 125 ? 'weak' : ''}">
+      <span class="ht-icon">${tips[p.name].icon}</span>
+      <div>
+        <b>${p.name} — ${p.pts}/250</b>
+        <p>${tips[p.name].tip}</p>
+      </div>
+    </div>`).join('');
+}

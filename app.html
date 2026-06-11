@@ -65,6 +65,18 @@
         Assistente IA
         <span class="nav-badge-new">novo</span>
       </a>
+      <a href="#" class="nav-item" data-page="health">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        Saúde Financeira
+      </a>
+      <a href="#" class="nav-item" data-page="crisis">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Modo Crise
+      </a>
+      <a href="#" class="nav-item" data-page="subs">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+        Assinaturas
+      </a>
     </div>
     <div class="nav-group">
       <span class="nav-label">Conta</span>
@@ -147,46 +159,6 @@
           <option>Maio 2026</option>
           <option>Abril 2026</option>
         </select>
-      </div>
-    </div>
-
-    <!-- SCORE DE SAÚDE FINANCEIRA + VIDA EM HORAS -->
-    <div class="health-row">
-      <div class="health-card">
-        <div class="health-gauge-wrap">
-          <svg class="health-gauge" viewBox="0 0 200 120">
-            <defs>
-              <linearGradient id="hgGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stop-color="#ef4444"/>
-                <stop offset="40%" stop-color="#f59e0b"/>
-                <stop offset="75%" stop-color="#10b981"/>
-                <stop offset="100%" stop-color="#06b6d4"/>
-              </linearGradient>
-            </defs>
-            <path d="M 20 110 A 80 80 0 0 1 180 110" fill="none" stroke="rgba(128,128,160,.15)" stroke-width="14" stroke-linecap="round"/>
-            <path id="healthArc" d="M 20 110 A 80 80 0 0 1 180 110" fill="none" stroke="url(#hgGrad)" stroke-width="14" stroke-linecap="round" stroke-dasharray="251.3" stroke-dashoffset="251.3"/>
-          </svg>
-          <div class="health-score-num">
-            <span id="healthScore">0</span>
-            <small>/ 1000</small>
-          </div>
-          <div class="health-score-label" id="healthLabel">—</div>
-        </div>
-        <div class="health-info">
-          <h3>Score de Saúde Financeira</h3>
-          <p class="health-sub">Visão única da sua vida financeira — recalculado em tempo real a partir dos seus dados.</p>
-          <div class="health-breakdown" id="healthBreakdown"></div>
-        </div>
-      </div>
-      <div class="hours-card">
-        <div class="hours-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        </div>
-        <h3>Vida em Horas</h3>
-        <p class="hours-sub">Quanto da sua <b>vida trabalhada</b> cada gasto consome:</p>
-        <div class="hours-main" id="hoursMain">—</div>
-        <div class="hours-list" id="hoursList"></div>
-        <div class="hours-note">Baseado na sua renda ÷ 220h úteis/mês. Pense duas vezes: cada compra custa tempo de vida.</div>
       </div>
     </div>
 
@@ -639,6 +611,112 @@
         </div>
       </div>
     </div>
+  </section>
+
+  <!-- ═══════════════════════════════ SAÚDE FINANCEIRA ═══════════════════════════════ -->
+  <section class="page" id="health">
+    <div class="page-header">
+      <div>
+        <h1>Saúde Financeira</h1>
+        <p class="page-sub">Seu diagnóstico completo em um único número — e o custo da sua vida em horas de trabalho.</p>
+      </div>
+    </div>
+    <!-- SCORE DE SAÚDE FINANCEIRA + VIDA EM HORAS -->
+    <div class="health-row">
+      <div class="health-card">
+        <div class="health-gauge-wrap">
+          <svg class="health-gauge" viewBox="0 0 200 120">
+            <defs>
+              <linearGradient id="hgGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#ef4444"/>
+                <stop offset="40%" stop-color="#f59e0b"/>
+                <stop offset="75%" stop-color="#10b981"/>
+                <stop offset="100%" stop-color="#06b6d4"/>
+              </linearGradient>
+            </defs>
+            <path d="M 20 110 A 80 80 0 0 1 180 110" fill="none" stroke="rgba(128,128,160,.15)" stroke-width="14" stroke-linecap="round"/>
+            <path id="healthArc" d="M 20 110 A 80 80 0 0 1 180 110" fill="none" stroke="url(#hgGrad)" stroke-width="14" stroke-linecap="round" stroke-dasharray="251.3" stroke-dashoffset="251.3"/>
+          </svg>
+          <div class="health-score-num">
+            <span id="healthScore">0</span>
+            <small>/ 1000</small>
+          </div>
+          <div class="health-score-label" id="healthLabel">—</div>
+        </div>
+        <div class="health-info">
+          <h3>Score de Saúde Financeira</h3>
+          <p class="health-sub">Visão única da sua vida financeira — recalculado em tempo real a partir dos seus dados.</p>
+          <div class="health-breakdown" id="healthBreakdown"></div>
+        </div>
+      </div>
+      <div class="hours-card">
+        <div class="hours-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <h3>Vida em Horas</h3>
+        <p class="hours-sub">Quanto da sua <b>vida trabalhada</b> cada gasto consome:</p>
+        <div class="hours-main" id="hoursMain">—</div>
+        <div class="hours-list" id="hoursList"></div>
+        <div class="hours-note">Baseado na sua renda ÷ 220h úteis/mês. Pense duas vezes: cada compra custa tempo de vida.</div>
+      </div>
+    </div>
+
+    <div class="health-tips-card">
+      <h3>Como subir seu score</h3>
+      <div class="health-tips" id="healthTips"></div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════ MODO CRISE ═══════════════════════════════ -->
+  <section class="page" id="crisis">
+    <div class="page-header">
+      <div>
+        <h1>Modo Crise</h1>
+        <p class="page-sub">E se você perdesse sua renda hoje? Simule sua sobrevivência financeira e tenha um plano pronto.</p>
+      </div>
+    </div>
+
+    <div class="crisis-layout">
+      <div class="crisis-sim-card">
+        <h3>Simulador de Sobrevivência</h3>
+        <div class="crisis-controls">
+          <div class="crisis-control">
+            <label>Corte de gastos em emergência: <b id="crisisCutLabel">30%</b></label>
+            <input type="range" class="range-input" id="crisisCut" min="0" max="70" value="30" oninput="renderCrisis()" />
+          </div>
+          <div class="crisis-control">
+            <label>Renda alternativa durante a crise (R$/mês)</label>
+            <input type="number" id="crisisExtra" value="0" min="0" oninput="renderCrisis()" placeholder="0" />
+          </div>
+        </div>
+        <div class="crisis-result" id="crisisResult"></div>
+      </div>
+      <div class="crisis-plan-card">
+        <h3>Plano de ação — primeiras 72h</h3>
+        <ol class="crisis-plan">
+          <li><b>Congele tudo que não é essencial</b> — assinaturas, delivery, compras programadas.</li>
+          <li><b>Mapeie o colchão</b> — dinheiro líquido + reserva + rescisão (se CLT).</li>
+          <li><b>Dê entrada no seguro-desemprego</b> imediatamente (3–5 parcelas).</li>
+          <li><b>Renegocie antes de atrasar</b> — bancos dão carência a quem procura antes.</li>
+          <li><b>Não toque em investimentos de longo prazo</b> antes de esgotar reserva.</li>
+          <li><b>Ative renda rápida</b> — freelas da sua área pagam mais que bicos.</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════ ASSINATURAS ═══════════════════════════════ -->
+  <section class="page" id="subs">
+    <div class="page-header">
+      <div>
+        <h1>Assinaturas &amp; Recorrentes</h1>
+        <p class="page-sub">O dinheiro que escorre todo mês sem você perceber — e quanto ele custaria do seu futuro.</p>
+      </div>
+      <button class="btn-add" onclick="openSubModal()">+ Nova assinatura</button>
+    </div>
+
+    <div class="subs-overview" id="subsOverview"></div>
+    <div class="subs-list" id="subsList"></div>
   </section>
 
   <!-- ═══════════════════════════════ PERFIL ═══════════════════════════════ -->
