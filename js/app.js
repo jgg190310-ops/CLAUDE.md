@@ -1679,6 +1679,10 @@ if (_savedCfg?.databaseURL) {
     ty = ((e.clientY - rect.top)  / rect.height - 0.5) * 2;
   }, { passive: true });
 
+  // scroll-based parallax: orbs drift as the page scrolls
+  let scrl = 0, sScrl = 0;
+  window.addEventListener('scroll', () => { scrl = window.scrollY; }, { passive: true });
+
   // orb depths — larger index = closer = more movement
   const orbSpeeds = [22, 36, 15, 8, 42];
   const geoSpeeds = [10, 18, 6, 12, 7, 14];
@@ -1704,9 +1708,45 @@ if (_savedCfg?.databaseURL) {
   }
   initCanvas();
 
+  // shooting stars (meteors) — occasional streaks
+  const meteors = [];
+  function maybeSpawnMeteor() {
+    if (Math.random() < 0.004 && meteors.length < 2) {
+      meteors.push({
+        x: Math.random() * canvas.width * 0.8,
+        y: Math.random() * canvas.height * 0.3,
+        vx: 5 + Math.random() * 4,
+        vy: 2.5 + Math.random() * 2,
+        life: 1,
+      });
+    }
+  }
+  function drawMeteors() {
+    maybeSpawnMeteor();
+    for (let i = meteors.length - 1; i >= 0; i--) {
+      const m = meteors[i];
+      m.x += m.vx; m.y += m.vy; m.life -= 0.012;
+      if (m.life <= 0 || m.x > canvas.width || m.y > canvas.height) { meteors.splice(i, 1); continue; }
+      const grad = ctx2.createLinearGradient(m.x, m.y, m.x - m.vx * 12, m.y - m.vy * 12);
+      grad.addColorStop(0, `rgba(199,210,254,${0.8 * m.life})`);
+      grad.addColorStop(1, 'transparent');
+      ctx2.beginPath();
+      ctx2.strokeStyle = grad;
+      ctx2.lineWidth = 1.6;
+      ctx2.moveTo(m.x, m.y);
+      ctx2.lineTo(m.x - m.vx * 12, m.y - m.vy * 12);
+      ctx2.stroke();
+      ctx2.beginPath();
+      ctx2.arc(m.x, m.y, 1.6, 0, Math.PI * 2);
+      ctx2.fillStyle = `rgba(255,255,255,${m.life})`;
+      ctx2.fill();
+    }
+  }
+
   function drawParticles() {
     if (!ctx2) return;
     ctx2.clearRect(0, 0, canvas.width, canvas.height);
+    drawMeteors();
     particles2.forEach(p => {
       p.x += p.vx; p.y += p.vy;
       if (p.x < 0) p.x = canvas.width;
@@ -1757,23 +1797,30 @@ if (_savedCfg?.databaseURL) {
     });
   });
 
+  // scroll speeds per orb (px of orb drift per px scrolled)
+  const orbScrollSp = [0.08, -0.12, 0.05, -0.06, 0.15];
+  const geoScrollSp = [0.10, -0.08, 0.04, 0.12, -0.10, 0.06];
+
   function loop() {
     sx  += (tx - sx)  * 0.05;
     sy  += (ty - sy)  * 0.05;
     sx2 += (tx - sx2) * 0.022;
     sy2 += (ty - sy2) * 0.022;
+    sScrl += (scrl - sScrl) * 0.08;
 
     orbs.forEach((orb, i) => {
       const sp = orbSpeeds[i] || 20;
       // orbs 0,3 (deeper) use slow layer
       const lx = (i === 0 || i === 3) ? sx2 : sx;
       const ly = (i === 0 || i === 3) ? sy2 : sy;
-      orb.style.transform = `translate(${lx * sp}px, ${ly * sp}px)`;
+      const sc = sScrl * (orbScrollSp[i] || 0.05);
+      orb.style.transform = `translate(${lx * sp}px, ${ly * sp + sc}px)`;
     });
 
     geos.forEach((geo, i) => {
       const sp = geoSpeeds[i] || 10;
-      geo.style.transform = `translate(${sx * sp}px, ${sy * sp}px)`;
+      const sc = sScrl * (geoScrollSp[i] || 0.05);
+      geo.style.transform = `translate(${sx * sp}px, ${sy * sp + sc}px)`;
     });
 
     drawParticles();

@@ -68,11 +68,14 @@ body {
 .btn-ghost:hover { color: var(--text); }
 .btn-primary {
   padding: 8px 20px; border-radius: 8px; font-size: 14px;
-  font-weight: 600; background: var(--indigo); color: white;
+  font-weight: 600;
+  background: linear-gradient(135deg, var(--indigo), var(--purple));
+  color: white;
   border: none; cursor: pointer; text-decoration: none;
-  transition: opacity .2s, transform .2s;
+  box-shadow: 0 4px 18px rgba(99,102,241,.35);
+  transition: box-shadow .3s, transform .2s;
 }
-.btn-primary:hover { opacity: .9; transform: translateY(-1px); }
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(99,102,241,.55); }
 .nav-hamburger {
   display: none; flex-direction: column; gap: 5px;
   background: none; border: none; cursor: pointer;
@@ -331,11 +334,18 @@ body {
   font-size: clamp(38px,5vw,68px);
   font-weight: 900; line-height: 1.08;
   letter-spacing: -2px; margin-bottom: 24px;
+  text-shadow: 0 0 80px rgba(99,102,241,.3);
 }
 .gradient-text {
-  background: linear-gradient(135deg,#6366f1,#8b5cf6,#06b6d4);
+  background: linear-gradient(120deg,#6366f1,#8b5cf6,#06b6d4,#8b5cf6,#6366f1);
+  background-size: 300% 100%;
   -webkit-background-clip: text; -webkit-text-fill-color: transparent;
   background-clip: text;
+  animation: gradientFlow 6s ease infinite;
+}
+@keyframes gradientFlow {
+  0%,100% { background-position: 0% 50%; }
+  50%     { background-position: 100% 50%; }
 }
 .hero-subtitle {
   font-size: 18px; color: var(--text-2); max-width: 480px;
@@ -540,18 +550,33 @@ body {
   gap: 24px; text-align: left;
 }
 .feature-card {
-  background: var(--bg3); border: 1px solid var(--border);
+  background: rgba(255,255,255,0.03);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.08);
   border-radius: var(--radius); padding: 28px;
   position: relative; overflow: hidden;
   cursor: default;
   transition: border-color .3s, transform .3s, box-shadow .3s;
+}
+.feature-card::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 12%; right: 12%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
+  pointer-events: none;
 }
 .feature-card::before {
   content: ''; position: absolute;
   inset: 0; background: linear-gradient(135deg,rgba(99,102,241,.06),transparent 60%);
   opacity: 0; transition: opacity .3s;
 }
-.feature-card:hover { border-color: rgba(99,102,241,.4); transform: translateY(-4px); box-shadow: 0 20px 40px rgba(0,0,0,.35); }
+.feature-card:hover {
+  border-color: rgba(99,102,241,.4);
+  transform: translateY(-6px) scale(1.01);
+  box-shadow: 0 24px 60px rgba(0,0,0,.45), 0 0 40px rgba(99,102,241,.08);
+}
 .feature-card:hover::before { opacity: 1; }
 .fc-icon {
   width: 48px; height: 48px; border-radius: 12px;

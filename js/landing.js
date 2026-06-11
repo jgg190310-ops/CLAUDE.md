@@ -154,9 +154,45 @@ function spawnParticles() {
 
   const ctx = canvas.getContext('2d');
 
+  // shooting stars
+  const meteors = [];
+  function maybeMeteor() {
+    if (Math.random() < 0.005 && meteors.length < 3) {
+      meteors.push({
+        x: Math.random() * canvas.width * 0.7,
+        y: Math.random() * canvas.height * 0.4,
+        vx: 6 + Math.random() * 5,
+        vy: 3 + Math.random() * 2.5,
+        life: 1,
+      });
+    }
+  }
+  function drawMeteorsL() {
+    maybeMeteor();
+    for (let i = meteors.length - 1; i >= 0; i--) {
+      const m = meteors[i];
+      m.x += m.vx; m.y += m.vy; m.life -= 0.011;
+      if (m.life <= 0 || m.x > canvas.width || m.y > canvas.height) { meteors.splice(i, 1); continue; }
+      const tail = ctx.createLinearGradient(m.x, m.y, m.x - m.vx * 14, m.y - m.vy * 14);
+      tail.addColorStop(0, `rgba(199,210,254,${0.9 * m.life})`);
+      tail.addColorStop(1, 'transparent');
+      ctx.beginPath();
+      ctx.strokeStyle = tail;
+      ctx.lineWidth = 1.8;
+      ctx.moveTo(m.x, m.y);
+      ctx.lineTo(m.x - m.vx * 14, m.y - m.vy * 14);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(m.x, m.y, 1.8, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255,255,255,${m.life})`;
+      ctx.fill();
+    }
+  }
+
   function drawFrame() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     const w = canvas.width, h = canvas.height;
+    drawMeteorsL();
 
     particleData.forEach(p => {
       p.x += p.vx; p.y += p.vy;
