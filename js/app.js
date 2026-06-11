@@ -107,6 +107,7 @@ const pageTitles = {
   stocks: 'Bolsa de Valores',
   calculator: 'Calculadora de Juros',
   assistant: 'Assistente IA',
+  cashflow: 'Fluxo de Caixa Projetado',
   health: 'Saúde Financeira',
   crisis: 'Modo Crise',
   subs: 'Assinaturas & Recorrentes',
@@ -133,6 +134,7 @@ function navigateTo(page) {
   if (page === 'stocks') initStocksPage();
   if (page === 'calculator') calcInvestment();
   if (page === 'assistant') initAssistant();
+  if (page === 'cashflow') { renderPlan(); cfSetDefaultMonths(); }
   if (page === 'health') { renderHealthScore(); renderLifeHours(); renderHealthTips(); }
   if (page === 'crisis') renderCrisis();
   if (page === 'subs') renderSubs();
@@ -3185,4 +3187,163 @@ function renderHealthTips() {
         <p>${tips[p.name].tip}</p>
       </div>
     </div>`).join('');
+}
+
+// ══════════════════════════════════════════════
+//  FLUXO DE CAIXA PROJETADO
+// ══════════════════════════════════════════════
+const defaultPlan = {
+  incomes: [
+    { id: 1, name: 'Salário', value: 5000, recur: 'm', month: new Date().toISOString().slice(0, 7) },
+  ],
+  expenses: [
+    { id: 2, name: 'Luz',            value: 180,  recur: 'm', month: new Date().toISOString().slice(0, 7) },
+    { id: 3, name: 'Água',           value: 90,   recur: 'm', month: new Date().toISOString().slice(0, 7) },
+    { id: 4, name: 'Plano de saúde', value: 420,  recur: 'm', month: new Date().toISOString().slice(0, 7) },
+    { id: 5, name: 'Internet',       value: 110,  recur: 'm', month: new Date().toISOString().slice(0, 7) },
+  ],
+};
+let plan = (_store.plan && Array.isArray(_store.plan.incomes)) ? _store.plan : defaultPlan;
+
+function savePlan() {
+  saveStore({ plan });
+  Object.assign(_store, { plan });
+  if (typeof cloudSave === 'function') cloudSave('plan', plan);
+}
+
+function cfMonthKey(offset) {
+  const d = new Date();
+  d.setDate(1);
+  d.setMonth(d.getMonth() + offset);
+  return d.toISOString().slice(0, 7);
+}
+function cfMonthLabel(key) {
+  const [y, m] = key.split('-');
+  const names = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+  return `${names[parseInt(m) - 1]}/${y.slice(2)}`;
+}
+function cfAppliesTo(entry, monthKey) {
+  if (entry.recur === 'u') return entry.month === monthKey;
+  return entry.month <= monthKey; // mensal: do mês de início em diante
+}
+
+function cfProject() {
+  const months = [];
+  let acc = parseFloat(_store.profile?.cash) || 0;
+  for (let i = 0; i < 12; i++) {
+    const key = cfMonthKey(i);
+    const inc = plan.incomes.filter(e => cfAppliesTo(e, key)).reduce((a, e) => a + e.value, 0);
+    const exp = plan.expenses.filter(e => cfAppliesTo(e, key)).reduce((a, e) => a + e.value, 0);
+    acc += inc - exp;
+    months.push({ key, label: cfMonthLabel(key), inc, exp, net: inc - exp, acc });
+  }
+  return months;
+}
+
+function cfAdd(e, type) {
+  e.preventDefault();
+  const form = e.target;
+  const name = form.querySelector('.cf-name').value.trim();
+  const value = parseFloat(form.querySelector('.cf-value').value);
+  const recur = form.querySelector('.cf-recur').value;
+  const month = form.querySelector('.cf-month').value;
+  if (!name || !value || !month) return false;
+  plan[type === 'income' ? 'incomes' : 'expenses'].push({ id: Date.now(), name, value, recur, month });
+  savePlan();
+  renderPlan();
+  form.reset();
+  cfSetDefaultMonths();
+  if (typeof showToast === 'function') showToast(type === 'income' ? 'Receita adicionada!' : 'Despesa adicionada!', 'success');
+  return false;
+}
+
+function cfDelete(type, id) {
+  plan[type] = plan[type].filter(x => x.id !== id);
+  savePlan();
+  renderPlan();
+}
+
+function cfSetDefaultMonths() {
+  document.querySelectorAll('#cashflow .cf-month').forEach(inp => {
+    if (!inp.value) inp.value = new Date().toISOString().slice(0, 7);
+  });
+}
+
+let cfChartInstance = null;
+function renderPlan() {
+  const kpis = document.getElementById('cfKpis');
+  if (!kpis) return;
+  const proj = cfProject();
+  const cur = proj[0];
+  const yearEnd = proj[11];
+  const firstNegative = proj.find(p => p.acc < 0);
+
+  kpis.innerHTML = `
+    <div class="cf-kpi green"><div class="cfk-label">Receitas (mês atual)</div><div class="cfk-value">${aiFmt(cur.inc)}</div></div>
+    <div class="cf-kpi red"><div class="cfk-label">Despesas estimadas (mês atual)</div><div class="cfk-value">${aiFmt(cur.exp)}</div></div>
+    <div class="cf-kpi ${cur.net >= 0 ? 'green' : 'red'}"><div class="cfk-label">Saldo do mês</div><div class="cfk-value">${cur.net >= 0 ? '+' : ''}${aiFmt(cur.net)}</div></div>
+    <div class="cf-kpi ${yearEnd.acc >= 0 ? 'indigo' : 'red'}">
+      <div class="cfk-label">Caixa projetado em 12 meses</div>
+      <div class="cfk-value">${aiFmt(yearEnd.acc)}</div>
+      ${firstNegative ? `<div class="cfk-warn">⚠ Caixa negativo previsto em ${firstNegative.label}</div>` : ''}
+    </div>`;
+
+  const renderList = (arr, type) => arr
+    .slice()
+    .sort((a, b) => a.month.localeCompare(b.month) || b.value - a.value)
+    .map(x => `
+    <div class="cf-item">
+      <div class="cf-item-info">
+        <span class="cf-item-name">${x.name}</span>
+        <span class="cf-item-meta">${x.recur === 'm' ? 'Mensal · desde ' : 'Única · em '}${cfMonthLabel(x.month)}</span>
+      </div>
+      <span class="cf-item-value ${type}">${type === 'income' ? '+' : '−'} ${aiFmt(x.value)}</span>
+      <button class="card-del" onclick="cfDelete('${type === 'income' ? 'incomes' : 'expenses'}', ${x.id})" title="Remover">✕</button>
+    </div>`).join('') || '<div class="cf-empty">Nenhum lançamento ainda.</div>';
+
+  document.getElementById('cfIncomeList').innerHTML = renderList(plan.incomes, 'income');
+  document.getElementById('cfExpenseList').innerHTML = renderList(plan.expenses, 'expense');
+
+  // tabela mês a mês
+  document.getElementById('cfTable').innerHTML = `
+    <thead><tr><th>Mês</th><th>Receitas</th><th>Despesas</th><th>Saldo do mês</th><th>Caixa acumulado</th></tr></thead>
+    <tbody>${proj.map(p => `
+      <tr>
+        <td>${p.label}</td>
+        <td class="positive">+ ${aiFmt(p.inc)}</td>
+        <td class="negative">− ${aiFmt(p.exp)}</td>
+        <td class="${p.net >= 0 ? 'positive' : 'negative'}">${p.net >= 0 ? '+' : ''} ${aiFmt(p.net)}</td>
+        <td style="${p.acc < 0 ? 'color:var(--red);font-weight:800' : 'font-weight:700'}">${aiFmt(p.acc)}</td>
+      </tr>`).join('')}</tbody>`;
+
+  // gráfico
+  const ctx = document.getElementById('cfChart');
+  if (ctx && typeof Chart !== 'undefined') {
+    if (cfChartInstance) cfChartInstance.destroy();
+    cfChartInstance = new Chart(ctx, {
+      data: {
+        labels: proj.map(p => p.label),
+        datasets: [
+          { type: 'bar', label: 'Receitas', data: proj.map(p => p.inc), backgroundColor: 'rgba(16,185,129,.55)', borderRadius: 6 },
+          { type: 'bar', label: 'Despesas', data: proj.map(p => p.exp), backgroundColor: 'rgba(239,68,68,.45)', borderRadius: 6 },
+          { type: 'line', label: 'Caixa acumulado', data: proj.map(p => p.acc),
+            borderColor: '#6366f1', backgroundColor: 'rgba(99,102,241,.08)',
+            borderWidth: 2.5, tension: .35, fill: true, pointRadius: 3, pointBackgroundColor: '#6366f1', yAxisID: 'y1' },
+        ],
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: { labels: { color: '#94a3b8', font: { size: 11 }, usePointStyle: true } },
+          tooltip: { callbacks: { label: c => ` ${c.dataset.label}: R$ ${Math.round(c.parsed.y).toLocaleString('pt-BR')}` } },
+        },
+        scales: {
+          x: { ticks: { color: '#64748b', font: { size: 10 } }, grid: { display: false } },
+          y: { ticks: { color: '#64748b', font: { size: 10 }, callback: v => 'R$ ' + (v / 1000).toFixed(0) + 'k' }, grid: { color: 'rgba(128,128,160,.08)' } },
+          y1: { position: 'right', ticks: { color: '#818cf8', font: { size: 10 }, callback: v => 'R$ ' + (v / 1000).toFixed(0) + 'k' }, grid: { display: false } },
+        },
+      },
+    });
+  }
 }

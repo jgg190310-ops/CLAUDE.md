@@ -46,6 +46,11 @@
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
         Orçamentos
       </a>
+      <a href="#" class="nav-item" data-page="cashflow">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 5-6"/></svg>
+        Fluxo de Caixa
+        <span class="nav-badge-new">novo</span>
+      </a>
     </div>
     <div class="nav-group">
       <span class="nav-label">Investimentos</span>
@@ -609,6 +614,71 @@
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
           <p>Seus dados nunca saem do navegador. O FinBot apenas consulta APIs públicas oficiais (Banco Central, AwesomeAPI, CoinGecko) para taxas em tempo real — sem enviar nada seu.</p>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════ FLUXO DE CAIXA ═══════════════════════════════ -->
+  <section class="page" id="cashflow">
+    <div class="page-header">
+      <div>
+        <h1>Fluxo de Caixa Projetado</h1>
+        <p class="page-sub">Lance suas despesas estimadas e receitas — presentes e futuras — e veja seu caixa nos próximos 12 meses.</p>
+      </div>
+    </div>
+
+    <div class="cf-kpis" id="cfKpis"></div>
+
+    <div class="cf-entry-row">
+      <div class="cf-card cf-incomes">
+        <h3 class="cf-title income">Receitas</h3>
+        <form class="cf-form" onsubmit="return cfAdd(event, 'income')">
+          <input type="text" class="cf-name" placeholder="Ex.: Salário, Freela, Aluguel recebido" required />
+          <input type="number" class="cf-value" placeholder="R$" min="0.01" step="0.01" required />
+          <select class="cf-recur">
+            <option value="m">Mensal</option>
+            <option value="u">Única</option>
+          </select>
+          <input type="month" class="cf-month" required />
+          <button type="submit" class="cf-add-btn" title="Adicionar">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+        </form>
+        <div class="cf-list" id="cfIncomeList"></div>
+      </div>
+
+      <div class="cf-card cf-expenses">
+        <h3 class="cf-title expense">Despesas estimadas</h3>
+        <form class="cf-form" onsubmit="return cfAdd(event, 'expense')">
+          <input type="text" class="cf-name" placeholder="Ex.: Luz, Água, Plano de saúde, Viagem" required />
+          <input type="number" class="cf-value" placeholder="R$" min="0.01" step="0.01" required />
+          <select class="cf-recur">
+            <option value="m">Mensal</option>
+            <option value="u">Única</option>
+          </select>
+          <input type="month" class="cf-month" required />
+          <button type="submit" class="cf-add-btn" title="Adicionar">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+        </form>
+        <div class="cf-list" id="cfExpenseList"></div>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-card-header">
+        <div>
+          <h3>Projeção — próximos 12 meses</h3>
+          <p>Receitas, despesas e saldo acumulado (partindo do seu dinheiro líquido atual)</p>
+        </div>
+      </div>
+      <div class="chart-wrap" style="height:260px"><canvas id="cfChart"></canvas></div>
+    </div>
+
+    <div class="table-card" style="margin-top:16px">
+      <div class="table-header"><h3>Mês a mês</h3></div>
+      <div style="overflow-x:auto">
+        <table class="data-table" id="cfTable"></table>
       </div>
     </div>
   </section>
