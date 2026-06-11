@@ -618,12 +618,13 @@
     <div class="page-header">
       <div>
         <h1>Saúde Financeira</h1>
-        <p class="page-sub">Seu diagnóstico completo em um único número — e o custo da sua vida em horas de trabalho.</p>
+        <p class="page-sub">Seu diagnóstico completo em um único número.</p>
       </div>
     </div>
-    <!-- SCORE DE SAÚDE FINANCEIRA + VIDA EM HORAS -->
-    <div class="health-row">
-      <div class="health-card">
+
+    <div class="health-grid">
+      <div class="hg-card hg-score">
+        <h3 class="hg-title">Seu Score</h3>
         <div class="health-gauge-wrap">
           <svg class="health-gauge" viewBox="0 0 200 120">
             <defs>
@@ -643,21 +644,20 @@
           </div>
           <div class="health-score-label" id="healthLabel">—</div>
         </div>
-        <div class="health-info">
-          <h3>Score de Saúde Financeira</h3>
-          <p class="health-sub">Visão única da sua vida financeira — recalculado em tempo real a partir dos seus dados.</p>
-          <div class="health-breakdown" id="healthBreakdown"></div>
-        </div>
+        <p class="hg-foot">Recalculado em tempo real a partir dos seus dados.</p>
       </div>
-      <div class="hours-card">
-        <div class="hours-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        </div>
-        <h3>Vida em Horas</h3>
-        <p class="hours-sub">Quanto da sua <b>vida trabalhada</b> cada gasto consome:</p>
+
+      <div class="hg-card hg-pillars">
+        <h3 class="hg-title">Os 4 pilares</h3>
+        <div class="health-breakdown" id="healthBreakdown"></div>
+        <p class="hg-foot">Cada pilar vale 250 pontos. Equilíbrio importa mais que perfeição em um só.</p>
+      </div>
+
+      <div class="hg-card hours-card">
+        <h3 class="hg-title">Vida em Horas</h3>
         <div class="hours-main" id="hoursMain">—</div>
         <div class="hours-list" id="hoursList"></div>
-        <div class="hours-note">Baseado na sua renda ÷ 220h úteis/mês. Pense duas vezes: cada compra custa tempo de vida.</div>
+        <p class="hg-foot">Renda ÷ 220h úteis/mês. Cada compra custa tempo de vida.</p>
       </div>
     </div>
 
@@ -710,14 +710,56 @@
     <div class="page-header">
       <div>
         <h1>Assinaturas &amp; Recorrentes</h1>
-        <p class="page-sub">O dinheiro que escorre todo mês sem você perceber — e quanto ele custaria do seu futuro.</p>
+        <p class="page-sub">O dinheiro que escorre todo mês sem você perceber.</p>
       </div>
-      <button class="btn-add" onclick="openSubModal()">+ Nova assinatura</button>
+      <button class="btn-add" onclick="openSubModal()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Nova assinatura
+      </button>
     </div>
 
-    <div class="subs-overview" id="subsOverview"></div>
-    <div class="subs-list" id="subsList"></div>
+    <div class="subs-layout">
+      <div class="subs-main">
+        <div class="subs-list" id="subsList"></div>
+      </div>
+      <aside class="subs-side">
+        <div class="subs-summary" id="subsOverview"></div>
+      </aside>
+    </div>
   </section>
+
+  <!-- modal nova assinatura -->
+  <div class="modal-backdrop" id="subModal">
+    <div class="modal" style="width:420px">
+      <div class="modal-header">
+        <h3>Nova assinatura</h3>
+        <button class="modal-close" onclick="closeSubModal()">✕</button>
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Nome</label>
+          <input type="text" id="subName" placeholder="Ex.: Netflix, Seguro do carro" />
+        </div>
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label>Valor (R$)</label>
+            <input type="number" id="subValue" placeholder="44,90" min="0" step="0.01" />
+          </div>
+          <div class="form-group">
+            <label>Cobrança</label>
+            <select id="subCycle">
+              <option value="m">Mensal</option>
+              <option value="y">Anual</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" onclick="closeSubModal()">Cancelar</button>
+        <button class="btn-confirm" onclick="confirmSub()">Adicionar</button>
+      </div>
+    </div>
+  </div>
 
   <!-- ═══════════════════════════════ PERFIL ═══════════════════════════════ -->
   <section class="page" id="profile">

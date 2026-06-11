@@ -3030,3 +3030,124 @@ html[data-theme="light"] .ht-row { background: rgba(15,23,42,.03); }
 .page-sub { margin-top: 2px; }
 /* botão de adicionar alinhado com o título */
 .page-header { align-items: center; }
+
+/* ══════════════════════════════════════════════
+   SAÚDE FINANCEIRA — grid limpo de 3 colunas
+══════════════════════════════════════════════ */
+.health-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.hg-card {
+  background: var(--glass);
+  backdrop-filter: blur(24px) saturate(1.3);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 6px 28px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.07);
+  position: relative;
+  overflow: hidden;
+}
+.hg-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 10%; right: 10%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(99,102,241,.5), transparent);
+  opacity: .6;
+}
+.hg-title {
+  font-size: 14px; font-weight: 800;
+  border-left: 3px solid var(--indigo);
+  padding-left: 10px;
+  margin-bottom: 18px;
+}
+.hg-score { align-items: center; text-align: center; }
+.hg-score .hg-title { align-self: flex-start; text-align: left; }
+.hg-score .health-gauge-wrap { margin: auto 0; }
+.hg-pillars .health-breakdown { flex: 1; justify-content: center; }
+.hg-foot {
+  font-size: 11px; color: var(--text-3);
+  line-height: 1.5;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+/* hours-card herda hg-card mas mantém o tom âmbar */
+.health-grid .hours-card {
+  background: linear-gradient(160deg, rgba(245,158,11,.08) 0%, var(--glass) 55%);
+  border-color: rgba(245,158,11,.22);
+}
+.health-grid .hours-card::before { background: linear-gradient(90deg, transparent, rgba(245,158,11,.55), transparent); }
+.health-grid .hours-card .hg-title { border-color: var(--amber); }
+.health-grid .hours-main { font-size: 26px; margin-bottom: 12px; }
+.health-grid .hours-list { flex: 1; }
+
+@media (max-width: 1100px) {
+  .health-grid { grid-template-columns: 1fr; }
+}
+
+/* ══════════════════════════════════════════════
+   ASSINATURAS — lista + resumo lateral
+══════════════════════════════════════════════ */
+.subs-layout {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 16px;
+  align-items: start;
+}
+.subs-summary {
+  background: var(--glass);
+  backdrop-filter: blur(22px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 6px 28px rgba(0,0,0,.28);
+  position: sticky;
+  top: calc(var(--topbar-h) + 24px);
+}
+.subs-summary-title {
+  font-size: 14px; font-weight: 800;
+  border-left: 3px solid var(--indigo);
+  padding-left: 10px;
+  margin-bottom: 4px;
+}
+.subs-summary .sub-kpi {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-top: none;
+  border-left: 3px solid var(--indigo);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  min-height: 0;
+  box-shadow: none;
+}
+.subs-summary .sub-kpi.amber { border-left-color: var(--amber); }
+.subs-summary .sub-kpi.red   { border-left-color: var(--red); }
+.subs-summary .sk-value { font-size: 20px; }
+.sk-note { font-size: 10.5px; color: var(--text-3); margin-top: 6px; line-height: 1.45; }
+
+@media (max-width: 1000px) {
+  .subs-layout { grid-template-columns: 1fr; }
+  .subs-summary { position: static; }
+}
+
+/* light theme */
+html[data-theme="light"] .hg-card,
+html[data-theme="light"] .subs-summary {
+  background: #fdfdff;
+  border-color: rgba(15,23,42,.08);
+  box-shadow: 0 6px 24px rgba(30,41,72,.08);
+}
+html[data-theme="light"] .health-grid .hours-card {
+  background: linear-gradient(160deg, rgba(245,158,11,.08) 0%, #fdfdff 55%);
+  border-color: rgba(245,158,11,.25);
+}
+html[data-theme="light"] .subs-summary .sub-kpi { background: rgba(15,23,42,.03); }

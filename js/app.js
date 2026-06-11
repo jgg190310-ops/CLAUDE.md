@@ -2739,6 +2739,144 @@ async function aiAnswer(q) {
       `• Trabalho remoto em real vs custo em euro/dólar: a conta precisa fechar com o câmbio 20% pior que o atual.`;
   }
 
+  // ───────── PERGUNTAS COM NÚMEROS ─────────
+  const salMatch = t.match(/ganho\s+(?:r\$\s*)?(\d+[.,]?\d*)\s*(mil)?/);
+  if (salMatch && /como (divido|dividir|organizo|organizar|uso)|o que fa[cz]o/.test(t)) {
+    let sal = parseFloat(salMatch[1].replace(',', '.'));
+    if (salMatch[2]) sal *= 1000;
+    return `Com uma renda de <b>${aiFmt(sal)}</b>, a divisão 50/30/20 fica:<br><br>` +
+      `• Necessidades (50%): <b>${aiFmt(sal * 0.5)}</b> — moradia, mercado, transporte, saúde<br>` +
+      `• Desejos (30%): <b>${aiFmt(sal * 0.3)}</b> — lazer, assinaturas, restaurantes<br>` +
+      `• Futuro (20%): <b>${aiFmt(sal * 0.2)}</b> — reserva, investimentos, quitar dívidas<br><br>` +
+      `Ordem de prioridade do "futuro": (1) reserva de 6 meses, (2) dívidas caras, (3) investimentos. ` +
+      `Configure esses tetos na aba <b>Orçamentos</b> para acompanhar automaticamente.`;
+  }
+
+  if (/quanto (devo|preciso) (guardar|poupar|investir)( por m[e]s)?|quanto guardar/.test(t)) {
+    const inc = s.income || 5000;
+    return `Referências de quanto guardar por mês:<br><br>` +
+      `• <b>Mínimo saudável</b>: 10% da renda → ${aiFmt(inc * 0.1)}<br>` +
+      `• <b>Padrão recomendado</b>: 20% → ${aiFmt(inc * 0.2)}<br>` +
+      `• <b>Acelerado (FIRE)</b>: 30–50% → ${aiFmt(inc * 0.3)} a ${aiFmt(inc * 0.5)}<br><br>` +
+      `Sua taxa atual: <b>${s.savingsRate.toFixed(0)}%</b>.<br><br>` +
+      `O truque que funciona: transferência automática no dia do salário. O que sobra no fim do mês é o que você NÃO viu primeiro.`;
+  }
+
+  if (/como come[cç]o|comecar a investir|primeiro investimento|nunca investi|iniciante/.test(t)) {
+    return `<b>Seu primeiro investimento em 5 passos:</b><br><br>` +
+      `1. Abra conta em corretora sem taxas (várias grandes são gratuitas).<br>` +
+      `2. Comece pelo <b>Tesouro Selic</b> — a partir de ~R$ 150, liquidez diária, risco mínimo. É o "treino" perfeito.<br>` +
+      `3. Monte a reserva de 6 meses ali antes de qualquer outra coisa.<br>` +
+      `4. Depois diversifique aos poucos: CDB, Tesouro IPCA+, e só então renda variável (ETF é a porta de entrada).<br>` +
+      `5. Aporte TODO mês, qualquer valor — o hábito vale mais que a quantia.<br><br>` +
+      `Erro de iniciante nº 1: começar por ações/cripto por dica de influencer. Fundação primeiro, emoção depois.`;
+  }
+
+  // ───────── BENEFÍCIOS E DIREITOS ─────────
+  if (/13o|decimo terceiro|13 salario/.test(t)) {
+    return `<b>13º salário — o dinheiro que mais evapora no Brasil:</b><br><br>` +
+      `Destino inteligente, em ordem:<br>` +
+      `1. Dívidas caras (cartão/cheque especial) — retorno garantido de 10%+ a.m.<br>` +
+      `2. Despesas de janeiro (IPVA, IPTU, material escolar) — pagar à vista com desconto.<br>` +
+      `3. Reserva de emergência incompleta.<br>` +
+      `4. Investimento de longo prazo.<br><br>` +
+      `Armadilha clássica: tratar como "dinheiro extra de Natal". Quem investe o 13º todo ano a 1% a.m. acumula <b>${aiFmt((s.income || 5000) * 23)}</b> em 15 anos.`;
+  }
+
+  if (/fgts/.test(t)) {
+    return `<b>FGTS — seu dinheiro esquecido:</b><br><br>` +
+      `• Rende TR + 3% a.a. — <b>perde da inflação</b> na maioria dos anos. Quanto menos parado lá, melhor.<br>` +
+      `• <b>Saque-aniversário</b>: libera parte todo ano, mas trava o saque-rescisão por 2 anos se você for demitido. Faça a conta antes.<br>` +
+      `• Usos que valem: entrada de imóvel, amortização de financiamento habitacional (a cada 2 anos), doenças graves.<br>` +
+      `• A multa de 40% na demissão incide sobre TODO o saldo — mais um motivo para usar o FGTS no imóvel.<br>` +
+      `• Consulte saldo no app FGTS — bilhões em contas esquecidas no Brasil.`;
+  }
+
+  if (/ferias/.test(t)) {
+    return `<b>Férias e dinheiro:</b><br><br>` +
+      `• Você recebe salário + 1/3 — use o terço para a viagem e não toque no salário do mês.<br>` +
+      `• <b>Vender 10 dias</b> (abono): vale se você tem dívida cara para quitar; não vale por consumo — descanso também é patrimônio.<br>` +
+      `• Viagem: defina o orçamento ANTES de escolher o destino (passagem ~40%, hospedagem ~30%, diária ~30%).<br>` +
+      `• Fundo de férias: ${aiFmt((s.expense || 4000) * 0.08)} /mês numa caixinha rendendo CDI = viagem anual sem parcelar.<br>` +
+      `• Parcelar viagem em 10x é pagar a próxima ainda devendo a anterior — o ciclo que nunca fecha.`;
+  }
+
+  // ───────── ARMADILHAS MODERNAS ─────────
+  if (/aposta|bet|tigrinho|jogo do|cassino|roleta/.test(t)) {
+    return `<b>⚠️ Bets e jogos — matemática sem maquiagem:</b><br><br>` +
+      `• A casa SEMPRE tem vantagem estatística — no longo prazo, o retorno esperado é <b>negativo por design</b>.<br>` +
+      `• "Estratégias" e "sinais" de Telegram são marketing de afiliados que ganham sobre sua perda.<br>` +
+      `• Pesquisas do BC: bilhões/mês saem das famílias brasileiras para bets — dinheiro que era do mercado, do lazer e da poupança.<br>` +
+      `• Se for jogar: trate como ingresso de cinema (entretenimento com preço fixo), nunca como renda.<br>` +
+      `• Sinais de problema: apostar para recuperar perda, esconder valores, usar crédito. Ajuda gratuita: Jogadores Anônimos.<br><br>` +
+      `Os mesmos R$ 200/mês em ETF por 20 anos ≈ <b>${aiFmt(150000)}</b>. A única aposta com odds a seu favor.`;
+  }
+
+  if (/cashback|programa de pontos|milhas/.test(t)) {
+    return `<b>Cashback e milhas — bônus, não estratégia:</b><br><br>` +
+      `• Regra de ouro: só vale se você gastaria de qualquer forma. Gastar para pontuar é desconto de 1% sobre prejuízo de 100%.<br>` +
+      `• Milhas: concentre gastos num cartão, transfira com bônus de 80%+ para programas, e use em voos internacionais (maior valor por milha).<br>` +
+      `• Venda de milhas: possível, mas costuma render menos que usar bem.<br>` +
+      `• Cashback real (dinheiro na conta) > pontos que expiram.<br>` +
+      `• Anuidade só se justifica se os benefícios usados superarem o custo — faça a conta anual friamente.`;
+  }
+
+  if (/black friday|promocao|desconto|compras online/.test(t)) {
+    return `<b>Comprando como um estrategista:</b><br><br>` +
+      `• Monitore o preço 2–3 meses antes (Zoom, Buscapé, histórico) — "metade do dobro" ainda existe.<br>` +
+      `• Lista fechada ANTES das ofertas: promoção de coisa que você não ia comprar é gasto, não economia.<br>` +
+      `• Compare o preço à vista com PIX — desconto de 5–10% costuma vencer parcelado "sem juros".<br>` +
+      `• Carrinho abandonado: muitas lojas mandam cupom em 24–48h.<br>` +
+      `• Pergunta final antes de pagar: "quantas horas de trabalho isso custa?" (veja sua taxa na aba Saúde Financeira).`;
+  }
+
+  if (/crediario|carne|parcelado|parcelar/.test(t)) {
+    return `<b>Parcelamento — a inflação pessoal disfarçada:</b><br><br>` +
+      `• "Sem juros" embute o custo no preço: à vista quase sempre tem 5–15% de desconto se você pedir.<br>` +
+      `• Crediário/carnê: juros de 3–8% a.m. escondidos na parcela "que cabe no bolso". Pergunte sempre o <b>CET total</b>.<br>` +
+      `• Regra prática: se precisa parcelar em mais de 3x algo que não é essencial, você ainda não pode comprar.<br>` +
+      `• Parcelas comprometem renda FUTURA — some todas: acima de 30% da renda em parcelas é sinal vermelho.<br>` +
+      `• Inverta o jogo: "parcele para você mesmo" — guarde a parcela por X meses rendendo e compre à vista com desconto.`;
+  }
+
+  // ───────── NEGÓCIOS II ─────────
+  if (/contratar|funcionario|equipe|folha de pagamento/.test(t)) {
+    return `<b>Quanto custa contratar no Brasil:</b><br><br>` +
+      `• CLT custa ao empregador <b>~1,7–1,8× o salário</b>: INSS patronal, FGTS, 13º, férias+1/3, provisões e benefícios.<br>` +
+      `• Salário de R$ 3.000 = custo real de ~R$ 5.200/mês.<br>` +
+      `• Antes de contratar: a função gera ou libera mais receita do que custa? Se não, automatize ou terceirize.<br>` +
+      `• Alternativas para validar: freelancer por projeto, PJ parcial, estagiário (custo menor, ganho social).<br>` +
+      `• Erro comum: contratar no pico de demanda e não conseguir sustentar no vale — regra: 3 meses de folha em caixa antes de cada contratação.`;
+  }
+
+  if (/marketing|divulgar|atrair cliente|vender mais|instagram/.test(t)) {
+    return `<b>Marketing com orçamento enxuto:</b><br><br>` +
+      `• Comece onde seu cliente JÁ está — 1 canal bem feito > 5 canais medianos.<br>` +
+      `• Orçamento de teste: 5–10% do faturamento; dobre no que der retorno mensurável, corte o resto.<br>` +
+      `• <b>Meça CAC por canal</b>: tráfego pago sem medir conversão é doação para plataformas.<br>` +
+      `• O mais barato e ignorado: base de clientes atual — reativação, indicação premiada e recompra custam 5× menos que aquisição.<br>` +
+      `• Conteúdo orgânico é juro composto de audiência: lento no início, imbatível no longo prazo.`;
+  }
+
+  if (/nota fiscal|imposto da empresa|das\b|guia/.test(t)) {
+    return `<b>Obrigações fiscais do pequeno negócio:</b><br><br>` +
+      `• <b>MEI</b>: DAS fixo mensal (~R$ 70) + declaração anual (DASN) até maio. Só isso.<br>` +
+      `• <b>Simples</b>: DAS mensal sobre o faturamento (guia única que junta até 8 impostos).<br>` +
+      `• Emita nota de TUDO: sem nota, sem comprovação de receita → crédito negado, problema com Receita e cliente PJ não fecha.<br>` +
+      `• Atrasou o DAS? Multa pequena + juros — regularize rápido para não perder o enquadramento.<br>` +
+      `• MEI estourando R$ 81 mil/ano: planeje a migração para ME ANTES de estourar (desenquadramento retroativo dói).`;
+  }
+
+  // ───────── MÉTODOS DE ORÇAMENTO ─────────
+  if (/kakeibo|envelope|orcamento base zero|zero.based|metodo de orcamento/.test(t)) {
+    return `<b>Métodos de orçamento além do 50/30/20:</b><br><br>` +
+      `• <b>Base zero</b>: todo real recebe um destino antes do mês começar. Renda − alocações = 0. Máximo controle, exige disciplina.<br>` +
+      `• <b>Envelopes</b> (físicos ou caixinhas digitais): um valor por categoria; acabou o envelope, acabou o gasto do mês. Brutalmente eficaz contra estouro.<br>` +
+      `• <b>Kakeibo</b> (japonês): registre à mão em 4 categorias (essencial, opcional, cultura, extra) + reflexão semanal. Foco em consciência.<br>` +
+      `• <b>Pague-se primeiro</b>: investe a meta no dia 1 e vive com o resto — o mais simples que funciona.<br><br>` +
+      `Não existe método certo — existe o que VOCÊ sustenta por 12 meses. Teste um por 60 dias.`;
+  }
+
   if (/score|saude financeira|minha nota|pontuacao/.test(t)) {
     const h = computeHealthScore();
     const lbl = healthLabelFor(h.total);
@@ -2966,10 +3104,15 @@ function renderSubs() {
   for (let m = 0; m < 120; m++) opp = (opp + totalM) * 1.008;
 
   document.getElementById('subsOverview').innerHTML = `
+    <h3 class="subs-summary-title">Resumo</h3>
     <div class="sub-kpi"><div class="sk-label">Total mensal</div><div class="sk-value">${aiFmt(totalM)}</div></div>
     <div class="sub-kpi"><div class="sk-label">Total anual</div><div class="sk-value">${aiFmt(totalY)}</div></div>
     <div class="sub-kpi amber"><div class="sk-label">Horas de trabalho/mês</div><div class="sk-value">${(totalM / hourly).toFixed(1).replace('.', ',')}h</div></div>
-    <div class="sub-kpi red"><div class="sk-label">Custo de oportunidade (10 anos investidos)</div><div class="sk-value">${aiFmt(opp)}</div></div>`;
+    <div class="sub-kpi red">
+      <div class="sk-label">Se investido por 10 anos</div>
+      <div class="sk-value">${aiFmt(opp)}</div>
+      <div class="sk-note">É isso que suas assinaturas custam do seu futuro (0,8% a.m.)</div>
+    </div>`;
 
   list.innerHTML = subs.map(x => `
     <div class="sub-item">
@@ -2997,14 +3140,28 @@ function deleteSub(id) {
 }
 
 function openSubModal() {
-  const name = prompt('Nome da assinatura (ex.: Netflix, Seguro do carro):');
-  if (!name) return;
-  const value = parseFloat((prompt('Valor (R$):') || '').replace(',', '.'));
-  if (!value || value <= 0) return;
-  const cycle = (prompt('Cobrança: digite M para mensal ou A para anual', 'M') || 'M').toLowerCase().startsWith('a') ? 'y' : 'm';
+  document.getElementById('subName').value = '';
+  document.getElementById('subValue').value = '';
+  document.getElementById('subCycle').value = 'm';
+  document.getElementById('subModal').classList.add('open');
+  setTimeout(() => document.getElementById('subName').focus(), 100);
+}
+function closeSubModal() {
+  document.getElementById('subModal').classList.remove('open');
+}
+function confirmSub() {
+  const name = document.getElementById('subName').value.trim();
+  const value = parseFloat(String(document.getElementById('subValue').value).replace(',', '.'));
+  const cycle = document.getElementById('subCycle').value;
+  if (!name || !value || value <= 0) {
+    if (typeof showToast === 'function') showToast('Preencha nome e valor.', 'error');
+    return;
+  }
   subs.push({ id: Date.now(), name, value, cycle });
   saveSubs();
   renderSubs();
+  closeSubModal();
+  if (typeof showToast === 'function') showToast('Assinatura adicionada!', 'success');
 }
 
 // ══════════════════════════════════════════════
