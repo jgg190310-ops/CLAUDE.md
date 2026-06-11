@@ -29,12 +29,6 @@ const dashboardPreview = document.querySelector('.dashboard-preview');
 const geoShapes = document.querySelectorAll('.geo-shape');
 const lpLayers = document.querySelectorAll('.lp-beam, .lp-grid-floor, .sec-orb, .sb-orb, .cta-beam');
 
-// cursor glow — soft light that chases the pointer
-const cursorGlow = document.createElement('div');
-cursorGlow.className = 'cursor-glow';
-document.body.appendChild(cursorGlow);
-let cgx = innerWidth / 2, cgy = innerHeight / 2;
-
 // inner depth layers of the dashboard preview (each drifts at its own speed)
 const previewLayers = [...document.querySelectorAll('.preview-card, .preview-chart, .preview-ticker')];
 const previewDepth = [10, 14, 18, 7, 5];
@@ -95,12 +89,6 @@ function parallaxLoop() {
     const rel = (r.top + r.height / 2 - window.innerHeight / 2) / window.innerHeight;
     el.style.translate = `${smx2 * msp}px ${smy2 * msp - rel * sp * 260}px`;
   });
-
-  // cursor glow lerp
-  cgx += ((mx * 0.5 + 0.5) * innerWidth  - cgx) * 0.08;
-  cgy += ((my * 0.5 + 0.5) * innerHeight - cgy) * 0.08;
-  cursorGlow.style.left = `${cgx}px`;
-  cursorGlow.style.top  = `${cgy}px`;
 
   // dashboard preview inner layers — extra depth inside the tilted card
   previewLayers.forEach((el, i) => {

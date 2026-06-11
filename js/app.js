@@ -1831,14 +1831,6 @@ if (_savedCfg?.databaseURL) {
   // subtle page-header drift with mouse (counter-motion for depth)
   const pageHeaders = document.querySelectorAll('.page-header');
 
-  // cursor glow — soft light chasing the pointer across the app
-  const cursorGlowApp = document.createElement('div');
-  cursorGlowApp.className = 'cursor-glow-app';
-  document.body.appendChild(cursorGlowApp);
-  let cgax = innerWidth / 2, cgay = innerHeight / 2;
-  let rawCx = cgax, rawCy = cgay;
-  document.addEventListener('mousemove', (e) => { rawCx = e.clientX; rawCy = e.clientY; }, { passive: true });
-
   // scroll-reveal: cards rise into view with stagger
   const revealObs = new IntersectionObserver((entries) => {
     entries.forEach(en => {
@@ -1886,11 +1878,6 @@ if (_savedCfg?.databaseURL) {
     pageHeaders.forEach(h => {
       h.style.transform = `translate(${sx * -4}px, ${sy * -2}px)`;
     });
-
-    cgax += (rawCx - cgax) * 0.09;
-    cgay += (rawCy - cgay) * 0.09;
-    cursorGlowApp.style.left = `${cgax}px`;
-    cursorGlowApp.style.top  = `${cgay}px`;
 
     drawParticles();
     requestAnimationFrame(loop);
