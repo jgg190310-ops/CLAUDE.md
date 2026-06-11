@@ -27,6 +27,7 @@ function closeMobileMenu() {
 const orbs = document.querySelectorAll('.orb[data-speed]');
 const dashboardPreview = document.querySelector('.dashboard-preview');
 const geoShapes = document.querySelectorAll('.geo-shape');
+const lpLayers = document.querySelectorAll('.lp-beam, .lp-grid-floor');
 const floatBadges = document.querySelectorAll('.float-badge');
 
 // Smoothed mouse position (lerp)
@@ -73,6 +74,13 @@ function parallaxLoop() {
     const tx  = smx * msp;
     const ty  = smy * msp + scrollY * sp;
     s.style.transform = `translate(${tx}px, ${ty}px) rotate(${scrollY * sp * 0.12}deg)`;
+  });
+
+  // Beams + grid floor — use `translate` so their CSS transform animations keep running
+  lpLayers.forEach(el => {
+    const sp  = parseFloat(el.dataset.speed) || 0.1;
+    const msp = parseFloat(el.dataset.mspeed) || 6;
+    el.style.translate = `${smx2 * msp}px ${smy2 * msp + scrollY * sp}px`;
   });
 
   // Dashboard card: stronger 3D tilt

@@ -1685,7 +1685,9 @@ if (_savedCfg?.databaseURL) {
 
   // orb depths — larger index = closer = more movement
   const orbSpeeds = [22, 36, 15, 8, 42];
-  const geoSpeeds = [10, 18, 6, 12, 7, 14];
+  const geoSpeeds = [10, 18, 6, 12, 7, 14, 16, 9, 11];
+  const beams = [...bg.querySelectorAll('.app-beam')];
+  const beamSpeeds = [6, -8];
 
   // Canvas particle layer
   const canvas = document.getElementById('appCanvas');
@@ -1799,7 +1801,49 @@ if (_savedCfg?.databaseURL) {
 
   // scroll speeds per orb (px of orb drift per px scrolled)
   const orbScrollSp = [0.08, -0.12, 0.05, -0.06, 0.15];
-  const geoScrollSp = [0.10, -0.08, 0.04, 0.12, -0.10, 0.06];
+  const geoScrollSp = [0.10, -0.08, 0.04, 0.12, -0.10, 0.06, -0.09, 0.07, 0.05];
+
+  // cursor spotlight on cards — radial highlight follows the mouse
+  const spotSelectors = '.kpi-card, .chart-card, .table-card, .alerts-card, .goal-card, .bo-card, .stocks-table-wrap, .portfolio-chart-card, .calc-form-card, .calc-results-card, .profile-content, .budget-item, .market-card';
+  function attachSpotlights() {
+    document.querySelectorAll(spotSelectors).forEach(card => {
+      if (card.querySelector(':scope > .card-spot')) return;
+      const spot = document.createElement('div');
+      spot.className = 'card-spot';
+      card.appendChild(spot);
+    });
+  }
+  attachSpotlights();
+  // re-attach for cards rendered dynamically later
+  setInterval(attachSpotlights, 3000);
+  document.addEventListener('mousemove', (e) => {
+    document.querySelectorAll(spotSelectors).forEach(card => {
+      const r = card.getBoundingClientRect();
+      if (e.clientX < r.left - 60 || e.clientX > r.right + 60 || e.clientY < r.top - 60 || e.clientY > r.bottom + 60) return;
+      card.style.setProperty('--mx', `${e.clientX - r.left}px`);
+      card.style.setProperty('--my', `${e.clientY - r.top}px`);
+    });
+  }, { passive: true });
+
+  // subtle page-header drift with mouse (counter-motion for depth)
+  const pageHeaders = document.querySelectorAll('.page-header');
+
+  // scroll-reveal: cards rise into view with stagger
+  const revealObs = new IntersectionObserver((entries) => {
+    entries.forEach(en => {
+      if (!en.isIntersecting) return;
+      en.target.classList.add('revealed');
+      revealObs.unobserve(en.target);
+      // drop the class after the transition so it can't slow later transforms (KPI tilt)
+      setTimeout(() => en.target.classList.remove('reveal-up', 'revealed'), 700);
+    });
+  }, { threshold: 0.08 });
+  document.querySelectorAll(spotSelectors).forEach((card, i) => {
+    card.classList.add('reveal-up');
+    card.style.transitionDelay = `${(i % 6) * 60}ms`;
+    setTimeout(() => { card.style.transitionDelay = ''; }, 1500);
+    revealObs.observe(card);
+  });
 
   function loop() {
     sx  += (tx - sx)  * 0.05;
@@ -1821,6 +1865,15 @@ if (_savedCfg?.databaseURL) {
       const sp = geoSpeeds[i] || 10;
       const sc = sScrl * (geoScrollSp[i] || 0.05);
       geo.style.transform = `translate(${sx * sp}px, ${sy * sp + sc}px)`;
+    });
+
+    beams.forEach((beam, i) => {
+      const sp = beamSpeeds[i] || 6;
+      beam.style.translate = `${sx2 * sp}px ${sy2 * sp - sScrl * 0.04}px`;
+    });
+
+    pageHeaders.forEach(h => {
+      h.style.transform = `translate(${sx * -4}px, ${sy * -2}px)`;
     });
 
     drawParticles();
