@@ -2017,6 +2017,7 @@ function renderAiInsights() {
 // — chat engine —
 const AI_SUGGESTIONS = [
   'Indicadores de hoje',
+  'Qual é o meu score de saúde financeira?',
   'Resumo das minhas finanças',
   'Onde posso economizar?',
   'Como montar uma carteira?',
@@ -2732,6 +2733,22 @@ async function aiAnswer(q) {
       `• Trabalho remoto em real vs custo em euro/dólar: a conta precisa fechar com o câmbio 20% pior que o atual.`;
   }
 
+  if (/score|saude financeira|minha nota|pontuacao/.test(t)) {
+    const h = computeHealthScore();
+    const lbl = healthLabelFor(h.total);
+    const weakest = [...h.pillars].sort((a, b) => a.pts - b.pts)[0];
+    const tips = {
+      'Poupança': 'eleve sua taxa de poupança — pergunte "onde posso economizar?" para um plano de cortes.',
+      'Reserva': 'fortaleça a reserva de emergência — pergunte "reserva de emergência" para saber quanto e onde.',
+      'Orçamentos': 'há orçamentos estourando — revise os limites na aba Orçamentos ou corte na categoria crítica.',
+      'Metas': 'há metas atrasadas — pergunte "minhas metas estão no ritmo?" para recalcular os aportes.',
+    };
+    return `🎯 <b>Seu Score de Saúde Financeira: ${h.total}/1000 — ${lbl.txt}</b><br><br>` +
+      h.pillars.map(p => `• ${p.name}: <b>${p.pts}/250</b>`).join('<br>') +
+      `<br><br><b>Maior oportunidade:</b> ${weakest.name} (${weakest.pts}/250) — ${tips[weakest.name]}<br><br>` +
+      `Cada ponto conquistado é progresso real: o score recalcula na hora conforme você age.`;
+  }
+
   if (/oi|ola|bom dia|boa tarde|boa noite|hello|eai|e ai/.test(t)) {
     return `Olá! 👋 Sou o FinBot — especialista em finanças pessoais, investimentos e negócios. Analiso seus dados localmente e domino: economia doméstica, dívidas, renda fixa/variável, FIIs, cripto, impostos, financiamentos, empreendedorismo, precificação e muito mais.<br><br>Busco indicadores <b>ao vivo do Banco Central</b> (Selic, CDI, IPCA, dólar). Pergunte "indicadores de hoje" ou peça uma <i>"simulação de 500 por mês por 10 anos a 12% ao ano"</i>.`;
   }
@@ -2796,3 +2813,101 @@ function initAssistant() {
   }).catch(() => {});
   Promise.resolve(aiAnswer('olá')).then(msg => aiAppendMsg(msg, 'bot'));
 }
+
+// ══════════════════════════════════════════════
+//  SCORE DE SAÚDE FINANCEIRA + VIDA EM HORAS
+// ══════════════════════════════════════════════
+function computeHealthScore() {
+  const s = aiSnapshot();
+  // 4 pilares de 250 pontos
+  const pPoupanca = Math.max(0, Math.min(250, (s.savingsRate / 30) * 250));
+  const pReserva  = Math.max(0, Math.min(250, (s.reserveMonths / 6) * 250));
+  const okBudgets = budgets.length - s.overBudgets.length - s.warnBudgets.length * 0.5;
+  const pOrcam    = budgets.length ? Math.max(0, Math.min(250, (okBudgets / budgets.length) * 250)) : 125;
+  const onTrack   = goals.filter(g => goalStatus(g) !== 'late').length;
+  const pMetas    = goals.length ? Math.max(0, Math.min(250, (onTrack / goals.length) * 250)) : 125;
+  const total = Math.round(pPoupanca + pReserva + pOrcam + pMetas);
+  return {
+    total,
+    pillars: [
+      { name: 'Poupança',   pts: Math.round(pPoupanca), color: '#6366f1' },
+      { name: 'Reserva',    pts: Math.round(pReserva),  color: '#10b981' },
+      { name: 'Orçamentos', pts: Math.round(pOrcam),    color: '#f59e0b' },
+      { name: 'Metas',      pts: Math.round(pMetas),    color: '#8b5cf6' },
+    ],
+  };
+}
+
+function healthLabelFor(score) {
+  if (score >= 850) return { txt: 'Lendário 🏆', color: '#06b6d4' };
+  if (score >= 700) return { txt: 'Excelente', color: '#10b981' };
+  if (score >= 500) return { txt: 'Bom', color: '#a3e635' };
+  if (score >= 300) return { txt: 'Atenção', color: '#f59e0b' };
+  return { txt: 'Crítico', color: '#ef4444' };
+}
+
+function renderHealthScore() {
+  const el = document.getElementById('healthScore');
+  if (!el) return;
+  const h = computeHealthScore();
+  const label = healthLabelFor(h.total);
+
+  // animação do arco (251.3 = comprimento do semicírculo r=80)
+  const arc = document.getElementById('healthArc');
+  if (arc) {
+    const offset = 251.3 * (1 - h.total / 1000);
+    arc.style.transition = 'stroke-dashoffset 1.4s cubic-bezier(.16,1,.3,1)';
+    requestAnimationFrame(() => { arc.style.strokeDashoffset = offset; });
+  }
+  // contador animado
+  const start = performance.now();
+  (function tick(now) {
+    const t = Math.min((now - start) / 1300, 1);
+    el.textContent = Math.round((1 - Math.pow(1 - t, 3)) * h.total);
+    if (t < 1) requestAnimationFrame(tick);
+  })(start);
+
+  const lbl = document.getElementById('healthLabel');
+  lbl.textContent = label.txt;
+  lbl.style.color = label.color;
+
+  document.getElementById('healthBreakdown').innerHTML = h.pillars.map(p => `
+    <div class="hb-row">
+      <span class="hb-name">${p.name}</span>
+      <div class="hb-bar"><div class="hb-fill" style="width:${(p.pts / 250) * 100}%; background:${p.color}"></div></div>
+      <span class="hb-pts">${p.pts}<small>/250</small></span>
+    </div>`).join('');
+}
+
+function renderLifeHours() {
+  const main = document.getElementById('hoursMain');
+  if (!main) return;
+  const s = aiSnapshot();
+  const hourly = (s.income || 1) / 220; // 220h úteis/mês
+  const totalH = s.expense / hourly;
+
+  main.innerHTML = `${Math.round(totalH)}h <small>de trabalho/mês para pagar suas despesas</small>`;
+
+  const list = document.getElementById('hoursList');
+  list.innerHTML = s.topCats.slice(0, 4).map(([cat, val]) => {
+    const hrs = val / hourly;
+    return `<div class="hl-row">
+      <span>${cat}</span>
+      <b>${hrs >= 1 ? Math.round(hrs) + 'h' : Math.round(hrs * 60) + 'min'}</b>
+    </div>`;
+  }).join('') || '<div class="hl-row"><span>Adicione transações para ver</span></div>';
+}
+
+// engancha no fluxo do dashboard
+(function hookHealth() {
+  const orig = typeof initDashboardCharts === 'function' ? initDashboardCharts : null;
+  if (!orig) return;
+  window.initDashboardCharts = function () {
+    orig.apply(this, arguments);
+    renderHealthScore();
+    renderLifeHours();
+  };
+  // primeira renderização
+  renderHealthScore();
+  renderLifeHours();
+})();

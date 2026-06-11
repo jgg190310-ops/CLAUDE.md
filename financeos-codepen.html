@@ -4100,6 +4100,157 @@ html[data-theme="light"] .ai-chip:hover { color: #0f172a; }
 html[data-theme="light"] .ai-input-row input { background: rgba(15,23,42,.04); }
 html[data-theme="light"] .ai-privacy { background: rgba(16,185,129,.06); }
 
+/* ══════════════════════════════════════════════
+   SCORE DE SAÚDE FINANCEIRA + VIDA EM HORAS
+══════════════════════════════════════════════ */
+.health-row {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+.health-card {
+  display: flex;
+  gap: 32px;
+  align-items: center;
+  background: linear-gradient(135deg, rgba(99,102,241,.10) 0%, var(--glass) 45%, rgba(6,182,212,.05) 100%);
+  backdrop-filter: blur(24px) saturate(1.4);
+  border: 1px solid rgba(99,102,241,.22);
+  border-radius: var(--radius);
+  padding: 26px 30px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 8px 40px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.08), 0 0 60px rgba(99,102,241,.06);
+}
+.health-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 8%; right: 8%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(99,102,241,.7), rgba(6,182,212,.5), transparent);
+}
+.health-card::after {
+  content: '';
+  position: absolute;
+  top: -60px; right: -40px;
+  width: 220px; height: 220px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(99,102,241,.14) 0%, transparent 70%);
+  filter: blur(30px);
+  pointer-events: none;
+}
+.health-gauge-wrap { position: relative; width: 220px; flex-shrink: 0; text-align: center; }
+.health-gauge { width: 220px; height: 132px; }
+.health-score-num {
+  position: absolute;
+  left: 0; right: 0; top: 58px;
+  font-size: 40px; font-weight: 900; letter-spacing: -2px;
+  font-variant-numeric: tabular-nums;
+  background: linear-gradient(135deg, #fff 30%, #a5b4fc 100%);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.health-score-num small { font-size: 13px; font-weight: 600; opacity: .55; letter-spacing: 0; }
+.health-score-label {
+  margin-top: 2px;
+  font-size: 14px; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 1.5px;
+}
+.health-info { flex: 1; min-width: 0; position: relative; z-index: 1; }
+.health-info h3 { font-size: 18px; font-weight: 800; margin-bottom: 4px; }
+.health-sub { font-size: 12.5px; color: var(--text-2); margin-bottom: 16px; }
+.health-breakdown { display: flex; flex-direction: column; gap: 9px; }
+.hb-row {
+  display: grid;
+  grid-template-columns: 86px 1fr 64px;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+}
+.hb-name { color: var(--text-2); font-weight: 600; }
+.hb-bar { height: 7px; background: rgba(128,128,160,.15); border-radius: 4px; overflow: hidden; }
+.hb-fill {
+  height: 100%;
+  border-radius: 4px;
+  box-shadow: 0 0 10px currentColor;
+  transition: width 1.2s cubic-bezier(.16,1,.3,1);
+}
+.hb-pts { text-align: right; font-weight: 800; font-variant-numeric: tabular-nums; }
+.hb-pts small { opacity: .5; font-weight: 600; }
+
+.hours-card {
+  background: linear-gradient(160deg, rgba(245,158,11,.10) 0%, var(--glass) 50%);
+  backdrop-filter: blur(24px) saturate(1.3);
+  border: 1px solid rgba(245,158,11,.25);
+  border-radius: var(--radius);
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.07);
+}
+.hours-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 10%; right: 10%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(245,158,11,.6), transparent);
+}
+.hours-icon {
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(245,158,11,.14);
+  border: 1px solid rgba(245,158,11,.3);
+  color: var(--amber);
+  box-shadow: 0 0 20px rgba(245,158,11,.25);
+  margin-bottom: 14px;
+}
+.hours-card h3 { font-size: 16px; font-weight: 800; margin-bottom: 4px; }
+.hours-sub { font-size: 12px; color: var(--text-2); margin-bottom: 14px; }
+.hours-main {
+  font-size: 30px; font-weight: 900; letter-spacing: -1.5px;
+  color: var(--amber);
+  margin-bottom: 14px;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 30px rgba(245,158,11,.3);
+}
+.hours-main small { font-size: 12px; font-weight: 600; color: var(--text-2); letter-spacing: 0; display: block; margin-top: 2px; text-shadow: none; }
+.hours-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+.hl-row {
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 12.5px; color: var(--text-2);
+  padding: 7px 12px;
+  background: rgba(245,158,11,.06);
+  border: 1px solid rgba(245,158,11,.12);
+  border-radius: 9px;
+}
+.hl-row b { color: var(--amber); font-variant-numeric: tabular-nums; }
+.hours-note { font-size: 10.5px; color: var(--text-3); line-height: 1.5; }
+
+@media (max-width: 1100px) {
+  .health-row { grid-template-columns: 1fr; }
+  .health-card { flex-direction: column; text-align: center; }
+  .hb-row { text-align: left; }
+}
+
+/* light theme */
+html[data-theme="light"] .health-card {
+  background: linear-gradient(135deg, rgba(99,102,241,.08) 0%, #ffffff 45%, rgba(6,182,212,.05) 100%);
+  border-color: rgba(99,102,241,.2);
+  box-shadow: 0 8px 36px rgba(30,41,72,.10);
+}
+html[data-theme="light"] .health-score-num {
+  background: linear-gradient(135deg, #0f172a 30%, #4f46e5 100%);
+  -webkit-background-clip: text; background-clip: text;
+}
+html[data-theme="light"] .hours-card {
+  background: linear-gradient(160deg, rgba(245,158,11,.09) 0%, #ffffff 50%);
+  border-color: rgba(245,158,11,.28);
+  box-shadow: 0 8px 32px rgba(30,41,72,.09);
+}
+html[data-theme="light"] .hours-main { color: #b45309; text-shadow: none; }
+html[data-theme="light"] .hl-row b { color: #b45309; }
+
 
 /* ══ VIEW SWITCHING ══ */
 #appView   { display: none; }
@@ -4837,6 +4988,46 @@ html[data-theme="light"] .ai-privacy { background: rgba(16,185,129,.06); }
           <option>Maio 2026</option>
           <option>Abril 2026</option>
         </select>
+      </div>
+    </div>
+
+    <!-- SCORE DE SAÚDE FINANCEIRA + VIDA EM HORAS -->
+    <div class="health-row">
+      <div class="health-card">
+        <div class="health-gauge-wrap">
+          <svg class="health-gauge" viewBox="0 0 200 120">
+            <defs>
+              <linearGradient id="hgGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#ef4444"/>
+                <stop offset="40%" stop-color="#f59e0b"/>
+                <stop offset="75%" stop-color="#10b981"/>
+                <stop offset="100%" stop-color="#06b6d4"/>
+              </linearGradient>
+            </defs>
+            <path d="M 20 110 A 80 80 0 0 1 180 110" fill="none" stroke="rgba(128,128,160,.15)" stroke-width="14" stroke-linecap="round"/>
+            <path id="healthArc" d="M 20 110 A 80 80 0 0 1 180 110" fill="none" stroke="url(#hgGrad)" stroke-width="14" stroke-linecap="round" stroke-dasharray="251.3" stroke-dashoffset="251.3"/>
+          </svg>
+          <div class="health-score-num">
+            <span id="healthScore">0</span>
+            <small>/ 1000</small>
+          </div>
+          <div class="health-score-label" id="healthLabel">—</div>
+        </div>
+        <div class="health-info">
+          <h3>Score de Saúde Financeira</h3>
+          <p class="health-sub">Visão única da sua vida financeira — recalculado em tempo real a partir dos seus dados.</p>
+          <div class="health-breakdown" id="healthBreakdown"></div>
+        </div>
+      </div>
+      <div class="hours-card">
+        <div class="hours-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <h3>Vida em Horas</h3>
+        <p class="hours-sub">Quanto da sua <b>vida trabalhada</b> cada gasto consome:</p>
+        <div class="hours-main" id="hoursMain">—</div>
+        <div class="hours-list" id="hoursList"></div>
+        <div class="hours-note">Baseado na sua renda ÷ 220h úteis/mês. Pense duas vezes: cada compra custa tempo de vida.</div>
       </div>
     </div>
 
@@ -7778,6 +7969,7 @@ function renderAiInsights() {
 // — chat engine —
 const AI_SUGGESTIONS = [
   'Indicadores de hoje',
+  'Qual é o meu score de saúde financeira?',
   'Resumo das minhas finanças',
   'Onde posso economizar?',
   'Como montar uma carteira?',
@@ -8493,6 +8685,22 @@ async function aiAnswer(q) {
       `• Trabalho remoto em real vs custo em euro/dólar: a conta precisa fechar com o câmbio 20% pior que o atual.`;
   }
 
+  if (/score|saude financeira|minha nota|pontuacao/.test(t)) {
+    const h = computeHealthScore();
+    const lbl = healthLabelFor(h.total);
+    const weakest = [...h.pillars].sort((a, b) => a.pts - b.pts)[0];
+    const tips = {
+      'Poupança': 'eleve sua taxa de poupança — pergunte "onde posso economizar?" para um plano de cortes.',
+      'Reserva': 'fortaleça a reserva de emergência — pergunte "reserva de emergência" para saber quanto e onde.',
+      'Orçamentos': 'há orçamentos estourando — revise os limites na aba Orçamentos ou corte na categoria crítica.',
+      'Metas': 'há metas atrasadas — pergunte "minhas metas estão no ritmo?" para recalcular os aportes.',
+    };
+    return `🎯 <b>Seu Score de Saúde Financeira: ${h.total}/1000 — ${lbl.txt}</b><br><br>` +
+      h.pillars.map(p => `• ${p.name}: <b>${p.pts}/250</b>`).join('<br>') +
+      `<br><br><b>Maior oportunidade:</b> ${weakest.name} (${weakest.pts}/250) — ${tips[weakest.name]}<br><br>` +
+      `Cada ponto conquistado é progresso real: o score recalcula na hora conforme você age.`;
+  }
+
   if (/oi|ola|bom dia|boa tarde|boa noite|hello|eai|e ai/.test(t)) {
     return `Olá! 👋 Sou o FinBot — especialista em finanças pessoais, investimentos e negócios. Analiso seus dados localmente e domino: economia doméstica, dívidas, renda fixa/variável, FIIs, cripto, impostos, financiamentos, empreendedorismo, precificação e muito mais.<br><br>Busco indicadores <b>ao vivo do Banco Central</b> (Selic, CDI, IPCA, dólar). Pergunte "indicadores de hoje" ou peça uma <i>"simulação de 500 por mês por 10 anos a 12% ao ano"</i>.`;
   }
@@ -8557,6 +8765,104 @@ function initAssistant() {
   }).catch(() => {});
   Promise.resolve(aiAnswer('olá')).then(msg => aiAppendMsg(msg, 'bot'));
 }
+
+// ══════════════════════════════════════════════
+//  SCORE DE SAÚDE FINANCEIRA + VIDA EM HORAS
+// ══════════════════════════════════════════════
+function computeHealthScore() {
+  const s = aiSnapshot();
+  // 4 pilares de 250 pontos
+  const pPoupanca = Math.max(0, Math.min(250, (s.savingsRate / 30) * 250));
+  const pReserva  = Math.max(0, Math.min(250, (s.reserveMonths / 6) * 250));
+  const okBudgets = budgets.length - s.overBudgets.length - s.warnBudgets.length * 0.5;
+  const pOrcam    = budgets.length ? Math.max(0, Math.min(250, (okBudgets / budgets.length) * 250)) : 125;
+  const onTrack   = goals.filter(g => goalStatus(g) !== 'late').length;
+  const pMetas    = goals.length ? Math.max(0, Math.min(250, (onTrack / goals.length) * 250)) : 125;
+  const total = Math.round(pPoupanca + pReserva + pOrcam + pMetas);
+  return {
+    total,
+    pillars: [
+      { name: 'Poupança',   pts: Math.round(pPoupanca), color: '#6366f1' },
+      { name: 'Reserva',    pts: Math.round(pReserva),  color: '#10b981' },
+      { name: 'Orçamentos', pts: Math.round(pOrcam),    color: '#f59e0b' },
+      { name: 'Metas',      pts: Math.round(pMetas),    color: '#8b5cf6' },
+    ],
+  };
+}
+
+function healthLabelFor(score) {
+  if (score >= 850) return { txt: 'Lendário 🏆', color: '#06b6d4' };
+  if (score >= 700) return { txt: 'Excelente', color: '#10b981' };
+  if (score >= 500) return { txt: 'Bom', color: '#a3e635' };
+  if (score >= 300) return { txt: 'Atenção', color: '#f59e0b' };
+  return { txt: 'Crítico', color: '#ef4444' };
+}
+
+function renderHealthScore() {
+  const el = document.getElementById('healthScore');
+  if (!el) return;
+  const h = computeHealthScore();
+  const label = healthLabelFor(h.total);
+
+  // animação do arco (251.3 = comprimento do semicírculo r=80)
+  const arc = document.getElementById('healthArc');
+  if (arc) {
+    const offset = 251.3 * (1 - h.total / 1000);
+    arc.style.transition = 'stroke-dashoffset 1.4s cubic-bezier(.16,1,.3,1)';
+    requestAnimationFrame(() => { arc.style.strokeDashoffset = offset; });
+  }
+  // contador animado
+  const start = performance.now();
+  (function tick(now) {
+    const t = Math.min((now - start) / 1300, 1);
+    el.textContent = Math.round((1 - Math.pow(1 - t, 3)) * h.total);
+    if (t < 1) requestAnimationFrame(tick);
+  })(start);
+
+  const lbl = document.getElementById('healthLabel');
+  lbl.textContent = label.txt;
+  lbl.style.color = label.color;
+
+  document.getElementById('healthBreakdown').innerHTML = h.pillars.map(p => `
+    <div class="hb-row">
+      <span class="hb-name">${p.name}</span>
+      <div class="hb-bar"><div class="hb-fill" style="width:${(p.pts / 250) * 100}%; background:${p.color}"></div></div>
+      <span class="hb-pts">${p.pts}<small>/250</small></span>
+    </div>`).join('');
+}
+
+function renderLifeHours() {
+  const main = document.getElementById('hoursMain');
+  if (!main) return;
+  const s = aiSnapshot();
+  const hourly = (s.income || 1) / 220; // 220h úteis/mês
+  const totalH = s.expense / hourly;
+
+  main.innerHTML = `${Math.round(totalH)}h <small>de trabalho/mês para pagar suas despesas</small>`;
+
+  const list = document.getElementById('hoursList');
+  list.innerHTML = s.topCats.slice(0, 4).map(([cat, val]) => {
+    const hrs = val / hourly;
+    return `<div class="hl-row">
+      <span>${cat}</span>
+      <b>${hrs >= 1 ? Math.round(hrs) + 'h' : Math.round(hrs * 60) + 'min'}</b>
+    </div>`;
+  }).join('') || '<div class="hl-row"><span>Adicione transações para ver</span></div>';
+}
+
+// engancha no fluxo do dashboard
+(function hookHealth() {
+  const orig = typeof initDashboardCharts === 'function' ? initDashboardCharts : null;
+  if (!orig) return;
+  window.initDashboardCharts = function () {
+    orig.apply(this, arguments);
+    renderHealthScore();
+    renderLifeHours();
+  };
+  // primeira renderização
+  renderHealthScore();
+  renderLifeHours();
+})();
 
 
 /* ══ LANDING JS ══ */

@@ -150,6 +150,46 @@
       </div>
     </div>
 
+    <!-- SCORE DE SAÚDE FINANCEIRA + VIDA EM HORAS -->
+    <div class="health-row">
+      <div class="health-card">
+        <div class="health-gauge-wrap">
+          <svg class="health-gauge" viewBox="0 0 200 120">
+            <defs>
+              <linearGradient id="hgGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#ef4444"/>
+                <stop offset="40%" stop-color="#f59e0b"/>
+                <stop offset="75%" stop-color="#10b981"/>
+                <stop offset="100%" stop-color="#06b6d4"/>
+              </linearGradient>
+            </defs>
+            <path d="M 20 110 A 80 80 0 0 1 180 110" fill="none" stroke="rgba(128,128,160,.15)" stroke-width="14" stroke-linecap="round"/>
+            <path id="healthArc" d="M 20 110 A 80 80 0 0 1 180 110" fill="none" stroke="url(#hgGrad)" stroke-width="14" stroke-linecap="round" stroke-dasharray="251.3" stroke-dashoffset="251.3"/>
+          </svg>
+          <div class="health-score-num">
+            <span id="healthScore">0</span>
+            <small>/ 1000</small>
+          </div>
+          <div class="health-score-label" id="healthLabel">—</div>
+        </div>
+        <div class="health-info">
+          <h3>Score de Saúde Financeira</h3>
+          <p class="health-sub">Visão única da sua vida financeira — recalculado em tempo real a partir dos seus dados.</p>
+          <div class="health-breakdown" id="healthBreakdown"></div>
+        </div>
+      </div>
+      <div class="hours-card">
+        <div class="hours-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <h3>Vida em Horas</h3>
+        <p class="hours-sub">Quanto da sua <b>vida trabalhada</b> cada gasto consome:</p>
+        <div class="hours-main" id="hoursMain">—</div>
+        <div class="hours-list" id="hoursList"></div>
+        <div class="hours-note">Baseado na sua renda ÷ 220h úteis/mês. Pense duas vezes: cada compra custa tempo de vida.</div>
+      </div>
+    </div>
+
     <!-- KPI CARDS -->
     <div class="kpi-grid kpi-grid-5">
       <div class="kpi-card">
