@@ -2078,3 +2078,85 @@ td.tick-down, .market-card.tick-down { animation: tickDownAnim 1.2s ease-out; }
   margin: 28px 0;
   border: none;
 }
+
+/* ── ENTERPRISE INTERIOR POLISH ── */
+/* Halo glow behind page titles */
+.page-header { position: relative; }
+.page-header::before {
+  content: '';
+  position: absolute;
+  top: -60px; left: -80px;
+  width: 360px; height: 180px;
+  background: radial-gradient(ellipse, rgba(99,102,241,.12) 0%, transparent 70%);
+  filter: blur(30px);
+  pointer-events: none;
+  z-index: -1;
+}
+/* KPI icon gentle float */
+@keyframes iconFloat {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-4px); }
+}
+.kpi-card:hover .kpi-icon { animation: iconFloat 2.2s ease-in-out infinite; }
+/* User avatar — animated conic ring */
+.user-avatar { position: relative; }
+.user-avatar::before {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, #6366f1, #8b5cf6, #06b6d4, #6366f1);
+  z-index: -1;
+  animation: avatarSpin 4s linear infinite;
+  opacity: .8;
+}
+@keyframes avatarSpin { to { rotate: 360deg; } }
+/* Topbar title gradient */
+.topbar-title {
+  background: linear-gradient(135deg, #f1f5f9 30%, #a5b4fc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+/* Nav label with gradient underline */
+.nav-label {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.nav-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(99,102,241,.25), transparent);
+}
+/* Sidebar logo shine sweep */
+.sidebar-logo { position: relative; overflow: hidden; }
+.sidebar-logo::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -80%;
+  width: 50%; height: 100%;
+  background: linear-gradient(105deg, transparent, rgba(255,255,255,.06), transparent);
+  transform: skewX(-20deg);
+  animation: logoShine 6s ease-in-out infinite;
+}
+@keyframes logoShine {
+  0%, 70%  { left: -80%; }
+  85%, 100% { left: 130%; }
+}
+/* Icon buttons subtle bounce */
+.icon-btn:active { transform: scale(.92); }
+.btn-add:active, .btn-calc:active, .btn-save:active { transform: scale(.97) translateY(0); }
+/* Chart cards: faint corner orb */
+.chart-card::after {
+  content: '';
+  position: absolute;
+  top: -50px; right: -40px;
+  width: 160px; height: 160px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(99,102,241,.08) 0%, transparent 70%);
+  filter: blur(24px);
+  pointer-events: none;
+}

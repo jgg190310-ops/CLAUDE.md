@@ -1783,21 +1783,24 @@ if (_savedCfg?.databaseURL) {
   // slow layer for deep orbs
   let sx2 = 0, sy2 = 0;
 
-  // 3D tilt on KPI cards
-  const kpiCards = document.querySelectorAll('.kpi-card');
-  kpiCards.forEach(card => {
-    card.addEventListener('mousemove', (e) => {
-      const r = card.getBoundingClientRect();
-      const cx = (e.clientX - r.left) / r.width  - 0.5;
-      const cy = (e.clientY - r.top)  / r.height - 0.5;
-      card.style.transform = `perspective(700px) rotateX(${-cy * 10}deg) rotateY(${cx * 12}deg) translateY(-4px) scale(1.01)`;
-      card.style.boxShadow = `0 24px 60px rgba(0,0,0,.6), 0 0 0 1px rgba(99,102,241,.18), ${cx * -10}px ${cy * -10}px 30px rgba(99,102,241,.08)`;
-    });
-    card.addEventListener('mouseleave', () => {
-      card.style.transform = '';
-      card.style.boxShadow = '';
-    });
-  });
+  // 3D tilt on KPI / market / goal / budget-overview cards — delegated so
+  // dynamically rendered cards get the effect too
+  const tiltSelector = '.kpi-card, .market-card, .goal-card, .bo-card';
+  document.addEventListener('mousemove', (e) => {
+    const card = e.target.closest?.(tiltSelector);
+    if (!card) return;
+    const r = card.getBoundingClientRect();
+    const cx = (e.clientX - r.left) / r.width  - 0.5;
+    const cy = (e.clientY - r.top)  / r.height - 0.5;
+    card.style.transform = `perspective(700px) rotateX(${-cy * 10}deg) rotateY(${cx * 12}deg) translateY(-4px) scale(1.01)`;
+    card.style.boxShadow = `0 24px 60px rgba(0,0,0,.6), 0 0 0 1px rgba(99,102,241,.18), ${cx * -10}px ${cy * -10}px 30px rgba(99,102,241,.08)`;
+  }, { passive: true });
+  document.addEventListener('mouseout', (e) => {
+    const card = e.target.closest?.(tiltSelector);
+    if (!card || card.contains(e.relatedTarget)) return;
+    card.style.transform = '';
+    card.style.boxShadow = '';
+  }, { passive: true });
 
   // scroll speeds per orb (px of orb drift per px scrolled)
   const orbScrollSp = [0.08, -0.12, 0.05, -0.06, 0.15];

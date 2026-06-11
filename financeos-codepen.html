@@ -960,6 +960,186 @@ body {
   100% { transform: rotate(20deg) translateX(70px); opacity: .75; }
 }
 
+/* ── SECTION DECOR (parallax inside sections) ── */
+.features, .pricing, .testimonials, .faq, .stats-band, .how { position: relative; overflow: hidden; }
+.sec-ring {
+  position: absolute;
+  border: 1px solid rgba(99,102,241,.14);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.sec-ring-feat  { width: 380px; height: 380px; top: -8%; right: -6%; animation: ringSpin 60s linear infinite; }
+.sec-ring-testi { width: 300px; height: 300px; bottom: -10%; left: -5%; border-color: rgba(139,92,246,.14); animation: ringSpin 45s linear infinite reverse; }
+.sec-ring-price { width: 440px; height: 440px; top: 30%; left: -10%; border-color: rgba(6,182,212,.10); animation: ringSpin 70s linear infinite; }
+.sec-ring-faq   { width: 280px; height: 280px; top: 5%; right: -4%; border-color: rgba(245,158,11,.10); animation: ringSpin 50s linear infinite reverse; }
+@keyframes ringSpin { to { rotate: 360deg; } }
+.sec-orb {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(90px);
+}
+.sec-orb-feat  { width: 500px; height: 500px; top: 20%; left: -15%; background: radial-gradient(circle, rgba(99,102,241,.10) 0%, transparent 70%); }
+.sec-orb-testi { width: 450px; height: 450px; top: -10%; right: -10%; background: radial-gradient(circle, rgba(139,92,246,.10) 0%, transparent 70%); }
+.sec-orb-price { width: 550px; height: 550px; bottom: -20%; right: -12%; background: radial-gradient(circle, rgba(6,182,212,.08) 0%, transparent 70%); }
+
+/* ── STATS BAND ── */
+.stats-band {
+  padding: 70px 24px;
+  border-top: 1px solid rgba(255,255,255,.05);
+  border-bottom: 1px solid rgba(255,255,255,.05);
+  background: linear-gradient(180deg, rgba(99,102,241,.04) 0%, transparent 50%, rgba(139,92,246,.03) 100%);
+}
+.stats-band-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: 24px;
+  flex-wrap: wrap;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+.sb-item { text-align: center; }
+.sb-value {
+  font-size: 44px;
+  font-weight: 900;
+  letter-spacing: -2px;
+  background: linear-gradient(135deg, #ffffff 20%, #a5b4fc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 24px rgba(99,102,241,.3));
+}
+.sb-label { font-size: 13px; color: var(--text-3, #4e5e72); font-weight: 600; margin-top: 4px; letter-spacing: .4px; }
+.sb-divider {
+  width: 1px; height: 52px;
+  background: linear-gradient(180deg, transparent, rgba(99,102,241,.35), transparent);
+}
+.sb-orb {
+  position: absolute;
+  width: 400px; height: 400px;
+  top: -50%; left: 30%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(99,102,241,.10) 0%, transparent 70%);
+  filter: blur(80px);
+  pointer-events: none;
+}
+.sb-ring {
+  width: 220px; height: 220px;
+  top: -30%; right: 8%;
+}
+
+/* ── TESTIMONIALS ── */
+.testimonials { padding: 110px 24px; }
+.testi-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-top: 48px;
+}
+.testi-card {
+  background: linear-gradient(160deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
+  backdrop-filter: blur(20px) saturate(1.3);
+  -webkit-backdrop-filter: blur(20px) saturate(1.3);
+  border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 20px;
+  padding: 30px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color .3s, transform .35s cubic-bezier(.16,1,.3,1), box-shadow .35s;
+  box-shadow: 0 4px 24px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.07);
+  text-align: left;
+}
+.testi-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 12%; right: 12%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(99,102,241,.5), transparent);
+  opacity: .6;
+}
+.testi-card:hover {
+  border-color: rgba(99,102,241,.35);
+  transform: translateY(-6px);
+  box-shadow: 0 24px 56px rgba(0,0,0,.5), 0 0 40px rgba(99,102,241,.08);
+}
+.testi-card.featured {
+  border-color: rgba(99,102,241,.30);
+  background: linear-gradient(160deg, rgba(99,102,241,.10) 0%, rgba(139,92,246,.04) 100%);
+  box-shadow: 0 8px 36px rgba(0,0,0,.4), 0 0 50px rgba(99,102,241,.10);
+}
+.testi-stars { color: #fcd34d; font-size: 15px; letter-spacing: 2px; margin-bottom: 16px; filter: drop-shadow(0 0 8px rgba(245,158,11,.4)); }
+.testi-text { font-size: 15px; line-height: 1.7; color: var(--text-2, #94a3b8); margin-bottom: 24px; }
+.testi-author { display: flex; align-items: center; gap: 12px; }
+.testi-avatar {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--ac, #6366f1), color-mix(in srgb, var(--ac, #6366f1) 60%, #8b5cf6));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 800; color: white;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--ac, #6366f1) 40%, transparent), 0 0 16px color-mix(in srgb, var(--ac, #6366f1) 35%, transparent);
+}
+.testi-name { font-size: 14px; font-weight: 700; color: #f1f5f9; }
+.testi-role { font-size: 12px; color: #4e5e72; }
+
+/* ── FAQ ── */
+.faq { padding: 110px 24px; }
+.faq-inner { max-width: 760px; }
+.faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 40px; text-align: left; }
+.faq-item {
+  background: linear-gradient(160deg, rgba(255,255,255,0.045) 0%, rgba(255,255,255,0.018) 100%);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px;
+  padding: 0 22px;
+  transition: border-color .3s, box-shadow .3s;
+  overflow: hidden;
+}
+.faq-item:hover { border-color: rgba(99,102,241,.25); }
+.faq-item[open] {
+  border-color: rgba(99,102,241,.35);
+  box-shadow: 0 8px 28px rgba(0,0,0,.35), 0 0 24px rgba(99,102,241,.07);
+  background: linear-gradient(160deg, rgba(99,102,241,.07) 0%, rgba(255,255,255,0.02) 100%);
+}
+.faq-item summary {
+  font-size: 15px;
+  font-weight: 700;
+  color: #f1f5f9;
+  padding: 18px 0;
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.faq-item summary::-webkit-details-marker { display: none; }
+.faq-item summary::after {
+  content: '+';
+  font-size: 20px;
+  font-weight: 400;
+  color: #6366f1;
+  transition: transform .3s;
+  flex-shrink: 0;
+}
+.faq-item[open] summary::after { transform: rotate(45deg); }
+.faq-item p {
+  font-size: 14px;
+  line-height: 1.7;
+  color: #94a3b8;
+  padding-bottom: 20px;
+  margin: 0;
+}
+
+@media (max-width: 900px) {
+  .testi-grid { grid-template-columns: 1fr; }
+  .sb-divider { display: none; }
+  .stats-band-inner { gap: 36px; }
+  .sb-value { font-size: 34px; }
+}
+
 
 /* ══ APP CSS ══ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -3043,6 +3223,88 @@ td.tick-down, .market-card.tick-down { animation: tickDownAnim 1.2s ease-out; }
   border: none;
 }
 
+/* ── ENTERPRISE INTERIOR POLISH ── */
+/* Halo glow behind page titles */
+.page-header { position: relative; }
+.page-header::before {
+  content: '';
+  position: absolute;
+  top: -60px; left: -80px;
+  width: 360px; height: 180px;
+  background: radial-gradient(ellipse, rgba(99,102,241,.12) 0%, transparent 70%);
+  filter: blur(30px);
+  pointer-events: none;
+  z-index: -1;
+}
+/* KPI icon gentle float */
+@keyframes iconFloat {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-4px); }
+}
+.kpi-card:hover .kpi-icon { animation: iconFloat 2.2s ease-in-out infinite; }
+/* User avatar — animated conic ring */
+.user-avatar { position: relative; }
+.user-avatar::before {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, #6366f1, #8b5cf6, #06b6d4, #6366f1);
+  z-index: -1;
+  animation: avatarSpin 4s linear infinite;
+  opacity: .8;
+}
+@keyframes avatarSpin { to { rotate: 360deg; } }
+/* Topbar title gradient */
+.topbar-title {
+  background: linear-gradient(135deg, #f1f5f9 30%, #a5b4fc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+/* Nav label with gradient underline */
+.nav-label {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.nav-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(99,102,241,.25), transparent);
+}
+/* Sidebar logo shine sweep */
+.sidebar-logo { position: relative; overflow: hidden; }
+.sidebar-logo::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -80%;
+  width: 50%; height: 100%;
+  background: linear-gradient(105deg, transparent, rgba(255,255,255,.06), transparent);
+  transform: skewX(-20deg);
+  animation: logoShine 6s ease-in-out infinite;
+}
+@keyframes logoShine {
+  0%, 70%  { left: -80%; }
+  85%, 100% { left: 130%; }
+}
+/* Icon buttons subtle bounce */
+.icon-btn:active { transform: scale(.92); }
+.btn-add:active, .btn-calc:active, .btn-save:active { transform: scale(.97) translateY(0); }
+/* Chart cards: faint corner orb */
+.chart-card::after {
+  content: '';
+  position: absolute;
+  top: -50px; right: -40px;
+  width: 160px; height: 160px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(99,102,241,.08) 0%, transparent 70%);
+  filter: blur(24px);
+  pointer-events: none;
+}
+
 
 /* ══ VIEW SWITCHING ══ */
 #appView   { display: none; }
@@ -3243,8 +3505,37 @@ td.tick-down, .market-card.tick-down { animation: tickDownAnim 1.2s ease-out; }
   </div>
 </div>
 
+<!-- ══════════════ STATS BAND ══════════════ -->
+<section class="stats-band">
+  <div class="geo-shape sb-ring" data-speed="0.20" data-mspeed="18"></div>
+  <div class="sb-orb" data-speed="0.12"></div>
+  <div class="section-inner stats-band-inner">
+    <div class="sb-item reveal-card" style="--ci:0">
+      <div class="sb-value"><span class="counter" data-target="48">0</span>k+</div>
+      <div class="sb-label">Usuários ativos</div>
+    </div>
+    <div class="sb-divider"></div>
+    <div class="sb-item reveal-card" style="--ci:1">
+      <div class="sb-value">R$ <span class="counter" data-target="320">0</span>M</div>
+      <div class="sb-label">Patrimônio gerenciado</div>
+    </div>
+    <div class="sb-divider"></div>
+    <div class="sb-item reveal-card" style="--ci:2">
+      <div class="sb-value"><span class="counter" data-target="99">0</span>,9%</div>
+      <div class="sb-label">Uptime garantido</div>
+    </div>
+    <div class="sb-divider"></div>
+    <div class="sb-item reveal-card" style="--ci:3">
+      <div class="sb-value"><span class="counter" data-target="4">0</span>,9★</div>
+      <div class="sb-label">Avaliação média</div>
+    </div>
+  </div>
+</section>
+
 <!-- ══════════════ FEATURES ══════════════ -->
 <section class="features" id="features">
+  <div class="geo-shape sec-ring sec-ring-feat" data-speed="0.16" data-mspeed="14"></div>
+  <div class="sec-orb sec-orb-feat" data-speed="0.10"></div>
   <div class="section-inner">
     <div class="section-tag reveal">Funcionalidades</div>
     <h2 class="section-title reveal">Tudo que você precisa para<br/>prosperar financeiramente</h2>
@@ -3338,8 +3629,56 @@ td.tick-down, .market-card.tick-down { animation: tickDownAnim 1.2s ease-out; }
   </div>
 </section>
 
+<!-- ══════════════ TESTIMONIALS ══════════════ -->
+<section class="testimonials" id="testimonials">
+  <div class="geo-shape sec-ring sec-ring-testi" data-speed="0.22" data-mspeed="20"></div>
+  <div class="sec-orb sec-orb-testi" data-speed="0.14"></div>
+  <div class="section-inner">
+    <div class="section-tag reveal">Depoimentos</div>
+    <h2 class="section-title reveal">Quem usa, recomenda</h2>
+    <p class="section-sub reveal">Histórias reais de quem transformou sua vida financeira.</p>
+    <div class="testi-grid">
+      <div class="testi-card reveal-card" style="--ci:0">
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">"Em 6 meses organizei todas as minhas finanças e finalmente comecei a investir. O dashboard é simplesmente incrível."</p>
+        <div class="testi-author">
+          <div class="testi-avatar" style="--ac:#6366f1">MR</div>
+          <div>
+            <div class="testi-name">Mariana Ribeiro</div>
+            <div class="testi-role">Designer de Produto</div>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card featured reveal-card" style="--ci:1">
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">"A bolsa em tempo real dentro do app mudou meu jogo. Acompanho minha carteira sem sair da plataforma. Vale cada centavo do Pro."</p>
+        <div class="testi-author">
+          <div class="testi-avatar" style="--ac:#10b981">CA</div>
+          <div>
+            <div class="testi-name">Carlos Andrade</div>
+            <div class="testi-role">Engenheiro de Software</div>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card reveal-card" style="--ci:2">
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">"As metas com progresso visual me motivaram a poupar 30% a mais todo mês. Interface linda e dados sempre sincronizados."</p>
+        <div class="testi-author">
+          <div class="testi-avatar" style="--ac:#f59e0b">JS</div>
+          <div>
+            <div class="testi-name">Juliana Santos</div>
+            <div class="testi-role">Médica</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ══════════════ PRICING ══════════════ -->
 <section class="pricing" id="pricing">
+  <div class="geo-shape sec-ring sec-ring-price" data-speed="0.18" data-mspeed="16"></div>
+  <div class="sec-orb sec-orb-price" data-speed="0.08"></div>
   <div class="section-inner">
     <div class="section-tag reveal">Planos</div>
     <h2 class="section-title reveal">Escolha o plano ideal</h2>
@@ -3383,6 +3722,37 @@ td.tick-down, .market-card.tick-down { animation: tickDownAnim 1.2s ease-out; }
         </ul>
         <button class="btn-plan-ghost" onclick="openAuth('signup')">Falar com vendas</button>
       </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ FAQ ══════════════ -->
+<section class="faq" id="faq">
+  <div class="geo-shape sec-ring sec-ring-faq" data-speed="0.20" data-mspeed="12"></div>
+  <div class="section-inner faq-inner">
+    <div class="section-tag reveal">Perguntas frequentes</div>
+    <h2 class="section-title reveal">Ficou com dúvidas?</h2>
+    <div class="faq-list">
+      <details class="faq-item reveal-card" style="--ci:0">
+        <summary>O FinanceOS é realmente gratuito?</summary>
+        <p>Sim! O plano Starter é 100% gratuito para sempre, sem necessidade de cartão de crédito. Você só paga se quiser recursos avançados do Pro.</p>
+      </details>
+      <details class="faq-item reveal-card" style="--ci:1">
+        <summary>Meus dados financeiros estão seguros?</summary>
+        <p>Absolutamente. Seus dados são criptografados em trânsito e em repouso, sincronizados via Firebase com autenticação segura. Nunca compartilhamos suas informações.</p>
+      </details>
+      <details class="faq-item reveal-card" style="--ci:2">
+        <summary>Os dados da bolsa são em tempo real?</summary>
+        <p>Sim — cotações de ações da B3, criptomoedas e moedas são atualizadas em tempo real através de múltiplas fontes de mercado.</p>
+      </details>
+      <details class="faq-item reveal-card" style="--ci:3">
+        <summary>Posso usar em vários dispositivos?</summary>
+        <p>Sim, sua conta sincroniza automaticamente entre todos os seus dispositivos — desktop, tablet e celular.</p>
+      </details>
+      <details class="faq-item reveal-card" style="--ci:4">
+        <summary>Como cancelo minha assinatura?</summary>
+        <p>A qualquer momento, direto no seu perfil, sem multa e sem burocracia. Seus dados continuam acessíveis no plano gratuito.</p>
+      </details>
     </div>
   </div>
 </section>
@@ -6319,21 +6689,24 @@ if (_savedCfg?.databaseURL) {
   // slow layer for deep orbs
   let sx2 = 0, sy2 = 0;
 
-  // 3D tilt on KPI cards
-  const kpiCards = document.querySelectorAll('.kpi-card');
-  kpiCards.forEach(card => {
-    card.addEventListener('mousemove', (e) => {
-      const r = card.getBoundingClientRect();
-      const cx = (e.clientX - r.left) / r.width  - 0.5;
-      const cy = (e.clientY - r.top)  / r.height - 0.5;
-      card.style.transform = `perspective(700px) rotateX(${-cy * 10}deg) rotateY(${cx * 12}deg) translateY(-4px) scale(1.01)`;
-      card.style.boxShadow = `0 24px 60px rgba(0,0,0,.6), 0 0 0 1px rgba(99,102,241,.18), ${cx * -10}px ${cy * -10}px 30px rgba(99,102,241,.08)`;
-    });
-    card.addEventListener('mouseleave', () => {
-      card.style.transform = '';
-      card.style.boxShadow = '';
-    });
-  });
+  // 3D tilt on KPI / market / goal / budget-overview cards — delegated so
+  // dynamically rendered cards get the effect too
+  const tiltSelector = '.kpi-card, .market-card, .goal-card, .bo-card';
+  document.addEventListener('mousemove', (e) => {
+    const card = e.target.closest?.(tiltSelector);
+    if (!card) return;
+    const r = card.getBoundingClientRect();
+    const cx = (e.clientX - r.left) / r.width  - 0.5;
+    const cy = (e.clientY - r.top)  / r.height - 0.5;
+    card.style.transform = `perspective(700px) rotateX(${-cy * 10}deg) rotateY(${cx * 12}deg) translateY(-4px) scale(1.01)`;
+    card.style.boxShadow = `0 24px 60px rgba(0,0,0,.6), 0 0 0 1px rgba(99,102,241,.18), ${cx * -10}px ${cy * -10}px 30px rgba(99,102,241,.08)`;
+  }, { passive: true });
+  document.addEventListener('mouseout', (e) => {
+    const card = e.target.closest?.(tiltSelector);
+    if (!card || card.contains(e.relatedTarget)) return;
+    card.style.transform = '';
+    card.style.boxShadow = '';
+  }, { passive: true });
 
   // scroll speeds per orb (px of orb drift per px scrolled)
   const orbScrollSp = [0.08, -0.12, 0.05, -0.06, 0.15];
@@ -6475,7 +6848,7 @@ function closeMobileMenu() {
 const orbs = document.querySelectorAll('.orb[data-speed]');
 const dashboardPreview = document.querySelector('.dashboard-preview');
 const geoShapes = document.querySelectorAll('.geo-shape');
-const lpLayers = document.querySelectorAll('.lp-beam, .lp-grid-floor');
+const lpLayers = document.querySelectorAll('.lp-beam, .lp-grid-floor, .sec-orb, .sb-orb');
 const floatBadges = document.querySelectorAll('.float-badge');
 
 // Smoothed mouse position (lerp)
@@ -6524,11 +6897,14 @@ function parallaxLoop() {
     s.style.transform = `translate(${tx}px, ${ty}px) rotate(${scrollY * sp * 0.12}deg)`;
   });
 
-  // Beams + grid floor — use `translate` so their CSS transform animations keep running
+  // Beams, grid floor and section orbs — use `translate` so CSS transform animations keep running.
+  // Scroll parallax is relative to the element's viewport position so deep-page orbs stay in their section.
   lpLayers.forEach(el => {
     const sp  = parseFloat(el.dataset.speed) || 0.1;
     const msp = parseFloat(el.dataset.mspeed) || 6;
-    el.style.translate = `${smx2 * msp}px ${smy2 * msp + scrollY * sp}px`;
+    const r   = el.getBoundingClientRect();
+    const rel = (r.top + r.height / 2 - window.innerHeight / 2) / window.innerHeight;
+    el.style.translate = `${smx2 * msp}px ${smy2 * msp - rel * sp * 260}px`;
   });
 
   // Dashboard card: stronger 3D tilt
