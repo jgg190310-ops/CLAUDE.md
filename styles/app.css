@@ -2360,3 +2360,34 @@ html[data-theme="light"] .alert-title { color: var(--text); }
 html[data-theme="light"] .data-table th { color: #64748b; }
 /* selection */
 html[data-theme="light"] ::selection { background: rgba(99,102,241,.22); color: #0f172a; }
+
+/* ── LIGHT THEME: softer, less glaring (app) ── */
+html[data-theme="light"] {
+  --bg: #e9edf6;
+  --text: #111827;
+}
+html[data-theme="light"] body {
+  background-image:
+    radial-gradient(ellipse 80% 50% at 20% 0%, rgba(99,102,241,.06) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 100%, rgba(139,92,246,.05) 0%, transparent 60%);
+}
+html[data-theme="light"] .sidebar { background: rgba(248,250,254,.97); }
+html[data-theme="light"] .topbar  { background: rgba(240,243,250,.94); }
+html[data-theme="light"] .kpi-card,
+html[data-theme="light"] .chart-card,
+html[data-theme="light"] .table-card,
+html[data-theme="light"] .alerts-card,
+html[data-theme="light"] .goal-card,
+html[data-theme="light"] .bo-card,
+html[data-theme="light"] .budget-item,
+html[data-theme="light"] .market-card,
+html[data-theme="light"] .stocks-table-wrap,
+html[data-theme="light"] .portfolio-chart-card,
+html[data-theme="light"] .calc-form-card,
+html[data-theme="light"] .calc-results-card,
+html[data-theme="light"] .profile-content,
+html[data-theme="light"] .profile-sidebar-nav {
+  background: #fdfdff;
+  border-color: rgba(15,23,42,0.07);
+  box-shadow: 0 6px 28px rgba(30,41,72,.09), inset 0 1px 0 #ffffff;
+}
