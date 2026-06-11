@@ -1975,32 +1975,32 @@ function aiInsightCards() {
   const cards = [];
 
   if (s.savingsRate >= 30) {
-    cards.push({ icon: '✦', color: '#10b981', title: `Taxa de poupança: ${s.savingsRate.toFixed(0)}%`,
+    cards.push({ icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>', color: '#10b981', title: `Taxa de poupança: ${s.savingsRate.toFixed(0)}%`,
       text: `Excelente! Você guarda ${s.savingsRate.toFixed(0)}% da sua renda. Acima de 30% é nível avançado — considere direcionar o excedente para investimentos.` });
   } else if (s.savingsRate > 0) {
-    cards.push({ icon: '◐', color: '#f59e0b', title: `Taxa de poupança: ${s.savingsRate.toFixed(0)}%`,
+    cards.push({ icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 0 20z" fill="currentColor" stroke="none"/></svg>', color: '#f59e0b', title: `Taxa de poupança: ${s.savingsRate.toFixed(0)}%`,
       text: `Você poupa ${s.savingsRate.toFixed(0)}% da renda. A referência saudável é 20–30%. Pequenos cortes no maior gasto já te aproximam disso.` });
   } else {
-    cards.push({ icon: '⚠', color: '#ef4444', title: 'Gastos acima da renda',
+    cards.push({ icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>', color: '#ef4444', title: 'Gastos acima da renda',
       text: 'Suas despesas superam as receitas registradas neste período. Priorize revisar os maiores gastos.' });
   }
 
   if (s.topCats.length) {
     const [cat, val] = s.topCats[0];
-    cards.push({ icon: '◎', color: '#6366f1', title: `Maior gasto: ${cat}`,
+    cards.push({ icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>', color: '#6366f1', title: `Maior gasto: ${cat}`,
       text: `${aiFmt(val)} no período — ${((val / (s.expense || 1)) * 100).toFixed(0)}% das suas despesas. Reduzir 10% aqui libera ${aiFmt(val * 0.1)}/mês.` });
   }
 
   if (s.overBudgets.length) {
-    cards.push({ icon: '⚠', color: '#ef4444', title: `${s.overBudgets.length} orçamento(s) no limite`,
+    cards.push({ icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>', color: '#ef4444', title: `${s.overBudgets.length} orçamento(s) no limite`,
       text: s.overBudgets.map(b => `${b.name} (${Math.round((b.spent / b.limit) * 100)}%)`).join(', ') + ' — quase ou já estourados.' });
   }
 
   if (s.reserveMonths >= 6) {
-    cards.push({ icon: '✦', color: '#10b981', title: 'Reserva de emergência sólida',
+    cards.push({ icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>', color: '#10b981', title: 'Reserva de emergência sólida',
       text: `Sua reserva cobre ~${Math.floor(s.reserveMonths)} meses de despesas. O recomendado (6 meses) está garantido.` });
   } else {
-    cards.push({ icon: '◐', color: '#f59e0b', title: 'Reserva de emergência',
+    cards.push({ icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 0 20z" fill="currentColor" stroke="none"/></svg>', color: '#f59e0b', title: 'Reserva de emergência',
       text: `Cobre ~${Math.max(0, Math.floor(s.reserveMonths))} meses de despesas. A meta clássica é 6 meses (${aiFmt(s.expense * 6)}).` });
   }
 
@@ -2845,7 +2845,7 @@ function computeHealthScore() {
 }
 
 function healthLabelFor(score) {
-  if (score >= 850) return { txt: 'Lendário 🏆', color: '#06b6d4' };
+  if (score >= 850) return { txt: 'Lendário', color: '#06b6d4' };
   if (score >= 700) return { txt: 'Excelente', color: '#10b981' };
   if (score >= 500) return { txt: 'Bom', color: '#a3e635' };
   if (score >= 300) return { txt: 'Atenção', color: '#f59e0b' };
@@ -3015,10 +3015,10 @@ function renderHealthTips() {
   if (!el) return;
   const h = computeHealthScore();
   const tips = {
-    'Poupança':   { icon: '💰', tip: 'Aumente a sobra mensal: ataque o maior gasto (pergunte ao FinBot "onde posso economizar?") e automatize um aporte no dia do salário.' },
-    'Reserva':    { icon: '🛟', tip: 'Direcione toda renda extra para a reserva até cobrir 6 meses de despesas. Deixe em Tesouro Selic ou CDB com liquidez diária.' },
-    'Orçamentos': { icon: '📊', tip: 'Revise os limites estourados na aba Orçamentos — limites realistas que você cumpre valem mais que metas heroicas que você fura.' },
-    'Metas':      { icon: '🎯', tip: 'Recalcule os aportes das metas atrasadas ou alongue prazos — meta atrasada desanima; meta repactuada anda.' },
+    'Poupança':   { icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>', tip: 'Aumente a sobra mensal: ataque o maior gasto (pergunte ao FinBot "onde posso economizar?") e automatize um aporte no dia do salário.' },
+    'Reserva':    { icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><line x1="4.93" y1="4.93" x2="9.17" y2="9.17"/><line x1="14.83" y1="14.83" x2="19.07" y2="19.07"/><line x1="14.83" y1="9.17" x2="19.07" y2="4.93"/><line x1="4.93" y1="19.07" x2="9.17" y2="14.83"/></svg>', tip: 'Direcione toda renda extra para a reserva até cobrir 6 meses de despesas. Deixe em Tesouro Selic ou CDB com liquidez diária.' },
+    'Orçamentos': { icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>', tip: 'Revise os limites estourados na aba Orçamentos — limites realistas que você cumpre valem mais que metas heroicas que você fura.' },
+    'Metas':      { icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>', tip: 'Recalcule os aportes das metas atrasadas ou alongue prazos — meta atrasada desanima; meta repactuada anda.' },
   };
   el.innerHTML = [...h.pillars].sort((a, b) => a.pts - b.pts).map(p => `
     <div class="ht-row ${p.pts < 125 ? 'weak' : ''}">
