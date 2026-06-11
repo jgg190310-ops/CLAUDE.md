@@ -1140,6 +1140,133 @@ body {
   .sb-value { font-size: 34px; }
 }
 
+/* ── TECH CARDS (real product facts) ── */
+.tech-icon {
+  width: 52px; height: 52px;
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  background: color-mix(in srgb, var(--ac, #6366f1) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ac, #6366f1) 30%, transparent);
+  color: var(--ac, #6366f1);
+  margin-bottom: 18px;
+  box-shadow: 0 0 24px color-mix(in srgb, var(--ac, #6366f1) 25%, transparent);
+}
+.tech-title { font-size: 17px; font-weight: 800; color: #f1f5f9; margin-bottom: 10px; }
+.tech-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+.tech-tags span {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 11px;
+  border-radius: 50px;
+  background: rgba(99,102,241,.12);
+  border: 1px solid rgba(99,102,241,.25);
+  color: #c7d2fe;
+}
+
+/* ── CURSOR GLOW (lerped follow) ── */
+.cursor-glow {
+  position: fixed;
+  width: 480px; height: 480px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(99,102,241,.07) 0%, rgba(139,92,246,.04) 40%, transparent 70%);
+  pointer-events: none;
+  z-index: 1;
+  transform: translate(-50%, -50%);
+  will-change: left, top;
+}
+
+/* ── CTA section beams + grid ── */
+.cta-final { position: relative; overflow: hidden; }
+.cta-beam {
+  position: absolute;
+  width: 200px; height: 180%;
+  top: -40%;
+  filter: blur(50px);
+  pointer-events: none;
+}
+.cta-beam-1 {
+  left: 20%;
+  background: linear-gradient(180deg, transparent, rgba(99,102,241,.14) 40%, transparent);
+  transform: rotate(15deg);
+  animation: lpBeamSway 14s ease-in-out infinite alternate;
+}
+.cta-beam-2 {
+  right: 18%;
+  background: linear-gradient(180deg, transparent, rgba(139,92,246,.12) 45%, transparent);
+  transform: rotate(-12deg);
+  animation: lpBeamSway 19s ease-in-out infinite alternate-reverse;
+}
+
+/* ── Dashboard preview inner depth layers ── */
+.preview-card, .preview-chart, .preview-ticker { will-change: translate; }
+
+/* ── 3D tilt for landing cards ── */
+.feature-card, .pricing-card, .testi-card {
+  will-change: transform;
+  transform-style: preserve-3d;
+}
+
+/* ── HERO PREVIEW GLOW RING ── */
+.hero-visual { position: relative; }
+.hero-visual::before {
+  content: '';
+  position: absolute;
+  inset: -8%;
+  background: radial-gradient(ellipse at center, rgba(99,102,241,.16) 0%, rgba(139,92,246,.08) 40%, transparent 70%);
+  filter: blur(50px);
+  pointer-events: none;
+  z-index: -1;
+  animation: heroGlowPulse 6s ease-in-out infinite alternate;
+}
+@keyframes heroGlowPulse {
+  0%   { opacity: .7; transform: scale(.96); }
+  100% { opacity: 1;  transform: scale(1.04); }
+}
+
+/* ── PRICING FEATURED: animated gradient border ── */
+.pricing-card.featured {
+  position: relative;
+  background-clip: padding-box;
+}
+.pricing-card.featured::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(120deg, #6366f1, #8b5cf6, #06b6d4, #8b5cf6, #6366f1);
+  background-size: 300% 300%;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: borderFlow 6s linear infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+@keyframes borderFlow {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ── FOOTER polish ── */
+.footer {
+  position: relative;
+}
+.footer::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 10%; right: 10%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(99,102,241,.4), rgba(139,92,246,.3), transparent);
+}
+
+/* marquee edge fade */
+.marquee-section {
+  mask-image: linear-gradient(90deg, transparent, black 12%, black 88%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, black 12%, black 88%, transparent);
+}
+
 
 /* ══ APP CSS ══ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -3305,6 +3432,18 @@ td.tick-down, .market-card.tick-down { animation: tickDownAnim 1.2s ease-out; }
   pointer-events: none;
 }
 
+/* ── CURSOR GLOW (app) ── */
+.cursor-glow-app {
+  position: fixed;
+  width: 420px; height: 420px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(99,102,241,.06) 0%, rgba(139,92,246,.035) 40%, transparent 70%);
+  pointer-events: none;
+  z-index: 1;
+  transform: translate(-50%, -50%);
+  will-change: left, top;
+}
+
 
 /* ══ VIEW SWITCHING ══ */
 #appView   { display: none; }
@@ -3511,23 +3650,23 @@ td.tick-down, .market-card.tick-down { animation: tickDownAnim 1.2s ease-out; }
   <div class="sb-orb" data-speed="0.12"></div>
   <div class="section-inner stats-band-inner">
     <div class="sb-item reveal-card" style="--ci:0">
-      <div class="sb-value"><span class="counter" data-target="48">0</span>k+</div>
-      <div class="sb-label">Usuários ativos</div>
+      <div class="sb-value"><span class="counter" data-target="6">0</span></div>
+      <div class="sb-label">Módulos integrados</div>
     </div>
     <div class="sb-divider"></div>
     <div class="sb-item reveal-card" style="--ci:1">
-      <div class="sb-value">R$ <span class="counter" data-target="320">0</span>M</div>
-      <div class="sb-label">Patrimônio gerenciado</div>
+      <div class="sb-value"><span class="counter" data-target="30">0</span>+</div>
+      <div class="sb-label">Ativos em tempo real</div>
     </div>
     <div class="sb-divider"></div>
     <div class="sb-item reveal-card" style="--ci:2">
-      <div class="sb-value"><span class="counter" data-target="99">0</span>,9%</div>
-      <div class="sb-label">Uptime garantido</div>
+      <div class="sb-value"><span class="counter" data-target="3">0</span></div>
+      <div class="sb-label">Mercados: B3, cripto e câmbio</div>
     </div>
     <div class="sb-divider"></div>
     <div class="sb-item reveal-card" style="--ci:3">
-      <div class="sb-value"><span class="counter" data-target="4">0</span>,9★</div>
-      <div class="sb-label">Avaliação média</div>
+      <div class="sb-value">100%</div>
+      <div class="sb-label">Gratuito para começar</div>
     </div>
   </div>
 </section>
@@ -3634,42 +3773,33 @@ td.tick-down, .market-card.tick-down { animation: tickDownAnim 1.2s ease-out; }
   <div class="geo-shape sec-ring sec-ring-testi" data-speed="0.22" data-mspeed="20"></div>
   <div class="sec-orb sec-orb-testi" data-speed="0.14"></div>
   <div class="section-inner">
-    <div class="section-tag reveal">Depoimentos</div>
-    <h2 class="section-title reveal">Quem usa, recomenda</h2>
-    <p class="section-sub reveal">Histórias reais de quem transformou sua vida financeira.</p>
+    <div class="section-tag reveal">Tecnologia</div>
+    <h2 class="section-title reveal">Construído com dados reais</h2>
+    <p class="section-sub reveal">Nada de números inventados — cotações ao vivo, sincronização em nuvem e seus dados sob seu controle.</p>
     <div class="testi-grid">
       <div class="testi-card reveal-card" style="--ci:0">
-        <div class="testi-stars">★★★★★</div>
-        <p class="testi-text">"Em 6 meses organizei todas as minhas finanças e finalmente comecei a investir. O dashboard é simplesmente incrível."</p>
-        <div class="testi-author">
-          <div class="testi-avatar" style="--ac:#6366f1">MR</div>
-          <div>
-            <div class="testi-name">Mariana Ribeiro</div>
-            <div class="testi-role">Designer de Produto</div>
-          </div>
+        <div class="tech-icon" style="--ac:#10b981">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
         </div>
+        <h3 class="tech-title">Cotações ao vivo</h3>
+        <p class="testi-text">Ações da B3, criptomoedas e câmbio atualizados em tempo real a partir de múltiplas fontes públicas de mercado — direto no seu dashboard.</p>
+        <div class="tech-tags"><span>B3</span><span>Cripto</span><span>Câmbio</span></div>
       </div>
       <div class="testi-card featured reveal-card" style="--ci:1">
-        <div class="testi-stars">★★★★★</div>
-        <p class="testi-text">"A bolsa em tempo real dentro do app mudou meu jogo. Acompanho minha carteira sem sair da plataforma. Vale cada centavo do Pro."</p>
-        <div class="testi-author">
-          <div class="testi-avatar" style="--ac:#10b981">CA</div>
-          <div>
-            <div class="testi-name">Carlos Andrade</div>
-            <div class="testi-role">Engenheiro de Software</div>
-          </div>
+        <div class="tech-icon" style="--ac:#6366f1">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>
         </div>
+        <h3 class="tech-title">Sincronização em nuvem</h3>
+        <p class="testi-text">Suas transações, metas e orçamentos sincronizados automaticamente entre dispositivos, com login seguro e backup contínuo.</p>
+        <div class="tech-tags"><span>Multi-dispositivo</span><span>Backup</span><span>Login seguro</span></div>
       </div>
       <div class="testi-card reveal-card" style="--ci:2">
-        <div class="testi-stars">★★★★★</div>
-        <p class="testi-text">"As metas com progresso visual me motivaram a poupar 30% a mais todo mês. Interface linda e dados sempre sincronizados."</p>
-        <div class="testi-author">
-          <div class="testi-avatar" style="--ac:#f59e0b">JS</div>
-          <div>
-            <div class="testi-name">Juliana Santos</div>
-            <div class="testi-role">Médica</div>
-          </div>
+        <div class="tech-icon" style="--ac:#f59e0b">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
         </div>
+        <h3 class="tech-title">Seus dados, seu controle</h3>
+        <p class="testi-text">Dados criptografados em trânsito, armazenados na sua conta. Exporte, edite ou apague quando quiser — sem letras miúdas.</p>
+        <div class="tech-tags"><span>Criptografia</span><span>Exportável</span><span>Sem anúncios</span></div>
       </div>
     </div>
   </div>
@@ -3759,6 +3889,8 @@ td.tick-down, .market-card.tick-down { animation: tickDownAnim 1.2s ease-out; }
 
 <!-- ══════════════ CTA FINAL ══════════════ -->
 <section class="cta-final">
+  <div class="cta-beam cta-beam-1" data-speed="0.10" data-mspeed="8"></div>
+  <div class="cta-beam cta-beam-2" data-speed="0.14" data-mspeed="-6"></div>
   <div class="cta-inner">
     <div class="cta-glow"></div>
     <h2 class="reveal">Pronto para transformar suas finanças?</h2>
@@ -6737,6 +6869,14 @@ if (_savedCfg?.databaseURL) {
   // subtle page-header drift with mouse (counter-motion for depth)
   const pageHeaders = document.querySelectorAll('.page-header');
 
+  // cursor glow — soft light chasing the pointer across the app
+  const cursorGlowApp = document.createElement('div');
+  cursorGlowApp.className = 'cursor-glow-app';
+  document.body.appendChild(cursorGlowApp);
+  let cgax = innerWidth / 2, cgay = innerHeight / 2;
+  let rawCx = cgax, rawCy = cgay;
+  document.addEventListener('mousemove', (e) => { rawCx = e.clientX; rawCy = e.clientY; }, { passive: true });
+
   // scroll-reveal: cards rise into view with stagger
   const revealObs = new IntersectionObserver((entries) => {
     entries.forEach(en => {
@@ -6784,6 +6924,11 @@ if (_savedCfg?.databaseURL) {
     pageHeaders.forEach(h => {
       h.style.transform = `translate(${sx * -4}px, ${sy * -2}px)`;
     });
+
+    cgax += (rawCx - cgax) * 0.09;
+    cgay += (rawCy - cgay) * 0.09;
+    cursorGlowApp.style.left = `${cgax}px`;
+    cursorGlowApp.style.top  = `${cgay}px`;
 
     drawParticles();
     requestAnimationFrame(loop);
@@ -6848,7 +6993,17 @@ function closeMobileMenu() {
 const orbs = document.querySelectorAll('.orb[data-speed]');
 const dashboardPreview = document.querySelector('.dashboard-preview');
 const geoShapes = document.querySelectorAll('.geo-shape');
-const lpLayers = document.querySelectorAll('.lp-beam, .lp-grid-floor, .sec-orb, .sb-orb');
+const lpLayers = document.querySelectorAll('.lp-beam, .lp-grid-floor, .sec-orb, .sb-orb, .cta-beam');
+
+// cursor glow — soft light that chases the pointer
+const cursorGlow = document.createElement('div');
+cursorGlow.className = 'cursor-glow';
+document.body.appendChild(cursorGlow);
+let cgx = innerWidth / 2, cgy = innerHeight / 2;
+
+// inner depth layers of the dashboard preview (each drifts at its own speed)
+const previewLayers = [...document.querySelectorAll('.preview-card, .preview-chart, .preview-ticker')];
+const previewDepth = [10, 14, 18, 7, 5];
 const floatBadges = document.querySelectorAll('.float-badge');
 
 // Smoothed mouse position (lerp)
@@ -6907,6 +7062,18 @@ function parallaxLoop() {
     el.style.translate = `${smx2 * msp}px ${smy2 * msp - rel * sp * 260}px`;
   });
 
+  // cursor glow lerp
+  cgx += ((mx * 0.5 + 0.5) * innerWidth  - cgx) * 0.08;
+  cgy += ((my * 0.5 + 0.5) * innerHeight - cgy) * 0.08;
+  cursorGlow.style.left = `${cgx}px`;
+  cursorGlow.style.top  = `${cgy}px`;
+
+  // dashboard preview inner layers — extra depth inside the tilted card
+  previewLayers.forEach((el, i) => {
+    const d = previewDepth[i % previewDepth.length];
+    el.style.translate = `${smx * d}px ${smy * d * 0.6}px`;
+  });
+
   // Dashboard card: stronger 3D tilt
   if (dashboardPreview) {
     const sp  = parseFloat(dashboardPreview.dataset.speed) || 0.15;
@@ -6929,6 +7096,22 @@ function parallaxLoop() {
   rafId = requestAnimationFrame(parallaxLoop);
 }
 parallaxLoop();
+
+// 3D tilt on landing cards (delegated)
+const lpTiltSel = '.feature-card, .pricing-card, .testi-card';
+document.addEventListener('mousemove', (e) => {
+  const card = e.target.closest?.(lpTiltSel);
+  if (!card) return;
+  const r = card.getBoundingClientRect();
+  const cx = (e.clientX - r.left) / r.width  - 0.5;
+  const cy = (e.clientY - r.top)  / r.height - 0.5;
+  card.style.transform = `perspective(800px) rotateX(${-cy * 8}deg) rotateY(${cx * 10}deg) translateY(-6px)`;
+}, { passive: true });
+document.addEventListener('mouseout', (e) => {
+  const card = e.target.closest?.(lpTiltSel);
+  if (!card || card.contains(e.relatedTarget)) return;
+  card.style.transform = '';
+}, { passive: true });
 
 // ══════════════════════════════════════════════
 //  FLOATING PARTICLES  (canvas-based for lines)

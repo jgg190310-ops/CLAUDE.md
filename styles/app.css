@@ -2160,3 +2160,15 @@ td.tick-down, .market-card.tick-down { animation: tickDownAnim 1.2s ease-out; }
   filter: blur(24px);
   pointer-events: none;
 }
+
+/* ── CURSOR GLOW (app) ── */
+.cursor-glow-app {
+  position: fixed;
+  width: 420px; height: 420px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(99,102,241,.06) 0%, rgba(139,92,246,.035) 40%, transparent 70%);
+  pointer-events: none;
+  z-index: 1;
+  transform: translate(-50%, -50%);
+  will-change: left, top;
+}

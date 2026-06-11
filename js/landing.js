@@ -27,7 +27,17 @@ function closeMobileMenu() {
 const orbs = document.querySelectorAll('.orb[data-speed]');
 const dashboardPreview = document.querySelector('.dashboard-preview');
 const geoShapes = document.querySelectorAll('.geo-shape');
-const lpLayers = document.querySelectorAll('.lp-beam, .lp-grid-floor, .sec-orb, .sb-orb');
+const lpLayers = document.querySelectorAll('.lp-beam, .lp-grid-floor, .sec-orb, .sb-orb, .cta-beam');
+
+// cursor glow — soft light that chases the pointer
+const cursorGlow = document.createElement('div');
+cursorGlow.className = 'cursor-glow';
+document.body.appendChild(cursorGlow);
+let cgx = innerWidth / 2, cgy = innerHeight / 2;
+
+// inner depth layers of the dashboard preview (each drifts at its own speed)
+const previewLayers = [...document.querySelectorAll('.preview-card, .preview-chart, .preview-ticker')];
+const previewDepth = [10, 14, 18, 7, 5];
 const floatBadges = document.querySelectorAll('.float-badge');
 
 // Smoothed mouse position (lerp)
@@ -86,6 +96,18 @@ function parallaxLoop() {
     el.style.translate = `${smx2 * msp}px ${smy2 * msp - rel * sp * 260}px`;
   });
 
+  // cursor glow lerp
+  cgx += ((mx * 0.5 + 0.5) * innerWidth  - cgx) * 0.08;
+  cgy += ((my * 0.5 + 0.5) * innerHeight - cgy) * 0.08;
+  cursorGlow.style.left = `${cgx}px`;
+  cursorGlow.style.top  = `${cgy}px`;
+
+  // dashboard preview inner layers — extra depth inside the tilted card
+  previewLayers.forEach((el, i) => {
+    const d = previewDepth[i % previewDepth.length];
+    el.style.translate = `${smx * d}px ${smy * d * 0.6}px`;
+  });
+
   // Dashboard card: stronger 3D tilt
   if (dashboardPreview) {
     const sp  = parseFloat(dashboardPreview.dataset.speed) || 0.15;
@@ -108,6 +130,22 @@ function parallaxLoop() {
   rafId = requestAnimationFrame(parallaxLoop);
 }
 parallaxLoop();
+
+// 3D tilt on landing cards (delegated)
+const lpTiltSel = '.feature-card, .pricing-card, .testi-card';
+document.addEventListener('mousemove', (e) => {
+  const card = e.target.closest?.(lpTiltSel);
+  if (!card) return;
+  const r = card.getBoundingClientRect();
+  const cx = (e.clientX - r.left) / r.width  - 0.5;
+  const cy = (e.clientY - r.top)  / r.height - 0.5;
+  card.style.transform = `perspective(800px) rotateX(${-cy * 8}deg) rotateY(${cx * 10}deg) translateY(-6px)`;
+}, { passive: true });
+document.addEventListener('mouseout', (e) => {
+  const card = e.target.closest?.(lpTiltSel);
+  if (!card || card.contains(e.relatedTarget)) return;
+  card.style.transform = '';
+}, { passive: true });
 
 // ══════════════════════════════════════════════
 //  FLOATING PARTICLES  (canvas-based for lines)
