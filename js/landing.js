@@ -16,6 +16,11 @@ if (typeof window.toggleTheme !== 'function') {
 
 'use strict';
 
+// ⚙️ CONFIG GLOBAL DO FIREBASE — cole aqui o firebaseConfig do seu projeto
+// (mesmo valor do app.js). Com isso, contas de e-mail/senha funcionam em
+// qualquer dispositivo automaticamente.
+window.DEFAULT_FB_CONFIG = window.DEFAULT_FB_CONFIG || null;
+
 // ══════════════════════════════════════════════
 //  NAV SCROLL + HAMBURGER
 // ══════════════════════════════════════════════
@@ -471,16 +476,31 @@ function localAuth(email, name) {
 // ── Firebase auth (se configurado) ──
 async function tryFirebaseAuth(mode, email, password, name) {
   const store = loadStore();
-  const fbConfig = store.fbConfig;
+  // Config global embutida no código (funciona em qualquer dispositivo)
+  // ou config salva localmente via Perfil > Nuvem
+  const fbConfig = (typeof window.DEFAULT_FB_CONFIG === 'object' && window.DEFAULT_FB_CONFIG?.apiKey)
+    ? window.DEFAULT_FB_CONFIG
+    : store.fbConfig;
   if (!fbConfig?.apiKey) return null; // Firebase não configurado — usa local
 
   try {
-    if (!firebase.apps?.length) {
-      await Promise.all([
-        new Promise((res,rej) => { const s = document.createElement('script'); s.src='https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js'; s.onload=res; s.onerror=rej; document.head.appendChild(s); }),
-      ]);
+    // Garante que o SDK de auth esteja carregado
+    const fbScripts = [
+      'https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js',
+      'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js',
+    ];
+    for (const src of fbScripts) {
+      if (!document.querySelector(`script[src="${src}"]`)) {
+        await new Promise((res, rej) => {
+          const s = document.createElement('script');
+          s.src = src; s.onload = res; s.onerror = rej;
+          document.head.appendChild(s);
+        });
+      }
     }
     if (!firebase.apps?.length) firebase.initializeApp(fbConfig);
+    // salva a config para o app.html usar a mesma
+    saveStore({ fbConfig });
     const auth = firebase.auth();
     // Keep session persistent across devices (LOCAL is default but be explicit)
     await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
@@ -524,7 +544,12 @@ async function doLogin() {
       const store = loadStore();
       const accounts = store.accounts || [];
       const found = accounts.find(a => a.email === email && a.password === btoa(pass));
-      if (!found) throw new Error('E-mail ou senha incorretos.');
+      if (!found) {
+        const existsOtherDevice = !accounts.find(a => a.email === email);
+        throw new Error(existsOtherDevice
+          ? 'Conta não encontrada neste dispositivo. Contas locais só existem no navegador onde foram criadas — configure a Sincronização em Nuvem (Firebase) para acessar de qualquer lugar.'
+          : 'Senha incorreta.');
+      }
       user = { email: found.email, name: found.name, uid: found.uid };
       isLocal = true;
     }

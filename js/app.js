@@ -1503,6 +1503,24 @@ let _db = null;     // firebase database ref
 let _uid = null;    // user id (anônimo ou email/senha)
 let _syncTimer = null;
 
+// ⚙️ CONFIG GLOBAL DO FIREBASE — cole aqui o firebaseConfig do seu projeto
+// (console.firebase.google.com > Configurações do projeto > Seus apps).
+// Com isso preenchido, TODOS os dispositivos usam o mesmo backend e a conta
+// de e-mail/senha funciona em qualquer lugar automaticamente.
+window.DEFAULT_FB_CONFIG = window.DEFAULT_FB_CONFIG || null;
+/* Exemplo:
+window.DEFAULT_FB_CONFIG = {
+  apiKey: "AIza...",
+  authDomain: "meu-projeto.firebaseapp.com",
+  databaseURL: "https://meu-projeto-default-rtdb.firebaseio.com",
+  projectId: "meu-projeto",
+};
+*/
+
+function getFbConfig() {
+  return (typeof _store !== 'undefined' && _store.fbConfig) || window.DEFAULT_FB_CONFIG || null;
+}
+
 const FB_SDK = 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js';
 const FB_DB  = 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js';
 const FB_AUTH= 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js';
@@ -1674,8 +1692,8 @@ function cloudDisconnect() {
   el.textContent = `${dias[d.getDay()]}, ${d.getDate()} ${meses[d.getMonth()]} ${d.getFullYear()}`;
 })();
 
-// Tenta reconectar com config salva ao abrir o app
-const _savedCfg = _store.fbConfig;
+// Tenta reconectar ao abrir o app — usa a config salva OU a config global do código
+const _savedCfg = getFbConfig();
 if (_savedCfg?.databaseURL) {
   setTimeout(async () => {
     await initFirebase(_savedCfg);
