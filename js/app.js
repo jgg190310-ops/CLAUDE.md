@@ -1523,18 +1523,25 @@ async function initFirebase(config) {
     await loadScript(FB_AUTH);
     if (!firebase.apps.length) firebase.initializeApp(config);
     const auth = firebase.auth();
-    // login anônimo — nenhum dado pessoal necessário
-    let user = auth.currentUser;
+
+    // Wait for Firebase to restore any existing auth session (email/password persists across devices)
+    const existingUser = await new Promise((resolve) => {
+      const unsub = auth.onAuthStateChanged((u) => { unsub(); resolve(u); });
+    });
+
+    let user = existingUser;
     if (!user) {
+      // No existing session — use anonymous for anonymous data sync
       const cred = await auth.signInAnonymously();
       user = cred.user;
     }
     _uid = user.uid;
     _db = firebase.database();
     saveStore({ fbConfig: config, fbUid: _uid });
-    cloudPull(); // carrega dados salvos na nuvem
+    cloudPull();
     setCloudStatus('online');
-    showToast('Nuvem conectada! Dados sincronizando…', 'success');
+    const isAnon = user.isAnonymous;
+    showToast(isAnon ? 'Nuvem conectada! Dados sincronizando…' : `Bem-vindo de volta! Logado como ${user.email || _uid.slice(0,8)}…`, 'success');
   } catch (e) {
     setCloudStatus('error');
     showToast('Erro ao conectar: ' + e.message, 'error');

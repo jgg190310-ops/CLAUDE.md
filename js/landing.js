@@ -286,6 +286,49 @@ function spawnParticles() {
 spawnParticles();
 
 // ══════════════════════════════════════════════
+//  SCROLL PROGRESS BAR
+// ══════════════════════════════════════════════
+(function initScrollProgress() {
+  const bar = document.createElement('div');
+  bar.className = 'scroll-progress';
+  document.body.appendChild(bar);
+  window.addEventListener('scroll', () => {
+    const h = document.documentElement.scrollHeight - window.innerHeight;
+    bar.style.width = h > 0 ? (window.scrollY / h * 100) + '%' : '0%';
+  }, { passive: true });
+})();
+
+// ══════════════════════════════════════════════
+//  CARD SPOTLIGHT EFFECT
+// ══════════════════════════════════════════════
+document.addEventListener('mousemove', (e) => {
+  const card = e.target.closest?.('.feature-card');
+  if (!card) return;
+  const r = card.getBoundingClientRect();
+  const x = ((e.clientX - r.left) / r.width * 100).toFixed(1) + '%';
+  const y = ((e.clientY - r.top)  / r.height * 100).toFixed(1) + '%';
+  card.style.setProperty('--sx', x);
+  card.style.setProperty('--sy', y);
+}, { passive: true });
+
+// ══════════════════════════════════════════════
+//  MAGNETIC BUTTONS
+// ══════════════════════════════════════════════
+document.querySelectorAll('.btn-hero-primary, .btn-hero-ghost').forEach(btn => {
+  btn.addEventListener('mousemove', (e) => {
+    const r = btn.getBoundingClientRect();
+    const cx = r.left + r.width  / 2;
+    const cy = r.top  + r.height / 2;
+    const dx = (e.clientX - cx) * 0.22;
+    const dy = (e.clientY - cy) * 0.22;
+    btn.style.transform = `translate(${dx}px, ${dy}px) scale(1.03)`;
+  });
+  btn.addEventListener('mouseleave', () => {
+    btn.style.transform = '';
+  });
+});
+
+// ══════════════════════════════════════════════
 //  SCROLL REVEAL (IntersectionObserver)
 // ══════════════════════════════════════════════
 const revealObserver = new IntersectionObserver((entries) => {
@@ -432,8 +475,15 @@ async function tryFirebaseAuth(mode, email, password, name) {
   if (!fbConfig?.apiKey) return null; // Firebase não configurado — usa local
 
   try {
+    if (!firebase.apps?.length) {
+      await Promise.all([
+        new Promise((res,rej) => { const s = document.createElement('script'); s.src='https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js'; s.onload=res; s.onerror=rej; document.head.appendChild(s); }),
+      ]);
+    }
     if (!firebase.apps?.length) firebase.initializeApp(fbConfig);
     const auth = firebase.auth();
+    // Keep session persistent across devices (LOCAL is default but be explicit)
+    await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
     let cred;
     if (mode === 'login') {
       cred = await auth.signInWithEmailAndPassword(email, password);
@@ -451,6 +501,7 @@ async function tryFirebaseAuth(mode, email, password, name) {
       'auth/weak-password':       'Senha muito fraca (mínimo 6 caracteres).',
       'auth/too-many-requests':   'Muitas tentativas. Aguarde um momento.',
       'auth/network-request-failed': 'Erro de rede. Verifique sua conexão.',
+      'auth/invalid-credential':  'E-mail ou senha incorretos.',
     };
     throw new Error(map[e.code] || e.message || 'Erro desconhecido.');
   }
@@ -467,6 +518,7 @@ async function doLogin() {
   setLoading('loginBtn', true);
   try {
     let user = await tryFirebaseAuth('login', email, pass, '');
+    let isLocal = false;
     if (!user) {
       // Autenticação local
       const store = loadStore();
@@ -474,9 +526,10 @@ async function doLogin() {
       const found = accounts.find(a => a.email === email && a.password === btoa(pass));
       if (!found) throw new Error('E-mail ou senha incorretos.');
       user = { email: found.email, name: found.name, uid: found.uid };
+      isLocal = true;
     }
     saveStore({ user });
-    goSuccess(user.name || email.split('@')[0]);
+    goSuccess(user.name || email.split('@')[0], null, isLocal);
   } catch (e) {
     showError('loginError', e.message);
   } finally {
@@ -501,6 +554,7 @@ async function doSignup() {
   setLoading('signupBtn', true);
   try {
     let user = await tryFirebaseAuth('signup', email, pass, name);
+    let isLocal = false;
     if (!user) {
       // Cria conta local
       const store = loadStore();
@@ -510,9 +564,10 @@ async function doSignup() {
       accounts.push({ email, name, password: btoa(pass), uid });
       saveStore({ accounts, user: { email, name, uid } });
       user = { email, name, uid };
+      isLocal = true;
     }
     saveStore({ user, profile: { name, email } });
-    goSuccess(name);
+    goSuccess(name, null, isLocal);
   } catch (e) {
     showError('signupError', e.message);
   } finally {
@@ -526,14 +581,18 @@ function doGuestLogin() {
   goSuccess('Visitante', 'Entrando como visitante…');
 }
 
-function goSuccess(name, subtitle) {
+function goSuccess(name, subtitle, isLocalAccount) {
   document.getElementById('successTitle').textContent = `Olá, ${name.split(' ')[0]}! 👋`;
-  document.getElementById('successSub').textContent = subtitle || 'Entrando no seu painel…';
+  const sub = document.getElementById('successSub');
+  if (isLocalAccount) {
+    sub.innerHTML = 'Conta local criada. Para acessar em <strong>outros dispositivos</strong>, configure a Sincronização em Nuvem no seu perfil.';
+  } else {
+    sub.textContent = subtitle || 'Entrando no seu painel…';
+  }
   switchPanel('success');
-  // redireciona para o app após a barra de progresso
   setTimeout(() => {
     window.location.href = 'app.html';
-  }, 1900);
+  }, 2200);
 }
 
 // Fecha modal ao clicar no backdrop
