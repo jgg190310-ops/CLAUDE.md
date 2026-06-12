@@ -1682,6 +1682,45 @@ function cloudDisconnect() {
   showToast('Nuvem desconectada — dados salvos localmente');
 }
 
+// ══════════════════════════════════════════════
+//  BACKUP — exportar/importar todos os dados
+//  (transferência manual entre dispositivos)
+// ══════════════════════════════════════════════
+function exportBackup() {
+  try {
+    const data = localStorage.getItem('financeos-store') || '{}';
+    const blob = new Blob([data], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    const d = new Date();
+    a.download = `financeos-backup-${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}.json`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+    showToast('Backup exportado! Importe este arquivo no outro dispositivo.', 'success');
+  } catch (e) {
+    showToast('Erro ao exportar: ' + e.message, 'error');
+  }
+}
+
+function importBackup(event) {
+  const file = event.target.files?.[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const data = JSON.parse(reader.result);
+      if (typeof data !== 'object' || data === null) throw new Error('Arquivo inválido.');
+      localStorage.setItem('financeos-store', JSON.stringify(data));
+      showToast('Backup restaurado! Recarregando…', 'success');
+      setTimeout(() => location.reload(), 900);
+    } catch (e) {
+      showToast('Arquivo de backup inválido: ' + e.message, 'error');
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
 // Data dinâmica na topbar
 (function() {
   const el = document.getElementById('topbarDate');

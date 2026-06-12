@@ -548,6 +548,11 @@
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
           Entrar como visitante
         </button>
+        <button class="auth-btn-ghost" onclick="document.getElementById('restoreBackupInput').click()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          Restaurar backup de outro dispositivo
+        </button>
+        <input type="file" id="restoreBackupInput" accept=".json,application/json" style="display:none" onchange="restoreBackupLanding(event)" />
       </div>
       <p class="auth-switch">Não tem conta? <button onclick="switchPanel('signup')">Criar conta grátis</button></p>
     </div>

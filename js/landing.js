@@ -600,6 +600,26 @@ async function doSignup() {
   }
 }
 
+// ── Restaurar backup direto da tela de login (novo dispositivo) ──
+function restoreBackupLanding(event) {
+  const file = event.target.files?.[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const data = JSON.parse(reader.result);
+      if (typeof data !== 'object' || data === null) throw new Error('inválido');
+      localStorage.setItem('financeos-store', JSON.stringify(data));
+      const name = data.user?.name || data.profile?.name || 'Usuário';
+      goSuccess(name, 'Backup restaurado! Entrando no seu painel…');
+    } catch (e) {
+      showError('loginError', 'Arquivo de backup inválido. Exporte novamente no outro dispositivo (Perfil > Integrações > Exportar backup).');
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
 function doGuestLogin() {
   const user = { email: 'visitante@financeos.app', name: 'Visitante', uid: 'guest-' + Date.now() };
   saveStore({ user });
