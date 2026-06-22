@@ -4,13 +4,15 @@
 // ══════════════════════════════════════════════
 if (typeof window.toggleTheme !== 'function') {
   (function initTheme() {
-    const saved = localStorage.getItem('financeos-theme');
-    if (saved) document.documentElement.dataset.theme = saved;
+    try {
+      const saved = localStorage.getItem('financeos-theme');
+      if (saved) document.documentElement.dataset.theme = saved;
+    } catch (e) { /* localStorage indisponível (ex.: file:// no mobile) */ }
   })();
   window.toggleTheme = function () {
     const next = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
     document.documentElement.dataset.theme = next;
-    localStorage.setItem('financeos-theme', next);
+    try { localStorage.setItem('financeos-theme', next); } catch (e) {}
   };
 }
 

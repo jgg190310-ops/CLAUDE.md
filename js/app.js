@@ -4,13 +4,15 @@
 // ══════════════════════════════════════════════
 if (typeof window.toggleTheme !== 'function') {
   (function initTheme() {
-    const saved = localStorage.getItem('financeos-theme');
-    if (saved) document.documentElement.dataset.theme = saved;
+    try {
+      const saved = localStorage.getItem('financeos-theme');
+      if (saved) document.documentElement.dataset.theme = saved;
+    } catch (e) { /* localStorage indisponível (ex.: file:// no mobile) */ }
   })();
   window.toggleTheme = function () {
     const next = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
     document.documentElement.dataset.theme = next;
-    localStorage.setItem('financeos-theme', next);
+    try { localStorage.setItem('financeos-theme', next); } catch (e) {}
   };
 }
 
@@ -35,6 +37,11 @@ function saveStore(patch) {
 }
 
 const _store = loadStore();
+
+// Estado do fluxo de caixa — declarado cedo para evitar TDZ
+// (algumas inicializações de render podem referenciá-lo antes da seção própria).
+const defaultPlan = { incomes: [], expenses: [] };
+let plan = (_store.plan && Array.isArray(_store.plan.incomes)) ? _store.plan : defaultPlan;
 
 // ══════════════════════════════════════════════
 //  SVG ICON MAPS
@@ -163,6 +170,7 @@ document.getElementById('sidebarBackdrop')?.addEventListener('click', () => {
 let patrimonioChart, gastosChart;
 
 function initDashboardCharts() {
+  if (typeof Chart === 'undefined') return; // Chart.js não carregou (offline) — não quebra o app
   if (patrimonioChart) return;
 
   const months = ['Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez', 'Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'];
@@ -739,6 +747,7 @@ let currentTab = 'acoes';
 function initStocksPage() {
   renderStocks('acoes');
   initMiniCharts();
+  if (typeof Chart === 'undefined') return;
   if (!window._alocacaoChart) {
     const ctx = document.getElementById('alocacaoChart').getContext('2d');
     window._alocacaoChart = new Chart(ctx, {
@@ -816,6 +825,7 @@ function switchTab(el, tab) {
 }
 
 function initMiniCharts() {
+  if (typeof Chart === 'undefined') return;
   if (window._miniCharts) return;
   window._miniCharts = {};
   const configs = [
@@ -1253,6 +1263,7 @@ function calcInvestment() {
   document.getElementById('rk-interest').textContent = `R$ ${Math.round(totalInterest * (1 - irRate)).toLocaleString('pt-BR')}`;
   document.getElementById('rk-return').textContent = `+${(((netBalance / totalInvested) - 1) * 100).toFixed(1)}%`;
 
+  if (typeof Chart === 'undefined') return;
   if (calcChart) calcChart.destroy();
   const ctx = document.getElementById('calcChart').getContext('2d');
   calcChart = new Chart(ctx, {
@@ -3257,10 +3268,8 @@ function renderHealthTips() {
 
 // ══════════════════════════════════════════════
 //  FLUXO DE CAIXA PROJETADO
+//  (estado `plan`/`defaultPlan` declarado no topo do arquivo)
 // ══════════════════════════════════════════════
-const defaultPlan = { incomes: [], expenses: [] };
-let plan = (_store.plan && Array.isArray(_store.plan.incomes)) ? _store.plan : defaultPlan;
-
 function savePlan() {
   saveStore({ plan });
   Object.assign(_store, { plan });
