@@ -114,7 +114,7 @@ const pageTitles = {
   profile: 'Configurações do Perfil',
 };
 
-document.querySelectorAll('.nav-item').forEach(item => {
+document.querySelectorAll('.nav-item, .bn-item').forEach(item => {
   item.addEventListener('click', e => {
     e.preventDefault();
     const page = item.dataset.page;
@@ -127,9 +127,17 @@ document.querySelectorAll('.nav-item').forEach(item => {
 function navigateTo(page) {
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelector(`[data-page="${page}"]`).classList.add('active');
+  document.querySelectorAll(`.nav-item[data-page="${page}"]`).forEach(n => n.classList.add('active'));
   document.getElementById(page).classList.add('active');
   document.getElementById('pageTitle').textContent = pageTitles[page] || page;
+  // sincroniza a barra inferior (mobile)
+  document.querySelectorAll('.bn-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.page === page);
+  });
+  // fecha o menu lateral no mobile ao navegar
+  document.getElementById('sidebar')?.classList.remove('open');
+  document.getElementById('sidebarBackdrop')?.classList.remove('show');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
   if (page === 'dashboard') initDashboardCharts();
   if (page === 'stocks') initStocksPage();
   if (page === 'calculator') calcInvestment();
@@ -141,7 +149,12 @@ function navigateTo(page) {
 }
 
 document.getElementById('sidebarToggle').addEventListener('click', () => {
-  document.getElementById('sidebar').classList.toggle('open');
+  const open = document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebarBackdrop')?.classList.toggle('show', open);
+});
+document.getElementById('sidebarBackdrop')?.addEventListener('click', () => {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarBackdrop').classList.remove('show');
 });
 
 // ══════════════════════════════════════════════

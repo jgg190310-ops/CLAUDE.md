@@ -106,6 +106,9 @@
   </div>
 </aside>
 
+<!-- SIDEBAR BACKDROP (mobile) -->
+<div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
 <!-- TOPBAR -->
 <header class="topbar">
   <button class="sidebar-toggle" id="sidebarToggle">
@@ -1308,6 +1311,32 @@
 
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
+
+<!-- MOBILE BOTTOM NAV -->
+<nav class="bottom-nav" id="bottomNav">
+  <a href="#" class="bn-item active" data-page="dashboard">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+    <span>Início</span>
+  </a>
+  <a href="#" class="bn-item" data-page="goals">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg>
+    <span>Metas</span>
+  </a>
+  <a href="#" class="bn-item bn-center" data-page="assistant">
+    <div class="bn-fab">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M12 2a10 10 0 0 1 10 10c0 5.52-4.48 10-10 10S2 17.52 2 12 6.48 2 12 2z"/><path d="M8 12h8M12 8v8"/></svg>
+    </div>
+    <span>FinBot</span>
+  </a>
+  <a href="#" class="bn-item" data-page="cashflow">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+    <span>Fluxo</span>
+  </a>
+  <a href="#" class="bn-item" data-page="profile">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    <span>Perfil</span>
+  </a>
+</nav>
 
 <script src="js/app.js"></script>
 </body>
