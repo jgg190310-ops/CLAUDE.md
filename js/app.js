@@ -1759,6 +1759,8 @@ if (_savedCfg?.databaseURL) {
 (function initAppParallax() {
   const bg = document.getElementById('appParallaxBg');
   if (!bg) return;
+  // não roda parallax em telas de toque / mobile (performance)
+  if (window.matchMedia('(hover: none), (max-width: 900px)').matches) return;
 
   const orbs = [...bg.querySelectorAll('.app-orb')];
   const geos = [...bg.querySelectorAll('.app-geo')];

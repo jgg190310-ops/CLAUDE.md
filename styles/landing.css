@@ -1861,3 +1861,30 @@ html[data-theme="light"] .marquee-section {
 html[data-theme="light"] .cta-final {
   background: linear-gradient(135deg, rgba(99,102,241,.14), rgba(139,92,246,.10));
 }
+
+/* ══════════════════════════════════════════════
+   MOBILE PERFORMANCE MODE
+   Desliga efeitos pesados (blur gigante, gradientes
+   animados, parallax) que travam a GPU em celulares
+   e deixam a página sem resposta.
+══════════════════════════════════════════════ */
+@media (max-width: 900px), (hover: none) {
+  /* orbs gigantes com blur de 100px = morte para mobile */
+  .orb { filter: blur(60px) !important; opacity: .5; }
+  .orb-1 { width: 600px !important; height: 600px !important; }
+  .orb-2 { width: 480px !important; height: 480px !important; }
+  .orb-3, .orb-4 { display: none; }
+  /* decorações que só fazem sentido com mouse/parallax */
+  .geo-shape, .lp-beam, .particles, .float-badge { display: none !important; }
+  .lp-grid-floor { animation: none !important; opacity: .25; }
+  /* pausa todas as animações infinitas de fundo */
+  .sec-ring, .cta-glow, .badge-dot { animation: none !important; }
+  /* remove backdrop-filter (caríssimo no mobile) */
+  .nav.scrolled, .mobile-menu, .feature-card, .pricing-card,
+  .tech-card, .faq-item, .stat, .auth-modal {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+  /* tilt 3D não se aplica sem mouse */
+  .feature-card, .pricing-card, .testi-card { transform: none !important; }
+}

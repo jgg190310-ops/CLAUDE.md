@@ -1873,6 +1873,33 @@ html[data-theme="light"] .cta-final {
   background: linear-gradient(135deg, rgba(99,102,241,.14), rgba(139,92,246,.10));
 }
 
+/* ══════════════════════════════════════════════
+   MOBILE PERFORMANCE MODE
+   Desliga efeitos pesados (blur gigante, gradientes
+   animados, parallax) que travam a GPU em celulares
+   e deixam a página sem resposta.
+══════════════════════════════════════════════ */
+@media (max-width: 900px), (hover: none) {
+  /* orbs gigantes com blur de 100px = morte para mobile */
+  .orb { filter: blur(60px) !important; opacity: .5; }
+  .orb-1 { width: 600px !important; height: 600px !important; }
+  .orb-2 { width: 480px !important; height: 480px !important; }
+  .orb-3, .orb-4 { display: none; }
+  /* decorações que só fazem sentido com mouse/parallax */
+  .geo-shape, .lp-beam, .particles, .float-badge { display: none !important; }
+  .lp-grid-floor { animation: none !important; opacity: .25; }
+  /* pausa todas as animações infinitas de fundo */
+  .sec-ring, .cta-glow, .badge-dot { animation: none !important; }
+  /* remove backdrop-filter (caríssimo no mobile) */
+  .nav.scrolled, .mobile-menu, .feature-card, .pricing-card,
+  .tech-card, .faq-item, .stat, .auth-modal {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+  /* tilt 3D não se aplica sem mouse */
+  .feature-card, .pricing-card, .testi-card { transform: none !important; }
+}
+
 
 /* ══ APP CSS ══ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -5242,6 +5269,28 @@ html[data-theme="light"] .bottom-nav {
 html[data-theme="light"] .bn-item { color: rgba(100,116,139,.7); }
 html[data-theme="light"] .bn-item.active, html[data-theme="light"] .bn-center span { color: #6366f1; }
 html[data-theme="light"] .bn-fab { border-color: rgba(253,253,255,.96); }
+
+/* ══════════════════════════════════════════════
+   MOBILE PERFORMANCE MODE (app)
+   Desliga blur/gradientes animados/parallax pesados
+   que travam o navegador do celular.
+══════════════════════════════════════════════ */
+@media (max-width: 900px), (hover: none) {
+  /* aurora cônica animada + starfield = pesado demais no mobile */
+  .app-parallax-bg::before,
+  .app-parallax-bg::after { animation: none !important; }
+  .app-parallax-bg::before { opacity: .4; }
+  .app-orb, .app-geo { display: none !important; }
+  /* remove backdrop-filter dos cards (caríssimo) */
+  .kpi-card, .chart-card, .topbar, .sidebar, .modal,
+  .toast, .tx-list, .goal-card, .health-card, .sub-card,
+  .cf-card, .ai-card, .ip-card, .int-card {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+  /* toast nunca deve capturar toques quando invisível */
+  .toast { pointer-events: none; }
+}
 
 
 /* ══ VIEW SWITCHING ══ */
@@ -8963,6 +9012,8 @@ if (_savedCfg?.databaseURL) {
 (function initAppParallax() {
   const bg = document.getElementById('appParallaxBg');
   if (!bg) return;
+  // não roda parallax em telas de toque / mobile (performance)
+  if (window.matchMedia('(hover: none), (max-width: 900px)').matches) return;
 
   const orbs = [...bg.querySelectorAll('.app-orb')];
   const geos = [...bg.querySelectorAll('.app-geo')];
@@ -10748,7 +10799,10 @@ function parallaxLoop() {
 
   rafId = requestAnimationFrame(parallaxLoop);
 }
-parallaxLoop();
+// Em telas de toque / mobile, NÃO roda o parallax por JS (evita travar a GPU
+// e deixar a página sem resposta). Os efeitos pesados também são desligados via CSS.
+const IS_TOUCH = window.matchMedia('(hover: none), (max-width: 900px)').matches;
+if (!IS_TOUCH) parallaxLoop();
 
 // 3D tilt on landing cards (delegated)
 const lpTiltSel = '.feature-card, .pricing-card, .testi-card';
