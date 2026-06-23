@@ -1,13 +1,10 @@
-/* FinanceOS service worker — cache básico para funcionar offline */
-const CACHE = 'financeos-v1';
+/* FinanceOS service worker — network-first para sempre pegar a versão nova;
+   cache só serve como fallback quando estiver offline. */
+const CACHE = 'financeos-v3';
 const ASSETS = [
   './',
   './index.html',
   './app.html',
-  './styles/landing.css',
-  './styles/app.css',
-  './js/landing.js',
-  './js/app.js',
   './manifest.webmanifest',
   './icons/icon-192.png',
   './icons/icon-512.png',
@@ -31,18 +28,15 @@ self.addEventListener('activate', (e) => {
 self.addEventListener('fetch', (e) => {
   const req = e.request;
   if (req.method !== 'GET') return;
-  // network-first para navegação, cache-first para assets
-  if (req.mode === 'navigate') {
-    e.respondWith(fetch(req).catch(() => caches.match(req).then((r) => r || caches.match('./index.html'))));
-    return;
-  }
+  // NETWORK-FIRST para tudo: busca o arquivo novo na rede, atualiza o cache,
+  // e só cai no cache se estiver offline. Acaba com o problema de versão velha.
   e.respondWith(
-    caches.match(req).then((cached) =>
-      cached || fetch(req).then((res) => {
+    fetch(req)
+      .then((res) => {
         const copy = res.clone();
         caches.open(CACHE).then((c) => c.put(req, copy)).catch(() => {});
         return res;
-      }).catch(() => cached)
-    )
+      })
+      .catch(() => caches.match(req).then((r) => r || caches.match('./index.html')))
   );
 });
