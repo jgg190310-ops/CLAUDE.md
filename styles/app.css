@@ -2735,6 +2735,7 @@ html[data-theme="light"] .profile-sidebar-nav {
     flex: 1 1 0;
     min-height: 0;
     overflow-y: auto;
+    overflow-x: hidden;          /* nada de rolagem horizontal */
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
     padding: 18px 18px 12px;
@@ -2744,6 +2745,7 @@ html[data-theme="light"] .profile-sidebar-nav {
   /* MENSAGEM DO BOT: texto limpo em negrito, SEM caixinha (estilo WHOOP) */
   .ai-msg.bot {
     max-width: 100%;
+    min-width: 0;                /* deixa o item encolher dentro do flex */
     align-self: stretch;
     background: none;
     border: none;
@@ -2753,16 +2755,22 @@ html[data-theme="light"] .profile-sidebar-nav {
     line-height: 1.62;
     font-weight: 700;
     color: #eaf0f8;
+    overflow-wrap: break-word;   /* quebra palavras longas */
+    word-break: break-word;
+    white-space: normal;
   }
   .ai-msg.bot b { color: #fff; font-weight: 800; }
   /* MENSAGEM DO USUÁRIO: bolha discreta à direita, em negrito */
   .ai-msg.user {
     max-width: 82%;
+    min-width: 0;
     font-size: 14px;
     line-height: 1.5;
     font-weight: 700;
     padding: 10px 14px;
     border-radius: 18px 18px 6px 18px;
+    overflow-wrap: break-word;
+    word-break: break-word;
   }
 
   /* sugestões: linha horizontal rolável, logo acima do input */
