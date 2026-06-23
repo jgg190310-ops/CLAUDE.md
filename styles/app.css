@@ -2690,39 +2690,32 @@ html[data-theme="light"] .profile-sidebar-nav {
    texto limpo no fundo, input fixo embaixo
 ══════════════════════════════════════════════ */
 @media (max-width: 900px) {
-  /* a página inteira vira o chat, ocupando a tela entre topbar e barra inferior */
+  /* página normal, sem padding — o card é quem define a altura */
   #assistant.page.active {
-    display: flex;
-    flex-direction: column;
-    position: fixed;
-    top: var(--topbar-h);
-    left: 0; right: 0;
-    bottom: calc(66px + env(safe-area-inset-bottom, 0px));
+    display: block;
     padding: 0;
     margin: 0;
     max-width: 100%;
-    overflow: hidden;
-    z-index: 5;
-    background: var(--bg);
   }
   /* esconde tudo que polui: cabeçalho, insights, cards laterais */
   #assistant .page-header,
   #assistant .ai-insights,
   #assistant .ai-side { display: none !important; }
 
-  #assistant .ai-layout {
-    display: flex; flex: 1 1 auto;
-    min-height: 0; gap: 0; margin: 0;
-  }
-  /* card sem moldura — chat full-bleed */
+  #assistant .ai-layout { display: block; margin: 0; gap: 0; }
+
+  /* card com ALTURA FIXA explícita (= tela menos topbar e barra inferior).
+     Método mais confiável no iOS do que flex aninhado. */
   .ai-chat-card {
-    flex: 1 1 auto;
+    height: calc(100dvh - var(--topbar-h) - 66px - env(safe-area-inset-bottom, 0px));
     min-height: 0;
-    height: auto;
+    display: flex;
+    flex-direction: column;
     border: none;
     border-radius: 0;
     background: transparent;
     box-shadow: none !important;
+    overflow: hidden;
   }
   /* header minimalista */
   .ai-chat-header {
