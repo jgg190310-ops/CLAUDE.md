@@ -26,7 +26,7 @@
       window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
     }
   </script>
-  <link rel="stylesheet" href="styles/app.css?v=12" />
+  <link rel="stylesheet" href="styles/app.css?v=13" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -1197,10 +1197,16 @@
         <h1 id="hGreeting">Olá!</h1>
         <p class="page-sub">Seu resumo de saúde e alimentação de hoje.</p>
       </div>
+      <div class="page-header-actions">
+        <button class="btn-primary-sm" onclick="navigateTo('h-meals')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:-2px;margin-right:4px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Registrar Refeição
+        </button>
+      </div>
     </div>
-    <div class="kpi-grid" id="hKpis"></div>
+    <div class="kpi-grid kpi-grid-5" id="hKpis"></div>
     <div class="charts-row">
-      <div class="chart-card">
+      <div class="chart-card wide">
         <div class="chart-card-head">
           <h3>Calorias na semana</h3>
           <span class="chart-sub" id="hWeekSub">Meta diária e consumo</span>
@@ -1209,15 +1215,27 @@
       </div>
       <div class="chart-card">
         <div class="chart-card-head">
-          <h3>Calorias por refeição</h3>
-          <span class="chart-sub">Distribuição de hoje</span>
+          <h3>Distribuição de Refeições</h3>
+          <span class="chart-sub">Por tipo — hoje</span>
         </div>
         <div class="chart-wrap"><canvas id="hMacroChart"></canvas></div>
       </div>
     </div>
-    <div class="cf-card" style="margin-top:16px">
-      <h3 class="cf-title" style="color:var(--green)">Refeições de hoje</h3>
-      <div class="cf-list" id="hTodayMeals"></div>
+    <div class="bottom-row">
+      <div class="table-card">
+        <div class="table-header">
+          <h3>Refeições de Hoje</h3>
+          <button class="btn-sm" onclick="navigateTo('h-meals')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:-2px;margin-right:4px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Nova
+          </button>
+        </div>
+        <div class="cf-list" id="hTodayMeals"></div>
+      </div>
+      <div class="alerts-card" id="hInsightsCard">
+        <div class="table-header"><h3>Insights de Saúde</h3></div>
+        <div class="alert-list" id="hAlertsList"></div>
+      </div>
     </div>
   </section>
 
@@ -1673,9 +1691,9 @@
   </a>
 </nav>
 
-<script src="js/firebase-config.js?v=11"></script>
-<script src="js/app.js?v=11"></script>
-<script src="js/health.js?v=11"></script>
-<script src="js/study.js?v=11"></script>
+<script src="js/firebase-config.js?v=13"></script>
+<script src="js/app.js?v=13"></script>
+<script src="js/health.js?v=13"></script>
+<script src="js/study.js?v=13"></script>
 </body>
 </html>

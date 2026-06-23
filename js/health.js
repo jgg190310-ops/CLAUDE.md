@@ -126,12 +126,16 @@
     const goalProt = +goals.prot || 0;
     const goalWater = +goals.water || 8;
     const remaining = goalKcal - kcal;
+    const imcData = computeIMC(h.body);
+    const pctKcal = Math.min(100, Math.round((kcal / goalKcal) * 100));
 
     const kpis = [
       { ic: '#10b981', label: 'Calorias hoje', value: `${kcalFmt(kcal)}`, sub: `de ${kcalFmt(goalKcal)} kcal` },
-      { ic: '#6366f1', label: remaining >= 0 ? 'Ainda pode comer' : 'Acima da meta', value: `${kcalFmt(Math.abs(remaining))}`, sub: 'kcal' },
+      { ic: remaining >= 0 ? '#6366f1' : '#ef4444', label: remaining >= 0 ? 'Ainda pode comer' : 'Acima da meta', value: `${kcalFmt(Math.abs(remaining))}`, sub: 'kcal restantes' },
       { ic: '#06b6d4', label: 'Água', value: `${day.water}`, sub: `de ${goalWater} copos` },
       { ic: '#f59e0b', label: 'Proteína', value: `${kcalFmt(prot)}g`, sub: goalProt ? `de ${goalProt}g` : 'consumida' },
+      { ic: imcData ? (imcData.imc < 25 ? '#10b981' : imcData.imc < 30 ? '#f59e0b' : '#ef4444') : '#8b5cf6',
+        label: 'IMC', value: imcData ? `${imcData.imc}` : '—', sub: imcData ? imcData.cls : 'Configure em Metas' },
     ];
     const grid = document.getElementById('hKpis');
     if (grid) grid.innerHTML = kpis.map(k => `
@@ -143,10 +147,43 @@
 
     const todayBox = document.getElementById('hTodayMeals');
     if (todayBox) {
-      todayBox.innerHTML = day.meals.length
-        ? day.meals.map((m, i) => mealRow(m, i)).join('')
-        : '<div class="cf-empty" style="padding:24px">Nenhuma refeição hoje. Vá em "Refeições" e registre.</div>';
+      if (day.meals.length === 0) {
+        todayBox.innerHTML = `<div class="empty-state"><p>Nenhuma refeição hoje. Toque em "Nova" para registrar.</p></div>`;
+      } else {
+        todayBox.innerHTML = `<table class="data-table">
+          <thead><tr><th>Alimento</th><th>Tipo</th><th>Proteína</th><th>Calorias</th></tr></thead>
+          <tbody>${day.meals.map((m, i) => `<tr>
+            <td>${escapeHtml(m.name)}</td>
+            <td><span style="color:${MEAL_COLOR[m.type]||'#10b981'};font-weight:600">${MEAL_LABEL[m.type]||''}</span></td>
+            <td style="color:var(--text-2)">${m.prot ? m.prot + 'g' : '—'}</td>
+            <td><strong>${kcalFmt(m.kcal)}</strong> kcal</td>
+          </tr>`).join('')}</tbody>
+        </table>`;
+      }
     }
+
+    // Insights de saúde
+    const alertsEl = document.getElementById('hAlertsList');
+    if (alertsEl) {
+      const insights = [];
+      if (pctKcal >= 100) insights.push({ type: 'warning', title: 'Meta calórica atingida', desc: `Você consumiu ${kcalFmt(kcal)} kcal — meta de ${kcalFmt(goalKcal)} kcal alcançada.` });
+      else if (pctKcal > 0) insights.push({ type: 'info', title: `${pctKcal}% da meta calórica`, desc: `Faltam ${kcalFmt(remaining)} kcal para completar sua meta diária.` });
+      else insights.push({ type: 'info', title: 'Comece o dia bem', desc: 'Registre sua primeira refeição para acompanhar as calorias.' });
+
+      if (day.water >= goalWater) insights.push({ type: 'success', title: 'Meta de hidratação atingida!', desc: `Você bebeu ${day.water} copos hoje. Parabéns!` });
+      else insights.push({ type: 'info', title: `Hidratação: ${day.water}/${goalWater} copos`, desc: `Beba mais ${goalWater - day.water} copos para atingir sua meta.` });
+
+      if (goalProt && prot >= goalProt) insights.push({ type: 'success', title: 'Meta de proteína atingida!', desc: `${kcalFmt(prot)}g de proteína consumida hoje.` });
+      else if (goalProt) insights.push({ type: 'warning', title: `Proteína: ${kcalFmt(prot)}g / ${goalProt}g`, desc: `Faltam ${kcalFmt(goalProt - prot)}g de proteína para sua meta.` });
+
+      if (imcData) insights.push({ type: imcData.imc < 25 ? 'success' : 'warning', title: `IMC: ${imcData.imc}`, desc: `Classificação: ${imcData.cls}. ${imcData.imc < 25 ? 'Continue assim!' : 'Configure metas em "Metas & Corpo".'}` });
+
+      alertsEl.innerHTML = insights.map(a => `<div class="alert-item ${a.type}">
+        <div class="alert-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+        <div><p class="alert-title">${a.title}</p><p class="alert-desc">${a.desc}</p></div>
+      </div>`).join('');
+    }
+
     drawHCharts(h, day, goalKcal);
   }
 
