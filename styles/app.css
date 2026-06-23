@@ -3566,7 +3566,7 @@ html[data-theme="light"] .cf-kpi.red .cfk-value   { color: #b91c1c; }
 .bn-item::before {
   content: '';
   position: absolute;
-  top: 8px;
+  top: 4px;
   width: 32px; height: 3px;
   border-radius: 2px;
   background: #818cf8;
