@@ -15,7 +15,7 @@
     'h-exercise': 'Exercícios',
     'h-sleep': 'Sono',
     'h-progress': 'Progresso Corporal',
-    'h-calc': 'Calculadora de Saúde',
+    'h-calc': 'Calculadoras de Saúde',
     'h-challenge': 'Desafios de Saúde',
   });
 
@@ -1104,11 +1104,8 @@
   // expõe funções usadas no HTML (onclick)
   Object.assign(window, {
     hAddMeal, hQuickAdd, hDelMeal, hWater, hSaveGoals, hUseSuggested, nbSend,
-    hAddExercise, hDelExercise, hExQuick,
-    hAddSleep, hDelSleep,
-    hAddWeight, hDelWeight,
-    hCalcRun,
-    hJoinChallenge, hLeaveChallenge,
+    hAddExercise, hDelExercise, hLogSleep, hDelSleep, hLogWeight, hDelWeight,
+    hStartChallenge,
   });
 
   // ── restaura último app aberto ───────────────────────────────────
