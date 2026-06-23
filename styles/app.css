@@ -2740,11 +2740,15 @@ html[data-theme="light"] .profile-sidebar-nav {
   .ai-chat-messages {
     flex: 1 1 auto;
     min-height: 0;
-    padding: 20px 18px 8px;
-    gap: 22px;
+    height: 100%;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    padding: 18px 18px 8px;
+    gap: 18px;
   }
 
-  /* MENSAGEM DO BOT: texto limpo grande, SEM caixinha (estilo WHOOP) */
+  /* MENSAGEM DO BOT: texto limpo, SEM caixinha (estilo WHOOP) */
   .ai-msg.bot {
     max-width: 100%;
     align-self: stretch;
@@ -2752,18 +2756,18 @@ html[data-theme="light"] .profile-sidebar-nav {
     border: none;
     padding: 0;
     border-radius: 0;
-    font-size: 16.5px;
-    line-height: 1.72;
-    color: #e8edf5;
+    font-size: 14px;
+    line-height: 1.62;
+    color: #dfe6f0;
   }
   .ai-msg.bot b { color: #fff; }
   /* MENSAGEM DO USUÁRIO: bolha discreta à direita */
   .ai-msg.user {
     max-width: 82%;
-    font-size: 16px;
-    line-height: 1.55;
-    padding: 11px 16px;
-    border-radius: 20px 20px 6px 20px;
+    font-size: 14px;
+    line-height: 1.5;
+    padding: 10px 14px;
+    border-radius: 18px 18px 6px 18px;
   }
 
   /* sugestões: linha horizontal rolável, logo acima do input */
