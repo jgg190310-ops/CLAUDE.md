@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FinanceOS — Gestão Financeira Inteligente</title>
+  <title>OSHelp — Finanças, Saúde e Estudos em um só lugar</title>
   <link rel="manifest" href="manifest.webmanifest" />
   <meta name="theme-color" content="#6366f1" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="FinanceOS" />
+  <meta name="apple-mobile-web-app-title" content="OSHelp" />
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
   <link rel="icon" type="image/png" href="icons/icon-192.png" />
   <script>
@@ -17,9 +17,58 @@
       window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
     }
   </script>
-  <link rel="stylesheet" href="styles/landing.css?v=9" />
+  <link rel="stylesheet" href="styles/landing.css?v=10" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    /* OSHelp extra styles */
+    .apps-section { padding: 100px 0; }
+    .apps-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; margin-top: 60px; }
+    @media(max-width:768px){ .apps-grid { grid-template-columns:1fr; } }
+    .app-card {
+      border-radius: 20px; padding: 36px 32px; position: relative; overflow: hidden;
+      background: var(--card); border: 1px solid var(--border);
+      transition: transform .3s, box-shadow .3s;
+      cursor: pointer;
+    }
+    .app-card:hover { transform: translateY(-6px); box-shadow: 0 24px 60px rgba(0,0,0,.18); }
+    .app-card::before {
+      content: ''; position: absolute; inset: 0;
+      background: var(--app-grad); opacity: .06; border-radius: inherit;
+    }
+    .app-card-icon {
+      width: 56px; height: 56px; border-radius: 14px;
+      background: var(--app-grad); display: flex; align-items: center; justify-content: center;
+      margin-bottom: 20px;
+    }
+    .app-card h3 { font-size: 1.3rem; font-weight: 700; margin-bottom: 10px; }
+    .app-card p { font-size: .93rem; opacity: .7; line-height: 1.6; margin-bottom: 20px; }
+    .app-tag-list { display: flex; flex-wrap: wrap; gap: 8px; }
+    .app-tag {
+      font-size: .72rem; font-weight: 600; letter-spacing: .6px; text-transform: uppercase;
+      padding: 4px 10px; border-radius: 20px;
+      background: var(--app-grad); color: #fff; opacity: .85;
+    }
+    .app-card .fc-arrow { margin-top: 24px; font-size: 1.2rem; opacity: .4; transition: opacity .2s; }
+    .app-card:hover .fc-arrow { opacity: 1; }
+
+    /* finance */
+    .app-card.finance { --app-grad: linear-gradient(135deg,#6366f1,#8b5cf6); }
+    /* health */
+    .app-card.health  { --app-grad: linear-gradient(135deg,#10b981,#06b6d4); }
+    /* study */
+    .app-card.study   { --app-grad: linear-gradient(135deg,#f59e0b,#ef4444); }
+
+    .hero-apps { display: flex; gap: 12px; margin-top: 28px; flex-wrap: wrap; justify-content: center; }
+    .hero-app-pill {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 16px; border-radius: 30px;
+      font-size: .82rem; font-weight: 600;
+      border: 1.5px solid var(--border);
+      background: var(--card);
+    }
+    .hero-app-pill .dot { width: 8px; height: 8px; border-radius: 50%; }
+  </style>
 </head>
 <body>
 
@@ -32,11 +81,11 @@
         <path d="M8 22L13 14l4 5 3-4 4 6" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
         <defs><linearGradient id="lg1" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse"><stop stop-color="#6366f1"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient></defs>
       </svg>
-      <span>FinanceOS</span>
+      <span>OSHelp</span>
     </a>
     <ul class="nav-links">
+      <li><a href="#apps">Apps</a></li>
       <li><a href="#features">Funcionalidades</a></li>
-      <li><a href="#how">Como funciona</a></li>
       <li><a href="#pricing">Planos</a></li>
     </ul>
     <div class="nav-cta">
@@ -55,8 +104,8 @@
 
 <!-- mobile menu -->
 <div class="mobile-menu" id="mobileMenu">
+  <a href="#apps" onclick="closeMobileMenu()">Apps</a>
   <a href="#features" onclick="closeMobileMenu()">Funcionalidades</a>
-  <a href="#how" onclick="closeMobileMenu()">Como funciona</a>
   <a href="#pricing" onclick="closeMobileMenu()">Planos</a>
   <button class="btn-ghost" onclick="closeMobileMenu();openAuth('login')">Entrar</button>
   <button class="btn-primary" onclick="closeMobileMenu();openAuth('signup')">Começar grátis</button>
@@ -64,7 +113,6 @@
 
 <!-- ══════════════ HERO ══════════════ -->
 <section class="hero" id="hero">
-  <!-- parallax layers -->
   <div class="parallax-bg" id="parallaxBg">
     <div class="lp-grid-floor" data-speed="0.06" data-mspeed="4"></div>
     <div class="lp-beam lp-beam-1" data-speed="0.10" data-mspeed="6"></div>
@@ -75,7 +123,6 @@
     <div class="orb orb-3" data-speed="0.2" data-mspeed="10"></div>
     <div class="orb orb-4" data-speed="0.4" data-mspeed="24"></div>
     <div class="orb orb-5" data-speed="0.6" data-mspeed="42"></div>
-    <!-- geometric depth shapes -->
     <div class="geo-shape geo-ring-1"   data-speed="0.18" data-mspeed="22"></div>
     <div class="geo-shape geo-ring-2"   data-speed="0.35" data-mspeed="40"></div>
     <div class="geo-shape geo-ring-3"   data-speed="0.28" data-mspeed="30"></div>
@@ -91,31 +138,45 @@
     <div class="geo-shape geo-square"   data-speed="0.48" data-mspeed="52"></div>
     <div class="noise-overlay"></div>
     <div class="grid-overlay"></div>
-    <!-- floating particles -->
     <div class="particles" id="particles"></div>
   </div>
 
   <div class="hero-content reveal-hero">
     <div class="hero-badge">
       <span class="badge-dot"></span>
-      Gestão financeira completa e inteligente
+      Seu super app de produtividade pessoal
     </div>
     <h1 class="hero-title">
-      <span class="word-reveal" style="--d:0ms">Controle</span>
-      <span class="word-reveal" style="--d:80ms">total</span><br/>
-      <span class="word-reveal" style="--d:160ms">das</span>
-      <span class="word-reveal" style="--d:240ms">suas</span>
-      <span class="word-reveal" style="--d:320ms"><span class="gradient-text">finanças</span></span><br/>
-      <span class="word-reveal" style="--d:400ms">em</span>
-      <span class="word-reveal" style="--d:480ms">um</span>
-      <span class="word-reveal" style="--d:560ms">só</span>
-      <span class="word-reveal" style="--d:640ms">lugar.</span>
+      <span class="word-reveal" style="--d:0ms">Finanças,</span>
+      <span class="word-reveal" style="--d:80ms">saúde</span>
+      <span class="word-reveal" style="--d:160ms">e</span><br/>
+      <span class="word-reveal" style="--d:240ms">estudos</span>
+      <span class="word-reveal" style="--d:320ms">em</span>
+      <span class="word-reveal" style="--d:400ms">um</span><br/>
+      <span class="word-reveal" style="--d:480ms">só</span>
+      <span class="word-reveal" style="--d:560ms"><span class="gradient-text">lugar.</span></span>
     </h1>
     <p class="hero-subtitle fade-up" style="--d:700ms">
-      Dashboard inteligente, metas personalizadas, bolsa em tempo real e muito mais.
-      Tome decisões financeiras com dados reais.
+      OSHelp reúne três plataformas poderosas: gerencie seu dinheiro com <b>FinanceOS</b>,
+      cuide da sua saúde com <b>HealthOS</b> e acelere seus estudos com <b>StudyOS</b>.
     </p>
-    <div class="hero-actions fade-up" style="--d:850ms">
+
+    <div class="hero-apps fade-up" style="--d:780ms">
+      <div class="hero-app-pill">
+        <div class="dot" style="background:#6366f1"></div>
+        FinanceOS
+      </div>
+      <div class="hero-app-pill">
+        <div class="dot" style="background:#10b981"></div>
+        HealthOS
+      </div>
+      <div class="hero-app-pill">
+        <div class="dot" style="background:#f59e0b"></div>
+        StudyOS
+      </div>
+    </div>
+
+    <div class="hero-actions fade-up" style="--d:880ms">
       <button class="btn-hero-primary" onclick="openAuth('signup')">
         Criar conta grátis
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
@@ -127,13 +188,13 @@
     </div>
     <div class="hero-stats fade-up" style="--d:1000ms">
       <div class="stat">
-        <span class="stat-value counter" data-target="6">0</span>
-        <span class="stat-label">Módulos integrados</span>
+        <span class="stat-value">3</span>
+        <span class="stat-label">Apps integrados</span>
       </div>
       <div class="stat-divider"></div>
       <div class="stat">
-        <span class="stat-value">Tempo real</span>
-        <span class="stat-label">Cotações de mercado</span>
+        <span class="stat-value counter" data-target="30">0</span>+
+        <span class="stat-label">Ferramentas e módulos</span>
       </div>
       <div class="stat-divider"></div>
       <div class="stat">
@@ -147,7 +208,7 @@
     <div class="dashboard-preview" data-speed="0.15">
       <div class="preview-header">
         <div class="preview-dots"><span></span><span></span><span></span></div>
-        <span class="preview-title">Dashboard — FinanceOS</span>
+        <span class="preview-title">OSHelp — Dashboard</span>
         <span class="preview-live"><span class="live-blink"></span>AO VIVO</span>
       </div>
       <div class="preview-cards">
@@ -157,14 +218,14 @@
           <div class="pc-change up">▲ +12,4%</div>
         </div>
         <div class="preview-card blue">
-          <div class="pc-label">Renda</div>
-          <div class="pc-value">R$ 12.800</div>
-          <div class="pc-change up">▲ +5,2%</div>
+          <div class="pc-label">Calorias hoje</div>
+          <div class="pc-value">1.840 kcal</div>
+          <div class="pc-change up">▲ Meta: 2.200</div>
         </div>
         <div class="preview-card purple">
-          <div class="pc-label">Meta: Viagem</div>
-          <div class="pc-value">68%</div>
-          <div class="pc-bar"><div class="pc-bar-fill" style="width:68%"></div></div>
+          <div class="pc-label">Horas estudadas</div>
+          <div class="pc-value">4h 20min</div>
+          <div class="pc-bar"><div class="pc-bar-fill" style="width:72%"></div></div>
         </div>
       </div>
       <div class="preview-chart">
@@ -179,27 +240,25 @@
       </div>
       <div class="preview-ticker">
         <div class="ticker-item up">ITSA4 <b>R$10,88</b> <small>+1,2%</small></div>
-        <div class="ticker-item down">VALE3 <b>R$58,50</b> <small>-0,8%</small></div>
+        <div class="ticker-item up">IMC <b>22,4</b> <small>Normal</small></div>
+        <div class="ticker-item up">Pomodoro <b>4/6</b> <small>hoje</small></div>
         <div class="ticker-item up">BTC <b>R$580k</b> <small>+2,1%</small></div>
-        <div class="ticker-item up">USD <b>R$5,76</b> <small>+0,3%</small></div>
       </div>
     </div>
-  <!-- floating badge cards -->
-  <div class="float-badge badge-1 float-anim">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-    Meta atingida
-  </div>
-  <div class="float-badge badge-2 float-anim" style="--delay:1.2s">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2.5"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
-    +23% este ano
-  </div>
-  <div class="float-badge badge-3 float-anim" style="--delay:0.6s">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-    Alerta de orçamento
-  </div>
+    <div class="float-badge badge-1 float-anim">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+      Meta financeira atingida
+    </div>
+    <div class="float-badge badge-2 float-anim" style="--delay:1.2s">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2.5"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+      Desafio de saúde ativo
+    </div>
+    <div class="float-badge badge-3 float-anim" style="--delay:0.6s">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      Pomodoro em andamento
+    </div>
   </div>
 
-  <!-- scroll indicator -->
   <div class="scroll-hint">
     <div class="scroll-dot"></div>
     <span>Role para baixo</span>
@@ -209,21 +268,22 @@
 <!-- ══════════════ MARQUEE ══════════════ -->
 <div class="marquee-section">
   <div class="marquee-track">
-    <div class="marquee-item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg> Dashboard Inteligente</div>
+    <div class="marquee-item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg> FinanceOS</div>
+    <div class="marquee-item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> HealthOS</div>
+    <div class="marquee-item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg> StudyOS</div>
     <div class="marquee-item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg> Gestão de Metas</div>
     <div class="marquee-item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/></svg> Bolsa em Tempo Real</div>
-    <div class="marquee-item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg> Orçamentos Dinâmicos</div>
-    <div class="marquee-item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 16c.5-2 1.5-7 4-7s3 7 5.5 7 3-5 3-5"/></svg> Juros Compostos</div>
-    <div class="marquee-item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg> Análise de Carteira</div>
-    <div class="marquee-item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg> Multi-dispositivos</div>
+    <div class="marquee-item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Pomodoro Timer</div>
+    <div class="marquee-item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/></svg> Controle Alimentar</div>
     <div class="marquee-item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Dados Seguros</div>
-    <div class="marquee-item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg> Dashboard Inteligente</div>
+    <!-- duplicate for loop -->
+    <div class="marquee-item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg> FinanceOS</div>
+    <div class="marquee-item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> HealthOS</div>
+    <div class="marquee-item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg> StudyOS</div>
     <div class="marquee-item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg> Gestão de Metas</div>
     <div class="marquee-item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/></svg> Bolsa em Tempo Real</div>
-    <div class="marquee-item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg> Orçamentos Dinâmicos</div>
-    <div class="marquee-item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 16c.5-2 1.5-7 4-7s3 7 5.5 7 3-5 3-5"/></svg> Juros Compostos</div>
-    <div class="marquee-item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg> Análise de Carteira</div>
-    <div class="marquee-item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg> Multi-dispositivos</div>
+    <div class="marquee-item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Pomodoro Timer</div>
+    <div class="marquee-item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/></svg> Controle Alimentar</div>
     <div class="marquee-item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Dados Seguros</div>
   </div>
 </div>
@@ -234,18 +294,18 @@
   <div class="sb-orb" data-speed="0.12"></div>
   <div class="section-inner stats-band-inner">
     <div class="sb-item reveal-card" style="--ci:0">
-      <div class="sb-value"><span class="counter" data-target="6">0</span></div>
-      <div class="sb-label">Módulos integrados</div>
+      <div class="sb-value">3</div>
+      <div class="sb-label">Apps integrados</div>
     </div>
     <div class="sb-divider"></div>
     <div class="sb-item reveal-card" style="--ci:1">
       <div class="sb-value"><span class="counter" data-target="30">0</span>+</div>
-      <div class="sb-label">Ativos em tempo real</div>
+      <div class="sb-label">Módulos e ferramentas</div>
     </div>
     <div class="sb-divider"></div>
     <div class="sb-item reveal-card" style="--ci:2">
-      <div class="sb-value"><span class="counter" data-target="3">0</span></div>
-      <div class="sb-label">Mercados: B3, cripto e câmbio</div>
+      <div class="sb-value">3</div>
+      <div class="sb-label">IAs especializadas</div>
     </div>
     <div class="sb-divider"></div>
     <div class="sb-item reveal-card" style="--ci:3">
@@ -255,37 +315,97 @@
   </div>
 </section>
 
-<!-- ══════════════ FEATURES ══════════════ -->
-<section class="features" id="features">
+<!-- ══════════════ APPS ══════════════ -->
+<section class="features apps-section" id="apps">
   <div class="geo-shape sec-ring sec-ring-feat" data-speed="0.16" data-mspeed="14"></div>
   <div class="sec-orb sec-orb-feat" data-speed="0.10"></div>
   <div class="section-inner">
-    <div class="section-tag reveal"><span class="tag-num">01</span>Funcionalidades</div>
-    <h2 class="section-title reveal">Tudo que você precisa para<br/>prosperar financeiramente</h2>
-    <p class="section-sub reveal">Uma plataforma completa, projetada para quem leva as finanças a sério.</p>
+    <div class="section-tag reveal"><span class="tag-num">01</span>Os Apps</div>
+    <h2 class="section-title reveal">Três plataformas,<br/>uma só conta</h2>
+    <p class="section-sub reveal">Acesse tudo com um único login. Seus dados sincronizados em tempo real entre todos os dispositivos.</p>
+    <div class="apps-grid">
+
+      <!-- FinanceOS -->
+      <div class="app-card finance reveal-card" style="--ci:0" onclick="openAuth('signup')">
+        <div class="app-card-icon">
+          <svg width="28" height="28" viewBox="0 0 32 32" fill="none"><path d="M8 22L13 14l4 5 3-4 4 6" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <h3>FinanceOS</h3>
+        <p>Controle total das suas finanças pessoais. Dashboard com KPIs em tempo real, orçamentos, metas, bolsa de valores, fluxo de caixa e IA financeira.</p>
+        <div class="app-tag-list">
+          <span class="app-tag">Dashboard</span>
+          <span class="app-tag">Investimentos</span>
+          <span class="app-tag">Orçamento</span>
+          <span class="app-tag">FinBot IA</span>
+        </div>
+        <div class="fc-arrow">→</div>
+      </div>
+
+      <!-- HealthOS -->
+      <div class="app-card health reveal-card" style="--ci:1" onclick="openAuth('signup')">
+        <div class="app-card-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        </div>
+        <h3>HealthOS</h3>
+        <p>Cuide da sua saúde de forma inteligente. Registre refeições, exercícios e sono. Acompanhe calorias, IMC, hidratação e desafios de bem-estar com IA nutricional.</p>
+        <div class="app-tag-list">
+          <span class="app-tag">Nutrição</span>
+          <span class="app-tag">Exercícios</span>
+          <span class="app-tag">Sono</span>
+          <span class="app-tag">NutriBot IA</span>
+        </div>
+        <div class="fc-arrow">→</div>
+      </div>
+
+      <!-- StudyOS -->
+      <div class="app-card study reveal-card" style="--ci:2" onclick="openAuth('signup')">
+        <div class="app-card-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+        </div>
+        <h3>StudyOS</h3>
+        <p>Maximize seu desempenho nos estudos. Pomodoro timer, flashcards, agenda semanal, caderno de notas, controle de notas e IA especializada em aprendizado.</p>
+        <div class="app-tag-list">
+          <span class="app-tag">Pomodoro</span>
+          <span class="app-tag">Flashcards</span>
+          <span class="app-tag">Agenda</span>
+          <span class="app-tag">StudyBot IA</span>
+        </div>
+        <div class="fc-arrow">→</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ FEATURES ══════════════ -->
+<section class="features" id="features">
+  <div class="section-inner">
+    <div class="section-tag reveal"><span class="tag-num">02</span>Funcionalidades</div>
+    <h2 class="section-title reveal">Tudo que você precisa<br/>em um só app</h2>
+    <p class="section-sub reveal">Uma plataforma completa para quem leva a vida a sério.</p>
     <div class="features-grid">
       <div class="feature-card reveal-card" style="--ci:0">
         <div class="fc-icon" style="--ic:#6366f1">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
         </div>
-        <h3>Dashboard Inteligente</h3>
-        <p>Visão 360° das suas finanças com gráficos em tempo real, KPIs e alertas automáticos.</p>
+        <h3>Dashboards Inteligentes</h3>
+        <p>Visão 360° de finanças, saúde e estudos com gráficos em tempo real, KPIs e alertas automáticos.</p>
         <div class="fc-arrow">→</div>
       </div>
       <div class="feature-card reveal-card" style="--ci:1">
         <div class="fc-icon" style="--ic:#10b981">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+          <svg width="22" height="22" viewBox="0 0 32 32" fill="none"><path d="M8 22L13 14l4 5 3-4 4 6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
-        <h3>Gestão de Metas</h3>
-        <p>Defina objetivos, acompanhe o progresso e receba sugestões de aporte mensais.</p>
+        <h3>3 IAs Especializadas</h3>
+        <p>FinBot, NutriBot e StudyBot — assistentes inteligentes treinados em finanças, nutrição e educação.</p>
         <div class="fc-arrow">→</div>
       </div>
       <div class="feature-card reveal-card" style="--ci:2">
         <div class="fc-icon" style="--ic:#f59e0b">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
         </div>
-        <h3>Orçamentos Dinâmicos</h3>
-        <p>Crie orçamentos por categoria, receba alertas e identifique padrões de consumo.</p>
+        <h3>Pomodoro & Foco</h3>
+        <p>Timer Pomodoro integrado com registro automático de sessões, matérias e metas de estudo diárias.</p>
         <div class="fc-arrow">→</div>
       </div>
       <div class="feature-card reveal-card" style="--ci:3">
@@ -293,23 +413,23 @@
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
         </div>
         <h3>Bolsa em Tempo Real</h3>
-        <p>Ações, FIIs e criptoativos com cotações automáticas — sem cadastro em API.</p>
+        <p>Ações, FIIs e criptoativos com cotações automáticas — direto no seu dashboard financeiro.</p>
         <div class="fc-arrow">→</div>
       </div>
       <div class="feature-card reveal-card" style="--ci:4">
         <div class="fc-icon" style="--ic:#8b5cf6">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 16c.5-2 1.5-7 4-7s3 7 5.5 7 3-5 3-5"/></svg>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
         </div>
-        <h3>Calculadora de Juros</h3>
-        <p>Simule o crescimento exponencial com aportes mensais e diferentes cenários.</p>
+        <h3>Saúde Completa</h3>
+        <p>Controle de calorias, IMC, hidratação, exercícios, sono e desafios de bem-estar em um só lugar.</p>
         <div class="fc-arrow">→</div>
       </div>
       <div class="feature-card reveal-card" style="--ci:5">
         <div class="fc-icon" style="--ic:#06b6d4">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>
         </div>
         <h3>Conta na Nuvem</h3>
-        <p>Dados salvos em tempo real no Firebase. Acesse de qualquer dispositivo.</p>
+        <p>Dados salvos em tempo real no Firebase. Acesse de qualquer dispositivo com sincronização automática.</p>
         <div class="fc-arrow">→</div>
       </div>
     </div>
@@ -319,45 +439,45 @@
 <!-- ══════════════ HOW IT WORKS ══════════════ -->
 <section class="how" id="how">
   <div class="section-inner">
-    <div class="section-tag reveal"><span class="tag-num">02</span>Como funciona</div>
+    <div class="section-tag reveal"><span class="tag-num">03</span>Como funciona</div>
     <h2 class="section-title reveal">Em 3 passos simples</h2>
     <div class="steps">
       <div class="step reveal-card" style="--ci:0">
         <div class="step-number">01</div>
         <div class="step-icon">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/><path d="M19 8l2-2m0 0l-2-2m2 2h-4"/></svg>
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
         </div>
         <h3>Crie sua conta</h3>
-        <p>Cadastro em segundos, sem cartão. Comece gratuitamente agora mesmo.</p>
+        <p>Cadastro em segundos, sem cartão. Uma conta para os três apps.</p>
       </div>
       <div class="step-connector reveal"><div class="connector-line"></div></div>
       <div class="step reveal-card" style="--ci:1">
         <div class="step-number">02</div>
         <div class="step-icon">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
         </div>
-        <h3>Configure seu perfil</h3>
-        <p>Adicione receitas, despesas e metas. Defina seu perfil de investidor.</p>
+        <h3>Escolha seu app</h3>
+        <p>Alterne entre FinanceOS, HealthOS e StudyOS com um toque.</p>
       </div>
       <div class="step-connector reveal"><div class="connector-line"></div></div>
       <div class="step reveal-card" style="--ci:2">
         <div class="step-number">03</div>
         <div class="step-icon">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
         </div>
-        <h3>Tome decisões melhores</h3>
-        <p>Use os insights para otimizar gastos e acelerar seus investimentos.</p>
+        <h3>Evolua em tudo</h3>
+        <p>Use as IAs e ferramentas para tomar decisões melhores em cada área da sua vida.</p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ══════════════ TESTIMONIALS ══════════════ -->
+<!-- ══════════════ TECH ══════════════ -->
 <section class="testimonials" id="testimonials">
   <div class="geo-shape sec-ring sec-ring-testi" data-speed="0.22" data-mspeed="20"></div>
   <div class="sec-orb sec-orb-testi" data-speed="0.14"></div>
   <div class="section-inner">
-    <div class="section-tag reveal"><span class="tag-num">03</span>Tecnologia</div>
+    <div class="section-tag reveal"><span class="tag-num">04</span>Tecnologia</div>
     <h2 class="section-title reveal">Construído com dados reais</h2>
     <p class="section-sub reveal">Nada de números inventados — cotações ao vivo, sincronização em nuvem e seus dados sob seu controle.</p>
     <div class="testi-grid">
@@ -366,7 +486,7 @@
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
         </div>
         <h3 class="tech-title">Cotações ao vivo</h3>
-        <p class="testi-text">Ações da B3, criptomoedas e câmbio atualizados em tempo real a partir de múltiplas fontes públicas de mercado — direto no seu dashboard.</p>
+        <p class="testi-text">Ações da B3, criptomoedas e câmbio atualizados em tempo real a partir de múltiplas fontes públicas de mercado.</p>
         <div class="tech-tags"><span>B3</span><span>Cripto</span><span>Câmbio</span></div>
       </div>
       <div class="testi-card featured reveal-card" style="--ci:1">
@@ -374,7 +494,7 @@
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>
         </div>
         <h3 class="tech-title">Sincronização em nuvem</h3>
-        <p class="testi-text">Suas transações, metas e orçamentos sincronizados automaticamente entre dispositivos, com login seguro e backup contínuo.</p>
+        <p class="testi-text">Todas as suas informações sincronizadas automaticamente entre dispositivos — finanças, saúde e estudos juntos.</p>
         <div class="tech-tags"><span>Multi-dispositivo</span><span>Backup</span><span>Login seguro</span></div>
       </div>
       <div class="testi-card reveal-card" style="--ci:2">
@@ -382,7 +502,7 @@
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
         </div>
         <h3 class="tech-title">Seus dados, seu controle</h3>
-        <p class="testi-text">Dados criptografados em trânsito, armazenados na sua conta. Exporte, edite ou apague quando quiser — sem letras miúdas.</p>
+        <p class="testi-text">Dados criptografados em trânsito, armazenados na sua conta. Exporte, edite ou apague quando quiser.</p>
         <div class="tech-tags"><span>Criptografia</span><span>Exportável</span><span>Sem anúncios</span></div>
       </div>
     </div>
@@ -394,7 +514,7 @@
   <div class="geo-shape sec-ring sec-ring-price" data-speed="0.18" data-mspeed="16"></div>
   <div class="sec-orb sec-orb-price" data-speed="0.08"></div>
   <div class="section-inner">
-    <div class="section-tag reveal"><span class="tag-num">04</span>Planos</div>
+    <div class="section-tag reveal"><span class="tag-num">05</span>Planos</div>
     <h2 class="section-title reveal">Escolha o plano ideal</h2>
     <div class="pricing-grid">
       <div class="pricing-card reveal-card" style="--ci:0">
@@ -402,10 +522,10 @@
         <div class="plan-price">Grátis</div>
         <div class="plan-desc">Para quem está começando</div>
         <ul class="plan-features">
-          <li>✓ Dashboard básico</li>
-          <li>✓ Até 3 metas</li>
-          <li>✓ Orçamento por categoria</li>
-          <li>✓ Calculadora de juros</li>
+          <li>✓ FinanceOS básico</li>
+          <li>✓ HealthOS básico</li>
+          <li>✓ StudyOS básico</li>
+          <li>✓ Sincronização em nuvem</li>
         </ul>
         <button class="btn-plan-ghost" onclick="openAuth('signup')">Começar grátis</button>
       </div>
@@ -415,8 +535,8 @@
         <div class="plan-price">R$ 29<span>/mês</span></div>
         <div class="plan-desc">Para quem quer resultados reais</div>
         <ul class="plan-features">
-          <li>✓ Dashboard avançado</li>
-          <li>✓ Metas ilimitadas</li>
+          <li>✓ Todos os 3 apps completos</li>
+          <li>✓ IAs sem limite de mensagens</li>
           <li>✓ Bolsa de valores completa</li>
           <li>✓ Relatórios detalhados</li>
           <li>✓ Alertas inteligentes</li>
@@ -432,7 +552,7 @@
           <li>✓ Tudo do Pro</li>
           <li>✓ Multi-usuário</li>
           <li>✓ API de integração</li>
-          <li>✓ Consultoria financeira</li>
+          <li>✓ Consultoria personalizada</li>
         </ul>
         <button class="btn-plan-ghost" onclick="openAuth('signup')">Falar com vendas</button>
       </div>
@@ -444,16 +564,16 @@
 <section class="faq" id="faq">
   <div class="geo-shape sec-ring sec-ring-faq" data-speed="0.20" data-mspeed="12"></div>
   <div class="section-inner faq-inner">
-    <div class="section-tag reveal"><span class="tag-num">05</span>Perguntas frequentes</div>
+    <div class="section-tag reveal"><span class="tag-num">06</span>Perguntas frequentes</div>
     <h2 class="section-title reveal">Ficou com dúvidas?</h2>
     <div class="faq-list">
       <details class="faq-item reveal-card" style="--ci:0">
-        <summary>O FinanceOS é realmente gratuito?</summary>
+        <summary>O OSHelp é realmente gratuito?</summary>
         <p>Sim! O plano Starter é 100% gratuito para sempre, sem necessidade de cartão de crédito. Você só paga se quiser recursos avançados do Pro.</p>
       </details>
       <details class="faq-item reveal-card" style="--ci:1">
-        <summary>Meus dados financeiros estão seguros?</summary>
-        <p>Absolutamente. Seus dados são criptografados em trânsito e em repouso, sincronizados via Firebase com autenticação segura. Nunca compartilhamos suas informações.</p>
+        <summary>Posso usar os três apps com uma só conta?</summary>
+        <p>Sim, uma única conta dá acesso ao FinanceOS, HealthOS e StudyOS. Alterne entre eles com um toque, e seus dados ficam todos sincronizados.</p>
       </details>
       <details class="faq-item reveal-card" style="--ci:2">
         <summary>Os dados da bolsa são em tempo real?</summary>
@@ -464,8 +584,8 @@
         <p>Sim, sua conta sincroniza automaticamente entre todos os seus dispositivos — desktop, tablet e celular.</p>
       </details>
       <details class="faq-item reveal-card" style="--ci:4">
-        <summary>Como cancelo minha assinatura?</summary>
-        <p>A qualquer momento, direto no seu perfil, sem multa e sem burocracia. Seus dados continuam acessíveis no plano gratuito.</p>
+        <summary>Como as IAs funcionam?</summary>
+        <p>Cada app tem sua própria IA especializada: FinBot para finanças, NutriBot para saúde e nutrição, e StudyBot para técnicas de estudo. Elas respondem perguntas e dão dicas personalizadas.</p>
       </details>
     </div>
   </div>
@@ -477,8 +597,8 @@
   <div class="cta-beam cta-beam-2" data-speed="0.14" data-mspeed="-6"></div>
   <div class="cta-inner">
     <div class="cta-glow"></div>
-    <h2 class="reveal">Pronto para transformar suas finanças?</h2>
-    <p class="reveal">Organize, planeje e invista — tudo em um só lugar, com dados de mercado em tempo real.</p>
+    <h2 class="reveal">Pronto para transformar sua vida?</h2>
+    <p class="reveal">Finanças, saúde e estudos — tudo organizado, inteligente e sincronizado em um só lugar.</p>
     <button class="btn-hero-primary reveal" onclick="openAuth('signup')">
       Criar conta gratuita
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
@@ -496,15 +616,16 @@
           <path d="M8 22L13 14l4 5 3-4 4 6" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
           <defs><linearGradient id="lg2" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse"><stop stop-color="#6366f1"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient></defs>
         </svg>
-        <span>FinanceOS</span>
+        <span>OSHelp</span>
       </a>
-      <p>Gestão financeira inteligente para todos.</p>
+      <p>Finanças, saúde e estudos em um só lugar.</p>
     </div>
     <div class="footer-links">
       <div class="fl-col">
-        <h4>Produto</h4>
-        <a href="#features">Funcionalidades</a>
-        <a href="#pricing">Planos</a>
+        <h4>Apps</h4>
+        <a href="#apps">FinanceOS</a>
+        <a href="#apps">HealthOS</a>
+        <a href="#apps">StudyOS</a>
       </div>
       <div class="fl-col">
         <h4>Acesso</h4>
@@ -519,7 +640,7 @@
     </div>
   </div>
   <div class="footer-bottom">
-    <span>© 2026 FinanceOS. Todos os direitos reservados.</span>
+    <span>© 2026 OSHelp. Todos os direitos reservados.</span>
   </div>
 </footer>
 
@@ -532,7 +653,7 @@
     <div class="auth-panel" id="panelLogin">
       <div class="auth-logo">
         <svg width="36" height="36" viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="8" fill="url(#alg)"/><path d="M8 22L13 14l4 5 3-4 4 6" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><defs><linearGradient id="alg" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse"><stop stop-color="#6366f1"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient></defs></svg>
-        <span>FinanceOS</span>
+        <span>OSHelp</span>
       </div>
       <h2>Bem-vindo de volta</h2>
       <p class="auth-sub">Entre na sua conta para continuar</p>
@@ -574,7 +695,7 @@
     <div class="auth-panel hidden" id="panelSignup">
       <div class="auth-logo">
         <svg width="36" height="36" viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="8" fill="url(#asg)"/><path d="M8 22L13 14l4 5 3-4 4 6" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><defs><linearGradient id="asg" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse"><stop stop-color="#6366f1"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient></defs></svg>
-        <span>FinanceOS</span>
+        <span>OSHelp</span>
       </div>
       <h2>Crie sua conta</h2>
       <p class="auth-sub">Grátis para sempre no plano Starter</p>
@@ -629,13 +750,13 @@
         </div>
       </div>
       <h2 id="successTitle">Bem-vindo!</h2>
-      <p class="auth-sub" id="successSub">Entrando no seu painel…</p>
+      <p class="auth-sub" id="successSub">Entrando no OSHelp…</p>
       <div class="auth-progress"><div class="auth-progress-fill"></div></div>
     </div>
   </div>
 </div>
 
-<script src="js/firebase-config.js?v=9"></script>
-<script src="js/landing.js?v=9"></script>
+<script src="js/firebase-config.js?v=10"></script>
+<script src="js/landing.js?v=10"></script>
 </body>
 </html>

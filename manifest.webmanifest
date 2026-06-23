@@ -1,7 +1,7 @@
 {
-  "name": "FinanceOS — Gestão Financeira Inteligente",
-  "short_name": "FinanceOS",
-  "description": "Controle financeiro pessoal premium: dashboard, metas, fluxo de caixa e assistente FinBot.",
+  "name": "OSHelp — Finanças, Saúde e Estudos",
+  "short_name": "OSHelp",
+  "description": "Super app com FinanceOS, HealthOS e StudyOS — gerencie finanças, saúde e estudos em um só lugar.",
   "start_url": "./app.html",
   "scope": "./",
   "display": "standalone",
