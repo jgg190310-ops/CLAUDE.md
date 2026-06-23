@@ -1422,15 +1422,39 @@ function applyAvatarPhoto(photo) {
   }
 }
 
+// comprime a imagem para um thumbnail pequeno (quadrado, 256px, JPEG)
+// — assim cabe no localStorage e sincroniza rápido no Firebase
+function compressImage(dataUrl, size = 256) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = size; canvas.height = size;
+      const ctx = canvas.getContext('2d');
+      // recorta o centro (cover) para ficar quadrado
+      const s = Math.min(img.width, img.height);
+      const sx = (img.width - s) / 2;
+      const sy = (img.height - s) / 2;
+      ctx.drawImage(img, sx, sy, s, s, 0, 0, size, size);
+      resolve(canvas.toDataURL('image/jpeg', 0.82));
+    };
+    img.onerror = reject;
+    img.src = dataUrl;
+  });
+}
+
 function handleAvatarUpload(e) {
   const file = e.target.files[0];
   if (!file) return;
   const reader = new FileReader();
-  reader.onload = ev => {
-    const photo = ev.target.result;
+  reader.onload = async ev => {
+    let photo = ev.target.result;
+    try {
+      photo = await compressImage(photo, 256);   // reduz para ~20-40 KB
+    } catch (_) { /* se falhar, usa o original */ }
     const profile = { ...(_store.profile || {}), photo };
-    saveStore({ profile });
     Object.assign(_store, { profile });
+    saveStore({ profile });
     cloudSave('profile', profile);
     applyAvatarPhoto(photo);
     showToast('Foto atualizada!', 'success');
@@ -1448,11 +1472,13 @@ function refreshProfileUI(data) {
   const dn  = document.getElementById('pfDisplayName');
   const ua  = document.querySelector('.user-avatar');
   const un  = document.querySelector('.user-name');
-  if (!data.photo) {
+  // não deixa um perfil remoto/parcial sem foto apagar a foto já salva
+  const photo = data.photo || _store.profile?.photo;
+  if (!photo) {
     if (big) big.textContent = initials;
     if (ua)  ua.textContent  = initials;
   } else {
-    applyAvatarPhoto(data.photo);
+    applyAvatarPhoto(photo);
   }
   if (dn)  dn.textContent  = name;
   if (un)  un.textContent  = name;
