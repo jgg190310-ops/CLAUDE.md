@@ -153,6 +153,40 @@ function navigateTo(page) {
   if (page === 'health') { renderHealthScore(); renderLifeHours(); renderHealthTips(); }
   if (page === 'crisis') renderCrisis();
   if (page === 'subs') renderSubs();
+  // hook para módulos externos (HealthOS / StudyOS)
+  if (typeof window.onAppNavigate === 'function') window.onAppNavigate(page);
+}
+
+// ══════════════════════════════════════════════
+//  SUPER APP — trocador entre FinanceOS / HealthOS / StudyOS
+// ══════════════════════════════════════════════
+const APP_DEFAULT_PAGE = { finance: 'dashboard', health: 'h-dashboard', study: 's-soon' };
+const APP_LOGO = { finance: 'FinanceOS', health: 'HealthOS', study: 'StudyOS' };
+let currentApp = 'finance';
+
+function switchApp(app) {
+  if (!APP_DEFAULT_PAGE[app]) return;
+  currentApp = app;
+  try { saveStore({ lastApp: app }); } catch (e) {}
+  // marca o body para o tema de cor de cada app
+  document.body.dataset.app = app;
+  // botões do trocador
+  document.querySelectorAll('.app-sw-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.app === app));
+  // grupos de navegação: só os do app atual (e os "all")
+  document.querySelectorAll('.nav-group[data-app]').forEach(g => {
+    const ga = g.dataset.app;
+    g.style.display = (ga === app || ga === 'all') ? '' : 'none';
+  });
+  // barras inferiores (mobile)
+  document.querySelectorAll('.bottom-nav[data-app]').forEach(n => {
+    n.style.display = (n.dataset.app === app) ? '' : 'none';
+  });
+  // logo
+  const logo = document.getElementById('osLogoText');
+  if (logo) logo.textContent = APP_LOGO[app];
+  // vai para a página inicial do app
+  navigateTo(APP_DEFAULT_PAGE[app]);
 }
 
 document.getElementById('sidebarToggle').addEventListener('click', () => {
