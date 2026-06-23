@@ -11,6 +11,11 @@
     's-sessions': 'Sessões & Pomodoro',
     's-goals': 'Matérias & Metas',
     's-bot': 'StudyBot',
+    's-tasks': 'Tarefas',
+    's-flashcards': 'Flashcards',
+    's-schedule': 'Cronograma Semanal',
+    's-grades': 'Calculadora de Notas',
+    's-notes': 'Anotações',
   });
 
   // ── modelo de dados ──────────────────────────────────────────────
@@ -1006,12 +1011,491 @@
   }
 
   // ── hook de navegação ────────────────────────────────────────────
+  // ════════════════════════════════════════════════════════════════
+  //  TAREFAS
+  // ════════════════════════════════════════════════════════════════
+  let _taskFilter = 'all';
+
+  function renderSTasks() {
+    const s = sData();
+    if (!s.tasks) s.tasks = [];
+    const tasks = s.tasks;
+    const today = todayKey();
+
+    const total = tasks.length;
+    const done = tasks.filter(t => t.done).length;
+    const pending = tasks.filter(t => !t.done).length;
+    const late = tasks.filter(t => !t.done && t.deadline && t.deadline < today).length;
+
+    const subjectOptions = s.subjects.length ? s.subjects.map(sub => `<option value="${sub.name}">${sub.name}</option>`).join('') : '<option value="Geral">Geral</option>';
+
+    const filtered = tasks.filter(t => {
+      if (_taskFilter === 'pending') return !t.done;
+      if (_taskFilter === 'done') return t.done;
+      return true;
+    }).sort((a, b) => {
+      if (a.done !== b.done) return a.done ? 1 : -1;
+      const pr = { Alta: 0, Média: 1, Baixa: 2 };
+      return (pr[a.priority] || 1) - (pr[b.priority] || 1);
+    });
+
+    const el = document.getElementById('s-tasks');
+    if (!el) return;
+    el.innerHTML = `
+      <div class="page-header">
+        <div><h1>Tarefas</h1><p class="page-sub">Organize o que você precisa estudar ou entregar.</p></div>
+        <div class="page-header-actions"><button class="btn-primary-sm" onclick="sOpenTaskForm()">+ Nova Tarefa</button></div>
+      </div>
+      <div class="kpi-grid kpi-grid-4" style="margin-bottom:16px">
+        <div class="kpi-card" style="--ic:#6366f1"><div class="kpi-label">Total</div><div class="kpi-value">${total}</div><div class="kpi-trend" style="color:#6366f1">tarefas</div></div>
+        <div class="kpi-card" style="--ic:#10b981"><div class="kpi-label">Concluídas</div><div class="kpi-value">${done}</div><div class="kpi-trend" style="color:#10b981">feitas</div></div>
+        <div class="kpi-card" style="--ic:#f59e0b"><div class="kpi-label">Pendentes</div><div class="kpi-value">${pending}</div><div class="kpi-trend" style="color:#f59e0b">a fazer</div></div>
+        <div class="kpi-card" style="--ic:#ef4444"><div class="kpi-label">Atrasadas</div><div class="kpi-value">${late}</div><div class="kpi-trend" style="color:#ef4444">vencidas</div></div>
+      </div>
+      <div class="cf-card" id="sTaskForm" style="display:none;margin-bottom:16px">
+        <h3 style="font-size:14px;font-weight:700;margin-bottom:12px">Nova Tarefa</h3>
+        <div class="form-grid-2" style="gap:10px">
+          <div class="form-group full"><label>Título</label><input type="text" class="s-input" id="sTaskTitle" placeholder="Ex: Revisar capítulo 5"/></div>
+          <div class="form-group"><label>Matéria</label><select class="s-select" id="sTaskSubject">${subjectOptions}</select></div>
+          <div class="form-group"><label>Prioridade</label><select class="s-select" id="sTaskPriority"><option value="Alta">Alta</option><option value="Média" selected>Média</option><option value="Baixa">Baixa</option></select></div>
+          <div class="form-group"><label>Prazo</label><input type="date" class="s-input" id="sTaskDeadline"/></div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:12px">
+          <button class="btn-cancel" onclick="sCloseTaskForm()">Cancelar</button>
+          <button class="btn-confirm" onclick="sAddTask()">Criar Tarefa</button>
+        </div>
+      </div>
+      <div class="cf-card">
+        <div style="display:flex;gap:6px;margin-bottom:14px">
+          ${['all','pending','done'].map(f=>`<button class="s-mode-btn${_taskFilter===f?' active':''}" onclick="sFilterTasks('${f}')">${{all:'Todas',pending:'Pendentes',done:'Concluídas'}[f]}</button>`).join('')}
+        </div>
+        <div id="sTaskList">${renderTaskList(filtered, today)}</div>
+      </div>`;
+  }
+
+  function renderTaskList(tasks, today) {
+    if (!tasks.length) return `<div class="empty-state"><p>Nenhuma tarefa aqui.</p></div>`;
+    const PCOLOR = { Alta:'#ef4444', Média:'#f59e0b', Baixa:'#10b981' };
+    return tasks.map((t, i) => {
+      const late = !t.done && t.deadline && t.deadline < today;
+      return `<div class="cf-li" style="${t.done?'opacity:.55':''}">
+        <div class="cf-li-main">
+          <input type="checkbox" ${t.done?'checked':''} style="margin-right:8px;width:16px;height:16px;accent-color:var(--indigo);cursor:pointer" onchange="sToggleTask(${t.id})"/>
+          <div>
+            <div class="cf-li-name" style="${t.done?'text-decoration:line-through':''}">${t.title}</div>
+            <div class="cf-li-sub">
+              <span class="s-subj-chip" style="--sc:${sSubjColor(t.subject)}">${t.subject}</span>
+              <span style="margin-left:6px;color:${PCOLOR[t.priority]};font-size:11px;font-weight:600">${t.priority}</span>
+              ${t.deadline?`<span style="margin-left:6px;font-size:11px;color:${late?'#ef4444':'var(--text-3)'}">${late?'⚠ Atrasada — ':''} ${new Date(t.deadline+'T12:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'short'})}</span>`:''}
+            </div>
+          </div>
+        </div>
+        <div class="cf-li-right"><button class="cf-del" onclick="sDelTask(${t.id})">×</button></div>
+      </div>`;
+    }).join('');
+  }
+
+  function sSubjColor(name) {
+    const s = sData().subjects.find(x => x.name === name);
+    return s ? s.color : '#6366f1';
+  }
+
+  function sOpenTaskForm() { const f = document.getElementById('sTaskForm'); if (f) { f.style.display=''; f.scrollIntoView({behavior:'smooth',block:'nearest'}); } }
+  function sCloseTaskForm() { const f = document.getElementById('sTaskForm'); if (f) f.style.display='none'; }
+
+  function sAddTask() {
+    const title = document.getElementById('sTaskTitle')?.value.trim();
+    if (!title) { showToast && showToast('Informe o título da tarefa.'); return; }
+    const s = sData();
+    if (!s.tasks) s.tasks = [];
+    s.tasks.push({ id: Date.now(), title, subject: document.getElementById('sTaskSubject')?.value||'Geral', priority: document.getElementById('sTaskPriority')?.value||'Média', deadline: document.getElementById('sTaskDeadline')?.value||'', done: false });
+    sPersist();
+    sCloseTaskForm();
+    renderSTasks();
+    showToast && showToast('Tarefa criada!');
+  }
+
+  function sToggleTask(id) {
+    const s = sData();
+    const t = s.tasks?.find(t => t.id === id);
+    if (t) { t.done = !t.done; t.doneAt = t.done ? Date.now() : null; }
+    sPersist();
+    const today = todayKey();
+    const filtered = (s.tasks||[]).filter(t => { if (_taskFilter==='pending') return !t.done; if (_taskFilter==='done') return t.done; return true; }).sort((a,b)=>a.done===b.done?0:a.done?1:-1);
+    const list = document.getElementById('sTaskList');
+    if (list) list.innerHTML = renderTaskList(filtered, today);
+  }
+
+  function sDelTask(id) {
+    const s = sData();
+    if (s.tasks) s.tasks = s.tasks.filter(t => t.id !== id);
+    sPersist();
+    renderSTasks();
+  }
+
+  function sFilterTasks(f) {
+    _taskFilter = f;
+    renderSTasks();
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  //  FLASHCARDS
+  // ════════════════════════════════════════════════════════════════
+  let _fcDeck = null, _fcCard = 0, _fcFlipped = false, _fcReview = false;
+
+  function renderSFlashcards() {
+    const s = sData();
+    if (!s.decks) s.decks = [];
+    if (_fcReview && _fcDeck !== null) { renderFCReview(); return; }
+
+    const subjectOptions = s.subjects.length ? s.subjects.map(sub=>`<option value="${sub.name}">${sub.name}</option>`).join('') : '<option value="Geral">Geral</option>';
+    const el = document.getElementById('s-flashcards');
+    if (!el) return;
+    el.innerHTML = `
+      <div class="page-header">
+        <div><h1>Flashcards</h1><p class="page-sub">Crie baralhos e revise com repetição espaçada.</p></div>
+        <div class="page-header-actions"><button class="btn-primary-sm" onclick="sFCNewDeck()">+ Novo Baralho</button></div>
+      </div>
+      <div class="cf-card" id="sFCDeckForm" style="display:none;margin-bottom:16px">
+        <h3 style="font-size:14px;font-weight:700;margin-bottom:12px">Novo Baralho</h3>
+        <div class="form-grid-2" style="gap:10px">
+          <div class="form-group full"><label>Nome do baralho</label><input type="text" class="s-input" id="sFCDeckName" placeholder="Ex: Biologia - Célula"/></div>
+          <div class="form-group"><label>Matéria</label><select class="s-select" id="sFCDeckSubject">${subjectOptions}</select></div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:12px">
+          <button class="btn-cancel" onclick="document.getElementById('sFCDeckForm').style.display='none'">Cancelar</button>
+          <button class="btn-confirm" onclick="sFCCreateDeck()">Criar</button>
+        </div>
+      </div>
+      ${s.decks.length === 0 ? `<div class="cf-card" style="text-align:center;padding:40px"><p style="color:var(--text-2)">Nenhum baralho criado ainda.<br>Crie um para começar a revisar.</p></div>` :
+      `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px">
+        ${s.decks.map((d, i) => {
+          const color = sSubjColor(d.subject);
+          return `<div class="cf-card" style="border-left:3px solid ${color}">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
+              <div>
+                <div style="font-weight:700;font-size:15px">${d.name}</div>
+                <div class="s-subj-chip" style="--sc:${color};margin-top:4px">${d.subject}</div>
+              </div>
+              <button class="cf-del" onclick="sFCDelDeck(${i})">×</button>
+            </div>
+            <div style="color:var(--text-2);font-size:13px;margin-bottom:12px">${d.cards.length} cartões</div>
+            <div style="display:flex;gap:8px">
+              <button class="s-mode-btn" onclick="sFCAddCard(${i})" style="flex:1">+ Cartão</button>
+              ${d.cards.length > 0 ? `<button class="btn-confirm" onclick="sFCStartReview(${i})" style="flex:1;font-size:12px;padding:6px">Revisar</button>` : ''}
+            </div>
+          </div>`;
+        }).join('')}
+      </div>`}`;
+  }
+
+  function sFCNewDeck() { const f = document.getElementById('sFCDeckForm'); if (f) { f.style.display=''; f.scrollIntoView({behavior:'smooth',block:'nearest'}); } }
+
+  function sFCCreateDeck() {
+    const name = document.getElementById('sFCDeckName')?.value.trim();
+    if (!name) { showToast && showToast('Informe o nome do baralho.'); return; }
+    const s = sData();
+    if (!s.decks) s.decks = [];
+    s.decks.push({ id: Date.now(), name, subject: document.getElementById('sFCDeckSubject')?.value||'Geral', cards: [] });
+    sPersist();
+    renderSFlashcards();
+  }
+
+  function sFCDelDeck(i) {
+    const s = sData(); if (!s.decks) return;
+    s.decks.splice(i, 1); sPersist(); renderSFlashcards();
+  }
+
+  function sFCAddCard(deckIdx) {
+    const front = prompt('Frente do cartão (pergunta):');
+    if (!front) return;
+    const back = prompt('Verso do cartão (resposta):');
+    if (!back) return;
+    const s = sData();
+    s.decks[deckIdx].cards.push({ front, back, score: 0 });
+    sPersist();
+    renderSFlashcards();
+    showToast && showToast('Cartão adicionado!');
+  }
+
+  function sFCStartReview(deckIdx) {
+    _fcDeck = deckIdx; _fcCard = 0; _fcFlipped = false; _fcReview = true;
+    renderFCReview();
+  }
+
+  function renderFCReview() {
+    const s = sData();
+    const deck = s.decks[_fcDeck];
+    if (!deck || deck.cards.length === 0) { _fcReview = false; renderSFlashcards(); return; }
+    const card = deck.cards[_fcCard];
+    const el = document.getElementById('s-flashcards');
+    if (!el) return;
+    el.innerHTML = `
+      <div class="page-header">
+        <div><h1>${deck.name}</h1><p class="page-sub">Cartão ${_fcCard+1} de ${deck.cards.length}</p></div>
+        <div class="page-header-actions"><button class="btn-sm" onclick="sFCExitReview()">Sair</button></div>
+      </div>
+      <div style="max-width:540px;margin:32px auto">
+        <div class="fc-card" onclick="sFCFlip()" id="fcCardEl" style="cursor:pointer">
+          <div class="fc-front ${_fcFlipped?'fc-hidden':''}">
+            <div class="fc-label">Pergunta</div>
+            <div class="fc-text">${card.front}</div>
+            <div style="font-size:12px;color:var(--text-3);margin-top:16px">Toque para ver a resposta</div>
+          </div>
+          <div class="fc-back ${_fcFlipped?'':'fc-hidden'}">
+            <div class="fc-label" style="color:var(--green)">Resposta</div>
+            <div class="fc-text">${card.back}</div>
+          </div>
+        </div>
+        ${_fcFlipped ? `
+        <div style="display:flex;gap:12px;margin-top:20px">
+          <button class="btn-cancel" style="flex:1;padding:14px" onclick="sFCAnswer('hard')">😓 Difícil</button>
+          <button class="btn-confirm" style="flex:1;padding:14px" onclick="sFCAnswer('easy')">😊 Fácil</button>
+        </div>` : `
+        <div style="text-align:center;margin-top:20px">
+          <button class="btn-confirm" style="padding:14px 40px" onclick="sFCFlip()">Ver Resposta</button>
+        </div>`}
+        <div style="display:flex;justify-content:center;gap:4px;margin-top:20px">
+          ${deck.cards.map((_,i)=>`<div style="width:8px;height:8px;border-radius:50%;background:${i===_fcCard?'var(--indigo)':'var(--border)'}"></div>`).join('')}
+        </div>
+      </div>`;
+  }
+
+  function sFCFlip() { _fcFlipped = !_fcFlipped; renderFCReview(); }
+
+  function sFCAnswer(result) {
+    const s = sData();
+    if (result === 'easy') s.decks[_fcDeck].cards[_fcCard].score = (_fcDeck||0) + 1;
+    sPersist();
+    _fcCard++;
+    _fcFlipped = false;
+    if (_fcCard >= s.decks[_fcDeck].cards.length) {
+      _fcReview = false;
+      showToast && showToast('Revisão concluída!');
+      renderSFlashcards();
+    } else renderFCReview();
+  }
+
+  function sFCExitReview() { _fcReview = false; renderSFlashcards(); }
+
+  // ════════════════════════════════════════════════════════════════
+  //  CRONOGRAMA SEMANAL
+  // ════════════════════════════════════════════════════════════════
+  const WEEKDAYS = ['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'];
+  const HOURS = Array.from({length:16},(_,i)=>i+7); // 7h–22h
+
+  function renderSSchedule() {
+    const s = sData();
+    if (!s.schedule) s.schedule = {};
+    const el = document.getElementById('s-schedule');
+    if (!el) return;
+
+    const subjectOptions = s.subjects.length ? s.subjects.map(sub=>`<option value="${sub.name}">${sub.name}</option>`).join('') : '<option value="Estudo">Estudo</option>';
+
+    el.innerHTML = `
+      <div class="page-header"><div><h1>Cronograma Semanal</h1><p class="page-sub">Planeje seus horários de estudo para cada dia.</p></div></div>
+      <div class="cf-card" style="margin-bottom:16px">
+        <div style="font-size:13px;color:var(--text-2);margin-bottom:8px">Clique em uma célula vazia para adicionar, clique novamente para remover.</div>
+        <div class="s-schedule-wrap">
+          <div class="s-schedule-grid">
+            <div class="s-sch-header"></div>
+            ${WEEKDAYS.map(d=>`<div class="s-sch-header">${d}</div>`).join('')}
+            ${HOURS.map(h=>`
+              <div class="s-sch-time">${h}h</div>
+              ${WEEKDAYS.map((_,di)=>{
+                const key=`${di}-${h}`;
+                const block = s.schedule[key];
+                const color = block ? sSubjColor(block.subject) : null;
+                return block
+                  ? `<div class="s-sch-cell filled" style="background:${color}22;border-color:${color};color:${color}" onclick="sSchClear('${key}')" title="Clique para remover">${block.subject}</div>`
+                  : `<div class="s-sch-cell" onclick="sSchAdd('${key}')" title="Adicionar bloco"></div>`;
+              }).join('')}
+            `).join('')}
+          </div>
+        </div>
+        <div style="margin-top:12px;font-size:12px;color:var(--text-3)">Adicionar bloco:</div>
+        <div style="display:flex;gap:8px;margin-top:6px;flex-wrap:wrap;align-items:center" id="sSchAddRow">
+          <select class="s-select" id="sSchSubject" style="flex:1;min-width:140px">${subjectOptions}</select>
+          <span style="font-size:12px;color:var(--text-3)">Selecione a matéria e clique numa célula vazia</span>
+        </div>
+      </div>`;
+  }
+
+  function sSchAdd(key) {
+    const s = sData();
+    if (!s.schedule) s.schedule = {};
+    if (s.schedule[key]) { sSchClear(key); return; }
+    const subj = document.getElementById('sSchSubject')?.value || 'Estudo';
+    s.schedule[key] = { subject: subj };
+    sPersist();
+    renderSSchedule();
+  }
+
+  function sSchClear(key) {
+    const s = sData();
+    if (s.schedule) { delete s.schedule[key]; sPersist(); renderSSchedule(); }
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  //  CALCULADORA DE NOTAS
+  // ════════════════════════════════════════════════════════════════
+  function renderSGrades() {
+    const s = sData();
+    if (!s.gradeBook) s.gradeBook = [];
+    const el = document.getElementById('s-grades');
+    if (!el) return;
+    el.innerHTML = `
+      <div class="page-header">
+        <div><h1>Calculadora de Notas</h1><p class="page-sub">Acompanhe suas notas e calcule médias ponderadas.</p></div>
+        <div class="page-header-actions"><button class="btn-primary-sm" onclick="sAddGradeSubject()">+ Matéria</button></div>
+      </div>
+      ${s.gradeBook.length === 0 ? `<div class="cf-card" style="text-align:center;padding:40px"><p style="color:var(--text-2)">Adicione uma matéria para começar.</p></div>` :
+        s.gradeBook.map((gs, si) => {
+          const totalWeight = gs.entries.reduce((a,e)=>a+(+e.weight||0),0);
+          const avg = totalWeight > 0 ? gs.entries.reduce((a,e)=>a+(+e.grade||0)*(+e.weight||0),0) / totalWeight : null;
+          const avgRound = avg !== null ? Math.round(avg*10)/10 : null;
+          const color = avgRound !== null ? (avgRound >= 7 ? '#10b981' : avgRound >= 5 ? '#f59e0b' : '#ef4444') : 'var(--indigo)';
+          const remaining = 100 - totalWeight;
+          const needed = (remaining > 0 && avgRound !== null) ? ((7 * 100 - avg * totalWeight) / remaining).toFixed(1) : null;
+          return `<div class="cf-card" style="margin-bottom:14px;border-left:3px solid ${color}">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+              <h3 style="font-size:15px;font-weight:700;color:${color}">${gs.subject}</h3>
+              <div style="display:flex;align-items:center;gap:8px">
+                ${avgRound!==null?`<span style="font-size:20px;font-weight:900;color:${color}">${avgRound}</span>`:''}
+                <button class="cf-del" onclick="sDelGradeSubject(${si})">×</button>
+              </div>
+            </div>
+            ${gs.entries.map((e, ei) => `<div class="cf-li" style="margin-bottom:6px">
+              <div class="cf-li-main"><span class="cf-li-name">${e.name}</span><span class="cf-li-sub">Peso: ${e.weight}%</span></div>
+              <div class="cf-li-right"><span class="cf-li-val">${e.grade}</span><button class="cf-del" onclick="sDelGradeEntry(${si},${ei})">×</button></div>
+            </div>`).join('')}
+            <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
+              <input type="text" class="s-input" id="sGN_${si}" placeholder="Nome (ex: Prova 1)" style="flex:2;min-width:100px"/>
+              <input type="number" class="s-input" id="sGG_${si}" placeholder="Nota (0-10)" min="0" max="10" step="0.1" style="flex:1;min-width:70px"/>
+              <input type="number" class="s-input" id="sGW_${si}" placeholder="Peso %" min="1" max="100" style="flex:1;min-width:60px"/>
+              <button class="btn-confirm" style="padding:8px 12px;font-size:12px" onclick="sAddGradeEntry(${si})">+ Nota</button>
+            </div>
+            ${needed && remaining > 0 ? `<div style="margin-top:8px;font-size:12px;color:var(--amber)">Para média 7.0: você precisa de <b>${Math.max(0,Math.min(10,parseFloat(needed))).toFixed(1)}</b> nos ${remaining.toFixed(0)}% restantes.</div>` : ''}
+          </div>`;
+        }).join('')}
+    `;
+  }
+
+  function sAddGradeSubject() {
+    const name = prompt('Nome da matéria:');
+    if (!name) return;
+    const s = sData();
+    if (!s.gradeBook) s.gradeBook = [];
+    s.gradeBook.push({ subject: name, entries: [] });
+    sPersist();
+    renderSGrades();
+  }
+
+  function sDelGradeSubject(i) {
+    const s = sData(); if (s.gradeBook) { s.gradeBook.splice(i,1); sPersist(); renderSGrades(); }
+  }
+
+  function sAddGradeEntry(si) {
+    const name = document.getElementById(`sGN_${si}`)?.value.trim();
+    const grade = parseFloat(document.getElementById(`sGG_${si}`)?.value);
+    const weight = parseFloat(document.getElementById(`sGW_${si}`)?.value);
+    if (!name || isNaN(grade) || isNaN(weight)) { showToast && showToast('Preencha nome, nota e peso.'); return; }
+    const s = sData();
+    s.gradeBook[si].entries.push({ name, grade, weight });
+    sPersist();
+    renderSGrades();
+  }
+
+  function sDelGradeEntry(si, ei) {
+    const s = sData(); s.gradeBook[si].entries.splice(ei,1); sPersist(); renderSGrades();
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  //  ANOTAÇÕES
+  // ════════════════════════════════════════════════════════════════
+  let _noteFilter = '', _noteOpen = null;
+
+  function renderSNotes() {
+    const s = sData();
+    if (!s.notes) s.notes = [];
+    const el = document.getElementById('s-notes');
+    if (!el) return;
+
+    const subjectOptions = ['Todas', ...(s.subjects.map(sub=>sub.name))];
+    const filtered = s.notes.filter(n => !_noteFilter || n.subject === _noteFilter || _noteFilter === 'Todas');
+    filtered.sort((a,b) => b.createdAt - a.createdAt);
+
+    el.innerHTML = `
+      <div class="page-header">
+        <div><h1>Anotações</h1><p class="page-sub">Guarde ideias, resumos e lembretes por matéria.</p></div>
+        <div class="page-header-actions"><button class="btn-primary-sm" onclick="sOpenNoteForm()">+ Nova Nota</button></div>
+      </div>
+      <div class="cf-card" id="sNoteForm" style="display:none;margin-bottom:16px">
+        <h3 style="font-size:14px;font-weight:700;margin-bottom:12px">Nova Anotação</h3>
+        <div class="form-grid-2" style="gap:10px">
+          <div class="form-group full"><label>Título</label><input type="text" class="s-input" id="sNoteTitle" placeholder="Ex: Resumo de Funções"/></div>
+          <div class="form-group"><label>Matéria</label><select class="s-select" id="sNoteSubject">${s.subjects.map(sub=>`<option value="${sub.name}">${sub.name}</option>`).join('')||'<option value="Geral">Geral</option>'}</select></div>
+        </div>
+        <div class="form-group" style="margin-top:10px"><label>Conteúdo</label><textarea class="s-input" id="sNoteContent" rows="5" style="resize:vertical" placeholder="Escreva aqui..."></textarea></div>
+        <div style="display:flex;gap:8px;margin-top:12px">
+          <button class="btn-cancel" onclick="sCloseNoteForm()">Cancelar</button>
+          <button class="btn-confirm" onclick="sAddNote()">Salvar Nota</button>
+        </div>
+      </div>
+      <div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap">
+        ${subjectOptions.map(f=>`<button class="s-mode-btn${_noteFilter===f||(!_noteFilter&&f==='Todas')?' active':''}" onclick="sNoteFilterSet('${f}')">${f}</button>`).join('')}
+      </div>
+      ${filtered.length === 0 ? `<div class="cf-card" style="text-align:center;padding:40px"><p style="color:var(--text-2)">Nenhuma anotação encontrada.</p></div>` :
+      `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px">
+        ${filtered.map((n, i) => {
+          const color = sSubjColor(n.subject);
+          const isOpen = _noteOpen === n.id;
+          return `<div class="cf-card" style="border-left:3px solid ${color};cursor:pointer" onclick="sToggleNote(${n.id})">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start">
+              <div>
+                <div style="font-weight:700;font-size:14px;margin-bottom:4px">${n.title}</div>
+                <div class="s-subj-chip" style="--sc:${color}">${n.subject}</div>
+                <div style="font-size:11px;color:var(--text-3);margin-top:4px">${new Date(n.createdAt).toLocaleDateString('pt-BR',{day:'2-digit',month:'short',year:'numeric'})}</div>
+              </div>
+              <button class="cf-del" onclick="event.stopPropagation();sDelNote(${n.id})">×</button>
+            </div>
+            ${isOpen ? `<div style="margin-top:12px;font-size:13px;color:var(--text-2);line-height:1.6;white-space:pre-wrap">${n.content}</div>` : `<div style="margin-top:8px;font-size:12px;color:var(--text-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${n.content.slice(0,80)}${n.content.length>80?'…':''}</div>`}
+          </div>`;
+        }).join('')}
+      </div>`}`;
+  }
+
+  function sOpenNoteForm() { const f=document.getElementById('sNoteForm'); if(f){f.style.display='';f.scrollIntoView({behavior:'smooth',block:'nearest'});} }
+  function sCloseNoteForm() { const f=document.getElementById('sNoteForm'); if(f) f.style.display='none'; }
+
+  function sAddNote() {
+    const title = document.getElementById('sNoteTitle')?.value.trim();
+    const content = document.getElementById('sNoteContent')?.value.trim();
+    if (!title || !content) { showToast && showToast('Preencha título e conteúdo.'); return; }
+    const s = sData();
+    if (!s.notes) s.notes = [];
+    s.notes.push({ id: Date.now(), title, content, subject: document.getElementById('sNoteSubject')?.value||'Geral', createdAt: Date.now() });
+    sPersist();
+    sCloseNoteForm();
+    renderSNotes();
+    showToast && showToast('Nota salva!');
+  }
+
+  function sDelNote(id) { const s=sData(); if(s.notes){s.notes=s.notes.filter(n=>n.id!==id);sPersist();renderSNotes();} }
+  function sToggleNote(id) { _noteOpen=(_noteOpen===id?null:id); renderSNotes(); }
+  function sNoteFilterSet(f) { _noteFilter=f==='Todas'?'':f; renderSNotes(); }
+
   const _prevOnAppNavigate = window.onAppNavigate;
   window.onAppNavigate = function (page) {
     if (page === 's-dashboard') renderSDashboard();
     else if (page === 's-sessions') renderSSessions();
     else if (page === 's-goals') renderSGoals();
     else if (page === 's-bot') renderSBot();
+    else if (page === 's-tasks') renderSTasks();
+    else if (page === 's-flashcards') renderSFlashcards();
+    else if (page === 's-schedule') renderSSchedule();
+    else if (page === 's-grades') renderSGrades();
+    else if (page === 's-notes') renderSNotes();
     if (typeof _prevOnAppNavigate === 'function') _prevOnAppNavigate(page);
   };
 
@@ -1030,4 +1514,30 @@
   window.sPomoSkip = sPomoSkip;
   window.sSetMode = sSetMode;
   window.sbSend = sbSend;
+  window.sOpenTaskForm = sOpenTaskForm;
+  window.sCloseTaskForm = sCloseTaskForm;
+  window.sAddTask = sAddTask;
+  window.sToggleTask = sToggleTask;
+  window.sDelTask = sDelTask;
+  window.sFilterTasks = sFilterTasks;
+  window.sFCNewDeck = sFCNewDeck;
+  window.sFCCreateDeck = sFCCreateDeck;
+  window.sFCDelDeck = sFCDelDeck;
+  window.sFCAddCard = sFCAddCard;
+  window.sFCStartReview = sFCStartReview;
+  window.sFCFlip = sFCFlip;
+  window.sFCAnswer = sFCAnswer;
+  window.sFCExitReview = sFCExitReview;
+  window.sSchAdd = sSchAdd;
+  window.sSchClear = sSchClear;
+  window.sAddGradeSubject = sAddGradeSubject;
+  window.sDelGradeSubject = sDelGradeSubject;
+  window.sAddGradeEntry = sAddGradeEntry;
+  window.sDelGradeEntry = sDelGradeEntry;
+  window.sOpenNoteForm = sOpenNoteForm;
+  window.sCloseNoteForm = sCloseNoteForm;
+  window.sAddNote = sAddNote;
+  window.sDelNote = sDelNote;
+  window.sToggleNote = sToggleNote;
+  window.sNoteFilterSet = sNoteFilterSet;
 })();

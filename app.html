@@ -26,7 +26,7 @@
       window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
     }
   </script>
-  <link rel="stylesheet" href="styles/app.css?v=13" />
+  <link rel="stylesheet" href="styles/app.css?v=14" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -123,9 +123,33 @@
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></svg>
         Refeições
       </a>
+      <a href="#" class="nav-item" data-page="h-exercise">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M5 8H4a4 4 0 0 0 0 8h1"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+        Exercícios
+      </a>
+      <a href="#" class="nav-item" data-page="h-sleep">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        Sono
+      </a>
+      <a href="#" class="nav-item" data-page="h-progress">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+        Progresso Corporal
+      </a>
       <a href="#" class="nav-item" data-page="h-goals">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
         Metas & Corpo
+      </a>
+    </div>
+    <div class="nav-group" data-app="health" style="display:none">
+      <span class="nav-label">Ferramentas</span>
+      <a href="#" class="nav-item" data-page="h-calc">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/></svg>
+        Calculadora de Saúde
+      </a>
+      <a href="#" class="nav-item" data-page="h-challenge">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+        Desafios
+        <span class="nav-badge-new">novo</span>
       </a>
     </div>
     <div class="nav-group" data-app="health" style="display:none">
@@ -148,9 +172,33 @@
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
         Sessões & Pomodoro
       </a>
+      <a href="#" class="nav-item" data-page="s-tasks">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        Tarefas
+      </a>
+      <a href="#" class="nav-item" data-page="s-flashcards">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+        Flashcards
+        <span class="nav-badge-new">novo</span>
+      </a>
       <a href="#" class="nav-item" data-page="s-goals">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
         Matérias & Metas
+      </a>
+    </div>
+    <div class="nav-group" data-app="study" style="display:none">
+      <span class="nav-label">Ferramentas</span>
+      <a href="#" class="nav-item" data-page="s-schedule">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Cronograma
+      </a>
+      <a href="#" class="nav-item" data-page="s-grades">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        Calculadora de Notas
+      </a>
+      <a href="#" class="nav-item" data-page="s-notes">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        Anotações
       </a>
     </div>
     <div class="nav-group" data-app="study" style="display:none">
@@ -1408,6 +1456,36 @@
     <!-- rendered by study.js renderSBot() -->
   </section>
 
+  <!-- HEALTHOS — EXERCÍCIOS -->
+  <section class="page" id="h-exercise" data-app="health"><!-- rendered by health.js --></section>
+
+  <!-- HEALTHOS — SONO -->
+  <section class="page" id="h-sleep" data-app="health"><!-- rendered by health.js --></section>
+
+  <!-- HEALTHOS — PROGRESSO CORPORAL -->
+  <section class="page" id="h-progress" data-app="health"><!-- rendered by health.js --></section>
+
+  <!-- HEALTHOS — CALCULADORA -->
+  <section class="page" id="h-calc" data-app="health"><!-- rendered by health.js --></section>
+
+  <!-- HEALTHOS — DESAFIOS -->
+  <section class="page" id="h-challenge" data-app="health"><!-- rendered by health.js --></section>
+
+  <!-- STUDYOS — TAREFAS -->
+  <section class="page" id="s-tasks" data-app="study"><!-- rendered by study.js --></section>
+
+  <!-- STUDYOS — FLASHCARDS -->
+  <section class="page" id="s-flashcards" data-app="study"><!-- rendered by study.js --></section>
+
+  <!-- STUDYOS — CRONOGRAMA -->
+  <section class="page" id="s-schedule" data-app="study"><!-- rendered by study.js --></section>
+
+  <!-- STUDYOS — CALCULADORA DE NOTAS -->
+  <section class="page" id="s-grades" data-app="study"><!-- rendered by study.js --></section>
+
+  <!-- STUDYOS — ANOTAÇÕES -->
+  <section class="page" id="s-notes" data-app="study"><!-- rendered by study.js --></section>
+
 </main>
 
 <!-- MODAL GOAL -->
@@ -1691,9 +1769,9 @@
   </a>
 </nav>
 
-<script src="js/firebase-config.js?v=13"></script>
-<script src="js/app.js?v=13"></script>
-<script src="js/health.js?v=13"></script>
-<script src="js/study.js?v=13"></script>
+<script src="js/firebase-config.js?v=14"></script>
+<script src="js/app.js?v=14"></script>
+<script src="js/health.js?v=14"></script>
+<script src="js/study.js?v=14"></script>
 </body>
 </html>
