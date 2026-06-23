@@ -2684,9 +2684,55 @@ html[data-theme="light"] .profile-sidebar-nav {
   .ai-side { flex-direction: row; }
   .ai-side-card { flex: 1; }
 }
-@media (max-width: 640px) {
-  .ai-side { flex-direction: column; }
-  .ai-chat-card { height: 70vh; }
+
+/* ══════════════════════════════════════════════
+   FINBOT — versão mobile legível (≤900px)
+══════════════════════════════════════════════ */
+@media (max-width: 900px) {
+  .ai-layout { display: flex; flex-direction: column; gap: 14px; }
+  .ai-side { flex-direction: column; gap: 12px; }
+
+  /* chat ocupa a tela toda disponível (descontando topbar + barra inferior
+     + cabeçalho da página), sem esticar nem cortar */
+  .ai-chat-card {
+    height: auto;
+    min-height: 60vh;
+    max-height: calc(100dvh - var(--topbar-h) - 150px);
+    border-radius: 18px;
+  }
+  .ai-chat-header { padding: 14px 16px; gap: 10px; }
+  .ai-avatar { width: 36px; height: 36px; border-radius: 10px; }
+  .ai-chat-messages { padding: 16px 14px; gap: 12px; }
+
+  /* BOLHAS MAIORES E LEGÍVEIS */
+  .ai-msg {
+    max-width: 88%;
+    font-size: 15px;
+    line-height: 1.65;
+    padding: 12px 15px;
+    border-radius: 15px;
+  }
+
+  /* chips de sugestão maiores para tocar */
+  .ai-suggestions { padding: 0 14px 12px; gap: 8px; }
+  .ai-chip { font-size: 13px; padding: 8px 14px; }
+
+  /* input maior e confortável */
+  .ai-input-row { padding: 12px 14px calc(14px + env(safe-area-inset-bottom, 0px)); gap: 8px; }
+  .ai-input-row input { font-size: 16px; padding: 13px 18px; }
+  .ai-send-btn { width: 48px; height: 48px; }
+
+  /* cards laterais (capacidades / privacidade) viram blocos legíveis */
+  .ai-side-card { padding: 18px 16px; border-radius: 16px; }
+  .ai-side-card h4 { font-size: 15px; }
+  .ai-capabilities li { font-size: 14px; line-height: 1.55; }
+  .ai-privacy p { font-size: 13px; line-height: 1.6; }
+
+  /* insights no topo: empilhados, legíveis */
+  .ai-insights { grid-template-columns: 1fr; gap: 12px; }
+  .ai-insight-card { padding: 16px; }
+  .ai-insight-title { font-size: 15px; }
+  .ai-insight-text { font-size: 14px; line-height: 1.6; }
 }
 
 /* light theme */
