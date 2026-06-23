@@ -12,7 +12,6 @@
     'h-meals': 'Refeições & Hidratação',
     'h-goals': 'Metas & Corpo',
     'h-nutri': 'NutriBot',
-    's-soon': 'StudyOS',
   });
 
   // ── modelo de dados ──────────────────────────────────────────────

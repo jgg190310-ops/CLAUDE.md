@@ -26,7 +26,7 @@
       window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
     }
   </script>
-  <link rel="stylesheet" href="styles/app.css?v=10" />
+  <link rel="stylesheet" href="styles/app.css?v=11" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -137,12 +137,28 @@
       </a>
     </div>
 
-    <!-- ═══════ STUDYOS NAV (placeholder) ═══════ -->
+    <!-- ═══════ STUDYOS NAV ═══════ -->
     <div class="nav-group" data-app="study" style="display:none">
       <span class="nav-label">Estudos</span>
-      <a href="#" class="nav-item" data-page="s-soon">
+      <a href="#" class="nav-item" data-page="s-dashboard">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Painel
+      </a>
+      <a href="#" class="nav-item" data-page="s-sessions">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Sessões & Pomodoro
+      </a>
+      <a href="#" class="nav-item" data-page="s-goals">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
-        Em breve
+        Matérias & Metas
+      </a>
+    </div>
+    <div class="nav-group" data-app="study" style="display:none">
+      <span class="nav-label">Inteligência</span>
+      <a href="#" class="nav-item" data-page="s-bot">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a7 7 0 0 1 7 7c0 2.4-1.2 4.5-3 5.7V17a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-2.3C6.2 13.5 5 11.4 5 9a7 7 0 0 1 7-7z"/><line x1="9" y1="22" x2="15" y2="22"/></svg>
+        StudyBot
+        <span class="nav-badge-new">IA</span>
       </a>
     </div>
 
@@ -1352,19 +1368,26 @@
     </div>
   </section>
 
-  <!-- STUDYOS (placeholder) -->
-  <section class="page" id="s-soon" data-app="study">
-    <div class="page-header">
-      <div>
-        <h1>StudyOS</h1>
-        <p class="page-sub">Sua central de estudos com IA — chegando em breve.</p>
-      </div>
-    </div>
-    <div class="cf-card" style="text-align:center;padding:48px 24px">
-      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--indigo)" stroke-width="1.6" style="margin-bottom:16px"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
-      <h3 style="font-size:18px;margin-bottom:8px">StudyOS está a caminho 🚀</h3>
-      <p style="color:var(--text-2);max-width:420px;margin:0 auto;line-height:1.6">Em breve: cronograma de estudos, técnica Pomodoro, matérias e tarefas, flashcards e o <b>StudyBot</b> — uma IA treinada para te ajudar a estudar e aprender mais rápido.</p>
-    </div>
+  <!-- ══════════════════════════ STUDYOS ══════════════════════════ -->
+
+  <!-- STUDYOS — DASHBOARD -->
+  <section class="page" id="s-dashboard" data-app="study">
+    <!-- rendered by study.js renderSDashboard() -->
+  </section>
+
+  <!-- STUDYOS — SESSÕES & POMODORO -->
+  <section class="page" id="s-sessions" data-app="study">
+    <!-- rendered by study.js renderSSessions() -->
+  </section>
+
+  <!-- STUDYOS — MATÉRIAS & METAS -->
+  <section class="page" id="s-goals" data-app="study">
+    <!-- rendered by study.js renderSGoals() -->
+  </section>
+
+  <!-- STUDYOS — STUDYBOT -->
+  <section class="page" id="s-bot" data-app="study">
+    <!-- rendered by study.js renderSBot() -->
   </section>
 
 </main>
@@ -1624,8 +1647,35 @@
   </a>
 </nav>
 
-<script src="js/firebase-config.js?v=10"></script>
-<script src="js/app.js?v=10"></script>
-<script src="js/health.js?v=10"></script>
+<!-- MOBILE BOTTOM NAV — STUDYOS -->
+<nav class="bottom-nav" id="bottomNavStudy" data-app="study" style="display:none">
+  <a href="#" class="bn-item active" data-page="s-dashboard">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+    <span>Painel</span>
+  </a>
+  <a href="#" class="bn-item" data-page="s-sessions">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    <span>Pomodoro</span>
+  </a>
+  <a href="#" class="bn-item bn-center" data-page="s-bot">
+    <div class="bn-fab" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);box-shadow:0 4px 20px rgba(99,102,241,.6)">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M12 2a7 7 0 0 1 7 7c0 2.4-1.2 4.5-3 5.7V17a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-2.3C6.2 13.5 5 11.4 5 9a7 7 0 0 1 7-7z"/><line x1="9" y1="22" x2="15" y2="22"/></svg>
+    </div>
+    <span>StudyBot</span>
+  </a>
+  <a href="#" class="bn-item" data-page="s-goals">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+    <span>Matérias</span>
+  </a>
+  <a href="#" class="bn-item" data-page="profile">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    <span>Perfil</span>
+  </a>
+</nav>
+
+<script src="js/firebase-config.js?v=11"></script>
+<script src="js/app.js?v=11"></script>
+<script src="js/health.js?v=11"></script>
+<script src="js/study.js?v=11"></script>
 </body>
 </html>

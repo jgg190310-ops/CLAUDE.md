@@ -160,7 +160,7 @@ function navigateTo(page) {
 // ══════════════════════════════════════════════
 //  SUPER APP — trocador entre FinanceOS / HealthOS / StudyOS
 // ══════════════════════════════════════════════
-const APP_DEFAULT_PAGE = { finance: 'dashboard', health: 'h-dashboard', study: 's-soon' };
+const APP_DEFAULT_PAGE = { finance: 'dashboard', health: 'h-dashboard', study: 's-dashboard' };
 const APP_LOGO = { finance: 'FinanceOS', health: 'HealthOS', study: 'StudyOS' };
 let currentApp = 'finance';
 
