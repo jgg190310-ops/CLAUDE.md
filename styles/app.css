@@ -339,7 +339,7 @@ body {
   align-items: center;
   margin-bottom: 14px;
 }
-.kpi-label { font-size: 11px; color: var(--text-3); font-weight: 700; letter-spacing: .8px; text-transform: uppercase; }
+.kpi-label { font-size: 11px; color: var(--text-3); font-weight: 700; letter-spacing: .8px; text-transform: uppercase; margin-bottom: 10px; display: block; }
 .kpi-icon {
   width: 46px; height: 46px;
   border-radius: 13px;
@@ -351,7 +351,7 @@ body {
   position: relative;
   z-index: 1;
 }
-.kpi-value { font-size: 32px; font-weight: 900; letter-spacing: -2px; margin-bottom: 8px; line-height: 1; }
+.kpi-value { font-size: 32px; font-weight: 900; letter-spacing: -2px; margin-bottom: 12px; line-height: 1; }
 .kpi-change {
   display: flex;
   align-items: center;
@@ -1624,9 +1624,9 @@ td.tick-down, .market-card.tick-down { animation: tickDownAnim 1.2s ease-out; }
 
   /* KPI grid 2 colunas em tablet, menor gap */
   .kpi-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 14px; }
-  .kpi-card { padding: 18px 16px; border-radius: 16px; }
-  .kpi-value { font-size: 22px; }
-  .kpi-label { font-size: 11px; }
+  .kpi-card { padding: 20px 16px; border-radius: 16px; }
+  .kpi-value { font-size: 24px; letter-spacing: -1px; margin-bottom: 10px; }
+  .kpi-label { font-size: 11px; margin-bottom: 10px; }
   .kpi-icon { width: 36px; height: 36px; font-size: 16px; }
 
   /* gráficos */
@@ -1679,9 +1679,9 @@ td.tick-down, .market-card.tick-down { animation: tickDownAnim 1.2s ease-out; }
 ══════════════════════════════════════════════ */
 @media (max-width: 480px) {
   .kpi-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-  .kpi-card { padding: 14px 12px; }
-  .kpi-value { font-size: 20px; }
-  .kpi-label { font-size: 10.5px; }
+  .kpi-card { padding: 18px 14px; }
+  .kpi-value { font-size: 22px; letter-spacing: -1px; margin-bottom: 10px; }
+  .kpi-label { font-size: 10.5px; margin-bottom: 10px; }
   .page-header h1 { font-size: 20px; }
   .market-overview { grid-template-columns: 1fr; }
   .form-grid-2 { grid-template-columns: 1fr; }
@@ -2378,7 +2378,9 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .btn-add, .btn-save, .btn-calc, .btn-confirm { min-height: 42px; }
 .btn-sm { min-height: 32px; }
 /* KPI label refinement */
-.kpi-label { font-size: 11px; opacity: .9; }
+.kpi-label { font-size: 11px; opacity: .9; margin-bottom: 10px; }
+/* HealthOS usa kpi-trend como sub-linha */
+.kpi-trend { font-size: 12px; font-weight: 600; margin-top: 4px; }
 /* Slightly larger body copy in cards */
 .alert-desc, .goal-monthly { line-height: 1.55; }
 /* Empty-state friendly tables */
