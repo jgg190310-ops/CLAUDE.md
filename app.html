@@ -2057,11 +2057,31 @@
     const params = new URLSearchParams(location.search);
     const isCallback = params.get('state') === 'whoop' && (params.get('code') || params.get('error'));
     if (!isCallback) return;
-    await handleWhoopCallback();
-    // sempre leva o usuário para a página Whoop (com dados ou com diagnóstico)
-    try { if (typeof switchApp === 'function') switchApp('health'); } catch(e) {}
-    try { if (typeof navigateTo === 'function') navigateTo('h-whoop'); } catch(e) {}
-    if (typeof renderWhoop === 'function') renderWhoop();
+
+    // Callback chegou — pode estar no Safari (aberto pelo PWA via window.open)
+    // Trocar o token aqui; localStorage é compartilhado entre Safari e PWA
+    const ok = await handleWhoopCallback();
+
+    // Tenta fechar esta aba do Safari e voltar ao PWA
+    // (window.close() só funciona em abas abertas via window.open)
+    if (ok) {
+      // Sucesso: mostra mensagem por 2s e fecha
+      document.body.innerHTML = `<div style="font-family:system-ui;background:#0b0f1a;color:#e8edf8;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:32px">
+        <div style="font-size:56px;margin-bottom:16px">✅</div>
+        <div style="font-size:22px;font-weight:700;margin-bottom:8px">Whoop conectada!</div>
+        <div style="color:#9fb0cc;margin-bottom:24px">Feche esta janela e volte ao OSHelp.</div>
+        <button onclick="window.close()" style="background:#6366f1;color:#fff;border:none;border-radius:12px;padding:14px 28px;font-size:16px;font-weight:600;cursor:pointer">Fechar e voltar ao app</button>
+      </div>`;
+      setTimeout(() => { try { window.close(); } catch(e){} }, 1800);
+    } else {
+      const diag = localStorage.getItem('whoop_diag') || 'Erro desconhecido.';
+      document.body.innerHTML = `<div style="font-family:system-ui;background:#0b0f1a;color:#e8edf8;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:32px">
+        <div style="font-size:56px;margin-bottom:16px">❌</div>
+        <div style="font-size:20px;font-weight:700;margin-bottom:12px">Falha na conexão</div>
+        <div style="background:#1e2a3a;border-radius:10px;padding:16px;color:#f87171;font-size:13px;text-align:left;max-width:400px;word-break:break-word;margin-bottom:24px">${diag}</div>
+        <button onclick="window.close()" style="background:#374151;color:#fff;border:none;border-radius:12px;padding:14px 28px;font-size:16px;font-weight:600;cursor:pointer">Fechar</button>
+      </div>`;
+    }
   });
 })();
 
@@ -2395,6 +2415,17 @@ function renderUpgrade() {
       <p style="font-size:13px;opacity:.6">Pagamento seguro via Stripe · Cancele quando quiser · Sem taxas ocultas</p>
     </div>`;
 }
+</script>
+<script>
+// Quando o PWA volta ao foco após o Safari fazer o OAuth, relê o token
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && localStorage.getItem('whoop_access')) {
+    const el = document.getElementById('h-whoop');
+    if (el && !el.dataset.whoopLoaded) {
+      if (typeof renderWhoop === 'function') renderWhoop();
+    }
+  }
+});
 </script>
 </body>
 </html>
