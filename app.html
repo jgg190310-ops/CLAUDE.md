@@ -26,7 +26,7 @@
       window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
     }
   </script>
-  <link rel="stylesheet" href="styles/app.css?v=17" />
+  <link rel="stylesheet" href="styles/app.css?v=18" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -1797,10 +1797,10 @@
   </a>
 </nav>
 
-<script src="js/firebase-config.js?v=17"></script>
-<script src="js/app.js?v=17"></script>
-<script src="js/health.js?v=17"></script>
-<script src="js/study.js?v=17"></script>
+<script src="js/firebase-config.js?v=18"></script>
+<script src="js/app.js?v=18"></script>
+<script src="js/health.js?v=18"></script>
+<script src="js/study.js?v=18"></script>
 <script>
 /* ═══════════════════════════════════════════════
    WHOOP — OAuth 2.0 PKCE real integration
@@ -1828,28 +1828,40 @@
 
   window.whoopConnect = async function() {
     const clientId = document.getElementById('whoopClientId')?.value.trim();
+    const secret = document.getElementById('whoopClientSecret')?.value.trim();
     if (!clientId) { showToast('Cole seu Client ID Whoop primeiro.', 'error'); return; }
     const { verifier, challenge } = await generatePKCE();
     const redirect = location.origin + location.pathname;
     localStorage.setItem('whoop_cv', verifier);
     localStorage.setItem('whoop_cid', clientId);
+    if (secret) localStorage.setItem('whoop_secret', secret);
     localStorage.setItem('whoop_redirect', redirect);
     const url = `${WHOOP_AUTH}?response_type=code&client_id=${encodeURIComponent(clientId)}&redirect_uri=${encodeURIComponent(redirect)}&scope=${encodeURIComponent(WHOOP_SCOPE)}&code_challenge=${challenge}&code_challenge_method=S256&state=whoop`;
     location.href = url;
   };
 
   window.whoopDisconnect = function() {
-    ['whoop_access','whoop_refresh','whoop_cid','whoop_cv'].forEach(k => localStorage.removeItem(k));
+    ['whoop_access','whoop_refresh','whoop_cid','whoop_cv','whoop_secret'].forEach(k => localStorage.removeItem(k));
     const el = document.getElementById('h-whoop');
     if (el) { delete el.dataset.loaded; renderWhoop(); }
     showToast('Whoop desconectado.', 'info');
   };
 
+  // GET na API Whoop; se o navegador bloquear por CORS, tenta via proxy público
   async function whoopFetch(path) {
     const token = localStorage.getItem('whoop_access');
-    const r = await fetch(`${WHOOP_API}${path}`, { headers: { Authorization: `Bearer ${token}` } });
-    if (!r.ok) throw new Error(r.status);
-    return r.json();
+    const target = `${WHOOP_API}${path}`;
+    try {
+      const r = await fetch(target, { headers: { Authorization: `Bearer ${token}` } });
+      if (r.ok) return r.json();
+      if (r.status === 401) throw new Error(401);
+    } catch (e) { if (String(e.message) === '401') throw e; /* cai pro proxy */ }
+    // fallback CORS: corsproxy.io repassa o header Authorization
+    const r2 = await fetch(`https://corsproxy.io/?${encodeURIComponent(target)}`, {
+      headers: { Authorization: `Bearer ${token}` }, signal: AbortSignal.timeout(8000)
+    });
+    if (!r2.ok) throw new Error(r2.status);
+    return r2.json();
   }
 
   async function loadWhoopData() {
@@ -1907,20 +1919,29 @@
     const clientId = localStorage.getItem('whoop_cid');
     const redirect = localStorage.getItem('whoop_redirect');
     history.replaceState({}, '', location.pathname);
-    try {
-      const r = await fetch(WHOOP_TOKEN, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({ grant_type:'authorization_code', code, client_id: clientId, redirect_uri: redirect, code_verifier: verifier }),
-      });
-      const data = await r.json();
-      if (data.access_token) {
-        localStorage.setItem('whoop_access', data.access_token);
-        if (data.refresh_token) localStorage.setItem('whoop_refresh', data.refresh_token);
-        showToast('Whoop conectada com sucesso!', 'success');
-        return true;
-      }
-    } catch(e) { showToast('Erro ao autenticar Whoop: ' + e.message, 'error'); }
+    const body = new URLSearchParams({ grant_type:'authorization_code', code, client_id: clientId, redirect_uri: redirect, code_verifier: verifier });
+    const secret = localStorage.getItem('whoop_secret');
+    if (secret) body.set('client_secret', secret);
+    // tenta direto; se CORS bloquear, tenta via proxy público
+    const targets = [ WHOOP_TOKEN, `https://corsproxy.io/?${encodeURIComponent(WHOOP_TOKEN)}` ];
+    for (const url of targets) {
+      try {
+        const r = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body, signal: AbortSignal.timeout(9000),
+        });
+        const data = await r.json();
+        if (data.access_token) {
+          localStorage.setItem('whoop_access', data.access_token);
+          if (data.refresh_token) localStorage.setItem('whoop_refresh', data.refresh_token);
+          showToast('Whoop conectada com sucesso!', 'success');
+          return true;
+        }
+        if (data.error) { showToast('Whoop recusou: ' + (data.error_description || data.error), 'error'); return false; }
+      } catch(e) { /* tenta o proxy na próxima volta */ }
+    }
+    showToast('Não foi possível trocar o token (CORS). Veja as instruções na página.', 'error');
     return false;
   }
 
@@ -1944,14 +1965,18 @@
           </div>
           <p style="font-size:13px;opacity:.7;margin-bottom:20px;line-height:1.6">Para conectar, você precisa registrar um app no <strong>developer.whoop.com</strong>, obter seu <strong>Client ID</strong> e adicionar esta URL como redirect URI:</p>
           <div style="background:var(--bg3);border-radius:8px;padding:10px 14px;font-family:monospace;font-size:12px;word-break:break-all;margin-bottom:20px;opacity:.8">${location.origin + location.pathname}</div>
-          <div class="form-group" style="margin-bottom:16px">
+          <div class="form-group" style="margin-bottom:12px">
             <label style="font-size:12px;font-weight:600;display:block;margin-bottom:6px">Client ID do seu app Whoop</label>
             <input id="whoopClientId" type="text" placeholder="Cole o Client ID aqui" style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:13px" />
+          </div>
+          <div class="form-group" style="margin-bottom:16px">
+            <label style="font-size:12px;font-weight:600;display:block;margin-bottom:6px">Client Secret <span style="opacity:.5;font-weight:400">(exigido pela Whoop)</span></label>
+            <input id="whoopClientSecret" type="password" placeholder="Cole o Client Secret aqui" style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:13px" />
           </div>
           <button onclick="whoopConnect()" style="width:100%;padding:12px;border-radius:10px;background:linear-gradient(135deg,#ef4444,#f97316);color:#fff;font-weight:700;font-size:14px;border:none;cursor:pointer">
             Conectar com Whoop
           </button>
-          <p style="font-size:11px;opacity:.5;margin-top:12px;text-align:center">Dados nunca saem do seu dispositivo. Token armazenado localmente.</p>
+          <p style="font-size:11px;opacity:.5;margin-top:12px;text-align:center">Dados ficam só no seu dispositivo (localStorage). Client ID e Secret nunca são enviados a terceiros, exceto à própria Whoop.</p>
         </div>
       `}`;
     if (connected) loadWhoopData();
