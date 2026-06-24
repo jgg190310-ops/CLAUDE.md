@@ -118,6 +118,8 @@ const pageTitles = {
   health: 'Saúde Financeira',
   crisis: 'Modo Crise',
   subs: 'Assinaturas & Recorrentes',
+  banking: 'Open Finance',
+  upgrade: 'Planos OSHelp',
   profile: 'Configurações do Perfil',
   banking: 'Open Finance',
   upgrade: 'Planos OSHelp',

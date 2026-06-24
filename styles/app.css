@@ -3746,7 +3746,7 @@ body[data-app="health"] .bn-item.active::before { background: #10b981; }
 /* água */
 .h-water { display: flex; align-items: center; justify-content: center; gap: 22px; padding: 8px 0 14px; }
 .h-water-btn { width: 48px; height: 48px; border-radius: 14px; border: 1px solid var(--border);
-  background: rgba(255,255,255,.04); color: var(--text); font-size: 26px; font-weight: 300;
+  background: rgba(255,255,255,.08); color: var(--text); font-size: 26px; font-weight: 300;
   cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .2s; }
 .h-water-btn.add { background: linear-gradient(135deg, #06b6d4, #0891b2); color: #fff; border: none; box-shadow: 0 4px 14px rgba(6,182,212,.4); }
 .h-water-btn:active { transform: scale(.92); }
@@ -3783,7 +3783,8 @@ body[data-app="health"] .bn-item.active::before { background: #10b981; }
 html[data-theme="light"] .app-switcher { background: rgba(15,23,42,.04); }
 html[data-theme="light"] .cf-li { background: rgba(15,23,42,.03); }
 html[data-theme="light"] .h-tmb-cell { background: rgba(15,23,42,.03); }
-html[data-theme="light"] .h-water-btn { background: rgba(15,23,42,.04); }
+html[data-theme="light"] .h-water-btn { background: rgba(15,23,42,.08); border-color: rgba(15,23,42,.15); color: #0f172a; }
+html[data-theme="light"] .h-water-btn.add { background: linear-gradient(135deg,#06b6d4,#0891b2); color:#fff; border:none; }
 
 /* ═══════════════════════════════════════════════════
    STUDYOS CSS
