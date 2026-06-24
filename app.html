@@ -1840,6 +1840,9 @@
       const secret = (document.getElementById('whoopClientSecret')?.value || '').trim();
       if (!clientId) { whoopDiag('Você clicou em Conectar mas o campo Client ID estava vazio. Cole o Client ID e tente de novo.'); renderWhoop(); showToast('Cole seu Client ID Whoop primeiro.', 'error'); return; }
       if (!window.crypto || !crypto.subtle) { whoopDiag('Seu navegador não permitiu a criptografia segura (crypto.subtle). Isso acontece quando a página NÃO está em HTTPS. Abra o app pela URL https:// do GitHub Pages.'); renderWhoop(); return; }
+      // Abre a janela ANTES do await para preservar o contexto do gesto do usuário.
+      // (await quebra o contexto e o navegador bloqueia window.open como popup)
+      const popup = window.open('about:blank', '_blank');
       localStorage.setItem('whoop_cid', clientId);
       if (secret) localStorage.setItem('whoop_secret', secret);
       const { verifier, challenge } = await generatePKCE();
@@ -1849,10 +1852,12 @@
       const url = `${WHOOP_AUTH}?response_type=code&client_id=${encodeURIComponent(clientId)}&redirect_uri=${encodeURIComponent(redirect)}&scope=${encodeURIComponent(WHOOP_SCOPE)}&code_challenge=${challenge}&code_challenge_method=S256&state=whoop`;
       whoopDiag('URL gerada. Abrindo autorização Whoop…');
       showToast('Abrindo Whoop para autorização…', 'info');
-      // Must call window.open synchronously inside the user gesture handler
-      // iOS PWA blocks external location.href; window.open opens Safari
-      const w = window.open(url, '_blank');
-      if (!w) { window.location.href = url; }
+      if (popup) {
+        popup.location.href = url;
+      } else {
+        // Fallback se popup foi bloqueado: navega na própria aba
+        window.location.href = url;
+      }
     } catch (e) {
       whoopDiag('Erro ao iniciar a conexão: ' + (e.message || e) + ' (tipo: ' + (e.name || '?') + ')');
       renderWhoop();
