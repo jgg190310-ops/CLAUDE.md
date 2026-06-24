@@ -115,6 +115,10 @@
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
         <span>Open Finance</span>
       </a>
+      <a href="#" class="nav-item" data-page="cafe">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 8h1a4 4 0 0 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><line x1="6" y1="2" x2="6" y2="4"/><line x1="10" y1="2" x2="10" y2="4"/><line x1="14" y1="2" x2="14" y2="4"/></svg>
+        <span>Mercado do Café</span>
+      </a>
     </div>
     <!-- ═══════ HEALTHOS NAV (data-app=health) ═══════ -->
     <div class="nav-group" data-app="health" style="display:none">
@@ -1504,6 +1508,9 @@
   <!-- FINANCE — OPEN FINANCE / BANKING -->
   <section class="page" id="banking" data-app="finance"></section>
 
+  <!-- FINANCE — MERCADO DO CAFÉ -->
+  <section class="page" id="cafe" data-app="finance"></section>
+
   <!-- UPGRADE / PLANOS -->
   <section class="page" id="upgrade" data-app="finance"></section>
 
@@ -1795,41 +1802,440 @@
 <script src="js/health.js?v=15"></script>
 <script src="js/study.js?v=15"></script>
 <script>
+/* ═══════════════════════════════════════════════
+   WHOOP — OAuth 2.0 PKCE real integration
+═══════════════════════════════════════════════ */
+(function(){
+  const WHOOP_AUTH = 'https://api.prod.whoop.com/oauth/oauth2/auth';
+  const WHOOP_TOKEN = 'https://api.prod.whoop.com/oauth/oauth2/token';
+  const WHOOP_API = 'https://api.prod.whoop.com/developer/v1';
+  const WHOOP_SCOPE = 'read:recovery read:sleep read:workout read:body_measurement read:cycles';
+
+  function b64url(buf) {
+    return btoa(String.fromCharCode(...new Uint8Array(buf)))
+      .replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');
+  }
+  async function sha256(plain) {
+    const enc = new TextEncoder().encode(plain);
+    return crypto.subtle.digest('SHA-256', enc);
+  }
+  async function generatePKCE() {
+    const arr = crypto.getRandomValues(new Uint8Array(32));
+    const verifier = b64url(arr);
+    const challenge = b64url(await sha256(verifier));
+    return { verifier, challenge };
+  }
+
+  window.whoopConnect = async function() {
+    const clientId = document.getElementById('whoopClientId')?.value.trim();
+    if (!clientId) { showToast('Cole seu Client ID Whoop primeiro.', 'error'); return; }
+    const { verifier, challenge } = await generatePKCE();
+    const redirect = location.origin + location.pathname;
+    localStorage.setItem('whoop_cv', verifier);
+    localStorage.setItem('whoop_cid', clientId);
+    localStorage.setItem('whoop_redirect', redirect);
+    const url = `${WHOOP_AUTH}?response_type=code&client_id=${encodeURIComponent(clientId)}&redirect_uri=${encodeURIComponent(redirect)}&scope=${encodeURIComponent(WHOOP_SCOPE)}&code_challenge=${challenge}&code_challenge_method=S256&state=whoop`;
+    location.href = url;
+  };
+
+  window.whoopDisconnect = function() {
+    ['whoop_access','whoop_refresh','whoop_cid','whoop_cv'].forEach(k => localStorage.removeItem(k));
+    const el = document.getElementById('h-whoop');
+    if (el) { delete el.dataset.loaded; renderWhoop(); }
+    showToast('Whoop desconectado.', 'info');
+  };
+
+  async function whoopFetch(path) {
+    const token = localStorage.getItem('whoop_access');
+    const r = await fetch(`${WHOOP_API}${path}`, { headers: { Authorization: `Bearer ${token}` } });
+    if (!r.ok) throw new Error(r.status);
+    return r.json();
+  }
+
+  async function loadWhoopData() {
+    const el = document.getElementById('whoopData');
+    if (!el) return;
+    el.innerHTML = '<p style="opacity:.5;padding:24px 0">Carregando dados da Whoop…</p>';
+    try {
+      const [recovery, sleep, cycles] = await Promise.all([
+        whoopFetch('/recovery?limit=1'),
+        whoopFetch('/sleep?limit=1'),
+        whoopFetch('/cycle?limit=7'),
+      ]);
+      const rec = recovery.records?.[0];
+      const slp = sleep.records?.[0];
+      const recScore = rec?.score?.recovery_score ?? '--';
+      const hrv = rec?.score?.hrv_rmssd_milli ? (rec.score.hrv_rmssd_milli/1000).toFixed(1) : '--';
+      const rhr = rec?.score?.resting_heart_rate ?? '--';
+      const sleepPerf = slp?.score?.sleep_performance_percentage?.toFixed(0) ?? '--';
+      const strain7 = cycles.records?.map(c=>c.score?.strain ?? 0) ?? [];
+      el.innerHTML = `
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:16px">
+          ${[
+            { label:'Recuperação', val: recScore+'%', color: recScore>=67?'#10b981':recScore>=34?'#f59e0b':'#ef4444' },
+            { label:'HRV (ms)', val: hrv, color:'#6366f1' },
+            { label:'Freq. Cardíaca em Repouso', val: rhr+' bpm', color:'#06b6d4' },
+            { label:'Desempenho do Sono', val: sleepPerf+'%', color:'#8b5cf6' },
+          ].map(m=>`
+            <div style="background:var(--bg3);border-radius:12px;padding:16px">
+              <div style="font-size:11px;opacity:.6;margin-bottom:4px">${m.label}</div>
+              <div style="font-size:24px;font-weight:800;color:${m.color}">${m.val}</div>
+            </div>`).join('')}
+        </div>
+        ${strain7.length ? `
+        <div class="cf-card" style="padding:16px">
+          <div style="font-size:13px;font-weight:600;margin-bottom:10px">Strain últimos ${strain7.length} dias</div>
+          <div style="display:flex;align-items:flex-end;gap:6px;height:60px">
+            ${strain7.map(v=>{
+              const h = Math.max(6, Math.round((v/21)*60));
+              const c = v>=14?'#ef4444':v>=10?'#f59e0b':'#10b981';
+              return `<div style="flex:1;background:${c};border-radius:4px 4px 0 0;height:${h}px;position:relative;cursor:default" title="Strain: ${v?.toFixed(1)??0}"></div>`;
+            }).join('')}
+          </div>
+        </div>` : ''}
+        <button onclick="whoopDisconnect()" style="margin-top:16px;padding:10px 20px;border-radius:8px;border:1px solid rgba(239,68,68,.3);background:transparent;color:#ef4444;font-size:13px;cursor:pointer;font-weight:600">Desconectar Whoop</button>`;
+    } catch(e) {
+      el.innerHTML = `<p style="color:#ef4444;font-size:13px">Erro ao buscar dados (${e.message}). Token pode ter expirado. <button onclick="whoopDisconnect()" style="background:none;border:none;color:#ef4444;text-decoration:underline;cursor:pointer">Reconectar</button></p>`;
+    }
+  }
+
+  async function handleWhoopCallback() {
+    const params = new URLSearchParams(location.search);
+    if (params.get('state') !== 'whoop' || !params.get('code')) return false;
+    const code = params.get('code');
+    const verifier = localStorage.getItem('whoop_cv');
+    const clientId = localStorage.getItem('whoop_cid');
+    const redirect = localStorage.getItem('whoop_redirect');
+    history.replaceState({}, '', location.pathname);
+    try {
+      const r = await fetch(WHOOP_TOKEN, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ grant_type:'authorization_code', code, client_id: clientId, redirect_uri: redirect, code_verifier: verifier }),
+      });
+      const data = await r.json();
+      if (data.access_token) {
+        localStorage.setItem('whoop_access', data.access_token);
+        if (data.refresh_token) localStorage.setItem('whoop_refresh', data.refresh_token);
+        showToast('Whoop conectada com sucesso!', 'success');
+        return true;
+      }
+    } catch(e) { showToast('Erro ao autenticar Whoop: ' + e.message, 'error'); }
+    return false;
+  }
+
+  window.renderWhoop = function() {
+    const el = document.getElementById('h-whoop');
+    if (!el) return;
+    const connected = !!localStorage.getItem('whoop_access');
+    el.innerHTML = `
+      <div class="page-header">
+        <div><h1>Integração Whoop</h1><p class="page-sub">Dados reais de recuperação, sono e treino da sua Whoop.</p></div>
+      </div>
+      ${connected ? `
+        <div id="whoopData" style="margin-top:4px"></div>
+      ` : `
+        <div class="cf-card" style="padding:28px;max-width:520px">
+          <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px">
+            <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#ef4444,#f97316);display:flex;align-items:center;justify-content:center">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+            </div>
+            <div><h3 style="font-size:16px;font-weight:700">Conectar Whoop</h3><p style="font-size:12px;opacity:.6">OAuth 2.0 seguro — seus dados permanecem privados</p></div>
+          </div>
+          <p style="font-size:13px;opacity:.7;margin-bottom:20px;line-height:1.6">Para conectar, você precisa registrar um app no <strong>developer.whoop.com</strong>, obter seu <strong>Client ID</strong> e adicionar esta URL como redirect URI:</p>
+          <div style="background:var(--bg3);border-radius:8px;padding:10px 14px;font-family:monospace;font-size:12px;word-break:break-all;margin-bottom:20px;opacity:.8">${location.origin + location.pathname}</div>
+          <div class="form-group" style="margin-bottom:16px">
+            <label style="font-size:12px;font-weight:600;display:block;margin-bottom:6px">Client ID do seu app Whoop</label>
+            <input id="whoopClientId" type="text" placeholder="Cole o Client ID aqui" style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:13px" />
+          </div>
+          <button onclick="whoopConnect()" style="width:100%;padding:12px;border-radius:10px;background:linear-gradient(135deg,#ef4444,#f97316);color:#fff;font-weight:700;font-size:14px;border:none;cursor:pointer">
+            Conectar com Whoop
+          </button>
+          <p style="font-size:11px;opacity:.5;margin-top:12px;text-align:center">Dados nunca saem do seu dispositivo. Token armazenado localmente.</p>
+        </div>
+      `}`;
+    if (connected) loadWhoopData();
+  };
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    const handled = await handleWhoopCallback();
+    if (handled) {
+      const nav = document.querySelector('.nav-item[data-page="h-whoop"]');
+      if (nav) nav.click();
+    }
+  });
+})();
+
+/* ═══════════════════════════════════════════════
+   OPEN FINANCE — Pluggy.ai Connect Widget
+═══════════════════════════════════════════════ */
 function renderBanking() {
   const el = document.getElementById('banking');
   if (!el || el.dataset.loaded) return;
   el.dataset.loaded = '1';
+  const stored = JSON.parse(localStorage.getItem('pluggy_config') || '{}');
+  const items = JSON.parse(localStorage.getItem('pluggy_items') || '[]');
+
   el.innerHTML = `
     <div class="page-header">
       <div><h1>Open Finance</h1><p class="page-sub">Conecte seus bancos e visualize tudo em um só lugar.</p></div>
     </div>
-    <div class="cf-card" style="margin-bottom:16px;padding:20px">
+    <div class="cf-card" style="margin-bottom:16px;padding:24px">
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
         <div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#10b981,#06b6d4);display:flex;align-items:center;justify-content:center">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
         </div>
-        <div><h3 style="font-size:15px;font-weight:700">Open Finance Brasil</h3><p style="font-size:12px;opacity:.6">Padrão oficial do Banco Central do Brasil</p></div>
+        <div><h3 style="font-size:15px;font-weight:700">Pluggy Open Finance</h3><p style="font-size:12px;opacity:.6">Agregador oficial — padrão BACEN</p></div>
       </div>
-      <p style="font-size:13px;opacity:.7;margin-bottom:16px">Conecte suas contas bancárias de forma segura. Seus dados são criptografados e você pode revogar o acesso a qualquer momento.</p>
-      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:16px" id="bankGrid">
-        ${['Nubank','Itaú','Bradesco','Banco do Brasil','Santander','Caixa','Inter','C6 Bank'].map(b => `
-          <button class="bank-btn" onclick="connectBank('${b}')" style="padding:12px;border-radius:10px;border:1px solid var(--border);background:var(--bg2);cursor:pointer;font-size:12px;font-weight:600;color:var(--text);transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:6px">
-            <div style="width:32px;height:32px;border-radius:8px;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800">${b[0]}</div>
-            ${b}
-          </button>`).join('')}
-      </div>
-      <p style="font-size:11px;opacity:.5;text-align:center">🔒 Conexão segura via Open Finance Brasil — regulamentado pelo BACEN</p>
+      <details style="margin-bottom:16px">
+        <summary style="font-size:13px;font-weight:600;cursor:pointer;opacity:.8">Configurar credenciais Pluggy (necessário apenas uma vez)</summary>
+        <div style="margin-top:12px;display:flex;flex-direction:column;gap:10px">
+          <p style="font-size:12px;opacity:.6;line-height:1.5">Crie uma conta grátis em <strong>pluggy.ai</strong>, crie um app e copie o Client ID e Client Secret.</p>
+          <input id="pluggyClientId" type="text" placeholder="Client ID" value="${stored.clientId||''}" style="padding:9px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:13px" />
+          <input id="pluggyClientSecret" type="password" placeholder="Client Secret" value="${stored.clientSecret||''}" style="padding:9px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:13px" />
+          <button onclick="savePluggyConfig()" style="padding:9px 18px;border-radius:8px;background:var(--indigo);color:#fff;font-weight:600;font-size:13px;border:none;cursor:pointer;align-self:flex-start">Salvar</button>
+        </div>
+      </details>
+      <button onclick="pluggyConnect()" style="width:100%;padding:13px;border-radius:10px;background:linear-gradient(135deg,#10b981,#06b6d4);color:#fff;font-weight:700;font-size:14px;border:none;cursor:pointer">
+        + Conectar Nova Conta Bancária
+      </button>
+      <p style="font-size:11px;opacity:.5;text-align:center;margin-top:10px">🔒 Conexão segura via Pluggy · regulamentado pelo BACEN</p>
     </div>
-    <div class="cf-card">
-      <div class="table-header"><h3>Contas Conectadas</h3></div>
-      <div class="empty-state" id="connectedBanks" style="padding:32px">
-        <p>Nenhuma conta conectada ainda.</p>
-        <p style="font-size:12px;opacity:.6;margin-top:6px">Conecte seu banco para importar transações automaticamente.</p>
+    <div class="cf-card" style="padding:20px">
+      <div class="table-header" style="margin-bottom:16px"><h3>Contas Conectadas</h3></div>
+      <div id="pluggyAccounts">
+        ${items.length === 0 ? `<div class="empty-state" style="padding:24px"><p>Nenhuma conta conectada ainda.</p></div>` :
+          items.map(item => `
+            <div style="display:flex;align-items:center;gap:12px;padding:14px;background:var(--bg3);border-radius:10px;margin-bottom:8px">
+              <div style="width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,#10b981,#06b6d4);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#fff">${(item.connector?.name||'B')[0]}</div>
+              <div style="flex:1">
+                <div style="font-size:14px;font-weight:600">${item.connector?.name || 'Banco'}</div>
+                <div style="font-size:12px;opacity:.6">${item.accounts?.length||0} conta(s) • ID: ${item.id?.slice(0,8)}…</div>
+              </div>
+              <button onclick="pluggyDisconnect('${item.id}')" style="background:none;border:none;color:#ef4444;font-size:12px;cursor:pointer;opacity:.7">Remover</button>
+            </div>`).join('')
+        }
+      </div>
+      ${items.length > 0 ? `<button onclick="pluggyLoadTransactions()" style="margin-top:8px;padding:9px 18px;border-radius:8px;background:var(--bg3);border:1px solid var(--border);color:var(--text);font-size:13px;font-weight:600;cursor:pointer">Atualizar transações</button>` : ''}
+    </div>
+    <div id="pluggyTxSection" style="margin-top:16px"></div>`;
+}
+
+window.savePluggyConfig = function() {
+  const cid = document.getElementById('pluggyClientId')?.value.trim();
+  const sec = document.getElementById('pluggyClientSecret')?.value.trim();
+  if (!cid || !sec) { showToast('Preencha Client ID e Secret.', 'error'); return; }
+  localStorage.setItem('pluggy_config', JSON.stringify({ clientId: cid, clientSecret: sec }));
+  showToast('Credenciais salvas!', 'success');
+};
+
+window.pluggyConnect = async function() {
+  const config = JSON.parse(localStorage.getItem('pluggy_config') || '{}');
+  if (!config.clientId || !config.clientSecret) { showToast('Configure as credenciais Pluggy primeiro.', 'error'); return; }
+  try {
+    showToast('Autenticando com Pluggy…', 'info');
+    const authRes = await fetch('https://api.pluggy.ai/auth', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ clientId: config.clientId, clientSecret: config.clientSecret }),
+    });
+    const { apiKey } = await authRes.json();
+    if (!apiKey) throw new Error('Falha na autenticação');
+    const tokenRes = await fetch('https://api.pluggy.ai/connect_token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-API-KEY': apiKey },
+      body: JSON.stringify({}),
+    });
+    const { accessToken } = await tokenRes.json();
+    if (!accessToken) throw new Error('Sem connect token');
+    localStorage.setItem('pluggy_apikey', apiKey);
+    if (!document.getElementById('pluggy-sdk')) {
+      const s = document.createElement('script');
+      s.id = 'pluggy-sdk';
+      s.src = 'https://cdn.pluggy.ai/pluggy-connect/v2/pluggy-connect.js';
+      s.onload = () => openPluggyWidget(accessToken, apiKey);
+      document.head.appendChild(s);
+    } else { openPluggyWidget(accessToken, apiKey); }
+  } catch(e) { showToast('Erro Pluggy: ' + e.message, 'error'); }
+};
+
+function openPluggyWidget(accessToken, apiKey) {
+  if (typeof PluggyConnect === 'undefined') { showToast('SDK Pluggy não carregou. Verifique a conexão.', 'error'); return; }
+  const widget = new PluggyConnect({
+    connectToken: accessToken,
+    onSuccess: async (itemData) => {
+      const items = JSON.parse(localStorage.getItem('pluggy_items') || '[]');
+      try {
+        const accRes = await fetch(`https://api.pluggy.ai/accounts?itemId=${itemData.item.id}`, {
+          headers: { 'X-API-KEY': apiKey }
+        });
+        const accData = await accRes.json();
+        items.push({ id: itemData.item.id, connector: itemData.item.connector, accounts: accData.results || [] });
+        localStorage.setItem('pluggy_items', JSON.stringify(items));
+        showToast('Banco conectado com sucesso!', 'success');
+        const el = document.getElementById('banking');
+        if (el) { delete el.dataset.loaded; renderBanking(); }
+      } catch(e) { showToast('Conta conectada mas erro ao buscar detalhes.', 'info'); }
+    },
+    onError: (err) => showToast('Erro na conexão: ' + err, 'error'),
+    onClose: () => {},
+  });
+  widget.init();
+}
+
+window.pluggyDisconnect = function(itemId) {
+  const items = JSON.parse(localStorage.getItem('pluggy_items') || '[]').filter(i => i.id !== itemId);
+  localStorage.setItem('pluggy_items', JSON.stringify(items));
+  const el = document.getElementById('banking');
+  if (el) { delete el.dataset.loaded; renderBanking(); }
+  showToast('Conta removida.', 'info');
+};
+
+window.pluggyLoadTransactions = async function() {
+  const apiKey = localStorage.getItem('pluggy_apikey');
+  const items = JSON.parse(localStorage.getItem('pluggy_items') || '[]');
+  const sec = document.getElementById('pluggyTxSection');
+  if (!sec || !apiKey || !items.length) return;
+  sec.innerHTML = '<div class="cf-card" style="padding:20px"><p style="opacity:.5">Carregando transações…</p></div>';
+  try {
+    const allTx = [];
+    for (const item of items) {
+      for (const acc of (item.accounts || [])) {
+        const r = await fetch(`https://api.pluggy.ai/transactions?accountId=${acc.id}&pageSize=20`, { headers:{ 'X-API-KEY': apiKey }});
+        const d = await r.json();
+        (d.results || []).forEach(tx => allTx.push({ ...tx, bankName: item.connector?.name||'Banco' }));
+      }
+    }
+    allTx.sort((a,b) => new Date(b.date)-new Date(a.date));
+    sec.innerHTML = `
+      <div class="cf-card" style="padding:20px">
+        <div class="table-header" style="margin-bottom:12px"><h3>Transações Importadas (últimas ${allTx.length})</h3></div>
+        ${allTx.slice(0,40).map(tx=>`
+          <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">
+            <div style="flex:1">
+              <div style="font-size:13px;font-weight:600">${tx.description||'Transação'}</div>
+              <div style="font-size:11px;opacity:.5">${tx.bankName} · ${new Date(tx.date).toLocaleDateString('pt-BR')}</div>
+            </div>
+            <div style="font-size:14px;font-weight:700;color:${tx.type==='CREDIT'?'#10b981':'#ef4444'}">${tx.type==='CREDIT'?'+':'-'}R$ ${Math.abs(tx.amount).toLocaleString('pt-BR',{minimumFractionDigits:2})}</div>
+          </div>`).join('')}
+      </div>`;
+  } catch(e) { sec.innerHTML = `<div class="cf-card" style="padding:20px"><p style="color:#ef4444;font-size:13px">Erro ao carregar transações: ${e.message}</p></div>`; }
+};
+
+/* ═══════════════════════════════════════════════
+   MERCADO DO CAFÉ — Cotações em tempo real (brapi.dev)
+═══════════════════════════════════════════════ */
+window.renderCafe = async function() {
+  const el = document.getElementById('cafe');
+  if (!el) return;
+  el.innerHTML = `
+    <div class="page-header">
+      <div><h1>Mercado do Café</h1><p class="page-sub">Cotações em tempo real do café arábica e robusta.</p></div>
+    </div>
+    <div id="cafeContent">
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:16px">
+        ${['CAFE11','YDUQ3','ABEV3'].map(t=>`<div class="cf-card" id="ct_${t}" style="padding:16px;text-align:center"><div style="font-size:11px;opacity:.5;margin-bottom:4px">${t}</div><div style="font-size:22px;font-weight:800" id="cv_${t}">…</div><div style="font-size:11px" id="cc_${t}"></div></div>`).join('')}
+      </div>
+      <div class="cf-card" style="padding:20px;margin-bottom:16px">
+        <h3 style="font-size:14px;font-weight:700;margin-bottom:14px">Contratos Futuros — Café Arábica (ICE)</h3>
+        <div id="cafeFutures" style="opacity:.5;font-size:13px">Carregando…</div>
+      </div>
+      <div class="cf-card" style="padding:20px;margin-bottom:16px">
+        <h3 style="font-size:14px;font-weight:700;margin-bottom:12px">Sobre o Mercado do Café</h3>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;font-size:13px;line-height:1.6;opacity:.8">
+          <p><strong>Café Arábica:</strong> Cotado na ICE (Nova York) em centavos de dólar por libra-peso. O Brasil é o maior exportador mundial.</p>
+          <p><strong>Café Robusta:</strong> Cotado na ICE Europa (Londres) em USD/tonelada. Usado principalmente em blends e café solúvel.</p>
+          <p><strong>CAFE11:</strong> ETF brasileiro de ações ligadas ao agronegócio do café na B3.</p>
+          <p><strong>Referência B3:</strong> Contratos futuros de café arábica são negociados na B3 sob o código ICFC, com liquidação em março, maio, julho, setembro e dezembro.</p>
+        </div>
+      </div>
+      <div class="cf-card" style="padding:20px">
+        <h3 style="font-size:14px;font-weight:700;margin-bottom:12px">Calculadora de Lote</h3>
+        <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end">
+          <div><label style="font-size:11px;opacity:.6;display:block;margin-bottom:4px">Preço (USD/saca 60kg)</label><input id="cafePriceInput" type="number" value="320" style="padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);width:120px" /></div>
+          <div><label style="font-size:11px;opacity:.6;display:block;margin-bottom:4px">Sacas</label><input id="cafeSacas" type="number" value="100" style="padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);width:100px" /></div>
+          <div><label style="font-size:11px;opacity:.6;display:block;margin-bottom:4px">USD/BRL</label><input id="cafeUsdBrl" type="number" value="5.70" step="0.01" style="padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);width:100px" /></div>
+          <button onclick="calcCafe()" style="padding:9px 16px;border-radius:8px;background:var(--indigo);color:#fff;font-weight:600;font-size:13px;border:none;cursor:pointer">Calcular</button>
+        </div>
+        <div id="cafeCalcResult" style="margin-top:12px;font-size:15px;font-weight:700"></div>
       </div>
     </div>`;
-}
-window.connectBank = function(name) {
-  if (typeof showToast === 'function') showToast(`Integração com ${name} em breve! Disponível no plano Pro.`, 'info');
+
+  window.calcCafe = function() {
+    const price = parseFloat(document.getElementById('cafePriceInput').value) || 0;
+    const sacas = parseFloat(document.getElementById('cafeSacas').value) || 0;
+    const fx = parseFloat(document.getElementById('cafeUsdBrl').value) || 5.7;
+    const totalUSD = price * sacas;
+    const totalBRL = totalUSD * fx;
+    document.getElementById('cafeCalcResult').innerHTML =
+      `${sacas} sacas × USD ${price.toFixed(2)} = <span style="color:#10b981">USD ${totalUSD.toLocaleString('pt-BR',{minimumFractionDigits:2})}</span> &nbsp;|&nbsp; <span style="color:#6366f1">R$ ${totalBRL.toLocaleString('pt-BR',{minimumFractionDigits:2})}</span>`;
+  };
+
+  // Fetch live data from brapi.dev (free, no auth)
+  try {
+    const res = await fetch('https://brapi.dev/api/quote/CAFE11,YDUQ3,ABEV3?token=demo');
+    const data = await res.json();
+    (data.results || []).forEach(q => {
+      const cv = document.getElementById('cv_' + q.symbol);
+      const cc = document.getElementById('cc_' + q.symbol);
+      if (cv) cv.textContent = 'R$ ' + (q.regularMarketPrice||0).toLocaleString('pt-BR',{minimumFractionDigits:2});
+      if (cc) {
+        const chg = (q.regularMarketChangePercent||0).toFixed(2);
+        cc.textContent = (chg >= 0 ? '▲ +' : '▼ ') + chg + '%';
+        cc.style.color = chg >= 0 ? '#10b981' : '#ef4444';
+      }
+    });
+
+    // Fetch USD coffee futures via awesomeapi
+    const fxRes = await fetch('https://economia.awesomeapi.com.br/json/all/USD-BRL,KC-USD');
+    const fxData = await fxRes.json();
+    const usdBrl = parseFloat(fxData['USD']?.bid || 5.7);
+    const kcBid = parseFloat(fxData['KC']?.bid || 0);
+
+    // Update calculator FX
+    const fxInput = document.getElementById('cafeUsdBrl');
+    if (fxInput) fxInput.value = usdBrl.toFixed(2);
+
+    // Update café price input from KC futures if available
+    if (kcBid > 0) {
+      const kcPerSaca = (kcBid / 100) * 132.28; // cents/lb → USD/saca 60kg (132.28 lbs)
+      const cafePriceInput = document.getElementById('cafePriceInput');
+      if (cafePriceInput) cafePriceInput.value = kcPerSaca.toFixed(2);
+    }
+
+    const futuresEl = document.getElementById('cafeFutures');
+    if (futuresEl) {
+      futuresEl.style.opacity = '1';
+      futuresEl.innerHTML = `
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px">
+          ${kcBid > 0 ? `
+          <div style="background:var(--bg3);border-radius:8px;padding:12px">
+            <div style="font-size:11px;opacity:.6">Arábica (KC) — Contínuo</div>
+            <div style="font-size:20px;font-weight:800;color:#10b981;margin:4px 0">${kcBid.toFixed(2)} ¢/lb</div>
+            <div style="font-size:12px;opacity:.6">≈ R$ ${((kcBid/100)*132.28*usdBrl).toFixed(2)}/saca</div>
+          </div>` : ''}
+          <div style="background:var(--bg3);border-radius:8px;padding:12px">
+            <div style="font-size:11px;opacity:.6">USD/BRL</div>
+            <div style="font-size:20px;font-weight:800;color:#6366f1;margin:4px 0">R$ ${usdBrl.toFixed(4)}</div>
+            <div style="font-size:12px;opacity:.6">Cotação ao vivo</div>
+          </div>
+          ${kcBid > 0 ? `
+          <div style="background:var(--bg3);border-radius:8px;padding:12px">
+            <div style="font-size:11px;opacity:.6">Arábica em BRL/saca</div>
+            <div style="font-size:20px;font-weight:800;color:#f59e0b;margin:4px 0">R$ ${((kcBid/100)*132.28*usdBrl).toFixed(2)}</div>
+            <div style="font-size:12px;opacity:.6">saca de 60kg</div>
+          </div>` : ''}
+        </div>`;
+    }
+    calcCafe();
+  } catch(e) {
+    ['CAFE11','YDUQ3','ABEV3'].forEach(t => {
+      const cv = document.getElementById('cv_'+t);
+      if(cv) cv.textContent = 'N/D';
+    });
+    const futuresEl = document.getElementById('cafeFutures');
+    if (futuresEl) futuresEl.innerHTML = '<p style="opacity:.5;font-size:12px">Dados indisponíveis (verifique conexão).</p>';
+  }
 };
 
 function renderUpgrade() {

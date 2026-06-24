@@ -1142,7 +1142,7 @@
     else if (page === 'h-progress') renderHProgress();
     else if (page === 'h-calc') renderHCalc();
     else if (page === 'h-challenge') renderHChallenge();
-    else if (page === 'h-whoop') renderHWhoop();
+    else if (page === 'h-whoop') { if (typeof window.renderWhoop === 'function') window.renderWhoop(); else renderHWhoop(); }
   };
 
   // expõe funções usadas no HTML (onclick)

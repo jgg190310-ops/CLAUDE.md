@@ -120,9 +120,8 @@ const pageTitles = {
   subs: 'Assinaturas & Recorrentes',
   banking: 'Open Finance',
   upgrade: 'Planos OSHelp',
+  cafe: 'Mercado do Café',
   profile: 'Configurações do Perfil',
-  banking: 'Open Finance',
-  upgrade: 'Planos OSHelp',
 };
 
 document.querySelectorAll('.nav-item, .bn-item').forEach(item => {
@@ -159,6 +158,7 @@ function navigateTo(page) {
   if (page === 'subs') renderSubs();
   if (page === 'banking') { if (typeof renderBanking === 'function') renderBanking(); }
   if (page === 'upgrade') { if (typeof renderUpgrade === 'function') renderUpgrade(); }
+  if (page === 'cafe')    { if (typeof renderCafe    === 'function') renderCafe(); }
   // hook para módulos externos (HealthOS / StudyOS)
   if (typeof window.onAppNavigate === 'function') window.onAppNavigate(page);
 }
