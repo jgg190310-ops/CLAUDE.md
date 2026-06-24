@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OSHelp — Política de Privacidade</title>
+  <meta name="theme-color" content="#6366f1" />
+  <link rel="icon" type="image/png" href="icons/icon-192.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root { --bg:#0b0f1a; --bg2:#131a2b; --text:#e8edf8; --text-2:#9fb0cc; --indigo:#6366f1; --violet:#8b5cf6; --border:rgba(255,255,255,.08); }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:'Inter',system-ui,sans-serif; background:var(--bg); color:var(--text); line-height:1.7; -webkit-font-smoothing:antialiased; }
+    .wrap { max-width:780px; margin:0 auto; padding:48px 24px 80px; }
+    .brand { display:flex; align-items:center; gap:12px; margin-bottom:40px; }
+    .brand svg { width:40px; height:40px; }
+    .brand span { font-size:22px; font-weight:800; background:linear-gradient(135deg,var(--indigo),var(--violet)); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
+    h1 { font-size:32px; font-weight:800; margin-bottom:8px; }
+    .updated { color:var(--text-2); font-size:14px; margin-bottom:36px; }
+    h2 { font-size:19px; font-weight:700; margin:32px 0 12px; color:#fff; }
+    p, li { color:var(--text-2); font-size:15px; margin-bottom:12px; }
+    ul { padding-left:22px; }
+    a { color:var(--indigo); text-decoration:none; }
+    a:hover { text-decoration:underline; }
+    .card { background:var(--bg2); border:1px solid var(--border); border-radius:14px; padding:22px 24px; margin:18px 0; }
+    .back { display:inline-block; margin-top:40px; padding:11px 20px; border:1px solid var(--border); border-radius:10px; color:var(--text); font-weight:600; font-size:14px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="brand">
+      <svg viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="8" fill="url(#g)"/><path d="M8 22L13 14l4 5 3-4 4 6" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><defs><linearGradient id="g" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse"><stop stop-color="#6366f1"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient></defs></svg>
+      <span>OSHelp</span>
+    </div>
+
+    <h1>Política de Privacidade</h1>
+    <p class="updated">Última atualização: 24 de junho de 2026</p>
+
+    <p>Esta Política de Privacidade descreve como o <strong>OSHelp</strong> ("nós", "aplicativo") coleta, usa, armazena e protege as suas informações ao utilizar nossos módulos de finanças (FinanceOS), saúde (HealthOS) e estudos (StudyOS).</p>
+
+    <div class="card">
+      <p style="margin-bottom:0"><strong>Resumo:</strong> o OSHelp é um aplicativo que funciona principalmente no seu próprio dispositivo. Seus dados são armazenados localmente no navegador e, opcionalmente, sincronizados com um serviço de nuvem que você mesmo configura. Não vendemos seus dados.</p>
+    </div>
+
+    <h2>1. Dados que coletamos</h2>
+    <ul>
+      <li><strong>Dados inseridos por você:</strong> transações financeiras, metas, registros de saúde, refeições, exercícios, tarefas de estudo e anotações.</li>
+      <li><strong>Dados de conta:</strong> um identificador anônimo de usuário para sincronização opcional na nuvem.</li>
+      <li><strong>Integrações que você ativar:</strong> dados de saúde da Whoop (recuperação, variabilidade cardíaca, frequência cardíaca, sono e esforço) e dados financeiros de instituições conectadas via Open Finance (Pluggy), quando autorizado por você.</li>
+    </ul>
+
+    <h2>2. Como usamos os dados</h2>
+    <ul>
+      <li>Exibir painéis, gráficos, métricas e recomendações dentro do aplicativo.</li>
+      <li>Sincronizar suas informações entre dispositivos, caso você ative a nuvem.</li>
+      <li>Melhorar sua experiência de uso dos módulos de finanças, saúde e estudos.</li>
+    </ul>
+
+    <h2>3. Integração com a Whoop</h2>
+    <p>Ao conectar sua conta Whoop, o OSHelp acessa apenas os dados autorizados pelos escopos que você aprova (recuperação, ciclos, sono, treinos e medidas corporais). O token de acesso é armazenado <strong>localmente no seu dispositivo</strong> e usado exclusivamente para exibir seus dados dentro do aplicativo. Você pode revogar o acesso a qualquer momento, tanto no OSHelp quanto no painel da Whoop.</p>
+
+    <h2>4. Integração financeira (Open Finance)</h2>
+    <p>Ao conectar instituições financeiras via Pluggy, a autenticação ocorre diretamente com o agregador regulamentado. O OSHelp armazena apenas as informações necessárias para exibir suas contas e transações. Você pode desconectar suas contas a qualquer momento.</p>
+
+    <h2>5. Armazenamento e segurança</h2>
+    <p>A maior parte dos seus dados fica no armazenamento local do seu navegador (localStorage). Se você ativar a sincronização em nuvem, os dados são guardados na instância de banco de dados que você mesmo configura. Tomamos medidas razoáveis para proteger suas informações, mas nenhum método de transmissão pela internet é 100% seguro.</p>
+
+    <h2>6. Compartilhamento de dados</h2>
+    <p>Nós <strong>não vendemos</strong> e não compartilhamos seus dados pessoais com terceiros para fins de marketing. Dados só transitam entre você e os serviços que você explicitamente conecta (Whoop, Pluggy, e seu provedor de nuvem).</p>
+
+    <h2>7. Seus direitos</h2>
+    <p>Você pode, a qualquer momento, visualizar, editar ou apagar seus dados diretamente no aplicativo, desconectar integrações e remover sua sincronização em nuvem. Para excluir todos os dados, basta limpar os dados do site no seu navegador.</p>
+
+    <h2>8. Contato</h2>
+    <p>Em caso de dúvidas sobre esta política, entre em contato pelo e-mail: <a href="mailto:jgg190310@gmail.com">jgg190310@gmail.com</a>.</p>
+
+    <a href="index.html" class="back">← Voltar ao OSHelp</a>
+  </div>
+</body>
+</html>
