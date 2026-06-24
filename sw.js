@@ -1,6 +1,6 @@
 /* FinanceOS service worker — network-first para sempre pegar a versão nova;
    cache só serve como fallback quando estiver offline. */
-const CACHE = 'financeos-v8';
+const CACHE = 'financeos-v9';
 const ASSETS = [
   './',
   './index.html',
