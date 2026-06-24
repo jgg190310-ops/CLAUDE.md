@@ -1817,111 +1817,62 @@
    WHOOP — OAuth 2.0 PKCE real integration
 ═══════════════════════════════════════════════ */
 (function(){
-  const WHOOP_AUTH = 'https://api.prod.whoop.com/oauth/oauth2/auth';
+  const WHOOP_AUTH  = 'https://api.prod.whoop.com/oauth/oauth2/auth';
   const WHOOP_TOKEN = 'https://api.prod.whoop.com/oauth/oauth2/token';
-  const WHOOP_API = 'https://api.prod.whoop.com/developer/v1';
+  const WHOOP_API   = 'https://api.prod.whoop.com/developer/v1';
   const WHOOP_SCOPE = 'read:recovery read:sleep read:workout read:body_measurement read:cycles';
+  // Fixado uma vez quando o script carrega — sem computação dinâmica no clique
+  const REDIRECT_URI = location.origin + location.pathname;
 
   function b64url(buf) {
     return btoa(String.fromCharCode(...new Uint8Array(buf)))
       .replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');
   }
-  async function sha256(plain) {
-    const enc = new TextEncoder().encode(plain);
-    return crypto.subtle.digest('SHA-256', enc);
-  }
-  async function generatePKCE() {
-    const arr = crypto.getRandomValues(new Uint8Array(32));
-    const verifier = b64url(arr);
-    const challenge = b64url(await sha256(verifier));
-    return { verifier, challenge };
-  }
 
-  // Pré-gera PKCE em background quando a página Whoop é renderizada
-  async function whoopBuildLink() {
+  // Gera PKCE IMEDIATAMENTE quando o script carrega — antes de qualquer interação
+  (async () => {
     try {
-      if (!window.crypto || !crypto.subtle) {
-        const msg = document.getElementById('whoopReadyMsg');
-        if (msg) msg.textContent = '⚠️ HTTPS necessário para gerar PKCE';
-        return;
-      }
-      const { verifier, challenge } = await generatePKCE();
-      localStorage.setItem('whoop_cv', verifier);
-      localStorage.setItem('whoop_challenge', challenge);
-      const msg = document.getElementById('whoopReadyMsg');
-      if (msg) msg.textContent = '✓ Pronto para conectar';
-    } catch(e) {
-      const msg = document.getElementById('whoopReadyMsg');
-      if (msg) msg.textContent = 'Erro ao gerar PKCE: ' + e.message;
-    }
-  }
+      if (!window.crypto?.subtle) return;
+      const arr      = crypto.getRandomValues(new Uint8Array(32));
+      const verifier = b64url(arr);
+      const hash     = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(verifier));
+      localStorage.setItem('whoop_cv',        verifier);
+      localStorage.setItem('whoop_challenge', b64url(hash));
+    } catch(e) {}
+  })();
 
-  // Chamado pelo onclick do botão — totalmente síncrono
-  window.whoopGo = function() {
-    const clientId = (document.getElementById('whoopClientId')?.value || localStorage.getItem('whoop_cid') || '').trim();
-    const secret   = (document.getElementById('whoopClientSecret')?.value || '').trim();
-    const challenge = localStorage.getItem('whoop_challenge');
-    if (!clientId) { alert('Cole o Client ID Whoop primeiro.'); return; }
-    if (!challenge) { alert('Aguarde — PKCE ainda está sendo gerado. Tente em 2 segundos.'); return; }
-    const redirect = location.origin + location.pathname;
-    localStorage.setItem('whoop_cid', clientId);
-    localStorage.setItem('whoop_redirect', redirect);
-    if (secret) localStorage.setItem('whoop_secret', secret);
-    const url = WHOOP_AUTH +
-      '?response_type=code' +
-      '&client_id=' + encodeURIComponent(clientId) +
-      '&redirect_uri=' + encodeURIComponent(redirect) +
-      '&scope=' + encodeURIComponent(WHOOP_SCOPE) +
-      '&code_challenge=' + encodeURIComponent(challenge) +
-      '&code_challenge_method=S256' +
-      '&state=whoop';
-    // window.open síncrono — funciona em iOS PWA e desktop
-    const w = window.open(url, '_blank');
-    if (!w) window.location.href = url; // fallback se popup bloqueado
-  };
+  function whoopDiag(msg)  { try { localStorage.setItem('whoop_diag', String(msg)); } catch(e){} }
+  function whoopClearDiag(){ try { localStorage.removeItem('whoop_diag'); } catch(e){} }
 
-  window.whoopUpdateLink = window.whoopGo;
-  window.whoopConnect   = window.whoopGo;
-
-  window.whoopDisconnect = function() {
-    ['whoop_access','whoop_refresh','whoop_cid','whoop_cv','whoop_secret'].forEach(k => localStorage.removeItem(k));
-    const el = document.getElementById('h-whoop');
-    if (el) { delete el.dataset.loaded; renderWhoop(); }
-    showToast('Whoop desconectado.', 'info');
-  };
-
-  // Diagnóstico: guarda a última falha para exibir na tela
-  function whoopDiag(msg) { try { localStorage.setItem('whoop_diag', msg); } catch(e){} }
-  function whoopClearDiag() { try { localStorage.removeItem('whoop_diag'); } catch(e){} }
-
-  // Lista de formas de chamar uma URL: direto + proxies CORS públicos
   function whoopProxied(target) {
     return [
-      { label: 'direto', url: target },
-      { label: 'corsproxy.io', url: `https://corsproxy.io/?url=${encodeURIComponent(target)}` },
-      { label: 'cors.sh', url: `https://proxy.cors.sh/${target}` },
-      { label: 'thingproxy', url: `https://thingproxy.freeboard.io/fetch/${target}` },
+      { label:'direto',       url: target },
+      { label:'corsproxy.io', url: 'https://corsproxy.io/?url=' + encodeURIComponent(target) },
+      { label:'cors.sh',      url: 'https://proxy.cors.sh/' + target },
+      { label:'thingproxy',   url: 'https://thingproxy.freeboard.io/fetch/' + target },
     ];
   }
 
-  // GET na API Whoop tentando direto e depois cada proxy
   async function whoopFetch(path) {
-    const token = localStorage.getItem('whoop_access');
-    const target = `${WHOOP_API}${path}`;
-    let lastErr = '';
+    const token  = localStorage.getItem('whoop_access');
+    const target = WHOOP_API + path;
+    let lastErr  = '';
     for (const p of whoopProxied(target)) {
       try {
-        const r = await fetch(p.url, { headers: { Authorization: `Bearer ${token}` }, signal: AbortSignal.timeout(9000) });
-        if (r.status === 401) { whoopDiag('Token expirado ou inválido (401). Reconecte.'); throw new Error('401'); }
+        const r = await fetch(p.url, {
+          headers: { Authorization: 'Bearer ' + token },
+          signal: AbortSignal.timeout(9000),
+        });
+        if (r.status === 401) { whoopDiag('Token expirado (401). Reconecte.'); throw new Error('401'); }
         if (r.ok) return r.json();
-        lastErr = `${p.label}: HTTP ${r.status}`;
-      } catch (e) {
-        if (String(e.message) === '401') throw e;
-        lastErr = `${p.label}: ${e.name === 'TimeoutError' ? 'timeout' : (e.message || 'bloqueado por CORS')}`;
+        lastErr = p.label + ': HTTP ' + r.status;
+      } catch(e) {
+        if (e.message === '401') throw e;
+        lastErr = p.label + ': ' + (e.name === 'TimeoutError' ? 'timeout' : (e.message || 'CORS bloqueado'));
       }
     }
     whoopDiag('Falha ao buscar dados — ' + lastErr);
-    throw new Error(lastErr || 'sem resposta');
+    throw new Error(lastErr);
   }
 
   async function loadWhoopData() {
@@ -1934,21 +1885,21 @@
         whoopFetch('/sleep?limit=1'),
         whoopFetch('/cycle?limit=7'),
       ]);
-      const rec = recovery.records?.[0];
-      const slp = sleep.records?.[0];
-      const recScore = rec?.score?.recovery_score ?? '--';
-      const hrv = rec?.score?.hrv_rmssd_milli ? (rec.score.hrv_rmssd_milli/1000).toFixed(1) : '--';
-      const rhr = rec?.score?.resting_heart_rate ?? '--';
+      const rec       = recovery.records?.[0];
+      const slp       = sleep.records?.[0];
+      const recScore  = rec?.score?.recovery_score ?? '--';
+      const hrv       = rec?.score?.hrv_rmssd_milli ? (rec.score.hrv_rmssd_milli/1000).toFixed(1) : '--';
+      const rhr       = rec?.score?.resting_heart_rate ?? '--';
       const sleepPerf = slp?.score?.sleep_performance_percentage?.toFixed(0) ?? '--';
-      const strain7 = cycles.records?.map(c=>c.score?.strain ?? 0) ?? [];
+      const strain7   = cycles.records?.map(c => c.score?.strain ?? 0) ?? [];
       el.innerHTML = `
         <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:16px">
           ${[
-            { label:'Recuperação', val: recScore+'%', color: recScore>=67?'#10b981':recScore>=34?'#f59e0b':'#ef4444' },
-            { label:'HRV (ms)', val: hrv, color:'#6366f1' },
-            { label:'Freq. Cardíaca em Repouso', val: rhr+' bpm', color:'#06b6d4' },
-            { label:'Desempenho do Sono', val: sleepPerf+'%', color:'#8b5cf6' },
-          ].map(m=>`
+            { label:'Recuperação',        val: recScore+'%',  color: recScore>=67?'#10b981':recScore>=34?'#f59e0b':'#ef4444' },
+            { label:'HRV (ms)',           val: hrv,           color:'#6366f1' },
+            { label:'FC em Repouso',      val: rhr+' bpm',    color:'#06b6d4' },
+            { label:'Sono',               val: sleepPerf+'%', color:'#8b5cf6' },
+          ].map(m => `
             <div style="background:var(--bg3);border-radius:12px;padding:16px">
               <div style="font-size:11px;opacity:.6;margin-bottom:4px">${m.label}</div>
               <div style="font-size:24px;font-weight:800;color:${m.color}">${m.val}</div>
@@ -1956,168 +1907,158 @@
         </div>
         ${strain7.length ? `
         <div class="cf-card" style="padding:16px">
-          <div style="font-size:13px;font-weight:600;margin-bottom:10px">Strain últimos ${strain7.length} dias</div>
+          <div style="font-size:13px;font-weight:600;margin-bottom:10px">Strain — últimos ${strain7.length} dias</div>
           <div style="display:flex;align-items:flex-end;gap:6px;height:60px">
-            ${strain7.map(v=>{
+            ${strain7.map(v => {
               const h = Math.max(6, Math.round((v/21)*60));
               const c = v>=14?'#ef4444':v>=10?'#f59e0b':'#10b981';
-              return `<div style="flex:1;background:${c};border-radius:4px 4px 0 0;height:${h}px;position:relative;cursor:default" title="Strain: ${v?.toFixed(1)??0}"></div>`;
+              return '<div style="flex:1;background:'+c+';border-radius:4px 4px 0 0;height:'+h+'px" title="'+v.toFixed(1)+'"></div>';
             }).join('')}
           </div>
         </div>` : ''}
         <button onclick="whoopDisconnect()" style="margin-top:16px;padding:10px 20px;border-radius:8px;border:1px solid rgba(239,68,68,.3);background:transparent;color:#ef4444;font-size:13px;cursor:pointer;font-weight:600">Desconectar Whoop</button>`;
     } catch(e) {
-      el.innerHTML = `<p style="color:#ef4444;font-size:13px">Erro ao buscar dados (${e.message}). Token pode ter expirado. <button onclick="whoopDisconnect()" style="background:none;border:none;color:#ef4444;text-decoration:underline;cursor:pointer">Reconectar</button></p>`;
+      el.innerHTML = '<p style="color:#ef4444;font-size:13px">Erro ao buscar dados (' + e.message + '). <button onclick="whoopDisconnect()" style="background:none;border:none;color:#ef4444;text-decoration:underline;cursor:pointer">Reconectar</button></p>';
     }
   }
 
   async function handleWhoopCallback() {
     const params = new URLSearchParams(location.search);
-    // DEBUG: mostra todos os params recebidos
-    const allParams = location.search;
-    if (params.get('state') !== 'whoop') {
-      if (allParams) alert('Callback recebido mas state != whoop\nParams: ' + allParams);
-      return false;
-    }
+    if (params.get('state') !== 'whoop') return false;
+    history.replaceState({}, '', location.pathname);
+
     if (params.get('error')) {
-      const err = params.get('error');
-      const desc = params.get('error_description') || '';
-      history.replaceState({}, '', location.pathname);
-      const msg = 'Erro Whoop: "' + err + '"' + (desc ? '\n' + desc : '') +
-        '\n\nRedirect URI enviado:\n' + (localStorage.getItem('whoop_redirect') || (location.origin + location.pathname));
-      alert(msg);
+      const msg = 'Whoop recusou: "' + params.get('error') + '"'
+        + (params.get('error_description') ? ' — ' + params.get('error_description') : '')
+        + '\n\nRedirect URI usado: ' + REDIRECT_URI;
       whoopDiag(msg);
+      alert(msg);
       return false;
     }
     if (!params.get('code')) {
-      alert('Callback sem code nem error\nParams: ' + allParams);
+      whoopDiag('Callback sem code. Params: ' + location.search);
       return false;
     }
-    const code = params.get('code');
-    const verifier = localStorage.getItem('whoop_cv');
-    const clientId = localStorage.getItem('whoop_cid');
-    const redirect = localStorage.getItem('whoop_redirect');
-    history.replaceState({}, '', location.pathname);
-    const params2 = { grant_type:'authorization_code', code, client_id: clientId, redirect_uri: redirect, code_verifier: verifier };
+
+    const body = {
+      grant_type:    'authorization_code',
+      code:          params.get('code'),
+      client_id:     localStorage.getItem('whoop_cid'),
+      redirect_uri:  REDIRECT_URI,
+      code_verifier: localStorage.getItem('whoop_cv'),
+    };
     const secret = localStorage.getItem('whoop_secret');
-    if (secret) params2.client_secret = secret;
+    if (secret) body.client_secret = secret;
+
     let lastErr = '';
     for (const p of whoopProxied(WHOOP_TOKEN)) {
       try {
         const r = await fetch(p.url, {
-          method: 'POST',
+          method:  'POST',
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: new URLSearchParams(params2),
-          signal: AbortSignal.timeout(10000),
+          body:    new URLSearchParams(body),
+          signal:  AbortSignal.timeout(12000),
         });
-        let data;
-        try { data = await r.json(); } catch(e) { data = {}; }
+        let data; try { data = await r.json(); } catch(e2) { data = {}; }
         if (data.access_token) {
           localStorage.setItem('whoop_access', data.access_token);
           if (data.refresh_token) localStorage.setItem('whoop_refresh', data.refresh_token);
           whoopClearDiag();
-          showToast('Whoop conectada com sucesso!', 'success');
           return true;
         }
         if (data.error) {
-          // a Whoop respondeu, mas recusou — erro de configuração (não é CORS)
-          const m = 'Whoop recusou: ' + (data.error_description || data.error);
-          whoopDiag(m + ' (via ' + p.label + ')');
-          showToast(m, 'error');
-          return false;
+          const m = 'Token recusado: ' + (data.error_description || data.error);
+          whoopDiag(m); alert(m); return false;
         }
-        lastErr = `${p.label}: HTTP ${r.status}`;
+        lastErr = p.label + ': HTTP ' + r.status;
       } catch(e) {
-        lastErr = `${p.label}: ${e.name === 'TimeoutError' ? 'timeout' : (e.message || 'bloqueado por CORS')}`;
+        lastErr = p.label + ': ' + (e.name === 'TimeoutError' ? 'timeout' : (e.message || 'CORS'));
       }
     }
-    whoopDiag('Não foi possível trocar o token. Último erro — ' + lastErr);
-    showToast('Falha ao conectar (CORS no token). Veja o diagnóstico na página.', 'error');
-    return false;
+    const m = 'Não foi possível trocar o token.\n' + lastErr;
+    whoopDiag(m); alert(m); return false;
   }
+
+  window.whoopGo = function() {
+    const clientId  = (document.getElementById('whoopClientId')?.value  || localStorage.getItem('whoop_cid')    || '').trim();
+    const secret    = (document.getElementById('whoopClientSecret')?.value || localStorage.getItem('whoop_secret') || '').trim();
+    const challenge = localStorage.getItem('whoop_challenge');
+    if (!clientId)  { alert('Cole o Client ID Whoop primeiro.'); return; }
+    if (!challenge) { alert('Aguarde 1 segundo e tente de novo — PKCE ainda gerando.'); return; }
+    if (secret) localStorage.setItem('whoop_secret', secret);
+    localStorage.setItem('whoop_cid', clientId);
+    const url = WHOOP_AUTH
+      + '?response_type=code'
+      + '&client_id='             + encodeURIComponent(clientId)
+      + '&redirect_uri='          + encodeURIComponent(REDIRECT_URI)
+      + '&scope='                  + encodeURIComponent(WHOOP_SCOPE)
+      + '&code_challenge='         + encodeURIComponent(challenge)
+      + '&code_challenge_method=S256'
+      + '&state=whoop';
+    window.location.href = url;
+  };
+
+  window.whoopConnect    = window.whoopGo;
+  window.whoopDisconnect = function() {
+    ['whoop_access','whoop_refresh','whoop_cid','whoop_cv','whoop_secret','whoop_challenge'].forEach(k => localStorage.removeItem(k));
+    const el = document.getElementById('h-whoop');
+    if (el) { delete el.dataset.loaded; window.renderWhoop(); }
+    if (typeof showToast === 'function') showToast('Whoop desconectado.', 'info');
+  };
 
   window.renderWhoop = function() {
     const el = document.getElementById('h-whoop');
     if (!el) return;
     const connected = !!localStorage.getItem('whoop_access');
-    const diag = localStorage.getItem('whoop_diag');
-    const diagBox = diag ? `
+    const diag      = localStorage.getItem('whoop_diag');
+    const diagBox   = diag ? `
       <div class="cf-card" style="padding:16px;margin-bottom:16px;border:1px solid rgba(239,68,68,.35);background:rgba(239,68,68,.06)">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-          <strong style="font-size:13px;color:#ef4444">Diagnóstico da última tentativa</strong>
-        </div>
-        <p style="font-size:12px;opacity:.85;font-family:monospace;word-break:break-word">${diag.replace(/</g,'&lt;')}</p>
+        <strong style="font-size:13px;color:#ef4444">Diagnóstico</strong>
+        <pre style="font-size:11px;margin-top:6px;white-space:pre-wrap;word-break:break-word;color:#fca5a5">${diag.replace(/</g,'&lt;')}</pre>
         <button onclick="localStorage.removeItem('whoop_diag');renderWhoop()" style="margin-top:8px;background:none;border:none;color:#ef4444;font-size:12px;text-decoration:underline;cursor:pointer">Limpar</button>
       </div>` : '';
     el.innerHTML = `
       <div class="page-header">
-        <div><h1>Integração Whoop</h1><p class="page-sub">Dados reais de recuperação, sono e treino da sua Whoop.</p></div>
+        <div><h1>Integração Whoop</h1><p class="page-sub">Recuperação, sono e treino da sua Whoop em tempo real.</p></div>
       </div>
       ${diagBox}
-      ${connected ? `
-        <div id="whoopData" style="margin-top:4px"></div>
-      ` : `
+      ${connected ? '<div id="whoopData" style="margin-top:4px"></div>' : `
         <div class="cf-card" style="padding:28px;max-width:520px">
           <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px">
             <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#ef4444,#f97316);display:flex;align-items:center;justify-content:center">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
             </div>
-            <div><h3 style="font-size:16px;font-weight:700">Conectar Whoop</h3><p style="font-size:12px;opacity:.6">OAuth 2.0 seguro — seus dados permanecem privados</p></div>
+            <div><h3 style="font-size:16px;font-weight:700">Conectar Whoop</h3><p style="font-size:12px;opacity:.6">OAuth 2.0 — dados privados</p></div>
           </div>
-          <p style="font-size:13px;opacity:.7;margin-bottom:20px;line-height:1.6">Para conectar, você precisa registrar um app no <strong>developer.whoop.com</strong>, obter seu <strong>Client ID</strong> e adicionar esta URL como redirect URI:</p>
-          <div style="background:var(--bg3);border-radius:8px;padding:10px 14px;font-family:monospace;font-size:12px;word-break:break-all;margin-bottom:20px;opacity:.8">${location.origin + location.pathname}</div>
+          <p style="font-size:13px;opacity:.7;margin-bottom:10px">Adicione este Redirect URI no painel da Whoop:</p>
+          <div style="background:var(--bg3);border-radius:8px;padding:10px 14px;font-family:monospace;font-size:12px;word-break:break-all;margin-bottom:20px;user-select:all">${REDIRECT_URI}</div>
           <div class="form-group" style="margin-bottom:12px">
-            <label style="font-size:12px;font-weight:600;display:block;margin-bottom:6px">Client ID do seu app Whoop</label>
-            <input id="whoopClientId" type="text" value="${(localStorage.getItem('whoop_cid')||'').replace(/"/g,'&quot;')}" placeholder="Cole o Client ID aqui" style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:13px" oninput="whoopUpdateLink()" />
+            <label style="font-size:12px;font-weight:600;display:block;margin-bottom:6px">Client ID</label>
+            <input id="whoopClientId" type="text" value="${(localStorage.getItem('whoop_cid')||'').replace(/"/g,'&quot;')}" placeholder="Cole o Client ID aqui" style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:13px" />
           </div>
-          <div class="form-group" style="margin-bottom:16px">
-            <label style="font-size:12px;font-weight:600;display:block;margin-bottom:6px">Client Secret <span style="opacity:.5;font-weight:400">(exigido pela Whoop)</span></label>
+          <div class="form-group" style="margin-bottom:20px">
+            <label style="font-size:12px;font-weight:600;display:block;margin-bottom:6px">Client Secret</label>
             <input id="whoopClientSecret" type="password" value="${(localStorage.getItem('whoop_secret')||'').replace(/"/g,'&quot;')}" placeholder="Cole o Client Secret aqui" style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:13px" />
           </div>
-          <button id="whoopAuthBtn" onclick="whoopGo()" style="width:100%;padding:14px;border-radius:10px;background:linear-gradient(135deg,#ef4444,#f97316);color:#fff;font-weight:700;font-size:15px;border:none;cursor:pointer">
+          <button onclick="whoopGo()" style="width:100%;padding:14px;border-radius:10px;background:linear-gradient(135deg,#ef4444,#f97316);color:#fff;font-weight:700;font-size:15px;border:none;cursor:pointer">
             Conectar com Whoop
           </button>
-          <div id="whoopReadyMsg" style="font-size:11px;color:#9fb0cc;margin-top:8px;text-align:center"></div>
-          <p style="font-size:11px;opacity:.5;margin-top:12px;text-align:center">Dados ficam só no seu dispositivo (localStorage). Client ID e Secret nunca são enviados a terceiros, exceto à própria Whoop.</p>
-        </div>
-      `}`;
+        </div>`}`;
     if (connected) loadWhoopData();
-    else whoopBuildLink(); // gera PKCE e ativa o link
   };
 
+  // OAuth callback handler — funciona no mesmo contexto (sem popup)
   document.addEventListener('DOMContentLoaded', async () => {
-    const params = new URLSearchParams(location.search);
-    const isCallback = params.get('state') === 'whoop' && (params.get('code') || params.get('error'));
-    if (!isCallback) return;
-
-    // Callback chegou — pode estar no Safari (aberto pelo PWA via window.open)
-    // Trocar o token aqui; localStorage é compartilhado entre Safari e PWA
+    const p = new URLSearchParams(location.search);
+    if (p.get('state') !== 'whoop') return;
+    if (!p.get('code') && !p.get('error')) return;
     const ok = await handleWhoopCallback();
-
-    // Tenta fechar esta aba do Safari e voltar ao PWA
-    // (window.close() só funciona em abas abertas via window.open)
-    if (ok) {
-      // Sucesso: mostra mensagem por 2s e fecha
-      document.body.innerHTML = `<div style="font-family:system-ui;background:#0b0f1a;color:#e8edf8;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:32px">
-        <div style="font-size:56px;margin-bottom:16px">✅</div>
-        <div style="font-size:22px;font-weight:700;margin-bottom:8px">Whoop conectada!</div>
-        <div style="color:#9fb0cc;margin-bottom:24px">Feche esta janela e volte ao OSHelp.</div>
-        <button onclick="window.close()" style="background:#6366f1;color:#fff;border:none;border-radius:12px;padding:14px 28px;font-size:16px;font-weight:600;cursor:pointer">Fechar e voltar ao app</button>
-      </div>`;
-      setTimeout(() => { try { window.close(); } catch(e){} }, 1800);
-    } else {
-      const diag = localStorage.getItem('whoop_diag') || 'Erro desconhecido.';
-      document.body.innerHTML = `<div style="font-family:system-ui;background:#0b0f1a;color:#e8edf8;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:32px">
-        <div style="font-size:56px;margin-bottom:16px">❌</div>
-        <div style="font-size:20px;font-weight:700;margin-bottom:12px">Falha na conexão</div>
-        <div style="background:#1e2a3a;border-radius:10px;padding:16px;color:#f87171;font-size:13px;text-align:left;max-width:400px;word-break:break-word;margin-bottom:24px">${diag}</div>
-        <button onclick="window.close()" style="background:#374151;color:#fff;border:none;border-radius:12px;padding:14px 28px;font-size:16px;font-weight:600;cursor:pointer">Fechar</button>
-      </div>`;
-    }
+    try { if (typeof switchApp  === 'function') switchApp('health');   } catch(e){}
+    try { if (typeof navigateTo === 'function') navigateTo('h-whoop'); } catch(e){}
+    if (typeof renderWhoop === 'function') renderWhoop();
+    if (ok && typeof showToast === 'function') showToast('Whoop conectada! ✓', 'success');
   });
 })();
-
 /* ═══════════════════════════════════════════════
    OPEN FINANCE — Pluggy.ai Connect Widget
 ═══════════════════════════════════════════════ */
@@ -2448,17 +2389,6 @@ function renderUpgrade() {
       <p style="font-size:13px;opacity:.6">Pagamento seguro via Stripe · Cancele quando quiser · Sem taxas ocultas</p>
     </div>`;
 }
-</script>
-<script>
-// Quando o PWA volta ao foco após o Safari fazer o OAuth, relê o token
-document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'visible' && localStorage.getItem('whoop_access')) {
-    const el = document.getElementById('h-whoop');
-    if (el && !el.dataset.whoopLoaded) {
-      if (typeof renderWhoop === 'function') renderWhoop();
-    }
-  }
-});
 </script>
 </body>
 </html>
