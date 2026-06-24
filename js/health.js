@@ -17,6 +17,7 @@
     'h-progress': 'Progresso Corporal',
     'h-calc': 'Calculadoras de Saúde',
     'h-challenge': 'Desafios de Saúde',
+    'h-whoop': 'Integração Whoop',
   });
 
   // ── modelo de dados ──────────────────────────────────────────────
@@ -461,6 +462,26 @@
       return `Reduzir o açúcar: 🍬<br><br>• Corte primeiro o <b>açúcar líquido</b> (refri, suco de caixinha): é o que mais engorda sem saciar<br>• Troque doces por <b>frutas</b><br>• Cuidado com "fit/zero" — nem sempre é melhor<br>• A OMS recomenda < 25g (~6 colheres de chá) de açúcar livre por dia<br><br>O paladar se adapta: em 2-3 semanas você sente menos falta. 💪`;
     }
 
+    // sono
+    if (/(sono|sleep|dormir)/.test(norm)) {
+      return `Sono & recuperação: 😴<br><br>• O sono tem <b>4-5 ciclos</b> de ~90 min: N1, N2, N3 (sono profundo) e REM<br>• <b>N3 (sono profundo)</b>: repara tecidos e libera GH (hormônio do crescimento)<br>• <b>REM</b>: consolida memórias e regula emoções<br>• <b>Luz azul</b> (telas) suprime melatonina — evite 1h antes de dormir<br>• Dica: quarto escuro, fresco (18–21°C) e silencioso melhora a qualidade<br>• Falta de sono aumenta cortisol, fome (grelina) e prejudica a perda de gordura 🌙`;
+    }
+
+    // stress / ansiedade
+    if (/(stress|ansiedade|ansioso|ansiedade)/.test(norm)) {
+      return `Controle do estresse: 🧘<br><br><b>Técnicas de respiração:</b><br>• <b>4-7-8</b>: inspire 4s, segure 7s, expire 8s — ativa o sistema parassimpático<br>• <b>Respiração boxe</b>: 4s in, 4s hold, 4s out, 4s hold — usada por militares<br><br><b>Exercícios anti-estresse:</b><br>• <b>Caminhada 30 min</b>: reduz cortisol em até 26%<br>• <b>Yoga/Pilates</b>: combina movimento com respiração<br>• <b>HIIT</b>: libera endorfinas e melhora o humor rapidamente<br><br>Estresse crônico aumenta cortisol, retém gordura abdominal e prejudica a imunidade. 💚`;
+    }
+
+    // vitaminas
+    if (/(vitamina|vitaminas)/.test(norm)) {
+      return `Vitaminas essenciais: 💊<br><br>• <b>Vitamina D</b>: deficiência muito comum — sol 15 min/dia ou suplemento. Crucial para imunidade e humor<br>• <b>B12</b>: encontrada só em alimentos animais. Veganos precisam suplementar<br>• <b>Ferro</b>: carnes vermelhas, feijão, folhas escuras. Combine com vitamina C para absorver melhor<br>• <b>Magnésio</b>: essencial para sono, músculos e humor. Castanhas, sementes, folhas verdes<br>• <b>Ômega-3</b>: anti-inflamatório, melhora colesterol e cognição. Peixes gordurosos 2x/semana<br><br>⚠️ Consulte seu médico antes de suplementar — exames de sangue revelam deficiências reais. 🩺`;
+    }
+
+    // receitas
+    if (/(receita|receitas)/.test(norm)) {
+      return `Receita saudável rápida: 🍳<br><br><b>Omelete proteico (≈ 350 kcal | 28g prot)</b><br>• 3 ovos, 50g de queijo cottage, 1 tomate, folhas de espinafre<br>• Bata os ovos, despeje na frigideira antiaderente com azeite, adicione o recheio, dobre e tampe por 2 min<br><br><b>Bowl de frango (≈ 500 kcal | 42g prot)</b><br>• 150g peito de frango grelhado, 1 concha de arroz integral, 1 xíc de legumes assados, 1 col de tahine<br><br><b>Overnight oats (≈ 400 kcal | 20g prot)</b><br>• 4 col de aveia + 150ml leite + 1 scoop de whey + frutas. Misture e deixe na geladeira overnight 🥣`;
+    }
+
     // dieta vegetariana
     if (/(vegetarian|vegan|sem carne)/.test(norm)) {
       return `Dieta vegetariana/vegana: 🌱<br><br>É saudável e completa se bem planejada. Atenção a:<br>• <b>Proteína</b>: feijão, lentilha, grão-de-bico, tofu, ovos (se ovolacto)<br>• <b>B12</b>: pode precisar suplementar (principalmente vegano)<br>• <b>Ferro</b>: combine com vitamina C para absorver melhor<br>• <b>Cálcio e ômega-3</b><br><br>Procure um nutricionista para ajustar suplementação. 🥦`;
@@ -545,14 +566,14 @@
   //  EXERCÍCIOS
   // ════════════════════════════════════════════════════════════════
   const EXERCISES = [
-    { name: 'Corrida', icon: '🏃', kcalMin: 10 },
-    { name: 'Musculação', icon: '💪', kcalMin: 7 },
-    { name: 'Caminhada', icon: '🚶', kcalMin: 5 },
-    { name: 'Ciclismo', icon: '🚴', kcalMin: 8 },
-    { name: 'Natação', icon: '🏊', kcalMin: 9 },
-    { name: 'Yoga', icon: '🧘', kcalMin: 4 },
-    { name: 'Futebol', icon: '⚽', kcalMin: 9 },
-    { name: 'Pular corda', icon: '🪢', kcalMin: 12 },
+    { name: 'Corrida', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 4a1 1 0 1 0 2 0 1 1 0 0 0-2 0"/><path d="m7 21 2-6 3 2 2-5 3 3"/></svg>', kcalMin: 10 },
+    { name: 'Musculação', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 4v4m0 0H4a2 2 0 0 0 0 4h16a2 2 0 0 0 0-4h-2m-8 0h4"/></svg>', kcalMin: 7 },
+    { name: 'Caminhada', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="4" r="1"/><path d="m9 20 1-5 2 2 1-5"/><path d="m6 8 3 1 2-2 3 1"/></svg>', kcalMin: 5 },
+    { name: 'Ciclismo', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5" cy="17" r="3"/><circle cx="19" cy="17" r="3"/><path d="M12 5a2 2 0 1 0 4 0m-4 0h4m-4 0-3 7h8l-1-7"/></svg>', kcalMin: 8 },
+    { name: 'Natação', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12c2-2 4-2 6 0s4 2 6 0 4-2 6 0"/><path d="M12 4a2 2 0 1 0 0-4 2 2 0 0 0 0 4"/><path d="m8 8 4-4 4 4"/></svg>', kcalMin: 9 },
+    { name: 'Yoga', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="4" r="1"/><path d="m4 20 4-8 4 4 4-4 4 8"/><path d="M12 8v4"/></svg>', kcalMin: 4 },
+    { name: 'Futebol', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="m12 3 1.5 4.5h4.5L15 10l1.5 4.5L12 12l-4.5 2.5L9 10 6 7.5h4.5z"/></svg>', kcalMin: 9 },
+    { name: 'Pular corda', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 8c0 5 14 5 14 0"/><path d="M5 8 3 6m2 2-2 2"/><path d="M19 8l2-2m-2 2 2 2"/><circle cx="12" cy="16" r="3"/></svg>', kcalMin: 12 },
   ];
 
   function hExData() {
@@ -1089,6 +1110,28 @@
     renderHChallenge();
   }
 
+  function renderHWhoop() {
+    const el = document.getElementById('h-whoop');
+    if (!el) return;
+    el.innerHTML = `
+      <div class="page-header"><div><h1>Integração Whoop</h1><p class="page-sub">Conecte seu Whoop para monitorar recovery, HRV e sono.</p></div></div>
+      <div class="cf-card" style="margin-bottom:16px;padding:24px;text-align:center">
+        <div style="width:64px;height:64px;border-radius:50%;background:#e11d48;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:28px;font-weight:900;color:#fff">W</div>
+        <h3 style="font-size:17px;font-weight:700;margin-bottom:6px">Whoop</h3>
+        <p style="font-size:13px;opacity:.6;margin-bottom:16px">Status: <span style="color:#ef4444">Não conectado</span></p>
+        <button class="btn-primary" onclick="showToast('Integração Whoop em breve! Aguarde a versão Pro.','info')">Conectar com Whoop</button>
+      </div>
+      <div style="position:relative">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;filter:blur(3px);pointer-events:none;opacity:.5">
+          <div class="cf-card" style="padding:20px;text-align:center"><div style="font-size:24px;font-weight:800;color:#10b981">78%</div><div style="font-size:12px;opacity:.7;margin-top:4px">Recovery Score</div></div>
+          <div class="cf-card" style="padding:20px;text-align:center"><div style="font-size:24px;font-weight:800;color:#6366f1">62ms</div><div style="font-size:12px;opacity:.7;margin-top:4px">HRV</div></div>
+          <div class="cf-card" style="padding:20px;text-align:center"><div style="font-size:24px;font-weight:800;color:#f59e0b">52bpm</div><div style="font-size:12px;opacity:.7;margin-top:4px">Resting HR</div></div>
+          <div class="cf-card" style="padding:20px;text-align:center"><div style="font-size:24px;font-weight:800;color:#3b82f6">7h 23min</div><div style="font-size:12px;opacity:.7;margin-top:4px">Sleep</div></div>
+        </div>
+        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;opacity:.8">🔒 Conecte o Whoop para ver seus dados reais</div>
+      </div>`;
+  }
+
   window.onAppNavigate = function (page) {
     if (page === 'h-dashboard') renderHDashboard();
     else if (page === 'h-meals') renderHMeals();
@@ -1099,13 +1142,14 @@
     else if (page === 'h-progress') renderHProgress();
     else if (page === 'h-calc') renderHCalc();
     else if (page === 'h-challenge') renderHChallenge();
+    else if (page === 'h-whoop') renderHWhoop();
   };
 
   // expõe funções usadas no HTML (onclick)
   Object.assign(window, {
     hAddMeal, hQuickAdd, hDelMeal, hWater, hSaveGoals, hUseSuggested, nbSend,
-    hAddExercise, hDelExercise, hLogSleep, hDelSleep, hLogWeight, hDelWeight,
-    hStartChallenge,
+    hAddExercise, hDelExercise, hAddSleep, hDelSleep, hAddWeight, hDelWeight,
+    hJoinChallenge, hLeaveChallenge, hCalcRun, hUseSuggested, renderHWhoop,
   });
 
   // ── restaura último app aberto ───────────────────────────────────

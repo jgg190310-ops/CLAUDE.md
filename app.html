@@ -26,7 +26,7 @@
       window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
     }
   </script>
-  <link rel="stylesheet" href="styles/app.css?v=14" />
+  <link rel="stylesheet" href="styles/app.css?v=15" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -111,6 +111,10 @@
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
         Assinaturas
       </a>
+      <a href="#" class="nav-item" data-page="banking">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+        <span>Open Finance</span>
+      </a>
     </div>
     <!-- ═══════ HEALTHOS NAV (data-app=health) ═══════ -->
     <div class="nav-group" data-app="health" style="display:none">
@@ -150,6 +154,10 @@
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
         Desafios
         <span class="nav-badge-new">novo</span>
+      </a>
+      <a href="#" class="nav-item" data-page="h-whoop">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        <span>Whoop</span>
       </a>
     </div>
     <div class="nav-group" data-app="health" style="display:none">
@@ -212,6 +220,10 @@
 
     <div class="nav-group" data-app="all">
       <span class="nav-label">Conta</span>
+      <a href="#" class="nav-item" data-page="upgrade" style="color:#f59e0b">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        <span>Upgrade Pro</span>
+      </a>
       <a href="#" class="nav-item" data-page="profile">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
         Perfil
@@ -1471,6 +1483,9 @@
   <!-- HEALTHOS — DESAFIOS -->
   <section class="page" id="h-challenge" data-app="health"><!-- rendered by health.js --></section>
 
+  <!-- HEALTHOS — WHOOP -->
+  <section class="page" id="h-whoop" data-app="health"></section>
+
   <!-- STUDYOS — TAREFAS -->
   <section class="page" id="s-tasks" data-app="study"><!-- rendered by study.js --></section>
 
@@ -1485,6 +1500,12 @@
 
   <!-- STUDYOS — ANOTAÇÕES -->
   <section class="page" id="s-notes" data-app="study"><!-- rendered by study.js --></section>
+
+  <!-- FINANCE — OPEN FINANCE / BANKING -->
+  <section class="page" id="banking" data-app="finance"></section>
+
+  <!-- UPGRADE / PLANOS -->
+  <section class="page" id="upgrade" data-app="finance"></section>
 
 </main>
 
@@ -1769,9 +1790,74 @@
   </a>
 </nav>
 
-<script src="js/firebase-config.js?v=14"></script>
-<script src="js/app.js?v=14"></script>
-<script src="js/health.js?v=14"></script>
-<script src="js/study.js?v=14"></script>
+<script src="js/firebase-config.js?v=15"></script>
+<script src="js/app.js?v=15"></script>
+<script src="js/health.js?v=15"></script>
+<script src="js/study.js?v=15"></script>
+<script>
+function renderBanking() {
+  const el = document.getElementById('banking');
+  if (!el || el.dataset.loaded) return;
+  el.dataset.loaded = '1';
+  el.innerHTML = `
+    <div class="page-header">
+      <div><h1>Open Finance</h1><p class="page-sub">Conecte seus bancos e visualize tudo em um só lugar.</p></div>
+    </div>
+    <div class="cf-card" style="margin-bottom:16px;padding:20px">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+        <div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#10b981,#06b6d4);display:flex;align-items:center;justify-content:center">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+        </div>
+        <div><h3 style="font-size:15px;font-weight:700">Open Finance Brasil</h3><p style="font-size:12px;opacity:.6">Padrão oficial do Banco Central do Brasil</p></div>
+      </div>
+      <p style="font-size:13px;opacity:.7;margin-bottom:16px">Conecte suas contas bancárias de forma segura. Seus dados são criptografados e você pode revogar o acesso a qualquer momento.</p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:16px" id="bankGrid">
+        ${['Nubank','Itaú','Bradesco','Banco do Brasil','Santander','Caixa','Inter','C6 Bank'].map(b => `
+          <button class="bank-btn" onclick="connectBank('${b}')" style="padding:12px;border-radius:10px;border:1px solid var(--border);background:var(--bg2);cursor:pointer;font-size:12px;font-weight:600;color:var(--text);transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:6px">
+            <div style="width:32px;height:32px;border-radius:8px;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800">${b[0]}</div>
+            ${b}
+          </button>`).join('')}
+      </div>
+      <p style="font-size:11px;opacity:.5;text-align:center">🔒 Conexão segura via Open Finance Brasil — regulamentado pelo BACEN</p>
+    </div>
+    <div class="cf-card">
+      <div class="table-header"><h3>Contas Conectadas</h3></div>
+      <div class="empty-state" id="connectedBanks" style="padding:32px">
+        <p>Nenhuma conta conectada ainda.</p>
+        <p style="font-size:12px;opacity:.6;margin-top:6px">Conecte seu banco para importar transações automaticamente.</p>
+      </div>
+    </div>`;
+}
+window.connectBank = function(name) {
+  if (typeof showToast === 'function') showToast(`Integração com ${name} em breve! Disponível no plano Pro.`, 'info');
+};
+
+function renderUpgrade() {
+  const el = document.getElementById('upgrade');
+  if (!el || el.dataset.loaded) return;
+  el.dataset.loaded = '1';
+  el.innerHTML = `
+    <div class="page-header"><div><h1>Planos OSHelp</h1><p class="page-sub">Desbloqueie todo o potencial do seu super app.</p></div></div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;margin-top:8px">
+      ${[
+        { name:'Starter', price:'Grátis', color:'#6366f1', features:['Dashboard básico (3 apps)','Até 50 transações/mês','Registro de saúde básico','Pomodoro e flashcards','FinBot, NutriBot, StudyBot (20 msgs/dia)'], cta:'Seu plano atual', current:true },
+        { name:'Pro', price:'R$ 29/mês', color:'#10b981', badge:'Mais popular', features:['Tudo do Starter, mais:','Transações ilimitadas','Bolsa de valores completa','IAs sem limite de mensagens','Open Finance (bancos conectados)','Integração Whoop','Relatórios avançados','Suporte prioritário'], cta:'Assinar Pro', current:false },
+        { name:'Família', price:'R$ 49/mês', color:'#f59e0b', features:['Tudo do Pro, mais:','Até 5 usuários','Painel familiar compartilhado','Metas em conjunto','Relatórios consolidados'], cta:'Assinar Família', current:false },
+      ].map((p,i) => `
+        <div style="border-radius:16px;padding:28px;background:var(--bg2);border:2px solid ${p.current?p.color:'var(--border)'};position:relative;${p.badge?'box-shadow:0 0 0 1px '+p.color+',0 20px 60px rgba(16,185,129,.12)':''}">
+          ${p.badge?`<div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:${p.color};color:#fff;font-size:11px;font-weight:700;padding:4px 14px;border-radius:20px;letter-spacing:.5px">${p.badge}</div>`:''}
+          <div style="font-size:18px;font-weight:800;margin-bottom:4px;color:${p.color}">${p.name}</div>
+          <div style="font-size:26px;font-weight:900;margin-bottom:16px">${p.price}</div>
+          <ul style="list-style:none;margin-bottom:24px;display:flex;flex-direction:column;gap:8px">
+            ${p.features.map(f=>`<li style="font-size:13px;display:flex;gap:8px;align-items:start"><span style="color:${p.color};flex-shrink:0">✓</span>${f}</li>`).join('')}
+          </ul>
+          <button style="width:100%;padding:12px;border-radius:10px;font-weight:700;font-size:14px;cursor:pointer;border:none;background:${p.current?'var(--border)':'linear-gradient(135deg,'+p.color+','+p.color+'cc)'};color:${p.current?'var(--text-2)':'#fff'}" onclick="${p.current?'':("showToast('Redirecionando para pagamento… (em breve!)', 'info')")}">${p.cta}</button>
+        </div>`).join('')}
+    </div>
+    <div class="cf-card" style="margin-top:24px;padding:20px;text-align:center">
+      <p style="font-size:13px;opacity:.6">Pagamento seguro via Stripe · Cancele quando quiser · Sem taxas ocultas</p>
+    </div>`;
+}
+</script>
 </body>
 </html>

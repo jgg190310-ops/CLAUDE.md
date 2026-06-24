@@ -654,6 +654,62 @@
 </ul>
 <p style="margin-top:8px">Qualidade supera quantidade. <b>4h de foco profundo &gt; 8h distraído</b>. Use o Pomodoro para manter a intensidade.</p>`;
 
+    if (/memoria|memorizar|lembrar/.test(t))
+      return `<p><strong>Técnicas de memória avançadas:</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Repetição espaçada:</b> revise em intervalos crescentes (1→3→7→21→60 dias)</li>
+  <li><b>Active recall:</b> feche o material e tente lembrar — o esforço fortalece a memória</li>
+  <li><b>Palácio da memória:</b> associe conceitos a locais de um lugar que você conhece bem</li>
+  <li><b>Método de ligação:</b> crie histórias absurdas conectando as informações</li>
+  <li><b>Chunking:</b> agrupe informações em blocos menores (como memorizar um CPF em blocos)</li>
+</ul>
+<p style="margin-top:8px">A memória é como um músculo — quanto mais você a exercita com recuperação ativa, mais forte fica.</p>`;
+
+    if (/leitura|ler/.test(t))
+      return `<p><strong>Leitura eficiente — método SQ3R:</strong></p>
+<ol style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Survey (panorama):</b> leia títulos, subtítulos e resumos</li>
+  <li><b>Question (perguntas):</b> transforme os títulos em perguntas</li>
+  <li><b>Read (leitura):</b> leia buscando responder as perguntas</li>
+  <li><b>Recite (recite):</b> feche e responda as perguntas de memória</li>
+  <li><b>Review (revisão):</b> revise os pontos que errou</li>
+</ol>
+<p style="margin-top:8px"><b>Speed reading:</b> use um dedo como guia, evite reler, expanda o campo visual. Foco na compreensão, não na velocidade!</p>`;
+
+    if (/matematica|math|calculo|algebra/.test(t))
+      return `<p><strong>Como estudar matemática de verdade:</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Entenda, não decore:</b> busque o "porquê" de cada fórmula</li>
+  <li><b>Resolva muitos exercícios:</b> matemática se aprende fazendo, não lendo</li>
+  <li><b>Errou? Ótimo!</b> Analise o erro antes de ver a resposta</li>
+  <li><b>Progrida em dificuldade:</b> domine o básico antes do avançado</li>
+  <li><b>Escreva à mão:</b> escrever fórmulas reforça a memória motora</li>
+</ul>
+<p style="margin-top:8px">Recursos: <b>Khan Academy</b> (gratuito), <b>YouTube 3Blue1Brown</b> para entendimento visual, <b>Wolfram Alpha</b> para checar respostas.</p>`;
+
+    if (/idioma|lingua|ingles|ingles|frances|espanhol/.test(t))
+      return `<p><strong>Aprender idiomas de forma eficaz:</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Imersão diária:</b> troque o idioma do celular, assista séries sem legenda</li>
+  <li><b>Método comprehensible input (Krashen):</b> consuma conteúdo um nível acima do seu</li>
+  <li><b>Flashcards com Anki:</b> vocabulário com repetição espaçada</li>
+  <li><b>Shadowing:</b> repita em voz alta junto com nativos (podcasts, vídeos)</li>
+  <li><b>Output:</b> fale e escreva desde o início — apps como Tandem, HelloTalk</li>
+</ul>
+<p style="margin-top:8px">Consistência bate intensidade: <b>30 min/dia todos os dias</b> supera 3h/semana. 🗣️</p>`;
+
+    if (/concurso|concursos/.test(t))
+      return `<p><strong>Preparação para concursos públicos:</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Análise do edital:</b> mapeie todas as matérias e pesos</li>
+  <li><b>Resolução de questões anteriores:</b> é o método mais eficiente — estude pelo gabarito</li>
+  <li><b>Ciclo de revisões:</b> revise semanalmente o que estudou</li>
+  <li><b>Simule provas:</b> faça simulados cronometrados para treinar pressão</li>
+  <li><b>Foco nas matérias de maior peso:</b> Português e Matemática geralmente valem mais</li>
+  <li><b>Não negligencie saúde:</b> sono, exercício e alimentação impactam diretamente o rendimento</li>
+</ul>
+<p style="margin-top:8px">Média de aprovação: 1-2 anos de estudo consistente. Use o StudyOS para rastrear suas horas! 🏆</p>`;
+
     if (/ola|oi|olá|tudo|bom dia|boa tarde|boa noite/.test(t))
       return `<p>Olá! Pronto para estudar mais e melhor? 📚</p>
 <p>Pode me perguntar sobre qualquer técnica de estudo, como organizar seu tempo, como memorizar, dicas para provas ou combater a procrastinação!</p>`;

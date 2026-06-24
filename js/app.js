@@ -119,6 +119,8 @@ const pageTitles = {
   crisis: 'Modo Crise',
   subs: 'Assinaturas & Recorrentes',
   profile: 'Configurações do Perfil',
+  banking: 'Open Finance',
+  upgrade: 'Planos OSHelp',
 };
 
 document.querySelectorAll('.nav-item, .bn-item').forEach(item => {
@@ -153,6 +155,8 @@ function navigateTo(page) {
   if (page === 'health') { renderHealthScore(); renderLifeHours(); renderHealthTips(); }
   if (page === 'crisis') renderCrisis();
   if (page === 'subs') renderSubs();
+  if (page === 'banking') { if (typeof renderBanking === 'function') renderBanking(); }
+  if (page === 'upgrade') { if (typeof renderUpgrade === 'function') renderUpgrade(); }
   // hook para módulos externos (HealthOS / StudyOS)
   if (typeof window.onAppNavigate === 'function') window.onAppNavigate(page);
 }
