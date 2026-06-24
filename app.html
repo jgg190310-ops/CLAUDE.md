@@ -1847,8 +1847,20 @@
       localStorage.setItem('whoop_cv', verifier);
       localStorage.setItem('whoop_redirect', redirect);
       const url = `${WHOOP_AUTH}?response_type=code&client_id=${encodeURIComponent(clientId)}&redirect_uri=${encodeURIComponent(redirect)}&scope=${encodeURIComponent(WHOOP_SCOPE)}&code_challenge=${challenge}&code_challenge_method=S256&state=whoop`;
+      whoopDiag('URL gerada. Redirecionando agora…\n' + url);
       showToast('Redirecionando para a Whoop…', 'info');
-      location.href = url;
+      // Try multiple navigation methods
+      try { window.location.assign(url); } catch(_) {}
+      setTimeout(() => {
+        try { window.location.replace(url); } catch(_) {}
+        setTimeout(() => {
+          try {
+            const a = document.createElement('a');
+            a.href = url; a.target = '_self'; a.rel = 'noopener';
+            document.body.appendChild(a); a.click(); a.remove();
+          } catch(_) {}
+        }, 300);
+      }, 300);
     } catch (e) {
       whoopDiag('Erro ao iniciar a conexão: ' + (e.message || e) + ' (tipo: ' + (e.name || '?') + ')');
       renderWhoop();
