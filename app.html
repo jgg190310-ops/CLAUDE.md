@@ -26,7 +26,7 @@
       window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
     }
   </script>
-  <link rel="stylesheet" href="styles/app.css?v=18" />
+  <link rel="stylesheet" href="styles/app.css?v=19" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -1797,10 +1797,10 @@
   </a>
 </nav>
 
-<script src="js/firebase-config.js?v=18"></script>
-<script src="js/app.js?v=18"></script>
-<script src="js/health.js?v=18"></script>
-<script src="js/study.js?v=18"></script>
+<script src="js/firebase-config.js?v=19"></script>
+<script src="js/app.js?v=19"></script>
+<script src="js/health.js?v=19"></script>
+<script src="js/study.js?v=19"></script>
 <script>
 /* ═══════════════════════════════════════════════
    WHOOP — OAuth 2.0 PKCE real integration
@@ -1847,21 +1847,38 @@
     showToast('Whoop desconectado.', 'info');
   };
 
-  // GET na API Whoop; se o navegador bloquear por CORS, tenta via proxy público
+  // Diagnóstico: guarda a última falha para exibir na tela
+  function whoopDiag(msg) { try { localStorage.setItem('whoop_diag', msg); } catch(e){} }
+  function whoopClearDiag() { try { localStorage.removeItem('whoop_diag'); } catch(e){} }
+
+  // Lista de formas de chamar uma URL: direto + proxies CORS públicos
+  function whoopProxied(target) {
+    return [
+      { label: 'direto', url: target },
+      { label: 'corsproxy.io', url: `https://corsproxy.io/?url=${encodeURIComponent(target)}` },
+      { label: 'cors.sh', url: `https://proxy.cors.sh/${target}` },
+      { label: 'thingproxy', url: `https://thingproxy.freeboard.io/fetch/${target}` },
+    ];
+  }
+
+  // GET na API Whoop tentando direto e depois cada proxy
   async function whoopFetch(path) {
     const token = localStorage.getItem('whoop_access');
     const target = `${WHOOP_API}${path}`;
-    try {
-      const r = await fetch(target, { headers: { Authorization: `Bearer ${token}` } });
-      if (r.ok) return r.json();
-      if (r.status === 401) throw new Error(401);
-    } catch (e) { if (String(e.message) === '401') throw e; /* cai pro proxy */ }
-    // fallback CORS: corsproxy.io repassa o header Authorization
-    const r2 = await fetch(`https://corsproxy.io/?${encodeURIComponent(target)}`, {
-      headers: { Authorization: `Bearer ${token}` }, signal: AbortSignal.timeout(8000)
-    });
-    if (!r2.ok) throw new Error(r2.status);
-    return r2.json();
+    let lastErr = '';
+    for (const p of whoopProxied(target)) {
+      try {
+        const r = await fetch(p.url, { headers: { Authorization: `Bearer ${token}` }, signal: AbortSignal.timeout(9000) });
+        if (r.status === 401) { whoopDiag('Token expirado ou inválido (401). Reconecte.'); throw new Error('401'); }
+        if (r.ok) return r.json();
+        lastErr = `${p.label}: HTTP ${r.status}`;
+      } catch (e) {
+        if (String(e.message) === '401') throw e;
+        lastErr = `${p.label}: ${e.name === 'TimeoutError' ? 'timeout' : (e.message || 'bloqueado por CORS')}`;
+      }
+    }
+    whoopDiag('Falha ao buscar dados — ' + lastErr);
+    throw new Error(lastErr || 'sem resposta');
   }
 
   async function loadWhoopData() {
@@ -1919,29 +1936,41 @@
     const clientId = localStorage.getItem('whoop_cid');
     const redirect = localStorage.getItem('whoop_redirect');
     history.replaceState({}, '', location.pathname);
-    const body = new URLSearchParams({ grant_type:'authorization_code', code, client_id: clientId, redirect_uri: redirect, code_verifier: verifier });
+    const params2 = { grant_type:'authorization_code', code, client_id: clientId, redirect_uri: redirect, code_verifier: verifier };
     const secret = localStorage.getItem('whoop_secret');
-    if (secret) body.set('client_secret', secret);
-    // tenta direto; se CORS bloquear, tenta via proxy público
-    const targets = [ WHOOP_TOKEN, `https://corsproxy.io/?${encodeURIComponent(WHOOP_TOKEN)}` ];
-    for (const url of targets) {
+    if (secret) params2.client_secret = secret;
+    let lastErr = '';
+    for (const p of whoopProxied(WHOOP_TOKEN)) {
       try {
-        const r = await fetch(url, {
+        const r = await fetch(p.url, {
           method: 'POST',
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body, signal: AbortSignal.timeout(9000),
+          body: new URLSearchParams(params2),
+          signal: AbortSignal.timeout(10000),
         });
-        const data = await r.json();
+        let data;
+        try { data = await r.json(); } catch(e) { data = {}; }
         if (data.access_token) {
           localStorage.setItem('whoop_access', data.access_token);
           if (data.refresh_token) localStorage.setItem('whoop_refresh', data.refresh_token);
+          whoopClearDiag();
           showToast('Whoop conectada com sucesso!', 'success');
           return true;
         }
-        if (data.error) { showToast('Whoop recusou: ' + (data.error_description || data.error), 'error'); return false; }
-      } catch(e) { /* tenta o proxy na próxima volta */ }
+        if (data.error) {
+          // a Whoop respondeu, mas recusou — erro de configuração (não é CORS)
+          const m = 'Whoop recusou: ' + (data.error_description || data.error);
+          whoopDiag(m + ' (via ' + p.label + ')');
+          showToast(m, 'error');
+          return false;
+        }
+        lastErr = `${p.label}: HTTP ${r.status}`;
+      } catch(e) {
+        lastErr = `${p.label}: ${e.name === 'TimeoutError' ? 'timeout' : (e.message || 'bloqueado por CORS')}`;
+      }
     }
-    showToast('Não foi possível trocar o token (CORS). Veja as instruções na página.', 'error');
+    whoopDiag('Não foi possível trocar o token. Último erro — ' + lastErr);
+    showToast('Falha ao conectar (CORS no token). Veja o diagnóstico na página.', 'error');
     return false;
   }
 
@@ -1949,10 +1978,21 @@
     const el = document.getElementById('h-whoop');
     if (!el) return;
     const connected = !!localStorage.getItem('whoop_access');
+    const diag = localStorage.getItem('whoop_diag');
+    const diagBox = diag ? `
+      <div class="cf-card" style="padding:16px;margin-bottom:16px;border:1px solid rgba(239,68,68,.35);background:rgba(239,68,68,.06)">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <strong style="font-size:13px;color:#ef4444">Diagnóstico da última tentativa</strong>
+        </div>
+        <p style="font-size:12px;opacity:.85;font-family:monospace;word-break:break-word">${diag.replace(/</g,'&lt;')}</p>
+        <button onclick="localStorage.removeItem('whoop_diag');renderWhoop()" style="margin-top:8px;background:none;border:none;color:#ef4444;font-size:12px;text-decoration:underline;cursor:pointer">Limpar</button>
+      </div>` : '';
     el.innerHTML = `
       <div class="page-header">
         <div><h1>Integração Whoop</h1><p class="page-sub">Dados reais de recuperação, sono e treino da sua Whoop.</p></div>
       </div>
+      ${diagBox}
       ${connected ? `
         <div id="whoopData" style="margin-top:4px"></div>
       ` : `
@@ -1983,11 +2023,14 @@
   };
 
   document.addEventListener('DOMContentLoaded', async () => {
-    const handled = await handleWhoopCallback();
-    if (handled) {
-      const nav = document.querySelector('.nav-item[data-page="h-whoop"]');
-      if (nav) nav.click();
-    }
+    const params = new URLSearchParams(location.search);
+    const isCallback = params.get('state') === 'whoop' && params.get('code');
+    if (!isCallback) return;
+    await handleWhoopCallback();
+    // sempre leva o usuário para a página Whoop (com dados ou com diagnóstico)
+    try { if (typeof switchApp === 'function') switchApp('health'); } catch(e) {}
+    try { if (typeof navigateTo === 'function') navigateTo('h-whoop'); } catch(e) {}
+    if (typeof renderWhoop === 'function') renderWhoop();
   });
 })();
 
