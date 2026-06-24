@@ -26,7 +26,7 @@
       window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
     }
   </script>
-  <link rel="stylesheet" href="styles/app.css?v=16" />
+  <link rel="stylesheet" href="styles/app.css?v=17" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -1797,10 +1797,10 @@
   </a>
 </nav>
 
-<script src="js/firebase-config.js?v=16"></script>
-<script src="js/app.js?v=16"></script>
-<script src="js/health.js?v=16"></script>
-<script src="js/study.js?v=16"></script>
+<script src="js/firebase-config.js?v=17"></script>
+<script src="js/app.js?v=17"></script>
+<script src="js/health.js?v=17"></script>
+<script src="js/study.js?v=17"></script>
 <script>
 /* ═══════════════════════════════════════════════
    WHOOP — OAuth 2.0 PKCE real integration
@@ -2123,119 +2123,151 @@ window.pluggyLoadTransactions = async function() {
 };
 
 /* ═══════════════════════════════════════════════
-   MERCADO DO CAFÉ — Cotações em tempo real (brapi.dev)
+   MERCADO DO CAFÉ — Cotações em tempo real (auto-refresh 30s)
+   Fontes: Yahoo Finance via proxy CORS (KC=F arábica, RC=F robusta,
+   CAFE11.SA ETF) + awesomeapi (USD/BRL ao vivo)
 ═══════════════════════════════════════════════ */
-window.renderCafe = async function() {
+const LBS_PER_SACA = 132.277; // 60 kg em libras-peso
+const cafeState = { kc: null, rc: null, etf: null, usd: null, kcChg: 0, rcChg: 0, etfChg: 0, usdChg: 0 };
+let _cafeTimer = null;
+
+// Busca genérica no Yahoo Finance via proxies CORS públicos (sem cadastro)
+async function cafeYahoo(symbol) {
+  const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?interval=1d&range=1d`;
+  const proxies = [
+    `https://corsproxy.io/?${encodeURIComponent(url)}`,
+    `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
+  ];
+  for (const proxy of proxies) {
+    try {
+      const r = await fetch(proxy, { signal: AbortSignal.timeout(7000) });
+      if (!r.ok) continue;
+      const raw = await r.json();
+      const text = raw.contents !== undefined ? raw.contents : JSON.stringify(raw);
+      const d = typeof text === 'string' ? JSON.parse(text) : text;
+      const meta = d?.chart?.result?.[0]?.meta;
+      if (!meta?.regularMarketPrice) continue;
+      const prev = meta.chartPreviousClose || meta.previousClose || meta.regularMarketPrice;
+      return {
+        price: meta.regularMarketPrice,
+        chg: prev ? ((meta.regularMarketPrice - prev) / prev) * 100 : 0,
+      };
+    } catch (e) { /* tenta próximo proxy */ }
+  }
+  return null;
+}
+
+function cafeChgHtml(chg) {
+  const up = chg >= 0;
+  return `<span style="color:${up?'#10b981':'#ef4444'}">${up?'▲ +':'▼ '}${chg.toFixed(2)}%</span>`;
+}
+
+async function cafeRefresh() {
+  const stamp = document.getElementById('cafeStamp');
+  if (stamp) stamp.textContent = 'atualizando…';
+
+  // 1) USD/BRL ao vivo (awesomeapi — endpoint /last/ confiável)
+  try {
+    const r = await fetch('https://economia.awesomeapi.com.br/json/last/USD-BRL');
+    const d = await r.json();
+    if (d.USDBRL?.bid) { cafeState.usd = parseFloat(d.USDBRL.bid); cafeState.usdChg = parseFloat(d.USDBRL.pctChange) || 0; }
+  } catch (e) {}
+
+  // 2) Café arábica (KC=F), robusta (RC=F) e ETF CAFE11 via Yahoo
+  const [kc, rc, etf] = await Promise.all([ cafeYahoo('KC=F'), cafeYahoo('RC=F'), cafeYahoo('CAFE11.SA') ]);
+  if (kc)  { cafeState.kc  = kc.price;  cafeState.kcChg  = kc.chg; }
+  if (rc)  { cafeState.rc  = rc.price;  cafeState.rcChg  = rc.chg; }
+  if (etf) { cafeState.etf = etf.price; cafeState.etfChg = etf.chg; }
+
+  cafePaint();
+}
+
+function cafePaint() {
+  if (!document.getElementById('cafe')?.classList.contains('active')) return;
+  const usd = cafeState.usd || 5.7;
+  const kc = cafeState.kc;                       // ¢/lb arábica
+  const rc = cafeState.rc;                       // USD/tonelada robusta
+  const etf = cafeState.etf;                     // R$ ETF B3
+  const kcSacaUSD = kc != null ? (kc / 100) * LBS_PER_SACA : null;     // USD/saca 60kg
+  const kcSacaBRL = kcSacaUSD != null ? kcSacaUSD * usd : null;
+
+  const cards = [
+    { label: 'Café Arábica (KC)', val: kc != null ? kc.toFixed(2) + ' ¢/lb' : 'N/D', chg: cafeState.kcChg, has: kc != null, color: '#f59e0b' },
+    { label: 'Arábica R$/saca 60kg', val: kcSacaBRL != null ? 'R$ ' + kcSacaBRL.toLocaleString('pt-BR', {maximumFractionDigits:0}) : 'N/D', chg: cafeState.kcChg, has: kc != null, color: '#10b981' },
+    { label: 'Café Robusta (RC)', val: rc != null ? 'US$ ' + rc.toLocaleString('pt-BR',{maximumFractionDigits:0}) + '/t' : 'N/D', chg: cafeState.rcChg, has: rc != null, color: '#06b6d4' },
+    { label: 'USD / BRL', val: 'R$ ' + usd.toFixed(4), chg: cafeState.usdChg, has: cafeState.usd != null, color: '#6366f1' },
+    { label: 'CAFE11 (ETF B3)', val: etf != null ? 'R$ ' + etf.toFixed(2) : 'N/D', chg: cafeState.etfChg, has: etf != null, color: '#8b5cf6' },
+  ];
+
+  const grid = document.getElementById('cafeCards');
+  if (grid) grid.innerHTML = cards.map(c => `
+    <div class="cf-card" style="padding:16px">
+      <div style="font-size:11px;opacity:.6;margin-bottom:6px">${c.label}</div>
+      <div style="font-size:22px;font-weight:800;color:${c.color}">${c.val}</div>
+      <div style="font-size:12px;margin-top:4px">${c.has ? cafeChgHtml(c.chg) : '<span style="opacity:.4">—</span>'}</div>
+    </div>`).join('');
+
+  // auto-preenche calculadora com dados ao vivo
+  const fxInput = document.getElementById('cafeUsdBrl');
+  if (fxInput && cafeState.usd != null) fxInput.value = usd.toFixed(2);
+  const priceInput = document.getElementById('cafePriceInput');
+  if (priceInput && kcSacaUSD != null) priceInput.value = kcSacaUSD.toFixed(2);
+  if (typeof window.calcCafe === 'function') window.calcCafe();
+
+  const stamp = document.getElementById('cafeStamp');
+  if (stamp) {
+    const t = new Date().toLocaleTimeString('pt-BR');
+    stamp.textContent = 'Atualizado às ' + t + ' · atualização automática a cada 30s';
+  }
+}
+
+window.renderCafe = function() {
   const el = document.getElementById('cafe');
   if (!el) return;
   el.innerHTML = `
     <div class="page-header">
       <div><h1>Mercado do Café</h1><p class="page-sub">Cotações em tempo real do café arábica e robusta.</p></div>
+      <button onclick="cafeRefresh()" style="padding:9px 16px;border-radius:8px;background:var(--bg3);border:1px solid var(--border);color:var(--text);font-size:13px;font-weight:600;cursor:pointer">↻ Atualizar agora</button>
     </div>
-    <div id="cafeContent">
-      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:16px">
-        ${['CAFE11','YDUQ3','ABEV3'].map(t=>`<div class="cf-card" id="ct_${t}" style="padding:16px;text-align:center"><div style="font-size:11px;opacity:.5;margin-bottom:4px">${t}</div><div style="font-size:22px;font-weight:800" id="cv_${t}">…</div><div style="font-size:11px" id="cc_${t}"></div></div>`).join('')}
+    <div style="font-size:11px;opacity:.5;margin-bottom:14px" id="cafeStamp">Carregando cotações ao vivo…</div>
+    <div id="cafeCards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px;margin-bottom:16px">
+      ${[1,2,3,4,5].map(()=>`<div class="cf-card" style="padding:16px"><div style="height:11px;width:60%;background:var(--bg3);border-radius:4px;margin-bottom:8px"></div><div style="height:22px;width:80%;background:var(--bg3);border-radius:4px"></div></div>`).join('')}
+    </div>
+    <div class="cf-card" style="padding:20px;margin-bottom:16px">
+      <h3 style="font-size:14px;font-weight:700;margin-bottom:12px">Sobre o Mercado do Café</h3>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;font-size:13px;line-height:1.6;opacity:.8">
+        <p><strong>Café Arábica (KC):</strong> Negociado na ICE (Nova York) em centavos de dólar por libra-peso. O Brasil é o maior exportador mundial.</p>
+        <p><strong>Café Robusta (RC):</strong> Negociado na ICE Europa (Londres) em USD por tonelada. Usado principalmente em blends e café solúvel.</p>
+        <p><strong>CAFE11:</strong> ETF brasileiro de ações ligadas ao agronegócio do café na B3.</p>
+        <p><strong>Referência B3:</strong> Futuros de café arábica negociados sob o código ICFC, com liquidação em março, maio, julho, setembro e dezembro.</p>
       </div>
-      <div class="cf-card" style="padding:20px;margin-bottom:16px">
-        <h3 style="font-size:14px;font-weight:700;margin-bottom:14px">Contratos Futuros — Café Arábica (ICE)</h3>
-        <div id="cafeFutures" style="opacity:.5;font-size:13px">Carregando…</div>
+    </div>
+    <div class="cf-card" style="padding:20px">
+      <h3 style="font-size:14px;font-weight:700;margin-bottom:12px">Calculadora de Lote</h3>
+      <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end">
+        <div><label style="font-size:11px;opacity:.6;display:block;margin-bottom:4px">Preço (USD/saca 60kg)</label><input id="cafePriceInput" type="number" value="320" oninput="calcCafe()" style="padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);width:130px" /></div>
+        <div><label style="font-size:11px;opacity:.6;display:block;margin-bottom:4px">Sacas</label><input id="cafeSacas" type="number" value="100" oninput="calcCafe()" style="padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);width:100px" /></div>
+        <div><label style="font-size:11px;opacity:.6;display:block;margin-bottom:4px">USD/BRL</label><input id="cafeUsdBrl" type="number" value="5.70" step="0.01" oninput="calcCafe()" style="padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);width:100px" /></div>
       </div>
-      <div class="cf-card" style="padding:20px;margin-bottom:16px">
-        <h3 style="font-size:14px;font-weight:700;margin-bottom:12px">Sobre o Mercado do Café</h3>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;font-size:13px;line-height:1.6;opacity:.8">
-          <p><strong>Café Arábica:</strong> Cotado na ICE (Nova York) em centavos de dólar por libra-peso. O Brasil é o maior exportador mundial.</p>
-          <p><strong>Café Robusta:</strong> Cotado na ICE Europa (Londres) em USD/tonelada. Usado principalmente em blends e café solúvel.</p>
-          <p><strong>CAFE11:</strong> ETF brasileiro de ações ligadas ao agronegócio do café na B3.</p>
-          <p><strong>Referência B3:</strong> Contratos futuros de café arábica são negociados na B3 sob o código ICFC, com liquidação em março, maio, julho, setembro e dezembro.</p>
-        </div>
-      </div>
-      <div class="cf-card" style="padding:20px">
-        <h3 style="font-size:14px;font-weight:700;margin-bottom:12px">Calculadora de Lote</h3>
-        <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end">
-          <div><label style="font-size:11px;opacity:.6;display:block;margin-bottom:4px">Preço (USD/saca 60kg)</label><input id="cafePriceInput" type="number" value="320" style="padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);width:120px" /></div>
-          <div><label style="font-size:11px;opacity:.6;display:block;margin-bottom:4px">Sacas</label><input id="cafeSacas" type="number" value="100" style="padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);width:100px" /></div>
-          <div><label style="font-size:11px;opacity:.6;display:block;margin-bottom:4px">USD/BRL</label><input id="cafeUsdBrl" type="number" value="5.70" step="0.01" style="padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);width:100px" /></div>
-          <button onclick="calcCafe()" style="padding:9px 16px;border-radius:8px;background:var(--indigo);color:#fff;font-weight:600;font-size:13px;border:none;cursor:pointer">Calcular</button>
-        </div>
-        <div id="cafeCalcResult" style="margin-top:12px;font-size:15px;font-weight:700"></div>
-      </div>
+      <div id="cafeCalcResult" style="margin-top:14px;font-size:15px;font-weight:700"></div>
     </div>`;
 
   window.calcCafe = function() {
-    const price = parseFloat(document.getElementById('cafePriceInput').value) || 0;
-    const sacas = parseFloat(document.getElementById('cafeSacas').value) || 0;
-    const fx = parseFloat(document.getElementById('cafeUsdBrl').value) || 5.7;
+    const price = parseFloat(document.getElementById('cafePriceInput')?.value) || 0;
+    const sacas = parseFloat(document.getElementById('cafeSacas')?.value) || 0;
+    const fx = parseFloat(document.getElementById('cafeUsdBrl')?.value) || 5.7;
     const totalUSD = price * sacas;
     const totalBRL = totalUSD * fx;
-    document.getElementById('cafeCalcResult').innerHTML =
-      `${sacas} sacas × USD ${price.toFixed(2)} = <span style="color:#10b981">USD ${totalUSD.toLocaleString('pt-BR',{minimumFractionDigits:2})}</span> &nbsp;|&nbsp; <span style="color:#6366f1">R$ ${totalBRL.toLocaleString('pt-BR',{minimumFractionDigits:2})}</span>`;
+    const out = document.getElementById('cafeCalcResult');
+    if (out) out.innerHTML =
+      `${sacas} sacas × USD ${price.toFixed(2)} = <span style="color:#10b981">US$ ${totalUSD.toLocaleString('pt-BR',{minimumFractionDigits:2})}</span> &nbsp;|&nbsp; <span style="color:#6366f1">R$ ${totalBRL.toLocaleString('pt-BR',{minimumFractionDigits:2})}</span>`;
   };
 
-  // Fetch live data from brapi.dev (free, no auth)
-  try {
-    const res = await fetch('https://brapi.dev/api/quote/CAFE11,YDUQ3,ABEV3?token=demo');
-    const data = await res.json();
-    (data.results || []).forEach(q => {
-      const cv = document.getElementById('cv_' + q.symbol);
-      const cc = document.getElementById('cc_' + q.symbol);
-      if (cv) cv.textContent = 'R$ ' + (q.regularMarketPrice||0).toLocaleString('pt-BR',{minimumFractionDigits:2});
-      if (cc) {
-        const chg = (q.regularMarketChangePercent||0).toFixed(2);
-        cc.textContent = (chg >= 0 ? '▲ +' : '▼ ') + chg + '%';
-        cc.style.color = chg >= 0 ? '#10b981' : '#ef4444';
-      }
-    });
-
-    // Fetch USD coffee futures via awesomeapi
-    const fxRes = await fetch('https://economia.awesomeapi.com.br/json/all/USD-BRL,KC-USD');
-    const fxData = await fxRes.json();
-    const usdBrl = parseFloat(fxData['USD']?.bid || 5.7);
-    const kcBid = parseFloat(fxData['KC']?.bid || 0);
-
-    // Update calculator FX
-    const fxInput = document.getElementById('cafeUsdBrl');
-    if (fxInput) fxInput.value = usdBrl.toFixed(2);
-
-    // Update café price input from KC futures if available
-    if (kcBid > 0) {
-      const kcPerSaca = (kcBid / 100) * 132.28; // cents/lb → USD/saca 60kg (132.28 lbs)
-      const cafePriceInput = document.getElementById('cafePriceInput');
-      if (cafePriceInput) cafePriceInput.value = kcPerSaca.toFixed(2);
-    }
-
-    const futuresEl = document.getElementById('cafeFutures');
-    if (futuresEl) {
-      futuresEl.style.opacity = '1';
-      futuresEl.innerHTML = `
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px">
-          ${kcBid > 0 ? `
-          <div style="background:var(--bg3);border-radius:8px;padding:12px">
-            <div style="font-size:11px;opacity:.6">Arábica (KC) — Contínuo</div>
-            <div style="font-size:20px;font-weight:800;color:#10b981;margin:4px 0">${kcBid.toFixed(2)} ¢/lb</div>
-            <div style="font-size:12px;opacity:.6">≈ R$ ${((kcBid/100)*132.28*usdBrl).toFixed(2)}/saca</div>
-          </div>` : ''}
-          <div style="background:var(--bg3);border-radius:8px;padding:12px">
-            <div style="font-size:11px;opacity:.6">USD/BRL</div>
-            <div style="font-size:20px;font-weight:800;color:#6366f1;margin:4px 0">R$ ${usdBrl.toFixed(4)}</div>
-            <div style="font-size:12px;opacity:.6">Cotação ao vivo</div>
-          </div>
-          ${kcBid > 0 ? `
-          <div style="background:var(--bg3);border-radius:8px;padding:12px">
-            <div style="font-size:11px;opacity:.6">Arábica em BRL/saca</div>
-            <div style="font-size:20px;font-weight:800;color:#f59e0b;margin:4px 0">R$ ${((kcBid/100)*132.28*usdBrl).toFixed(2)}</div>
-            <div style="font-size:12px;opacity:.6">saca de 60kg</div>
-          </div>` : ''}
-        </div>`;
-    }
-    calcCafe();
-  } catch(e) {
-    ['CAFE11','YDUQ3','ABEV3'].forEach(t => {
-      const cv = document.getElementById('cv_'+t);
-      if(cv) cv.textContent = 'N/D';
-    });
-    const futuresEl = document.getElementById('cafeFutures');
-    if (futuresEl) futuresEl.innerHTML = '<p style="opacity:.5;font-size:12px">Dados indisponíveis (verifique conexão).</p>';
-  }
+  cafeRefresh();
+  if (_cafeTimer) clearInterval(_cafeTimer);
+  _cafeTimer = setInterval(() => {
+    if (document.getElementById('cafe')?.classList.contains('active')) cafeRefresh();
+  }, 30000);
 };
 
 function renderUpgrade() {
