@@ -34,7 +34,7 @@
       window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
     }
   </script>
-  <link rel="stylesheet" href="styles/app.css?v=22" />
+  <link rel="stylesheet" href="styles/app.css?v=23" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -1805,10 +1805,10 @@
   </a>
 </nav>
 
-<script src="js/firebase-config.js?v=22"></script>
-<script src="js/app.js?v=22"></script>
-<script src="js/health.js?v=22"></script>
-<script src="js/study.js?v=22"></script>
+<script src="js/firebase-config.js?v=23"></script>
+<script src="js/app.js?v=23"></script>
+<script src="js/health.js?v=23"></script>
+<script src="js/study.js?v=23"></script>
 <script>
 /* ═══════════════════════════════════════════════
    WHOOP — OAuth 2.0 PKCE real integration
@@ -1946,7 +1946,17 @@
 
   async function handleWhoopCallback() {
     const params = new URLSearchParams(location.search);
-    if (params.get('state') !== 'whoop' || !params.get('code')) return false;
+    if (params.get('state') !== 'whoop') return false;
+    // A Whoop pode voltar com um erro em vez do código — mostra na tela
+    if (params.get('error')) {
+      const err = params.get('error');
+      const desc = params.get('error_description') || '';
+      history.replaceState({}, '', location.pathname);
+      whoopDiag('A Whoop recusou a autorização: "' + err + '"' + (desc ? ' — ' + desc : '') +
+        '. Causa mais comum: o Redirect URI no painel da Whoop não está IDÊNTICO a ' + (localStorage.getItem('whoop_redirect') || (location.origin + location.pathname)) + ' (atenção às maiúsculas em CLAUDE.md).');
+      return false;
+    }
+    if (!params.get('code')) return false;
     const code = params.get('code');
     const verifier = localStorage.getItem('whoop_cv');
     const clientId = localStorage.getItem('whoop_cid');
@@ -2008,7 +2018,7 @@
       <div class="page-header">
         <div><h1>Integração Whoop</h1><p class="page-sub">Dados reais de recuperação, sono e treino da sua Whoop.</p></div>
       </div>
-      <div style="display:inline-block;font-size:11px;font-weight:700;background:#10b981;color:#04201a;padding:3px 10px;border-radius:20px;margin-bottom:14px">build 21 ✓ versão nova carregada</div>
+      <div style="display:inline-block;font-size:11px;font-weight:700;background:#10b981;color:#04201a;padding:3px 10px;border-radius:20px;margin-bottom:14px">build 23 ✓ versão nova carregada</div>
       ${diagBox}
       ${connected ? `
         <div id="whoopData" style="margin-top:4px"></div>
@@ -2030,7 +2040,7 @@
             <label style="font-size:12px;font-weight:600;display:block;margin-bottom:6px">Client Secret <span style="opacity:.5;font-weight:400">(exigido pela Whoop)</span></label>
             <input id="whoopClientSecret" type="password" value="${(localStorage.getItem('whoop_secret')||'').replace(/"/g,'&quot;')}" placeholder="Cole o Client Secret aqui" style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:13px" />
           </div>
-          <button onclick="whoopConnect()" style="width:100%;padding:12px;border-radius:10px;background:linear-gradient(135deg,#ef4444,#f97316);color:#fff;font-weight:700;font-size:14px;border:none;cursor:pointer">
+          <button type="button" onclick="whoopConnect()" style="width:100%;padding:12px;border-radius:10px;background:linear-gradient(135deg,#ef4444,#f97316);color:#fff;font-weight:700;font-size:14px;border:none;cursor:pointer">
             Conectar com Whoop
           </button>
           <p style="font-size:11px;opacity:.5;margin-top:12px;text-align:center">Dados ficam só no seu dispositivo (localStorage). Client ID e Secret nunca são enviados a terceiros, exceto à própria Whoop.</p>
@@ -2041,7 +2051,7 @@
 
   document.addEventListener('DOMContentLoaded', async () => {
     const params = new URLSearchParams(location.search);
-    const isCallback = params.get('state') === 'whoop' && params.get('code');
+    const isCallback = params.get('state') === 'whoop' && (params.get('code') || params.get('error'));
     if (!isCallback) return;
     await handleWhoopCallback();
     // sempre leva o usuário para a página Whoop (com dados ou com diagnóstico)
