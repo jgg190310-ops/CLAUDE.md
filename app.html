@@ -1834,37 +1834,40 @@
     return { verifier, challenge };
   }
 
-  // whoopConnect é SÍNCRONA — PKCE é pré-gerado por prepareWhoopPKCE() ao renderizar
-  window.whoopConnect = function() {
-    try {
-      const clientId = (document.getElementById('whoopClientId')?.value || '').trim();
-      const secret   = (document.getElementById('whoopClientSecret')?.value || '').trim();
-      if (!clientId) { whoopDiag('Cole o Client ID Whoop primeiro.'); renderWhoop(); showToast('Cole seu Client ID Whoop primeiro.', 'error'); return; }
-      const challenge = localStorage.getItem('whoop_challenge');
-      if (!challenge) { whoopDiag('PKCE não gerado ainda — recarregue a página e tente de novo.'); renderWhoop(); return; }
-      localStorage.setItem('whoop_cid', clientId);
-      if (secret) localStorage.setItem('whoop_secret', secret);
-      const redirect = location.origin + location.pathname;
-      localStorage.setItem('whoop_redirect', redirect);
-      const url = `${WHOOP_AUTH}?response_type=code&client_id=${encodeURIComponent(clientId)}&redirect_uri=${encodeURIComponent(redirect)}&scope=${encodeURIComponent(WHOOP_SCOPE)}&code_challenge=${encodeURIComponent(challenge)}&code_challenge_method=S256&state=whoop`;
-      showToast('Abrindo Whoop para autorização…', 'info');
-      window.location.href = url;
-    } catch (e) {
-      whoopDiag('Erro: ' + (e.message || e));
-      renderWhoop();
-      showToast('Erro ao iniciar conexão Whoop.', 'error');
-    }
-  };
-
-  // Pré-gera PKCE de forma assíncrona (sem precisar de gesto do usuário)
-  async function prepareWhoopPKCE() {
+  // Gera PKCE e ativa o <a> de auth como link real (sem JS de navegação)
+  async function whoopBuildLink() {
     try {
       if (!window.crypto || !crypto.subtle) return;
       const { verifier, challenge } = await generatePKCE();
       localStorage.setItem('whoop_cv', verifier);
       localStorage.setItem('whoop_challenge', challenge);
+      whoopUpdateLink();
     } catch(e) {}
   }
+
+  window.whoopUpdateLink = function() {
+    const link = document.getElementById('whoopAuthLink');
+    if (!link) return;
+    const clientId = (document.getElementById('whoopClientId')?.value || localStorage.getItem('whoop_cid') || '').trim();
+    const secret   = (document.getElementById('whoopClientSecret')?.value || '').trim();
+    const challenge = localStorage.getItem('whoop_challenge');
+    if (!clientId || !challenge) {
+      link.style.opacity = '.4'; link.style.pointerEvents = 'none';
+      link.textContent = clientId ? '⏳ Preparando link…' : '⚠️ Cole o Client ID primeiro';
+      return;
+    }
+    const redirect = location.origin + location.pathname;
+    localStorage.setItem('whoop_cid', clientId);
+    if (secret) localStorage.setItem('whoop_secret', secret);
+    localStorage.setItem('whoop_redirect', redirect);
+    const url = `${WHOOP_AUTH}?response_type=code&client_id=${encodeURIComponent(clientId)}&redirect_uri=${encodeURIComponent(redirect)}&scope=${encodeURIComponent(WHOOP_SCOPE)}&code_challenge=${encodeURIComponent(challenge)}&code_challenge_method=S256&state=whoop`;
+    link.href = url;
+    link.style.opacity = '1'; link.style.pointerEvents = 'auto';
+    link.textContent = 'Conectar com Whoop →';
+  };
+
+  // Mantém compatibilidade caso algum código antigo chame whoopConnect()
+  window.whoopConnect = window.whoopUpdateLink;
 
   window.whoopDisconnect = function() {
     ['whoop_access','whoop_refresh','whoop_cid','whoop_cv','whoop_secret'].forEach(k => localStorage.removeItem(k));
@@ -2013,7 +2016,6 @@
   window.renderWhoop = function() {
     const el = document.getElementById('h-whoop');
     if (!el) return;
-    prepareWhoopPKCE(); // pré-gera PKCE em background — clique ficará síncrono
     const connected = !!localStorage.getItem('whoop_access');
     const diag = localStorage.getItem('whoop_diag');
     const diagBox = diag ? `
@@ -2029,7 +2031,6 @@
       <div class="page-header">
         <div><h1>Integração Whoop</h1><p class="page-sub">Dados reais de recuperação, sono e treino da sua Whoop.</p></div>
       </div>
-      <div style="display:inline-block;font-size:11px;font-weight:700;background:#10b981;color:#04201a;padding:3px 10px;border-radius:20px;margin-bottom:14px">build 23 ✓ versão nova carregada</div>
       ${diagBox}
       ${connected ? `
         <div id="whoopData" style="margin-top:4px"></div>
@@ -2045,19 +2046,20 @@
           <div style="background:var(--bg3);border-radius:8px;padding:10px 14px;font-family:monospace;font-size:12px;word-break:break-all;margin-bottom:20px;opacity:.8">${location.origin + location.pathname}</div>
           <div class="form-group" style="margin-bottom:12px">
             <label style="font-size:12px;font-weight:600;display:block;margin-bottom:6px">Client ID do seu app Whoop</label>
-            <input id="whoopClientId" type="text" value="${(localStorage.getItem('whoop_cid')||'').replace(/"/g,'&quot;')}" placeholder="Cole o Client ID aqui" style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:13px" />
+            <input id="whoopClientId" type="text" value="${(localStorage.getItem('whoop_cid')||'').replace(/"/g,'&quot;')}" placeholder="Cole o Client ID aqui" style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:13px" oninput="whoopUpdateLink()" />
           </div>
           <div class="form-group" style="margin-bottom:16px">
             <label style="font-size:12px;font-weight:600;display:block;margin-bottom:6px">Client Secret <span style="opacity:.5;font-weight:400">(exigido pela Whoop)</span></label>
             <input id="whoopClientSecret" type="password" value="${(localStorage.getItem('whoop_secret')||'').replace(/"/g,'&quot;')}" placeholder="Cole o Client Secret aqui" style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:13px" />
           </div>
-          <button type="button" onclick="whoopConnect()" style="width:100%;padding:12px;border-radius:10px;background:linear-gradient(135deg,#ef4444,#f97316);color:#fff;font-weight:700;font-size:14px;border:none;cursor:pointer">
-            Conectar com Whoop
-          </button>
+          <a id="whoopAuthLink" href="#" style="display:block;width:100%;padding:12px;border-radius:10px;background:linear-gradient(135deg,#ef4444,#f97316);color:#fff;font-weight:700;font-size:14px;text-align:center;text-decoration:none;opacity:.4;pointer-events:none">
+            ⏳ Preparando link…
+          </a>
           <p style="font-size:11px;opacity:.5;margin-top:12px;text-align:center">Dados ficam só no seu dispositivo (localStorage). Client ID e Secret nunca são enviados a terceiros, exceto à própria Whoop.</p>
         </div>
       `}`;
     if (connected) loadWhoopData();
+    else whoopBuildLink(); // gera PKCE e ativa o link
   };
 
   document.addEventListener('DOMContentLoaded', async () => {
