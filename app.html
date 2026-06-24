@@ -1959,17 +1959,26 @@
 
   async function handleWhoopCallback() {
     const params = new URLSearchParams(location.search);
-    if (params.get('state') !== 'whoop') return false;
-    // A Whoop pode voltar com um erro em vez do código — mostra na tela
+    // DEBUG: mostra todos os params recebidos
+    const allParams = location.search;
+    if (params.get('state') !== 'whoop') {
+      if (allParams) alert('Callback recebido mas state != whoop\nParams: ' + allParams);
+      return false;
+    }
     if (params.get('error')) {
       const err = params.get('error');
       const desc = params.get('error_description') || '';
       history.replaceState({}, '', location.pathname);
-      whoopDiag('A Whoop recusou a autorização: "' + err + '"' + (desc ? ' — ' + desc : '') +
-        '. Causa mais comum: o Redirect URI no painel da Whoop não está IDÊNTICO a ' + (localStorage.getItem('whoop_redirect') || (location.origin + location.pathname)) + ' (atenção às maiúsculas em CLAUDE.md).');
+      const msg = 'Erro Whoop: "' + err + '"' + (desc ? '\n' + desc : '') +
+        '\n\nRedirect URI enviado:\n' + (localStorage.getItem('whoop_redirect') || (location.origin + location.pathname));
+      alert(msg);
+      whoopDiag(msg);
       return false;
     }
-    if (!params.get('code')) return false;
+    if (!params.get('code')) {
+      alert('Callback sem code nem error\nParams: ' + allParams);
+      return false;
+    }
     const code = params.get('code');
     const verifier = localStorage.getItem('whoop_cv');
     const clientId = localStorage.getItem('whoop_cid');
