@@ -26,7 +26,7 @@
       window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
     }
   </script>
-  <link rel="stylesheet" href="styles/app.css?v=20" />
+  <link rel="stylesheet" href="styles/app.css?v=21" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -1797,10 +1797,10 @@
   </a>
 </nav>
 
-<script src="js/firebase-config.js?v=20"></script>
-<script src="js/app.js?v=20"></script>
-<script src="js/health.js?v=20"></script>
-<script src="js/study.js?v=20"></script>
+<script src="js/firebase-config.js?v=21"></script>
+<script src="js/app.js?v=21"></script>
+<script src="js/health.js?v=21"></script>
+<script src="js/study.js?v=21"></script>
 <script>
 /* ═══════════════════════════════════════════════
    WHOOP — OAuth 2.0 PKCE real integration
@@ -2000,6 +2000,7 @@
       <div class="page-header">
         <div><h1>Integração Whoop</h1><p class="page-sub">Dados reais de recuperação, sono e treino da sua Whoop.</p></div>
       </div>
+      <div style="display:inline-block;font-size:11px;font-weight:700;background:#10b981;color:#04201a;padding:3px 10px;border-radius:20px;margin-bottom:14px">build 21 ✓ versão nova carregada</div>
       ${diagBox}
       ${connected ? `
         <div id="whoopData" style="margin-top:4px"></div>
