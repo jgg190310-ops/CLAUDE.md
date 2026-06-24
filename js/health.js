@@ -1027,13 +1027,13 @@
   //  DESAFIOS DE SAÚDE
   // ════════════════════════════════════════════════════════════════
   const CHALLENGES = [
-    { id: 'nosugar',   title: '30 dias sem açúcar',       days: 30, icon: '🍬', desc: 'Elimine açúcar refinado por 30 dias e sinta a diferença.' },
-    { id: 'exercise',  title: '30 dias de exercício',     days: 30, icon: '💪', desc: 'Pelo menos 30 minutos de atividade física por dia.' },
-    { id: 'water2l',   title: 'Beber 2L de água por dia', days: 21, icon: '💧', desc: 'Hidrate-se adequadamente por 21 dias seguidos.' },
-    { id: 'sleep8',    title: 'Dormir 8h por 7 dias',     days:  7, icon: '😴', desc: 'Priorize o sono por uma semana inteira.' },
-    { id: 'nofastfood',title: 'Semana sem fast food',     days:  7, icon: '🥗', desc: 'Coma apenas comida caseira por 7 dias.' },
-    { id: 'meditat',   title: '30 dias de meditação',     days: 30, icon: '🧘', desc: '10 minutos de meditação por dia durante 30 dias.' },
-    { id: 'steps',     title: '10.000 passos por dia',    days: 21, icon: '🚶', desc: 'Caminhe pelo menos 10.000 passos diários por 3 semanas.' },
+    { id: 'nosugar',    title: '30 dias sem açúcar',       days: 30, icon: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>', desc: 'Elimine açúcar refinado por 30 dias e sinta a diferença.' },
+    { id: 'exercise',   title: '30 dias de exercício',     days: 30, icon: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6.5 6.5h11"/><rect x="5" y="8" width="3" height="8" rx="1.5"/><rect x="16" y="8" width="3" height="8" rx="1.5"/><line x1="8" y1="12" x2="16" y2="12"/></svg>', desc: 'Pelo menos 30 minutos de atividade física por dia.' },
+    { id: 'water2l',    title: 'Beber 2L de água por dia', days: 21, icon: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2C6 10 4 13.5 4 16a8 8 0 0 0 16 0c0-2.5-2-6-8-14z"/></svg>', desc: 'Hidrate-se adequadamente por 21 dias seguidos.' },
+    { id: 'sleep8',     title: 'Dormir 8h por 7 dias',     days:  7, icon: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>', desc: 'Priorize o sono por uma semana inteira.' },
+    { id: 'nofastfood', title: 'Semana sem fast food',     days:  7, icon: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></svg>', desc: 'Coma apenas comida caseira por 7 dias.' },
+    { id: 'meditat',    title: '30 dias de meditação',     days: 30, icon: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="5" r="2"/><path d="M5 21c0-4 3-7 7-7s7 3 7 7"/><path d="M12 10v4"/><path d="M8 14h8"/></svg>', desc: '10 minutos de meditação por dia durante 30 dias.' },
+    { id: 'steps',      title: '10.000 passos por dia',    days: 21, icon: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="4" r="1.2"/><path d="m9 20 2-5.5 2.5 2L16 10"/><path d="m7 9 3 1 2-2 3 1"/></svg>', desc: 'Caminhe pelo menos 10.000 passos diários por 3 semanas.' },
   ];
 
   function renderHChallenge() {
@@ -1060,7 +1060,7 @@
           const pct = Math.min(100, Math.round(daysPassed / ch.days * 100));
           return `<div style="margin-bottom:12px">
             <div style="display:flex;justify-content:space-between;margin-bottom:6px">
-              <span style="font-weight:600">${ch.icon} ${ch.title}</span>
+              <span style="font-weight:600;display:flex;align-items:center;gap:8px"><span style="color:var(--indigo)">${ch.icon}</span>${ch.title}</span>
               <span style="color:var(--text-2);font-size:13px">${daysPassed}/${ch.days} dias</span>
             </div>
             <div style="background:var(--border);border-radius:4px;height:8px">
@@ -1077,7 +1077,7 @@
           const done = joined && daysPassed >= ch.days;
           const inProgress = joined && !done;
           return `<div class="cf-card" style="border-color:${inProgress?'rgba(16,185,129,.3)':done?'rgba(99,102,241,.3)':''}">
-            <div style="font-size:28px;margin-bottom:8px">${ch.icon}</div>
+            <div style="width:40px;height:40px;border-radius:10px;background:var(--bg2);display:flex;align-items:center;justify-content:center;margin-bottom:10px;color:var(--indigo)">${ch.icon}</div>
             <h3 style="font-size:15px;font-weight:700;margin-bottom:6px">${ch.title}</h3>
             <p style="font-size:13px;color:var(--text-2);margin-bottom:12px;line-height:1.5">${ch.desc}</p>
             <div style="display:flex;align-items:center;justify-content:space-between">
