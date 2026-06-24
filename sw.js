@@ -1,42 +1,20 @@
-/* FinanceOS service worker — network-first para sempre pegar a versão nova;
-   cache só serve como fallback quando estiver offline. */
-const CACHE = 'financeos-v10';
-const ASSETS = [
-  './',
-  './index.html',
-  './app.html',
-  './manifest.webmanifest',
-  './icons/icon-192.png',
-  './icons/icon-512.png',
-  './icons/apple-touch-icon.png'
-];
-
-self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)).catch(() => {}));
-  self.skipWaiting();
-});
+/* Kill-switch service worker.
+   Versões antigas cacheavam o app e causavam "versão velha". Este SW NÃO
+   cacheia nada: ele apaga todos os caches, se descadastra e recarrega as abas
+   abertas, garantindo que o usuário sempre rode a versão mais nova. */
+self.addEventListener('install', () => self.skipWaiting());
 
 self.addEventListener('activate', (e) => {
-  e.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)))
-    )
-  );
-  self.clients.claim();
+  e.waitUntil((async () => {
+    try {
+      const keys = await caches.keys();
+      await Promise.all(keys.map((k) => caches.delete(k)));
+      await self.registration.unregister();
+      const clients = await self.clients.matchAll({ type: 'window' });
+      clients.forEach((c) => { try { c.navigate(c.url); } catch (e) {} });
+    } catch (e) {}
+  })());
 });
 
-self.addEventListener('fetch', (e) => {
-  const req = e.request;
-  if (req.method !== 'GET') return;
-  // NETWORK-FIRST para tudo: busca o arquivo novo na rede, atualiza o cache,
-  // e só cai no cache se estiver offline. Acaba com o problema de versão velha.
-  e.respondWith(
-    fetch(req)
-      .then((res) => {
-        const copy = res.clone();
-        caches.open(CACHE).then((c) => c.put(req, copy)).catch(() => {});
-        return res;
-      })
-      .catch(() => caches.match(req).then((r) => r || caches.match('./index.html')))
-  );
-});
+/* Sem cache: todas as requisições vão direto para a rede. */
+self.addEventListener('fetch', () => {});
