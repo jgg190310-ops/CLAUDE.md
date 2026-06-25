@@ -1874,7 +1874,7 @@
     try {
       const [recovery, sleep, cycles] = await Promise.all([
         whoopFetch('/recovery?limit=1'),
-        whoopFetch('/sleep?limit=1'),
+        whoopFetch('/activity/sleep?limit=1'),
         whoopFetch('/cycle?limit=7'),
       ]);
       const rec       = recovery.records?.[0];
