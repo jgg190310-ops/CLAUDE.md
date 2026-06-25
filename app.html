@@ -37,9 +37,9 @@
       window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
     }
   </script>
-  <link rel="stylesheet" href="styles/app.css?v=26" />
+  <link rel="stylesheet" href="styles/app.css?v=27" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
@@ -1909,7 +1909,8 @@
       const cyc = cycles.records || [];
 
       const recScore  = rec?.score?.recovery_score;
-      const hrv       = rec?.score?.hrv_rmssd_milli ? (rec.score.hrv_rmssd_milli/1000).toFixed(1) : '--';
+      // hrv_rmssd_milli já vem em milissegundos (ex.: 31.81)
+      const hrv       = rec?.score?.hrv_rmssd_milli != null ? Math.round(rec.score.hrv_rmssd_milli) : '--';
       const rhr       = rec?.score?.resting_heart_rate ?? '--';
       const spo2      = rec?.score?.spo2_percentage ? rec.score.spo2_percentage.toFixed(0) : null;
       const skinTemp  = rec?.score?.skin_temp_celsius ? rec.score.skin_temp_celsius.toFixed(1) : null;
