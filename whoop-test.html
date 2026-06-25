@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Teste Whoop — OSHelp</title>
+  <style>
+    body { font-family: system-ui, sans-serif; background:#0b0f1a; color:#e8edf8; margin:0; padding:24px; line-height:1.5; }
+    h1 { font-size:20px; }
+    .card { background:#131a2b; border:1px solid rgba(255,255,255,.1); border-radius:12px; padding:18px; margin:14px 0; }
+    label { display:block; font-size:13px; font-weight:600; margin:10px 0 4px; }
+    input { width:100%; box-sizing:border-box; padding:11px 14px; border-radius:8px; border:1px solid rgba(255,255,255,.15); background:#0b0f1a; color:#fff; font-size:14px; }
+    a.btn, button { display:block; width:100%; box-sizing:border-box; text-align:center; margin-top:16px; padding:15px; border-radius:10px; background:linear-gradient(135deg,#10b981,#059669); color:#fff; font-weight:800; font-size:16px; text-decoration:none; border:none; cursor:pointer; }
+    pre { background:#000; color:#0f0; padding:14px; border-radius:8px; font-size:12px; white-space:pre-wrap; word-break:break-all; max-height:50vh; overflow:auto; }
+    .mono { font-family:monospace; font-size:12px; word-break:break-all; opacity:.8; }
+    .ok { color:#10b981; } .err { color:#ef4444; }
+  </style>
+</head>
+<body>
+  <h1>🔬 Teste isolado da Whoop</h1>
+  <p class="mono">Esta página NÃO usa o app, nem service worker, nem roteador. Só o fluxo Whoop puro.</p>
+
+  <div class="card">
+    <div>Redirect URI (cole isto EXATO no painel da Whoop):</div>
+    <div class="mono" id="redirectUri" style="margin-top:6px;color:#10b981"></div>
+  </div>
+
+  <div class="card">
+    <label>Client ID</label>
+    <input id="cid" placeholder="Cole o Client ID" />
+    <label>Client Secret</label>
+    <input id="secret" type="password" placeholder="Cole o Client Secret" />
+    <a class="btn" id="goLink" href="#">1️⃣ Gerar link e ir para a Whoop</a>
+  </div>
+
+  <div class="card">
+    <strong>Log:</strong>
+    <pre id="log">Aguardando…</pre>
+  </div>
+
+<script>
+  var WHOOP_AUTH  = 'https://api.prod.whoop.com/oauth/oauth2/auth';
+  var WHOOP_TOKEN = 'https://api.prod.whoop.com/oauth/oauth2/token';
+  var WHOOP_SCOPE = 'read:recovery read:sleep read:workout read:body_measurement read:cycles';
+  var REDIRECT_URI = location.origin + location.pathname;
+  var logEl = document.getElementById('log');
+  function log(m, cls){ logEl.innerHTML += '\n' + (cls?('<span class="'+cls+'">'+m+'</span>'):m); }
+
+  document.getElementById('redirectUri').textContent = REDIRECT_URI;
+
+  function b64url(buf){ return btoa(String.fromCharCode.apply(null, new Uint8Array(buf))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,''); }
+
+  // pré-preenche se já usou antes
+  if (localStorage.getItem('wt_cid')) document.getElementById('cid').value = localStorage.getItem('wt_cid');
+  if (localStorage.getItem('wt_secret')) document.getElementById('secret').value = localStorage.getItem('wt_secret');
+
+  // Gera PKCE e atualiza o link em tempo real
+  var challenge = '';
+  (async function(){
+    if (!window.crypto || !crypto.subtle) { log('❌ crypto.subtle indisponível — precisa de HTTPS!', 'err'); return; }
+    var arr = crypto.getRandomValues(new Uint8Array(32));
+    var verifier = b64url(arr);
+    var hash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(verifier));
+    challenge = b64url(hash);
+    localStorage.setItem('wt_cv', verifier);
+    log('✅ PKCE gerado.', 'ok');
+    updateLink();
+  })();
+
+  function updateLink(){
+    var cid = document.getElementById('cid').value.trim();
+    var link = document.getElementById('goLink');
+    if (!cid || !challenge) { link.href = '#'; return; }
+    localStorage.setItem('wt_cid', cid);
+    var sec = document.getElementById('secret').value.trim();
+    if (sec) localStorage.setItem('wt_secret', sec);
+    var url = WHOOP_AUTH
+      + '?response_type=code'
+      + '&client_id=' + encodeURIComponent(cid)
+      + '&redirect_uri=' + encodeURIComponent(REDIRECT_URI)
+      + '&scope=' + encodeURIComponent(WHOOP_SCOPE)
+      + '&code_challenge=' + encodeURIComponent(challenge)
+      + '&code_challenge_method=S256'
+      + '&state=whoop';
+    link.href = url;
+  }
+  document.getElementById('cid').addEventListener('input', updateLink);
+  document.getElementById('secret').addEventListener('input', updateLink);
+
+  // Quando voltar da Whoop, processa o callback
+  (async function(){
+    var p = new URLSearchParams(location.search);
+    if (!p.get('code') && !p.get('error')) return;
+    log('\n=== VOLTOU DA WHOOP ===');
+    log('URL completa: ' + location.href);
+    if (p.get('error')) {
+      log('❌ ERRO da Whoop: ' + p.get('error'), 'err');
+      log('Descrição: ' + (p.get('error_description') || '(nenhuma)'), 'err');
+      log('\n>>> Provável causa: o Redirect URI registrado na Whoop não é EXATAMENTE:\n' + REDIRECT_URI, 'err');
+      return;
+    }
+    var code = p.get('code');
+    log('✅ Code recebido: ' + code.substring(0,12) + '…', 'ok');
+    log('Trocando code por token…');
+    var body = {
+      grant_type: 'authorization_code',
+      code: code,
+      client_id: localStorage.getItem('wt_cid'),
+      redirect_uri: REDIRECT_URI,
+      code_verifier: localStorage.getItem('wt_cv'),
+    };
+    var sec = localStorage.getItem('wt_secret');
+    if (sec) body.client_secret = sec;
+
+    var proxies = [
+      { label:'direto', url: WHOOP_TOKEN },
+      { label:'corsproxy.io', url: 'https://corsproxy.io/?url=' + encodeURIComponent(WHOOP_TOKEN) },
+      { label:'allorigins', url: 'https://api.allorigins.win/raw?url=' + encodeURIComponent(WHOOP_TOKEN) },
+      { label:'thingproxy', url: 'https://thingproxy.freeboard.io/fetch/' + WHOOP_TOKEN },
+    ];
+    for (var i=0; i<proxies.length; i++) {
+      var px = proxies[i];
+      try {
+        log('Tentando via ' + px.label + '…');
+        var r = await fetch(px.url, {
+          method:'POST',
+          headers:{'Content-Type':'application/x-www-form-urlencoded'},
+          body: new URLSearchParams(body),
+        });
+        var txt = await r.text();
+        log(px.label + ' → HTTP ' + r.status);
+        var data = {}; try { data = JSON.parse(txt); } catch(e){}
+        if (data.access_token) {
+          localStorage.setItem('wt_access', data.access_token);
+          log('\n🎉 SUCESSO! Token obtido via ' + px.label, 'ok');
+          log('Access token: ' + data.access_token.substring(0,20) + '…', 'ok');
+          return;
+        }
+        if (data.error) { log('Resposta: ' + JSON.stringify(data), 'err'); }
+        else { log('Resposta crua: ' + txt.substring(0,300)); }
+      } catch(e) {
+        log(px.label + ' falhou: ' + (e.message||e), 'err');
+      }
+    }
+    log('\n❌ Nenhum método conseguiu trocar o token. Isso é bloqueio de CORS — a troca de token precisa de um servidor (backend), não dá para fazer 100% no navegador com segurança.', 'err');
+  })();
+</script>
+</body>
+</html>
