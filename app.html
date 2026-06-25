@@ -1995,16 +1995,19 @@
     }
     if (secret) localStorage.setItem('whoop_secret', secret);
     localStorage.setItem('whoop_cid', clientId);
-    const url = WHOOP_AUTH
-      + '?response_type=code'
-      + '&client_id='              + encodeURIComponent(clientId)
-      + '&redirect_uri='           + encodeURIComponent(REDIRECT_URI)
-      + '&scope='                  + encodeURIComponent(WHOOP_SCOPE)
-      + '&code_challenge='         + encodeURIComponent(challenge)
-      + '&code_challenge_method=S256'
-      + '&state=whoop';
-    showToast('Redirecionando para a Whoop…', 'info');
-    setTimeout(function() { window.location.href = url; }, 400);
+    // Navega via form GET — não pode ser bloqueado por router ou SW
+    var f = document.createElement('form');
+    f.method = 'GET';
+    f.action = WHOOP_AUTH;
+    var fields = { response_type:'code', client_id:clientId, redirect_uri:REDIRECT_URI,
+      scope:WHOOP_SCOPE, code_challenge:challenge, code_challenge_method:'S256', state:'whoop' };
+    Object.keys(fields).forEach(function(k){
+      var i = document.createElement('input');
+      i.type='hidden'; i.name=k; i.value=fields[k];
+      f.appendChild(i);
+    });
+    document.body.appendChild(f);
+    f.submit();
   };
 
   window.whoopConnect    = window.whoopGo;
