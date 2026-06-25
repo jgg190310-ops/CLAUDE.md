@@ -1862,9 +1862,10 @@
     });
     if (r.status === 401) { whoopDiag('Token expirado (401). Reconecte.'); throw new Error('401'); }
     if (r.ok) return r.json();
-    const err = 'HTTP ' + r.status;
-    whoopDiag('Falha ao buscar dados — ' + err);
-    throw new Error(err);
+    let body = ''; try { body = await r.text(); } catch(e2){}
+    const err = 'HTTP ' + r.status + ' em /api' + path + ' — ' + body.substring(0, 200);
+    whoopDiag(err);
+    throw new Error('HTTP ' + r.status);
   }
 
   async function loadWhoopData() {
