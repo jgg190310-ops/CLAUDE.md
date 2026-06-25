@@ -1980,6 +1980,7 @@
   }
 
   window.whoopGo = function() {
+    localStorage.removeItem('whoop_diag'); // limpa diagnóstico velho
     var clientId  = (document.getElementById('whoopClientId')?.value  || localStorage.getItem('whoop_cid')    || '').trim();
     var secret    = (document.getElementById('whoopClientSecret')?.value || localStorage.getItem('whoop_secret') || '').trim();
     var challenge = localStorage.getItem('whoop_challenge');
