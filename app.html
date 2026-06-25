@@ -1980,34 +1980,33 @@
   }
 
   window.whoopGo = function() {
-    const btn = document.getElementById('whoopBtn');
-    if (btn) { btn.textContent = '⏳ Conectando…'; btn.disabled = true; }
-    const clientId  = (document.getElementById('whoopClientId')?.value  || localStorage.getItem('whoop_cid')    || '').trim();
-    const secret    = (document.getElementById('whoopClientSecret')?.value || localStorage.getItem('whoop_secret') || '').trim();
-    const challenge = localStorage.getItem('whoop_challenge');
-    if (!clientId) {
-      if (btn) { btn.textContent = 'Conectar com Whoop'; btn.disabled = false; }
-      showToast('Cole o Client ID Whoop primeiro.', 'error'); return;
-    }
-    if (!challenge) {
-      if (btn) { btn.textContent = 'Conectar com Whoop'; btn.disabled = false; }
-      showToast('Aguarde 1 segundo — PKCE ainda gerando.', 'error'); return;
-    }
+    var clientId  = (document.getElementById('whoopClientId')?.value  || localStorage.getItem('whoop_cid')    || '').trim();
+    var secret    = (document.getElementById('whoopClientSecret')?.value || localStorage.getItem('whoop_secret') || '').trim();
+    var challenge = localStorage.getItem('whoop_challenge');
+    var box = document.getElementById('whoopGoBox');
+    if (!box) return;
+    if (!clientId)  { box.innerHTML = '<p style="color:#ef4444;font-weight:700">⚠️ Cole o Client ID primeiro.</p>'; return; }
+    if (!challenge) { box.innerHTML = '<p style="color:#ef4444;font-weight:700">⚠️ PKCE ainda gerando. Espere 2s e clique de novo.</p>'; return; }
     if (secret) localStorage.setItem('whoop_secret', secret);
     localStorage.setItem('whoop_cid', clientId);
-    // Navega via form GET — não pode ser bloqueado por router ou SW
-    var f = document.createElement('form');
-    f.method = 'GET';
-    f.action = WHOOP_AUTH;
-    var fields = { response_type:'code', client_id:clientId, redirect_uri:REDIRECT_URI,
-      scope:WHOOP_SCOPE, code_challenge:challenge, code_challenge_method:'S256', state:'whoop' };
-    Object.keys(fields).forEach(function(k){
-      var i = document.createElement('input');
-      i.type='hidden'; i.name=k; i.value=fields[k];
-      f.appendChild(i);
-    });
-    document.body.appendChild(f);
-    f.submit();
+    var url = WHOOP_AUTH
+      + '?response_type=code'
+      + '&client_id='              + encodeURIComponent(clientId)
+      + '&redirect_uri='           + encodeURIComponent(REDIRECT_URI)
+      + '&scope='                  + encodeURIComponent(WHOOP_SCOPE)
+      + '&code_challenge='         + encodeURIComponent(challenge)
+      + '&code_challenge_method=S256'
+      + '&state=whoop';
+    // Mostra um link real, gigante, para o usuário TOCAR com o dedo.
+    // É a navegação mais básica que existe — se isso não funcionar, é o navegador/SW.
+    box.innerHTML =
+      '<a href="' + url.replace(/"/g,'&quot;') + '" target="_top" rel="noopener" '
+      + 'style="display:block;margin-top:14px;padding:18px;border-radius:12px;'
+      + 'background:linear-gradient(135deg,#10b981,#059669);color:#fff;font-weight:800;'
+      + 'font-size:17px;text-align:center;text-decoration:none">👉 TOQUE AQUI PARA ABRIR A WHOOP</a>'
+      + '<p style="font-size:11px;opacity:.6;margin-top:10px;text-align:center">'
+      + 'Se o botão acima não abrir nada ao tocar, o problema é uma configuração do navegador (Service Worker antigo). '
+      + 'Me avise e eu desativo.</p>';
   };
 
   window.whoopConnect    = window.whoopGo;
@@ -2055,6 +2054,7 @@
           <button id="whoopBtn" onclick="whoopGo()" style="width:100%;padding:14px;border-radius:10px;background:linear-gradient(135deg,#ef4444,#f97316);color:#fff;font-weight:700;font-size:15px;border:none;cursor:pointer">
             Conectar com Whoop
           </button>
+          <div id="whoopGoBox"></div>
         </div>`}`;
     if (connected) loadWhoopData();
   };
