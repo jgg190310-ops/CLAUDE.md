@@ -2460,7 +2460,7 @@ async function aiAnswer(q) {
       `Defina seu perfil na aba <b>Perfil → Investimentos</b>.`;
   }
 
-  if (/aposentadoria|previdencia|pgbl|vgbl|inss|fire|independencia financeira/.test(t)) {
+  if (/aposentadoria|aposentar|previdencia|pgbl|vgbl|inss|fire|independencia financeira/.test(t)) {
     return `<b>Aposentadoria e independência financeira:</b><br><br>` +
       `• <b>Número FIRE</b>: 25× seus gastos anuais. Gastando ${aiFmt(s.expense)}/mês → alvo de <b>${aiFmt(s.expense * 12 * 25)}</b> (regra dos 4% de retirada).<br>` +
       `• <b>PGBL</b>: deduz até 12% da renda bruta no IR (vale para quem declara completo) — mas IR incide sobre o total no resgate.<br>` +
@@ -2471,7 +2471,7 @@ async function aiAnswer(q) {
       `Alternativa DIY: Tesouro IPCA+ longo + ETFs, sem taxas de previdência.`;
   }
 
-  if (/imposto|ir\b|declarar|leao|tributa/.test(t)) {
+  if (/imposto|\bir\b|declarar|leao|tributa|imposto de renda/.test(t)) {
     return `<b>IR sobre investimentos — guia rápido:</b><br><br>` +
       `• <b>Isentos</b>: poupança, LCI/LCA, dividendos de ações, proventos de FIIs, venda de ações até R$ 20 mil/mês.<br>` +
       `• <b>Renda fixa</b>: tabela regressiva 22,5% → 15% (2+ anos), retido na fonte.<br>` +
@@ -2500,7 +2500,7 @@ async function aiAnswer(q) {
   }
 
   // ───────── GRANDES DECISÕES ─────────
-  if (/financiamento|sac|price|imovel|casa propria|comprar casa|apartamento/.test(t)) {
+  if (/financiamento|sac|price|imovel|casa propria|comprar casa|apartamento/.test(t) && !/consorcio/.test(t)) {
     return `<b>Financiamento imobiliário inteligente:</b><br><br>` +
       `• <b>SAC</b>: parcelas começam altas e caem; você paga menos juros no total. Melhor se o orçamento aguenta.<br>` +
       `• <b>Price</b>: parcelas fixas; mais fáceis no início, mais juros no total.<br>` +
