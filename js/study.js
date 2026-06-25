@@ -515,10 +515,12 @@
         </div>
         <div class="ai-suggestions" id="sbSuggestions">
           <button class="ai-chip" onclick="sbSend(null,'Como usar o Pomodoro?')">Como usar o Pomodoro?</button>
-          <button class="ai-chip" onclick="sbSend(null,'O que é repetição espaçada?')">Repetição espaçada</button>
+          <button class="ai-chip" onclick="sbSend(null,'O que é active recall?')">Active recall</button>
           <button class="ai-chip" onclick="sbSend(null,'Como memorizar mais rápido?')">Como memorizar mais?</button>
           <button class="ai-chip" onclick="sbSend(null,'Dicas para provas')">Dicas para provas</button>
           <button class="ai-chip" onclick="sbSend(null,'Como parar de procrastinar?')">Parar de procrastinar</button>
+          <button class="ai-chip" onclick="sbSend(null,'Como vencer a ansiedade na prova?')">Ansiedade na prova</button>
+          <button class="ai-chip" onclick="sbSend(null,'Qual o melhor horário para estudar?')">Melhor horário</button>
         </div>
         <div class="ai-input-row">
           <input type="text" class="ai-input" id="sbInput" placeholder="Pergunte sobre estudos..."
@@ -710,21 +712,151 @@
 </ul>
 <p style="margin-top:8px">Média de aprovação: 1-2 anos de estudo consistente. Use o StudyOS para rastrear suas horas! 🏆</p>`;
 
-    if (/ola|oi|olá|tudo|bom dia|boa tarde|boa noite/.test(t))
-      return `<p>Olá! Pronto para estudar mais e melhor? 📚</p>
-<p>Pode me perguntar sobre qualquer técnica de estudo, como organizar seu tempo, como memorizar, dicas para provas ou combater a procrastinação!</p>`;
-
-    return `<p>Boa pergunta! Para te ajudar melhor, posso falar sobre:</p>
+    if (/cornell|anota|caderno|fazer resumo|resumir|resumo/.test(t))
+      return `<p><strong>Anotações que funcionam — método Cornell:</strong></p>
+<p>Divida a página em 3 áreas:</p>
 <ul style="margin:8px 0 0 16px;line-height:2">
-  <li>Técnica Pomodoro e gestão de tempo</li>
-  <li>Repetição espaçada e flashcards</li>
-  <li>Active recall e memorização</li>
-  <li>Preparação para provas e concursos</li>
-  <li>Foco e vencer a procrastinação</li>
-  <li>Como montar um cronograma</li>
-  <li>Técnica Feynman e mapas mentais</li>
+  <li><b>Coluna direita (notas):</b> anote durante a aula/leitura</li>
+  <li><b>Coluna esquerda (pistas):</b> depois, escreva perguntas-chave sobre as notas</li>
+  <li><b>Rodapé (resumo):</b> sintetize tudo em 2-3 frases com suas palavras</li>
 </ul>
-<p style="margin-top:8px">Qual dessas áreas você quer explorar?</p>`;
+<p style="margin-top:8px">Para revisar: tampe as notas e responda às perguntas da coluna esquerda — vira active recall automático. <b>Não copie tudo</b>: anote com suas palavras, senão é só transcrição passiva.</p>`;
+
+    if (/intercal|interleav|alternar materia|alternar matéria|misturar materia|variar/.test(t))
+      return `<p><strong>Interleaving — alternar em vez de blocar:</strong></p>
+<p>Em vez de estudar 3h só de um assunto, <b>intercale</b> tópicos/tipos de problema na mesma sessão.</p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li>Treina o cérebro a <b>escolher a estratégia certa</b>, não só repetir</li>
+  <li>Parece mais difícil — e é por isso que funciona (dificuldade desejável)</li>
+  <li>Ótimo para matemática, física e questões de concurso</li>
+</ul>
+<p style="margin-top:8px">Ex.: bloco de 90 min = 30 min de cada uma de 3 matérias relacionadas, não 90 min de uma só.</p>`;
+
+    if (/deep work|trabalho profundo|imersao|imersão|flow|estado de fluxo/.test(t))
+      return `<p><strong>Deep Work — foco profundo (Cal Newport):</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li>Blocos de <b>60-90 min</b> sem nenhuma interrupção — é onde o aprendizado real acontece</li>
+  <li><b>Ritual fixo:</b> mesmo lugar, mesmo horário, celular longe — o cérebro entra em modo foco mais rápido</li>
+  <li>Elimine o "switching": cada interrupção custa ~20 min para recuperar a concentração</li>
+  <li>Comece com 2 blocos/dia e aumente gradualmente</li>
+</ul>
+<p style="margin-top:8px">1 hora de deep work vale por 3 horas fragmentadas. Proteja esse tempo como sagrado.</p>`;
+
+    if (/ansiedade|branco|nervos|panico|pânico|trava na prova|deu branco/.test(t))
+      return `<p><strong>Ansiedade e "deu branco" na prova:</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Respiração 4-7-8</b> antes e durante: acalma o sistema nervoso em segundos</li>
+  <li><b>Comece pelas questões fáceis:</b> acertos iniciais destravam a memória e dão confiança</li>
+  <li><b>Deu branco?</b> Pule, respire, volte depois — a informação costuma reaparecer</li>
+  <li><b>Simulados cronometrados</b> dessensibilizam a pressão: a prova vira "mais um treino"</li>
+  <li>Sono e alimentação na véspera importam mais que virar a noite</li>
+</ul>
+<p style="margin-top:8px">Um pouco de ansiedade é normal e até ajuda. Ela só atrapalha quando vira pânico — e treino reduz isso. 💪</p>`;
+
+    if (/tdah|tda|deficit de atencao|déficit de atenção|hiperativ|nao consigo focar|não consigo focar/.test(t))
+      return `<p><strong>Foco para mente dispersa (estilo TDAH):</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Pomodoros curtos</b> (15-20 min) em vez de 25 — ajuste ao seu limite real</li>
+  <li><b>Externalize tudo:</b> listas, lembretes, timers visíveis — não confie na memória de trabalho</li>
+  <li><b>Body doubling:</b> estude junto com alguém (presencial ou online) aumenta a responsabilização</li>
+  <li><b>Movimento ajuda:</b> caminhar antes ou estudar em pé melhora o foco</li>
+  <li><b>Recompensas imediatas:</b> o cérebro responde melhor a ganhos próximos do que a metas distantes</li>
+</ul>
+<p style="margin-top:8px">⚠️ Dificuldade persistente de foco merece avaliação profissional — estratégia certa muda tudo.</p>`;
+
+    if (/musica|música|lofi|barulho|ruido branco|ruído branco|som pra estudar|playlist/.test(t))
+      return `<p><strong>Música para estudar — o que a ciência diz:</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Sem letra</b> para tarefas que exigem leitura/raciocínio — letra compete com a linguagem</li>
+  <li><b>Lofi, clássico, ambient ou ruído branco</b> ajudam a maioria</li>
+  <li><b>Sons da natureza</b> (chuva, café) mascaram distrações sem prender atenção</li>
+  <li>Para tarefas mecânicas/repetitivas, música animada com letra pode até motivar</li>
+</ul>
+<p style="margin-top:8px">Teste o que funciona pra você — alguns rendem mais em silêncio total. O importante é a consistência do ambiente.</p>`;
+
+    if (/melhor horario|melhor horário|manha ou noite|manhã ou noite|de manha|de noite|madrugada|quando estudar/.test(t))
+      return `<p><strong>Qual o melhor horário para estudar?</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Manhã:</b> mente descansada, ótima para conteúdo novo e difícil (matemática, teoria)</li>
+  <li><b>Tarde:</b> boa para prática, exercícios e revisão</li>
+  <li><b>Noite:</b> revisar antes de dormir ajuda a consolidar na memória</li>
+  <li>Respeite seu <b>cronotipo:</b> não force madrugada se você rende de manhã</li>
+</ul>
+<p style="margin-top:8px">Estude o mais difícil quando sua energia está no pico. Vire a noite só em último caso — sono perdido derruba a retenção.</p>`;
+
+    if (/burnout|esgota|cansaco mental|cansaço mental|sobrecarreg|exaust|nao aguento mais|não aguento mais/.test(t))
+      return `<p><strong>Evitando o burnout nos estudos:</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Pausas reais:</b> sem tela — caminhe, alongue, olhe pra longe (regra 20-20-20)</li>
+  <li><b>1 dia de folga/semana:</b> descanso faz parte do método, não é preguiça</li>
+  <li><b>Sono inegociável:</b> estudar exausto é jogar tempo fora — a retenção despenca</li>
+  <li><b>Metas realistas:</b> 4h de foco real &gt; 10h se arrastando</li>
+  <li><b>Movimento e sol</b> recarregam mais que "mais uma hora de estudo"</li>
+</ul>
+<p style="margin-top:8px">Consistência sustentável vence sprints heroicos seguidos de colapso. Maratona, não tiro de 100m. 🌱</p>`;
+
+    if (/meta|smart|objetivo|planejar metas/.test(t))
+      return `<p><strong>Metas de estudo que funcionam (SMART):</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>S</b>pecífica: "resolver 30 questões de física", não "estudar física"</li>
+  <li><b>M</b>ensurável: dá pra contar se cumpriu</li>
+  <li><b>A</b>tingível: desafiadora mas possível</li>
+  <li><b>R</b>elevante: ligada ao seu objetivo maior</li>
+  <li><b>T</b>emporal: com prazo ("até sexta")</li>
+</ul>
+<p style="margin-top:8px">Foque em <b>metas de processo</b> ("estudar 1h30 hoje") mais que de resultado ("passar") — você controla o processo. No StudyOS, defina horas semanais por matéria! 🎯</p>`;
+
+    if (/exercicio|exercício|atividade fisica|atividade física|cerebro|cérebro|caminhar/.test(t))
+      return `<p><strong>Exercício turbina o cérebro:</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li>Atividade física aumenta o <b>BDNF</b> — a "proteína do crescimento" dos neurônios</li>
+  <li>Melhora memória, foco, humor e reduz ansiedade</li>
+  <li><b>Caminhada de 20 min</b> antes de estudar já melhora a concentração</li>
+  <li>Exercício após estudar ajuda a consolidar o que aprendeu</li>
+</ul>
+<p style="margin-top:8px">Corpo e mente são o mesmo sistema: quem treina, estuda melhor. 🏃</p>`;
+
+    if (/ola|oi|olá|tudo|bom dia|boa tarde|boa noite|opa|eai|e ai/.test(t))
+      return `<p>Olá! Pronto para estudar mais e melhor? 📚</p>
+<p>Posso te ajudar com técnicas (Pomodoro, active recall, Feynman, Cornell), memorização, foco, procrastinação, ansiedade de prova, montar cronograma, idiomas, redação, concursos e muito mais. Toque numa sugestão ou pergunte à vontade!</p>`;
+
+    if (/obrigad|valeu|thanks|show|top|legal|ajudou/.test(t))
+      return `<p>Por nada! 🙌 Lembre: <b>esforço de recuperação &gt; releitura passiva</b>, e constância vence intensidade. Bons estudos!</p>`;
+
+    // ───────── fallback inteligente (sugere o tópico mais próximo) ─────────
+    {
+      const topics = [
+        { k:['pomodoro','tempo','hora','cronometr'], s:'a Técnica Pomodoro' },
+        { k:['memoriz','lembrar','decorar','guardar'], s:'como memorizar mais rápido' },
+        { k:['prova','concurso','vestibular','enem','exame'], s:'preparação para provas' },
+        { k:['foco','concentr','distrai','celular'], s:'técnicas de foco' },
+        { k:['procrast','enrolar','preguic','desanim'], s:'vencer a procrastinação' },
+        { k:['cronograma','plano','organiz','rotina','horario','horário'], s:'montar um cronograma' },
+        { k:['recall','flashcard','anki','testar'], s:'active recall e flashcards' },
+        { k:['ansiedade','nervos','branco','panico','pânico'], s:'controlar a ansiedade na prova' },
+        { k:['idioma','ingles','inglês','lingua','língua'], s:'aprender idiomas' },
+        { k:['matematica','matemática','calculo','cálculo'], s:'como estudar matemática' },
+        { k:['redacao','redação','dissertacao','escrever','texto'], s:'redação e escrita' },
+      ];
+      let best = null, bestScore = 0;
+      for (const tp of topics) {
+        const sc = tp.k.reduce((a,kw)=> a + (t.includes(kw)?1:0), 0);
+        if (sc > bestScore) { bestScore = sc; best = tp; }
+      }
+      if (best && bestScore>0) {
+        return `<p>Acho que você quer falar sobre <b>${best.s}</b> — pode perguntar diretamente que eu detalho! 😊</p>
+<p style="margin-top:8px">Ou explore: Pomodoro, active recall, técnica Feynman, Cornell, repetição espaçada, foco, procrastinação, cronograma, provas e concursos.</p>`;
+      }
+      return `<p>Boa pergunta! Posso te ajudar com:</p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li>Técnicas: Pomodoro, Active Recall, Feynman, Cornell, mapas mentais</li>
+  <li>Memorização e repetição espaçada</li>
+  <li>Foco profundo, procrastinação e ansiedade de prova</li>
+  <li>Cronograma, metas SMART e melhor horário de estudo</li>
+  <li>Provas, concursos, idiomas, matemática e redação</li>
+</ul>
+<p style="margin-top:8px">Sobre qual desses você quer saber mais? 📚</p>`;
+    }
   }
 
   function sbSend(e, preset) {

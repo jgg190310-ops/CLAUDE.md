@@ -1808,10 +1808,10 @@
   </a>
 </nav>
 
-<script src="js/firebase-config.js?v=24"></script>
-<script src="js/app.js?v=24"></script>
-<script src="js/health.js?v=24"></script>
-<script src="js/study.js?v=24"></script>
+<script src="js/firebase-config.js?v=25"></script>
+<script src="js/app.js?v=25"></script>
+<script src="js/health.js?v=25"></script>
+<script src="js/study.js?v=25"></script>
 <script>
 /* ═══════════════════════════════════════════════
    WHOOP — OAuth 2.0 PKCE real integration
@@ -1935,6 +1935,19 @@
         d: c.start ? WHOOP_DOW[new Date(c.start).getDay()] : '',
       }));
       const maxStrain = Math.max(21, ...series.map(s => s.v));
+
+      // Persiste um resumo para o NutriBot usar nas respostas (síncrono)
+      try {
+        localStorage.setItem('whoop_last', JSON.stringify({
+          recScore: typeof recScore==='number'?recScore:null,
+          hrv: rec?.score?.hrv_rmssd_milli != null ? Math.round(rec.score.hrv_rmssd_milli) : null,
+          rhr: typeof rhr==='number'?rhr:null,
+          sleepPerf: typeof sleepPerf==='number'?sleepPerf:null,
+          sleepMs: asleepMs || null,
+          strain: typeof todayStrain==='number'?todayStrain:null,
+          ts: Date.now(),
+        }));
+      } catch(e){}
 
       const recCol = (typeof recScore==='number') ? whoopRecColor(recScore) : '#4d5566';
       const strCol = '#4d9bff';

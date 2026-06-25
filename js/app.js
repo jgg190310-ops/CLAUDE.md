@@ -3051,6 +3051,31 @@ async function aiAnswer(q) {
     return `De nada! 💪 Estou aqui sempre que precisar. Lembre-se: consistência vence intensidade — pequenas decisões certas todo mês constroem patrimônio.`;
   }
 
+  // sugestão por proximidade — tenta adivinhar o tema mais próximo
+  {
+    const topics = [
+      { k:['economi','gastar','cortar','apertar'], s:'"onde posso economizar?"' },
+      { k:['divida','devendo','emprestimo','negativ'], s:'"como sair das dívidas?"' },
+      { k:['investir','aplicar','render','onde coloco'], s:'"como começo a investir?"' },
+      { k:['reserva','emergencia'], s:'"reserva de emergência"' },
+      { k:['acao','acoes','bolsa','dividendo'], s:'"investir em ações"' },
+      { k:['fii','imobiliario'], s:'"FIIs"' },
+      { k:['cripto','bitcoin','btc'], s:'"cripto com responsabilidade"' },
+      { k:['aposenta','previdencia','fire'], s:'"aposentadoria e independência"' },
+      { k:['imovel','casa','financiamento','apartamento'], s:'"financiamento imobiliário"' },
+      { k:['carro','veiculo'], s:'"vale a pena financiar um carro?"' },
+      { k:['empresa','mei','cnpj','negocio'], s:'"abrir empresa/MEI"' },
+      { k:['salario','aumento','carreira'], s:'"como negociar salário"' },
+      { k:['imposto','ir','declarar','leao'], s:'"imposto de renda nos investimentos"' },
+      { k:['dolar','cambio','exterior'], s:'"dolarizar o patrimônio"' },
+    ];
+    let best=null, bs=0;
+    for (const tp of topics) { const sc = tp.k.reduce((a,kw)=>a+(t.includes(kw)?1:0),0); if (sc>bs){bs=sc;best=tp;} }
+    if (best && bs>0) {
+      return `Acho que você quer falar sobre ${best.s} — manda assim que eu detalho com seus números. 😉<br><br>` +
+        `Também domino: economia doméstica, dívidas, renda fixa/variável, FIIs, cripto, impostos, financiamentos, empreendedorismo, precificação e simulações ("simule 500 por mês por 10 anos a 12% ao ano").`;
+    }
+  }
   return `Sou especialista em finanças e negócios. Alguns temas que domino:<br><br>` +
     `💰 <b>Pessoal</b>: "onde economizar?", "resumo", "reserva de emergência", "dividir orçamento", "sair das dívidas", "score de crédito"<br>` +
     `📈 <b>Investimentos</b>: "renda fixa", "ações", "FIIs", "ETFs", "cripto", "dólar", "montar carteira", "aposentadoria", "imposto de renda"<br>` +

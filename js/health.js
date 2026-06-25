@@ -385,16 +385,18 @@
   //  NUTRIBOT — IA de nutrição
   // ════════════════════════════════════════════════════════════════
   const NB_SUGGESTIONS = [
+    'Posso treinar hoje?',
     'Quantas calorias eu preciso por dia?',
-    'Quantas calorias tem arroz e feijão?',
-    'Como emagrecer com saúde?',
     'Quanto de proteína por dia?',
+    'O que comer no pós-treino?',
+    'Creatina vale a pena?',
+    'Como emagrecer com saúde?',
     'Como ganhar massa muscular?',
     'Qual meu IMC?',
+    'Jejum intermitente funciona?',
     'Quanta água devo beber?',
-    'O que comer no café da manhã?',
-    'Dieta low carb funciona?',
     'Como cortar o açúcar?',
+    'O que comer no café da manhã?',
   ];
 
   function nbAnswer(q) {
@@ -492,13 +494,112 @@
       return `Alimentação saudável na prática: 🥗<br><br>• <b>Metade do prato</b>: verduras e legumes<br>• <b>Um quarto</b>: proteína (carne, frango, peixe, ovo, leguminosas)<br>• <b>Um quarto</b>: carboidrato (arroz, batata, massa — de preferência integral)<br>• <b>Gordura boa</b>: azeite, abacate, castanhas<br>• <b>Menos</b>: ultraprocessados, frituras, açúcar<br><br>Coma de verdade, beba água e mantenha constância. Quer que eu calcule suas calorias? Preencha <b>Metas & Corpo</b>. 😊`;
     }
 
-    // saudação
-    if (/^(oi|olá|ola|bom dia|boa tarde|boa noite|e ai|eai|opa|hey)/.test(norm)) {
-      return `Olá! 👋 Sou o <b>NutriBot</b>, sua IA de nutrição. Posso:<br><br>• Calcular suas calorias diárias e IMC<br>• Dizer quantas calorias tem cada alimento<br>• Te orientar a emagrecer ou ganhar massa<br>• Montar divisão de proteína e macros<br><br>Pergunte algo ou toque numa sugestão abaixo. 🥗`;
+    // ───────── INTEGRAÇÃO WHOOP (recuperação real) ─────────
+    if (/(whoop|recupera|treinar hoje|posso treinar|pronto pra|pronto para|como estou hoje|devo treinar|treino hoje)/.test(norm)) {
+      let w = null; try { w = JSON.parse(localStorage.getItem('whoop_last') || 'null'); } catch(e){}
+      if (!w || w.recScore == null) {
+        return `Conecte sua <b>Whoop</b> (aba Whoop, no menu Saúde) que eu uso sua recuperação, sono e strain reais para orientar treino e alimentação do dia. 🟢<br><br>Enquanto isso: se você dormiu bem e não está dolorido, pode treinar forte. Cansado ou mal dormido? Priorize recuperação ativa (caminhada, mobilidade) e capriche na proteína e hidratação.`;
+      }
+      const fmtH = ms => { const m = Math.round((ms||0)/60000); return Math.floor(m/60)+'h'+String(m%60).padStart(2,'0'); };
+      const rec = w.recScore;
+      const zone = rec>=67 ? 'verde' : rec>=34 ? 'amarela' : 'vermelha';
+      const guide = rec>=67
+        ? `🟢 <b>Zona verde (${rec}%)</b> — corpo pronto para intensidade. Pode ir de treino pesado/HIIT. Garanta <b>carboidrato antes</b> (energia) e <b>proteína depois</b> (reparo).`
+        : rec>=34
+        ? `🟡 <b>Zona amarela (${rec}%)</b> — recuperação parcial. Treino moderado: força com volume menor ou cardio leve. Hidrate bem e evite déficit calórico agressivo hoje.`
+        : `🔴 <b>Zona vermelha (${rec}%)</b> — corpo pedindo descanso. Foque em recuperação ativa (caminhada, mobilidade, alongamento), capriche em proteína, magnésio e sono. Treino pesado hoje rende pouco e aumenta risco de lesão.`;
+      const extra = [];
+      if (w.sleepMs) extra.push(`Você dormiu <b>${fmtH(w.sleepMs)}</b>${w.sleepPerf!=null?` (${w.sleepPerf}% de desempenho)`:''}${w.sleepMs < 6.5*3600000 ? ' — sono curto eleva a fome (grelina); cuidado com beliscos hoje.' : '.'}`);
+      if (w.strain != null) extra.push(`Strain de hoje: <b>${w.strain.toFixed(1)}/21</b>${w.strain>=14?' — esforço alto, reponha carbo e proteína no pós.':'.'}`);
+      if (w.rhr != null) extra.push(`FC de repouso: <b>${w.rhr} bpm</b>${w.hrv!=null?` · HRV ${w.hrv} ms`:''}.`);
+      return `${guide}<br><br>${extra.join('<br>')}`;
     }
 
-    // fallback
-    return `Boa pergunta! Sou especializado em <b>nutrição e alimentação</b>. Posso te ajudar com:<br><br>• Calorias diárias e de alimentos<br>• Emagrecimento e ganho de massa<br>• Proteína, água, IMC e macros<br>• Café da manhã, low carb, açúcar, dietas<br><br>Tente perguntar de outro jeito, ex.: <i>"quantas calorias tem 1 ovo?"</i> ou <i>"quanto de proteína eu preciso?"</i> 😊`;
+    // ───────── PRÉ E PÓS-TREINO ─────────
+    if (/(pre.?treino|pré.?treino|antes do treino|comer antes de treinar|o que comer antes)/.test(norm)) {
+      return `Refeição <b>pré-treino</b> (1-2h antes): 🏋️<br><br>• <b>Carboidrato</b> é o foco — combustível: banana, aveia, pão integral, batata-doce, arroz.<br>• Proteína leve ajuda (iogurte, whey).<br>• Evite muita gordura/fibra perto do treino (digestão lenta dá desconforto).<br><br>Ex. rápido (30-45 min antes): 1 banana + 1 scoop de whey. Treino de manhã em jejum? Tudo bem para sessões leves/moderadas; para força pesada, coma algo antes.`;
+    }
+    if (/(pos.?treino|pós.?treino|depois do treino|janela anabolica|janela anabólica|recuperar musculo|recuperar músculo)/.test(norm)) {
+      const w0 = body.weight || 70;
+      return `Refeição <b>pós-treino</b>: 💪<br><br>• <b>Proteína</b> (20-40g) para reparar o músculo: ${Math.round(w0*0.3)}g é um bom alvo pra você. Whey, frango, ovos, atum.<br>• <b>Carboidrato</b> para repor o glicogênio: arroz, batata, fruta.<br>• A "janela anabólica" não é tão estreita quanto diziam — o importante é a <b>proteína total do dia</b>. Mas comer em 1-2h ajuda.<br><br>Ex.: 150g frango + 1 concha de arroz + legumes. Ou shake: whey + banana + aveia.`;
+    }
+
+    // ───────── SUPLEMENTOS ─────────
+    if (/(creatina)/.test(norm)) {
+      return `<b>Creatina</b> — o suplemento mais estudado e seguro: 🔬<br><br>• <b>Dose</b>: 3-5g por dia, todos os dias (inclusive dias sem treino). Não precisa de fase de saturação.<br>• <b>Quando</b>: qualquer horário — constância importa mais que timing.<br>• <b>Benefícios</b>: mais força, mais volume de treino, ganho de massa, e até benefícios cognitivos.<br>• <b>Tipo</b>: monohidratada (a mais barata já é a melhor). Fuja de "blends" caros.<br>• Retém um pouco de água no músculo (normal, não é gordura).<br><br>Segura para uso contínuo em pessoas saudáveis. 💧 Beba bastante água.`;
+    }
+    if (/(suplement|whey|bcaa|glutamina|pre.?workout|termogenic|termogênic|maltodextrina)/.test(norm)) {
+      return `<b>Suplementos — o que vale e o que é hype:</b> 💊<br><br>• <b>Vale a pena</b>: Whey (praticidade de proteína), Creatina (força/massa), Cafeína (foco/energia), Vitamina D e Ômega-3 (se há deficiência).<br>• <b>Geralmente desnecessário</b>: BCAA (se você já come proteína suficiente), Glutamina, "termogênicos" milagrosos, maltodextrina (comida resolve).<br>• <b>Regra</b>: suplemento <i>complementa</i> uma dieta boa, não substitui. 80% do resultado é comida de verdade + treino + sono.<br><br>Antes de gastar: bata sua meta de proteína com comida primeiro.`;
+    }
+    if (/(cafe|café|cafein|cafeín|pre.?treino energia)/.test(norm) && /(quant|hora|dose|demais|ajuda|treino|energia|dormir)/.test(norm)) {
+      return `<b>Cafeína</b> — o estimulante mais usado do mundo: ☕<br><br>• <b>Dose</b>: 3-6 mg/kg melhora foco, disposição e desempenho. Para 70kg: ~200-400 mg (1 xícara de café ≈ 80-100 mg).<br>• <b>Pré-treino</b>: 30-45 min antes aumenta força e resistência.<br>• <b>Corte após 14-16h</b>: meia-vida de ~5-6h atrapalha o sono mesmo que você "durma".<br>• Tolerância sobe — faça pausas periódicas.<br><br>⚠️ Em excesso: ansiedade, taquicardia, insônia. Café puro é ótimo; cuidado com energéticos açucarados.`;
+    }
+
+    // ───────── JEJUM / METABOLISMO ─────────
+    if (/(jejum|intermitente|16.?8|nao comer de manha|não comer de manhã)/.test(norm)) {
+      return `<b>Jejum intermitente</b> (ex.: 16/8): ⏱️<br><br>• Você concentra as refeições numa janela (ex.: 12h-20h) e jejua o resto.<br>• <b>Funciona para emagrecer?</b> Sim — mas porque ajuda a comer menos no total, não por "mágica metabólica".<br>• Pode melhorar sensibilidade à insulina e disciplina alimentar.<br>• ⚠️ Não combina com todo mundo: quem tem histórico de compulsão, gestantes ou certas condições devem evitar.<br>• Treino em jejum: ok para leve/moderado; força pesada rende mais alimentado.<br><br>O melhor protocolo é o que você sustenta sem sofrer. Não é obrigatório.`;
+    }
+    if (/(metabolismo|metabolismo lento|destravar|emagrecer mais rapido|nao emagreco|não emagreço|travou|plato|platô|estagnei)/.test(norm)) {
+      return `<b>"Metabolismo travado" — o que realmente acontece:</b> 🔄<br><br>• Raramente é o metabolismo — quase sempre é <b>gasto subestimado e comida subnotada</b> (a gente esquece dos beliscos, óleo, bebidas).<br>• Platô real existe: ao emagrecer, seu corpo gasta menos (menos massa para mover). Ajuste a meta calórica conforme perde peso.<br>• <b>Como reacelerar</b>: aumente proteína (efeito térmico alto), ganhe músculo (queima em repouso), mais passos no dia (NEAT), durma bem (sono ruim trava perda de gordura).<br>• Evite déficits muito agressivos por meses — pause em manutenção por 1-2 semanas (diet break).<br><br>Pese e anote 1 semana com sinceridade — o "mistério" some.`;
+    }
+
+    // ───────── SAÚDE METABÓLICA ─────────
+    if (/(colesterol|ldl|hdl|triglicer)/.test(norm)) {
+      return `<b>Colesterol — entendendo os números:</b> 🫀<br><br>• <b>LDL</b> ("ruim"): em excesso forma placas. <b>HDL</b> ("bom"): protege. <b>Triglicerídeos</b>: ligados a açúcar/álcool/excesso calórico.<br>• <b>Para melhorar</b>: mais fibras (aveia, feijão, frutas), gorduras boas (azeite, abacate, peixe), menos ultraprocessado e açúcar, atividade física.<br>• O <b>ovo foi absolvido</b>: para a maioria, comer ovo não dispara o colesterol — o vilão é gordura trans e excesso de açúcar/refinados.<br>• Triglicerídeo alto responde muito a cortar açúcar e álcool.<br><br>⚠️ Acompanhe com exames e médico — genética pesa.`;
+    }
+    if (/(glicemia|diabetes|açucar no sangue|acucar no sangue|insulina|indice glicemico|índice glicêmico|pre.?diabet)/.test(norm)) {
+      return `<b>Controle de glicemia e açúcar no sangue:</b> 🩸<br><br>• Picos de glicose vêm de <b>carboidrato refinado isolado</b> (pão branco, doce, refri).<br>• <b>Amacie os picos</b>: combine carbo com proteína, gordura e fibra; comece a refeição pela salada/proteína.<br>• Prefira carbos integrais e <i>in natura</i> (baixo índice glicêmico).<br>• Movimento após comer (caminhada de 10-15 min) reduz o pico.<br>• Massa muscular = "esponja" de glicose: treino de força melhora a sensibilidade à insulina.<br><br>⚠️ Pré-diabetes/diabetes: acompanhamento médico e nutricional é essencial.`;
+    }
+    if (/(intestino|fibra|prisao de ventre|prisão de ventre|constipa|digest|microbiota|flora intestinal|inchaço|inchaco|retençao|retencao)/.test(norm)) {
+      return `<b>Intestino, fibras e digestão:</b> 🌱<br><br>• <b>Fibras</b> (25-35g/dia): regulam o intestino e alimentam a microbiota. Fontes: feijão, aveia, frutas com casca, verduras, sementes.<br>• <b>Água</b> é parceira da fibra — sem água, fibra prende mais.<br>• <b>Probióticos/fermentados</b>: iogurte natural, kefir, kombucha ajudam a flora.<br>• <b>Inchaço/retenção</b>: muito sódio (ultraprocessado) retém água; potássio (banana, água, vegetais) equilibra.<br>• Movimento e rotina (ir ao banheiro no mesmo horário) regulam o trânsito.<br><br>Intestino saudável melhora imunidade, humor e até absorção de nutrientes.`;
+    }
+
+    // ───────── COMPORTAMENTO ALIMENTAR ─────────
+    if (/(compuls|fome emocional|beliscar|ansiedade de comer|comer demais|descontar na comida|vontade de doce a noite|vontade de doce à noite)/.test(norm)) {
+      return `<b>Fome emocional e compulsão:</b> 🧠<br><br>• <b>Fome real</b> vem gradual e aceita qualquer comida; <b>fome emocional</b> é súbita e quer algo específico (doce, gordura).<br>• <b>Pausa de 10 min</b> antes de ceder: beba água, respire, pergunte "é fome ou emoção?".<br>• <b>Não proíba tudo</b>: restrição total gera farra de rebote. Inclua um prazer planejado.<br>• <b>Coma proteína e fibra</b> nas refeições — saciam de verdade e cortam o beliscar.<br>• Sono ruim e estresse disparam vontade de açúcar (cortisol + grelina).<br>• Tire o gatilho de vista: o que não está em casa não é comido às 22h.<br><br>Compulsão recorrente merece apoio de nutricionista e/ou psicólogo — sem culpa. 💚`;
+    }
+    if (/(alcool|álcool|cerveja|bebida|vinho|beber engorda)/.test(norm)) {
+      return `<b>Álcool e o corpo:</b> 🍺<br><br>• 7 kcal por grama — quase como gordura, e <b>"calorias vazias"</b> (sem nutriente).<br>• O corpo prioriza queimar o álcool, então a queima de gordura <b>pausa</b> enquanto ele está no sangue.<br>• Atrapalha o sono profundo (você dorme, mas recupera mal — sua Whoop mostra isso).<br>• Reduz a síntese proteica e a recuperação muscular.<br>• <b>Dano controlado</b>: hidrate (1 copo de água por dose), coma antes, escolha opções menos açucaradas, e limite a frequência.<br><br>Não precisa zerar — mas álcool frequente é o maior sabotador silencioso de quem treina.`;
+    }
+    if (/(imunidade|gripe|resfriado|defesa|fortalecer o corpo|imune)/.test(norm)) {
+      return `<b>Imunidade pela alimentação:</b> 🛡️<br><br>• <b>Vitamina C</b> (laranja, acerola, kiwi, pimentão), <b>Zinco</b> (carne, sementes), <b>Vitamina D</b> (sol + suplemento se baixa).<br>• <b>Proteína suficiente</b>: anticorpos são feitos de proteína.<br>• <b>Intestino saudável</b> = 70% da imunidade. Fibras e fermentados ajudam.<br>• <b>Sono</b> é imunidade: noites mal dormidas derrubam as defesas.<br>• Menos açúcar e ultraprocessado (inflamam), mais comida colorida de verdade.<br><br>Nenhum alimento isolado faz milagre — é o conjunto + sono + movimento.`;
+    }
+    if (/(comer fora|fast food|restaurante|marmita|meal prep|delivery|comer na rua)/.test(norm)) {
+      return `<b>Comendo bem fora de casa:</b> 🍱<br><br>• <b>Marmita/meal prep</b>: cozinhe 1x na semana (proteínas + carbos + legumes em potes). Economiza dinheiro e blinda contra escolhas ruins.<br>• <b>Restaurante a quilo</b>: metade do prato de salada/legumes, um quarto de proteína, um quarto de carbo. Cuidado com molhos e frituras.<br>• <b>Fast food</b>: prefira grelhados, versões sem maionese, sem refri (calorias líquidas). Combo vira 1200+ kcal fácil.<br>• <b>Delivery</b>: peça por porção, não por "promoção dobrada"; adicione uma salada.<br><br>Regra prática: proteína + vegetais sempre presentes = refeição decente em qualquer lugar.`;
+    }
+
+    // saudação
+    if (/^(oi|olá|ola|bom dia|boa tarde|boa noite|e ai|eai|opa|hey|tudo bem|ola nutri)/.test(norm)) {
+      return `Olá! 👋 Sou o <b>NutriBot</b>, sua IA de nutrição e performance. Posso:<br><br>• Calcular suas calorias, macros e IMC com seus dados<br>• Dizer as calorias de cada alimento<br>• Orientar emagrecimento, ganho de massa, pré/pós-treino<br>• Falar de suplementos (creatina, whey, cafeína), jejum, colesterol, glicemia, sono e mais<br>• Usar sua <b>recuperação da Whoop</b> para sugerir treino e dieta do dia 🟢<br><br>Pergunte à vontade ou toque numa sugestão. 🥗`;
+    }
+    if (/(obrigad|valeu|thanks|show|top|legal|ajudou)/.test(norm)) {
+      return `Por nada! 💪 Constância vence intensidade — comida de verdade, proteína, água e sono todo dia constroem o resultado. Conte comigo!`;
+    }
+
+    // ───────── fallback inteligente (sugere o tópico mais próximo) ─────────
+    {
+      const topics = [
+        { k:['caloria','kcal','gasto','tmb','energia'], s:'"quantas calorias eu preciso por dia?"' },
+        { k:['proteina','macro','whey'],               s:'"quanto de proteína por dia?"' },
+        { k:['emagrec','perder','gordura','secar'],     s:'"como emagrecer com saúde?"' },
+        { k:['massa','hipertrofia','musculo','músculo'],s:'"como ganhar massa muscular?"' },
+        { k:['treino','treinar','exercicio','exercício'],s:'"posso treinar hoje?" (uso sua Whoop)' },
+        { k:['suplement','creatina','cafe','café'],     s:'"creatina vale a pena?"' },
+        { k:['sono','dormir','recupera'],               s:'"como o sono afeta meu shape?"' },
+        { k:['agua','hidrat'],                          s:'"quanta água devo beber?"' },
+        { k:['acucar','açúcar','doce','glicemia'],      s:'"como cortar o açúcar?"' },
+        { k:['receita','comer','cardapio','cardápio'],  s:'"o que comer no café da manhã?"' },
+      ];
+      let best = null, bestScore = 0;
+      for (const tp of topics) {
+        const sc = tp.k.reduce((a,kw)=> a + (norm.includes(kw)?1:0), 0);
+        if (sc > bestScore) { bestScore = sc; best = tp; }
+      }
+      const hint = best && bestScore>0
+        ? `Acho que você quis perguntar algo como ${best.s} — manda assim que eu respondo certinho. 😊`
+        : `Tente algo como <i>"quantas calorias tem 1 ovo?"</i>, <i>"quanto de proteína eu preciso?"</i> ou <i>"posso treinar hoje?"</i>.`;
+      return `Sou especialista em <b>nutrição, treino e performance</b>. ${hint}<br><br>Domino: calorias e alimentos, emagrecimento, ganho de massa, pré/pós-treino, suplementos, jejum, colesterol, glicemia, intestino, imunidade, sono e integração com sua Whoop. 🥗`;
+    }
   }
 
   function matchFood(norm) {
