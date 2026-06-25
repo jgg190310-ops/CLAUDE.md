@@ -1932,7 +1932,7 @@
         + (params.get('error_description') ? ' — ' + params.get('error_description') : '')
         + '\n\nRedirect URI usado: ' + REDIRECT_URI;
       whoopDiag(msg);
-      alert(msg);
+      
       return false;
     }
     if (!params.get('code')) {
@@ -1968,7 +1968,7 @@
         }
         if (data.error) {
           const m = 'Token recusado: ' + (data.error_description || data.error);
-          whoopDiag(m); alert(m); return false;
+          whoopDiag(m); if(typeof showToast==="function")showToast(m,"error"); return false;
         }
         lastErr = p.label + ': HTTP ' + r.status;
       } catch(e) {
@@ -1976,26 +1976,35 @@
       }
     }
     const m = 'Não foi possível trocar o token.\n' + lastErr;
-    whoopDiag(m); alert(m); return false;
+    whoopDiag(m); if(typeof showToast==="function")showToast(m,"error"); return false;
   }
 
   window.whoopGo = function() {
+    const btn = document.getElementById('whoopBtn');
+    if (btn) { btn.textContent = '⏳ Conectando…'; btn.disabled = true; }
     const clientId  = (document.getElementById('whoopClientId')?.value  || localStorage.getItem('whoop_cid')    || '').trim();
     const secret    = (document.getElementById('whoopClientSecret')?.value || localStorage.getItem('whoop_secret') || '').trim();
     const challenge = localStorage.getItem('whoop_challenge');
-    if (!clientId)  { alert('Cole o Client ID Whoop primeiro.'); return; }
-    if (!challenge) { alert('Aguarde 1 segundo e tente de novo — PKCE ainda gerando.'); return; }
+    if (!clientId) {
+      if (btn) { btn.textContent = 'Conectar com Whoop'; btn.disabled = false; }
+      showToast('Cole o Client ID Whoop primeiro.', 'error'); return;
+    }
+    if (!challenge) {
+      if (btn) { btn.textContent = 'Conectar com Whoop'; btn.disabled = false; }
+      showToast('Aguarde 1 segundo — PKCE ainda gerando.', 'error'); return;
+    }
     if (secret) localStorage.setItem('whoop_secret', secret);
     localStorage.setItem('whoop_cid', clientId);
     const url = WHOOP_AUTH
       + '?response_type=code'
-      + '&client_id='             + encodeURIComponent(clientId)
-      + '&redirect_uri='          + encodeURIComponent(REDIRECT_URI)
+      + '&client_id='              + encodeURIComponent(clientId)
+      + '&redirect_uri='           + encodeURIComponent(REDIRECT_URI)
       + '&scope='                  + encodeURIComponent(WHOOP_SCOPE)
       + '&code_challenge='         + encodeURIComponent(challenge)
       + '&code_challenge_method=S256'
       + '&state=whoop';
-    window.location.href = url;
+    showToast('Redirecionando para a Whoop…', 'info');
+    setTimeout(function() { window.location.href = url; }, 400);
   };
 
   window.whoopConnect    = window.whoopGo;
@@ -2040,7 +2049,7 @@
             <label style="font-size:12px;font-weight:600;display:block;margin-bottom:6px">Client Secret</label>
             <input id="whoopClientSecret" type="password" value="${(localStorage.getItem('whoop_secret')||'').replace(/"/g,'&quot;')}" placeholder="Cole o Client Secret aqui" style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:13px" />
           </div>
-          <button onclick="whoopGo()" style="width:100%;padding:14px;border-radius:10px;background:linear-gradient(135deg,#ef4444,#f97316);color:#fff;font-weight:700;font-size:15px;border:none;cursor:pointer">
+          <button id="whoopBtn" onclick="whoopGo()" style="width:100%;padding:14px;border-radius:10px;background:linear-gradient(135deg,#ef4444,#f97316);color:#fff;font-weight:700;font-size:15px;border:none;cursor:pointer">
             Conectar com Whoop
           </button>
         </div>`}`;
