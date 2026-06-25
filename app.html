@@ -1940,22 +1940,28 @@
       return false;
     }
 
+    const clientId = localStorage.getItem('whoop_cid');
+    const secret   = localStorage.getItem('whoop_secret');
     const body = {
       grant_type:    'authorization_code',
       code:          params.get('code'),
-      client_id:     localStorage.getItem('whoop_cid'),
+      client_id:     clientId,
       redirect_uri:  REDIRECT_URI,
       code_verifier: localStorage.getItem('whoop_cv'),
     };
-    const secret = localStorage.getItem('whoop_secret');
-    if (secret) body.client_secret = secret;
+    // Whoop exige Basic Auth — client_id:secret em base64 no header
+    const basicAuth = secret
+      ? 'Basic ' + btoa(clientId + ':' + secret)
+      : null;
 
     let lastErr = '';
     for (const p of whoopProxied(WHOOP_TOKEN)) {
       try {
+        const headers = { 'Content-Type': 'application/x-www-form-urlencoded' };
+        if (basicAuth) headers['Authorization'] = basicAuth;
         const r = await fetch(p.url, {
           method:  'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          headers,
           body:    new URLSearchParams(body),
           signal:  AbortSignal.timeout(12000),
         });
