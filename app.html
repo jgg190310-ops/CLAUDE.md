@@ -37,7 +37,7 @@
       window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
     }
   </script>
-  <link rel="stylesheet" href="styles/app.css?v=25" />
+  <link rel="stylesheet" href="styles/app.css?v=26" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -1875,37 +1875,29 @@
   function whoopFmtH(ms){ if(!ms&&ms!==0) return '--'; const m=Math.round(ms/60000); return Math.floor(m/60)+'h'+String(m%60).padStart(2,'0'); }
   const WHOOP_DOW = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 
-  function whoopRing(score) {
-    const r = 60, c = 2*Math.PI*r, val = (typeof score==='number') ? Math.max(0,Math.min(100,score)) : 0;
-    const off = c * (1 - val/100);
-    const col = (typeof score==='number') ? whoopRecColor(score) : 'var(--text-3)';
+  // Anel genérico estilo Whoop (com glow). size px, value, max, cor, conteúdo central.
+  function wRing(size, value, max, col, centerHTML) {
+    const sw = Math.round(size*0.085);
+    const r = (size/2) - sw - 2;
+    const c = 2*Math.PI*r;
+    const pct = (typeof value==='number') ? Math.max(0,Math.min(1, value/max)) : 0;
+    const off = c * (1 - pct);
     return `
-      <div class="wh-ring">
-        <svg width="150" height="150" viewBox="0 0 150 150">
-          <circle cx="75" cy="75" r="${r}" fill="none" stroke="var(--bg4)" stroke-width="12"/>
-          <circle cx="75" cy="75" r="${r}" fill="none" stroke="${col}" stroke-width="12" stroke-linecap="round"
-            stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}" transform="rotate(-90 75 75)"
-            style="transition:stroke-dashoffset 1s cubic-bezier(.2,.7,.3,1)"/>
+      <div class="wring" style="width:${size}px;height:${size}px">
+        <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+          <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="${sw}"/>
+          <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="${col}" stroke-width="${sw}" stroke-linecap="round"
+            stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}" transform="rotate(-90 ${size/2} ${size/2})"
+            style="transition:stroke-dashoffset 1s cubic-bezier(.2,.7,.3,1);filter:drop-shadow(0 0 5px ${col}aa)"/>
         </svg>
-        <div class="wh-ring-label">
-          <span class="wh-ring-val" style="color:${col}">${typeof score==='number'?score:'--'}<span style="font-size:18px">%</span></span>
-          <span class="wh-ring-cap">Recuperação</span>
-        </div>
-      </div>`;
-  }
-
-  function whoopTile(label, val, unit, varColor, icon) {
-    return `
-      <div class="wh-tile" style="--tile-c:${varColor}">
-        <div class="wh-tile-head">${icon}<span>${label}</span></div>
-        <div class="wh-tile-val">${val}${unit?`<small>${unit}</small>`:''}</div>
+        <div class="wring-c">${centerHTML}</div>
       </div>`;
   }
 
   async function loadWhoopData() {
     const el = document.getElementById('whoopData');
     if (!el) return;
-    el.innerHTML = `<div class="wh-card wh-state-card"><div class="wh-spin"></div><p style="color:var(--text-2);font-size:13px;margin:0">Sincronizando com a Whoop…</p></div>`;
+    el.innerHTML = `<div class="wapp"><div class="wapp-state"><div class="wapp-spin"></div><p style="color:#8a94a6;font-size:13px;margin:0;font-weight:600">Sincronizando com a Whoop…</p></div></div>`;
     try {
       const [recovery, sleep, cycles] = await Promise.all([
         whoopFetch('/recovery?limit=1'),
@@ -1943,115 +1935,141 @@
       }));
       const maxStrain = Math.max(21, ...series.map(s => s.v));
 
-      // ícones (herdam cor via currentColor onde aplicável)
-      const I = {
-        hrv:  '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M3 12h4l2-7 4 14 2-7h6"/></svg>',
-        hr:   '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1a5.5 5.5 0 1 0-7.8 7.8L12 21l8.8-8.5a5.5 5.5 0 0 0 0-7.9z"/></svg>',
-        o2:   '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 2.7S6 9 6 14a6 6 0 0 0 12 0c0-5-6-11.3-6-11.3z"/></svg>',
-        temp: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M14 14.8V4a2 2 0 1 0-4 0v10.8a4 4 0 1 0 4 0z"/></svg>',
-      };
+      const recCol = (typeof recScore==='number') ? whoopRecColor(recScore) : '#4d5566';
+      const strCol = '#4d9bff';
+      const slpCol = (typeof sleepPerf==='number') ? (sleepPerf>=70?'#b388ff':sleepPerf>=50?'#ffd34e':'#ff3b5c') : '#4d5566';
 
-      // barra de fases do sono (proporcional ao tempo na cama)
+      const recState = typeof recScore!=='number'
+        ? { t:'Sem dados de recuperação', d:'Use sua Whoop durante o sono para gerar o score de hoje.', p:'', pc:'' }
+        : recScore>=67 ? { t:'Bem recuperado', d:'Seu corpo está pronto para um treino intenso hoje. Aproveite o pico.', p:'PICO', pc:'#00f5a0' }
+        : recScore>=34 ? { t:'Recuperação moderada', d:'Treine com moderação e priorize hidratação e descanso ao longo do dia.', p:'MODERADO', pc:'#ffd34e' }
+        : { t:'Recuperação baixa', d:'Foque em recuperação ativa, sono e descanso hoje. Evite sobrecarga.', p:'BAIXO', pc:'#ff3b5c' };
+
+      // barra de fases do sono
       const totalBed = asleepMs + awakeMs || 1;
       const seg = (ms,col) => ms>0 ? `<div style="width:${(ms/totalBed*100).toFixed(1)}%;background:${col}"></div>` : '';
       const stageBar = asleepMs>0 ? `
-        <div class="wh-stagebar">
-          ${seg(deepMs,'#6366f1')}${seg(remMs,'#a78bfa')}${seg(lightMs,'#c4b5fd')}${seg(awakeMs,'rgba(255,255,255,.15)')}
+        <div class="wapp-stage">
+          ${seg(deepMs,'#7c5cff')}${seg(remMs,'#b388ff')}${seg(lightMs,'#d9c6ff')}${seg(awakeMs,'rgba(255,255,255,.18)')}
         </div>` : '';
 
-      const recState = typeof recScore!=='number'
-        ? { t:'Sem dados de recuperação', d:'Use sua Whoop durante o sono para gerar o score.', p:'', pc:'' }
-        : recScore>=67 ? { t:'Bem recuperado', d:'Seu corpo está pronto para um treino intenso hoje.', p:'PICO', pc:'#16ec8f' }
-        : recScore>=34 ? { t:'Recuperação moderada', d:'Treine com moderação e priorize hidratação e descanso.', p:'MODERADO', pc:'#ffde00' }
-        : { t:'Recuperação baixa', d:'Foque em recuperação ativa, sono e descanso hoje.', p:'BAIXO', pc:'#ff0026' };
+      // vitais (mostra só os que existem)
+      const vitals = [
+        { l:'HRV',        v:hrv,      u:'ms' },
+        { l:'FC Repouso', v:rhr,      u:'bpm' },
+        spo2     ? { l:'SpO₂',       v:spo2,     u:'%' }   : null,
+        respRate ? { l:'Respiração', v:respRate, u:'rpm' } : null,
+        skinTemp ? { l:'Temp. Pele', v:skinTemp, u:'°C' }  : null,
+      ].filter(Boolean);
 
       el.innerHTML = `
-        <div class="wh-wrap">
+        <div class="wapp">
 
-          <div class="wh-top">
-            <div class="wh-sync"><span class="wh-dot"></span>Conectado · dados em tempo real</div>
-            <button class="wh-iconbtn" onclick="renderWhoop()" title="Atualizar">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.5 9a9 9 0 0 1 14.8-3.4L23 10M1 14l4.7 4.4A9 9 0 0 0 20.5 15"/></svg>
-            </button>
-          </div>
-
-          <div class="wh-hero">
-            ${whoopRing(recScore)}
-            <div>
-              <h3 class="wh-hero-state">${recState.t}${recState.p?`<span class="wh-hero-pill" style="color:${recState.pc};background:${recState.pc}22">${recState.p}</span>`:''}</h3>
-              <p class="wh-hero-desc">${recState.d}</p>
+          <div class="wapp-bar">
+            <div class="wapp-mark">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#00f5a0" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+              <b>WHOOP</b>
+            </div>
+            <div style="display:flex;align-items:center;gap:14px">
+              <span class="wapp-sync"><i></i>Ao vivo</span>
+              <button class="wapp-refresh" onclick="renderWhoop()" title="Atualizar">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.5 9a9 9 0 0 1 14.8-3.4L23 10M1 14l4.7 4.4A9 9 0 0 0 20.5 15"/></svg>
+              </button>
             </div>
           </div>
 
-          <div class="wh-grid">
-            ${whoopTile('HRV', hrv, 'ms', '#a78bfa', I.hrv)}
-            ${whoopTile('FC Repouso', rhr, 'bpm', '#22d3ee', I.hr)}
-            ${spo2 ? whoopTile('SpO₂', spo2, '%', '#38bdf8', I.o2) : whoopTile('Sono', typeof sleepPerf==='number'?sleepPerf:'--', '%', '#8b5cf6', I.hrv)}
-            ${skinTemp ? whoopTile('Temp. Pele', skinTemp, '°C', '#fb923c', I.temp) : whoopTile('Strain hoje', typeof todayStrain==='number'?todayStrain.toFixed(1):'--', '', '#3aa0ff', I.hr)}
+          <div class="wapp-hero">
+            ${wRing(150, recScore, 100, recCol,
+              `<span class="wring-num" style="font-size:46px;color:${recCol}">${typeof recScore==='number'?recScore:'--'}<small style="font-size:20px">%</small></span><span class="wring-cap">Recuperação</span>`)}
+            <div>
+              <h3 class="wapp-hero-state">${recState.t}${recState.p?`<span class="wapp-pill" style="color:${recState.pc};background:${recState.pc}1f">${recState.p}</span>`:''}</h3>
+              <p class="wapp-hero-desc">${recState.d}</p>
+            </div>
           </div>
 
-          <div class="wh-card">
-            <div class="wh-card-head">
-              <div class="wh-card-title">
-                <span class="wh-ic" style="background:rgba(139,92,246,.15)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2.3"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></span>
-                Sono
+          <div class="wapp-duo">
+            <div class="wapp-rcard">
+              ${wRing(96, todayStrain, 21, strCol,
+                `<span class="wring-num" style="font-size:24px;color:${strCol}">${typeof todayStrain==='number'?todayStrain.toFixed(1):'--'}</span>`)}
+              <div>
+                <h4>Strain de hoje</h4>
+                <div class="wapp-rbig" style="color:${strCol}">${typeof todayStrain==='number'?todayStrain.toFixed(1):'--'}<small style="font-size:13px;color:#8a94a6;font-weight:700"> / 21</small></div>
+                <p>${typeof todayStrain!=='number'?'Sem ciclo hoje.':todayStrain>=14?'Esforço alto':todayStrain>=10?'Esforço moderado':'Esforço leve'}</p>
               </div>
-              <span class="wh-badge" style="color:${typeof sleepPerf==='number'?whoopRecColor(sleepPerf):'var(--text-2)'}">${typeof sleepPerf==='number'?sleepPerf+'%':'--'}</span>
+            </div>
+            <div class="wapp-rcard">
+              ${wRing(96, sleepPerf, 100, slpCol,
+                `<span class="wring-num" style="font-size:24px;color:${slpCol}">${typeof sleepPerf==='number'?sleepPerf:'--'}<small style="font-size:12px">%</small></span>`)}
+              <div>
+                <h4>Desempenho do sono</h4>
+                <div class="wapp-rbig" style="color:${slpCol}">${whoopFmtH(asleepMs)}</div>
+                <p>${typeof sleepPerf!=='number'?'Sem registro de sono.':sleepPerf>=85?'Sono restaurador':sleepPerf>=70?'Sono adequado':'Sono insuficiente'}</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="wapp-vitals">
+            ${vitals.map(v=>`
+              <div class="wapp-vital">
+                <span class="vl">${v.l}</span>
+                <span class="vv">${v.v}<small>${v.u}</small></span>
+              </div>`).join('')}
+          </div>
+
+          ${asleepMs>0 ? `
+          <div class="wapp-sec">
+            <div class="wapp-sec-h">
+              <div class="wapp-sec-t"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#b388ff" stroke-width="2.4"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>Estágios do Sono</div>
+              ${sleepEff?`<span class="wapp-sec-badge" style="color:#b388ff">${sleepEff}% eficiência</span>`:''}
             </div>
             ${stageBar}
-            <div class="wh-legend">
-              <div class="wh-leg"><div class="wh-leg-top"><span class="wh-leg-sw" style="background:#6366f1"></span>Profundo</div><span class="wh-leg-val" style="color:#6366f1">${whoopFmtH(deepMs)}</span></div>
-              <div class="wh-leg"><div class="wh-leg-top"><span class="wh-leg-sw" style="background:#a78bfa"></span>REM</div><span class="wh-leg-val" style="color:#a78bfa">${whoopFmtH(remMs)}</span></div>
-              <div class="wh-leg"><div class="wh-leg-top"><span class="wh-leg-sw" style="background:#c4b5fd"></span>Leve</div><span class="wh-leg-val" style="color:#c4b5fd">${whoopFmtH(lightMs)}</span></div>
-              <div class="wh-leg"><div class="wh-leg-top"><span class="wh-leg-sw" style="background:rgba(255,255,255,.3)"></span>Acordado</div><span class="wh-leg-val" style="color:var(--text-2)">${whoopFmtH(awakeMs)}</span></div>
-              ${sleepEff?`<div class="wh-leg"><div class="wh-leg-top">Eficiência</div><span class="wh-leg-val" style="color:#818cf8">${sleepEff}%</span></div>`:''}
-              ${respRate?`<div class="wh-leg"><div class="wh-leg-top">Respiração</div><span class="wh-leg-val" style="color:#a5b4fc">${respRate}<small style="font-size:11px;font-weight:600;color:var(--text-3)">/min</small></span></div>`:''}
+            <div class="wapp-legend">
+              <div class="wapp-lg"><div class="lgt"><span class="lgsw" style="background:#7c5cff"></span>Profundo</div><span class="lgv" style="color:#7c5cff">${whoopFmtH(deepMs)}</span></div>
+              <div class="wapp-lg"><div class="lgt"><span class="lgsw" style="background:#b388ff"></span>REM</div><span class="lgv" style="color:#b388ff">${whoopFmtH(remMs)}</span></div>
+              <div class="wapp-lg"><div class="lgt"><span class="lgsw" style="background:#d9c6ff"></span>Leve</div><span class="lgv" style="color:#d9c6ff">${whoopFmtH(lightMs)}</span></div>
+              <div class="wapp-lg"><div class="lgt"><span class="lgsw" style="background:rgba(255,255,255,.3)"></span>Acordado</div><span class="lgv" style="color:#8a94a6">${whoopFmtH(awakeMs)}</span></div>
             </div>
-          </div>
+          </div>` : ''}
 
-          <div class="wh-card">
-            <div class="wh-card-head">
-              <div class="wh-card-title">
-                <span class="wh-ic" style="background:rgba(58,160,255,.15)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3aa0ff" stroke-width="2.3"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/></svg></span>
-                Strain · 7 dias
-              </div>
-              ${typeof todayStrain==='number'?`<span class="wh-badge" style="color:${whoopStrainColor(todayStrain)}">Hoje ${todayStrain.toFixed(1)}</span>`:''}
+          <div class="wapp-sec">
+            <div class="wapp-sec-h">
+              <div class="wapp-sec-t"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#4d9bff" stroke-width="2.4"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/></svg>Strain · Últimos 7 dias</div>
             </div>
             ${series.length ? `
-            <div class="wh-chart">
+            <div class="wapp-chart">
               ${series.map(s => {
-                const h = Math.max(6, Math.round((s.v/maxStrain)*88));
+                const h = Math.max(6, Math.round((s.v/maxStrain)*96));
                 const c = whoopStrainColor(s.v);
-                return `<div class="wh-bar-col">
-                  <div class="wh-bar-v" style="color:${c}">${s.v.toFixed(1)}</div>
-                  <div class="wh-bar" style="height:${h}px;background:linear-gradient(180deg,${c},${c}88)"></div>
-                  <div class="wh-bar-d">${s.d}</div>
+                return `<div class="wapp-bc">
+                  <div class="wapp-bv" style="color:${c}">${s.v.toFixed(1)}</div>
+                  <div class="wapp-bar2" style="height:${h}px;background:linear-gradient(180deg,${c},${c}77)"></div>
+                  <div class="wapp-bd">${s.d}</div>
                 </div>`;
               }).join('')}
-            </div>` : '<p style="color:var(--text-2);font-size:13px;margin:0">Sem ciclos registrados.</p>'}
+            </div>` : '<p style="color:#8a94a6;font-size:13px;margin:0">Sem ciclos registrados.</p>'}
             ${(avgHr||kcal)?`
-            <div class="wh-foot">
-              ${avgHr?`<div><span class="wh-foot-l">FC média</span><span class="wh-foot-v" style="color:#22d3ee">${avgHr}<small style="font-size:12px;font-weight:600;color:var(--text-3)"> bpm</small></span></div>`:''}
-              ${kcal?`<div><span class="wh-foot-l">Energia gasta</span><span class="wh-foot-v" style="color:#fb923c">${kcal}<small style="font-size:12px;font-weight:600;color:var(--text-3)"> kcal</small></span></div>`:''}
+            <div class="wapp-foot">
+              ${avgHr?`<div><span class="fl">FC Média</span><span class="fv" style="color:#4d9bff">${avgHr}<small style="font-size:12px;color:#8a94a6;font-weight:700"> bpm</small></span></div>`:''}
+              ${kcal?`<div><span class="fl">Energia Gasta</span><span class="fv" style="color:#ff9d4d">${kcal}<small style="font-size:12px;color:#8a94a6;font-weight:700"> kcal</small></span></div>`:''}
             </div>`:''}
           </div>
 
-          <div class="wh-actions">
-            <button class="wh-btn" onclick="renderWhoop()">
+          <div class="wapp-actions">
+            <button class="wapp-btn" onclick="renderWhoop()">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.5 9a9 9 0 0 1 14.8-3.4L23 10M1 14l4.7 4.4A9 9 0 0 0 20.5 15"/></svg>
-              Atualizar dados
+              Atualizar
             </button>
-            <button class="wh-btn danger" onclick="whoopDisconnect()">Desconectar</button>
+            <button class="wapp-btn ghost" onclick="whoopDisconnect()">Desconectar</button>
           </div>
 
         </div>`;
     } catch(e) {
       el.innerHTML = `
-        <div class="wh-card wh-state-card" style="border-color:rgba(239,68,68,.3)">
-          <p style="color:var(--red);font-size:14px;font-weight:700;margin:0 0 6px">Não foi possível buscar os dados</p>
-          <p style="color:var(--text-2);font-size:12px;margin:0 0 18px">${e.message}</p>
-          <button class="wh-btn" style="margin:0 auto;background:linear-gradient(135deg,#ef4444,#f97316);color:#fff;border:none" onclick="whoopDisconnect()">Reconectar</button>
-        </div>`;
+        <div class="wapp"><div class="wapp-state">
+          <p style="color:#ff3b5c;font-size:15px;font-weight:800;margin:0 0 6px">Não foi possível buscar os dados</p>
+          <p style="color:#8a94a6;font-size:12px;margin:0 0 20px">${e.message}</p>
+          <button class="wapp-btn" style="margin:0 auto;background:linear-gradient(135deg,#00f5a0,#00b87a);color:#05070d;border:none" onclick="whoopDisconnect()">Reconectar</button>
+        </div></div>`;
     }
   }
 
