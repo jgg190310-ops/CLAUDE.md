@@ -563,7 +563,7 @@
   <li><b>Exercícios físicos</b> aumentam BDNF, proteína da memória</li>
 </ul>`;
 
-    if (/prova|concurs|vestibular|enem|exam/.test(t))
+    if (/prova|concurs|vestibular|enem|exam/.test(t) && !/ansiedade|nervos|branco|panico|pânico|trava/.test(t))
       return `<p><strong>Preparação para provas:</strong></p>
 <ul style="margin:8px 0 0 16px;line-height:2">
   <li>Comece a revisar <b>2 semanas antes</b>, não na véspera</li>
@@ -603,7 +603,7 @@
   <li>Cochilos de <b>20 min</b> restauram foco sem gerar inércia</li>
 </ul>`;
 
-    if (/horario|plano|cronograma|organiz|rotina/.test(t))
+    if (/horario|plano|cronograma|organiz|rotina/.test(t) && !/melhor horario|melhor horário|manha ou noite|manhã ou noite|quando estudar|de manha|de noite|madrugada/.test(t))
       return `<p><strong>Como montar um cronograma de estudos:</strong></p>
 <ol style="margin:8px 0 0 16px;line-height:2">
   <li>Liste todas as matérias/tópicos</li>

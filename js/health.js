@@ -72,6 +72,66 @@
     'atum (1 lata)': { kcal: 120, prot: 26 },
     'tomate (1 un)': { kcal: 22, prot: 1 },
     'arroz integral (1 concha)': { kcal: 110, prot: 2.5 },
+    // proteínas
+    'ovo mexido (2 un)': { kcal: 180, prot: 12 },
+    'clara de ovo (1 un)': { kcal: 17, prot: 4 },
+    'tilápia (100g)': { kcal: 128, prot: 26 },
+    'salmão (100g)': { kcal: 208, prot: 20 },
+    'sardinha (1 lata)': { kcal: 180, prot: 22 },
+    'carne moída (100g)': { kcal: 215, prot: 24 },
+    'patinho (100g)': { kcal: 150, prot: 28 },
+    'picanha (100g)': { kcal: 290, prot: 22 },
+    'linguiça (1 un)': { kcal: 260, prot: 14 },
+    'bacon (2 fatias)': { kcal: 90, prot: 6 },
+    'presunto (1 fatia)': { kcal: 30, prot: 4 },
+    'peito de peru (1 fatia)': { kcal: 25, prot: 5 },
+    'tofu (100g)': { kcal: 76, prot: 8 },
+    'lentilha (1 concha)': { kcal: 115, prot: 9 },
+    'grão-de-bico (1 concha)': { kcal: 130, prot: 7 },
+    // carboidratos
+    'batata-doce (100g)': { kcal: 86, prot: 1.6 },
+    'mandioca (100g)': { kcal: 125, prot: 1 },
+    'cuscuz (100g)': { kcal: 112, prot: 3 },
+    'pão de queijo (1 un)': { kcal: 80, prot: 2 },
+    'cuscuz nordestino (1 fatia)': { kcal: 130, prot: 3 },
+    'panqueca (1 un)': { kcal: 90, prot: 3 },
+    'crepioca (1 un)': { kcal: 150, prot: 13 },
+    'granola (2 colheres)': { kcal: 120, prot: 3 },
+    'biscoito recheado (1 un)': { kcal: 55, prot: 0.6 },
+    'farofa (2 colheres)': { kcal: 110, prot: 1 },
+    // frutas
+    'laranja (1 un)': { kcal: 62, prot: 1 },
+    'manga (1 un)': { kcal: 100, prot: 1 },
+    'morango (1 xíc)': { kcal: 50, prot: 1 },
+    'abacate (metade)': { kcal: 160, prot: 2 },
+    'uva (1 cacho)': { kcal: 90, prot: 1 },
+    'melancia (1 fatia)': { kcal: 45, prot: 1 },
+    'mamão (1 fatia)': { kcal: 60, prot: 1 },
+    'abacaxi (1 fatia)': { kcal: 50, prot: 0.5 },
+    // laticínios / bebidas
+    'iogurte grego (1 un)': { kcal: 130, prot: 10 },
+    'requeijão (1 colher)': { kcal: 55, prot: 1.5 },
+    'leite desnatado (1 copo)': { kcal: 80, prot: 7 },
+    'suco de laranja (1 copo)': { kcal: 110, prot: 1.5 },
+    'cerveja (1 lata)': { kcal: 150, prot: 1.5 },
+    'vinho (1 taça)': { kcal: 125, prot: 0 },
+    'açaí (300ml)': { kcal: 300, prot: 4 },
+    'vitamina de banana (1 copo)': { kcal: 220, prot: 8 },
+    // lanches / fast food
+    'coxinha (1 un)': { kcal: 180, prot: 6 },
+    'pastel (1 un)': { kcal: 220, prot: 6 },
+    'misto quente (1 un)': { kcal: 280, prot: 14 },
+    'x-burguer (1 un)': { kcal: 450, prot: 22 },
+    'batata frita (porção)': { kcal: 320, prot: 4 },
+    'salgadinho (1 pacote)': { kcal: 150, prot: 2 },
+    'pipoca (1 saco)': { kcal: 120, prot: 3 },
+    'sorvete (1 bola)': { kcal: 130, prot: 2 },
+    'brigadeiro (1 un)': { kcal: 80, prot: 1 },
+    // gorduras / extras
+    'azeite (1 colher)': { kcal: 90, prot: 0 },
+    'pasta de amendoim (1 colher)': { kcal: 95, prot: 4 },
+    'manteiga (1 colher)': { kcal: 75, prot: 0 },
+    'amendoim (30g)': { kcal: 170, prot: 7 },
   };
   // atalhos rápidos (mostrados na tela de refeições)
   const QUICK = [
@@ -489,13 +549,13 @@
       return `Dieta vegetariana/vegana: 🌱<br><br>É saudável e completa se bem planejada. Atenção a:<br>• <b>Proteína</b>: feijão, lentilha, grão-de-bico, tofu, ovos (se ovolacto)<br>• <b>B12</b>: pode precisar suplementar (principalmente vegano)<br>• <b>Ferro</b>: combine com vitamina C para absorver melhor<br>• <b>Cálcio e ômega-3</b><br><br>Procure um nutricionista para ajustar suplementação. 🥦`;
     }
 
-    // o que comer / dieta geral
-    if (/(o que (comer|devo comer)|montar dieta|card[aá]pio|alimenta(ç|c)[aã]o saud)/.test(norm)) {
+    // o que comer / dieta geral (exceto pré/pós-treino e café da manhã, tratados à parte)
+    if (/(o que (comer|devo comer)|montar dieta|card[aá]pio|alimenta(ç|c)[aã]o saud)/.test(norm) && !/(treino|treinar|manh)/.test(norm)) {
       return `Alimentação saudável na prática: 🥗<br><br>• <b>Metade do prato</b>: verduras e legumes<br>• <b>Um quarto</b>: proteína (carne, frango, peixe, ovo, leguminosas)<br>• <b>Um quarto</b>: carboidrato (arroz, batata, massa — de preferência integral)<br>• <b>Gordura boa</b>: azeite, abacate, castanhas<br>• <b>Menos</b>: ultraprocessados, frituras, açúcar<br><br>Coma de verdade, beba água e mantenha constância. Quer que eu calcule suas calorias? Preencha <b>Metas & Corpo</b>. 😊`;
     }
 
     // ───────── INTEGRAÇÃO WHOOP (recuperação real) ─────────
-    if (/(whoop|recupera|treinar hoje|posso treinar|pronto pra|pronto para|como estou hoje|devo treinar|treino hoje)/.test(norm)) {
+    if (/(whoop|recuperacao|minha recupera|recovery|treinar hoje|posso treinar|pronto pra|pronto para|como estou hoje|devo treinar|treino hoje)/.test(norm) && !/recuperar (o )?musculo/.test(norm)) {
       let w = null; try { w = JSON.parse(localStorage.getItem('whoop_last') || 'null'); } catch(e){}
       if (!w || w.recScore == null) {
         return `Conecte sua <b>Whoop</b> (aba Whoop, no menu Saúde) que eu uso sua recuperação, sono e strain reais para orientar treino e alimentação do dia. 🟢<br><br>Enquanto isso: se você dormiu bem e não está dolorido, pode treinar forte. Cansado ou mal dormido? Priorize recuperação ativa (caminhada, mobilidade) e capriche na proteína e hidratação.`;
@@ -603,12 +663,13 @@
   }
 
   function matchFood(norm) {
-    // procura alimentos citados na frase
+    // procura alimentos citados na frase (h\u00edfens viram espa\u00e7o p/ casar "batata doce")
+    const nrm = norm.replace(/-/g, ' ');
     const found = [];
     for (const key in FOODS) {
-      const base = key.replace(/\s*\(.*?\)/, '').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      const base = key.replace(/\s*\(.*?\)/, '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/-/g, ' ');
       const word = base.split(' ')[0];
-      if (norm.includes(base) || (word.length > 3 && norm.includes(word))) found.push(key);
+      if (nrm.includes(base) || (word.length > 3 && nrm.includes(word))) found.push(key);
     }
     if (!found.length) return null;
     const uniq = [...new Set(found)].slice(0, 5);
