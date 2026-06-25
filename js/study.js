@@ -1687,39 +1687,23 @@
     if (typeof _prevOnAppNavigate === 'function') _prevOnAppNavigate(page);
   };
 
-  // ── expor funções globais ────────────────────────────────────────
-  window.sAddSession = sAddSession;
-  window.sSetMins = sSetMins;
-  window.sDelSession = sDelSession;
-  window.sOpenSubjectForm = sOpenSubjectForm;
-  window.sCloseSubjectForm = sCloseSubjectForm;
-  window.sPickColor = sPickColor;
-  window.sAddSubject = sAddSubject;
-  window.sDelSubject = sDelSubject;
-  window.sSaveSettings = sSaveSettings;
-  window.sPomoToggle = sPomoToggle;
-  window.sPomoReset = sPomoReset;
-  window.sPomoSkip = sPomoSkip;
-  window.sSetMode = sSetMode;
-  window.sbSend = sbSend;
-  window.sAddDeck = sAddDeck;
-  window.sDelDeck = sDelDeck;
-  window.sAddCard = sAddCard;
-  window.sStartReview = sStartReview;
-  window.sReviewAnswer = sReviewAnswer;
-  window.sAddTask = sAddTask;
-  window.sToggleTask = sToggleTask;
-  window.sDelTask = sDelTask;
-  window.sFilterTasks = sFilterTasks;
-  window.sClickCell = sClickCell;
-  window.sAddGradeSubject = sAddGradeSubject;
-  window.sDelGradeSubject = sDelGradeSubject;
-  window.sAddGradeEntry = sAddGradeEntry;
-  window.sDelGradeEntry = sDelGradeEntry;
-  window.sCalcNeeded = sCalcNeeded;
-  window.sAddNote = sAddNote;
-  window.sDelNote = sDelNote;
-  window.sViewNote = sViewNote;
-  window.sFilterNotes = sFilterNotes;
-  window.sSearchNotes = sSearchNotes;
+  // ── expor funções globais (usadas nos onclick do HTML) ───────────
+  Object.assign(window, {
+    // sessões & pomodoro
+    sAddSession, sSetMins, sDelSession, sPomoToggle, sPomoReset, sPomoSkip, sSetMode, sSaveSettings,
+    // matérias
+    sOpenSubjectForm, sCloseSubjectForm, sPickColor, sAddSubject, sDelSubject,
+    // StudyBot
+    sbSend,
+    // flashcards
+    sFCNewDeck, sFCCreateDeck, sFCDelDeck, sFCAddCard, sFCStartReview, sFCFlip, sFCAnswer, sFCExitReview,
+    // tarefas
+    sOpenTaskForm, sCloseTaskForm, sAddTask, sToggleTask, sDelTask, sFilterTasks,
+    // agenda / cronograma
+    sSchAdd, sSchClear,
+    // boletim / notas (grades)
+    sAddGradeSubject, sDelGradeSubject, sAddGradeEntry, sDelGradeEntry,
+    // anotações (notes)
+    sOpenNoteForm, sCloseNoteForm, sAddNote, sDelNote, sToggleNote, sNoteFilterSet,
+  });
 })();
