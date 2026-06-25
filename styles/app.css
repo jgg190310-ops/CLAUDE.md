@@ -3714,7 +3714,7 @@ html[data-theme="light"] .ai-insight-card {
 .app-sw-btn svg { width: 18px; height: 18px; }
 .app-sw-btn:hover { color: var(--text-2); background: rgba(255,255,255,.03); }
 .app-sw-btn.active { background: linear-gradient(135deg, var(--indigo), var(--purple)); color: #fff; box-shadow: 0 4px 14px rgba(99,102,241,.4); }
-body[data-app="health"] .app-sw-btn.active { background: linear-gradient(135deg, #10b981, #06b6d4); box-shadow: 0 4px 14px rgba(16,185,129,.4); }
+body[data-app="health"] .app-sw-btn.active { background: linear-gradient(135deg, var(--indigo), var(--purple)); box-shadow: 0 4px 14px rgba(99,102,241,.4); }
 body[data-app="study"] .app-sw-btn.active { background: linear-gradient(135deg, #6366f1, #8b5cf6); }
 
 /* acento verde do HealthOS na navegação ativa + FAB */
