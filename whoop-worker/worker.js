@@ -31,10 +31,28 @@ export default {
       return corsResponse(data, whoopRes.status, origin);
     }
 
-    // Troca de token: POST /
     if (request.method !== 'POST') return corsResponse(JSON.stringify({error:'method_not_allowed'}), 405, origin);
     let body;
     try { body = await request.json(); } catch { return corsResponse(JSON.stringify({error:'invalid_json'}), 400, origin); }
+
+    // Refresh token: POST /refresh
+    if (url.pathname === '/refresh') {
+      const { refresh_token } = body;
+      if (!refresh_token) return corsResponse(JSON.stringify({error:'missing_refresh_token'}), 400, origin);
+      const params = new URLSearchParams({
+        grant_type: 'refresh_token', refresh_token,
+        client_id: CLIENT_ID, client_secret: CLIENT_SECRET,
+      });
+      const whoopRes = await fetch(WHOOP_TOKEN, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: params,
+      });
+      const data = await whoopRes.json();
+      return corsResponse(JSON.stringify(data), whoopRes.status, origin);
+    }
+
+    // Troca de token: POST /
     const { code, redirect_uri, code_verifier } = body;
     if (!code || !redirect_uri || !code_verifier) return corsResponse(JSON.stringify({error:'missing_params'}), 400, origin);
     const params = new URLSearchParams({

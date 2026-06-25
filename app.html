@@ -37,7 +37,7 @@
       window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
     }
   </script>
-  <link rel="stylesheet" href="styles/app.css?v=29" />
+  <link rel="stylesheet" href="styles/app.css?v=30" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -1808,10 +1808,10 @@
   </a>
 </nav>
 
-<script src="js/firebase-config.js?v=25"></script>
-<script src="js/app.js?v=25"></script>
-<script src="js/health.js?v=25"></script>
-<script src="js/study.js?v=25"></script>
+<script src="js/firebase-config.js?v=26"></script>
+<script src="js/app.js?v=26"></script>
+<script src="js/health.js?v=26"></script>
+<script src="js/study.js?v=26"></script>
 <script>
 /* ═══════════════════════════════════════════════
    WHOOP — OAuth 2.0 PKCE real integration
@@ -1853,15 +1853,62 @@
     ];
   }
 
+  const WORKER_URL = 'https://whoop-token.jgg190310.workers.dev';
+
+  function whoopSaveTokens(data) {
+    localStorage.setItem('whoop_access', data.access_token);
+    if (data.refresh_token) localStorage.setItem('whoop_refresh', data.refresh_token);
+    const expiresIn = data.expires_in || 3600;
+    localStorage.setItem('whoop_expires_at', String(Date.now() + (expiresIn - 60) * 1000));
+  }
+
+  async function whoopRefreshToken() {
+    const refreshToken = localStorage.getItem('whoop_refresh');
+    if (!refreshToken) return false;
+    try {
+      const r = await fetch(WORKER_URL + '/refresh', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refresh_token: refreshToken }),
+        signal: AbortSignal.timeout(15000),
+      });
+      const data = await r.json();
+      if (data.access_token) { whoopSaveTokens(data); return true; }
+      return false;
+    } catch(e) { return false; }
+  }
+
+  async function whoopEnsureToken() {
+    const expiresAt = parseInt(localStorage.getItem('whoop_expires_at') || '0', 10);
+    if (expiresAt && Date.now() > expiresAt) {
+      await whoopRefreshToken();
+    }
+  }
+
   async function whoopFetch(path) {
+    await whoopEnsureToken();
     const token = localStorage.getItem('whoop_access');
-    const WORKER_URL = 'https://whoop-token.jgg190310.workers.dev';
     // App controla o path completo (v2). Worker só faz proxy host+path.
     const r = await fetch(WORKER_URL + '/api/developer/v2' + path, {
       headers: { Authorization: 'Bearer ' + token },
       signal: AbortSignal.timeout(15000),
     });
-    if (r.status === 401) { whoopDiag('Token expirado (401). Reconecte.'); throw new Error('401'); }
+    if (r.status === 401) {
+      const refreshed = await whoopRefreshToken();
+      if (refreshed) {
+        const token2 = localStorage.getItem('whoop_access');
+        const r2 = await fetch(WORKER_URL + '/api/developer/v2' + path, {
+          headers: { Authorization: 'Bearer ' + token2 },
+          signal: AbortSignal.timeout(15000),
+        });
+        if (r2.ok) return r2.json();
+        let b2 = ''; try { b2 = await r2.text(); } catch(e2){}
+        whoopDiag('HTTP ' + r2.status + ' após refresh — ' + b2.substring(0, 200));
+        throw new Error('HTTP ' + r2.status);
+      }
+      whoopDiag('Sessão expirada. Reconecte-se uma vez para renovar.');
+      throw new Error('401');
+    }
     if (r.ok) return r.json();
     let body = ''; try { body = await r.text(); } catch(e2){}
     const err = 'HTTP ' + r.status + ' em /developer/v2' + path + ' — ' + body.substring(0, 200);
@@ -2119,8 +2166,7 @@
       });
       let data; try { data = await r.json(); } catch(e2) { data = {}; }
       if (data.access_token) {
-        localStorage.setItem('whoop_access', data.access_token);
-        if (data.refresh_token) localStorage.setItem('whoop_refresh', data.refresh_token);
+        whoopSaveTokens(data);
         whoopClearDiag();
         return true;
       }
