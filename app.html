@@ -1964,15 +1964,30 @@
     }
   }
 
-  window.whoopGo = function() {
-    localStorage.removeItem('whoop_diag'); // limpa diagnóstico velho
-    var clientId  = (document.getElementById('whoopClientId')?.value  || localStorage.getItem('whoop_cid')    || '').trim();
-    var secret    = (document.getElementById('whoopClientSecret')?.value || localStorage.getItem('whoop_secret') || '').trim();
-    var challenge = localStorage.getItem('whoop_challenge');
+  window.whoopGo = async function() {
+    localStorage.removeItem('whoop_diag');
+    var clientId = (document.getElementById('whoopClientId')?.value  || localStorage.getItem('whoop_cid')    || '').trim();
+    var secret   = (document.getElementById('whoopClientSecret')?.value || localStorage.getItem('whoop_secret') || '').trim();
     var box = document.getElementById('whoopGoBox');
     if (!box) return;
-    if (!clientId)  { box.innerHTML = '<p style="color:#ef4444;font-weight:700">⚠️ Cole o Client ID primeiro.</p>'; return; }
-    if (!challenge) { box.innerHTML = '<p style="color:#ef4444;font-weight:700">⚠️ PKCE ainda gerando. Espere 2s e clique de novo.</p>'; return; }
+    if (!clientId) { box.innerHTML = '<p style="color:#ef4444;font-weight:700">⚠️ Cole o Client ID primeiro.</p>'; return; }
+
+    // Gera PKCE na hora — garante que sempre tem verifier/challenge frescos
+    var challenge = localStorage.getItem('whoop_challenge');
+    if (!challenge) {
+      try {
+        var arr = crypto.getRandomValues(new Uint8Array(32));
+        var verifier = b64url(arr);
+        var hash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(verifier));
+        challenge = b64url(hash);
+        localStorage.setItem('whoop_cv', verifier);
+        localStorage.setItem('whoop_challenge', challenge);
+      } catch(e) {
+        box.innerHTML = '<p style="color:#ef4444;font-weight:700">⚠️ Erro ao gerar PKCE: ' + e.message + '</p>';
+        return;
+      }
+    }
+
     if (secret) localStorage.setItem('whoop_secret', secret);
     localStorage.setItem('whoop_cid', clientId);
     var url = WHOOP_AUTH
@@ -1983,16 +1998,11 @@
       + '&code_challenge='         + encodeURIComponent(challenge)
       + '&code_challenge_method=S256'
       + '&state=whoop_auth';
-    // Mostra um link real, gigante, para o usuário TOCAR com o dedo.
-    // É a navegação mais básica que existe — se isso não funcionar, é o navegador/SW.
     box.innerHTML =
       '<a href="' + url.replace(/"/g,'&quot;') + '" target="_top" rel="noopener" '
       + 'style="display:block;margin-top:14px;padding:18px;border-radius:12px;'
       + 'background:linear-gradient(135deg,#10b981,#059669);color:#fff;font-weight:800;'
-      + 'font-size:17px;text-align:center;text-decoration:none">👉 TOQUE AQUI PARA ABRIR A WHOOP</a>'
-      + '<p style="font-size:11px;opacity:.6;margin-top:10px;text-align:center">'
-      + 'Se o botão acima não abrir nada ao tocar, o problema é uma configuração do navegador (Service Worker antigo). '
-      + 'Me avise e eu desativo.</p>';
+      + 'font-size:17px;text-align:center;text-decoration:none">👉 TOQUE AQUI PARA ABRIR A WHOOP</a>';
   };
 
   window.whoopConnect    = window.whoopGo;
