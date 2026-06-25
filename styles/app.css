@@ -4142,10 +4142,10 @@ html[data-theme="light"] .s-sch-cell.filled { opacity: .9; }
 
 /* ring primitive */
 .wring { position: relative; display: inline-flex; align-items: center; justify-content: center; }
-.wring-c { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; }
+.wring-c { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; }
 .wring-num { font-family: var(--wnum); font-weight: 700; letter-spacing: -1px; line-height: .92; }
 .wring-num small { font-weight: 600; letter-spacing: -.5px; opacity: .85; }
-.wring-cap { font-size: 9.5px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--wtx2); margin-top: 8px; }
+.wring-cap { font-size: 9.5px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--wtx2); margin-top: 0; }
 
 /* hero recovery */
 .wapp-hero {
