@@ -1940,58 +1940,35 @@
       return false;
     }
 
-    const clientId = localStorage.getItem('whoop_cid');
-    const secret   = localStorage.getItem('whoop_secret');
     const verifier = localStorage.getItem('whoop_cv');
     const code     = params.get('code');
-    const basicAuth = secret ? 'Basic ' + btoa(clientId + ':' + secret) : null;
 
-    // Tentativas em ordem: cada variação de auth + cada proxy
-    const attempts = [];
-    // 1) direto sem auth (PKCE puro — public client)
-    attempts.push({ label:'direto-pkce', url: WHOOP_TOKEN, auth: null });
-    // 2) direto com Basic Auth
-    if (basicAuth) attempts.push({ label:'direto-basic', url: WHOOP_TOKEN, auth: basicAuth });
-    // 3-6) proxies com secret no body
-    for (const px of whoopProxied(WHOOP_TOKEN).slice(1)) {
-      attempts.push({ label: px.label + '-body', url: px.url, auth: null, secretInBody: true });
-    }
-    // 7-8) proxies com Basic Auth
-    if (basicAuth) {
-      attempts.push({ label:'corsproxy-basic', url: 'https://corsproxy.io/?url=' + encodeURIComponent(WHOOP_TOKEN), auth: basicAuth });
-    }
-
-    let lastErr = '';
-    for (const a of attempts) {
-      try {
-        const body = {
-          grant_type: 'authorization_code', code, client_id: clientId,
-          redirect_uri: REDIRECT_URI, code_verifier: verifier,
-        };
-        if (a.secretInBody && secret) body.client_secret = secret;
-        const headers = { 'Content-Type': 'application/x-www-form-urlencoded' };
-        if (a.auth) headers['Authorization'] = a.auth;
-        const r = await fetch(a.url, { method:'POST', headers, body: new URLSearchParams(body), signal: AbortSignal.timeout(12000) });
-        let data; try { data = await r.json(); } catch(e2) { data = {}; }
-        if (data.access_token) {
-          localStorage.setItem('whoop_access', data.access_token);
-          if (data.refresh_token) localStorage.setItem('whoop_refresh', data.refresh_token);
-          whoopClearDiag();
-          return true;
-        }
-        if (data.error) {
-          lastErr = a.label + ': ' + (data.error_description || data.error);
-          // se for invalid_client, não adianta tentar outros — é config, não CORS
-          if (data.error === 'invalid_client') break;
-          continue;
-        }
-        lastErr = a.label + ': HTTP ' + r.status;
-      } catch(e) {
-        lastErr = a.label + ': ' + (e.name === 'TimeoutError' ? 'timeout' : (e.message || 'CORS bloqueado'));
+    // Troca de token via Cloudflare Worker (backend — sem CORS)
+    const WORKER_URL = 'https://whoop-token.jgg190310.workers.dev';
+    try {
+      const r = await fetch(WORKER_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code, redirect_uri: REDIRECT_URI, code_verifier: verifier }),
+        signal: AbortSignal.timeout(15000),
+      });
+      let data; try { data = await r.json(); } catch(e2) { data = {}; }
+      if (data.access_token) {
+        localStorage.setItem('whoop_access', data.access_token);
+        if (data.refresh_token) localStorage.setItem('whoop_refresh', data.refresh_token);
+        whoopClearDiag();
+        return true;
       }
+      const errMsg = data.error_description || data.error || ('HTTP ' + r.status);
+      whoopDiag('Token recusado pelo Worker: ' + errMsg);
+      if(typeof showToast==="function")showToast('Falha no token: ' + errMsg,'error');
+      return false;
+    } catch(e) {
+      const errMsg = e.name === 'TimeoutError' ? 'timeout do Worker' : (e.message || 'erro de rede');
+      whoopDiag('Erro ao chamar Worker: ' + errMsg);
+      if(typeof showToast==="function")showToast('Erro no Worker: ' + errMsg,'error');
+      return false;
     }
-    const m = 'Falha na troca de token: ' + lastErr + '\n\nIsso indica que a Whoop bloqueia requisições diretas do navegador (CORS). A solução é usar um backend intermediário.';
-    whoopDiag(m); if(typeof showToast==="function")showToast('Falha no token — veja diagnóstico.','error'); return false;
   }
 
   window.whoopGo = function() {

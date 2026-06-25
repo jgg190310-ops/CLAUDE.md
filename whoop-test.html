@@ -114,39 +114,27 @@
     // Whoop exige Basic Auth no header
     var basicAuth = sec ? 'Basic ' + btoa(cid + ':' + sec) : null;
 
-    var proxies = [
-      { label:'direto', url: WHOOP_TOKEN },
-      { label:'corsproxy.io', url: 'https://corsproxy.io/?url=' + encodeURIComponent(WHOOP_TOKEN) },
-      { label:'allorigins', url: 'https://api.allorigins.win/raw?url=' + encodeURIComponent(WHOOP_TOKEN) },
-      { label:'thingproxy', url: 'https://thingproxy.freeboard.io/fetch/' + WHOOP_TOKEN },
-    ];
-    for (var i=0; i<proxies.length; i++) {
-      var px = proxies[i];
-      try {
-        log('Tentando via ' + px.label + '…');
-        var hdrs = {'Content-Type':'application/x-www-form-urlencoded'};
-        if (basicAuth) hdrs['Authorization'] = basicAuth;
-        var r = await fetch(px.url, {
-          method:'POST',
-          headers: hdrs,
-          body: new URLSearchParams(body),
-        });
-        var txt = await r.text();
-        log(px.label + ' → HTTP ' + r.status);
-        var data = {}; try { data = JSON.parse(txt); } catch(e){}
-        if (data.access_token) {
-          localStorage.setItem('wt_access', data.access_token);
-          log('\n🎉 SUCESSO! Token obtido via ' + px.label, 'ok');
-          log('Access token: ' + data.access_token.substring(0,20) + '…', 'ok');
-          return;
-        }
-        if (data.error) { log('Resposta: ' + JSON.stringify(data), 'err'); }
-        else { log('Resposta crua: ' + txt.substring(0,300)); }
-      } catch(e) {
-        log(px.label + ' falhou: ' + (e.message||e), 'err');
+    var WORKER_URL = 'https://whoop-token.jgg190310.workers.dev';
+    log('Enviando para Worker Cloudflare…');
+    try {
+      var r = await fetch(WORKER_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: body.code, redirect_uri: body.redirect_uri, code_verifier: body.code_verifier }),
+      });
+      var txt = await r.text();
+      log('Worker → HTTP ' + r.status);
+      var data = {}; try { data = JSON.parse(txt); } catch(e){}
+      if (data.access_token) {
+        localStorage.setItem('wt_access', data.access_token);
+        log('\n🎉 SUCESSO! Token obtido via Worker.', 'ok');
+        log('Access token: ' + data.access_token.substring(0,20) + '…', 'ok');
+        return;
       }
+      log('Resposta: ' + JSON.stringify(data), 'err');
+    } catch(e) {
+      log('Worker falhou: ' + (e.message||e), 'err');
     }
-    log('\n❌ Nenhum método conseguiu trocar o token. Isso é bloqueio de CORS — a troca de token precisa de um servidor (backend), não dá para fazer 100% no navegador com segurança.', 'err');
   })();
 </script>
 </body>
