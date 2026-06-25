@@ -1924,7 +1924,7 @@
 
   async function handleWhoopCallback() {
     const params = new URLSearchParams(location.search);
-    if (params.get('state') !== 'whoop') return false;
+    if (params.get('state') !== 'whoop_auth') return false;
     history.replaceState({}, '', location.pathname);
 
     if (params.get('error')) {
@@ -1997,7 +1997,7 @@
       + '&scope='                  + encodeURIComponent(WHOOP_SCOPE)
       + '&code_challenge='         + encodeURIComponent(challenge)
       + '&code_challenge_method=S256'
-      + '&state=whoop';
+      + '&state=whoop_auth';
     // Mostra um link real, gigante, para o usuário TOCAR com o dedo.
     // É a navegação mais básica que existe — se isso não funcionar, é o navegador/SW.
     box.innerHTML =
@@ -2063,7 +2063,7 @@
   // OAuth callback handler — funciona no mesmo contexto (sem popup)
   document.addEventListener('DOMContentLoaded', async () => {
     const p = new URLSearchParams(location.search);
-    if (p.get('state') !== 'whoop') return;
+    if (p.get('state') !== 'whoop_auth') return;
     if (!p.get('code') && !p.get('error')) return;
     const ok = await handleWhoopCallback();
     try { if (typeof switchApp  === 'function') switchApp('health');   } catch(e){}

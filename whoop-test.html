@@ -81,7 +81,7 @@
       + '&scope=' + encodeURIComponent(WHOOP_SCOPE)
       + '&code_challenge=' + encodeURIComponent(challenge)
       + '&code_challenge_method=S256'
-      + '&state=whoop';
+      + '&state=whoop_auth';
     link.href = url;
   }
   document.getElementById('cid').addEventListener('input', updateLink);
