@@ -1856,14 +1856,15 @@
   async function whoopFetch(path) {
     const token = localStorage.getItem('whoop_access');
     const WORKER_URL = 'https://whoop-token.jgg190310.workers.dev';
-    const r = await fetch(WORKER_URL + '/api' + path, {
+    // App controla o path completo (v2). Worker só faz proxy host+path.
+    const r = await fetch(WORKER_URL + '/api/developer/v2' + path, {
       headers: { Authorization: 'Bearer ' + token },
       signal: AbortSignal.timeout(15000),
     });
     if (r.status === 401) { whoopDiag('Token expirado (401). Reconecte.'); throw new Error('401'); }
     if (r.ok) return r.json();
     let body = ''; try { body = await r.text(); } catch(e2){}
-    const err = 'HTTP ' + r.status + ' em /api' + path + ' — ' + body.substring(0, 200);
+    const err = 'HTTP ' + r.status + ' em /developer/v2' + path + ' — ' + body.substring(0, 200);
     whoopDiag(err);
     throw new Error('HTTP ' + r.status);
   }
