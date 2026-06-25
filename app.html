@@ -1854,25 +1854,17 @@
   }
 
   async function whoopFetch(path) {
-    const token  = localStorage.getItem('whoop_access');
-    const target = WHOOP_API + path;
-    let lastErr  = '';
-    for (const p of whoopProxied(target)) {
-      try {
-        const r = await fetch(p.url, {
-          headers: { Authorization: 'Bearer ' + token },
-          signal: AbortSignal.timeout(9000),
-        });
-        if (r.status === 401) { whoopDiag('Token expirado (401). Reconecte.'); throw new Error('401'); }
-        if (r.ok) return r.json();
-        lastErr = p.label + ': HTTP ' + r.status;
-      } catch(e) {
-        if (e.message === '401') throw e;
-        lastErr = p.label + ': ' + (e.name === 'TimeoutError' ? 'timeout' : (e.message || 'CORS bloqueado'));
-      }
-    }
-    whoopDiag('Falha ao buscar dados — ' + lastErr);
-    throw new Error(lastErr);
+    const token = localStorage.getItem('whoop_access');
+    const WORKER_URL = 'https://whoop-token.jgg190310.workers.dev';
+    const r = await fetch(WORKER_URL + '/api' + path, {
+      headers: { Authorization: 'Bearer ' + token },
+      signal: AbortSignal.timeout(15000),
+    });
+    if (r.status === 401) { whoopDiag('Token expirado (401). Reconecte.'); throw new Error('401'); }
+    if (r.ok) return r.json();
+    const err = 'HTTP ' + r.status;
+    whoopDiag('Falha ao buscar dados — ' + err);
+    throw new Error(err);
   }
 
   async function loadWhoopData() {
