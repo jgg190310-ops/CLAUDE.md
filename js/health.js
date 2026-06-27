@@ -629,7 +629,150 @@
       return `<b>Comendo bem fora de casa:</b> 🍱<br><br>• <b>Marmita/meal prep</b>: cozinhe 1x na semana (proteínas + carbos + legumes em potes). Economiza dinheiro e blinda contra escolhas ruins.<br>• <b>Restaurante a quilo</b>: metade do prato de salada/legumes, um quarto de proteína, um quarto de carbo. Cuidado com molhos e frituras.<br>• <b>Fast food</b>: prefira grelhados, versões sem maionese, sem refri (calorias líquidas). Combo vira 1200+ kcal fácil.<br>• <b>Delivery</b>: peça por porção, não por "promoção dobrada"; adicione uma salada.<br><br>Regra prática: proteína + vegetais sempre presentes = refeição decente em qualquer lugar.`;
     }
 
-    // saudação
+    // ───────── NOVOS INTENTS DE NUTRIÇÃO ─────────
+
+    // proteína por refeição
+    if (/(proteina por refei|proteina por refeicao|proteina em cada|quanto de proteina por refei|dividir (a )?proteina)/.test(norm)) {
+      const w = body.weight || 70;
+      const perMeal = Math.round((w * 1.8) / 4);
+      return `<b>Proteína por refeição</b> — distribua ao longo do dia: 🍽️<br><br>• A síntese muscular responde melhor a <b>20-40g por refeição</b>, a cada 3-4h.<br>• Para ${body.weight ? `seus ${w}kg` : '70kg'}: cerca de <b>${perMeal}g por refeição</b> em 4 refeições.<br>• Inclua uma fonte em <b>todas</b>: ovo no café, frango no almoço, atum na tarde, carne na janta.<br>• Distribuir é melhor que concentrar tudo numa refeição só.<br><br>Dica: na ceia, caseína (queijo, iogurte) libera aminoácidos devagar à noite. 🌙`;
+    }
+
+    // déficit calórico (explicação, sem ser só "emagrecer")
+    if (/(deficit calorico|deficit calórico|o que e deficit|como fazer deficit|tamanho do deficit)/.test(norm) && !/emagrec/.test(norm)) {
+      return `<b>Déficit calórico</b> — a base de toda perda de gordura: 🔥<br><br>• É comer <b>menos calorias do que você gasta</b>. Sem déficit, não há emagrecimento — independente da dieta.<br>• <b>Tamanho ideal</b>: 300-500 kcal/dia (perda de ~0,3-0,5 kg/semana). Sustentável.<br>• Déficit agressivo (>700 kcal) derruba energia, músculo e adesão.<br>• Você cria déficit comendo menos <b>e</b> se movendo mais (treino + passos).<br>• Proteína alta no déficit preserva músculo e dá saciedade.<br><br>1 kg de gordura ≈ 7700 kcal. Constância > pressa.`;
+    }
+
+    // carboidratos bons vs ruins
+    if (/(carboidrato|carbo bom|carbo ruim|carbo faz mal|qual carbo|melhores carbo)/.test(norm) && !/(low carb|sem carbo|cortar carbo|pre.?treino|pós.?treino|pos.?treino)/.test(norm)) {
+      return `<b>Carboidratos — bons x ruins:</b> 🍚<br><br>• <b>Bons</b> (in natura, integrais, com fibra): arroz integral, batata-doce, aveia, feijão, frutas, mandioca. Liberam energia devagar.<br>• <b>Ruins</b> (refinados, pobres em fibra): pão branco, açúcar, refri, doces, salgadinho. Picos de glicose e fome rápida.<br>• Carbo <b>não engorda</b> por si — o excesso calórico engorda.<br>• Quanto mais ativo/treina, mais carbo você aproveita (energia e recuperação).<br><br>Regra: prefira o carbo "que veio da terra" ao "que veio do pacote". 🌾`;
+    }
+
+    // gordura saudável / ômega-3
+    if (/(gordura (boa|saudavel|saudável)|gordura faz mal|omega.?3|ômega.?3|gordura insaturada)/.test(norm)) {
+      return `<b>Gorduras boas e ômega-3:</b> 🥑<br><br>• Gordura é essencial — produz hormônios e absorve vitaminas (A, D, E, K). Mire <b>20-35% das calorias</b>.<br>• <b>Boas (insaturadas)</b>: azeite extravirgem, abacate, castanhas, sementes, peixes gordos.<br>• <b>Ômega-3</b> (anti-inflamatório, coração e cérebro): salmão, sardinha, atum 2x/semana; chia e linhaça para veganos.<br>• <b>Evite</b>: gordura trans (margarina dura, frituras industriais) — a vilã real.<br>• Castanhas: 1 punhado/dia (~30g) é ótimo, mas calórico — não exagere.<br><br>Gordura boa sacia e melhora o colesterol HDL. 🐟`;
+    }
+
+    // ovo
+    if (/(ovo|ovos)/.test(norm) && !/(café da manh|cafe da manh)/.test(norm)) {
+      return `<b>Ovo — proteína completa e barata:</b> 🥚<br><br>• <b>1 ovo grande</b>: ~70 kcal e <b>6g de proteína</b> de alto valor biológico.<br>• A <b>gema</b> tem colina, vitamina D, A e B12 — não jogue fora; coma o ovo inteiro.<br>• <b>Colesterol</b>: para a maioria das pessoas, ovo não eleva o colesterol no sangue.<br>• Quantos por dia? 1-3 é seguro e saudável para gente saudável.<br>• Cozido, mexido com pouco óleo ou pochê: melhores formas.<br><br>Excelente no café, na marmita ou como lanche proteico. 💪`;
+    }
+
+    // frango vs carne vermelha
+    if (/(frango (vs|ou) carne|carne vermelha|frango ou carne|melhor carne|carne branca)/.test(norm)) {
+      return `<b>Frango x carne vermelha:</b> 🍗<br><br>• <b>Frango (peito)</b>: ~31g proteína/100g, magro, baixa gordura. Ótimo no dia a dia.<br>• <b>Carne vermelha magra</b> (patinho, alcatra): rica em <b>ferro, zinco e B12</b> — importante contra anemia.<br>• Varie as duas: nenhuma precisa ser excluída.<br>• <b>Modere</b> carne vermelha processada (linguiça, bacon, salsicha) — ligada a mais risco cardíaco.<br>• Prefira grelhado/assado a frito; a forma de preparo pesa mais que a carne em si.<br><br>2-4x/semana carne vermelha magra + frango/peixe nos outros dias é equilibrado.`;
+    }
+
+    // peixe
+    if (/(peixe|salmao|salmão|sardinha|atum|tilapia|tilápia)/.test(norm) && !/(omega|ômega)/.test(norm)) {
+      return `<b>Peixe — proteína leve e ômega-3:</b> 🐟<br><br>• <b>Magros</b> (tilápia, merluza, pescada): proteína com pouca gordura — ótimos no déficit.<br>• <b>Gordos</b> (salmão, sardinha, atum): ricos em <b>ômega-3</b>, anti-inflamatório.<br>• <b>Sardinha</b> é barata, sustentável e cheia de cálcio e ômega-3 — subestimada!<br>• Mire <b>2x/semana</b> de peixe, ao menos 1 sendo gordo.<br>• Grelhado, assado ou no vapor preserva os nutrientes.<br><br>Atum em lata (em água) é praticidade: ~26g de proteína por lata. 🥫`;
+    }
+
+    // ferro / anemia
+    if (/(ferro|anemia|cansaco constante|cansaço constante|ferritina)/.test(norm)) {
+      return `<b>Ferro e anemia:</b> 🩸<br><br>• Ferro carrega oxigênio no sangue — baixo nível causa cansaço, falta de ar e palidez.<br>• <b>Ferro heme</b> (melhor absorvido): carne vermelha, fígado, frango, peixe.<br>• <b>Ferro não-heme</b>: feijão, lentilha, folhas escuras — absorve menos.<br>• <b>Truque</b>: combine ferro vegetal com <b>vitamina C</b> (laranja, limão) e absorve muito mais.<br>• <b>Evite café/chá</b> junto da refeição rica em ferro (tanino atrapalha).<br>• Mulheres menstruadas e veganos têm mais risco.<br><br>⚠️ Cansaço persistente? Peça hemograma e ferritina ao médico.`;
+    }
+
+    // magnésio
+    if (/(magnesio|magnésio)/.test(norm)) {
+      return `<b>Magnésio — mineral relaxante:</b> ✨<br><br>• Atua em 300+ reações: músculos, sono, humor, energia e açúcar no sangue.<br>• <b>Sinais de falta</b>: cãibras, insônia, irritabilidade, fadiga.<br>• <b>Fontes</b>: castanhas, sementes (abóbora), folhas verde-escuras, abacate, cacau 70%+, feijão.<br>• <b>Dose</b>: ~300-400 mg/dia. Suplemento (glicinato/dimalato) ajuda no sono e cãibras.<br>• Útil para quem treina pesado e sua muito.<br><br>Um quadradinho de chocolate amargo + punhado de castanhas já contribui bem. 🍫`;
+    }
+
+    // vitamina D (específica)
+    if (/(vitamina d|vit d|tomar sol|deficiencia de vitamina|deficiência de vitamina)/.test(norm)) {
+      return `<b>Vitamina D — a vitamina do sol:</b> ☀️<br><br>• Crucial para <b>ossos, imunidade, humor e hormônios</b>. Deficiência é muito comum no Brasil mesmo com sol.<br>• <b>Produção</b>: 15-20 min de sol (braços e pernas) na maioria dos dias, sem protetor nesse intervalo curto.<br>• <b>Alimentos</b> têm pouco: gema, peixes gordos, alimentos fortificados.<br>• <b>Suplementação</b> é frequentemente necessária — mas só com exame (25-OH-D) e orientação médica.<br>• Nível desejável geralmente >30 ng/mL.<br><br>⚠️ Não suplemente "no chute": vitamina D em excesso é tóxica. Dose com exame. 🩺`;
+    }
+
+    // ceia / comer à noite
+    if (/(ceia|antes de dormir comer|lanche da noite|comer (a|à) noite engorda|comer de madrugada|comer tarde engorda)/.test(norm)) {
+      return `<b>Comer à noite engorda? (mito) e a ceia ideal:</b> 🌙<br><br>• <b>Mito</b>: a hora não engorda — o que conta é o <b>total de calorias do dia</b>. Comer às 22h não vira gordura "automaticamente".<br>• O cuidado real: à noite a gente belisca por tédio/ansiedade, e aí o total estoura.<br>• <b>Ceia inteligente</b>: proteína de digestão lenta — iogurte natural, queijo, ovo, ou whey/caseína.<br>• Evita acordar com fome e alimenta o reparo muscular durante o sono.<br>• Refeição pesada/gordurosa tarde pode atrapalhar o sono.<br><br>Ex.: 1 pote de iogurte natural + canela, ou 2 ovos mexidos. 🥛`;
+    }
+
+    // mastigação / velocidade de comer
+    if (/(mastig|comer devagar|comer rapido|comer rápido|velocidade de comer|comer com pressa)/.test(norm)) {
+      return `<b>Mastigação e velocidade ao comer:</b> 🍽️<br><br>• O cérebro leva <b>~20 min</b> para registrar saciedade. Comendo rápido, você come demais antes do "chega".<br>• <b>Mastigar bem</b> (20-30x cada garfada) melhora a digestão e a absorção de nutrientes.<br>• <b>Truques</b>: pouse o garfo entre garfadas, beba água, evite tela na refeição.<br>• Comer devagar reduz inchaço, gases e azia.<br>• Estudos ligam comer rápido a mais peso e pior controle de glicose.<br><br>Refeição é pra durar 15-20 min, não 5. Diminua o ritmo e coma menos naturalmente. 🧘`;
+    }
+
+    // pressão alta / sódio
+    if (/(pressao alta|pressão alta|hipertens|sodio|sódio|sal demais|reduzir sal)/.test(norm)) {
+      return `<b>Pressão alta e sódio:</b> 🫀<br><br>• Excesso de <b>sódio</b> retém água e eleva a pressão. Limite: <b>< 2g de sódio/dia</b> (~5g de sal, 1 colher de chá).<br>• O vilão escondido é o <b>ultraprocessado</b>: embutidos, temperos prontos, salgadinho, miojo, enlatados.<br>• <b>Potássio equilibra o sódio</b>: banana, feijão, batata, folhas, água de coco.<br>• Dieta <b>DASH</b> (frutas, vegetais, integrais, laticínios magros) reduz a pressão comprovadamente.<br>• Atividade física, menos álcool e perda de peso também baixam a pressão.<br><br>⚠️ Hipertensão exige acompanhamento médico — não suspenda remédio por conta própria.`;
+    }
+
+    // açúcar escondido / leitura de rótulo
+    if (/(acucar escondido|açúcar escondido|ler rotulo|ler rótulo|leitura de rotulo|leitura de rótulo|entender rotulo|tabela nutricional)/.test(norm)) {
+      return `<b>Lendo o rótulo e caçando açúcar escondido:</b> 🔍<br><br>• Olhe os <b>ingredientes</b>: quanto mais curta a lista, melhor. Açúcar entre os primeiros = produto açucarado.<br>• Açúcar tem <b>vários nomes</b>: xarope de glicose/milho, dextrose, maltodextrina, sacarose, "açúcar invertido".<br>• Compare a coluna <b>por 100g</b> (não por porção, que vem manipulada pequena).<br>• <b>Atenção</b> a molhos, pães, iogurtes "de fruta", cereais, granolas e bebidas — açúcar escondido.<br>• "Zero gordura" costuma compensar com mais açúcar; "fit/natural" não significa saudável.<br><br>Regra: se a avó não reconheceria como comida, desconfie. 🏷️`;
+    }
+
+    // ultraprocessados
+    if (/(ultraprocessad|processado|comida industrializada|nova classifica)/.test(norm)) {
+      return `<b>Ultraprocessados — por que evitar:</b> 🚫<br><br>• São formulações industriais cheias de açúcar, sódio, gordura ruim e aditivos: salgadinho, refri, biscoito recheado, embutidos, miojo, nuggets.<br>• <b>Hiperpalatáveis</b>: feitos pra você comer demais — calóricos e pouco saciantes.<br>• Ligados a obesidade, diabetes, hipertensão e inflamação.<br>• Troque por <b>comida de verdade</b>: in natura (frutas, legumes, ovo, feijão) e minimamente processada (arroz, leite, queijo).<br>• Não precisa ser 100% — mire em <b>80/20</b>: a base é comida real.<br><br>Cozinhar em casa é o maior atalho para comer melhor. 🍳`;
+    }
+
+    // suplementos necessários (visão geral, sem repetir creatina/whey)
+    if (/(quais suplementos|suplementos necessarios|suplementos necessários|preciso suplementar|todo mundo precisa)/.test(norm)) {
+      return `<b>Quais suplementos você realmente precisa?</b> 💊<br><br>• <b>Depende de exames e dieta</b> — não existe lista universal.<br>• <b>Mais comuns por deficiência</b>: Vitamina D, B12 (veganos), Ômega-3, Ferro (mulheres), Magnésio.<br>• <b>Por praticidade/performance</b>: Whey (bater proteína) e Creatina (força/massa).<br>• <b>Quase sempre dispensáveis</b>: BCAA, glutamina, termogênicos, "queimadores de gordura".<br>• A base é comida real — suplemento só tampa buracos específicos.<br><br>⚠️ Faça exames de sangue antes de gastar; suplementar "no escuro" é desperdício (ou risco). 🩺`;
+    }
+
+    // ressaca / muito sal / comilança
+    if (/(ressaca alimentar|exagerei|comi demais|sai da dieta|furei a dieta|fim de semana exagerei|comi muito)/.test(norm)) {
+      return `<b>Exagerou? Veja o que fazer (sem culpa):</b> 😌<br><br>• <b>Um dia não desfaz semanas</b> — assim como uma salada não emagrece, uma comilança não engorda de vez.<br>• O peso que subir no dia seguinte é <b>água e sódio</b>, não gordura. Passa em 2-3 dias.<br>• <b>Não compense</b> com jejum punitivo ou treino exaustivo — isso alimenta o ciclo restringe-descontrola.<br>• Volte à rotina normal na próxima refeição: proteína, vegetais, água.<br>• Hidrate bem e caminhe — ajuda a desinchar.<br><br>Disciplina é voltar rápido, não ser perfeito. Siga em frente. 💚`;
+    }
+
+    // azia / refluxo
+    if (/(azia|refluxo|queimacao|queimação|estomago queima|estômago queima|gastrite)/.test(norm)) {
+      return `<b>Azia e refluxo — alívio pela alimentação:</b> 🔥<br><br>• <b>Gatilhos comuns</b>: frituras, gordura em excesso, café, álcool, refri, chocolate, pimenta, tomate, hortelã.<br>• <b>Coma menos por vez</b> e devagar — refeições grandes pressionam o estômago.<br>• <b>Não deite</b> logo após comer; espere 2-3h antes de dormir.<br>• Eleve a cabeceira da cama e evite roupas apertadas.<br>• Perder peso abdominal reduz muito o refluxo.<br><br>⚠️ Azia frequente merece avaliação médica (pode ser gastrite/H. pylori) — não vire refém de antiácido. 🩺`;
+    }
+
+    // emagrecer sem perder músculo
+    if (/(perder gordura sem perder|emagrecer sem perder|nao perder musculo|não perder músculo|preservar massa|secar sem perder)/.test(norm)) {
+      const w = body.weight || 70;
+      return `<b>Emagrecer sem perder músculo:</b> 🏋️<br><br>• <b>Déficit moderado</b> (300-500 kcal): cortes agressivos comem músculo junto com gordura.<br>• <b>Proteína alta</b>: 1,8-2,2g/kg (para ${body.weight ? `${w}kg` : '70kg'}: ~${Math.round(w*2)}g/dia). É o que mais protege o músculo.<br>• <b>Treino de força</b> 3-4x/semana: dá ao corpo o "motivo" de manter o músculo.<br>• Não zere o carbo — ele sustenta o desempenho no treino.<br>• Durma 7-9h: sono ruim aumenta a perda de massa magra.<br><br>O objetivo é mudar a composição, não só o número da balança. 💪`;
+    }
+
+    // vontade de doce
+    if (/(vontade de doce|desejo de doce|fissura por doce|nao resisto (a )?doce|não resisto)/.test(norm) && !/(a noite|à noite)/.test(norm)) {
+      return `<b>Domando a vontade de doce:</b> 🍫<br><br>• Muitas vezes é <b>fome real ou pouca proteína</b> — coma direito nas refeições e a fissura cai.<br>• <b>Açúcar chama açúcar</b>: quanto mais come, mais o paladar pede. Reduzir desacostuma em 2-3 semanas.<br>• <b>Trocas</b>: fruta, chocolate 70%+ (1-2 quadradinhos), iogurte com canela, tâmara.<br>• <b>Sono e estresse</b>: noite mal dormida e cortisol alto disparam o desejo por doce.<br>• Não proíba 100% — um doce planejado evita a farra por rebote.<br><br>Beba água e espere 10 min: muita "vontade" é sede ou tédio. 💚`;
+    }
+
+    // cálcio / ossos
+    if (/(calcio|cálcio|osteoporose|saude dos ossos|saúde dos ossos|leite faz bem)/.test(norm)) {
+      return `<b>Cálcio e saúde dos ossos:</b> 🦴<br><br>• Mire <b>~1000 mg/dia</b> (mais para idosos e mulheres pós-menopausa).<br>• <b>Fontes</b>: leite e derivados, sardinha com espinha, tofu, gergelim, folhas verde-escuras (couve, brócolis).<br>• <b>Vitamina D</b> é parceira: sem ela, o cálcio não fixa no osso.<br>• <b>Treino de força e impacto</b> deixa o osso mais denso — exercício é remédio para osso.<br>• Excesso de refri, sal e álcool atrapalha a fixação de cálcio.<br><br>Veganos: tofu, gergelim, vegetais verdes e bebidas fortificadas cobrem bem. 🥬`;
+    }
+
+    // zinco
+    if (/(zinco)/.test(norm)) {
+      return `<b>Zinco — imunidade, pele e hormônios:</b> 🛡️<br><br>• Atua na imunidade, cicatrização, testosterona e saúde da pele/cabelo.<br>• <b>Sinais de falta</b>: imunidade baixa, queda de cabelo, cicatrização lenta.<br>• <b>Fontes</b>: carnes, frutos do mar (ostra é campeã), sementes de abóbora, castanhas, feijão.<br>• Veganos absorvem menos (fitatos dos grãos) — atenção à quantidade.<br>• <b>Dose</b>: ~8-11 mg/dia. Não suplemente em excesso (atrapalha a absorção de cobre).<br><br>Uma alimentação variada com proteína costuma cobrir o zinco. 🦪`;
+    }
+
+    // refrigerante / sucos / calorias líquidas
+    if (/(refrigerante|refri|suco de caixinha|calorias liquidas|calorias líquidas|bebida açucarada|bebida acucarada|energetico|energético)/.test(norm)) {
+      return `<b>Calorias líquidas — o sabotador invisível:</b> 🥤<br><br>• Refri, suco de caixinha e energéticos têm <b>muito açúcar e zero saciedade</b> — você bebe e continua com fome.<br>• 1 lata de refri ≈ <b>140 kcal e 7 colheres de açúcar</b>. Fácil somar 500 kcal/dia só em bebida.<br>• <b>Suco natural</b> também concentra açúcar de várias frutas — prefira a fruta inteira (tem fibra).<br>• <b>Troque por</b>: água, água com gás e limão, chá gelado sem açúcar, café.<br>• Cortar bebida açucarada é uma das mudanças que mais emagrece com menos esforço.<br><br>Hidrate com o que não tem caloria. 💧`;
+    }
+
+    // glúten / lactose
+    if (/(gluten|glúten|lactose|intolerancia|intolerância|sem gluten|sem lactose)/.test(norm)) {
+      return `<b>Glúten e lactose — quando cortar:</b> 🌾<br><br>• <b>Só corte se houver diagnóstico</b>: doença celíaca/sensibilidade ao glúten, ou intolerância à lactose. Para quem não tem, cortar não emagrece nem é "mais saudável".<br>• <b>Intolerância à lactose</b>: gases, inchaço e diarreia após laticínios. Use lactose-free ou enzima (lactase); iogurte e queijos curados são melhor tolerados.<br>• "Sem glúten" industrializado costuma ter <b>mais açúcar e gordura</b> — não é sinônimo de saudável.<br>• Inchaço após pão pode ser excesso de ultraprocessado, não o glúten em si.<br><br>⚠️ Suspeita de intolerância/celíaca? Investigue com médico antes de cortar grupos alimentares. 🩺`;
+    }
+
+    // fibras (específico)
+    if (/(fibra|fibras)/.test(norm) && !/(intestino|microbiota|prisao|prisão|constipa)/.test(norm)) {
+      return `<b>Fibras — pouco lembradas, muito importantes:</b> 🌾<br><br>• Mire <b>25-35g/dia</b> — a maioria das pessoas come bem menos.<br>• <b>Solúveis</b> (aveia, feijão, maçã, chia): controlam colesterol e glicose, dão saciedade.<br>• <b>Insolúveis</b> (cascas, folhas, integrais): regulam o intestino.<br>• Saciam muito: pratos ricos em fibra ajudam a comer menos sem fome.<br>• <b>Aumente aos poucos</b> e com água — fibra demais de repente dá gases.<br><br>Fontes fáceis: feijão na marmita, fruta com casca, aveia no café, salada no almoço. 🥗`;
+    }
+
+    // macros / como dividir
+    if (/(macro|dividir as calorias|montar macros|distribuicao de macro|quanto de cada|proporcao de macro|proporção)/.test(norm) && !/(proteina por refei)/.test(norm)) {
+      const sug = suggestKcal(body);
+      const kcal = sug || 2000;
+      const p = Math.round((kcal*0.30)/4), c = Math.round((kcal*0.40)/4), g = Math.round((kcal*0.30)/9);
+      return `<b>Como dividir seus macros:</b> 📊<br><br>• Ponto de partida equilibrado: <b>30% proteína · 40% carboidrato · 30% gordura</b>.<br>• Para ${sug ? `sua meta de ~${kcalFmt(kcal)} kcal` : '~2000 kcal'}: cerca de <b>${p}g proteína · ${c}g carbo · ${g}g gordura</b>/dia.<br>• <b>Fixe a proteína primeiro</b> (1,6-2,2g/kg); ajuste carbo e gordura ao gosto e ao treino.<br>• Mais treino pesado → mais carbo. Low carb → menos carbo, mais gordura.<br>• 1g proteína = 4 kcal · 1g carbo = 4 kcal · 1g gordura = 9 kcal.<br><br>Não precisa pesar tudo pra sempre — entenda as proporções e estime no olho. 🍽️`;
+    }
+
+    // frutas
+    if (/(fruta|frutas)/.test(norm) && !/(suco|caixinha)/.test(norm)) {
+      return `<b>Frutas — naturais e nutritivas:</b> 🍎<br><br>• Têm açúcar, sim, mas vêm com <b>fibra, água, vitaminas e antioxidantes</b> — o pacote completo. Não engordam no contexto de uma dieta equilibrada.<br>• <b>Coma a fruta inteira</b> em vez de suco (suco perde a fibra e concentra açúcar).<br>• <b>Mais fibra/menos açúcar</b>: maçã, pera, frutas vermelhas, abacate, kiwi.<br>• Banana e manga são ótimas <b>pré-treino</b> (energia rápida).<br>• Mire <b>2-3 porções/dia</b>, variando as cores.<br><br>Casca, quando comestível (maçã, pera, uva), tem fibra e nutrientes — lave bem e coma. 🍓`;
+    }
+
+    // ───────── saudação ─────────
     if (/^(oi|olá|ola|bom dia|boa tarde|boa noite|e ai|eai|opa|hey|tudo bem|ola nutri)/.test(norm)) {
       return `Olá! 👋 Sou o <b>NutriBot</b>, sua IA de nutrição e performance. Posso:<br><br>• Calcular suas calorias, macros e IMC com seus dados<br>• Dizer as calorias de cada alimento<br>• Orientar emagrecimento, ganho de massa, pré/pós-treino<br>• Falar de suplementos (creatina, whey, cafeína), jejum, colesterol, glicemia, sono e mais<br>• Usar sua <b>recuperação da Whoop</b> para sugerir treino e dieta do dia 🟢<br><br>Pergunte à vontade ou toque numa sugestão. 🥗`;
     }

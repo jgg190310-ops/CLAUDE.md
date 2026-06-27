@@ -823,6 +823,252 @@
     if (/obrigad|valeu|thanks|show|top|legal|ajudou/.test(t))
       return `<p>Por nada! 🙌 Lembre: <b>esforço de recuperação &gt; releitura passiva</b>, e constância vence intensidade. Bons estudos!</p>`;
 
+    if (/mnemonic|mnemônic|acrostic|acróstic|sigla|decoreba|lei seca|decorar lei/.test(t))
+      return `<p><strong>Mnemônicos e decoreba inteligente:</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Acrônimos:</b> monte uma palavra com as iniciais (ex.: "PEMDAS" para ordem de operações)</li>
+  <li><b>Acrósticos:</b> crie uma frase boba onde cada palavra puxa a informação</li>
+  <li><b>Rimas e ritmo:</b> o cérebro guarda melhor o que tem som e cadência</li>
+  <li><b>Histórias absurdas:</b> quanto mais bizarra a imagem, mais ela gruda</li>
+  <li>Para <b>lei seca</b>: transforme artigos em flashcards e use repetição espaçada — decoreba sem revisão evapora</li>
+</ul>
+<p style="margin-top:8px">Mnemônico é atalho de codificação, mas só a <b>recuperação ativa repetida</b> fixa de verdade.</p>`;
+
+    if (/palacio da memoria|palácio da memória|loci|memory palace/.test(t))
+      return `<p><strong>Palácio da Memória (método de loci):</strong></p>
+<ol style="margin:8px 0 0 16px;line-height:2">
+  <li>Escolha um lugar que conhece bem (sua casa, o trajeto ao trabalho)</li>
+  <li>Defina uma <b>rota fixa</b> com pontos de parada (porta, sofá, geladeira...)</li>
+  <li>"Coloque" cada informação num ponto, como uma imagem vívida e exagerada</li>
+  <li>Para lembrar, <b>caminhe mentalmente</b> pela rota e colete as imagens</li>
+</ol>
+<p style="margin-top:8px">Campeões de memória usam isso para decorar centenas de itens em ordem. Funciona porque o cérebro é ótimo com <b>espaço e imagens</b>. 🏛️</p>`;
+
+    if (/formula|fórmula|equacao|equação/.test(t))
+      return `<p><strong>Como memorizar fórmulas (sem decoreba cega):</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Entenda a derivação:</b> saber de onde vem a fórmula faz você reconstruí-la se esquecer</li>
+  <li><b>Use muito em exercícios:</b> a repetição na prática fixa melhor que olhar a folha</li>
+  <li><b>Folha de fórmulas ativa:</b> escreva de memória, depois confira o que faltou</li>
+  <li><b>Conecte ao significado:</b> cada variável representa algo real, não é só letra</li>
+  <li><b>Flashcards:</b> frente = situação, verso = fórmula a aplicar</li>
+</ul>
+<p style="margin-top:8px">Fórmula entendida raramente é esquecida; fórmula decorada some na pressão da prova.</p>`;
+
+    if (/curva do esquecimento|ebbinghaus|esquecer|esqueco|esqueço rapido|esqueço rápido/.test(t))
+      return `<p><strong>Curva do esquecimento (Ebbinghaus):</strong></p>
+<p>Sem revisão, você esquece <b>~50-80% do conteúdo em 1-2 dias</b>. A boa notícia: cada revisão achata a curva.</p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li>Revise <b>no mesmo dia</b>, depois em 1, 3, 7 e 21 dias</li>
+  <li>Cada revisão deixa a memória mais duradoura e exige menos esforço</li>
+  <li>Revisar com <b>active recall</b> (sem olhar) é o que realmente trava a curva</li>
+</ul>
+<p style="margin-top:8px">Não é que você "tem memória ruim" — é que ninguém revisou no momento certo. Sistematize! 📉</p>`;
+
+    if (/pratica deliberada|prática deliberada|deliberate practice/.test(t))
+      return `<p><strong>Prática deliberada — como os experts treinam:</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Saia da zona de conforto:</b> treine o que você ainda NÃO domina, não o que já sabe</li>
+  <li><b>Foco total:</b> sessões curtas e intensas valem mais que horas no automático</li>
+  <li><b>Feedback imediato:</b> corrija o erro na hora, não acumule vícios</li>
+  <li><b>Decomponha a habilidade:</b> isole a parte fraca e treine só ela</li>
+  <li><b>Repita com ajuste:</b> não é repetir igual, é repetir melhorando</li>
+</ul>
+<p style="margin-top:8px">Não são "10 mil horas" quaisquer — são horas de prática deliberada e desconfortável. 🎯</p>`;
+
+    if (/fichament|ficha de leitura|ficha de estudo/.test(t))
+      return `<p><strong>Fichamento que serve para revisar:</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Cabeçalho:</b> autor, obra, página — para citar depois</li>
+  <li><b>Fichamento de citação:</b> trecho literal entre aspas (use com parcimônia)</li>
+  <li><b>Fichamento de resumo:</b> a ideia do trecho com <b>suas palavras</b></li>
+  <li><b>Fichamento de comentário:</b> sua análise crítica e conexões</li>
+</ul>
+<p style="margin-top:8px">O ouro está no resumo com suas palavras — copiar literalmente é passivo e não fixa. Termine cada ficha com uma <b>pergunta-chave</b> para virar active recall.</p>`;
+
+    if (/grifar|grif|marca texto|marca-texto|sublinha|destacar texto/.test(t))
+      return `<p><strong>Grifar do jeito certo (a maioria erra):</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Leia o parágrafo todo antes</b> de grifar — só então você sabe o que importa</li>
+  <li>Grife <b>no máximo 10-20%</b>: página toda amarela = nada destacado</li>
+  <li>Marque <b>palavras-chave</b>, não frases inteiras</li>
+  <li>Grifar é passivo: depois, <b>transforme os grifos em perguntas</b> e responda de memória</li>
+</ul>
+<p style="margin-top:8px">Grifar dá sensação de produtividade, mas sozinho ensina pouco. O aprendizado vem do que você faz <b>depois</b> com os grifos. 🖍️</p>`;
+
+    if (/regra dos 2 minutos|regra dos dois minutos|2 minutos|dois minutos/.test(t))
+      return `<p><strong>Regra dos 2 minutos:</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Versão produtividade:</b> se a tarefa leva menos de 2 min, faça AGORA — não anote, não adie</li>
+  <li><b>Versão hábito:</b> reduza o início a 2 min ("abrir o livro", "ler 1 página") — vencer a inércia é o difícil</li>
+  <li>Começar pequeno destrava: depois de iniciar, continuar é fácil</li>
+  <li>Encadeie 2 min com o ambiente já preparado (livro aberto, celular longe)</li>
+</ul>
+<p style="margin-top:8px">A barreira quase nunca é a tarefa — é o começo. Encolha o começo e o resto flui. ⏱️</p>`;
+
+    if (/redacao|redação|dissertacao|dissertação|nota 1000|escrever bem|argumenta/.test(t))
+      return `<p><strong>Redação nota 1000 (modelo ENEM):</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Estrutura:</b> introdução (tese) + 2 desenvolvimentos (argumentos) + conclusão (proposta de intervenção)</li>
+  <li><b>Proposta de intervenção:</b> precisa ter agente, ação, meio, finalidade e detalhamento</li>
+  <li><b>Repertório legitimado:</b> cite dados, leis, filósofos, fatos históricos — não opinião solta</li>
+  <li><b>Conectivos</b> entre parágrafos garantem coesão</li>
+  <li><b>Treine cronometrado</b> (1 redação/semana) e peça correção pelas 5 competências</li>
+</ul>
+<p style="margin-top:8px">Respeite os direitos humanos na proposta — desrespeitá-los zera a redação. ✍️</p>`;
+
+    if (/simulad|prova simulada|mock/.test(t))
+      return `<p><strong>Simulados — seu melhor termômetro:</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Cronometre de verdade:</b> mesmo tempo e condições da prova real</li>
+  <li><b>Faça periodicamente:</b> 1 a cada 1-2 semanas para medir evolução</li>
+  <li><b>O ouro está na correção:</b> analise CADA erro e entenda o porquê</li>
+  <li><b>Treina resistência:</b> 4-5h de prova exigem preparo físico e mental</li>
+  <li><b>Calibra o ritmo:</b> você aprende a não travar numa questão difícil</li>
+</ul>
+<p style="margin-top:8px">Simulado é active recall sob pressão real — o tipo de treino que mais aproxima da prova. 📝</p>`;
+
+    if (/nervosismo|controlar nervos|tremer na prova|panico na prova|respiracao|respiração/.test(t))
+      return `<p><strong>Controlar o nervosismo na hora da prova:</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Respiração 4-7-8:</b> inspire 4s, segure 7s, expire 8s — baixa a frequência cardíaca</li>
+  <li><b>Chegue cedo:</b> correria antes da prova dispara a ansiedade</li>
+  <li><b>Comece pelo fácil:</b> acertos iniciais geram confiança e destravam</li>
+  <li><b>Reinterprete o frio na barriga:</b> "estou animado", não "estou com medo" — mesma sensação, outra leitura</li>
+  <li><b>Foque na questão atual</b>, não no resultado final</li>
+</ul>
+<p style="margin-top:8px">Nervosismo moderado melhora o desempenho. Treino e simulados domam o excesso. 💪</p>`;
+
+    if (/revisar a prova|corrigir prova|aprender com erro|aprender com os erros|caderno de erros|analisar erro/.test(t))
+      return `<p><strong>Aprender com os erros (caderno de erros):</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li>Mantenha um <b>caderno só de questões erradas</b></li>
+  <li>Para cada erro anote: <b>o que errei, por quê e o conceito certo</b></li>
+  <li>Classifique: erro de conteúdo, de interpretação ou de desatenção</li>
+  <li><b>Refaça as questões erradas</b> dias depois, sem olhar a solução</li>
+  <li>Revisar erros vale mais que fazer questões novas — ataca exatamente sua lacuna</li>
+</ul>
+<p style="margin-top:8px">Erro não revisado vira erro repetido. Erro analisado vira ponto forte. 🔁</p>`;
+
+    if (/programacao|programação|programar|codar|codificar|aprender a programar|do zero/.test(t))
+      return `<p><strong>Aprender programação do zero:</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Escolha 1 linguagem</b> e fique nela (Python é ótima pra começar)</li>
+  <li><b>Codifique todo dia:</b> ler tutorial não ensina — digitar e quebrar o código sim</li>
+  <li><b>Projetos pequenos reais:</b> calculadora, lista de tarefas, bot — aprende fazendo</li>
+  <li><b>Erre e leia os erros:</b> a mensagem de erro é seu professor</li>
+  <li><b>Active recall:</b> resolva exercícios (Exercism, freeCodeCamp) sem copiar</li>
+</ul>
+<p style="margin-top:8px">Não caia no "inferno dos tutoriais": 80% mão na massa, 20% teoria. Construa, não só assista. 💻</p>`;
+
+    if (/estudar trabalhando|trabalho e estudo|pouco tempo|conciliar|sem tempo/.test(t))
+      return `<p><strong>Estudar trabalhando (com pouco tempo):</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Blocos curtos contam:</b> 2-3 sessões de 30-50 min rendem muito ao longo da semana</li>
+  <li><b>Aproveite tempos mortos:</b> flashcards no transporte, áudios em deslocamentos</li>
+  <li><b>Horário fixo inegociável:</b> ex. 1h antes do trabalho — vira hábito automático</li>
+  <li><b>Qualidade > quantidade:</b> 1h focada bate 3h dispersa</li>
+  <li><b>Proteja o sono:</b> virar a noite derruba seu rendimento no dia seguinte</li>
+</ul>
+<p style="margin-top:8px">Constância vence volume: 1h/dia consistente forma especialistas em meses. ⏳</p>`;
+
+    if (/grupo|sozinho|estudar junto|estudar acompanhado|estudar em grupo/.test(t))
+      return `<p><strong>Estudar em grupo vs sozinho:</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Sozinho é melhor para:</b> aprender conteúdo novo, active recall e foco profundo</li>
+  <li><b>Em grupo é melhor para:</b> tirar dúvidas, ensinar uns aos outros (Feynman) e revisar</li>
+  <li><b>Ensinar ao grupo</b> expõe o que você ainda não domina</li>
+  <li><b>Cuidado:</b> grupo vira conversa fácil — combine pauta e tempo</li>
+  <li>Ideal: estude sozinho e use o grupo para <b>discutir e testar</b></li>
+</ul>
+<p style="margin-top:8px">Misture os dois: solo para absorver, grupo para consolidar e tirar dúvidas. 👥</p>`;
+
+    if (/tirar duvida|tirar dúvida|tirar duvidas|tirar dúvidas|nao entendi|não entendi/.test(t))
+      return `<p><strong>Como tirar dúvidas de forma eficaz:</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Tente sozinho primeiro:</b> a luta antes da resposta fixa melhor o aprendizado</li>
+  <li><b>Formule a dúvida por escrito:</b> só de escrever, muitas se resolvem sozinhas</li>
+  <li><b>Seja específico:</b> "não entendi" → "por que esse passo usa essa regra?"</li>
+  <li>Use <b>fóruns e comunidades</b> (Reddit, Discord, Stack Overflow) e professores</li>
+  <li>Depois de entender, <b>explique de volta</b> com suas palavras</li>
+</ul>
+<p style="margin-top:8px">Dúvida bem formulada já é meio caminho da resposta. 💡</p>`;
+
+    if (/ambiente|local de estudo|onde estudar|mesa de estudo|escrivaninha/.test(t))
+      return `<p><strong>Ambiente de estudo ideal:</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Lugar fixo só para estudar:</b> o cérebro associa o local ao modo foco</li>
+  <li><b>Mesa organizada:</b> só o material da sessão atual à vista</li>
+  <li><b>Boa luz e postura:</b> evitam fadiga e sono</li>
+  <li><b>Celular fora de alcance</b> — não basta silenciar, tem que sumir</li>
+  <li><b>Evite a cama:</b> o cérebro a associa a dormir, não a focar</li>
+</ul>
+<p style="margin-top:8px">O ambiente certo reduz o esforço de concentração: metade do foco é design do espaço. 🪑</p>`;
+
+    if (/alimenta|comer|alimento|cafeina|cafeína|nutricao|nutrição/.test(t))
+      return `<p><strong>Alimentação e foco:</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Hidrate-se:</b> desidratação leve já reduz concentração</li>
+  <li><b>Evite picos de açúcar:</b> dão energia rápida e queda brusca depois</li>
+  <li><b>Prefira liberação lenta:</b> grãos integrais, frutas, oleaginosas, proteína</li>
+  <li><b>Cafeína:</b> 1-2 xícaras ajudam, mas evite após as 16h (atrapalha o sono)</li>
+  <li><b>Ômega-3</b> (peixe, nozes) favorece a saúde cerebral</li>
+</ul>
+<p style="margin-top:8px">Cérebro é caro energeticamente: o que você come vira (ou não) combustível para focar. 🥗</p>`;
+
+    if (/pausa|intervalo|descansar entre|quanto descansar/.test(t) && !/sono|dormir|burnout|esgota/.test(t))
+      return `<p><strong>Pausas e intervalos ideais:</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Pomodoro:</b> 5 min a cada 25, pausa longa de 15-30 min a cada 4 ciclos</li>
+  <li><b>Regra 20-20-20:</b> a cada 20 min, olhe algo a 20 pés (6m) por 20s — descansa a vista</li>
+  <li><b>Pausa de verdade:</b> levante, ande, beba água — não troque estudo por scroll no feed</li>
+  <li><b>Pausas curtas</b> mantêm energia; <b>longas demais</b> quebram o ritmo</li>
+</ul>
+<p style="margin-top:8px">A pausa não é desperdício: é quando o cérebro consolida o que acabou de aprender. ☕</p>`;
+
+    if (/habito|hábito|criar habito|criar hábito|disciplina|consistencia|consistência/.test(t))
+      return `<p><strong>Criar o hábito de estudar (disciplina > motivação):</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Mesmo horário, mesmo lugar:</b> o gatilho automatiza o início</li>
+  <li><b>Empilhe o hábito:</b> "depois do café, estudo 30 min"</li>
+  <li><b>Comece ridiculamente pequeno:</b> 10 min/dia consolidam mais que 3h esporádicas</li>
+  <li><b>Não quebre a corrente:</b> marque os dias num calendário (efeito streak)</li>
+  <li><b>Motivação inicia, hábito sustenta</b> — você não vai "estar motivado" todo dia</li>
+</ul>
+<p style="margin-top:8px">Disciplina é só hábito bem treinado. Depende de sistema, não de força de vontade. 📅</p>`;
+
+    if (/materia dificil|matéria difícil|materia chata|matéria chata|odeio|dificuldade com/.test(t))
+      return `<p><strong>Encarar matérias difíceis ou chatas:</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Comece por ela</b> quando sua energia está alta (manhã)</li>
+  <li><b>Fatie em pedaços minúsculos:</b> o monstro fica gerenciável</li>
+  <li><b>Descubra o "porquê":</b> entender a aplicação real reduz a aversão</li>
+  <li><b>Busque outra fonte:</b> um vídeo bom pode destravar o que o livro travou</li>
+  <li><b>Recompense-se</b> após blocos da matéria difícil</li>
+</ul>
+<p style="margin-top:8px">Quase sempre o "chato" é só o "ainda não entendido". Vença a base e ela fica tolerável. 💪</p>`;
+
+    if (/exatas|humanas|biologicas|biológicas/.test(t))
+      return `<p><strong>Exatas vs Humanas — estratégias diferentes:</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Exatas (mat, física, química):</b> aprende-se <b>resolvendo exercícios</b>, não lendo. Entenda a lógica e pratique muito</li>
+  <li><b>Humanas (história, filosofia, direito):</b> foco em <b>leitura ativa, fichamento e conexões</b> entre ideias</li>
+  <li><b>Ambas se beneficiam</b> de active recall e repetição espaçada</li>
+  <li>Exatas: interleaving de tipos de problema. Humanas: mapas mentais conectando contextos</li>
+</ul>
+<p style="margin-top:8px">A técnica muda, o princípio não: recuperação ativa + revisão espaçada funcionam em tudo. 📚</p>`;
+
+    if (/motiva|sem vontade|desanim|nao tenho vontade|não tenho vontade|empolg/.test(t))
+      return `<p><strong>Motivação para estudar:</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Conecte ao seu "porquê":</b> visualize onde esse estudo vai te levar</li>
+  <li><b>Ação gera motivação</b> (não o contrário): comece 5 min e a vontade aparece</li>
+  <li><b>Metas pequenas e visíveis:</b> progresso visível alimenta a vontade</li>
+  <li><b>Comemore vitórias:</b> riscar tarefas libera dopamina</li>
+  <li><b>Não dependa só dela:</b> nos dias sem motivação, o hábito te carrega</li>
+</ul>
+<p style="margin-top:8px">Esperar motivação para começar é uma armadilha. Comece, e ela vem no caminho. 🚀</p>`;
+
     // ───────── fallback inteligente (sugere o tópico mais próximo) ─────────
     {
       const topics = [
