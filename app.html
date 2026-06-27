@@ -37,7 +37,7 @@
       window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
     }
   </script>
-  <link rel="stylesheet" href="styles/app.css?v=33" />
+  <link rel="stylesheet" href="styles/app.css?v=34" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -2674,26 +2674,39 @@
       </div>
       ${diagBox}
       ${connected ? '<div id="ouraData" style="margin-top:4px"></div>' : `
-        <div class="cf-card" style="padding:28px;max-width:520px;background:linear-gradient(135deg,rgba(77,208,225,.07),rgba(20,20,30,.2))">
-          <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px">
-            <div style="width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,#4dd0e1,#26c6da);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(77,208,225,.35)">
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.4"/></svg>
+        <div class="oura-connect">
+          <div class="oura-connect-glow"></div>
+          <div class="oura-connect-head">
+            <div class="oura-ring-icon">
+              <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#0a0e17" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.4"/></svg>
             </div>
-            <div><h3 style="font-size:17px;font-weight:800">Conectar Oura</h3><p style="font-size:12px;opacity:.6">Personal Access Token — não expira</p></div>
+            <div>
+              <h3>Conectar Oura Ring</h3>
+              <p>Personal Access Token · <span class="oura-badge">nunca expira</span></p>
+            </div>
           </div>
-          <ol style="font-size:13px;opacity:.8;line-height:1.7;margin:0 0 18px;padding-left:18px">
-            <li>Acesse <strong>cloud.ouraring.com/personal-access-tokens</strong></li>
-            <li>Clique em <strong>Create New Personal Access Token</strong></li>
-            <li>Copie o token gerado e cole abaixo</li>
-          </ol>
-          <div class="form-group" style="margin-bottom:20px">
-            <label style="font-size:12px;font-weight:600;display:block;margin-bottom:6px">Personal Access Token</label>
-            <input id="ouraToken" type="password" placeholder="Cole o token da Oura aqui" style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:13px" />
+
+          <div class="oura-steps">
+            <div class="oura-step"><span class="oura-step-n">1</span><div><b>Abra a página de tokens</b><p>No site da Oura, na sua conta.</p></div></div>
+            <div class="oura-step"><span class="oura-step-n">2</span><div><b>Crie um novo token</b><p>Botão “Create New Personal Access Token”.</p></div></div>
+            <div class="oura-step"><span class="oura-step-n">3</span><div><b>Cole o token aqui</b><p>É só uma vez — fica salvo pra sempre.</p></div></div>
           </div>
-          <button class="whoop-cta" style="background:linear-gradient(135deg,#4dd0e1,#26c6da);box-shadow:0 8px 24px rgba(77,208,225,.35)" onclick="ouraConnect()">
+
+          <a href="https://cloud.ouraring.com/personal-access-tokens" target="_blank" rel="noopener" class="oura-link">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6M10 14 21 3"/></svg>
+            Abrir página de tokens da Oura
+          </a>
+
+          <div class="oura-field">
+            <label>Personal Access Token</label>
+            <input id="ouraToken" type="password" placeholder="Cole o token da Oura aqui" onkeydown="if(event.key==='Enter')ouraConnect()" />
+          </div>
+
+          <button class="oura-cta" onclick="ouraConnect()">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.4"/></svg>
             Conectar com Oura
           </button>
+          <p class="oura-priv">🔒 Seu token fica só no seu navegador. Nada é compartilhado.</p>
         </div>`}`;
     if (connected) loadOuraData();
   };
