@@ -1574,11 +1574,11 @@ body {
 .live-tag { color: var(--green); font-size: 9px; vertical-align: middle; }
 
 @keyframes tickUpAnim {
-  0% { background-color: rgba(16,185,129,0.22); }
+  0% { background-color: rgba(16,185,129,0.10); }
   100% { background-color: transparent; }
 }
 @keyframes tickDownAnim {
-  0% { background-color: rgba(239,68,68,0.22); }
+  0% { background-color: rgba(239,68,68,0.10); }
   100% { background-color: transparent; }
 }
 td.tick-up, .market-card.tick-up { animation: tickUpAnim 1.2s ease-out; }
@@ -4403,4 +4403,28 @@ html[data-theme="light"] .s-sch-cell.filled { opacity: .9; }
 @media (max-width: 380px) {
   .kpi-value { font-size: 18px !important; }
   .kpi-label { font-size: 9px; }
+}
+
+/* ══════════════════════════════════════════════
+   MOBILE PRO — aba Ações / Bolsa de Valores
+══════════════════════════════════════════════ */
+@media (max-width: 760px) {
+  /* índices: grade 2×2 compacta em vez de 4 cards gigantes */
+  .market-overview { grid-template-columns: 1fr 1fr !important; gap: 10px; margin-bottom: 16px; }
+  .market-card { padding: 14px !important; border-radius: 14px; border-top-width: 2px; }
+  .mc-name { font-size: 9.5px; letter-spacing: .5px; margin-bottom: 5px; }
+  .mc-val { font-size: 17px; margin-bottom: 3px; }
+  .mc-chg { font-size: 11.5px; margin-bottom: 7px; }
+  .mini-chart { height: 26px !important; }
+
+  /* cabeçalho da página de ações: empilha controles sem espremer */
+  .stocks-header-right { width: 100%; margin-top: 12px; display: flex; flex-direction: column; gap: 10px; }
+  .stock-search-wrap, .stock-search { width: 100%; }
+  .live-source { font-size: 11px; }
+
+  /* tabela da carteira: rola na horizontal em vez de espremer as colunas */
+  .stocks-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .stocks-table-wrap .data-table { min-width: 580px; }
+  .data-table th, .data-table td { white-space: nowrap; }
+  .data-table td .asset-desc { max-width: 130px; white-space: normal; }
 }
