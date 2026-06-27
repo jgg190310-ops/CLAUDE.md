@@ -37,7 +37,7 @@
       window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
     }
   </script>
-  <link rel="stylesheet" href="styles/app.css?v=34" />
+  <link rel="stylesheet" href="styles/app.css?v=35" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -1813,10 +1813,10 @@
   </a>
 </nav>
 
-<script src="js/firebase-config.js?v=31"></script>
-<script src="js/app.js?v=31"></script>
-<script src="js/health.js?v=31"></script>
-<script src="js/study.js?v=31"></script>
+<script src="js/firebase-config.js?v=32"></script>
+<script src="js/app.js?v=32"></script>
+<script src="js/health.js?v=32"></script>
+<script src="js/study.js?v=32"></script>
 <script>
 /* ═══════════════════════════════════════════════
    WHOOP — OAuth 2.0 PKCE real integration
@@ -2425,6 +2425,14 @@
 
   function ymd(d){ return d.toISOString().slice(0,10); }
 
+  // barra de contribuinte (0-100)
+  function oBar(label, val){
+    if (val==null) return '';
+    const c = ouraScoreCol(val);
+    return `<div class="oc-row"><span class="oc-l">${label}</span><div class="oc-track"><div class="oc-fill" style="width:${Math.max(2,Math.min(100,val))}%;background:${c}"></div></div><span class="oc-v" style="color:${c}">${val}</span></div>`;
+  }
+  function ouraFmtHm(s){ if(s==null) return '--'; const m=Math.round(s/60); if(m<60) return m+'min'; return Math.floor(m/60)+'h'+String(m%60).padStart(2,'0'); }
+
   async function ouraFetch(path){
     const token = localStorage.getItem('oura_token');
     const r = await fetch(OURA_WORKER + '/oura/v2/usercollection' + path, {
@@ -2448,19 +2456,29 @@
       const end = new Date(); end.setDate(end.getDate()+1);
       const start = new Date(); start.setDate(start.getDate()-8);
       const qs = `?start_date=${ymd(start)}&end_date=${ymd(end)}`;
-      const [readiness, dsleep, sleep, activity, spo2, info] = await Promise.all([
+      const [readiness, dsleep, sleep, activity, spo2, info, ...extra] = await Promise.all([
         ouraFetch('/daily_readiness' + qs),
         ouraFetch('/daily_sleep' + qs),
         ouraFetch('/sleep' + qs),
         ouraFetch('/daily_activity' + qs),
         ouraFetch('/daily_spo2' + qs).catch(()=>({data:[]})),
         ouraFetch('/personal_info').catch(()=>null),
+        ouraFetch('/daily_stress' + qs).catch(()=>({data:[]})),
+        ouraFetch('/daily_resilience' + qs).catch(()=>({data:[]})),
+        ouraFetch('/daily_cardiovascular_age' + qs).catch(()=>({data:[]})),
+        ouraFetch('/vO2_max' + qs).catch(()=>({data:[]})),
+        ouraFetch('/workout' + qs).catch(()=>({data:[]})),
       ]);
 
       const rdy = lastBy(readiness.data);
       const dsl = lastBy(dsleep.data);
       const act = lastBy(activity.data);
       const sp  = lastBy(spo2.data);
+      const stress = lastBy(extra[0]?.data);
+      const resil  = lastBy(extra[1]?.data);
+      const cardio = lastBy(extra[2]?.data);
+      const vo2    = lastBy(extra[3]?.data);
+      const owkts  = (extra[4]?.data||[]).slice().sort((a,b)=> new Date(b.start_datetime||b.day) - new Date(a.start_datetime||a.day)).slice(0,5);
       // sono principal: long_sleep mais recente, senão a sessão mais longa
       const sleeps = (sleep.data||[]).filter(s=>s.total_sleep_duration);
       const mainSleep = sleeps.filter(s=>s.type==='long_sleep').sort((a,b)=>(a.day<b.day?1:-1))[0]
@@ -2490,10 +2508,33 @@
       const steps     = act?.steps ?? null;
       const actCal    = act?.active_calories ?? null;
       const totCal    = act?.total_calories ?? null;
+      const targetCal = act?.target_calories ?? null;
       const walkKm    = act?.equivalent_walking_distance != null ? (act.equivalent_walking_distance/1000).toFixed(1) : null;
+      const highS     = act?.high_activity_time ?? null;
+      const medS      = act?.medium_activity_time ?? null;
+      const lowS      = act?.low_activity_time ?? null;
+      const sedS      = act?.sedentary_time ?? null;
+      const restS     = act?.resting_time ?? null;
+      const metMin    = act?.average_met_minutes != null ? act.average_met_minutes.toFixed(1) : null;
+      const inactAlert= act?.inactivity_alerts ?? null;
+
+      // contribuintes (0-100) de prontidão, sono e atividade
+      const rdyC = rdy?.contributors || {};
+      const slpC = dsl?.contributors || {};
+      const actC = act?.contributors || {};
+
+      // estresse, resiliência, idade cardio, vo2max
+      const stressHighS = stress?.stress_high ?? null;
+      const recovHighS  = stress?.recovery_high ?? null;
+      const stressDay   = stress?.day_summary || null; // 'restored' | 'normal' | 'stressful'
+      const resilLevel  = resil?.level || null; // 'limited'|'adequate'|'solid'|'strong'|'exceptional'
+      const resilC      = resil?.contributors || {};
+      const cardioAge   = cardio?.vascular_age ?? null;
+      const vo2max      = vo2?.vo2_max != null ? vo2.vo2_max.toFixed(1) : null;
 
       const firstName = info?.email ? info.email.split('@')[0] : '';
       const weight    = info?.weight ? info.weight.toFixed(1) : null;
+      const age       = info?.age ?? null;
 
       // strain-like série: usa daily_activity score dos últimos dias
       const series = (activity.data||[]).slice(-7).map(a=>({ v:a.score??0, d: a.day?ODOW[new Date(a.day+'T00:00').getDay()]:'' }));
@@ -2585,8 +2626,91 @@
               ${actCal!=null?`<div class="wh-cell"><span class="whl">Cal. ativas</span><span class="whv" style="color:#ff9d4d">${actCal}<small>kcal</small></span></div>`:''}
               ${totCal!=null?`<div class="wh-cell"><span class="whl">Cal. totais</span><span class="whv" style="color:#ffd34e">${totCal.toLocaleString('pt-BR')}<small>kcal</small></span></div>`:''}
               ${walkKm?`<div class="wh-cell"><span class="whl">Distância</span><span class="whv" style="color:#7ee787">${walkKm}<small>km</small></span></div>`:''}
+              ${vo2max?`<div class="wh-cell"><span class="whl">VO₂ máx</span><span class="whv" style="color:#4dd0e1">${vo2max}<small>ml/kg</small></span></div>`:''}
+              ${cardioAge!=null?`<div class="wh-cell"><span class="whl">Idade cardio</span><span class="whv" style="color:#7c5cff">${cardioAge}<small>anos</small></span></div>`:''}
             </div>
           </div>
+
+          ${Object.keys(rdyC).length ? `
+          <div class="wapp-sec">
+            <div class="wapp-sec-h"><div class="wapp-sec-t"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#4dd0e1" stroke-width="2.4"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.4"/></svg>Contribuintes da Prontidão</div></div>
+            <div class="oura-contrib">
+              ${oBar('HRV', rdyC.hrv_balance)}
+              ${oBar('FC Repouso', rdyC.resting_heart_rate)}
+              ${oBar('Temp. corporal', rdyC.body_temperature)}
+              ${oBar('Índice recuperação', rdyC.recovery_index)}
+              ${oBar('Sono recente', rdyC.previous_night)}
+              ${oBar('Equilíbrio do sono', rdyC.sleep_balance)}
+              ${oBar('Atividade ontem', rdyC.previous_day_activity)}
+              ${oBar('Equilíbrio atividade', rdyC.activity_balance)}
+            </div>
+          </div>` : ''}
+
+          ${Object.keys(slpC).length ? `
+          <div class="wapp-sec">
+            <div class="wapp-sec-h"><div class="wapp-sec-t"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#7c5cff" stroke-width="2.4"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>Contribuintes do Sono</div></div>
+            <div class="oura-contrib">
+              ${oBar('Sono total', slpC.total_sleep)}
+              ${oBar('Eficiência', slpC.efficiency)}
+              ${oBar('Tranquilidade', slpC.restfulness)}
+              ${oBar('Sono REM', slpC.rem_sleep)}
+              ${oBar('Sono profundo', slpC.deep_sleep)}
+              ${oBar('Latência', slpC.latency)}
+              ${oBar('Horário', slpC.timing)}
+            </div>
+          </div>` : ''}
+
+          ${(stressDay||resilLevel||stressHighS!=null) ? `
+          <div class="wapp-sec">
+            <div class="wapp-sec-h"><div class="wapp-sec-t"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ffd34e" stroke-width="2.4"><path d="M12 2v4M12 18v4M5 12H1M23 12h-4M18.4 5.6l-2.8 2.8M8.4 15.6l-2.8 2.8M18.4 18.4l-2.8-2.8M8.4 8.4 5.6 5.6"/></svg>Estresse & Resiliência</div></div>
+            <div class="wapp-heart">
+              ${stressDay?`<div class="wh-cell"><span class="whl">Dia</span><span class="whv" style="color:${stressDay==='restored'?'#16ec8f':stressDay==='stressful'?'#ff3b5c':'#ffd34e'};font-size:16px">${stressDay==='restored'?'Restaurado':stressDay==='stressful'?'Estressante':'Normal'}</span></div>`:''}
+              ${stressHighS!=null?`<div class="wh-cell"><span class="whl">Estresse alto</span><span class="whv" style="color:#ff7a45">${ouraFmtHm(stressHighS)}</span></div>`:''}
+              ${recovHighS!=null?`<div class="wh-cell"><span class="whl">Recuperação</span><span class="whv" style="color:#16ec8f">${ouraFmtHm(recovHighS)}</span></div>`:''}
+              ${resilLevel?`<div class="wh-cell"><span class="whl">Resiliência</span><span class="whv" style="color:#4dd0e1;font-size:16px">${({limited:'Limitada',adequate:'Adequada',solid:'Sólida',strong:'Forte',exceptional:'Excepcional'})[resilLevel]||resilLevel}</span></div>`:''}
+            </div>
+            ${Object.keys(resilC).length?`<div class="oura-contrib" style="margin-top:14px">
+              ${oBar('Carga de sono', Math.round((resilC.sleep_recovery||0)*100))}
+              ${oBar('Recuperação diurna', Math.round((resilC.daytime_recovery||0)*100))}
+              ${oBar('Estresse', Math.round((resilC.stress||0)*100))}
+            </div>`:''}
+          </div>` : ''}
+
+          ${(highS!=null||sedS!=null) ? `
+          <div class="wapp-sec">
+            <div class="wapp-sec-h"><div class="wapp-sec-t"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#7ee787" stroke-width="2.4"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/></svg>Detalhes da Atividade</div>${targetCal&&actCal?`<span class="wapp-sec-badge" style="color:#7ee787">${actCal}/${targetCal} kcal meta</span>`:''}</div>
+            <div class="wapp-mini">
+              ${highS!=null?`<div><span class="ml">Intensa</span><span class="mv" style="color:#ff3b5c">${ouraFmtHm(highS)}</span></div>`:''}
+              ${medS!=null?`<div><span class="ml">Moderada</span><span class="mv" style="color:#ff9d4d">${ouraFmtHm(medS)}</span></div>`:''}
+              ${lowS!=null?`<div><span class="ml">Leve</span><span class="mv" style="color:#7ee787">${ouraFmtHm(lowS)}</span></div>`:''}
+              ${sedS!=null?`<div><span class="ml">Sedentário</span><span class="mv">${ouraFmtHm(sedS)}</span></div>`:''}
+              ${restS!=null?`<div><span class="ml">Descanso</span><span class="mv">${ouraFmtHm(restS)}</span></div>`:''}
+              ${metMin?`<div><span class="ml">MET médio</span><span class="mv">${metMin}</span></div>`:''}
+              ${inactAlert!=null?`<div><span class="ml">Alertas inativ.</span><span class="mv">${inactAlert}</span></div>`:''}
+              ${walkKm?`<div><span class="ml">Distância</span><span class="mv">${walkKm}km</span></div>`:''}
+            </div>
+          </div>` : ''}
+
+          ${owkts.length ? `
+          <div class="wapp-sec">
+            <div class="wapp-sec-h"><div class="wapp-sec-t"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#4dd0e1" stroke-width="2.4"><path d="M6.5 6.5h11M6.5 17.5h11M4 9v6M20 9v6M2 10.5v3M22 10.5v3"/></svg>Treinos Recentes</div></div>
+            <div class="wapp-wkts">
+              ${owkts.map(w=>{
+                const nm = (w.activity||'Treino').replace(/_/g,' ');
+                const dur = (w.end_datetime&&w.start_datetime)?(new Date(w.end_datetime)-new Date(w.start_datetime))/1000:0;
+                const wk = w.calories?Math.round(w.calories):null;
+                const km = w.distance?(w.distance/1000).toFixed(1):null;
+                const d = w.day?new Date(w.day+'T00:00'):null;
+                const dl = d?`${ODOW[d.getDay()]} ${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`:'';
+                const intCol = w.intensity==='hard'?'#ff3b5c':w.intensity==='moderate'?'#ff9d4d':'#7ee787';
+                return `<div class="wapp-wkt">
+                  <div class="wapp-wkt-l"><div class="wapp-wkt-icn" style="background:${intCol}22;color:${intCol}">${nm.charAt(0).toUpperCase()}</div>
+                  <div><div class="wapp-wkt-name" style="text-transform:capitalize">${nm}</div><div class="wapp-wkt-sub">${dl}${dur?` · ${ouraFmtHm(dur)}`:''}</div></div></div>
+                  <div class="wapp-wkt-r"><div class="wapp-wkt-strain" style="color:${intCol};font-size:14px;text-transform:capitalize">${w.intensity||''}</div><div class="wapp-wkt-meta">${wk?`${wk} kcal`:''}${km?` · ${km} km`:''}</div></div>
+                </div>`;
+              }).join('')}
+            </div>
+          </div>` : ''}
 
           ${asleepS>0 ? `
           <div class="wapp-sec">

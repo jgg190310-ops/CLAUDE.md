@@ -4138,6 +4138,15 @@ html[data-theme="light"] .s-sch-cell.filled { opacity: .9; }
 .wapp-oura .wapp-mark svg { filter: drop-shadow(0 0 8px rgba(77,208,225,.55)); }
 .wapp-oura .wapp-sync i { background: #4dd0e1; box-shadow: 0 0 8px #4dd0e1; }
 
+/* Oura — barras de contribuintes */
+.oura-contrib { display: flex; flex-direction: column; gap: 11px; }
+.oc-row { display: flex; align-items: center; gap: 12px; }
+.oc-l { flex: 0 0 130px; font-size: 12px; font-weight: 600; color: #b6bfce; }
+.oc-track { flex: 1; height: 8px; border-radius: 6px; background: rgba(255,255,255,.07); overflow: hidden; }
+.oc-fill { height: 100%; border-radius: 6px; transition: width 1s cubic-bezier(.2,.7,.3,1); }
+.oc-v { flex: 0 0 28px; text-align: right; font-family: var(--wnum); font-size: 14px; font-weight: 700; }
+@media (max-width: 520px){ .oc-l { flex-basis: 96px; font-size: 11px; } }
+
 /* Oura — tela de conexão */
 .oura-connect { position: relative; overflow: hidden; max-width: 560px; padding: 30px; border-radius: 22px;
   background: radial-gradient(120% 90% at 0% 0%, rgba(77,208,225,.14), transparent 55%), linear-gradient(160deg, #0d1320, #070b12);
