@@ -1618,10 +1618,14 @@ td.tick-down, .market-card.tick-down { animation: tickDownAnim 1.2s ease-out; }
   .sidebar-toggle { display: flex; }
 
   /* páginas */
-  .page { padding: 14px 14px 0; max-width: 100%; }
-  .page-header { margin-bottom: 18px; gap: 10px; }
+  .page { padding: 16px 16px 40px; max-width: 100%; }
+  .page-header { margin-bottom: 20px; gap: 10px; }
   .page-header h1 { font-size: 24px; letter-spacing: -1px; }
-  .page-sub { font-size: 13px; }
+  .page-sub { font-size: 13px; line-height: 1.5; }
+  /* mais respiro entre cards empilhados */
+  .cf-card, .chart-card, .table-card, .health-card,
+  .sub-card, .ai-card, .ip-card, .int-card { margin-bottom: 14px; }
+  .wapp-sec { padding: 20px 17px; }
 
   /* KPI grid 2 colunas em tablet, menor gap */
   .kpi-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 14px; }
@@ -4292,13 +4296,35 @@ html[data-theme="light"] .s-sch-cell.filled { opacity: .9; }
 .wapp-spin { width: 36px; height: 36px; border-radius: 50%; border: 3px solid rgba(255,255,255,.1); border-top-color: var(--wg); margin: 0 auto 16px; animation: whoopSpin .8s linear infinite; }
 
 @media (max-width: 760px) {
-  .wapp { padding: 22px 18px; border-radius: 20px; }
+  .wapp { padding: 22px 16px; border-radius: 20px; }
   .wapp-hero { grid-template-columns: 1fr; justify-items: center; text-align: center; gap: 22px; }
   .wapp-hero-desc { margin: 0 auto; }
-  .wapp-duo { grid-template-columns: 1fr; }
+  .wapp-duo { grid-template-columns: 1fr; gap: 14px; }
   .wapp-vitals { grid-template-columns: 1fr 1fr; }
   .wapp-vital:nth-child(even) { border-right: none; }
-  .wapp-vital { border-bottom: 1px solid var(--wln); }
+  .wapp-vital { border-bottom: 1px solid var(--wln); padding: 18px; }
+  /* faixas densas: no máx 2 colunas no celular, com respiro */
+  .wapp-heart, .wapp-mini { grid-template-columns: 1fr 1fr; }
+  .wapp-heart .wh-cell { padding: 18px 12px; }
+  .wapp-mini > div { padding: 16px 12px; }
+  .wapp-heart .whv { font-size: 22px; }
+  /* contribuintes: rótulo menor, mais espaço pra barra */
+  .oc-l { flex-basis: 104px; font-size: 11.5px; }
+  /* gráfico 7 dias: barras mais finas porém legíveis */
+  .wapp-chart { gap: 6px; }
+  .wapp-bv { font-size: 11px; }
+  .wapp-bd { font-size: 10px; }
+}
+
+@media (max-width: 430px) {
+  .wapp { padding: 20px 13px; }
+  .wapp-vitals { grid-template-columns: 1fr 1fr; }
+  /* mini-stats viram 2 colunas largas em telas bem pequenas */
+  .wapp-mini { grid-template-columns: 1fr 1fr; }
+  .oc-row { gap: 9px; }
+  .oc-l { flex-basis: 88px; font-size: 11px; }
+  .wapp-sec { padding: 18px 15px; }
+  .wapp-wkt { padding: 12px; }
 }
 
 /* Whoop — botões da tela de conexão */
