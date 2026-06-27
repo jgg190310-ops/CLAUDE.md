@@ -37,7 +37,7 @@
       window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
     }
   </script>
-  <link rel="stylesheet" href="styles/app.css?v=30" />
+  <link rel="stylesheet" href="styles/app.css?v=31" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -1808,10 +1808,10 @@
   </a>
 </nav>
 
-<script src="js/firebase-config.js?v=26"></script>
-<script src="js/app.js?v=26"></script>
-<script src="js/health.js?v=26"></script>
-<script src="js/study.js?v=26"></script>
+<script src="js/firebase-config.js?v=27"></script>
+<script src="js/app.js?v=27"></script>
+<script src="js/health.js?v=27"></script>
+<script src="js/study.js?v=27"></script>
 <script>
 /* ═══════════════════════════════════════════════
    WHOOP — OAuth 2.0 PKCE real integration
@@ -1921,6 +1921,18 @@
   function whoopStrainColor(v){ return v>=14?'#ff7a45':v>=10?'#3aa0ff':'#16ec8f'; }
   function whoopFmtH(ms){ if(!ms&&ms!==0) return '--'; const m=Math.round(ms/60000); return Math.floor(m/60)+'h'+String(m%60).padStart(2,'0'); }
   const WHOOP_DOW = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  // Mapa de esportes Whoop (sport_id → nome PT). Cobre os mais comuns.
+  const WHOOP_SPORT = {
+    '-1':'Atividade', 0:'Corrida', 1:'Ciclismo', 16:'Basquete', 17:'Remo', 18:'Esgrima',
+    22:'Hóquei', 24:'Futebol Am.', 27:'Golfe', 29:'Hipismo', 30:'Kayak', 33:'Box',
+    34:'Pilates', 36:'Rugby', 39:'Esqui', 42:'Futebol', 43:'Softball', 44:'Squash',
+    45:'Natação', 47:'Tênis', 48:'Atletismo', 51:'Vôlei', 52:'Caminhada', 53:'Surf',
+    55:'Elíptico', 56:'Stairmaster', 59:'Musculação', 60:'Yoga', 62:'Funcional',
+    63:'HIIT', 65:'Spinning', 66:'Crossfit', 70:'Meditação', 71:'Caminhada', 73:'Dança',
+    82:'Escalada', 83:'Pilates', 84:'Jiu-Jitsu', 85:'Pickleball', 91:'Sauna', 96:'HIIT',
+    97:'Corrida', 98:'Caminhada', 101:'Pular Corda', 123:'Mobilidade', 125:'Calistenia',
+  };
+  function whoopSport(id){ return WHOOP_SPORT[id] || WHOOP_SPORT[String(id)] || 'Treino'; }
 
   // Anel genérico estilo Whoop (com glow). size px, value, max, cor, conteúdo central.
   function wRing(size, value, max, col, centerHTML) {
@@ -1946,14 +1958,18 @@
     if (!el) return;
     el.innerHTML = `<div class="wapp"><div class="wapp-state"><div class="wapp-spin"></div><p style="color:#8a94a6;font-size:13px;margin:0;font-weight:600">Sincronizando com a Whoop…</p></div></div>`;
     try {
-      const [recovery, sleep, cycles] = await Promise.all([
+      const [recovery, sleep, cycles, workouts, profile, body] = await Promise.all([
         whoopFetch('/recovery?limit=1'),
         whoopFetch('/activity/sleep?limit=1'),
         whoopFetch('/cycle?limit=7'),
+        whoopFetch('/activity/workout?limit=5').catch(()=>({records:[]})),
+        whoopFetch('/user/profile/basic').catch(()=>null),
+        whoopFetch('/user/measurement/body').catch(()=>null),
       ]);
       const rec = recovery.records?.[0];
       const slp = sleep.records?.[0];
       const cyc = cycles.records || [];
+      const wkts = workouts.records || [];
 
       const recScore  = rec?.score?.recovery_score;
       // hrv_rmssd_milli já vem em milissegundos (ex.: 31.81)
@@ -1964,6 +1980,7 @@
 
       const sleepPerf = slp?.score?.sleep_performance_percentage;
       const sleepEff  = slp?.score?.sleep_efficiency_percentage ? slp.score.sleep_efficiency_percentage.toFixed(0) : null;
+      const sleepCons = slp?.score?.sleep_consistency_percentage ? slp.score.sleep_consistency_percentage.toFixed(0) : null;
       const respRate  = slp?.score?.respiratory_rate ? slp.score.respiratory_rate.toFixed(1) : null;
       const stages    = slp?.score?.stage_summary || {};
       const awakeMs   = stages.total_awake_time_milli || 0;
@@ -1971,6 +1988,17 @@
       const remMs     = stages.total_rem_sleep_time_milli || 0;
       const deepMs    = stages.total_slow_wave_sleep_time_milli || 0;
       const asleepMs  = lightMs + remMs + deepMs;
+      const cyclesCnt = stages.sleep_cycle_count;
+      const disturb   = stages.disturbance_count;
+      const sleepNeed = slp?.score?.sleep_needed || {};
+      const needMs    = (sleepNeed.baseline_milli||0)+(sleepNeed.need_from_sleep_debt_milli||0)+(sleepNeed.need_from_recent_strain_milli||0)+(sleepNeed.need_from_recent_nap_milli||0);
+      const inBedMs   = asleepMs + awakeMs;
+
+      // Perfil + medidas corporais
+      const firstName = profile?.first_name || '';
+      const bodyWeight = body?.weight_kilogram ? body.weight_kilogram.toFixed(1) : null;
+      const bodyHeight = body?.height_meter ? (body.height_meter*100).toFixed(0) : null;
+      const maxHr      = body?.max_heart_rate || null;
 
       const todayStrain = cyc[0]?.score?.strain;
       const avgHr       = cyc[0]?.score?.average_heart_rate;
@@ -2021,6 +2049,7 @@
         spo2     ? { l:'SpO₂',       v:spo2,     u:'%' }   : null,
         respRate ? { l:'Respiração', v:respRate, u:'rpm' } : null,
         skinTemp ? { l:'Temp. Pele', v:skinTemp, u:'°C' }  : null,
+        bodyWeight ? { l:'Peso',     v:bodyWeight, u:'kg' } : null,
       ].filter(Boolean);
 
       el.innerHTML = `
@@ -2029,7 +2058,7 @@
           <div class="wapp-bar">
             <div class="wapp-mark">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#00f5a0" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-              <b>WHOOP</b>
+              <b>WHOOP</b>${firstName?`<span class="wapp-hello">Olá, ${firstName}</span>`:''}
             </div>
             <div style="display:flex;align-items:center;gap:14px">
               <span class="wapp-sync"><i></i>Ao vivo</span>
@@ -2090,6 +2119,43 @@
               <div class="wapp-lg"><div class="lgt"><span class="lgsw" style="background:#d9c6ff"></span>Leve</div><span class="lgv" style="color:#d9c6ff">${whoopFmtH(lightMs)}</span></div>
               <div class="wapp-lg"><div class="lgt"><span class="lgsw" style="background:rgba(255,255,255,.3)"></span>Acordado</div><span class="lgv" style="color:#8a94a6">${whoopFmtH(awakeMs)}</span></div>
             </div>
+            ${needMs>0 ? `
+            <div class="wapp-need">
+              <div class="wapp-need-h"><span>Necessidade de sono</span><span style="color:#b388ff">${whoopFmtH(asleepMs)} / ${whoopFmtH(needMs)}</span></div>
+              <div class="wapp-need-bar"><div style="width:${Math.min(100,asleepMs/needMs*100).toFixed(0)}%"></div></div>
+            </div>` : ''}
+            <div class="wapp-mini">
+              ${cyclesCnt!=null?`<div><span class="ml">Ciclos</span><span class="mv">${cyclesCnt}</span></div>`:''}
+              ${disturb!=null?`<div><span class="ml">Despertares</span><span class="mv">${disturb}</span></div>`:''}
+              ${sleepCons?`<div><span class="ml">Consistência</span><span class="mv">${sleepCons}%</span></div>`:''}
+              ${inBedMs?`<div><span class="ml">Na cama</span><span class="mv">${whoopFmtH(inBedMs)}</span></div>`:''}
+            </div>
+          </div>` : ''}
+
+          ${wkts.length ? `
+          <div class="wapp-sec">
+            <div class="wapp-sec-h">
+              <div class="wapp-sec-t"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ff7a45" stroke-width="2.4"><path d="M6.5 6.5h11M6.5 17.5h11M4 9v6M20 9v6M2 10.5v3M22 10.5v3"/></svg>Treinos Recentes</div>
+            </div>
+            <div class="wapp-wkts">
+              ${wkts.map(w=>{
+                const s=w.score||{}; const strn=s.strain; const sc=whoopStrainColor(strn||0);
+                const durMs=(w.end&&w.start)?(new Date(w.end)-new Date(w.start)):0;
+                const wkcal=s.kilojoule?Math.round(s.kilojoule/4.184):null;
+                const d=w.start?new Date(w.start):null;
+                const dlabel=d?`${WHOOP_DOW[d.getDay()]} ${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`:'';
+                return `<div class="wapp-wkt">
+                  <div class="wapp-wkt-l">
+                    <div class="wapp-wkt-icn" style="background:${sc}22;color:${sc}">${whoopSport(w.sport_id).charAt(0)}</div>
+                    <div><div class="wapp-wkt-name">${whoopSport(w.sport_id)}</div><div class="wapp-wkt-sub">${dlabel}${durMs?` · ${whoopFmtH(durMs)}`:''}</div></div>
+                  </div>
+                  <div class="wapp-wkt-r">
+                    <div class="wapp-wkt-strain" style="color:${sc}">${typeof strn==='number'?strn.toFixed(1):'--'}</div>
+                    <div class="wapp-wkt-meta">${s.average_heart_rate?`${s.average_heart_rate} bpm`:''}${wkcal?` · ${wkcal} kcal`:''}</div>
+                  </div>
+                </div>`;
+              }).join('')}
+            </div>
           </div>` : ''}
 
           <div class="wapp-sec">
@@ -2108,9 +2174,10 @@
                 </div>`;
               }).join('')}
             </div>` : '<p style="color:#8a94a6;font-size:13px;margin:0">Sem ciclos registrados.</p>'}
-            ${(avgHr||kcal)?`
+            ${(avgHr||kcal||maxHr)?`
             <div class="wapp-foot">
               ${avgHr?`<div><span class="fl">FC Média</span><span class="fv" style="color:#4d9bff">${avgHr}<small style="font-size:12px;color:#8a94a6;font-weight:700"> bpm</small></span></div>`:''}
+              ${maxHr?`<div><span class="fl">FC Máxima</span><span class="fv" style="color:#ff3b5c">${maxHr}<small style="font-size:12px;color:#8a94a6;font-weight:700"> bpm</small></span></div>`:''}
               ${kcal?`<div><span class="fl">Energia Gasta</span><span class="fv" style="color:#ff9d4d">${kcal}<small style="font-size:12px;color:#8a94a6;font-weight:700"> kcal</small></span></div>`:''}
             </div>`:''}
           </div>

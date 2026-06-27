@@ -4135,6 +4135,30 @@ html[data-theme="light"] .s-sch-cell.filled { opacity: .9; }
 .wapp-mark { display: flex; align-items: center; gap: 11px; }
 .wapp-mark svg { filter: drop-shadow(0 0 8px rgba(0,245,160,.5)); }
 .wapp-mark b { font-size: 16px; font-weight: 800; letter-spacing: 4px; }
+.wapp-hello { font-size: 12px; font-weight: 600; color: var(--wtx2); letter-spacing: .2px; padding-left: 11px; margin-left: 4px; border-left: 1px solid var(--wln); }
+
+/* necessidade de sono */
+.wapp-need { margin-top: 18px; }
+.wapp-need-h { display: flex; justify-content: space-between; font-size: 11px; font-weight: 700; color: var(--wtx2); text-transform: uppercase; letter-spacing: .6px; margin-bottom: 8px; }
+.wapp-need-bar { height: 8px; border-radius: 6px; background: rgba(255,255,255,.07); overflow: hidden; }
+.wapp-need-bar > div { height: 100%; border-radius: 6px; background: linear-gradient(90deg,#7c5cff,#b388ff); transition: width 1s cubic-bezier(.2,.7,.3,1); }
+
+/* mini-stats grid (sono) */
+.wapp-mini { display: grid; grid-template-columns: repeat(auto-fit,minmax(80px,1fr)); gap: 1px; margin-top: 18px; background: var(--wln); border: 1px solid var(--wln); border-radius: 14px; overflow: hidden; }
+.wapp-mini > div { background: var(--wcard,#0a0e17); padding: 14px 12px; display: flex; flex-direction: column; gap: 6px; align-items: center; }
+.wapp-mini .ml { font-size: 9.5px; font-weight: 700; letter-spacing: .6px; text-transform: uppercase; color: var(--wtx2); }
+.wapp-mini .mv { font-family: var(--wnum); font-size: 19px; font-weight: 700; color: var(--wtx); letter-spacing: -.5px; }
+
+/* treinos recentes */
+.wapp-wkts { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
+.wapp-wkt { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; border-radius: 14px; background: rgba(255,255,255,.03); border: 1px solid var(--wln); }
+.wapp-wkt-l { display: flex; align-items: center; gap: 12px; }
+.wapp-wkt-icn { width: 38px; height: 38px; border-radius: 11px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 16px; }
+.wapp-wkt-name { font-size: 14px; font-weight: 700; color: var(--wtx); }
+.wapp-wkt-sub { font-size: 11px; color: var(--wtx2); margin-top: 2px; }
+.wapp-wkt-r { text-align: right; }
+.wapp-wkt-strain { font-family: var(--wnum); font-size: 20px; font-weight: 700; letter-spacing: -.5px; }
+.wapp-wkt-meta { font-size: 10.5px; color: var(--wtx2); margin-top: 2px; }
 .wapp-sync { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 600; letter-spacing: .4px; color: var(--wtx2); text-transform: uppercase; }
 .wapp-sync i { width: 7px; height: 7px; border-radius: 50%; background: var(--wg); box-shadow: 0 0 8px var(--wg); font-style: normal; }
 .wapp-refresh { width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center; border-radius: 11px; background: rgba(255,255,255,.05); border: 1px solid var(--wln); color: var(--wtx2); cursor: pointer; transition: .18s; }
