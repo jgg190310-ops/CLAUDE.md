@@ -4135,6 +4135,8 @@ html[data-theme="light"] .s-sch-cell.filled { opacity: .9; }
 .wapp-mark { display: flex; align-items: center; gap: 11px; }
 .wapp-mark svg { filter: drop-shadow(0 0 8px rgba(0,245,160,.5)); }
 .wapp-mark b { font-size: 16px; font-weight: 800; letter-spacing: 4px; }
+.wapp-oura .wapp-mark svg { filter: drop-shadow(0 0 8px rgba(77,208,225,.55)); }
+.wapp-oura .wapp-sync i { background: #4dd0e1; box-shadow: 0 0 8px #4dd0e1; }
 .wapp-hello { font-size: 12px; font-weight: 600; color: var(--wtx2); letter-spacing: .2px; padding-left: 11px; margin-left: 4px; border-left: 1px solid var(--wln); }
 
 /* necessidade de sono */

@@ -31,6 +31,18 @@ export default {
       return corsResponse(data, whoopRes.status, origin);
     }
 
+    // Proxy da API Oura: /oura/<path> → https://api.ouraring.com/<path>
+    // O app envia o Personal Access Token no header Authorization.
+    if (url.pathname.startsWith('/oura/')) {
+      const apiPath = url.pathname.replace('/oura', '');
+      const auth = request.headers.get('Authorization') || '';
+      const ouraRes = await fetch('https://api.ouraring.com' + apiPath + url.search, {
+        headers: { Authorization: auth },
+      });
+      const data = await ouraRes.text();
+      return corsResponse(data, ouraRes.status, origin);
+    }
+
     if (request.method !== 'POST') return corsResponse(JSON.stringify({error:'method_not_allowed'}), 405, origin);
     let body;
     try { body = await request.json(); } catch { return corsResponse(JSON.stringify({error:'invalid_json'}), 400, origin); }

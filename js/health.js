@@ -18,6 +18,7 @@
     'h-calc': 'Calculadoras de Saúde',
     'h-challenge': 'Desafios de Saúde',
     'h-whoop': 'Integração Whoop',
+    'h-oura': 'Integração Oura',
   });
 
   // ── modelo de dados ──────────────────────────────────────────────
@@ -1305,6 +1306,7 @@
     else if (page === 'h-calc') renderHCalc();
     else if (page === 'h-challenge') renderHChallenge();
     else if (page === 'h-whoop') { if (typeof window.renderWhoop === 'function') window.renderWhoop(); else renderHWhoop(); }
+    else if (page === 'h-oura') { if (typeof window.renderOura === 'function') window.renderOura(); }
   };
 
   // expõe funções usadas no HTML (onclick)

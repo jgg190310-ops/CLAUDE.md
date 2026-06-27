@@ -37,7 +37,7 @@
       window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
     }
   </script>
-  <link rel="stylesheet" href="styles/app.css?v=32" />
+  <link rel="stylesheet" href="styles/app.css?v=33" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -173,6 +173,10 @@
       <a href="#" class="nav-item" data-page="h-whoop">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
         <span>Whoop</span>
+      </a>
+      <a href="#" class="nav-item" data-page="h-oura">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3.5"/></svg>
+        <span>Oura</span>
       </a>
     </div>
     <div class="nav-group" data-app="health" style="display:none">
@@ -1500,6 +1504,7 @@
 
   <!-- HEALTHOS — WHOOP -->
   <section class="page" id="h-whoop" data-app="health"></section>
+  <section class="page" id="h-oura" data-app="health"></section>
 
   <!-- STUDYOS — TAREFAS -->
   <section class="page" id="s-tasks" data-app="study"><!-- rendered by study.js --></section>
@@ -1808,10 +1813,10 @@
   </a>
 </nav>
 
-<script src="js/firebase-config.js?v=30"></script>
-<script src="js/app.js?v=30"></script>
-<script src="js/health.js?v=30"></script>
-<script src="js/study.js?v=30"></script>
+<script src="js/firebase-config.js?v=31"></script>
+<script src="js/app.js?v=31"></script>
+<script src="js/health.js?v=31"></script>
+<script src="js/study.js?v=31"></script>
 <script>
 /* ═══════════════════════════════════════════════
    WHOOP — OAuth 2.0 PKCE real integration
@@ -2393,6 +2398,305 @@
     if (typeof renderWhoop === 'function') renderWhoop();
     if (ok && typeof showToast === 'function') showToast('Whoop conectada! ✓', 'success');
   });
+})();
+/* ═══════════════════════════════════════════════
+   OURA — Personal Access Token + API proxy
+═══════════════════════════════════════════════ */
+(function(){
+  const OURA_WORKER = 'https://whoop-token.jgg190310.workers.dev';
+  function ouraDiag(msg){ try{ localStorage.setItem('oura_diag', String(msg)); }catch(e){} }
+  function ouraClearDiag(){ try{ localStorage.removeItem('oura_diag'); }catch(e){} }
+  const ODOW = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  function ouraFmtH(s){ if(s==null) return '--'; const m=Math.round(s/60); return Math.floor(m/60)+'h'+String(m%60).padStart(2,'0'); }
+  function ouraScoreCol(s){ return typeof s!=='number'?'#4d5566':s>=85?'#16ec8f':s>=70?'#7ee787':s>=50?'#ffd34e':'#ff3b5c'; }
+
+  function oRing(size, value, max, col, centerHTML){
+    const sw=Math.round(size*0.085), r=(size/2)-sw-2, c=2*Math.PI*r;
+    const pct=(typeof value==='number')?Math.max(0,Math.min(1,value/max)):0;
+    const off=c*(1-pct);
+    return `<div class="wring" style="width:${size}px;height:${size}px">
+      <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+        <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="${sw}"/>
+        <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="${col}" stroke-width="${sw}" stroke-linecap="round"
+          stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}" transform="rotate(-90 ${size/2} ${size/2})"
+          style="transition:stroke-dashoffset 1s cubic-bezier(.2,.7,.3,1);filter:drop-shadow(0 0 5px ${col}aa)"/>
+      </svg><div class="wring-c">${centerHTML}</div></div>`;
+  }
+
+  function ymd(d){ return d.toISOString().slice(0,10); }
+
+  async function ouraFetch(path){
+    const token = localStorage.getItem('oura_token');
+    const r = await fetch(OURA_WORKER + '/oura/v2/usercollection' + path, {
+      headers: { Authorization: 'Bearer ' + token },
+      signal: AbortSignal.timeout(15000),
+    });
+    if (r.status === 401) { ouraDiag('Token inválido (401). Gere um novo Personal Access Token na Oura.'); throw new Error('401'); }
+    if (r.ok) return r.json();
+    let b=''; try{ b=await r.text(); }catch(e){}
+    ouraDiag('HTTP ' + r.status + ' em ' + path + ' — ' + b.substring(0,200));
+    throw new Error('HTTP ' + r.status);
+  }
+
+  const lastBy = (arr) => (arr||[]).slice().sort((a,b)=> (a.day<b.day?1:-1))[0];
+
+  async function loadOuraData(){
+    const el = document.getElementById('ouraData');
+    if (!el) return;
+    el.innerHTML = `<div class="wapp"><div class="wapp-state"><div class="wapp-spin"></div><p style="color:#8a94a6;font-size:13px;margin:0;font-weight:600">Sincronizando com a Oura…</p></div></div>`;
+    try {
+      const end = new Date(); end.setDate(end.getDate()+1);
+      const start = new Date(); start.setDate(start.getDate()-8);
+      const qs = `?start_date=${ymd(start)}&end_date=${ymd(end)}`;
+      const [readiness, dsleep, sleep, activity, spo2, info] = await Promise.all([
+        ouraFetch('/daily_readiness' + qs),
+        ouraFetch('/daily_sleep' + qs),
+        ouraFetch('/sleep' + qs),
+        ouraFetch('/daily_activity' + qs),
+        ouraFetch('/daily_spo2' + qs).catch(()=>({data:[]})),
+        ouraFetch('/personal_info').catch(()=>null),
+      ]);
+
+      const rdy = lastBy(readiness.data);
+      const dsl = lastBy(dsleep.data);
+      const act = lastBy(activity.data);
+      const sp  = lastBy(spo2.data);
+      // sono principal: long_sleep mais recente, senão a sessão mais longa
+      const sleeps = (sleep.data||[]).filter(s=>s.total_sleep_duration);
+      const mainSleep = sleeps.filter(s=>s.type==='long_sleep').sort((a,b)=>(a.day<b.day?1:-1))[0]
+                      || sleeps.slice().sort((a,b)=>(b.total_sleep_duration||0)-(a.total_sleep_duration||0))[0];
+
+      const rdyScore = rdy?.score;
+      const slpScore = dsl?.score;
+      const actScore = act?.score;
+
+      const restHr  = mainSleep?.lowest_heart_rate ?? rdy?.contributors?.resting_heart_rate ?? null;
+      const avgHr   = mainSleep?.average_heart_rate ?? null;
+      const hrv     = mainSleep?.average_hrv ?? null;
+      const breath  = mainSleep?.average_breath != null ? mainSleep.average_breath.toFixed(1) : null;
+      const tempDev = rdy?.temperature_deviation != null ? rdy.temperature_deviation.toFixed(1) : null;
+      const spo2Avg = sp?.spo2_percentage?.average != null ? sp.spo2_percentage.average.toFixed(0) : null;
+
+      const deepS   = mainSleep?.deep_sleep_duration || 0;
+      const remS    = mainSleep?.rem_sleep_duration || 0;
+      const lightS  = mainSleep?.light_sleep_duration || 0;
+      const awakeS  = mainSleep?.awake_time || 0;
+      const asleepS = mainSleep?.total_sleep_duration || (deepS+remS+lightS);
+      const inBedS  = mainSleep?.time_in_bed || (asleepS+awakeS);
+      const effic   = mainSleep?.efficiency || null;
+      const latency = mainSleep?.latency || null;
+      const restless= mainSleep?.restless_periods ?? null;
+
+      const steps     = act?.steps ?? null;
+      const actCal    = act?.active_calories ?? null;
+      const totCal    = act?.total_calories ?? null;
+      const walkKm    = act?.equivalent_walking_distance != null ? (act.equivalent_walking_distance/1000).toFixed(1) : null;
+
+      const firstName = info?.email ? info.email.split('@')[0] : '';
+      const weight    = info?.weight ? info.weight.toFixed(1) : null;
+
+      // strain-like série: usa daily_activity score dos últimos dias
+      const series = (activity.data||[]).slice(-7).map(a=>({ v:a.score??0, d: a.day?ODOW[new Date(a.day+'T00:00').getDay()]:'' }));
+
+      // persiste resumo p/ NutriBot
+      try { localStorage.setItem('oura_last', JSON.stringify({ rdyScore:rdyScore??null, slpScore:slpScore??null, hrv:hrv??null, restHr:restHr??null, sleepS:asleepS||null, steps:steps??null, ts:Date.now() })); } catch(e){}
+
+      const rdyCol = ouraScoreCol(rdyScore);
+      const slpCol = ouraScoreCol(slpScore);
+      const actCol = ouraScoreCol(actScore);
+
+      const rdyState = typeof rdyScore!=='number'
+        ? { t:'Sem dados de prontidão', d:'Use o anel durante a noite para gerar seu score.', p:'', pc:'' }
+        : rdyScore>=85 ? { t:'Ótima prontidão', d:'Seu corpo está totalmente recuperado. Aproveite para um dia intenso.', p:'ÓTIMO', pc:'#16ec8f' }
+        : rdyScore>=70 ? { t:'Boa prontidão', d:'Você está bem recuperado. Pode treinar com confiança hoje.', p:'BOM', pc:'#7ee787' }
+        : rdyScore>=50 ? { t:'Prontidão moderada', d:'Recuperação parcial. Equilibre esforço e descanso ao longo do dia.', p:'MODERADO', pc:'#ffd34e' }
+        : { t:'Prontidão baixa', d:'Priorize descanso, hidratação e sono. Evite sobrecarga hoje.', p:'BAIXO', pc:'#ff3b5c' };
+
+      const totalBed = inBedS || 1;
+      const seg = (s,col)=> s>0 ? `<div style="width:${(s/totalBed*100).toFixed(1)}%;background:${col}"></div>` : '';
+      const stageBar = asleepS>0 ? `<div class="wapp-stage">${seg(deepS,'#4dd0e1')}${seg(remS,'#7c5cff')}${seg(lightS,'#b388ff')}${seg(awakeS,'rgba(255,255,255,.18)')}</div>` : '';
+
+      const vitals = [
+        restHr!=null ? { l:'FC Repouso', v:restHr, u:'bpm' } : null,
+        hrv!=null    ? { l:'HRV',        v:hrv,    u:'ms' }  : null,
+        spo2Avg      ? { l:'SpO₂',       v:spo2Avg,u:'%' }   : null,
+        breath       ? { l:'Respiração', v:breath, u:'rpm' } : null,
+        tempDev!=null? { l:'Temp. Corp.',v:(tempDev>0?'+':'')+tempDev, u:'°C' } : null,
+        weight       ? { l:'Peso',       v:weight, u:'kg' }  : null,
+      ].filter(Boolean);
+
+      ouraClearDiag();
+      const odBox = document.getElementById('ouraDiag'); if (odBox) odBox.remove();
+
+      const maxScore = 100;
+      el.innerHTML = `
+        <div class="wapp wapp-oura">
+          <div class="wapp-bar">
+            <div class="wapp-mark">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4dd0e1" stroke-width="2.2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.4"/></svg>
+              <b>OURA</b>${firstName?`<span class="wapp-hello">Olá, ${firstName}</span>`:''}
+            </div>
+            <div style="display:flex;align-items:center;gap:14px">
+              <span class="wapp-sync"><i></i>Ao vivo</span>
+              <button class="wapp-refresh" onclick="renderOura()" title="Atualizar">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.5 9a9 9 0 0 1 14.8-3.4L23 10M1 14l4.7 4.4A9 9 0 0 0 20.5 15"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="wapp-hero">
+            ${oRing(170, rdyScore, maxScore, rdyCol,
+              `<span class="wring-num" style="font-size:48px;color:${rdyCol}">${typeof rdyScore==='number'?rdyScore:'--'}</span><span class="wring-cap">Prontidão</span>`)}
+            <div>
+              <h3 class="wapp-hero-state">${rdyState.t}${rdyState.p?`<span class="wapp-pill" style="color:${rdyState.pc};background:${rdyState.pc}1f">${rdyState.p}</span>`:''}</h3>
+              <p class="wapp-hero-desc">${rdyState.d}</p>
+            </div>
+          </div>
+
+          <div class="wapp-duo">
+            <div class="wapp-rcard">
+              ${oRing(96, slpScore, maxScore, slpCol, `<span class="wring-num" style="font-size:24px;color:${slpCol}">${typeof slpScore==='number'?slpScore:'--'}</span>`)}
+              <div>
+                <h4>Sono</h4>
+                <div class="wapp-rbig" style="color:${slpCol}">${ouraFmtH(asleepS)}</div>
+                <p>${typeof slpScore!=='number'?'Sem registro de sono.':slpScore>=85?'Sono restaurador':slpScore>=70?'Sono adequado':'Sono insuficiente'}</p>
+              </div>
+            </div>
+            <div class="wapp-rcard">
+              ${oRing(96, actScore, maxScore, actCol, `<span class="wring-num" style="font-size:24px;color:${actCol}">${typeof actScore==='number'?actScore:'--'}</span>`)}
+              <div>
+                <h4>Atividade</h4>
+                <div class="wapp-rbig" style="color:${actCol}">${steps!=null?steps.toLocaleString('pt-BR'):'--'}<small style="font-size:13px;color:#8a94a6;font-weight:700"> passos</small></div>
+                <p>${typeof actScore!=='number'?'Sem dados de atividade.':actScore>=85?'Muito ativo':actScore>=70?'Bem ativo':'Pouco ativo'}</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="wapp-vitals">
+            ${vitals.map(v=>`<div class="wapp-vital"><span class="vl">${v.l}</span><span class="vv">${v.v}<small>${v.u}</small></span></div>`).join('')}
+          </div>
+
+          <div class="wapp-sec">
+            <div class="wapp-sec-h"><div class="wapp-sec-t"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ff3b5c" stroke-width="2.4"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1 7.8 7.8 7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.7z"/></svg>Coração & Energia</div></div>
+            <div class="wapp-heart">
+              ${restHr!=null?`<div class="wh-cell"><span class="whl">FC Repouso</span><span class="whv" style="color:#16ec8f">${restHr}<small>bpm</small></span></div>`:''}
+              ${avgHr!=null?`<div class="wh-cell"><span class="whl">FC Média sono</span><span class="whv" style="color:#4dd0e1">${avgHr}<small>bpm</small></span></div>`:''}
+              ${hrv!=null?`<div class="wh-cell"><span class="whl">HRV médio</span><span class="whv" style="color:#7c5cff">${hrv}<small>ms</small></span></div>`:''}
+              ${actCal!=null?`<div class="wh-cell"><span class="whl">Cal. ativas</span><span class="whv" style="color:#ff9d4d">${actCal}<small>kcal</small></span></div>`:''}
+              ${totCal!=null?`<div class="wh-cell"><span class="whl">Cal. totais</span><span class="whv" style="color:#ffd34e">${totCal.toLocaleString('pt-BR')}<small>kcal</small></span></div>`:''}
+              ${walkKm?`<div class="wh-cell"><span class="whl">Distância</span><span class="whv" style="color:#7ee787">${walkKm}<small>km</small></span></div>`:''}
+            </div>
+          </div>
+
+          ${asleepS>0 ? `
+          <div class="wapp-sec">
+            <div class="wapp-sec-h">
+              <div class="wapp-sec-t"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#7c5cff" stroke-width="2.4"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>Estágios do Sono</div>
+              ${effic?`<span class="wapp-sec-badge" style="color:#4dd0e1">${effic}% eficiência</span>`:''}
+            </div>
+            ${stageBar}
+            <div class="wapp-legend">
+              <div class="wapp-lg"><div class="lgt"><span class="lgsw" style="background:#4dd0e1"></span>Profundo</div><span class="lgv" style="color:#4dd0e1">${ouraFmtH(deepS)}</span></div>
+              <div class="wapp-lg"><div class="lgt"><span class="lgsw" style="background:#7c5cff"></span>REM</div><span class="lgv" style="color:#7c5cff">${ouraFmtH(remS)}</span></div>
+              <div class="wapp-lg"><div class="lgt"><span class="lgsw" style="background:#b388ff"></span>Leve</div><span class="lgv" style="color:#b388ff">${ouraFmtH(lightS)}</span></div>
+              <div class="wapp-lg"><div class="lgt"><span class="lgsw" style="background:rgba(255,255,255,.3)"></span>Acordado</div><span class="lgv" style="color:#8a94a6">${ouraFmtH(awakeS)}</span></div>
+            </div>
+            <div class="wapp-mini">
+              ${inBedS?`<div><span class="ml">Na cama</span><span class="mv">${ouraFmtH(inBedS)}</span></div>`:''}
+              ${effic?`<div><span class="ml">Eficiência</span><span class="mv">${effic}%</span></div>`:''}
+              ${latency!=null?`<div><span class="ml">Latência</span><span class="mv">${Math.round(latency/60)}min</span></div>`:''}
+              ${restless!=null?`<div><span class="ml">Inquietação</span><span class="mv">${restless}</span></div>`:''}
+              ${breath?`<div><span class="ml">Respiração</span><span class="mv">${breath}</span></div>`:''}
+              ${tempDev!=null?`<div><span class="ml">Temp.</span><span class="mv">${(tempDev>0?'+':'')+tempDev}°</span></div>`:''}
+            </div>
+          </div>` : ''}
+
+          <div class="wapp-sec">
+            <div class="wapp-sec-h"><div class="wapp-sec-t"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#7ee787" stroke-width="2.4"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/></svg>Atividade · Últimos 7 dias</div></div>
+            ${series.length ? `
+            <div class="wapp-chart">
+              ${series.map(s=>{ const h=Math.max(6,Math.round((s.v/100)*96)); const c=ouraScoreCol(s.v);
+                return `<div class="wapp-bc"><div class="wapp-bv" style="color:${c}">${s.v||'--'}</div><div class="wapp-bar2" style="height:${h}px;background:linear-gradient(180deg,${c},${c}77)"></div><div class="wapp-bd">${s.d}</div></div>`;
+              }).join('')}
+            </div>` : '<p style="color:#8a94a6;font-size:13px;margin:0">Sem dados de atividade.</p>'}
+            ${(actCal||totCal||steps)?`
+            <div class="wapp-foot">
+              ${steps!=null?`<div><span class="fl">Passos</span><span class="fv" style="color:#7ee787">${steps.toLocaleString('pt-BR')}</span></div>`:''}
+              ${actCal!=null?`<div><span class="fl">Cal. Ativas</span><span class="fv" style="color:#ff9d4d">${actCal}<small style="font-size:12px;color:#8a94a6;font-weight:700"> kcal</small></span></div>`:''}
+              ${walkKm?`<div><span class="fl">Distância</span><span class="fv" style="color:#4dd0e1">${walkKm}<small style="font-size:12px;color:#8a94a6;font-weight:700"> km</small></span></div>`:''}
+            </div>`:''}
+          </div>
+
+          <div class="wapp-actions">
+            <button class="wapp-btn" onclick="renderOura()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.5 9a9 9 0 0 1 14.8-3.4L23 10M1 14l4.7 4.4A9 9 0 0 0 20.5 15"/></svg>Atualizar</button>
+            <button class="wapp-btn ghost" onclick="ouraDisconnect()">Desconectar</button>
+          </div>
+        </div>`;
+    } catch(e) {
+      el.innerHTML = `<div class="wapp"><div class="wapp-state">
+        <p style="color:#ff3b5c;font-size:15px;font-weight:800;margin:0 0 6px">Não foi possível buscar os dados</p>
+        <p style="color:#8a94a6;font-size:12px;margin:0 0 20px">${e.message}</p>
+        <button class="wapp-btn" style="margin:0 auto;background:linear-gradient(135deg,#4dd0e1,#26c6da);color:#05070d;border:none" onclick="ouraDisconnect()">Reconectar</button>
+      </div></div>`;
+    }
+  }
+
+  window.ouraConnect = function(){
+    const inp = document.getElementById('ouraToken');
+    const token = (inp?.value || '').trim();
+    if (!token || token.length < 10) { if(typeof showToast==='function') showToast('Cole um token válido','error'); return; }
+    localStorage.setItem('oura_token', token);
+    ouraClearDiag();
+    if (typeof showToast==='function') showToast('Oura conectada! ✓','success');
+    renderOura();
+  };
+
+  window.ouraDisconnect = function(){
+    localStorage.removeItem('oura_token');
+    localStorage.removeItem('oura_diag');
+    renderOura();
+  };
+
+  window.renderOura = function(){
+    const el = document.getElementById('h-oura');
+    if (!el) return;
+    const connected = !!localStorage.getItem('oura_token');
+    const diag = localStorage.getItem('oura_diag');
+    const diagBox = diag ? `
+      <div id="ouraDiag" class="cf-card" style="padding:16px;margin-bottom:16px;border:1px solid rgba(239,68,68,.35);background:rgba(239,68,68,.06)">
+        <strong style="font-size:13px;color:#ef4444">Diagnóstico</strong>
+        <pre style="font-size:11px;margin-top:6px;white-space:pre-wrap;word-break:break-word;color:#fca5a5">${diag.replace(/</g,'&lt;')}</pre>
+        <button onclick="localStorage.removeItem('oura_diag');renderOura()" style="margin-top:8px;background:none;border:none;color:#ef4444;font-size:12px;text-decoration:underline;cursor:pointer">Limpar</button>
+      </div>` : '';
+    el.innerHTML = `
+      <div class="page-header">
+        <div><h1>Integração Oura</h1><p class="page-sub">Prontidão, sono e atividade do seu anel Oura em tempo real.</p></div>
+      </div>
+      ${diagBox}
+      ${connected ? '<div id="ouraData" style="margin-top:4px"></div>' : `
+        <div class="cf-card" style="padding:28px;max-width:520px;background:linear-gradient(135deg,rgba(77,208,225,.07),rgba(20,20,30,.2))">
+          <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px">
+            <div style="width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,#4dd0e1,#26c6da);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(77,208,225,.35)">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.4"/></svg>
+            </div>
+            <div><h3 style="font-size:17px;font-weight:800">Conectar Oura</h3><p style="font-size:12px;opacity:.6">Personal Access Token — não expira</p></div>
+          </div>
+          <ol style="font-size:13px;opacity:.8;line-height:1.7;margin:0 0 18px;padding-left:18px">
+            <li>Acesse <strong>cloud.ouraring.com/personal-access-tokens</strong></li>
+            <li>Clique em <strong>Create New Personal Access Token</strong></li>
+            <li>Copie o token gerado e cole abaixo</li>
+          </ol>
+          <div class="form-group" style="margin-bottom:20px">
+            <label style="font-size:12px;font-weight:600;display:block;margin-bottom:6px">Personal Access Token</label>
+            <input id="ouraToken" type="password" placeholder="Cole o token da Oura aqui" style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:13px" />
+          </div>
+          <button class="whoop-cta" style="background:linear-gradient(135deg,#4dd0e1,#26c6da);box-shadow:0 8px 24px rgba(77,208,225,.35)" onclick="ouraConnect()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.4"/></svg>
+            Conectar com Oura
+          </button>
+        </div>`}`;
+    if (connected) loadOuraData();
+  };
 })();
 /* ═══════════════════════════════════════════════
    OPEN FINANCE — Pluggy.ai Connect Widget
