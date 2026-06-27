@@ -421,44 +421,7 @@
       </div>
       <div class="alerts-card">
         <div class="table-header"><h3>Alertas & Insights</h3></div>
-        <div class="alert-list">
-          <div class="alert-item info">
-            <div class="alert-icon">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-            </div>
-            <div>
-              <p class="alert-title">Meta no prazo</p>
-              <p class="alert-desc">Viagem para Europa está 68% concluída. Faltam R$ 1.600 em 2 aportes.</p>
-            </div>
-          </div>
-          <div class="alert-item warning">
-            <div class="alert-icon">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-            </div>
-            <div>
-              <p class="alert-title">Orçamento de lazer</p>
-              <p class="alert-desc">82% do limite mensal utilizado. Restam R$ 211.</p>
-            </div>
-          </div>
-          <div class="alert-item success">
-            <div class="alert-icon">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-            </div>
-            <div>
-              <p class="alert-title">ITSA4 em alta</p>
-              <p class="alert-desc">Sua ação favorita subiu +3.2% hoje. Lucro potencial de R$ 640.</p>
-            </div>
-          </div>
-          <div class="alert-item info">
-            <div class="alert-icon">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-            </div>
-            <div>
-              <p class="alert-title">Rendimento CDB</p>
-              <p class="alert-desc">Seu CDB rendeu R$ 312 esse mês. Reinvestimento automático ativo.</p>
-            </div>
-          </div>
-        </div>
+        <div class="alert-list" id="alertList"><!-- gerado a partir dos seus dados reais --></div>
       </div>
     </div>
   </section>
@@ -1714,7 +1677,7 @@
 </nav>
 
 <script src="js/firebase-config.js?v=33"></script>
-<script src="js/app.js?v=34"></script>
+<script src="js/app.js?v=35"></script>
 <script src="js/health.js?v=34"></script>
 <script src="js/study.js?v=34"></script>
 <script>

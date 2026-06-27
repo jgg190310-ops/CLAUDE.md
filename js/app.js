@@ -148,7 +148,7 @@ function navigateTo(page) {
   document.getElementById('sidebar')?.classList.remove('open');
   document.getElementById('sidebarBackdrop')?.classList.remove('show');
   window.scrollTo({ top: 0, behavior: 'smooth' });
-  if (page === 'dashboard') initDashboardCharts();
+  if (page === 'dashboard') { initDashboardCharts(); updateDashKpis(); }
   if (page === 'stocks') initStocksPage();
   if (page === 'calculator') calcInvestment();
   if (page === 'assistant') initAssistant();
@@ -353,6 +353,74 @@ function updateDashKpis() {
   if (sub) sub.textContent = income > 0 ? `Taxa de ${Math.round(savings / income * 100)}% da renda` : 'Defina sua renda no perfil';
   const pSub = document.getElementById('kpiPatrimonioSub');
   if (pSub) pSub.textContent = tot.all > 0 ? 'Valor da sua carteira' : 'Adicione ativos na Bolsa';
+
+  renderInsights();
+}
+
+// ── Alertas & Insights gerados a partir dos SEUS dados reais ──
+const INSIGHT_ICON = {
+  info:    '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>',
+  warning: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+  success: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>',
+};
+function renderInsights() {
+  const el = document.getElementById('alertList');
+  if (!el) return;
+  const fmt = v => 'R$ ' + Math.round(v).toLocaleString('pt-BR');
+  const income = parseFloat(_store.profile?.income) || 0;
+  const cash   = parseFloat(_store.profile?.cash) || 0;
+  const bs = (typeof budgets !== 'undefined' ? budgets : []);
+  const gs = (typeof goals !== 'undefined' ? goals : []);
+  const tot = (typeof portfolioTotals === 'function') ? portfolioTotals() : { all: 0 };
+  const spent = bs.reduce((s, b) => s + (b.spent || 0), 0);
+  const out = [];
+  const add = (type, title, desc) => out.push({ type, title, desc });
+
+  // 1) Orçamentos estourados / perto do limite (mais críticos primeiro)
+  bs.filter(b => b.limit).sort((a, b) => (b.spent / b.limit) - (a.spent / a.limit)).forEach(b => {
+    const pct = Math.round(b.spent / b.limit * 100);
+    if (pct >= 100) add('warning', `Orçamento estourado: ${b.name}`, `Gastou ${fmt(b.spent)} de ${fmt(b.limit)} (${pct}%). Reveja os gastos dessa categoria.`);
+    else if (pct >= 80) add('warning', `Atenção em ${b.name}`, `${pct}% do limite usado — restam ${fmt(b.limit - b.spent)} para o mês.`);
+  });
+
+  // 2) Taxa de economia
+  if (income > 0) {
+    const rate = Math.round((income - spent) / income * 100);
+    if (rate >= 20) add('success', 'Ótima taxa de economia', `Você poupa ${rate}% da renda (${fmt(income - spent)}/mês) — acima dos 20% recomendados.`);
+    else if (rate >= 0) add('info', 'Taxa de economia baixa', `Você poupa ${rate}% da renda. Meta saudável: 20%. Cortar 10% nas maiores categorias já ajuda.`);
+    else add('warning', 'Gastos acima da renda', `Seus orçamentos somam ${fmt(spent)}, acima da renda de ${fmt(income)}. Priorize cortes.`);
+  }
+
+  // 3) Metas em andamento + concluídas
+  gs.filter(g => g.current < g.target).slice(0, 2).forEach(g => {
+    const pct = Math.round(g.current / g.target * 100);
+    add('info', `Meta: ${g.name}`, `${pct}% concluída — faltam ${fmt(g.target - g.current)} de ${fmt(g.target)}.`);
+  });
+  const done = gs.filter(g => g.current >= g.target).length;
+  if (done > 0) add('success', 'Meta concluída! 🎉', `Você já bateu ${done} meta${done > 1 ? 's' : ''}. Que tal definir a próxima?`);
+
+  // 4) Reserva de emergência
+  if (income > 0 && spent > 0) {
+    const ideal = spent * 6;
+    if (cash < ideal) add('info', 'Reserva de emergência', `O ideal é ~${fmt(ideal)} (6 meses de gastos). Você tem ${fmt(cash)} líquido hoje.`);
+  }
+
+  // 5) Estado vazio / onboarding — só quando não há nada configurado
+  if (!out.length) {
+    if (income === 0) add('info', 'Configure seu perfil', 'Defina sua renda mensal no perfil para liberar insights personalizados.');
+    if (!bs.length)   add('info', 'Crie orçamentos', 'Defina tetos por categoria (mercado, lazer, transporte) na aba Orçamentos.');
+    if (!gs.length)   add('info', 'Defina uma meta', 'Crie sua primeira meta financeira na aba Metas para acompanhar o progresso.');
+    if (tot.all === 0) add('info', 'Monte sua carteira', 'Adicione seus ativos na aba Ações para ver seu patrimônio.');
+  }
+
+  el.innerHTML = out.slice(0, 6).map(a => `
+    <div class="alert-item ${a.type}">
+      <div class="alert-icon">${INSIGHT_ICON[a.type]}</div>
+      <div>
+        <p class="alert-title">${a.title}</p>
+        <p class="alert-desc">${a.desc}</p>
+      </div>
+    </div>`).join('');
 }
 
 function editCash() {
