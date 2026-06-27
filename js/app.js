@@ -2289,6 +2289,223 @@ async function aiAnswer(q) {
   const sim = aiTrySimulation(t);
   if (sim) return sim;
 
+  // ───────── NOVOS INTENTS — APROFUNDAMENTO ─────────
+
+  // PIX e transferências
+  if (/\bpix\b|transferencia|ted\b|doc\b|chave pix/.test(t) && !/golpe|fraude|errado/.test(t)) {
+    return `<b>PIX — o trilho de dinheiro mais barato do mundo:</b><br><br>` +
+      `• Gratuito e instantâneo para pessoa física, 24/7 — não há motivo para pagar TED/DOC entre contas próprias.<br>` +
+      `• <b>PIX Automático</b> (2025): débito recorrente autorizado — ótimo para assinaturas e aportes programados.<br>` +
+      `• <b>PIX Agendado e Cobrança</b>: programe pagamentos e gere QR com vencimento — substitui boleto com custo zero.<br>` +
+      `• Segurança: limite noturno baixo (20h–6h), 2FA no app e nunca pague QR recebido por WhatsApp sem conferir o destinatário.<br>` +
+      `• Caiu golpe? O <b>MED</b> (Mecanismo Especial de Devolução) permite contestar em até 80 dias — registre na hora.`;
+  }
+
+  // CDB vs Tesouro vs LCI/LCA — comparação direta
+  if (/cdb (vs|ou|x) |tesouro (vs|ou|x) |lci (vs|ou)|qual (e )?melhor.*(cdb|tesouro|lci)|onde (deixar|guardar).*curto prazo|curto prazo/.test(t)) {
+    return `<b>Curto prazo — onde deixar dinheiro que vai usar logo:</b><br><br>` +
+      `• <b>Tesouro Selic</b>: liquidez D+1, risco soberano (o mais seguro do país), sem oscilação relevante. Padrão para reserva.<br>` +
+      `• <b>CDB liquidez diária 100%+ CDI</b>: rende um pouco mais, garantia FGC até R$ 250 mil por instituição.<br>` +
+      `• <b>LCI/LCA</b>: <b>isentas de IR</b>, mas costumam ter carência (90 dias+) — só para dinheiro que não precisa antes.<br>` +
+      `• Regra: para gastar em < 6 meses, priorize liquidez e segurança sobre 0,5% a mais de rendimento.<br>` +
+      `• <b>Evite</b> prefixados e fundos com carência para curto prazo — marcação a mercado pode dar prejuízo se sacar antes.`;
+  }
+
+  // BDRs
+  if (/\bbdr\b|bdrs|recibo de acao estrangeira/.test(t)) {
+    return `<b>BDRs — ações estrangeiras pela B3, em reais:</b><br><br>` +
+      `• Você compra um recibo lastreado em ações de empresas como Apple, Microsoft, Amazon, sem abrir conta no exterior.<br>` +
+      `• Vantagem: simplicidade e exposição cambial (sobe com o dólar). Desvantagem: liquidez menor e <b>sem isenção de R$ 20 mil</b>.<br>` +
+      `• Dividendos de BDR são tributados na fonte e podem sofrer retenção no país de origem.<br>` +
+      `• IR: 15% sobre o ganho na venda (swing), DARF emitido por você.<br>` +
+      `• Para a maioria, <b>IVVB11</b> (ETF do S&P 500) é mais simples e barato que montar carteira de BDRs avulsos.`;
+  }
+
+  // Isenção de R$ 20 mil em ações
+  if (/isencao.*(20|vinte) mil|20 mil.*acoes|vender ate 20 mil|isento.*acoes/.test(t)) {
+    return `<b>Isenção de R$ 20 mil/mês em ações — use a seu favor:</b><br><br>` +
+      `• Vendas de ações até <b>R$ 20.000 no mês</b> (somando todas) têm o <b>lucro isento de IR</b> — só vale para swing trade, não day trade.<br>` +
+      `• O limite é sobre o <b>total vendido</b>, não sobre o lucro: vendeu R$ 21 mil? Todo o ganho do mês é tributado a 15%.<br>` +
+      `• Estratégia: realize lucros em parcelas mensais abaixo do teto para zerar o IR legalmente.<br>` +
+      `• <b>Não se aplica</b> a FIIs, ETFs e BDRs — esses pagam IR mesmo abaixo de R$ 20 mil.<br>` +
+      `• Mesmo isento, declare as operações no IR anual (ficha de renda variável / bens e direitos).`;
+  }
+
+  // Perfil de investidor / suitability
+  if (/perfil de investidor|suitability|conservador ou|qual meu perfil|tolerancia a risco|api\b/.test(t) && !/carteira|alocacao/.test(t)) {
+    return `<b>Descobrindo seu perfil de investidor:</b><br><br>` +
+      `• <b>Conservador</b>: prioriza segurança e liquidez; não aguenta ver o saldo cair. Foco em renda fixa pós-fixada.<br>` +
+      `• <b>Moderado</b>: aceita oscilação para ganhar mais no médio prazo. Mix de renda fixa + um pouco de variável.<br>` +
+      `• <b>Arrojado</b>: tolera quedas grandes mirando retorno alto no longo prazo. Peso maior em ações, internacional e alternativos.<br>` +
+      `• Definição honesta = horizonte (quando vou usar) + tolerância emocional (durmo se cair 30%?) + objetivo.<br>` +
+      `• A corretora aplica o <b>questionário de suitability</b> por lei — responda com sinceridade, ele protege você de produtos inadequados.`;
+  }
+
+  // Tesouro Direto — tipos e como funciona
+  if (/tesouro direto|tesouro selic|tesouro ipca|tesouro prefixado|renda\+|educa\+|como funciona o tesouro/.test(t)) {
+    return `<b>Tesouro Direto — emprestar dinheiro ao governo:</b><br><br>` +
+      `• <b>Tesouro Selic</b>: pós-fixado, acompanha a Selic. Reserva e curto prazo — quase sem oscilação.<br>` +
+      `• <b>Tesouro IPCA+</b>: paga inflação + juro real fixo. Protege poder de compra; ideal para aposentadoria. Se segurar até o vencimento, recebe o combinado.<br>` +
+      `• <b>Tesouro Prefixado</b>: taxa travada hoje. Ganha se os juros caírem; sofre marcação a mercado se vender antes.<br>` +
+      `• <b>Tesouro RendA+ / Educa+</b>: pagam renda mensal no futuro (aposentadoria / faculdade dos filhos).<br>` +
+      `• Custos: taxa da B3 de 0,20% a.a. (isenta no Selic até R$ 10 mil). IR regressivo 22,5%→15%. A partir de ~R$ 30.`;
+  }
+
+  // Quanto preciso para viver de renda / número mágico
+  if (/numero magico|quanto preciso para (me aposentar|parar de trabalhar|ser livre)|regra dos 4|liberdade financeira/.test(t)) {
+    const anual = (s.expense || 4000) * 12;
+    return `<b>Seu número da liberdade financeira:</b><br><br>` +
+      `• <b>Regra dos 4%</b>: acumule 25× seus gastos anuais e saque 4% ao ano — historicamente dura décadas.<br>` +
+      `• Com gastos de ${aiFmt(s.expense || 4000)}/mês (${aiFmt(anual)}/ano), seu alvo é <b>${aiFmt(anual * 25)}</b>.<br>` +
+      `• Versão conservadora (regra dos 3,5%): ${aiFmt(anual / 0.035)} — mais folga para crises e inflação.<br>` +
+      `• Cada R$ 100/mês a menos de gasto reduz o alvo em <b>${aiFmt(100 * 12 * 25)}</b> — cortar custo acelera mais que render mais.<br>` +
+      `• Caminho: taxa de poupança alta + aportes mensais em carteira diversificada + tempo. Não há atalho sem um desses.`;
+  }
+
+  // Emergência financeira aguda / sem dinheiro até o fim do mês
+  if (/sem dinheiro|fim do mes|nao sobra nada|aperto|to quebrado|estou quebrad|sair do vermelho|no vermelho/.test(t)) {
+    const corte = s.topCats.length ? s.topCats[0] : null;
+    return `<b>Saindo do vermelho — plano de 30 dias:</b><br><br>` +
+      `• <b>Estanque primeiro</b>: corte hoje todo gasto não essencial (assinaturas, delivery, lazer pago) até o caixa respirar.<br>` +
+      (corte ? `• Seu maior gasto é <b>${corte[0]}</b> (${aiFmt(corte[1])}) — um corte de 20% já libera ${aiFmt(corte[1] * 0.2)}/mês.<br>` : '') +
+      `• <b>Liste e renegocie</b> dívidas: troque rotativo/cheque especial por crédito mais barato; peça desconto à vista.<br>` +
+      `• <b>Renda extra imediata</b>: venda o que não usa, freelas, horas extras — direcione 100% para tampar o buraco.<br>` +
+      `• <b>Regra dos R$ 0</b> por categoria: dê destino a cada real ANTES do mês começar (orçamento base zero).<br>` +
+      `• Meta intermediária: 1 mês de despesas (${aiFmt(s.expense || 4000)}) de colchão antes de pensar em investir.`;
+  }
+
+  // Caixinhas / poupar para objetivo específico
+  if (/caixinha|cofrinho|guardar para|juntar para|poupar para um/.test(t)) {
+    return `<b>Caixinhas — separe dinheiro por objetivo:</b><br><br>` +
+      `• Funciona como envelopes digitais: uma "caixinha" por meta (viagem, troca de celular, presente), rendendo CDI.<br>` +
+      `• <b>Nomeie e dê prazo</b>: "Viagem dez/2026 — R$ 6.000". Meta com nome é poupada 2× mais.<br>` +
+      `• Aporte automático no dia do salário — o que você não vê, não gasta.<br>` +
+      `• Para metas em < 2 anos, mantenha em pós-fixado (Tesouro Selic / CDB liquidez) — zero risco de oscilar.<br>` +
+      `• Crie suas caixinhas como <b>Metas</b> aqui no app e eu calculo o aporte mensal de cada uma.`;
+  }
+
+  // Day trade alerta direto (palavra "day trade" sem cair só em opções)
+  if (/day.?trade|scalp|trader|viver de trade|ganhar dinheiro na bolsa rapido/.test(t) && !/opcoes|derivativo|alavancagem/.test(t)) {
+    return `<b>⚠️ Day trade — o que os números realmente dizem:</b><br><br>` +
+      `• Estudo FGV/CVM: após 300 pregões, <b>97% perderam dinheiro</b> e menos de 1% ganhou acima de um salário mínimo por dia.<br>` +
+      `• O jogo é de soma negativa: corretagem, spread e impostos comem o resultado antes de você lucrar.<br>` +
+      `• "Cursos" e salas de sinais lucram com sua mensalidade e seu giro — não com seu acerto.<br>` +
+      `• IR do day trade: <b>20%</b> sobre o ganho + 1% retido na fonte (dedo-duro), DARF mensal obrigatório.<br><br>` +
+      `Quer construir patrimônio com a bolsa? Aporte mensal em ETF/ações boas e segure anos. Chato e comprovadamente eficaz.`;
+  }
+
+  // Empréstimo pessoal / qual o mais barato
+  if (/emprestimo pessoal|qual emprestimo|melhor emprestimo|pegar emprestado|credito pessoal/.test(t) && !/consignado|consorcio/.test(t)) {
+    return `<b>Empréstimos do mais barato ao mais caro (juro mensal típico):</b><br><br>` +
+      `• <b>Consignado</b> (~1,5–2,5% a.m.): desconto em folha, o mais barato. Para CLT, servidor, aposentado INSS.<br>` +
+      `• <b>Com garantia</b> (imóvel/veículo, ~1–1,8% a.m.): juro baixo, mas você arrisca o bem.<br>` +
+      `• <b>Crédito pessoal</b> (~3–6% a.m.): sem garantia, varia muito com seu score.<br>` +
+      `• <b>Cartão/cheque especial/rotativo</b> (~8–14% a.m.): os mais caros — fuja.<br>` +
+      `• Antes de assinar: compare o <b>CET</b> (não a taxa nominal), simule a parcela ≤ 30% da renda e pergunte-se se a dívida resolve ou só adia o problema.`;
+  }
+
+  // Como negociar / quitar dívida com banco
+  if (/negociar divida|renegociar|feirao|limpa nome|acordo com (o )?banco|quitar divida/.test(t)) {
+    return `<b>Negociando dívidas como profissional:</b><br><br>` +
+      `• <b>Junte caixa antes</b>: à vista você consegue descontos de 50–90% — credor prefere receber algo a nada.<br>` +
+      `• Use feirões (Serasa Limpa Nome, Desenrola, mutirões do banco) — descontos máximos saem nessas campanhas.<br>` +
+      `• <b>Não aceite a 1ª oferta</b>: contraproponha, peça para tirar juros/multa e parcele só se não der à vista.<br>` +
+      `• Exija o <b>acordo por escrito</b> e o comprovante de baixa nos birôs (cai em até 5 dias úteis após pagar).<br>` +
+      `• Priorize quitar a de <b>maior juro</b> primeiro (avalanche) — é onde a bola de neve cresce mais rápido.`;
+  }
+
+  // Bancos digitais vs tradicionais / tarifas
+  if (/banco digital|conta digital|tarifa banc|nubank|\binter\b|\bc6\b|banco tradicional|trocar de banco/.test(t)) {
+    return `<b>Banco digital vs tradicional — onde guardar a conta:</b><br><br>` +
+      `• Tarifas zeradas: TED, PIX, cartão e manutenção gratuitos em digitais sólidos — pagar tarifa de pacote virou opcional.<br>` +
+      `• <b>Conta corrente não é investimento</b>: "render 100% do CDI" na conta é melhor que poupança, mas ainda paga IR e perde de CDB/Tesouro.<br>` +
+      `• Use banco como meio de pagamento; rendimento de verdade fica na corretora (Tesouro, CDB, FIIs).<br>` +
+      `• Tradicional ainda vence em: crédito imobiliário, relacionamento PJ robusto e atendimento físico.<br>` +
+      `• Dica: mantenha 2 instituições (redundância) e migre o salário via portabilidade — sem precisar pedir ao RH conta específica.`;
+  }
+
+  // Calote / inadimplência de cliente (negócio)
+  if (/cliente nao pagou|calote|inadimplencia|cobrar cliente|nao me pagou/.test(t)) {
+    return `<b>Quando o cliente não paga:</b><br><br>` +
+      `• <b>Previna</b>: sinal/entrada antes de começar, parcele a entrega, e para PJ consulte o CNPJ antes de dar prazo.<br>` +
+      `• Régua de cobrança: lembrete cordial no vencimento → 3 dias → 7 dias com juros de mora (1% a.m. + multa 2% é o padrão legal).<br>` +
+      `• Negocie: desconto à vista para encerrar é melhor que receber nada e gastar com cobrança.<br>` +
+      `• Protesto em cartório costuma ser mais rápido e barato que ação judicial — pressiona o devedor a pagar.<br>` +
+      `• Provisione <b>inadimplência</b> no seu preço (2–5%) — calote faz parte do custo de vender a prazo.`;
+  }
+
+  // Inventário do patrimônio / planilha de net worth
+  if (/patrimonio liquido|net worth|quanto eu tenho|meu patrimonio|balanco pessoal/.test(t)) {
+    const pl = (s.cash || 0) + (s.invest || 0);
+    return `<b>Patrimônio líquido — o placar que realmente importa:</b><br><br>` +
+      `• Fórmula: <b>tudo que você tem − tudo que você deve</b>. É o número que mede riqueza real, não o salário.<br>` +
+      `• Pelos seus dados: ~${aiFmt(pl)} entre caixa (${aiFmt(s.cash)}) e investido (${aiFmt(s.invest)}), antes de descontar dívidas.<br>` +
+      `• Acompanhe <b>1×/mês</b>, sempre no mesmo dia — a tendência (subindo?) importa mais que o valor absoluto.<br>` +
+      `• Meta de progresso: patrimônio crescendo mês a mês = você está vivendo abaixo do que ganha.<br>` +
+      `• Inclua tudo: imóveis, veículos (valor de mercado), investimentos, FGTS — e subtraia financiamentos e dívidas.`;
+  }
+
+  // Plano de saúde / gastos com saúde
+  if (/plano de saude|convenio medico|gasto com saude|coparticipacao/.test(t)) {
+    return `<b>Plano de saúde — proteger sem pagar demais:</b><br><br>` +
+      `• É proteção contra catástrofe (cirurgia, internação) — vale mesmo se você quase não usa.<br>` +
+      `• <b>Coparticipação</b> baixa a mensalidade mas cobra por uso — vale para quem usa pouco; evite se tem uso frequente.<br>` +
+      `• Coletivo por adesão (via associação/profissão) costuma ser mais barato que individual.<br>` +
+      `• Reajuste anual de plano coletivo não tem teto da ANS — reavalie o custo-benefício a cada renovação.<br>` +
+      `• Despesas médicas (plano, consultas, exames) são <b>100% dedutíveis</b> no IR completo — guarde todos os recibos.`;
+  }
+
+  // Aluguel — sou inquilino, como economizar / direitos
+  if (/sou inquilino|alugo|reajuste do aluguel|igpm|caucao|fiador|seguro fianca/.test(t) && !/comprar|financiar|investir/.test(t)) {
+    return `<b>Inquilino consciente — pague menos e proteja-se:</b><br><br>` +
+      `• <b>Reajuste</b>: é anual, pelo índice do contrato (IGP-M ou IPCA). IGP-M dispara mais — negocie trocar por IPCA na renovação.<br>` +
+      `• Garantia: <b>seguro-fiança</b> e <b>caução</b> (3 aluguéis) são mais simples que fiador; compare o custo do seguro (~1 aluguel/ano).<br>` +
+      `• Aluguel saudável: ≤ <b>30% da renda líquida</b> — no seu caso, ~${aiFmt((s.income || 5000) * 0.3)}.<br>` +
+      `• Renovou? Você pode pedir revisão se o mercado caiu — pesquise imóveis similares como alavanca.<br>` +
+      `• Multa por sair antes do prazo é proporcional ao tempo restante — não os meses inteiros que faltam.`;
+  }
+
+  // Viagem internacional / câmbio para viagem
+  if (/viagem internacional|cartao de viagem|moeda para viagem|comprar dolar para viajar|conta global/.test(t)) {
+    return `<b>Câmbio para viajar — gaste menos no exterior:</b><br><br>` +
+      `• <b>IOF</b>: cartão de crédito internacional e moeda em espécie pagam ~3,5%; conta global/cartão pré-pago em dólar costuma sair melhor — compare.<br>` +
+      `• Compre câmbio <b>aos poucos</b> nos meses antes da viagem para diluir o preço — nunca tudo no dia da passagem.<br>` +
+      `• Evite casas de câmbio no aeroporto (spread altíssimo) e saques em ATM (taxa fixa por saque).<br>` +
+      `• Tenha 2 meios de pagamento + um pouco de dinheiro vivo para emergências.<br>` +
+      `• Some o custo real (passagem + hospedagem + diária + câmbio + seguro) e poupe numa caixinha rendendo CDI até a data.`;
+  }
+
+  // Autônomo / carnê-leão / INSS por conta própria
+  if (/autonomo|carne.leao|profissional liberal|recibo|rpa\b|inss por conta|contribuir inss/.test(t) && !/mei|cnpj|empresa/.test(t)) {
+    return `<b>Autônomo (PF) — imposto e aposentadoria por conta própria:</b><br><br>` +
+      `• <b>Carnê-leão</b> mensal sobre o que recebe de pessoa física, pela tabela progressiva (até 27,5%) — recolha até o último dia do mês seguinte.<br>` +
+      `• <b>Livro-caixa</b>: deduza despesas da atividade (aluguel de sala, material, INSS) e pague IR só sobre o lucro.<br>` +
+      `• <b>INSS</b>: contribua como contribuinte individual (20% sobre o pró-labore, ou 11% sobre o teto mínimo) para garantir aposentadoria e auxílios.<br>` +
+      `• Acima de ~R$ 6 mil/mês, virar <b>MEI/ME (PJ)</b> quase sempre paga muito menos imposto — vale rodar a conta com contador.<br>` +
+      `• Provisione por conta própria o que o CLT tem de graça: férias, 13º e reserva maior (12 meses, renda instável).`;
+  }
+
+  // Tesouro / títulos públicos vs CDB — segurança e FGC
+  if (/fgc\b|garantia.*(250|fgc)|e seguro|risco de (perder|calote)|quebrar o banco|seguranca do investimento/.test(t)) {
+    return `<b>Segurança dos investimentos — quem garante o quê:</b><br><br>` +
+      `• <b>Tesouro Direto</b>: garantido pelo Tesouro Nacional (risco soberano) — o mais seguro do país, sem teto.<br>` +
+      `• <b>FGC</b>: cobre CDB, LCI, LCA, poupança até <b>R$ 250 mil por CPF por instituição</b> (teto global de R$ 1 mi a cada 4 anos).<br>` +
+      `• Estratégia: para valores grandes, pulverize entre bancos diferentes para ficar todo coberto pelo FGC.<br>` +
+      `• <b>Sem FGC</b>: debêntures, CRI/CRA, ações, FIIs, cripto e fundos — o risco é do emissor/mercado, não há garantia.<br>` +
+      `• Quanto maior o retorno prometido em renda fixa, mais perto do limite do FGC ou maior o risco do emissor — desconfie de "muito acima do CDI".`;
+  }
+
+  // Cartão de débito vs crédito / qual usar
+  if (/debito ou credito|cartao de debito|usar debito|debito vs/.test(t)) {
+    return `<b>Débito ou crédito — qual usar em cada situação:</b><br><br>` +
+      `• <b>Crédito</b> com fatura paga integral: ganha pontos/cashback, prazo de até ~40 dias e mais proteção em compras online/contestação.<br>` +
+      `• <b>Débito</b>: melhor para quem perde o controle no crédito — gasta só o que tem na conta, sem fatura surpresa.<br>` +
+      `• Nunca pague o <b>mínimo</b> do crédito: o rotativo (~14% a.m.) anula qualquer benefício de pontos.<br>` +
+      `• Para compras online, prefira <b>cartão virtual</b> (descartável) — limita fraude.<br>` +
+      `• Regra simples: use crédito como ferramenta de fluxo e recompensa, débito como freio de disciplina. O erro é tratar limite como renda.`;
+  }
+
+
   // ───────── FINANÇAS PESSOAIS (personalizado) ─────────
   if (/econom|gastar menos|cortar gasto|reduzir gasto|apertar/.test(t)) {
     const lines = s.topCats.slice(0, 3).map(([c, v], i) =>
