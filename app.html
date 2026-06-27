@@ -1808,10 +1808,10 @@
   </a>
 </nav>
 
-<script src="js/firebase-config.js?v=28"></script>
-<script src="js/app.js?v=28"></script>
-<script src="js/health.js?v=28"></script>
-<script src="js/study.js?v=28"></script>
+<script src="js/firebase-config.js?v=29"></script>
+<script src="js/app.js?v=29"></script>
+<script src="js/health.js?v=29"></script>
+<script src="js/study.js?v=29"></script>
 <script>
 /* ═══════════════════════════════════════════════
    WHOOP — OAuth 2.0 PKCE real integration
@@ -1960,14 +1960,19 @@
     try {
       const [recovery, sleep, cycles, workouts, profile, body] = await Promise.all([
         whoopFetch('/recovery?limit=1'),
-        whoopFetch('/activity/sleep?limit=1'),
+        whoopFetch('/activity/sleep?limit=10'),
         whoopFetch('/cycle?limit=7'),
         whoopFetch('/activity/workout?limit=5').catch(()=>({records:[]})),
         whoopFetch('/user/profile/basic').catch(()=>null),
         whoopFetch('/user/measurement/body').catch(()=>null),
       ]);
       const rec = recovery.records?.[0];
-      const slp = sleep.records?.[0];
+      // Whoop retorna sonecas junto com o sono principal. Pega o sono PRINCIPAL
+      // (nap=false) mais recente; se só houver soneca, usa a mais recente.
+      const sleepRecs = (sleep.records || [])
+        .filter(s => s.score)
+        .sort((a,b) => new Date(b.end) - new Date(a.end));
+      const slp = sleepRecs.find(s => !s.nap) || sleepRecs[0];
       const cyc = cycles.records || [];
       const wkts = workouts.records || [];
 
