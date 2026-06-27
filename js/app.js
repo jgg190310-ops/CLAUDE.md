@@ -153,8 +153,6 @@ function navigateTo(page) {
   if (page === 'calculator') calcInvestment();
   if (page === 'assistant') initAssistant();
   if (page === 'cashflow') { renderPlan(); cfSetDefaultMonths(); }
-  if (page === 'health') { renderHealthScore(); renderLifeHours(); renderHealthTips(); }
-  if (page === 'crisis') renderCrisis();
   if (page === 'subs') renderSubs();
   if (page === 'banking') { if (typeof renderBanking === 'function') renderBanking(); }
   if (page === 'upgrade') { if (typeof renderUpgrade === 'function') renderUpgrade(); }
