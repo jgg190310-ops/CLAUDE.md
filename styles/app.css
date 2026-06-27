@@ -4143,6 +4143,13 @@ html[data-theme="light"] .s-sch-cell.filled { opacity: .9; }
 .wapp-need-bar { height: 8px; border-radius: 6px; background: rgba(255,255,255,.07); overflow: hidden; }
 .wapp-need-bar > div { height: 100%; border-radius: 6px; background: linear-gradient(90deg,#7c5cff,#b388ff); transition: width 1s cubic-bezier(.2,.7,.3,1); }
 
+/* coração & energia */
+.wapp-heart { display: grid; grid-template-columns: repeat(auto-fit,minmax(90px,1fr)); gap: 1px; background: var(--wln); border: 1px solid var(--wln); border-radius: 14px; overflow: hidden; }
+.wapp-heart .wh-cell { background: rgba(255,255,255,.02); padding: 16px 14px; display: flex; flex-direction: column; gap: 8px; align-items: center; }
+.wapp-heart .whl { font-size: 9.5px; font-weight: 700; letter-spacing: .6px; text-transform: uppercase; color: var(--wtx2); text-align: center; }
+.wapp-heart .whv { font-family: var(--wnum); font-size: 24px; font-weight: 700; letter-spacing: -.5px; line-height: 1; }
+.wapp-heart .whv small { font-size: 11px; font-weight: 600; color: var(--wtx2); margin-left: 3px; letter-spacing: 0; }
+
 /* mini-stats grid (sono) */
 .wapp-mini { display: grid; grid-template-columns: repeat(auto-fit,minmax(80px,1fr)); gap: 1px; margin-top: 18px; background: var(--wln); border: 1px solid var(--wln); border-radius: 14px; overflow: hidden; }
 .wapp-mini > div { background: var(--wcard,#0a0e17); padding: 14px 12px; display: flex; flex-direction: column; gap: 6px; align-items: center; }

@@ -37,7 +37,7 @@
       window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
     }
   </script>
-  <link rel="stylesheet" href="styles/app.css?v=31" />
+  <link rel="stylesheet" href="styles/app.css?v=32" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -1808,10 +1808,10 @@
   </a>
 </nav>
 
-<script src="js/firebase-config.js?v=27"></script>
-<script src="js/app.js?v=27"></script>
-<script src="js/health.js?v=27"></script>
-<script src="js/study.js?v=27"></script>
+<script src="js/firebase-config.js?v=28"></script>
+<script src="js/app.js?v=28"></script>
+<script src="js/health.js?v=28"></script>
+<script src="js/study.js?v=28"></script>
 <script>
 /* ═══════════════════════════════════════════════
    WHOOP — OAuth 2.0 PKCE real integration
@@ -1990,9 +1990,15 @@
       const asleepMs  = lightMs + remMs + deepMs;
       const cyclesCnt = stages.sleep_cycle_count;
       const disturb   = stages.disturbance_count;
+      const noDataMs  = stages.total_no_data_time_milli || 0;
+      const inBedApi  = stages.total_in_bed_time_milli || 0;
       const sleepNeed = slp?.score?.sleep_needed || {};
-      const needMs    = (sleepNeed.baseline_milli||0)+(sleepNeed.need_from_sleep_debt_milli||0)+(sleepNeed.need_from_recent_strain_milli||0)+(sleepNeed.need_from_recent_nap_milli||0);
-      const inBedMs   = asleepMs + awakeMs;
+      const baseNeed  = sleepNeed.baseline_milli || 0;
+      const debtMs    = sleepNeed.need_from_sleep_debt_milli || 0;
+      const strainNeedMs = sleepNeed.need_from_recent_strain_milli || 0;
+      const needMs    = baseNeed + debtMs + strainNeedMs + (sleepNeed.need_from_recent_nap_milli||0);
+      const inBedMs   = inBedApi || (asleepMs + awakeMs);
+      const isNap     = !!slp?.nap;
 
       // Perfil + medidas corporais
       const firstName = profile?.first_name || '';
@@ -2002,8 +2008,12 @@
 
       const todayStrain = cyc[0]?.score?.strain;
       const avgHr       = cyc[0]?.score?.average_heart_rate;
+      const dayMaxHr    = cyc[0]?.score?.max_heart_rate;
       const kj          = cyc[0]?.score?.kilojoule;
       const kcal        = kj ? Math.round(kj/4.184) : null;
+      // total de calorias da semana (soma dos ciclos)
+      const weekKcal    = cyc.reduce((a,c)=> a + (c.score?.kilojoule? c.score.kilojoule/4.184 : 0), 0);
+      const weekKcalR   = weekKcal ? Math.round(weekKcal) : null;
 
       const series = cyc.slice().reverse().map(c => ({
         v: c.score?.strain ?? 0,
@@ -2106,10 +2116,24 @@
               </div>`).join('')}
           </div>
 
+          <div class="wapp-sec">
+            <div class="wapp-sec-h">
+              <div class="wapp-sec-t"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ff3b5c" stroke-width="2.4"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1 7.8 7.8 7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.7z"/></svg>Coração & Energia</div>
+            </div>
+            <div class="wapp-heart">
+              <div class="wh-cell"><span class="whl">FC Repouso</span><span class="whv" style="color:#16ec8f">${rhr}<small>bpm</small></span></div>
+              ${avgHr?`<div class="wh-cell"><span class="whl">FC Média dia</span><span class="whv" style="color:#4d9bff">${avgHr}<small>bpm</small></span></div>`:''}
+              ${dayMaxHr?`<div class="wh-cell"><span class="whl">FC Máx dia</span><span class="whv" style="color:#ff3b5c">${dayMaxHr}<small>bpm</small></span></div>`:''}
+              ${maxHr?`<div class="wh-cell"><span class="whl">FC Máx real</span><span class="whv" style="color:#ff7a45">${maxHr}<small>bpm</small></span></div>`:''}
+              ${kcal?`<div class="wh-cell"><span class="whl">Calorias hoje</span><span class="whv" style="color:#ff9d4d">${kcal}<small>kcal</small></span></div>`:''}
+              ${weekKcalR?`<div class="wh-cell"><span class="whl">Cal. 7 dias</span><span class="whv" style="color:#ffd34e">${weekKcalR.toLocaleString('pt-BR')}<small>kcal</small></span></div>`:''}
+            </div>
+          </div>
+
           ${asleepMs>0 ? `
           <div class="wapp-sec">
             <div class="wapp-sec-h">
-              <div class="wapp-sec-t"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#b388ff" stroke-width="2.4"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>Estágios do Sono</div>
+              <div class="wapp-sec-t"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#b388ff" stroke-width="2.4"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>Estágios do Sono${isNap?'<span class="wapp-pill" style="color:#ffd34e;background:#ffd34e1f;margin-left:8px">SONECA</span>':''}</div>
               ${sleepEff?`<span class="wapp-sec-badge" style="color:#b388ff">${sleepEff}% eficiência</span>`:''}
             </div>
             ${stageBar}
@@ -2125,10 +2149,14 @@
               <div class="wapp-need-bar"><div style="width:${Math.min(100,asleepMs/needMs*100).toFixed(0)}%"></div></div>
             </div>` : ''}
             <div class="wapp-mini">
+              ${inBedMs?`<div><span class="ml">Na cama</span><span class="mv">${whoopFmtH(inBedMs)}</span></div>`:''}
               ${cyclesCnt!=null?`<div><span class="ml">Ciclos</span><span class="mv">${cyclesCnt}</span></div>`:''}
               ${disturb!=null?`<div><span class="ml">Despertares</span><span class="mv">${disturb}</span></div>`:''}
+              ${sleepEff?`<div><span class="ml">Eficiência</span><span class="mv">${sleepEff}%</span></div>`:''}
               ${sleepCons?`<div><span class="ml">Consistência</span><span class="mv">${sleepCons}%</span></div>`:''}
-              ${inBedMs?`<div><span class="ml">Na cama</span><span class="mv">${whoopFmtH(inBedMs)}</span></div>`:''}
+              ${respRate?`<div><span class="ml">Respiração</span><span class="mv">${respRate}</span></div>`:''}
+              ${debtMs>0?`<div><span class="ml">Débito sono</span><span class="mv" style="color:#ff7a45">${whoopFmtH(debtMs)}</span></div>`:''}
+              ${strainNeedMs>0?`<div><span class="ml">+ Strain</span><span class="mv">${whoopFmtH(strainNeedMs)}</span></div>`:''}
             </div>
           </div>` : ''}
 
