@@ -1808,10 +1808,10 @@
   </a>
 </nav>
 
-<script src="js/firebase-config.js?v=29"></script>
-<script src="js/app.js?v=29"></script>
-<script src="js/health.js?v=29"></script>
-<script src="js/study.js?v=29"></script>
+<script src="js/firebase-config.js?v=30"></script>
+<script src="js/app.js?v=30"></script>
+<script src="js/health.js?v=30"></script>
+<script src="js/study.js?v=30"></script>
 <script>
 /* ═══════════════════════════════════════════════
    WHOOP — OAuth 2.0 PKCE real integration
@@ -2066,6 +2066,11 @@
         skinTemp ? { l:'Temp. Pele', v:skinTemp, u:'°C' }  : null,
         bodyWeight ? { l:'Peso',     v:bodyWeight, u:'kg' } : null,
       ].filter(Boolean);
+
+      // Dados vieram com sucesso → limpa qualquer diagnóstico antigo
+      whoopClearDiag();
+      const diagBox = document.getElementById('whoopDiag');
+      if (diagBox) diagBox.remove();
 
       el.innerHTML = `
         <div class="wapp">
@@ -2340,7 +2345,7 @@
     const connected = !!localStorage.getItem('whoop_access');
     const diag      = localStorage.getItem('whoop_diag');
     const diagBox   = diag ? `
-      <div class="cf-card" style="padding:16px;margin-bottom:16px;border:1px solid rgba(239,68,68,.35);background:rgba(239,68,68,.06)">
+      <div id="whoopDiag" class="cf-card" style="padding:16px;margin-bottom:16px;border:1px solid rgba(239,68,68,.35);background:rgba(239,68,68,.06)">
         <strong style="font-size:13px;color:#ef4444">Diagnóstico</strong>
         <pre style="font-size:11px;margin-top:6px;white-space:pre-wrap;word-break:break-word;color:#fca5a5">${diag.replace(/</g,'&lt;')}</pre>
         <button onclick="localStorage.removeItem('whoop_diag');renderWhoop()" style="margin-top:8px;background:none;border:none;color:#ef4444;font-size:12px;text-decoration:underline;cursor:pointer">Limpar</button>
