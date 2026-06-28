@@ -185,7 +185,7 @@
     if (greet) {
       const hr = new Date().getHours();
       const s = hr < 12 ? 'Bom dia' : hr < 18 ? 'Boa tarde' : 'Boa noite';
-      greet.textContent = name ? `${s}, ${name}!` : `${s}!`;
+      greet.textContent = name ? `${s}, ${name}.` : `${s}.`;
     }
     const kcal = day.meals.reduce((a, m) => a + (+m.kcal || 0), 0);
     const prot = day.meals.reduce((a, m) => a + (+m.prot || 0), 0);
@@ -953,7 +953,7 @@
   }
 
   function renderExList(exs) {
-    if (!exs.length) return `<div class="empty-state"><p>Nenhum treino hoje. Comece a se mexer!</p></div>`;
+    if (!exs.length) return `<div class="empty-state"><p>Nenhum treino registrado hoje.</p></div>`;
     return exs.map((e, i) => `<div class="cf-li">
       <div class="cf-li-main"><span class="cf-li-name">${e.type}</span><span class="cf-li-sub">${e.mins} min</span></div>
       <div class="cf-li-right"><span class="cf-li-val" style="color:#ef4444">${kcalFmt(e.kcalBurned)} kcal</span>
@@ -1357,7 +1357,7 @@
     });
 
     el.innerHTML = `
-      <div class="page-header"><div><h1>Desafios de Saúde</h1><p class="page-sub">Aceite um desafio e mude seus hábitos.</p></div></div>
+      <div class="page-header"><div><h1>Desafios de Saúde</h1><p class="page-sub">Acompanhe desafios e desenvolva hábitos saudáveis.</p></div></div>
       ${active.length ? `<div class="cf-card" style="margin-bottom:16px;border-color:rgba(16,185,129,.3)">
         <h3 style="font-size:14px;font-weight:700;color:var(--green);margin-bottom:12px">✅ Desafios Ativos</h3>
         ${active.map(c => {

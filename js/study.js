@@ -111,8 +111,8 @@
     el.innerHTML = `
       <div class="page-header">
         <div>
-          <h1 id="sDashGreeting">Bora estudar!</h1>
-          <p class="page-sub">Foque, progrida, conquiste.</p>
+          <h1 id="sDashGreeting">Painel de Estudos</h1>
+          <p class="page-sub">Acompanhe seu desempenho e organize seus estudos.</p>
         </div>
         <div class="page-header-actions">
           <button class="btn-primary-sm" onclick="navigateTo('s-sessions')">
@@ -206,7 +206,7 @@
             <h3>Sessões Recentes</h3>
             <button class="btn-sm" onclick="navigateTo('s-sessions')">Ver todas</button>
           </div>
-          ${recent.length === 0 ? `<div class="empty-state"><p>Nenhuma sessão ainda. Comece a estudar!</p></div>` : `
+          ${recent.length === 0 ? `<div class="empty-state"><p>Nenhuma sessão registrada.</p></div>` : `
           <table class="data-table">
             <thead><tr><th>Matéria</th><th>Duração</th><th>Data</th></tr></thead>
             <tbody>
@@ -234,7 +234,7 @@
 
     // greeting
     const hour = new Date().getHours();
-    const greet = hour < 12 ? 'Bom dia! Ótimo momento para estudar.' : hour < 18 ? 'Boa tarde! Foco total.' : 'Boa noite! Revisão rápida antes de dormir?';
+    const greet = hour < 12 ? 'Bom dia.' : hour < 18 ? 'Boa tarde.' : 'Boa noite.';
     const greetEl = document.getElementById('sDashGreeting');
     if (greetEl) greetEl.textContent = greet;
 
@@ -374,7 +374,7 @@
 
   function renderSessionsList(sessions, s) {
     if (!sessions || sessions.length === 0) {
-      return `<div class="empty-state"><p>Nenhuma sessão hoje. Bora começar!</p></div>`;
+      return `<div class="empty-state"><p>Nenhuma sessão registrada hoje.</p></div>`;
     }
     return sessions.map((sess, i) => {
       const subj = s.subjects.find(x => x.name === sess.subject);

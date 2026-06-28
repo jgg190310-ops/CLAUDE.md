@@ -85,7 +85,7 @@ function budgetIconSvg(iconKey) {
   if (greet) {
     const hr = new Date().getHours();
     const saudacao = hr < 12 ? 'Bom dia' : hr < 18 ? 'Boa tarde' : 'Boa noite';
-    greet.textContent = `${saudacao}, ${name.split(' ')[0]}!`;
+    greet.textContent = `${saudacao}, ${name.split(" ")[0]}.`;
   }
   const ua = document.querySelector('.user-avatar');
   const un = document.querySelector('.user-name');
@@ -1576,7 +1576,7 @@ function refreshProfileUI(data) {
   if (greet) {
     const hr = new Date().getHours();
     const saud = hr < 12 ? 'Bom dia' : hr < 18 ? 'Boa tarde' : 'Boa noite';
-    greet.textContent = `${saud}, ${name.split(' ')[0]}!`;
+    greet.textContent = `${saud}, ${name.split(' ')[0]}.`;
   }
   const big = document.getElementById('pfAvatarBig');
   const dn  = document.getElementById('pfDisplayName');

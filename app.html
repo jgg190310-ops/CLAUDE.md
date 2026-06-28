@@ -806,7 +806,7 @@
     <div class="page-header">
       <div>
         <h1>Assinaturas &amp; Recorrentes</h1>
-        <p class="page-sub">O dinheiro que escorre todo mês sem você perceber.</p>
+        <p class="page-sub">Gerencie suas assinaturas e despesas recorrentes.</p>
       </div>
       <button class="btn-add" onclick="openSubModal()">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -1676,10 +1676,10 @@
   </a>
 </nav>
 
-<script src="js/firebase-config.js?v=33"></script>
-<script src="js/app.js?v=36"></script>
-<script src="js/health.js?v=34"></script>
-<script src="js/study.js?v=34"></script>
+<script src="js/firebase-config.js?v=37"></script>
+<script src="js/app.js?v=37"></script>
+<script src="js/health.js?v=37"></script>
+<script src="js/study.js?v=37"></script>
 <script>
 /* ═══════════════════════════════════════════════
    WHOOP — OAuth 2.0 PKCE real integration
@@ -3007,7 +3007,7 @@ function renderUpgrade() {
   if (!el || el.dataset.loaded) return;
   el.dataset.loaded = '1';
   el.innerHTML = `
-    <div class="page-header"><div><h1>Planos OSHelp</h1><p class="page-sub">Desbloqueie todo o potencial do seu super app.</p></div></div>
+    <div class="page-header"><div><h1>Planos OSHelp</h1><p class="page-sub">Compare os planos e escolha o ideal para você.</p></div></div>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;margin-top:8px">
       ${[
         { name:'Starter', price:'Grátis', color:'#6366f1', features:['Dashboard básico (3 apps)','Até 50 transações/mês','Registro de saúde básico','Pomodoro e flashcards','FinBot, NutriBot, StudyBot (20 msgs/dia)'], cta:'Seu plano atual', current:true },
