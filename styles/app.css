@@ -4451,27 +4451,15 @@ html[data-theme="light"] .s-sch-cell.filled { opacity: .9; }
    KPIs — paleta unificada por contexto (credibilidade)
    Um único acento por app, em vez de ícones multicoloridos.
 ══════════════════════════════════════════════ */
+/* Meio-termo: cada KPI mantém sua cor semântica (--ic), porém SUAVE,
+   dessaturada e sem brilho neon — vida com sobriedade. */
 .kpi-icon {
-  background: rgba(99,102,241,.10);
-  border-color: rgba(99,102,241,.24);
-  color: #a5b4fc;
+  background: color-mix(in srgb, var(--ic) 11%, transparent);
+  border-color: color-mix(in srgb, var(--ic) 26%, transparent);
+  color: color-mix(in srgb, var(--ic) 72%, #ced3df);
   box-shadow: none;
 }
-.kpi-card { border-bottom-color: rgba(99,102,241,.30); }
-
-body[data-app="health"] .kpi-icon {
-  background: rgba(16,185,129,.10);
-  border-color: rgba(16,185,129,.26);
-  color: #6ee7b7;
-}
-body[data-app="health"] .kpi-card { border-bottom-color: rgba(16,185,129,.30); }
-
-body[data-app="study"] .kpi-icon {
-  background: rgba(139,92,246,.10);
-  border-color: rgba(139,92,246,.26);
-  color: #c4b5fd;
-}
-body[data-app="study"] .kpi-card { border-bottom-color: rgba(139,92,246,.30); }
+.kpi-card { border-bottom-color: color-mix(in srgb, var(--ic) 32%, transparent); }
 
 /* sublabels do dashboard são descritivos (não variações +/-) → tom neutro */
 #dashboard .kpi-change,
