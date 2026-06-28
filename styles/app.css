@@ -4465,3 +4465,26 @@ html[data-theme="light"] .s-sch-cell.filled { opacity: .9; }
 #dashboard .kpi-change,
 #dashboard .kpi-change.positive,
 #dashboard .kpi-change.negative { color: var(--text-3) !important; }
+
+/* ══════════════════════════════════════════════
+   SISTEMA DE CARD UNIFICADO — mesmo fundo, borda,
+   raio e sombra em todas as famílias. A cor vive
+   nos ícones (semântica) e nos títulos, não nas bordas.
+══════════════════════════════════════════════ */
+.kpi-card, .chart-card, .market-card, .goal-card, .cf-card,
+.table-card, .alerts-card, .budget-item, .sub-card,
+.ai-card, .int-card, .ip-card, .goals-summary, .calc-card {
+  background: linear-gradient(150deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  box-shadow: 0 4px 22px rgba(0,0,0,.26), inset 0 1px 0 rgba(255,255,255,.05);
+}
+/* remove os acentos de borda direcionais que divergiam entre famílias */
+.kpi-card { border-bottom: 1px solid var(--glass-border); }
+.market-card { border-top: 1px solid var(--glass-border); }
+.goal-card { border-left: 1px solid var(--glass-border); }
+
+/* títulos de card padronizados (mesmo tamanho/peso, mesma barra de acento) */
+.chart-card-header h3, .table-header h3, .cf-card > h3, .sub-card h3 {
+  font-size: 16px; font-weight: 700; letter-spacing: -.2px;
+}
