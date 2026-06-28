@@ -4446,3 +4446,34 @@ html[data-theme="light"] .s-sch-cell.filled { opacity: .9; }
   .data-table th, .data-table td { white-space: nowrap; }
   .data-table td .asset-desc { max-width: 130px; white-space: normal; }
 }
+
+/* ══════════════════════════════════════════════
+   KPIs — paleta unificada por contexto (credibilidade)
+   Um único acento por app, em vez de ícones multicoloridos.
+══════════════════════════════════════════════ */
+.kpi-icon {
+  background: rgba(99,102,241,.10);
+  border-color: rgba(99,102,241,.24);
+  color: #a5b4fc;
+  box-shadow: none;
+}
+.kpi-card { border-bottom-color: rgba(99,102,241,.30); }
+
+body[data-app="health"] .kpi-icon {
+  background: rgba(16,185,129,.10);
+  border-color: rgba(16,185,129,.26);
+  color: #6ee7b7;
+}
+body[data-app="health"] .kpi-card { border-bottom-color: rgba(16,185,129,.30); }
+
+body[data-app="study"] .kpi-icon {
+  background: rgba(139,92,246,.10);
+  border-color: rgba(139,92,246,.26);
+  color: #c4b5fd;
+}
+body[data-app="study"] .kpi-card { border-bottom-color: rgba(139,92,246,.30); }
+
+/* sublabels do dashboard são descritivos (não variações +/-) → tom neutro */
+#dashboard .kpi-change,
+#dashboard .kpi-change.positive,
+#dashboard .kpi-change.negative { color: var(--text-3) !important; }
