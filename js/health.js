@@ -19,6 +19,7 @@
     'h-challenge': 'Desafios de Saúde',
     'h-whoop': 'Integração Whoop',
     'h-oura': 'Integração Oura',
+    'h-strava': 'Integração Strava',
   });
 
   // ── modelo de dados ──────────────────────────────────────────────
@@ -1450,6 +1451,7 @@
     else if (page === 'h-challenge') renderHChallenge();
     else if (page === 'h-whoop') { if (typeof window.renderWhoop === 'function') window.renderWhoop(); else renderHWhoop(); }
     else if (page === 'h-oura') { if (typeof window.renderOura === 'function') window.renderOura(); }
+    else if (page === 'h-strava') { if (typeof window.renderStrava === 'function') window.renderStrava(); }
   };
 
   // expõe funções usadas no HTML (onclick)

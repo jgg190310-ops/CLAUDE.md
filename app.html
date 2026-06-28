@@ -37,7 +37,7 @@
       window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
     }
   </script>
-  <link rel="stylesheet" href="styles/app.css?v=48" />
+  <link rel="stylesheet" href="styles/app.css?v=49" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -169,6 +169,10 @@
       <a href="#" class="nav-item" data-page="h-oura">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3.5"/></svg>
         <span>Oura</span>
+      </a>
+      <a href="#" class="nav-item" data-page="h-strava">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13.5 2 7 14h4l-2 8 7-12h-4l2-8z"/></svg>
+        <span>Strava</span>
       </a>
     </div>
     <div class="nav-group" data-app="health" style="display:none">
@@ -1368,6 +1372,7 @@
   <!-- HEALTHOS — WHOOP -->
   <section class="page" id="h-whoop" data-app="health"></section>
   <section class="page" id="h-oura" data-app="health"></section>
+  <section class="page" id="h-strava" data-app="health"></section>
 
   <!-- STUDYOS — TAREFAS -->
   <section class="page" id="s-tasks" data-app="study"><!-- rendered by study.js --></section>
@@ -1678,7 +1683,7 @@
 
 <script src="js/firebase-config.js?v=37"></script>
 <script src="js/app.js?v=37"></script>
-<script src="js/health.js?v=37"></script>
+<script src="js/health.js?v=38"></script>
 <script src="js/study.js?v=37"></script>
 <script>
 /* ═══════════════════════════════════════════════
@@ -2708,6 +2713,232 @@
         </div>`}`;
     if (connected) loadOuraData();
   };
+})();
+/* ═══════════════════════════════════════════════
+   STRAVA — OAuth 2.0 + API proxy (treinos/GPS)
+═══════════════════════════════════════════════ */
+(function(){
+  const ST_WORKER = 'https://whoop-token.jgg190310.workers.dev';
+  const ST_REDIRECT = location.origin + location.pathname;
+  const SDOW = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  function stDiag(m){ try{ localStorage.setItem('strava_diag', String(m)); }catch(e){} }
+  function stClearDiag(){ try{ localStorage.removeItem('strava_diag'); }catch(e){} }
+
+  const ST_TYPE = {
+    Run:'Corrida', TrailRun:'Trail Run', Ride:'Ciclismo', VirtualRide:'Ciclismo Virtual',
+    MountainBikeRide:'Mountain Bike', GravelRide:'Gravel', Swim:'Natação', Walk:'Caminhada',
+    Hike:'Trilha', WeightTraining:'Musculação', Workout:'Treino', Crossfit:'Crossfit',
+    Yoga:'Yoga', Rowing:'Remo', Elliptical:'Elíptico', StairStepper:'Escada', Soccer:'Futebol',
+    Tennis:'Tênis', Golf:'Golfe', Surfing:'Surf', Skateboard:'Skate', Snowboard:'Snowboard',
+    AlpineSki:'Esqui', Kayaking:'Caiaque', Canoeing:'Canoagem', EBikeRide:'E-Bike', Velomobile:'Velomóvel',
+  };
+  function stSport(t){ return ST_TYPE[t] || (t||'Atividade'); }
+  function stFmtDist(m){ if(m==null) return '--'; return (m/1000).toFixed(m<10000?2:1)+' km'; }
+  function stFmtTime(s){ if(s==null) return '--'; const h=Math.floor(s/3600), m=Math.round((s%3600)/60); return h>0?`${h}h${String(m).padStart(2,'0')}`:`${m}min`; }
+  function stPace(distM, timeS){ if(!distM||!timeS) return null; const sk=timeS/(distM/1000); return `${Math.floor(sk/60)}:${String(Math.round(sk%60)).padStart(2,'0')}/km`; }
+  function stSpeed(ms){ if(ms==null) return null; return (ms*3.6).toFixed(1)+' km/h'; }
+
+  function stSaveTokens(d){
+    localStorage.setItem('strava_access', d.access_token);
+    if (d.refresh_token) localStorage.setItem('strava_refresh', d.refresh_token);
+    if (d.expires_at) localStorage.setItem('strava_expires_at', String(d.expires_at*1000));
+  }
+  async function stRefresh(){
+    const cid=localStorage.getItem('strava_cid'), sec=localStorage.getItem('strava_secret'), rt=localStorage.getItem('strava_refresh');
+    if(!cid||!sec||!rt) return false;
+    try{
+      const r=await fetch(ST_WORKER+'/strava/token',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({client_id:cid,client_secret:sec,refresh_token:rt,grant_type:'refresh_token'}),signal:AbortSignal.timeout(15000)});
+      const d=await r.json();
+      if(d.access_token){ stSaveTokens(d); return true; }
+      return false;
+    }catch(e){ return false; }
+  }
+  async function stEnsure(){ const exp=parseInt(localStorage.getItem('strava_expires_at')||'0',10); if(exp && Date.now()>exp-60000) await stRefresh(); }
+
+  async function stFetch(path){
+    await stEnsure();
+    const t=localStorage.getItem('strava_access');
+    const r=await fetch(ST_WORKER+'/strava/api/v3'+path,{headers:{Authorization:'Bearer '+t},signal:AbortSignal.timeout(15000)});
+    if(r.status===401){
+      const ok=await stRefresh();
+      if(ok){ const t2=localStorage.getItem('strava_access'); const r2=await fetch(ST_WORKER+'/strava/api/v3'+path,{headers:{Authorization:'Bearer '+t2},signal:AbortSignal.timeout(15000)}); if(r2.ok) return r2.json(); }
+      stDiag('Sessão expirada. Reconecte-se uma vez.'); throw new Error('401');
+    }
+    if(r.ok) return r.json();
+    let b=''; try{ b=await r.text(); }catch(e){}
+    stDiag('HTTP '+r.status+' em '+path+' — '+b.substring(0,200)); throw new Error('HTTP '+r.status);
+  }
+
+  async function loadStravaData(){
+    const el=document.getElementById('stravaData'); if(!el) return;
+    el.innerHTML = `<div class="wapp wapp-strava"><div class="wapp-state"><div class="wapp-spin"></div><p style="color:#8a94a6;font-size:13px;margin:0;font-weight:600">Sincronizando com o Strava…</p></div></div>`;
+    try{
+      const athlete = await stFetch('/athlete');
+      const [acts, stats] = await Promise.all([
+        stFetch('/athlete/activities?per_page=10').catch(()=>[]),
+        stFetch('/athletes/'+athlete.id+'/stats').catch(()=>null),
+      ]);
+      const name = [athlete.firstname, athlete.lastname].filter(Boolean).join(' ');
+      const city = [athlete.city, athlete.country].filter(Boolean).join(', ');
+
+      const rRun = stats?.ytd_run_totals || {}, rRide = stats?.ytd_ride_totals || {}, rSwim = stats?.ytd_swim_totals || {};
+      const allRun = stats?.all_run_totals || {}, allRide = stats?.all_ride_totals || {};
+
+      // persiste resumo p/ NutriBot
+      try{ localStorage.setItem('strava_last', JSON.stringify({ runKmYtd:(rRun.distance||0)/1000, rideKmYtd:(rRide.distance||0)/1000, lastType: acts[0]?.type||null, lastDistKm: acts[0]?Math.round((acts[0].distance||0)/100)/10:null, ts:Date.now() })); }catch(e){}
+
+      const yearKm = ((rRun.distance||0)+(rRide.distance||0)+(rSwim.distance||0))/1000;
+      const yearElev = (rRun.elevation_gain||0)+(rRide.elevation_gain||0);
+      const yearCount = (rRun.count||0)+(rRide.count||0)+(rSwim.count||0);
+      const yearTime = (rRun.moving_time||0)+(rRide.moving_time||0)+(rSwim.moving_time||0);
+
+      el.innerHTML = `
+        <div class="wapp wapp-strava">
+          <div class="wapp-bar">
+            <div class="wapp-mark">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fc4c02" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M13.5 2 7 14h4l-2 8 7-12h-4l2-8z"/></svg>
+              <b>STRAVA</b>${name?`<span class="wapp-hello">${name}</span>`:''}
+            </div>
+            <div style="display:flex;align-items:center;gap:14px">
+              <span class="wapp-sync"><i></i>Ao vivo</span>
+              <button class="wapp-refresh" onclick="renderStrava()" title="Atualizar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.5 9a9 9 0 0 1 14.8-3.4L23 10M1 14l4.7 4.4A9 9 0 0 0 20.5 15"/></svg></button>
+            </div>
+          </div>
+
+          <div class="wapp-sec">
+            <div class="wapp-sec-h"><div class="wapp-sec-t"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fc4c02" stroke-width="2.4"><path d="M13.5 2 7 14h4l-2 8 7-12h-4l2-8z"/></svg>Este ano${city?` · ${city}`:''}</div></div>
+            <div class="wapp-heart">
+              <div class="wh-cell"><span class="whl">Distância</span><span class="whv" style="color:#fc4c02">${yearKm.toFixed(0)}<small>km</small></span></div>
+              <div class="wh-cell"><span class="whl">Atividades</span><span class="whv" style="color:#ff7a45">${yearCount}</span></div>
+              <div class="wh-cell"><span class="whl">Tempo</span><span class="whv" style="color:#ffd34e">${stFmtTime(yearTime)}</span></div>
+              <div class="wh-cell"><span class="whl">Elevação</span><span class="whv" style="color:#7ee787">${Math.round(yearElev)}<small>m</small></span></div>
+            </div>
+          </div>
+
+          <div class="wapp-duo">
+            <div class="wapp-rcard" style="grid-template-columns:1fr">
+              <div><h4>Corrida (ano)</h4>
+                <div class="wapp-rbig" style="color:#fc4c02">${((rRun.distance||0)/1000).toFixed(0)}<small style="font-size:13px;color:#8a94a6;font-weight:700"> km</small></div>
+                <p>${rRun.count||0} corridas · ${stFmtTime(rRun.moving_time)} · ${Math.round(rRun.elevation_gain||0)} m D+</p>
+              </div>
+            </div>
+            <div class="wapp-rcard" style="grid-template-columns:1fr">
+              <div><h4>Ciclismo (ano)</h4>
+                <div class="wapp-rbig" style="color:#4d9bff">${((rRide.distance||0)/1000).toFixed(0)}<small style="font-size:13px;color:#8a94a6;font-weight:700"> km</small></div>
+                <p>${rRide.count||0} pedais · ${stFmtTime(rRide.moving_time)} · ${Math.round(rRide.elevation_gain||0)} m D+</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="wapp-sec">
+            <div class="wapp-sec-h"><div class="wapp-sec-t"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fc4c02" stroke-width="2.4"><path d="M13.5 2 7 14h4l-2 8 7-12h-4l2-8z"/></svg>Atividades Recentes</div></div>
+            ${acts.length ? `<div class="wapp-wkts">
+              ${acts.map(a=>{
+                const isRun = /run/i.test(a.type);
+                const metric = isRun ? (stPace(a.distance, a.moving_time)||'') : (stSpeed(a.average_speed)||'');
+                const d=a.start_date_local?new Date(a.start_date_local):null;
+                const dl=d?`${SDOW[d.getDay()]} ${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`:'';
+                const extras=[stFmtDist(a.distance), stFmtTime(a.moving_time), metric, a.total_elevation_gain?Math.round(a.total_elevation_gain)+' m D+':'', a.average_heartrate?Math.round(a.average_heartrate)+' bpm':'', a.average_watts?Math.round(a.average_watts)+' W':''].filter(Boolean);
+                return `<div class="wapp-wkt">
+                  <div class="wapp-wkt-l"><div class="wapp-wkt-icn" style="background:#fc4c0222;color:#fc4c02">${stSport(a.type).charAt(0)}</div>
+                  <div><div class="wapp-wkt-name">${a.name||stSport(a.type)}</div><div class="wapp-wkt-sub">${stSport(a.type)} · ${dl}</div></div></div>
+                  <div class="wapp-wkt-r"><div class="wapp-wkt-strain" style="color:#fc4c02;font-size:15px">${stFmtDist(a.distance)}</div><div class="wapp-wkt-meta">${extras.slice(1).join(' · ')}${a.kudos_count?` · 👍 ${a.kudos_count}`:''}</div></div>
+                </div>`;
+              }).join('')}
+            </div>` : '<p style="color:#8a94a6;font-size:13px;margin:0">Nenhuma atividade registrada ainda.</p>'}
+          </div>
+
+          <div class="wapp-actions">
+            <button class="wapp-btn" onclick="renderStrava()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.5 9a9 9 0 0 1 14.8-3.4L23 10M1 14l4.7 4.4A9 9 0 0 0 20.5 15"/></svg>Atualizar</button>
+            <button class="wapp-btn ghost" onclick="stravaDisconnect()">Desconectar</button>
+          </div>
+        </div>`;
+    }catch(e){
+      el.innerHTML = `<div class="wapp wapp-strava"><div class="wapp-state">
+        <p style="color:#ff3b5c;font-size:15px;font-weight:800;margin:0 0 6px">Não foi possível buscar os dados</p>
+        <p style="color:#8a94a6;font-size:12px;margin:0 0 20px">${e.message}</p>
+        <button class="wapp-btn" style="margin:0 auto;background:linear-gradient(135deg,#fc4c02,#ff7a45);color:#05070d;border:none" onclick="stravaDisconnect()">Reconectar</button>
+      </div></div>`;
+    }
+  }
+
+  window.stravaGo = function(){
+    const cid=(document.getElementById('stravaClientId')?.value||localStorage.getItem('strava_cid')||'').trim();
+    const sec=(document.getElementById('stravaClientSecret')?.value||localStorage.getItem('strava_secret')||'').trim();
+    if(!cid||!sec){ if(typeof showToast==='function')showToast('Preencha Client ID e Secret','error'); return; }
+    localStorage.setItem('strava_cid',cid); localStorage.setItem('strava_secret',sec);
+    location.href='https://www.strava.com/oauth/authorize?client_id='+encodeURIComponent(cid)+'&response_type=code&redirect_uri='+encodeURIComponent(ST_REDIRECT)+'&approval_prompt=auto&scope=read,activity:read_all&state=strava_auth';
+  };
+
+  async function handleStravaCallback(){
+    const p=new URLSearchParams(location.search);
+    if(p.get('state')!=='strava_auth') return false;
+    history.replaceState({},'',location.pathname);
+    if(p.get('error')){ stDiag('Strava recusou: '+p.get('error')); return false; }
+    const code=p.get('code'); if(!code) return false;
+    const cid=localStorage.getItem('strava_cid'), sec=localStorage.getItem('strava_secret');
+    try{
+      const r=await fetch(ST_WORKER+'/strava/token',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({client_id:cid,client_secret:sec,code,grant_type:'authorization_code'}),signal:AbortSignal.timeout(15000)});
+      const d=await r.json();
+      if(d.access_token){ stSaveTokens(d); stClearDiag(); return true; }
+      stDiag('Token recusado: '+(d.message||JSON.stringify(d).substring(0,150))); return false;
+    }catch(e){ stDiag('Erro ao chamar Worker: '+e.message); return false; }
+  }
+
+  window.stravaDisconnect = function(){ ['strava_access','strava_refresh','strava_expires_at','strava_diag'].forEach(k=>localStorage.removeItem(k)); renderStrava(); };
+
+  window.renderStrava = function(){
+    const el=document.getElementById('h-strava'); if(!el) return;
+    const connected=!!localStorage.getItem('strava_access');
+    const diag=localStorage.getItem('strava_diag');
+    const diagBox = diag ? `<div id="stravaDiag" class="cf-card" style="padding:16px;margin-bottom:16px;border:1px solid rgba(239,68,68,.35);background:rgba(239,68,68,.06)">
+      <strong style="font-size:13px;color:#ef4444">Diagnóstico</strong>
+      <pre style="font-size:11px;margin-top:6px;white-space:pre-wrap;word-break:break-word;color:#fca5a5">${diag.replace(/</g,'&lt;')}</pre>
+      <button onclick="localStorage.removeItem('strava_diag');renderStrava()" style="margin-top:8px;background:none;border:none;color:#ef4444;font-size:12px;text-decoration:underline;cursor:pointer">Limpar</button></div>` : '';
+    el.innerHTML = `
+      <div class="page-header"><div><h1>Integração Strava</h1><p class="page-sub">Treinos, corridas e pedais com GPS, pace e elevação.</p></div></div>
+      ${diagBox}
+      ${connected ? '<div id="stravaData" style="margin-top:4px"></div>' : `
+        <div class="strava-connect">
+          <div class="strava-connect-glow"></div>
+          <div class="strava-connect-head">
+            <div class="strava-mark-icon"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M13.5 2 7 14h4l-2 8 7-12h-4l2-8z"/></svg></div>
+            <div><h3>Conectar Strava</h3><p>OAuth 2.0 · <span class="strava-badge">treinos & GPS</span></p></div>
+          </div>
+          <ol class="strava-steps">
+            <li>Crie um app em <b>strava.com/settings/api</b></li>
+            <li>Em <b>Authorization Callback Domain</b>, coloque: <code>${location.host}</code></li>
+            <li>Copie o <b>Client ID</b> e <b>Client Secret</b> abaixo</li>
+          </ol>
+          <a href="https://www.strava.com/settings/api" target="_blank" rel="noopener" class="strava-link">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6M10 14 21 3"/></svg>
+            Abrir configurações de API do Strava
+          </a>
+          <div class="strava-field"><label>Client ID</label>
+            <input id="stravaClientId" type="text" value="${(localStorage.getItem('strava_cid')||'').replace(/"/g,'&quot;')}" placeholder="Ex.: 123456" /></div>
+          <div class="strava-field"><label>Client Secret</label>
+            <input id="stravaClientSecret" type="password" value="${(localStorage.getItem('strava_secret')||'').replace(/"/g,'&quot;')}" placeholder="Cole o Client Secret aqui" /></div>
+          <button class="strava-cta" onclick="stravaGo()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M13.5 2 7 14h4l-2 8 7-12h-4l2-8z"/></svg>
+            Conectar com Strava
+          </button>
+          <p class="strava-priv">🔒 Suas credenciais ficam só no seu navegador.</p>
+        </div>`}`;
+    if(connected) loadStravaData();
+  };
+
+  document.addEventListener('DOMContentLoaded', async ()=>{
+    const p=new URLSearchParams(location.search);
+    if(p.get('state')!=='strava_auth') return;
+    if(!p.get('code')&&!p.get('error')) return;
+    const ok=await handleStravaCallback();
+    try{ if(typeof switchApp==='function')switchApp('health'); }catch(e){}
+    try{ if(typeof navigateTo==='function')navigateTo('h-strava'); }catch(e){}
+    if(typeof renderStrava==='function')renderStrava();
+    if(ok&&typeof showToast==='function')showToast('Strava conectado! ✓','success');
+  });
 })();
 /* ═══════════════════════════════════════════════
    OPEN FINANCE — Pluggy.ai Connect Widget

@@ -43,6 +43,17 @@ export default {
       return corsResponse(data, ouraRes.status, origin);
     }
 
+    // Proxy da API Strava: /strava/api/<path> → https://www.strava.com/api/<path>
+    if (url.pathname.startsWith('/strava/api/')) {
+      const apiPath = url.pathname.replace('/strava', '');
+      const auth = request.headers.get('Authorization') || '';
+      const stRes = await fetch('https://www.strava.com' + apiPath + url.search, {
+        headers: { Authorization: auth },
+      });
+      const data = await stRes.text();
+      return corsResponse(data, stRes.status, origin);
+    }
+
     if (request.method !== 'POST') return corsResponse(JSON.stringify({error:'method_not_allowed'}), 405, origin);
     let body;
     try { body = await request.json(); } catch { return corsResponse(JSON.stringify({error:'invalid_json'}), 400, origin); }
@@ -62,6 +73,28 @@ export default {
       });
       const data = await whoopRes.json();
       return corsResponse(JSON.stringify(data), whoopRes.status, origin);
+    }
+
+    // Strava: troca de code e refresh — POST /strava/token
+    // O app envia client_id + client_secret (credenciais do próprio usuário).
+    if (url.pathname === '/strava/token') {
+      const { client_id, client_secret, code, refresh_token, grant_type } = body;
+      if (!client_id || !client_secret) return corsResponse(JSON.stringify({error:'missing_client'}), 400, origin);
+      const params = new URLSearchParams({ client_id, client_secret });
+      if (grant_type === 'refresh_token') {
+        params.set('grant_type', 'refresh_token');
+        params.set('refresh_token', refresh_token);
+      } else {
+        params.set('grant_type', 'authorization_code');
+        params.set('code', code);
+      }
+      const stRes = await fetch('https://www.strava.com/oauth/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: params,
+      });
+      const data = await stRes.text();
+      return corsResponse(data, stRes.status, origin);
     }
 
     // Troca de token: POST /
