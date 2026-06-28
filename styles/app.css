@@ -1322,6 +1322,25 @@ body {
   box-shadow: 0 8px 36px rgba(99,102,241,.6);
   animation: none;
 }
+/* botão primário pequeno — usado nos cabeçalhos de Saúde/Estudos */
+.btn-primary-sm {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 16px;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, var(--indigo), var(--purple));
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 4px 16px rgba(99,102,241,.3);
+  transition: box-shadow .25s, transform .18s, filter .18s;
+}
+.btn-primary-sm:hover { transform: translateY(-1px); box-shadow: 0 6px 22px rgba(99,102,241,.45); }
+.btn-primary-sm:active { transform: scale(.97); }
 .btn-save {
   padding: 11px 24px;
   border-radius: var(--radius-sm);
