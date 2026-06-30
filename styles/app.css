@@ -259,10 +259,11 @@ body {
   margin-top: var(--topbar-h);
   min-height: calc(100vh - var(--topbar-h));
   flex: 1;
+  min-width: 0; /* permite encolher como flex item — evita overflow horizontal no mobile */
   background: var(--bg);
 }
 
-.page { display: none; padding: 32px; max-width: 1400px; }
+.page { display: none; padding: 32px; max-width: 1400px; min-width: 0; }
 .page.active { display: block; }
 
 .page-header {
@@ -3486,17 +3487,29 @@ html[data-theme="light"] .subs-summary .sub-kpi { background: rgba(15,23,42,.03)
   .cf-kpis { grid-template-columns: 1fr 1fr; }
 }
 @media (max-width: 640px) {
-  .cf-form { grid-template-columns: 1fr 1fr; }
+  /* impede que itens de grid inflem a página (min-width:auto é o padrão) */
+  .cf-entry-row, .cf-kpis, .cf-form { min-width: 0; }
+  .cf-entry-row > *, .cf-kpis > *, .cf-form > * { min-width: 0; max-width: 100%; }
+  .cf-month { width: 100%; min-width: 0; box-sizing: border-box; }
+  /* formulário empilhado e à prova de overflow */
+  .cf-form { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .cf-form > * { min-width: 0; width: 100%; }
   .cf-form .cf-name { grid-column: 1 / -1; }
+  .cf-form .cf-month { grid-column: 1 / -1; }
   .cf-form input, .cf-form select { font-size: 15px; padding: 12px 13px; }
-  /* botão Adicionar full-width, alto, com ícone grande + texto */
   .cf-add-btn { grid-column: 1 / -1; height: 50px; border-radius: 12px; }
   .cf-add-btn svg { width: 22px; height: 22px; }
   .cf-add-label { display: inline; }
+  .cf-card { padding: 18px 16px; }
+  /* KPIs: 2 colunas que encolhem de verdade */
   .cf-kpis { grid-template-columns: 1fr 1fr; gap: 10px; }
-  .cf-kpi { padding: 14px 12px; }
-  .cfk-label { font-size: 10px; letter-spacing: .4px; }
-  .cfk-value { font-size: 18px; letter-spacing: -.5px; }
+  .cf-kpi { padding: 14px 14px; min-width: 0; border-left-width: 3px; }
+  .cfk-label { font-size: 9.5px; letter-spacing: .3px; }
+  .cfk-value { font-size: 18px; letter-spacing: -.5px; word-break: break-word; }
+}
+@media (max-width: 380px) {
+  .cf-form { grid-template-columns: 1fr; }
+  .cf-kpis { grid-template-columns: 1fr; }
 }
 
 /* light theme */
