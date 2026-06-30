@@ -923,7 +923,7 @@
               <label>Renda Mensal Bruta</label>
               <div class="input-wrap">
                 <span class="input-prefix">R$</span>
-                <input type="number" id="pfIncome" placeholder="0" />
+                <input type="text" inputmode="numeric" id="pfIncome" placeholder="Ex.: 8.500" />
               </div>
             </div>
           </div>
@@ -1577,15 +1577,37 @@
       <div class="form-group">
         <label>Categoria</label>
         <select id="txCategory">
-          <option value="Receita">Receita</option>
-          <option value="Alimentação">Alimentação</option>
-          <option value="Moradia">Moradia</option>
-          <option value="Transporte">Transporte</option>
-          <option value="Lazer">Lazer</option>
-          <option value="Saúde">Saúde</option>
-          <option value="Educação">Educação</option>
-          <option value="Investimento">Investimento</option>
-          <option value="Outro">Outro</option>
+          <optgroup label="Receitas">
+            <option value="Receita">Salário / Receita</option>
+            <option value="Renda Extra">Renda Extra / Freela</option>
+            <option value="Investimento">Investimento</option>
+          </optgroup>
+          <optgroup label="Moradia">
+            <option value="Aluguel">Aluguel / Financiamento</option>
+            <option value="Conta de Luz">Conta de Luz</option>
+            <option value="Água">Água / Esgoto</option>
+            <option value="Internet">Internet / Telefone</option>
+            <option value="Gás">Gás</option>
+            <option value="Condomínio">Condomínio</option>
+            <option value="Casa">Casa / Manutenção</option>
+          </optgroup>
+          <optgroup label="Dia a dia">
+            <option value="Mercado">Mercado / Supermercado</option>
+            <option value="Restaurante">Restaurante / Delivery</option>
+            <option value="Transporte">Transporte / Combustível</option>
+            <option value="Saúde">Saúde / Farmácia</option>
+            <option value="Educação">Educação</option>
+            <option value="Vestuário">Vestuário</option>
+            <option value="Pets">Pets</option>
+          </optgroup>
+          <optgroup label="Lazer & Outros">
+            <option value="Lazer">Lazer</option>
+            <option value="Assinaturas">Assinaturas / Streaming</option>
+            <option value="Viagem">Viagem</option>
+            <option value="Impostos">Impostos / Taxas</option>
+            <option value="Presentes">Presentes / Doações</option>
+            <option value="Outro">Outro</option>
+          </optgroup>
         </select>
       </div>
       <div class="form-group">
@@ -1682,7 +1704,7 @@
 </nav>
 
 <script src="js/firebase-config.js?v=37"></script>
-<script src="js/app.js?v=37"></script>
+<script src="js/app.js?v=38"></script>
 <script src="js/health.js?v=38"></script>
 <script src="js/study.js?v=37"></script>
 <script>

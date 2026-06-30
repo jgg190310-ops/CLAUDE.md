@@ -43,6 +43,30 @@ const _store = loadStore();
 const defaultPlan = { incomes: [], expenses: [] };
 let plan = (_store.plan && Array.isArray(_store.plan.incomes)) ? _store.plan : defaultPlan;
 
+// Converte string monetária BR ("8.500", "8.500,50", "R$ 1.234,56") em número.
+// Resolve o bug em que "8.500" virava 8,5 num <input type=number>.
+function parseBRLNumber(s) {
+  if (s == null) return 0;
+  s = String(s).trim().replace(/[R$\s]/gi, '');
+  if (!s) return 0;
+  if (s.includes(',')) {
+    // vírgula é o decimal → pontos são milhares
+    s = s.replace(/\./g, '').replace(',', '.');
+  } else if ((s.match(/\./g) || []).length > 1) {
+    // múltiplos pontos → todos são milhares (1.234.567)
+    s = s.replace(/\./g, '');
+  } else if (/\.\d{3}$/.test(s)) {
+    // um ponto com 3 dígitos depois → milhar (8.500 → 8500)
+    s = s.replace(/\./g, '');
+  }
+  const n = parseFloat(s);
+  return isNaN(n) ? 0 : n;
+}
+// Formata número como moeda BR. casas=2 mostra centavos; casas=0 inteiro.
+function fmtMoneyBR(v, casas = 2) {
+  return 'R$ ' + (Number(v) || 0).toLocaleString('pt-BR', { minimumFractionDigits: casas, maximumFractionDigits: casas });
+}
+
 // ══════════════════════════════════════════════
 //  SVG ICON MAPS
 // ══════════════════════════════════════════════
@@ -335,9 +359,9 @@ function doughnutOptions() {
 // ── KPIs do dashboard calculados a partir dos SEUS dados ──
 // Patrimônio = carteira de investimentos; Renda = perfil; Gastos = orçamentos.
 function updateDashKpis() {
-  const fmtBRL = v => 'R$ ' + Math.round(v).toLocaleString('pt-BR');
+  const fmtBRL = v => fmtMoneyBR(v, 2);
   const tot = (typeof portfolioTotals === 'function') ? portfolioTotals() : { all: 0 };
-  const income = parseFloat(_store.profile?.income) || 0;
+  const income = parseBRLNumber(_store.profile?.income);
   const spent  = (typeof budgets !== 'undefined' ? budgets : []).reduce((s, b) => s + b.spent, 0);
   const savings = Math.max(0, income - spent);
   const cash = parseFloat(_store.profile?.cash) || 0;
@@ -366,9 +390,9 @@ const INSIGHT_ICON = {
 function renderInsights() {
   const el = document.getElementById('alertList');
   if (!el) return;
-  const fmt = v => 'R$ ' + Math.round(v).toLocaleString('pt-BR');
-  const income = parseFloat(_store.profile?.income) || 0;
-  const cash   = parseFloat(_store.profile?.cash) || 0;
+  const fmt = v => fmtMoneyBR(v, 2);
+  const income = parseBRLNumber(_store.profile?.income);
+  const cash   = parseBRLNumber(_store.profile?.cash);
   const bs = (typeof budgets !== 'undefined' ? budgets : []);
   const gs = (typeof goals !== 'undefined' ? goals : []);
   const tot = (typeof portfolioTotals === 'function') ? portfolioTotals() : { all: 0 };
@@ -424,11 +448,11 @@ function renderInsights() {
 }
 
 function editCash() {
-  const cur = parseFloat(_store.profile?.cash) || 0;
+  const cur = parseBRLNumber(_store.profile?.cash);
   const val = prompt('Saldo de dinheiro líquido (conta corrente, poupança, carteira):\nR$', cur.toFixed(2));
   if (val === null) return;
-  const v = parseFloat(String(val).replace(',', '.'));
-  if (isNaN(v) || v < 0) { showToast('Valor inválido', 'error'); return; }
+  const v = parseBRLNumber(val);
+  if (v < 0) { showToast('Valor inválido', 'error'); return; }
   const profile = { ...(_store.profile || {}), cash: v };
   saveStore({ profile });
   Object.assign(_store, { profile });
@@ -446,9 +470,19 @@ const TX_COLORS = {
   investment: { bg: 'rgba(99,102,241,0.10)', color: '#6366f1', tag: 'indigo' },
 };
 const CAT_TYPE_MAP = {
-  'Receita': 'income', 'Alimentação': 'expense', 'Moradia': 'expense',
-  'Transporte': 'expense', 'Lazer': 'expense', 'Saúde': 'expense',
-  'Educação': 'expense', 'Investimento': 'investment', 'Outro': 'expense',
+  // Receitas
+  'Receita': 'income', 'Renda Extra': 'income', 'Investimento': 'investment',
+  // Moradia
+  'Aluguel': 'expense', 'Conta de Luz': 'expense', 'Água': 'expense',
+  'Internet': 'expense', 'Gás': 'expense', 'Condomínio': 'expense', 'Casa': 'expense',
+  // Dia a dia
+  'Mercado': 'expense', 'Restaurante': 'expense', 'Transporte': 'expense',
+  'Saúde': 'expense', 'Educação': 'expense', 'Vestuário': 'expense', 'Pets': 'expense',
+  // Lazer & outros
+  'Lazer': 'expense', 'Assinaturas': 'expense', 'Viagem': 'expense',
+  'Impostos': 'expense', 'Presentes': 'expense', 'Outro': 'expense',
+  // legados
+  'Alimentação': 'expense', 'Moradia': 'expense',
 };
 
 const defaultTransactions = [];
@@ -1492,7 +1526,7 @@ document.getElementById('savePersonal')?.addEventListener('click', () => {
     phone:  document.getElementById('pfPhone').value.trim(),
     birth:  document.getElementById('pfBirth').value,
     job:    document.getElementById('pfJob').value.trim(),
-    income: document.getElementById('pfIncome').value,
+    income: parseBRLNumber(document.getElementById('pfIncome').value),
   };
   saveStore({ profile: data });
   Object.assign(_store, { profile: data });
