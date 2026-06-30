@@ -993,6 +993,93 @@
       return `<b>O que beber além de água:</b> 🥤<br><br>• <b>Água com gás</b> (pura ou com limão/hortelã): zero caloria, mata a vontade de refri. Ótima troca.<br>• <b>Refrigerante zero</b>: sem açúcar/calorias; melhor que o normal, mas mantém o paladar viciado em doce — use como ponte, não hábito eterno.<br>• <b>Chá gelado sem açúcar, café, água saborizada caseira</b> (água + frutas/ervas): hidratam sem somar calorias.<br>• <b>Cuidado</b>: "águas" e chás de garrafa prontos costumam ter açúcar escondido — leia o rótulo.<br>• Suco natural conta como calorias líquidas — prefira a fruta inteira.<br><br>Meta: hidratar com bebidas de ~zero caloria e reservar as calóricas para a comida. 💧`;
     }
 
+    // ───────── NOVOS INTENTS — ONDA 2 (nichos) ─────────
+
+    // creatina e retenção/inchaço (água facial)
+    if (/(creatina (incha|retem|retém|agua|água|cara inchada|rosto inchado))|incha com creatina|creatina me incha|creatina e retencao|creatina e retenção/.test(norm)) {
+      return `<b>Creatina "incha"? Entendendo a água:</b> 💧<br><br>• A creatina puxa água <b>para dentro</b> do músculo (intracelular) — isso é volume e força, não "inchaço" estético.<br>• O ganho inicial de <b>1-2 kg</b> na balança nas primeiras 2-4 semanas é essa água, não gordura.<br>• Ela <b>não</b> causa retenção subcutânea (aquele "rosto inchado") — isso vem de sódio alto, álcool e ultraprocessado.<br>• Pular a fase de saturação (ficar nos 3-5g/dia) deixa o acúmulo de água mais suave e gradual.<br>• Beba bem (~35 ml/kg) — a creatina trabalha com água, não contra.<br><br>Se você "incha" de verdade, olhe o sódio e o álcool, não a creatina. 🧂`;
+    }
+
+    // tireoide x metabolismo lento (foco hipotireoidismo e dieta) — guarda contra iodo
+    if (/(hipotireoid|tireoide lenta|tireoide e peso|tireóide e peso|levotiroxina|puran|engordo por causa da tireoide|engordo por causa da tireóide)/.test(norm) && !/\biodo\b|sal iodado/.test(norm)) {
+      return `<b>Hipotireoidismo e peso — o que muda na dieta:</b> 🦋<br><br>• A tireoide lenta reduz o gasto, mas geralmente em <b>~100-200 kcal/dia</b> — não justifica grandes ganhos sozinha.<br>• Com a medicação (ex.: levotiroxina) bem ajustada, seu metabolismo volta ao normal e você emagrece como qualquer pessoa: <b>déficit + proteína + treino</b>.<br>• Tome a <b>levotiroxina em jejum</b>, 30-60 min antes do café; café, cálcio e ferro atrapalham a absorção (espace 4h).<br>• Apoie a tireoide com <b>selênio</b> (1 castanha-do-pará), <b>zinco</b> e <b>iodo</b> (sal iodado).<br>• Constipação e cansaço melhoram com fibra, água e o hormônio regulado.<br><br>⚠️ Dose de remédio é com endócrino + exames (TSH/T4) — nunca ajuste sozinho. 🩺`;
+    }
+
+    // SOP / ovário policístico e resistência à insulina
+    if (/\bsop\b|sindrome dos ovarios|síndrome dos ovários|ovario policistico|ovário policístico|resistencia a insulina|resistência à insulina|resistencia insulinica|resistência insulínica/.test(norm)) {
+      return `<b>SOP e resistência à insulina — alimentação:</b> 🩺<br><br>• A base da SOP costuma ser <b>resistência à insulina</b> — o foco é controlar a glicose o dia todo.<br>• <b>Reduza carbo refinado e açúcar líquido</b>; prefira integrais, com fibra, proteína e gordura boa em cada refeição (amacia o pico).<br>• <b>Perder 5-10% do peso</b> já melhora ciclo, ovulação e os exames.<br>• <b>Treino de força</b> deixa o músculo mais sensível à insulina (esponja de glicose).<br>• <b>Inositol, vitamina D e ômega-3</b> têm evidência de apoio (com orientação).<br>• Caminhar 10-15 min após comer reduz o pico de glicose.<br><br>⚠️ SOP é diagnóstico médico — combine ginecologista/endócrino + nutricionista. 🌸`;
+    }
+
+    // anemia x suplemento de ferro (como tomar) — guarda contra a intent geral de ferro/anemia
+    if (/(suplemento de ferro|sulfato ferroso|tomar ferro|ferro quelado|capsula de ferro|cápsula de ferro|repor ferro|ferro como tomar)/.test(norm)) {
+      return `<b>Suplemento de ferro — como tomar certo:</b> 💊<br><br>• Tome com <b>estômago vazio</b> (ou com vitamina C / suco de laranja) para absorver melhor.<br>• <b>Longe de café, chá, leite e cálcio</b> (espace ~2h) — eles bloqueiam o ferro.<br>• <b>Sulfato ferroso</b> é barato mas causa enjoo/prisão de ventre; <b>ferro quelado/bisglicinato</b> é mais suave no estômago.<br>• Pode <b>escurecer as fezes</b> — é normal, não é sangramento.<br>• Reposição leva <b>2-3 meses</b> para subir a ferritina; siga até o médico liberar.<br>• Não suplemente "por garantia" — ferro em excesso é tóxico.<br><br>⚠️ Só suplemente com hemograma + ferritina e orientação médica. 🩺`;
+    }
+
+    // densidade calórica / volumetria (comer mais comendo menos kcal)
+    if (/densidade calorica|densidade calórica|volumetria|comer mais e emagrecer|volume de comida|prato cheio poucas calorias|comida que enche o estomago|comida que enche o estômago/.test(norm)) {
+      return `<b>Densidade calórica — prato cheio, poucas calorias:</b> 🥦<br><br>• Densidade = kcal por grama. <b>Baixa densidade</b> enche o estômago com poucas calorias e sacia muito.<br>• <b>Baixa densidade</b> (coma à vontade): verduras, legumes, frutas, sopas, caldos — muita água e fibra.<br>• <b>Alta densidade</b> (calóricos por grama, modere): óleo (~9 kcal/g), castanhas, frituras, doces, queijos gordos.<br>• Truque: comece a refeição por <b>sopa ou salada volumosa</b> — você come menos do calórico depois.<br>• Trocar refri por água e fritura por assado derruba a densidade do prato inteiro.<br><br>Estratégia de quem emagrece sem passar fome: volume alto, densidade baixa, proteína sempre. 🍲`;
+    }
+
+    // sódio escondido / inchaço de retenção (foco retenção alimentar) — guarda contra pressão alta
+    if (/(reten(ç|c)ao de l(i|í)quido|reten(ç|c)ão de líquido|inchei|estou inchad|desinchar|barriga inchada agua|barriga inchada água|peso de agua|peso de água)/.test(norm) && !/pressao alta|pressão alta|hipertens/.test(norm)) {
+      return `<b>Retenção de líquido e como desinchar:</b> 💧<br><br>• O vilão #1 é o <b>excesso de sódio</b> (ultraprocessado, embutido, tempero pronto, fast food) — segura água debaixo da pele.<br>• <b>Potássio equilibra</b>: banana, água de coco, batata, folhas, feijão "puxam" o excesso de sódio.<br>• <b>Beba mais água</b> (parece contraintuitivo, mas hidratar reduz retenção) e mexa o corpo.<br>• Carbo muito baixo ou jejum longo seguido de exagero também oscila a água do corpo.<br>• Sono ruim, álcool e fase pré-menstrual aumentam a retenção.<br>• O "peso de água" sobe e desce 1-2 kg facilmente — não é gordura, passa em 2-3 dias.<br><br>Desinchar = menos sódio, mais potássio, água, sono e movimento. 🚶`;
+    }
+
+    // proteína em pó vegana / shake vegetal — guarda contra whey
+    if (/(proteina vegana|proteína vegana|whey vegano|proteina de ervilha|proteína de ervilha|proteina de arroz|proteína de arroz|shake vegetal|proteina sem lactose em po|proteína sem lactose em pó)/.test(norm)) {
+      return `<b>Proteína em pó vegana — escolhendo bem:</b> 🌱<br><br>• Sozinha, cada fonte é incompleta — prefira <b>blends (ervilha + arroz)</b> que fecham o aminograma.<br>• <b>~20-25g de proteína por dose</b>, sem lactose — boa para intolerantes e veganos.<br>• Costuma ter <b>menos leucina</b> que o whey, então uma dose um pouco maior compensa o estímulo muscular.<br>• <b>Proteína de soja</b> isolada é completa e barata, ótima opção.<br>• Confira o rótulo: alguns têm muito açúcar/aromatizante; prefira lista curta.<br>• Não substitui comida — é praticidade para bater a meta (1,6-2,2g/kg).<br><br>Dá para crescer músculo só com proteína vegetal, é questão de quantidade e variedade. 💪`;
+    }
+
+    // alimentos que estragam o sono x cafeína oculta
+    if (/cafeina escondida|cafeína escondida|cafeina em alimentos|cafeína em alimentos|chocolate tem cafeina|chocolate tem cafeína|cha tem cafeina|chá tem cafeína|refri tira o sono|guarana/.test(norm)) {
+      return `<b>Cafeína escondida que rouba seu sono:</b> ☕<br><br>• Além do café, há cafeína em: <b>chá preto/verde/mate</b> (~30-50mg), <b>chocolate amargo</b> (~20-40mg/30g), refri de cola, guaraná e energéticos.<br>• <b>Pré-treinos e termogênicos</b> têm doses altas (150-300mg) — tomados à tarde/noite arruínam o sono.<br>• A meia-vida é <b>~5-6h</b>: um café às 17h ainda tem metade ativa às 23h.<br>• "Descafeinado" não é zero — tem um resíduo pequeno.<br>• Sensíveis devem cortar tudo após as <b>14-16h</b>.<br><br>Se dorme mal "sem motivo", some toda a cafeína oculta do seu dia. 🌙`;
+    }
+
+    // glicogênio / carb cycling / carga de carbo
+    if (/glicogenio|glicogênio|carb cycling|ciclo de carbo|ciclar carboidrato|carregar carboidrato|carga de carbo|reposicao de glicogenio|reposição de glicogênio/.test(norm)) {
+      return `<b>Glicogênio e como (e se) ciclar carboidrato:</b> 🔋<br><br>• Glicogênio é o carbo "estocado" em músculo e fígado — combustível para treino intenso.<br>• Treino esgota parte dele; <b>repor com carbo no pós</b> recupera energia e desempenho.<br>• <b>Carb cycling</b>: mais carbo nos dias de treino pesado, menos nos dias parados — útil para alguns, mas <b>opcional</b>.<br>• Cada grama de glicogênio segura ~3g de água — por isso low carb "esvazia" e o peso cai rápido (água, não gordura).<br>• Para a maioria, manter o carbo total adequado já basta — ciclar é refinamento avançado.<br><br>Antes de ciclar carbo, acerte o básico: déficit/superávit, proteína e constância. 🍚`;
+    }
+
+    // intolerância a FODMAP / intestino irritável
+    if (/fodmap|intestino irritavel|intestino irritável|sii\b|colon irritavel|cólon irritável|barriga estufa sempre|estufamento cronico|estufamento crônico/.test(norm)) {
+      return `<b>FODMAPs e intestino irritável (SII):</b> 🌀<br><br>• <b>FODMAPs</b> são carboidratos fermentáveis que estufam intestinos sensíveis: cebola, alho, trigo, leguminosas, maçã, pera, adoçantes (sorbitol), laticínios com lactose.<br>• A <b>dieta low-FODMAP</b> tem 3 fases: retira por 2-6 semanas, reintroduz testando, e personaliza — <b>não é para sempre</b>.<br>• Foco em sintomas: estufamento, gases, dor e alternância de hábito intestinal.<br>• <b>Coma devagar</b>, evite refri/canudo (engole ar) e controle o estresse (eixo intestino-cérebro).<br>• Hortelã (óleo) e probióticos específicos ajudam alguns.<br><br>⚠️ Faça low-FODMAP com nutricionista — é restritiva e precisa de reintrodução guiada. 🩺`;
+    }
+
+    // pico de glicose / ordem dos alimentos no prato
+    if (/ordem (dos|de) alimentos|ordem de comer|comer salada primeiro|comecar pela salada|começar pela salada|sequencia da refeicao|sequência da refeição|pico de glicose|pico de açucar|pico de açúcar/.test(norm) && !/diabet|glicemia|insulina/.test(norm)) {
+      return `<b>A ordem do prato muda seu pico de glicose:</b> 🥗➡️🍚<br><br>• Comer na sequência <b>fibra → proteína/gordura → carboidrato</b> reduz o pico de glicose em até ~30-40%.<br>• Comece pela <b>salada/legumes</b>, depois a proteína (carne, ovo, frango), e o arroz/batata por último.<br>• A fibra forma uma "rede" que desacelera a absorção do açúcar.<br>• <b>Menos pico = menos fome de rebote</b>, mais energia estável e menos sonolência pós-almoço.<br>• Uma <b>caminhada de 10-15 min</b> após comer derruba ainda mais o pico.<br>• Não precisa mudar o que come — só a ordem e o ritmo.<br><br>Truque grátis e poderoso para energia constante e menos beliscos. 🚶`;
+    }
+
+    // fome no início de dieta / adaptação
+    if (/fome no comeco da dieta|fome no começo da dieta|aguentar a fome|primeira semana de dieta|adaptacao a dieta|adaptação à dieta|comecar a dieta com fome|começar a dieta com fome|barriga roncando dieta/.test(norm)) {
+      return `<b>Fome no começo da dieta — é normal e passa:</b> ⏳<br><br>• Nos <b>primeiros 7-14 dias</b> o corpo "reclama" da mudança — a fome costuma estabilizar depois.<br>• <b>Munição contra a fome</b>: proteína em todas as refeições, volume de vegetais/saladas, fibras e bastante água.<br>• Faça um <b>déficit moderado</b> (300-500 kcal) — corte agressivo gera fome insuportável e desistência.<br>• <b>Durma bem</b>: noite ruim eleva grelina (fome) e te faz buscar açúcar.<br>• Café e chá sem açúcar ajudam a "enganar" entre refeições.<br>• Distinga <b>fome real de tédio/sede</b>: beba água e espere 10 min.<br><br>Se a fome é constante e sofrida, seu déficit está agressivo demais — afrouxe. 💚`;
+    }
+
+    // gordura visceral / barriga
+    if (/gordura visceral|gordura abdominal|barriga teimosa|gordura na barriga|perder barriga|secar a barriga|cintura grande|circunferencia abdominal|circunferência abdominal/.test(norm)) {
+      return `<b>Gordura visceral (barriga) — a mais perigosa:</b> 🎯<br><br>• A gordura <b>visceral</b> (ao redor dos órgãos) é a que mais aumenta risco de diabetes, coração e inflamação.<br>• <b>Não existe "queima localizada"</b>: você perde barriga emagrecendo no geral (déficit calórico).<br>• <b>Pioram a barriga</b>: açúcar líquido, álcool, ultraprocessado, noites mal dormidas e estresse (cortisol acumula gordura abdominal).<br>• <b>Ajudam</b>: proteína alta, fibras, treino de força + cardio, e principalmente <b>sono</b>.<br>• Acompanhe a <b>circunferência da cintura</b> (homens &lt;94 cm, mulheres &lt;80 cm como alvo) — às vezes muda antes do peso.<br><br>Boa notícia: a visceral costuma ser a <b>primeira a sair</b> quando você melhora a dieta e dorme bem. 💪`;
+    }
+
+    // diet break / refeed planejado
+    if (/diet break|refeed|recarga|dia do lixo|cheat day|cheat meal|refeicao livre|refeição livre|dia livre na dieta|parar a dieta por uns dias/.test(norm)) {
+      return `<b>Diet break, refeed e "dia do lixo":</b> 🔄<br><br>• <b>Diet break</b>: 1-2 semanas comendo na <b>manutenção</b> (sem déficit) a cada 1-2 meses de dieta — alivia a cabeça e a fome, e ajuda a manter a adesão.<br>• <b>Refeed</b>: 1 dia com mais <b>carboidrato</b> (não gordura/lixo) para repor glicogênio e dar gás ao treino.<br>• <b>"Dia do lixo"</b> sem controle é furada: dá para comer 3000+ kcal extras em um dia e apagar a semana inteira de déficit.<br>• Melhor que dia livre é <b>refeição livre</b> planejada — curtir sem estourar.<br>• Use como ferramenta estratégica, não como válvula de escape da restrição.<br><br>Flexibilidade controlada (80/20) sustenta a dieta a longo prazo. 🍽️`;
+    }
+
+    // contar calorias x intuitivo / pesar comida
+    if (/contar caloria|contar as calorias|pesar (a )?comida|balanca de cozinha|balança de cozinha|app de caloria|aplicativo de caloria|comer intuitivo|alimentacao intuitiva|alimentação intuitiva|preciso contar/.test(norm)) {
+      return `<b>Contar calorias x comer no olho — qual escolher:</b> 🔢<br><br>• <b>Contar (app + balança)</b>: preciso e educativo. Vale fazer por <b>2-4 semanas</b> para aprender porções e onde estão suas calorias.<br>• Depois de "calibrar o olho", você pode estimar sem pesar tudo para sempre.<br>• <b>Comer intuitivo</b> funciona quando você já tem noção de porção, prioriza proteína/fibra e respeita fome/saciedade.<br>• <b>Erro comum</b>: subnotar (esquecer óleo, bebidas, beliscos) — por isso pesar 1 fase ajuda a enxergar a real.<br>• Não vire refém do número: a balança de cozinha é ferramenta, não prisão.<br><br>Conte para aprender, depois solte para sustentar. O método certo é o que você mantém. 📲`;
+    }
+
+    // creatina e mulher / mitos femininos
+    if (/(creatina (mulher|feminin|engorda mulher|incha mulher|masculiniza))|mulher pode tomar creatina|creatina para mulher|creatina deixa masculina/.test(norm)) {
+      return `<b>Creatina para mulheres — sem mitos:</b> 👩<br><br>• Creatina <b>não é hormônio</b> e <b>não masculiniza</b> — funciona igual para os dois sexos.<br>• <b>Não engorda</b>: o ganho inicial de 1-2 kg é água dentro do músculo, não gordura.<br>• Mulheres têm estoques naturais menores, então podem <b>responder bem</b> (força, treino e até cognição/humor).<br>• Há evidência de benefícios extras na <b>menopausa</b> (massa óssea e muscular) e ao longo do ciclo.<br>• Dose igual: <b>3-5g/dia</b>, monohidratada, todo dia. Beba bastante água.<br><br>É um dos suplementos mais seguros e úteis para mulheres que treinam. 💪`;
+    }
+
+    // alimentação pré-prova / foco / cérebro
+    if (/comida para o cerebro|comida para o cérebro|alimento para foco|alimento para concentracao|alimento para concentração|comer antes de prova|antes da prova|antes do exame|memoria alimentacao|memória alimentação|nootropico alimentar/.test(norm)) {
+      return `<b>Comer para foco, memória e cérebro:</b> 🧠<br><br>• <b>Ômega-3 (DHA)</b> é estrutural do cérebro: peixe gordo 2x/semana melhora memória e humor.<br>• <b>Glicose estável</b> = foco estável: prefira carbo integral + proteína; evite o doce que dá pico e depois apagão.<br>• <b>Café/cafeína</b> (200-300mg) melhora atenção — mas não em jejum nervoso nem tarde demais.<br>• <b>Antes de prova</b>: refeição leve com carbo bom + proteína (ex.: pão integral + ovo + fruta). Nada pesado/gorduroso (dá sono).<br>• <b>Hidrate</b>: até 2% de desidratação já derruba a concentração.<br>• Colina (ovo), antioxidantes (frutas vermelhas, cacau) e bom sono completam.<br><br>Cérebro afiado = glicose estável + ômega-3 + água + sono. ☕`;
+    }
+
     // ───────── saudação ─────────
     if (/^(oi|olá|ola|bom dia|boa tarde|boa noite|e ai|eai|opa|hey|tudo bem|ola nutri)/.test(norm)) {
       return `Olá! 👋 Sou o <b>NutriBot</b>, sua IA de nutrição e performance. Posso:<br><br>• Calcular suas calorias, macros e IMC com seus dados<br>• Dizer as calorias de cada alimento<br>• Orientar emagrecimento, ganho de massa, pré/pós-treino<br>• Falar de suplementos (creatina, whey, cafeína), jejum, colesterol, glicemia, sono e mais<br>• Usar sua <b>recuperação da Whoop</b> para sugerir treino e dieta do dia 🟢<br><br>Pergunte à vontade ou toque numa sugestão. 🥗`;
