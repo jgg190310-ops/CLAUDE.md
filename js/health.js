@@ -1080,6 +1080,104 @@
       return `<b>Comer para foco, memória e cérebro:</b> 🧠<br><br>• <b>Ômega-3 (DHA)</b> é estrutural do cérebro: peixe gordo 2x/semana melhora memória e humor.<br>• <b>Glicose estável</b> = foco estável: prefira carbo integral + proteína; evite o doce que dá pico e depois apagão.<br>• <b>Café/cafeína</b> (200-300mg) melhora atenção — mas não em jejum nervoso nem tarde demais.<br>• <b>Antes de prova</b>: refeição leve com carbo bom + proteína (ex.: pão integral + ovo + fruta). Nada pesado/gorduroso (dá sono).<br>• <b>Hidrate</b>: até 2% de desidratação já derruba a concentração.<br>• Colina (ovo), antioxidantes (frutas vermelhas, cacau) e bom sono completam.<br><br>Cérebro afiado = glicose estável + ômega-3 + água + sono. ☕`;
     }
 
+    // ───────── NOVOS INTENTS — ONDA 3 (nichos profundos) ─────────
+
+    // creatina e cafeína juntos / pré-treino caseiro
+    if (/(pre.?treino caseiro|pré.?treino caseiro|montar pre.?treino|cafe com creatina|café com creatina|cafeina e creatina|cafeína e creatina|pre treino natural|pré treino natural)/.test(norm)) {
+      const w = body.weight || 70;
+      return `<b>Pré-treino caseiro (sem gastar com fórmula):</b> ⚡<br><br>• <b>Cafeína</b>: ~3-6 mg/kg (para ${body.weight ? `${w}kg` : '70kg'} ≈ <b>${Math.round(w*3)}-${Math.round(w*6)} mg</b>, ou 1-2 cafés) 30-40 min antes.<br>• <b>Carboidrato</b>: 1 banana ou 1 fatia de pão integral para energia.<br>• <b>Creatina</b> (3-5g): pode tomar junto — o velho mito de que "cafeína anula creatina" não se sustenta na prática.<br>• <b>Água</b>: comece o treino hidratado (~500 ml na hora antes).<br>• Pitada de <b>sal</b> + limão se for treino longo/muito suor.<br><br>Custo de centavos e funciona igual ou melhor que pré-treino de pote. ☕💪`;
+    }
+
+    // beterraba / nitrato / desempenho aeróbico
+    if (/beterraba|nitrato|suco de beterraba|oxido nitrico|óxido nítrico|melhorar folego|melhorar fôlego|resistencia aerobica|resistência aeróbica/.test(norm)) {
+      return `<b>Beterraba e nitrato para o fôlego:</b> 🥤<br><br>• A beterraba é rica em <b>nitrato</b>, que vira óxido nítrico e <b>dilata os vasos</b> — mais oxigênio para o músculo.<br>• Evidência real de melhora em <b>resistência aeróbica</b> (corrida, ciclismo) de ~1-3%.<br>• <b>Dose</b>: ~500 ml de suco de beterraba (ou 2-3 beterrabas) <b>2-3h antes</b> do esforço.<br>• Outras fontes de nitrato: rúcula, espinafre, agrião.<br>• Pode tingir urina/fezes de rosa — é inofensivo (beturia).<br>• Efeito é para endurance; pouco útil para força pura.<br><br>Aliado barato de quem corre ou pedala distâncias. 🚴`;
+    }
+
+    // sarcopenia/proteína em jejum prolongado x catabolismo (mito do "comer de 3 em 3h")
+    if (/(comer de 3 em 3|comer a cada 3 horas|comer de 3 em três|catabolismo|fica catabolico|fica catabólico|musculo derrete|músculo derrete|ficar sem comer perde musculo|jejum perde musculo|jejum perde músculo)/.test(norm) && !/jejum intermitente|16.?8/.test(norm)) {
+      return `<b>"Comer de 3 em 3h ou catabolismo"? Mito desmontado:</b> ⏱️<br><br>• Você <b>não derrete músculo</b> por ficar 4-5h sem comer — o catabolismo real exige jejum de muitas horas + déficit grande + zero proteína.<br>• Frequência de refeições <b>não acelera o metabolismo</b> de forma relevante: 3 ou 6 refeições, com mesmas calorias/proteína, dão o mesmo resultado.<br>• O que protege músculo: <b>proteína total do dia</b> (1,6-2,2g/kg) e <b>treino de força</b> — não o relógio.<br>• Comer mais vezes só ajuda quem sente menos fome assim; coma no esquema que você sustenta.<br>• Pular o café da manhã não engorda nem "trava" nada por si só.<br><br>Foque no total do dia, não na contagem de refeições. 🍽️`;
+    }
+
+    // proteína do leite / caseína x whey à noite
+    if (/caseina|caseína|proteina do leite|proteína do leite|proteina lenta|proteína lenta|whey ou caseina|whey ou caseína|proteina para dormir/.test(norm)) {
+      return `<b>Caseína x whey — proteína rápida e lenta:</b> 🥛<br><br>• O leite tem <b>~80% caseína e 20% whey</b>. O whey absorve rápido; a <b>caseína</b> libera aminoácidos <b>devagar (6-8h)</b>.<br>• <b>Caseína à noite</b> alimenta o reparo muscular durante o sono — boa na ceia.<br>• Fontes naturais de caseína: <b>queijo cottage, requeijão, iogurte, leite</b>.<br>• Para a maioria, o que importa é a <b>proteína total do dia</b> — o timing rápido/lento é detalhe fino.<br>• Whey antes/depois do treino pela praticidade; caseína (ou um pote de iogurte) antes de dormir.<br><br>Não precisa comprar caseína em pó: um pote de iogurte natural já resolve. 🌙`;
+    }
+
+    // alimentação no trabalho noturno / turno da noite
+    if (/trabalho noturno|turno da noite|trabalho de madrugada|plantao|plantão|trabalho em turno|virar a noite trabalhando|comer no plantao|comer no plantão/.test(norm)) {
+      return `<b>Comer bem no trabalho noturno / plantão:</b> 🌃<br><br>• Trabalhar à noite bagunça o relógio biológico e <b>aumenta a fome por açúcar</b> — leve comida pronta para não cair no ultraprocessado da máquina.<br>• Faça uma <b>refeição "principal" antes do plantão</b> e lanches leves e proteicos durante (iogurte, ovo, fruta, castanhas).<br>• <b>Evite refeição pesada/gordurosa de madrugada</b> — digestão lenta dá mal-estar e sono pior depois.<br>• <b>Cafeína só na primeira metade</b> do turno; cortar 6h antes de ir dormir de dia.<br>• Ao chegar em casa, <b>quarto escuro</b> (blackout) e refeição leve antes de deitar.<br>• Hidrate — a tendência é beber menos água acordado à noite.<br><br>Constância de horários (mesmo invertidos) ajuda o corpo a se adaptar. 😴`;
+    }
+
+    // creatina e exames / creatinina alterada
+    if (/creatinina|creatina e rim|creatina faz mal pro rim|creatina prejudica rim|exame alterado creatina|creatina e exame de sangue/.test(norm)) {
+      return `<b>Creatina, creatinina e exames renais:</b> 🧪<br><br>• Creatina <b>não prejudica rins saudáveis</b> — décadas de estudo confirmam segurança.<br>• Ela pode <b>elevar levemente a creatinina</b> no exame (subproduto natural) sem que haja qualquer dano renal — é um falso alarme comum.<br>• <b>Avise seu médico</b> que usa creatina antes de exames renais; ele pode pedir <b>cistatina C</b> para avaliar a função real.<br>• Quem tem <b>doença renal pré-existente</b> deve usar só com orientação médica.<br>• Hidrate bem (~35 ml/kg) — a creatina trabalha com água.<br><br>Para gente saudável: segura, mesmo a longo prazo. Só contextualize o exame. 🩺`;
+    }
+
+    // doação de sangue / recuperar ferro depois
+    if (/doacao de sangue|doação de sangue|doei sangue|doar sangue|recuperar depois de doar|tirei sangue exame|repor sangue/.test(norm)) {
+      return `<b>Doou sangue? Como se recuperar:</b> 🩸<br><br>• Cada doação retira <b>~200-250 mg de ferro</b> — o corpo repõe o volume em horas, mas o <b>ferro</b> leva semanas.<br>• <b>Hidrate bastante</b> antes e depois (água, suco) para repor o volume.<br>• <b>Capriche em ferro</b> nos dias seguintes: carne vermelha magra, feijão, folhas verdes + <b>vitamina C</b> (laranja, limão) para absorver melhor.<br>• Evite café/chá junto das refeições com ferro (atrapalham a absorção).<br>• <b>Não treine pesado</b> nas primeiras 24-48h — pode dar tontura.<br>• Coma algo antes de doar (nunca em jejum) e evite gordura na refeição prévia.<br><br>Mulheres e doadores frequentes: fiquem de olho na ferritina. 💪`;
+    }
+
+    // viagem de avião / inchaço e alimentação na viagem
+    if (/viagem de aviao|viagem de avião|comer no aviao|comer no avião|jet lag|inchaço na viagem|inchaco na viagem|comer viajando|alimentacao em viagem|alimentação em viagem|viagem longa/.test(norm)) {
+      return `<b>Alimentação em viagem (e o inchaço do avião):</b> ✈️<br><br>• O ar pressurizado + ficar sentado + comida salgada de bordo causam <b>retenção e pés/mãos inchados</b> — normal e passageiro.<br>• <b>Hidrate muito</b>: o ar do avião é seco; beba água e evite excesso de álcool/café (desidratam).<br>• <b>Leve lanches proteicos</b> (castanhas, barrinha de verdade, fruta) para não depender de fast food do aeroporto.<br>• <b>Mexa-se</b>: levante e caminhe a cada 1-2h em voos longos (circulação).<br>• <b>Jet lag</b>: ajuste os horários das refeições ao destino e pegue sol ao chegar.<br>• Prisão de ventre em viagem é comum — fibras, água e movimento ajudam.<br><br>Um dia de viagem mal-comido não estraga nada — retome a rotina ao chegar. 🧳`;
+    }
+
+    // ômega-6 / equilíbrio com ômega-3 / óleos vegetais
+    if (/omega.?6|ômega.?6|oleo de soja faz mal|óleo de soja faz mal|oleo vegetal inflama|óleo vegetal inflama|equilibrio omega|equilíbrio ômega|razao omega/.test(norm)) {
+      return `<b>Ômega-6 e o equilíbrio com ômega-3:</b> ⚖️<br><br>• O ômega-6 é <b>essencial</b>, mas a dieta moderna tem <b>excesso</b> dele (óleos de soja/milho, frituras, ultraprocessados) e <b>pouco ômega-3</b>.<br>• O desequilíbrio (razão muito alta) está ligado a <b>mais inflamação</b>.<br>• <b>O ajuste certo não é "zerar ômega-6"</b> — é <b>aumentar o ômega-3</b> (peixe gordo, sardinha 2x/semana, linhaça/chia) e <b>reduzir óleo refinado e fritura</b>.<br>• Prefira <b>azeite de oliva</b> para o dia a dia.<br>• Castanhas têm ômega-6, mas vêm com nutrientes — sem problema com moderação.<br><br>Menos óleo refinado + mais peixe = equilíbrio resolvido. 🐟`;
+    }
+
+    // vitamina K / coagulação / verduras escuras
+    if (/vitamina k|coagula|anticoagulante|varfarina|marevan|couve vitamina|verdura escura vitamina/.test(norm)) {
+      return `<b>Vitamina K — coagulação e ossos:</b> 🥬<br><br>• Essencial para a <b>coagulação do sangue</b> e para fixar o cálcio nos ossos (K2).<br>• <b>K1</b>: folhas verde-escuras (couve, espinafre, brócolis, alface). <b>K2</b>: ovo, queijo, fermentados, fígado.<br>• Deficiência é rara em quem come vegetais — a flora intestinal também produz um pouco.<br>• ⚠️ <b>Quem usa anticoagulante</b> (varfarina/Marevan) deve manter o consumo de vitamina K <b>constante</b> (não cortar nem exagerar de repente) — ela interfere no remédio.<br>• Vitamina K2 + D + cálcio juntos otimizam a saúde óssea.<br><br>⚠️ Em uso de anticoagulante, alinhe a dieta com o médico. 🩺`;
+    }
+
+    // creatina e veganos / vegetarianos
+    if (/(creatina (vegan|vegetarian))|vegano precisa de creatina|vegetariano creatina|creatina para vegano|creatina para vegetariano/.test(norm)) {
+      return `<b>Creatina para veganos e vegetarianos:</b> 🌱<br><br>• A creatina vem naturalmente da <b>carne e peixe</b> — então veg* têm estoques musculares <b>mais baixos</b>.<br>• Por isso, são quem <b>mais responde</b> ao suplemento: ganhos de força e até <b>cognitivos</b> tendem a ser maiores.<br>• A creatina <b>monohidratada</b> em pó é <b>sintética/vegana</b> (não vem de animal) — pode usar sem conflito ético.<br>• Dose igual: <b>3-5g/dia</b>, todo dia.<br>• Confirme no rótulo se a cápsula é vegana (algumas usam gelatina); o pó costuma ser ok.<br><br>É talvez o suplemento de maior custo-benefício para quem não come carne. 💪`;
+    }
+
+    // crucíferos / brócolis / couve / sulforafano
+    if (/crucifero|crucífero|brocolis|brócolis|couve flor|couve-flor|repolho|sulforafano|couve beneficio|couve benefício/.test(norm)) {
+      return `<b>Vegetais crucíferos — pequenos poderosos:</b> 🥦<br><br>• Família: <b>brócolis, couve-flor, couve, repolho, rúcula, agrião</b>.<br>• Ricos em <b>fibra, vitamina C, K e folato</b>, e em compostos como o <b>sulforafano</b> (antioxidante/detox natural do fígado).<br>• Associados a menor risco de alguns cânceres e a boa saúde intestinal.<br>• <b>Cause menos gases</b>: cozinhe no vapor levemente (cru/excesso fermenta mais).<br>• ⚠️ <b>Tireoide</b>: o medo de crucífero "prejudicar a tireoide" só vale em <b>excesso cru e enorme</b> com deficiência de iodo — cozidos e em porções normais são seguros.<br>• Mire ao menos 1 porção por dia, variando.<br><br>Baratos, versáteis e dos vegetais mais nutritivos que existem. 🌿`;
+    }
+
+    // bebida proteica pronta / barrinha de proteína
+    if (/barrinha de proteina|barrinha de proteína|barra proteica|bebida proteica pronta|iogurte proteico|whey pronto|leite proteico|barrinha vale a pena/.test(norm)) {
+      return `<b>Barrinhas e bebidas proteicas prontas:</b> 🍫<br><br>• <b>Praticidade</b> para bater proteína na correria — boas como <b>plano B</b>, não base da dieta.<br>• <b>Leia o rótulo</b>: muitas barrinhas têm <b>pouca proteína (≈10g) e muito açúcar/gordura</b> — viram chocolate caro.<br>• Boa barrinha: <b>≥15-20g de proteína</b> e baixo açúcar. Iogurtes proteicos rendem ~15-25g por pote.<br>• <b>Custo</b>: ovo (~R$0,80/6g) e frango são bem mais baratos por grama de proteína.<br>• Bebida proteica pronta é ótima no pós-treino quando não dá para comer.<br><br>Use como ferramenta de conveniência — comida de verdade resolve melhor e mais barato. 🥚`;
+    }
+
+    // chimarrão / mate / chá mate
+    if (/chimarrao|chimarrão|erva mate|erva-mate|mate|terere|tereré|cha mate|chá mate/.test(norm)) {
+      return `<b>Mate, chimarrão e tereré:</b> 🧉<br><br>• A erva-mate tem <b>cafeína</b> (estimulante leve), antioxidantes e um efeito termogênico modesto.<br>• <b>Sem açúcar</b>, é bebida quase zero caloria — ótima troca por refri/suco e ajuda na hidratação e foco.<br>• Pode dar uma leve <b>saciedade</b> e melhora a disposição (bom pré-treino natural).<br>• ⚠️ <b>Cafeína</b>: evite à tarde/noite se você é sensível ao sono.<br>• Mate <b>muito quente e frequente</b> está associado a irritação do esôfago — prefira morno.<br>• Tereré (gelado) é hidratante no calor; cuidado com adições açucaradas.<br><br>Bebida cultural, saudável e econômica — só não adoce. 🌿`;
+    }
+
+    // alimentação para correr / maratona / endurance
+    if (/correr (longo|maratona|prova)|maratona|corrida de rua|nutricao para corrida|nutrição para corrida|gel de carboidrato|comer durante a corrida|carboidrato na prova|meia maratona/.test(norm)) {
+      return `<b>Nutrição para corrida e endurance:</b> 🏃<br><br>• <b>Carga de carboidrato</b> nos 1-3 dias antes de provas longas (>90 min) lota o glicogênio.<br>• <b>Pré-prova</b> (2-3h antes): carbo de fácil digestão, baixa gordura/fibra (pão, banana, mingau de aveia).<br>• <b>Durante (>1h)</b>: 30-60g de carbo/hora — gel, banana, isotônico; mais sódio se suar muito.<br>• <b>Hidratação</b>: beba conforme a sede + reponha eletrólitos em provas longas/calor.<br>• <b>Pós</b>: carbo + proteína (3:1) para repor glicogênio e reparar.<br>• <b>Treine o estômago</b>: nunca teste comida/gel novo no dia da prova.<br><br>Treino curto (<1h)? Água basta. A estratégia de comida é para a distância. 🥤`;
+    }
+
+    // alimentação e humor / depressão / serotonina
+    if (/(comida e humor|alimentacao e humor|alimentação e humor|serotonina|alimento para depressao|alimento para depressão|comida que melhora o humor|dieta e ansiedade)/.test(norm) && !/triptofano|dormir|insonia|insônia/.test(norm)) {
+      return `<b>Alimentação, humor e saúde mental:</b> 🧠💚<br><br>• O intestino produz a maior parte da <b>serotonina</b> do corpo — <b>microbiota saudável</b> (fibras, fermentados) reflete no humor.<br>• <b>Ômega-3</b> (peixe gordo) tem evidência de apoio contra sintomas depressivos.<br>• <b>Açúcar e ultraprocessado</b> dão pico-e-queda que pioram irritabilidade e energia; padrão mediterrâneo se associa a melhor humor.<br>• Nutrientes-chave: <b>vitamina D, B12, folato, magnésio, ferro</b> — deficiências cansam e abatem.<br>• <b>Cafeína e álcool</b> em excesso pioram ansiedade e sono.<br><br>⚠️ Comida ajuda, mas <b>não substitui tratamento</b>: depressão/ansiedade pedem apoio profissional. 🩺`;
+    }
+
+    // alimentação para academia em jejum / treino em jejum
+    if (/treinar em jejum|treino em jejum|cardio em jejum|aerobico em jejum|aeróbico em jejum|malhar em jejum|musculacao em jejum|musculação em jejum|treino de manha em jejum|treino de manhã em jejum/.test(norm)) {
+      return `<b>Treinar em jejum — quando vale:</b> 🌅<br><br>• <b>Cardio leve/moderado em jejum</b>: ok e pode ser confortável para alguns. Mas <b>não queima "mais gordura no total"</b> — o que conta é o déficit do dia.<br>• <b>Força/treino pesado</b>: rende mais <b>alimentado</b> — falta combustível em jejum derruba o desempenho.<br>• Quem treina em jejum deve <b>caprichar na proteína no pós</b> para reparar o músculo.<br>• Sentir tontura, fraqueza ou queda de rendimento? Coma algo leve antes (banana + café já ajuda).<br>• Diabéticos e quem usa medicação devem evitar treinar em jejum sem orientação.<br><br>Treine em jejum se for confortável e o objetivo for leve; para força, coma antes. 🍌`;
+    }
+
+    // cromo / picolinato / controle de doce
+    if (/cromo|picolinato|cromo emagrece|cromo para doce|controlar vontade com cromo/.test(norm)) {
+      return `<b>Cromo (picolinato) — vale a pena?</b> ⚗️<br><br>• Mineral que participa da ação da insulina e do metabolismo de carboidratos.<br>• A propaganda diz que "corta a vontade de doce" e emagrece — a <b>evidência é fraca e o efeito, pequeno</b>.<br>• Deficiência real de cromo é <b>rara</b> em quem come variado (carne, grãos integrais, brócolis, castanhas).<br>• Não é "queimador de gordura" — quem emagrece é o déficit calórico, não a cápsula.<br>• Dose usual ~200 mcg/dia é segura, mas dificilmente faz diferença visível.<br><br>Antes de comprar cromo, acerte proteína, fibra e sono — isso sim derruba a fissura por doce. 🍫`;
+    }
+
+    // saúde bucal / dentes e alimentação / cárie
+    if (/carie|cárie|saude bucal|saúde bucal|dentes e alimentacao|dentes e alimentação|alimento que estraga o dente|esmalte dos dentes|acido erode dente/.test(norm)) {
+      return `<b>Alimentação e saúde dos dentes:</b> 🦷<br><br>• <b>Açúcar + bactérias = ácido</b> que corrói o esmalte. O vilão não é só a quantidade, mas a <b>frequência</b> — beliscar doce o dia todo é pior que comer de uma vez.<br>• <b>Bebidas ácidas/açucaradas</b> (refri, suco, energético) banham os dentes em ácido — use canudo e enxágue com água.<br>• <b>Não escove logo após</b> algo ácido (espere ~30 min) — o esmalte fica vulnerável.<br>• <b>Ajudam</b>: cálcio (queijo, leite), água com flúor, fibras que "limpam" (maçã, cenoura), e saliva (hidratação).<br>• Mascar chiclete sem açúcar (xilitol) após refeições reduz cáries.<br><br>Comer açúcar nas refeições (e não entre elas) já protege bastante. 💧`;
+    }
+
     // ───────── saudação ─────────
     if (/^(oi|olá|ola|bom dia|boa tarde|boa noite|e ai|eai|opa|hey|tudo bem|ola nutri)/.test(norm)) {
       return `Olá! 👋 Sou o <b>NutriBot</b>, sua IA de nutrição e performance. Posso:<br><br>• Calcular suas calorias, macros e IMC com seus dados<br>• Dizer as calorias de cada alimento<br>• Orientar emagrecimento, ganho de massa, pré/pós-treino<br>• Falar de suplementos (creatina, whey, cafeína), jejum, colesterol, glicemia, sono e mais<br>• Usar sua <b>recuperação da Whoop</b> para sugerir treino e dieta do dia 🟢<br><br>Pergunte à vontade ou toque numa sugestão. 🥗`;

@@ -3831,6 +3831,366 @@ async function aiAnswer(q) {
       `• Reserve uma fatia fixa do orçamento para doar (o "pote do doar") — generosidade planejada é sustentável; impulso, não.`;
   }
 
+  // ───────── ONDA 2 — NICHOS MAIS PROFUNDOS ─────────
+
+  // CRI / CRA — recebíveis isentos sem FGC
+  if (/\bcri\b|\bcra\b|certificado de recebiveis|recebiveis imobiliarios|recebiveis do agro/.test(t)) {
+    return `<b>CRI e CRA — renda fixa isenta, mas sem rede de proteção:</b><br><br>` +
+      `• São títulos de <b>recebíveis</b> (imobiliários no CRI, agronegócio no CRA): você financia uma operação e recebe juros, em geral <b>IPCA+ ou % do CDI</b>.<br>` +
+      `• Grande atrativo: <b>isentos de IR</b> para pessoa física — um CRI a IPCA+7% líquido equivale a um CDB que pagaria bem mais bruto.<br>` +
+      `• Risco real: <b>NÃO têm FGC</b>. Se o devedor da operação calotear, a perda é sua — analise o lastro, a garantia e o rating.<br>` +
+      `• Liquidez baixa: vendê-los antes do vencimento no mercado secundário costuma sair com deságio. Combine só com dinheiro que pode ficar parado anos.<br>` +
+      `• Pulverize: nunca concentre em 1 emissor. Para a maioria, debênture incentivada e Tesouro IPCA+ já cobrem o papel de "isento de longo prazo".`;
+  }
+
+  // Tesouro Selic com taxa negativa / ágio na compra
+  if (/tesouro selic com taxa negativa|taxa negativa.*tesouro|tesouro selic 0|spread.*tesouro selic|por que.*tesouro selic rendeu menos/.test(t)) {
+    return `<b>Tesouro Selic "rendendo menos que a Selic" — o que houve:</b><br><br>` +
+      `• Em momentos de estresse, o Tesouro vende o Selic com um pequeno <b>ágio</b> (taxa tipo "Selic − 0,1%") — você compra um pouco mais caro e o rendimento fica abaixo de 100% da Selic.<br>` +
+      `• Isso aparece como um <b>solavanco temporário</b> no extrato (até negativo em dias isolados), mas se corrige conforme o título caminha ao vencimento.<br>` +
+      `• Não é calote nem erro: é a marcação a mercado agindo até no pós-fixado mais seguro do país.<br>` +
+      `• Para reserva, o impacto é irrelevante no horizonte de meses. Quem comprou no susto e segurou não perde nada relevante.<br>` +
+      `• Se a diferença te incomoda, um <b>CDB de liquidez diária a 100%+ CDI</b> com FGC é alternativa equivalente para o colchão.`;
+  }
+
+  // Conta PJ / pessoa jurídica investindo / reserva da empresa
+  if (/conta pj|investir pela empresa|caixa da empresa render|aplicar dinheiro da empresa|reserva da empresa|investimento pessoa juridica/.test(t)) {
+    return `<b>Sobra de caixa da empresa — onde deixar render:</b><br><br>` +
+      `• PJ <b>não tem isenção</b> de R$ 20 mil em ações nem isenção de LCI/LCA como a PF — o ganho entra no resultado e é tributado conforme o regime (Simples/Presumido/Real).<br>` +
+      `• Para o <b>capital de giro</b> (3–6 meses de custos fixos): Tesouro Selic ou CDB liquidez diária via conta PJ — liquidez e segurança acima de rentabilidade.<br>` +
+      `• Cuidado para não descapitalizar: dinheiro de imposto provisionado (DAS, INSS, 13º dos funcionários) NÃO é sobra — é passivo com data marcada.<br>` +
+      `• Distribuir lucro (isento de IR) para o sócio investir como PF às vezes vence deixar render dentro do CNPJ — rode com o contador.<br>` +
+      `• Separe fisicamente: conta operacional, conta de reserva e conta de impostos. Misturar é a origem nº 1 de quebra por falta de caixa.`;
+  }
+
+  // Antecipação de recebíveis de cartão / maquininha
+  if (/antecipacao de recebiveis|antecipar (vendas|cartao|maquininha)|recebiveis de cartao|taxa da maquininha|adquirente/.test(t)) {
+    return `<b>Antecipar vendas de cartão — quanto isso custa de verdade:</b><br><br>` +
+      `• A maquininha já cobra uma <b>taxa por transação</b> (1,5–4% no débito/crédito à vista); a <b>antecipação</b> do parcelado é um custo adicional embutido.<br>` +
+      `• Antecipar receber em D+1 em vez de D+30 custa tipicamente <b>1,5–3% a.m.</b> sobre o valor — é praticamente um empréstimo caro disfarçado de "facilidade".<br>` +
+      `• Só antecipe se a alternativa for crédito MAIS caro (cheque especial, rotativo) ou se o caixa parar a operação — não vire refém de antecipar tudo todo mês.<br>` +
+      `• Negocie a taxa: volume dá poder de barganha, e há adquirentes/contas PJ com taxa zero de antecipação como isca — compare o CET real.<br>` +
+      `• Solução estrutural: capital de giro próprio (3–6 meses) elimina a dependência de antecipar e devolve essa margem ao lucro.`;
+  }
+
+  // Compensação de prejuízo em renda variável
+  if (/compensar prejuizo|prejuizo (na bolsa|em acoes|acumulado)|abater prejuizo|prejuizo (com|de) (acoes|fii)/.test(t)) {
+    return `<b>Prejuízo na bolsa — transforme a perda em economia de IR:</b><br><br>` +
+      `• Perdas <b>abatem lucros futuros</b> da mesma categoria, sem prazo de validade — guarde o histórico mês a mês.<br>` +
+      `• A regra é por "balde": prejuízo de <b>ações no mercado à vista</b> compensa lucro de ações; <b>FII</b> compensa FII; <b>day trade</b> só compensa day trade.<br>` +
+      `• Na prática: lucrou R$ 5.000 num mês e tem R$ 3.000 de prejuízo acumulado? Paga IR só sobre R$ 2.000.<br>` +
+      `• Controle isso na <b>ficha de renda variável</b> do IR (campo "resultado negativo de meses anteriores") — a corretora não faz por você.<br>` +
+      `• Tática "tax loss harvesting": realizar um prejuízo no fim do ano para abater lucros já tributáveis é legal e comum entre investidores organizados.`;
+  }
+
+  // ITBI / custos de escritura na compra de imóvel
+  if (/\bitbi\b|escritura|custos de cartorio.*imovel|custo de comprar imovel|registro de imovel|outorga.*imovel/.test(t)) {
+    return `<b>Custos de cartório na compra do imóvel — provisione antes:</b><br><br>` +
+      `• <b>ITBI</b> (imposto de transmissão, municipal): ~<b>2 a 3%</b> do valor — sem ele a prefeitura não autoriza o registro.<br>` +
+      `• <b>Escritura pública</b> + <b>registro</b> no cartório de imóveis: somam mais ~<b>1 a 1,5%</b> (em financiamento, o contrato bancário substitui parte da escritura).<br>` +
+      `• Total realista de "custos de aquisição": <b>4 a 6%</b> sobre o preço. Num imóvel de R$ 400 mil, separe ${aiFmt(400000 * 0.05)} além da entrada.<br>` +
+      `• Esses valores <b>somam ao custo de aquisição</b> no IR — guardar os comprovantes reduz o ganho de capital quando você vender.<br>` +
+      `• Erro comum: planejar só a entrada e descobrir o ITBI na assinatura. Inclua tudo na conta antes de fechar.`;
+  }
+
+  // Ganho de capital na venda de imóvel / isenções
+  if (/ganho de capital.*imovel|vender imovel.*imposto|imposto ao vender (casa|apartamento|imovel)|isencao.*venda de imovel|comprei outro imovel em 180/.test(t)) {
+    return `<b>Vender imóvel com lucro — o IR e as isenções legais:</b><br><br>` +
+      `• Regra geral: <b>15%</b> sobre o ganho de capital (preço de venda − custo de aquisição corrigido), recolhido via <b>GCAP</b> até o mês seguinte.<br>` +
+      `• <b>Isenção do único imóvel</b>: venda de até <b>R$ 440 mil</b> sendo seu único imóvel e sem ter vendido outro nos últimos 5 anos.<br>` +
+      `• <b>Isenção da troca</b>: usou 100% do valor para comprar <b>outro residencial em até 180 dias</b>? O ganho fica isento (vale 1× a cada 5 anos).<br>` +
+      `• <b>Fator de redução</b>: imóveis antigos têm percentual de redução do ganho por ano desde a compra (quanto mais velho, menos imposto).<br>` +
+      `• Benfeitorias comprovadas (reforma com nota) entram no custo e <b>diminuem o lucro tributável</b> — guarde recibos da obra.`;
+  }
+
+  // Dúvida sobre dinheiro parado / "rende sozinho" na conta
+  if (/dinheiro parado|sobrou na conta|deixar parado|conta rendendo|rendimento automatico|caixinha ou cdb/.test(t) && !/empresa|pj/.test(t)) {
+    const sobra = Math.max(0, (s.income || 5000) - (s.expense || 4000));
+    return `<b>Dinheiro parado na conta — o custo invisível de não fazer nada:</b><br><br>` +
+      `• Saldo em conta comum não rende: com inflação a ~4,5% a.a., ${aiFmt(sobra)} parados perdem ~${aiFmt(sobra * 0.045)}/ano de poder de compra.<br>` +
+      `• Mínimo esforço: ative o "rende automático" (CDB/Tesouro do banco) ou uma <b>caixinha a 100% CDI com liquidez diária</b> — saque quando quiser.<br>` +
+      `• Para gasto da próxima semana, a conta remunerada/caixinha basta; para o que fica >30 dias, CDB/Tesouro Selic rendem mais (e sem IOF após 30 dias).<br>` +
+      `• Regra prática: deixe na conta só 1 mês de despesas de fluxo (${aiFmt(s.expense || 4000)}); o resto trabalha rendendo.<br>` +
+      `• "Render 100% do CDI na conta" é melhor que poupança, mas ainda paga IR — para prazos longos, leve ao Tesouro/CDB com prazo.`;
+  }
+
+  // Empréstimo entre amigos / familiares
+  if (/emprestar dinheiro (para|pra) (amigo|parente|familia)|emprestei.*nao (me )?pagou|emprestimo entre amigos|emprestar (pro|para o) irmao|dinheiro emprestado a parente/.test(t)) {
+    return `<b>Emprestar para amigo ou parente — proteja a relação e o bolso:</b><br><br>` +
+      `• Estatística social: a maioria dos empréstimos informais a próximos <b>não volta integral</b> — e custa a amizade junto.<br>` +
+      `• Regra de ouro: só empreste o que você toparia <b>dar de presente</b>. Se a perda quebra seu orçamento, recuse com honestidade.<br>` +
+      `• Se for emprestar, formalize: valor, prazo e forma de pagamento por escrito (até um PIX com descrição e um print de combinado já ajudam).<br>` +
+      `• Evite virar "banco da família": ofereça ajudar a renegociar a dívida ou montar um orçamento — resolve a causa, não só o sintoma.<br>` +
+      `• Alternativa digna: ajude com uma quantia menor a fundo perdido em vez de um empréstimo grande que vai gerar cobrança e mágoa.`;
+  }
+
+  // Cálculo de hora de trabalho / valor do seu tempo
+  if (/quanto vale (minha|a minha) hora|valor da minha hora|custo por hora|preco da minha hora|quanto custa meu tempo/.test(t)) {
+    const inc = s.income || 5000;
+    const hora = inc / 176;
+    return `<b>Quanto vale a sua hora — a régua que muda compras:</b><br><br>` +
+      `• Com renda de ${aiFmt(inc)} e ~176 horas úteis/mês, sua hora bruta vale <b>~${aiFmt(hora)}</b>.<br>` +
+      `• Aplique a "etiqueta em horas": um item de ${aiFmt(hora * 10)} custa <b>10 horas</b> da sua vida — a pergunta vira "vale 10 horas de trabalho?".<br>` +
+      `• Para autônomo/freela, some custos e provisões: cobre por hora ≈ (renda desejada + impostos + férias/13º) ÷ horas <b>vendáveis</b> (~60% do tempo útil).<br>` +
+      `• Decisão de terceirizar: se a tarefa (faxina, contador, montar móvel) custa menos que sua hora, contrate e use o tempo no que rende mais.<br>` +
+      `• Cuidado: hora "cheia" não é vendável o dia todo — reuniões, prospecção e descanso também precisam ser pagos pelo seu preço.`;
+  }
+
+  // Cartão de crédito internacional / fatura em dólar / fechamento
+  if (/fatura em dolar|compra internacional no cartao|cotacao da fatura|cartao internacional.*fechamento|dolar do cartao|compra em site gringo/.test(t)) {
+    return `<b>Compra internacional no cartão — como o valor é calculado:</b><br><br>` +
+      `• A conversão usa o <b>dólar do dia do fechamento da fatura</b> (não o da compra) — se o dólar subir no meio, sua fatura sobe junto.<br>` +
+      `• Incide <b>IOF de ~3,5%</b> sobre compras internacionais no crédito (a alíquota vem caindo gradualmente até 2028 conforme o cronograma).<br>` +
+      `• Compras em outras moedas (euro, libra) são convertidas para dólar e depois para real — dois spreads.<br>` +
+      `• Alternativas mais baratas: <b>conta global / cartão em dólar pré-carregado</b> (você trava o câmbio antes) costumam ter IOF menor — compare o custo total.<br>` +
+      `• Dica: evite parcelar compra internacional — você fica exposto à variação do dólar em todas as parcelas seguintes.`;
+  }
+
+  // Yield on cost / preço médio em dividendos
+  if (/yield on cost|yoc\b|dividendo sobre o preco medio|magic number|bola de neve de dividendo|reinvestir dividendo/.test(t)) {
+    return `<b>Yield on cost — o juro composto dos dividendos:</b><br><br>` +
+      `• <b>YoC</b> = dividendo anual ÷ <b>seu preço médio</b> de compra (não o preço atual). Comprou barato e a empresa cresceu os proventos? Seu YoC dispara com os anos.<br>` +
+      `• Exemplo: ação comprada a R$ 20 que hoje paga R$ 3/ano = YoC de <b>15%</b>, mesmo que para quem compra hoje (a R$ 50) o yield seja só 6%.<br>` +
+      `• <b>Reinvestir os proventos</b> compra mais cotas, que pagam mais proventos — a bola de neve que constrói renda passiva.<br>` +
+      `• "Magic number" dos FIIs: nº de cotas em que o provento mensal já compra 1 cota nova sozinho — daí a carteira cresce no automático.<br>` +
+      `• Cuidado: YoC alto não justifica segurar empresa que piorou. Olhe o <b>futuro</b> dos dividendos, não só o histórico do seu custo.`;
+  }
+
+  // Inventário digital / senhas / acesso da família
+  if (/inventario digital|senhas.*familia|acesso (as |aos )(contas|investimentos).*morte|herdeiros acessarem|onde estao meus investimentos|mapa de bens/.test(t)) {
+    return `<b>Inventário digital — para a família achar o seu dinheiro:</b><br><br>` +
+      `• Bilhões ficam "esquecidos" no Brasil porque ninguém sabia que existiam. Um <b>mapa de bens</b> evita isso.<br>` +
+      `• Liste em um documento seguro: bancos, corretoras, previdência, FGTS, criptos (e onde estão as chaves), seguros e imóveis.<br>` +
+      `• Guarde num <b>gerenciador de senhas</b> com acesso de emergência ou num envelope lacrado que o cônjuge/pessoa de confiança saiba localizar.<br>` +
+      `• Cripto sem a chave/seed é <b>perdida para sempre</b> — não há "recuperação de senha". Documente o acesso com cuidado redobrado.<br>` +
+      `• Atualize 1×/ano junto com a revisão do patrimônio. Combine com seguro de vida (VGBL) para dar liquidez imediata à família.`;
+  }
+
+  // Reajuste de salário vs inflação / aumento real
+  if (/aumento real|reajuste.*inflacao|meu salario acompanhou|perdi para a inflacao|dissidio|reposicao salarial/.test(t)) {
+    const inc = s.income || 5000;
+    return `<b>Seu salário acompanhou a inflação? A conta do aumento real:</b><br><br>` +
+      `• <b>Aumento real</b> = reajuste − inflação do período. Reajuste de 5% com IPCA de 4,5% = só <b>0,5% real</b> de ganho de poder de compra.<br>` +
+      `• Reajuste <b>abaixo</b> do IPCA é corte disfarçado: você ganha mais reais, mas compra menos. Acompanhe sempre pelo real, não pelo nominal.<br>` +
+      `• Sobre seus ${aiFmt(inc)}: para apenas repor uma inflação de 4,5%, o salário precisa subir ~${aiFmt(inc * 0.045)} só para empatar.<br>` +
+      `• Em negociação, use o IPCA acumulado como piso ("reposição") e os resultados que você entregou como base do ganho real ("mérito").<br>` +
+      `• Renda estagnada por anos? A saída costuma ser proposta externa ou requalificação — promoção interna raramente cobre inflação composta sozinha.`;
+  }
+
+  // Custo total de propriedade do pet / animais
+  if (/\bpet\b|cachorro|gato|animal de estimacao|custo do (pet|cachorro|gato)|ter um pet/.test(t)) {
+    return `<b>Ter um pet — o custo que ninguém soma antes de adotar:</b><br><br>` +
+      `• Mensal recorrente (porte médio): ração ~R$ 150–300, mais areia/petiscos/higiene — fácil <b>R$ 250–450/mês</b> só de rotina.<br>` +
+      `• Anual: vacinas, vermífugo, antipulgas e check-up somam <b>R$ 600–1.200/ano</b>. Provisione 1/12 por mês para não pesar de uma vez.<br>` +
+      `• A bomba é a <b>emergência veterinária</b>: cirurgia/internação passa de R$ 3.000 fácil — tenha uma caixinha "pet" ou plano de saúde animal.<br>` +
+      `• Ao longo da vida (12–15 anos), um cão de médio porte custa facilmente <b>R$ 40–60 mil</b>. É um compromisso financeiro de longo prazo.<br>` +
+      `• Crie uma categoria <b>Pet</b> no orçamento e uma caixinha de emergência veterinária — surpresa de saúde animal não negocia data.`;
+  }
+
+  // Casamento / custo de casar / festa
+  if (/casamento|festa de casamento|custo de casar|bodas|lua de mel.*custo|orcamento do casamento/.test(t) && !/regime de bens|conta conjunta|casal/.test(t)) {
+    return `<b>Casar sem começar a vida endividado:</b><br><br>` +
+      `• Festa média no Brasil varia muito (R$ 30 mil a R$ 100 mil+); o custo por convidado é o que manda — cortar lista corta mais que qualquer outra coisa.<br>` +
+      `• Regra de saúde financeira: <b>não financie a festa</b>. Casar devendo 24x num cartão é hipotecar os primeiros anos do casal.<br>` +
+      `• Monte uma <b>caixinha "casamento"</b> com data e valor; aporte mensal rendendo CDI e contrate só o que couber no que juntou.<br>` +
+      `• Considere a "lista de presentes em dinheiro/cota" e priorize gastar com <b>experiência</b> (lua de mel, entrada do imóvel) acima de pompa de um dia.<br>` +
+      `• A conversa financeira (dívidas, metas, regime de bens) vale mais para o casamento durar do que a decoração — pergunte "finanças do casal".`;
+  }
+
+  // Renda fixa internacional / treasury / bonds em dólar
+  if (/treasury|bond.*dolar|renda fixa internacional|titulo americano|renda fixa em dolar|treasuries|cdb em dolar/.test(t)) {
+    return `<b>Renda fixa em dólar — proteção cambial com juros:</b><br><br>` +
+      `• <b>US Treasuries</b> (títulos do governo americano) são considerados o ativo mais seguro do mundo — pagam juros em dólar e protegem contra a desvalorização do real.<br>` +
+      `• Acesso pelo Brasil: <b>ETFs de bonds</b> (via BDR/conta global) ou diretamente por conta no exterior (Avenue, Nomad, Inter Global).<br>` +
+      `• Seu retorno em reais = juro do título <b>+ variação do dólar</b> — pode render muito se o real cair, ou menos se o real subir forte.<br>` +
+      `• Tributação: ganhos no exterior seguem regras próprias (carnê-leão/GCAP ou a Lei 14.754 conforme o veículo) — diferente da renda fixa local.<br>` +
+      `• Papel na carteira: parcela "dólar com renda" dá estabilidade à fatia internacional. Para a maioria, 10–20% do patrimônio dolarizado já cumpre o objetivo.`;
+  }
+
+  // ───────── RODADA 3 — NOVOS INTENTS (nichos) ─────────
+
+  // Tesouro RendA+ / Educa+ (renda mensal programada)
+  if (/\brenda\+|renda mais|educa\+|educa mais|aposentadoria pelo tesouro|conversao em renda|fase de conversao|160 meses/.test(t)) {
+    return `<b>Tesouro RendA+ e Educa+ — renda programada do Tesouro:</b><br><br>` +
+      `• <b>RendA+</b>: você acumula até a data-alvo (aposentadoria) e depois recebe <b>180 parcelas mensais</b> (15 anos) corrigidas pelo IPCA.<br>` +
+      `• <b>Educa+</b>: mesma lógica, mas paga em <b>60 parcelas</b> (5 anos) — pensado para custear faculdade do filho.<br>` +
+      `• <b>Isenção de taxa de custódia</b> na fase de recebimento se a renda mensal for até ~6 salários mínimos — vantagem grande vs. outros Tesouro.<br>` +
+      `• Render = IPCA + juro contratado; resgatar antes da data-alvo expõe à marcação a mercado (pode dar prejuízo).<br>` +
+      `• Para quem quer "salário" futuro sem gerir carteira, é o título mais simples — mas a flexibilidade é menor que montar a renda você mesmo.`;
+  }
+
+  // LCI/LCA — isenção e carência
+  if (/\blci\b|\blca\b|letra de credito (imobiliario|do agro|agro)|isento de ir.*renda fixa|carencia de 9 meses/.test(t) && !/cri\b|cra\b|etf/.test(t)) {
+    return `<b>LCI e LCA — renda fixa isenta de IR:</b><br><br>` +
+      `• <b>Isentas de Imposto de Renda</b> para pessoa física — por isso 90% do CDI numa LCI pode pagar mais que 100% do CDI num CDB tributado.<br>` +
+      `• Regra de bolso: compare a <b>taxa líquida</b> — LCI a 90% CDI ≈ CDB a ~106% CDI (após IR de 15%) no longo prazo.<br>` +
+      `• <b>Carência mínima de 9 meses</b> (LCI/LCA atreladas a inflação: 12 meses) antes de resgatar — não serve para reserva de emergência.<br>` +
+      `• Cobertas pelo <b>FGC até R$ 250 mil</b> por CPF/instituição, como CDB.<br>` +
+      `• Lastreadas em crédito imobiliário (LCI) ou do agronegócio (LCA). Ótimas para objetivos de 1–3 anos com data definida.`;
+  }
+
+  // Previdência: tabela regressiva vs progressiva
+  if (/tabela regressiva|tabela progressiva|regressiva ou progressiva|10 anos.*previdencia|aliquota.*previdencia|tributacao da previdencia/.test(t)) {
+    return `<b>Previdência privada — tabela regressiva vs. progressiva:</b><br><br>` +
+      `• <b>Regressiva</b>: a alíquota cai com o tempo — começa em <b>35%</b> e chega a <b>10%</b> após 10 anos no plano. Ideal para longo prazo.<br>` +
+      `• <b>Progressiva</b>: usa a tabela do salário (0% a 27,5%) — melhor se o resgate/renda for baixo ou em prazo curto.<br>` +
+      `• Dica: na dúvida e com horizonte longo (10+ anos), a <b>regressiva</b> quase sempre vence — 10% de IR é imbatível.<br>` +
+      `• A escolha é definida na contratação; alguns planos permitem migrar de progressiva para regressiva (o inverso, não).<br>` +
+      `• Lembre: PGBL deduz até 12% da renda no IR (precisa declaração completa); VGBL não deduz, mas só tributa o rendimento.`;
+  }
+
+  // Debêntures incentivadas
+  if (/debentur|infraestrutura.*isenta|lei 12.?431|debenture incentivada/.test(t)) {
+    return `<b>Debêntures incentivadas — crédito privado isento:</b><br><br>` +
+      `• Títulos de dívida de empresas de <b>infraestrutura</b> (energia, saneamento, transporte) — <b>isentos de IR</b> para pessoa física (Lei 12.431).<br>` +
+      `• Pagam normalmente <b>IPCA + juro</b> (ex.: IPCA + 6,5%) com prazos longos (5 a 15 anos).<br>` +
+      `• <b>Não têm FGC</b> — o risco é de crédito da empresa emissora. Analise o rating (procure AA ou superior) e diversifique.<br>` +
+      `• Liquidez baixa no secundário: planeje carregar até o vencimento ou aceitar marcação a mercado.<br>` +
+      `• Boa para travar juro real alto e isento no longo prazo — mas é renda fixa de risco maior que Tesouro/CDB.`;
+  }
+
+  // FII de papel vs tijolo
+  if (/fii de papel|fii de tijolo|papel ou tijolo|fii hibrido|cri nos fundos|fof\b|fii de fundos/.test(t)) {
+    return `<b>FIIs — papel, tijolo e híbridos:</b><br><br>` +
+      `• <b>Tijolo</b>: dono de imóveis físicos (lajes, galpões logísticos, shoppings). Dividendo vem do aluguel; ganha com valorização e vacância baixa.<br>` +
+      `• <b>Papel</b>: investe em <b>CRIs</b> (dívida imobiliária). Rende atrelado ao CDI ou IPCA — paga mais quando juro/inflação sobem.<br>` +
+      `• <b>FOF</b> (fundo de fundos): carteira de vários FIIs — diversificação pronta, mas com camada extra de taxa.<br>` +
+      `• Estratégia comum: misturar papel (renda estável) + tijolo (crescimento) conforme o ciclo de juros.<br>` +
+      `• Dividendos de FII são <b>isentos de IR</b> na pessoa física (regra dos requisitos atendida); ganho na venda da cota paga <b>20%</b>.`;
+  }
+
+  // Small caps vs blue chips
+  if (/small cap|smallcap|blue chip|empresa pequena.*bolsa|acoes de crescimento|value vs growth|valor ou crescimento/.test(t)) {
+    return `<b>Blue chips vs. small caps — perfis de ações:</b><br><br>` +
+      `• <b>Blue chips</b>: grandes e líquidas (Petrobras, Itaú, Vale, Ambev). Menos voláteis, costumam pagar bons dividendos.<br>` +
+      `• <b>Small caps</b>: empresas menores, maior potencial de valorização — e <b>muito mais risco e volatilidade</b>.<br>` +
+      `• Regra de exposição: para a maioria, small caps no máximo <b>10–20%</b> da fatia de ações.<br>` +
+      `• <b>Value</b> (preço descontado, P/L baixo) vs. <b>Growth</b> (lucro crescendo rápido, múltiplo alto) — ciclos favorecem cada uma alternadamente.<br>` +
+      `• Para pegar small caps sem escolher empresa: ETF <b>SMAL11</b> replica o índice de small caps da B3.`;
+  }
+
+  // Setor da ação: cíclicas vs perenes
+  if (/acao ciclica|setor (ciclico|perene|defensivo)|empresa defensiva|commodities.*acoes|setor eletrico.*acoes|perfil de setor/.test(t)) {
+    return `<b>Setores da bolsa — cíclicos vs. defensivos:</b><br><br>` +
+      `• <b>Defensivos/perenes</b>: energia elétrica, saneamento, bancos, consumo básico — receita estável mesmo na crise, bons dividendos.<br>` +
+      `• <b>Cíclicos</b>: commodities (Vale, siderurgia), varejo, construção — disparam na alta da economia e despencam na baixa.<br>` +
+      `• Dólar forte favorece <b>exportadoras</b> (Vale, Suzano); juro baixo favorece <b>varejo e construção</b>.<br>` +
+      `• Monte a carteira misturando setores que não sobem/caem juntos — isso reduz a volatilidade total.<br>` +
+      `• Evite concentrar tudo num setor da moda; rotação setorial é normal e imprevisível no curto prazo.`;
+  }
+
+  // Margem de segurança / valuation
+  if (/margem de seguranca|preco justo|valuation|fluxo de caixa descontado|\bdcf\b|quanto vale uma acao|preco teto.*acao/.test(t)) {
+    return `<b>Valuation — quanto uma ação realmente vale:</b><br><br>` +
+      `• <b>Preço ≠ valor</b>: o preço é a cotação; o valor (intrínseco) é estimado por modelos como fluxo de caixa descontado (DCF).<br>` +
+      `• <b>Margem de segurança</b> (Graham): só compre bem abaixo do valor estimado — ex.: pagar R$ 70 por algo que vale ~R$ 100.<br>` +
+      `• Atalhos comuns: <b>P/L</b> (preço/lucro), <b>P/VP</b> (preço/valor patrimonial), <b>EV/EBITDA</b> e o método de <b>Bazin</b> (preço-teto por dividendo).<br>` +
+      `• Bazin simplificado: preço-teto = dividendo anual por ação ÷ 0,06 (exige 6% de dividend yield).<br>` +
+      `• Valuation é estimativa, não verdade — use faixas e seja conservador nas premissas de crescimento.`;
+  }
+
+  // Custos de operar na bolsa: corretagem, emolumentos
+  if (/corretagem|emolumento|custo de operar|taxa b3|taxa de custodia.*acoes|spread.*acoes|custo de comprar acao/.test(t)) {
+    return `<b>Custos de operar na bolsa — o que come seu retorno:</b><br><br>` +
+      `• <b>Corretagem</b>: hoje a maioria das corretoras zera para ações (R$ 0). Confira antes de operar muito.<br>` +
+      `• <b>Emolumentos da B3</b>: ~<b>0,03%</b> do valor por operação à vista — pequeno, mas existe.<br>` +
+      `• <b>Custódia</b>: também costuma ser gratuita; alguns produtos (BDR, fracionário) podem ter taxas específicas.<br>` +
+      `• <b>Spread</b> (diferença compra/venda) pesa mais em ações pouco líquidas — daí o cuidado com small caps.<br>` +
+      `• Girar carteira demais multiplica custos e antecipa IR. Para o longo prazo, <b>menos operações = mais retorno líquido</b>.`;
+  }
+
+  // Hedge cambial / câmbio em viagem grande / proteção contra dólar
+  if (/hedge cambial|proteger.*dolar|me proteger do dolar|dolar subindo.*proteger|exposicao cambial|hedge de moeda/.test(t)) {
+    return `<b>Hedge cambial — proteger-se da alta do dólar:</b><br><br>` +
+      `• Se você tem dívida, gasto futuro ou viagem em dólar, <b>ter ativos dolarizados</b> compensa quando o real cai.<br>` +
+      `• Formas simples: <b>ETF IVVB11</b> (S&P 500 em reais), BDRs, fundos cambiais ou conta global (Avenue/Nomad).<br>` +
+      `• Para a maioria, <b>10–20% do patrimônio em dólar</b> já reduz bem o risco-Brasil — não precisa dolarizar tudo.<br>` +
+      `• Dólar é proteção, não aposta de curto prazo: entre aos poucos (aporte mensal) e evite tentar acertar o "topo".<br>` +
+      `• Cuidado: ativo dolarizado sobe quando o real cai, mas <b>cai quando o real se valoriza</b> — é seguro, não rendimento garantido.`;
+  }
+
+  // FGTS rendimento / distribuição de lucros do FGTS
+  if (/rendimento do fgts|fgts rende|3% ao ano|distribuicao de lucro.*fgts|fundo de garantia rende|fgts perde da inflacao/.test(t)) {
+    return `<b>Quanto rende o FGTS — e por que ele "perde":</b><br><br>` +
+      `• Rende <b>3% ao ano + TR</b> — historicamente <b>abaixo da inflação</b>, ou seja, perde poder de compra parado lá.<br>` +
+      `• Há a <b>distribuição de lucros</b> do FGTS (creditada uma vez por ano), mas mesmo somada raramente bate o IPCA.<br>` +
+      `• Por isso o <b>saque-aniversário</b> faz sentido para quem investe melhor o valor (ex.: Tesouro Selic/CDB rende mais).<br>` +
+      `• Mas pense duas vezes: ao optar pelo saque-aniversário você <b>perde o saque integral em caso de demissão</b>.<br>` +
+      `• Use o FGTS para o que ele foi feito: entrada de imóvel pelo SFH, onde o dinheiro "preso" vira alavanca de compra.`;
+  }
+
+  // Reforma tributária / split payment / IBS CBS (consumo)
+  if (/reforma tributaria|\bibs\b|\bcbs\b|imposto sobre consumo|iva\b|imposto seletivo|split payment|cbs e ibs/.test(t)) {
+    return `<b>Reforma tributária do consumo (IBS + CBS):</b><br><br>` +
+      `• Unifica <b>PIS, Cofins, ICMS, ISS e IPI</b> em um IVA dual: <b>CBS</b> (federal) + <b>IBS</b> (estados/municípios).<br>` +
+      `• Transição gradual entre <b>2026 e 2033</b> — alíquota cheia estimada em torno de <b>26,5%</b>, ainda em calibração.<br>` +
+      `• <b>Imposto Seletivo</b> ("imposto do pecado") incide sobre cigarro, bebida açucarada/alcoólica e itens nocivos.<br>` +
+      `• <b>Cashback</b> de tributos para famílias de baixa renda e cesta básica nacional com alíquota zero.<br>` +
+      `• Para empresas: simplifica apuração e acaba a "guerra fiscal", mas exige reorganizar sistemas e precificação na transição.`;
+  }
+
+  // Comprovação de renda para autônomo / como provar renda
+  if (/comprovar renda|comprovante de renda|provar renda.*autonomo|decore|extrato como renda|como comprovar renda sem holerite/.test(t)) {
+    return `<b>Como comprovar renda sendo autônomo/informal:</b><br><br>` +
+      `• <b>Extratos bancários</b> dos últimos 3–6 meses mostrando entradas recorrentes são o documento mais aceito.<br>` +
+      `• <b>Declaração de IR</b> (e o recibo de entrega) é a prova mais robusta — vale a pena declarar mesmo sendo isento.<br>` +
+      `• <b>DECORE</b>: declaração feita por contador, válida para crédito e financiamentos.<br>` +
+      `• Para MEI: o <b>extrato do Simples (DASN)</b> e notas fiscais emitidas comprovam faturamento.<br>` +
+      `• Para alugar/financiar, alguns aceitam fiador, seguro-fiança ou maior entrada quando a renda formal é difícil de provar.`;
+  }
+
+  // Portabilidade de crédito / refinanciar dívida cara em barata
+  if (/portabilidade de credito|portar (o |a )?(emprestimo|financiamento|divida)|trocar divida cara|refinanciar com juro menor|portabilidade de financiamento/.test(t)) {
+    return `<b>Portabilidade de crédito — trocar dívida cara por barata:</b><br><br>` +
+      `• Você tem <b>direito legal</b> de levar seu empréstimo/financiamento para outro banco que ofereça juro menor (Resolução BACEN).<br>` +
+      `• O banco atual tem <b>até 1 dia útil</b> para apresentar contraproposta (pode cobrir a taxa para te segurar) — use isso a seu favor.<br>` +
+      `• Faz mais diferença em dívidas longas e caras: <b>financiamento imobiliário e veicular</b> e crédito consignado.<br>` +
+      `• Compare o <b>CET</b> (Custo Efetivo Total), não só a taxa — inclui seguros e tarifas embutidas.<br>` +
+      `• Não há custo para portar e o saldo devedor não muda; só troca quem cobra o juro. Refaça as contas a cada queda da Selic.`;
+  }
+
+  // Capacidade de endividamento / quanto posso comprometer
+  if (/capacidade de endividamento|quanto (posso|consigo) (financiar|comprometer)|30% da renda|comprometimento de renda|parcela cabe no orcamento/.test(t)) {
+    const renda = s.income || 5000;
+    const limite = renda * 0.30;
+    return `<b>Capacidade de endividamento — quanto a parcela pode pesar:</b><br><br>` +
+      `• Regra dos bancos: parcelas de dívidas não devem passar de <b>30% da renda líquida</b>. Para você (~${aiFmt(renda)}): teto de <b>~${aiFmt(limite)}/mês</b>.<br>` +
+      `• Some <b>todas</b> as prestações (cartão parcelado, financiamentos, consignado) ao avaliar — não só a nova dívida.<br>` +
+      `• Acima de 30% o orçamento fica frágil a qualquer imprevisto; o ideal de conforto é ficar em <b>até 20%</b>.<br>` +
+      `• Para imóvel pelo SFH, o limite costuma ser exatamente <b>30% da renda bruta familiar</b> na primeira parcela.<br>` +
+      `• Antes de assumir: garanta a reserva de emergência intacta — dívida com reserva zerada é receita de bola de neve.`;
+  }
+
+  // Juros do rotativo limitado / lei do parcelamento da fatura
+  if (/limite do rotativo|rotativo limitado|juro do cartao limitado|100% da divida|teto do rotativo|parcelamento obrigatorio da fatura/.test(t)) {
+    return `<b>Limite legal dos juros do cartão (rotativo):</b><br><br>` +
+      `• Desde 2024, os <b>juros do rotativo + multas não podem superar 100% do valor original da dívida</b> (Lei 14.690).<br>` +
+      `• Ou seja, uma fatura de R$ 1.000 não pode virar mais que <b>R$ 2.000</b> de dívida só de encargos.<br>` +
+      `• Ainda assim é caríssimo (rotativo passa de <b>400% ao ano</b>) — é a pior dívida que existe, fuja dela.<br>` +
+      `• Se não consegue pagar a fatura inteira, peça o <b>parcelamento da fatura</b> (bem mais barato que o rotativo) antes do vencimento.<br>` +
+      `• Melhor ainda: troque a dívida do cartão por um <b>empréstimo pessoal/consignado</b>, que tem juro muito menor.`;
+  }
+
+  // Gastos com educação dos filhos / custo de criar um filho
+  if (/custo de (criar |ter )?(um )?filho|quanto custa um filho|mensalidade escolar|escola particular|faculdade do filho.*planejar|criar uma crianca custa/.test(t) && !/educa\+|mesada/.test(t)) {
+    return `<b>Custo de criar um filho — planejamento de longo prazo:</b><br><br>` +
+      `• Estimativas brasileiras: criar um filho até os 18 anos custa, em média, de <b>R$ 300 mil a R$ 1 milhão</b>, conforme o padrão.<br>` +
+      `• Os maiores blocos: <b>educação</b> (escola particular: R$ 1.000–3.000/mês), saúde, alimentação e moradia maior.<br>` +
+      `• Comece cedo um <b>Educa+ ou Tesouro IPCA+</b> mirando os 18 anos: aportes pequenos por 15+ anos viram um valor grande pelos juros compostos.<br>` +
+      `• Reveja o <b>seguro de vida</b> e a reserva — um filho aumenta a sua responsabilidade financeira.<br>` +
+      `• Use a aba <b>Metas</b> para criar o objetivo "faculdade do filho" e simular o aporte mensal necessário.`;
+  }
+
+  // Doença grave / isenção de IR por moléstia / aposentadoria por invalidez
+  if (/molestia grave|doenca grave.*isencao|isencao de ir.*doenca|aposentadoria por invalidez|isento de imposto.*aposentado.*doenca/.test(t)) {
+    return `<b>Isenção de IR por moléstia grave:</b><br><br>` +
+      `• Portadores de doenças graves listadas em lei (câncer/neoplasia maligna, cardiopatia grave, Parkinson, cegueira, entre outras) têm <b>isenção de IR sobre aposentadoria, pensão e reforma</b>.<br>` +
+      `• A isenção vale para <b>proventos de aposentadoria/pensão</b> — não isenta salário de quem ainda trabalha.<br>` +
+      `• É preciso <b>laudo médico oficial</b> (preferencialmente de serviço público) comprovando a doença.<br>` +
+      `• Dá para pedir <b>restituição retroativa</b> de até 5 anos de IR pago indevidamente.<br>` +
+      `• <b>Aposentadoria por invalidez</b> exige perícia do INSS; em alguns casos há acréscimo de 25% se precisar de assistência permanente. Procure orientação previdenciária.`;
+  }
+
   // sugestão por proximidade — tenta adivinhar o tema mais próximo
   {
     const topics = [

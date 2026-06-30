@@ -1567,6 +1567,196 @@
 </ul>
 <p style="margin-top:8px">Som + esforço de recuperação = memória mais forte. Tire o conteúdo da cabeça pela boca. 🗣️</p>`;
 
+    // ═════════ NOVOS INTENTS (onda 2) — nichos ainda não cobertos ═════════
+
+    if (/mapa de assunto|raio.?x do edital|edital verticalizado|verticaliz|incidencia|incidência|o que mais cai|assunto que mais cai/.test(t))
+      return `<p><strong>Edital verticalizado e raio-X de incidência:</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Verticalize o edital:</b> quebre cada matéria em tópicos e subtópicos numa planilha — vira seu checklist</li>
+  <li><b>Levante a incidência:</b> conte quantas vezes cada tópico caiu nas últimas <b>5-10 provas</b> da banca</li>
+  <li><b>Priorize por frequência:</b> tópico que cai em <b>80%</b> das provas vem antes do que cai em 10%</li>
+  <li><b>Marque o status:</b> não estudado / estudado / revisado / questões feitas — visão clara do avanço</li>
+  <li><b>Cuidado com o "tudo igual":</b> distribuir o mesmo tempo para todo tópico é desperdício</li>
+</ul>
+<p style="margin-top:8px">Quem mapeia a incidência estuda 20% do edital e acerta 80% da prova. No StudyOS, crie uma matéria por bloco e acompanhe as horas. 📊</p>`;
+
+    if (/banca|cespe|cebraspe|certo ou errado|fcc|fgv|vunesp|estilo da banca|perfil da banca/.test(t))
+      return `<p><strong>Estudar pela banca (cada uma tem manha):</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Cespe/Cebraspe:</b> itens <b>certo/errado</b> — 1 errada anula 1 certa. Cuidado com generalizações ("sempre", "nunca") e pegadinhas de palavra</li>
+  <li><b>FCC:</b> cobra <b>letra da lei</b> e detalhe — decoreba técnica e literalidade pesam</li>
+  <li><b>FGV:</b> questões longas e interpretativas, contextualizadas — leitura atenta</li>
+  <li><b>Vunesp:</b> enunciados diretos, foco em base sólida</li>
+  <li><b>Resolva 50+ questões da sua banca</b> antes de concluir que "domina" o tópico</li>
+</ul>
+<p style="margin-top:8px">Na Cespe, chutar custa: só marque o que tem segurança, porque o erro desconta o acerto. ⚖️</p>`;
+
+    if (/grade de correcao|grade de correção|chute|chutar|probabilidade de acertar|estrategia de chute|estratégia de chute|deixar em branco/.test(t))
+      return `<p><strong>Estratégia de chute (gestão de risco na prova):</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Prova sem desconto</b> (ENEM, maioria das múltiplas): <b>nunca</b> deixe em branco — chute sempre, ~20% de chance em 5 alternativas</li>
+  <li><b>Elimine 2 alternativas</b> e o chute vira ~33-50% — sempre vale arriscar</li>
+  <li><b>Prova com desconto</b> (certo/errado da Cespe): só marque com convicção; chute cego tem valor esperado negativo</li>
+  <li><b>TRI do ENEM:</b> acertar fáceis e médias e errar difíceis vale mais que o contrário — não despreze as fáceis</li>
+</ul>
+<p style="margin-top:8px">Saber a regra de pontuação do edital muda toda a sua estratégia de marcação. Leia antes. 🎲</p>`;
+
+    if (/\btri\b|teoria de resposta|item facil item dificil|item fácil item difícil|coerencia pedagogica|coerência pedagógica|nota enem alta/.test(t))
+      return `<p><strong>Como a TRI do ENEM realmente funciona:</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Não é proporcional:</b> 45 acertos de uma pessoa podem valer mais que 45 de outra — depende de <b>quais</b> questões</li>
+  <li><b>Coerência pedagógica:</b> acertar difíceis e errar fáceis levanta suspeita de "chute" e derruba a nota</li>
+  <li><b>Garanta as fáceis e médias:</b> são a base da sua nota — errar fácil pune muito</li>
+  <li><b>Cada área vai de ~300 a ~1000;</b> consistência vale mais que sorte em 2-3 difíceis</li>
+</ul>
+<p style="margin-top:8px">Estratégia TRI: domine o básico de cada área antes de caçar as questões mais difíceis. Consistência > heroísmo. 📈</p>`;
+
+    if (/ciclo de estudo|ciclo de estudos|estudar por ciclo|girar materia|girar matéria|sistema de ciclo|rotacao de materia|rotação de matéria/.test(t))
+      return `<p><strong>Ciclo de estudos (alternativa ao cronograma rígido):</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Em vez de "segunda = matemática"</b>, você gira blocos numa sequência fixa, sem amarrar a dias</li>
+  <li><b>Defina blocos por peso:</b> matéria de maior peso recebe mais blocos no ciclo (ex.: 2 de Português, 1 de Geografia)</li>
+  <li><b>Faltou hoje? O ciclo não quebra</b> — você apenas continua de onde parou, sem culpa</li>
+  <li><b>Blocos de 50 min</b> com pausa; ao fechar o ciclo, recomeça</li>
+  <li><b>Vantagem:</b> garante que nenhuma matéria fique esquecida e se adapta à vida real</li>
+</ul>
+<p style="margin-top:8px">Cronograma falha quando a vida muda; o ciclo é flexível e à prova de imprevistos. 🔁</p>`;
+
+    if (/lei de parkinson|parkinson|prazo curto|deadline|timeboxing|time boxing|caixa de tempo|trabalho expande/.test(t))
+      return `<p><strong>Lei de Parkinson e timeboxing:</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Lei de Parkinson:</b> "o trabalho se expande para ocupar todo o tempo disponível" — sem prazo, tudo demora</li>
+  <li><b>Timeboxing:</b> dê um teto curto à tarefa ("resolver 10 questões em 40 min") e o foco dispara</li>
+  <li><b>Prazos artificiais funcionam:</b> marque um timer mesmo sem cobrança externa</li>
+  <li><b>Combate o perfeccionismo:</b> a caixa de tempo força você a entregar "bom o suficiente"</li>
+</ul>
+<p style="margin-top:8px">Dar 3h para algo de 1h só cria enrolação. Aperte o prazo (com bom senso) e veja o rendimento subir. ⏳</p>`;
+
+    if (/comer o sapo|eat the frog|tarefa mais dificil primeiro|tarefa mais difícil primeiro|mit\b|tarefa mais importante|sapo da manha|sapo da manhã/.test(t))
+      return `<p><strong>"Comer o sapo" (eat the frog):</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Ideia (Brian Tracy):</b> faça a tarefa mais difícil/importante <b>logo de manhã</b>, antes de qualquer coisa</li>
+  <li><b>Energia e força de vontade</b> estão no pico cedo — é quando o "sapo" desce melhor</li>
+  <li><b>Define 1-3 MITs</b> (Most Important Tasks) do dia na noite anterior</li>
+  <li><b>Resto do dia rende mais:</b> com o pior já feito, alivia a ansiedade e o resto flui</li>
+</ul>
+<p style="margin-top:8px">Adiar o difícil para "depois" é receita de procrastinação. Coma o sapo cedo e o dia inteiro melhora. 🐸</p>`;
+
+    if (/desejavel|desejável|dificuldade desejavel|dificuldade desejável|esforco facilita|esforço facilita|fluencia ilusoria|fluência ilusória|ilusao de saber|ilusão de saber/.test(t))
+      return `<p><strong>Dificuldades desejáveis (por que o esforço ajuda):</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Conceito (Bjork):</b> técnicas que parecem mais difíceis no momento geram aprendizado mais durável</li>
+  <li><b>Reler é fácil e ilusório:</b> a "fluência" engana — você reconhece, mas não recupera sozinho</li>
+  <li><b>Active recall, espaçamento e interleaving</b> são difíceis de propósito — e por isso funcionam</li>
+  <li><b>Desconforto ≠ ineficácia:</b> se está fácil demais, provavelmente você não está aprendendo</li>
+</ul>
+<p style="margin-top:8px">Sentir esforço ao recuperar é sinal de que a memória está sendo construída. Abrace o desconforto certo. 💪</p>`;
+
+    if (/curva de aprendizado|plato|platô|estagnei|estagnado|nao evoluo|não evoluo|empacado|nao saio do lugar|não saio do lugar/.test(t))
+      return `<p><strong>Estagnei: como furar o platô de aprendizado:</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Platô é normal:</b> ganhos rápidos no início, depois desaceleram — não é regressão</li>
+  <li><b>Mude o estímulo:</b> se travou, troque tipo de exercício, fonte ou nível de dificuldade</li>
+  <li><b>Prática deliberada:</b> ataque especificamente o ponto fraco, não o que já domina</li>
+  <li><b>Meça com objetividade:</b> simulados mostram avanço que a sensação esconde</li>
+  <li><b>Descanso conta:</b> às vezes o platô é fadiga — o salto vem após dormir/folgar</li>
+</ul>
+<p style="margin-top:8px">No platô, "mais do mesmo" não resolve. Mude o método e o desafio para destravar o próximo nível. 📉</p>`;
+
+    if (/efeito zeigarnik|zeigarnik|tarefa inacabada|deixar inacabad|parar no meio|loop aberto|loops abertos/.test(t))
+      return `<p><strong>Efeito Zeigarnik (tarefas inacabadas grudam na mente):</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>O cérebro guarda melhor o que ficou em aberto</b> — tarefas inacabadas geram tensão produtiva</li>
+  <li><b>Truque para começar:</b> pare a sessão <b>no meio</b> de algo fácil — voltar no dia seguinte fica mais natural</li>
+  <li><b>Esvazie a mente:</b> "loops abertos" (coisas a fazer) consomem atenção — anote tudo para liberar foco</li>
+  <li><b>Cuidado com o excesso:</b> muitas tarefas pendentes viram ansiedade, não motivação</li>
+</ul>
+<p style="margin-top:8px">Interromper de propósito num ponto fácil é um truque poderoso contra a barreira do recomeço. ✂️</p>`;
+
+    if (/efeito de teste|testing effect|prova como estudo|fazer prova ajuda|simulado memoriza|recuperacao melhora|recuperação melhora/.test(t))
+      return `<p><strong>Efeito de teste (testar ensina mais que reler):</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Fazer um teste é estudo,</b> não só medição — o ato de recuperar fortalece a memória</li>
+  <li><b>Estudo Roediger & Karpicke:</b> quem se testou reteve <b>~50% mais</b> a longo prazo que quem releu</li>
+  <li><b>Mesmo errando você aprende</b> mais do que relendo passivamente (desde que veja a correção)</li>
+  <li><b>Transforme tudo em pergunta:</b> resumo vira flashcard, título vira questão</li>
+</ul>
+<p style="margin-top:8px">Não espere "estar pronto" para se testar — testar É o que te deixa pronto. 🧪</p>`;
+
+    if (/dependente de estado|dependencia de contexto|dependência de contexto|estudar no mesmo lugar da prova|contexto da prova|variar local|mudar de ambiente para estudar/.test(t))
+      return `<p><strong>Memória dependente de contexto (varie os ambientes):</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Estudar sempre no mesmo lugar</b> amarra a memória àquele contexto — e a prova é em outro lugar</li>
+  <li><b>Variar locais de estudo</b> cria múltiplas "âncoras" e a recordação fica mais robusta</li>
+  <li><b>Faça simulados em ambiente novo</b> (biblioteca, sala diferente) para treinar a recuperação fora de casa</li>
+  <li><b>Estado interno conta:</b> evite estudar sempre superdopado de café se na prova você estará diferente</li>
+</ul>
+<p style="margin-top:8px">Aprender em contextos variados é uma "dificuldade desejável": custa um pouco, mas a memória vira mais portátil. 🌍</p>`;
+
+    if (/dupla codificacao|dupla codificação|dual coding|texto mais imagem|aprender com imagem|combinar palavra e imagem|verbal e visual/.test(t))
+      return `<p><strong>Dupla codificação (palavra + imagem):</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Teoria de Paivio:</b> combinar informação verbal com visual cria <b>duas rotas</b> de memória</li>
+  <li><b>Desenhe o conceito:</b> esquemas, diagramas e setas fixam mais que só o texto</li>
+  <li><b>Sketchnoting:</b> anotações com pequenos desenhos e símbolos turbinam a retenção</li>
+  <li><b>Não precisa saber desenhar:</b> rabiscos toscos funcionam — o esforço de representar é o que importa</li>
+  <li><b>Ótimo para:</b> processos, anatomia, ciclos, linha do tempo, fluxos</li>
+</ul>
+<p style="margin-top:8px">Uma imagem ligada à ideia vale mais que reler o parágrafo cinco vezes. Desenhe o que estuda. 🎨</p>`;
+
+    if (/elaboracao|elaboração|perguntar por que|interrogacao elaborativa|interrogação elaborativa|conectar com o que ja sei|conectar com o que já sei|elaborative/.test(t))
+      return `<p><strong>Interrogação elaborativa (pergunte "por quê?"):</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Para cada fato, pergunte "por que isso é verdade?"</b> e responda — força entendimento, não decoreba</li>
+  <li><b>Conecte ao que você já sabe:</b> ligar conteúdo novo a conhecimento prévio cria mais "ganchos" de memória</li>
+  <li><b>Auto-explicação:</b> narre seu raciocínio enquanto resolve ("escolhi essa fórmula porque...")</li>
+  <li><b>Compare e contraste</b> conceitos parecidos para fixar as diferenças</li>
+</ul>
+<p style="margin-top:8px">Conhecimento isolado se perde; conhecimento conectado vira rede que se sustenta sozinha. 🕸️</p>`;
+
+    if (/diario de estudo|diário de estudo|registro de estudo|log de estudo|metacogni|monitorar aprendizado|reflexao semanal|reflexão semanal/.test(t))
+      return `<p><strong>Diário de estudo e metacognição:</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Anote ao fim da sessão:</b> o que estudou, o que travou e o que faz amanhã — fecha o ciclo</li>
+  <li><b>Metacognição:</b> "pensar sobre como você aprende" é o que separa quem evolui de quem repete erros</li>
+  <li><b>Revisão semanal (15 min):</b> o que funcionou, o que não, qual o foco da próxima semana</li>
+  <li><b>Meça com dados:</b> horas reais, questões feitas, % de acerto — sensação engana, número não</li>
+</ul>
+<p style="margin-top:8px">No StudyOS, suas sessões e metas já viram esse log. Reserve 15 min no domingo para ajustar a rota. 📓</p>`;
+
+    if (/oversleep|dormi demais|sonolencia ao estudar|sonolência ao estudar|sono na hora de estudar|durmo estudando|pego no sono estudando|combater o sono/.test(t))
+      return `<p><strong>Pego no sono estudando — o que fazer:</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Estudo passivo dá sono:</b> leitura silenciosa adormece — troque por active recall, escrever e resolver</li>
+  <li><b>Sente ereto, longe da cama:</b> a postura e o local mudam o estado de alerta</li>
+  <li><b>Hidrate e ventile:</b> ar parado e quente e desidratação aumentam a sonolência</li>
+  <li><b>Power nap de 10-20 min</b> resolve sono real melhor que lutar contra ele por 2h</li>
+  <li><b>Luz forte e movimento:</b> luz natural e um alongamento rápido reativam o cérebro</li>
+</ul>
+<p style="margin-top:8px">Se o sono é constante, pode ser dívida de sono ou estudo passivo demais — ataque a causa, não o sintoma. 😵</p>`;
+
+    if (/sindrome de burnin|tela azul mental|fadiga de decisao|fadiga de decisão|cansaco de escolha|cansaço de escolha|decidir demais|paralisia de decisao do dia/.test(t))
+      return `<p><strong>Fadiga de decisão (decidir cansa):</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Cada escolha gasta energia mental</b> — no fim do dia, sobra pouca força de vontade para estudar</li>
+  <li><b>Automatize o trivial:</b> deixe roupa, comida e material decididos na noite anterior</li>
+  <li><b>Planeje o estudo de véspera:</b> chegar e já saber "o que estudar agora" evita gastar foco decidindo</li>
+  <li><b>Decisões importantes cedo,</b> quando a mente está fresca</li>
+  <li><b>Rotina reduz escolhas:</b> horário e local fixos eliminam dezenas de microdecisões</li>
+</ul>
+<p style="margin-top:8px">Quanto menos você decide, mais energia sobra para o que importa. Deixe o plano pronto e só execute. 🧠</p>`;
+
+    if (/decoreba de ultima hora|decoreba de última hora|virar a noite|madrugar antes da prova|estudar de madrugada antes|cramming|enfiar conteudo|enfiar conteúdo/.test(t))
+      return `<p><strong>Virar a noite / decoreba de última hora (cramming):</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Funciona pouco e custa caro:</b> sem sono, a memória não consolida e o raciocínio despenca na prova</li>
+  <li><b>Se for inevitável:</b> foque no que mais cai (incidência), não tente "tudo"</li>
+  <li><b>Active recall mesmo na pressa:</b> resolver questões fixa mais que reler resumo</li>
+  <li><b>Durma ao menos 3-4h:</b> trocar todo o sono por estudo costuma piorar a nota</li>
+  <li><b>Cafeína com parcimônia:</b> excesso vira ansiedade e tremor na hora H</li>
+</ul>
+<p style="margin-top:8px">Cramming tapa buraco para prova de amanhã, mas evapora em dias. Para concurso/ENEM, só constância espaçada funciona. 🌙</p>`;
+
     // ───────── fallback inteligente (sugere o tópico mais próximo) ─────────
     {
       const topics = [
