@@ -1772,6 +1772,29 @@ function cloudSave(path, data) {
   ref.set(data).catch(e => console.warn('cloudSave error:', e));
 }
 
+// ── Persistência dos wearables na conta (Firebase) ──────────────────
+// iOS Safari pode apagar o localStorage; salvar os tokens na nuvem faz
+// Whoop/Oura/Strava continuarem conectados mesmo após a limpeza.
+const WEARABLE_KEYS = [
+  'whoop_access','whoop_refresh','whoop_cid','whoop_secret','whoop_expires_at',
+  'oura_token',
+  'strava_access','strava_refresh','strava_cid','strava_secret','strava_expires_at',
+];
+function syncWearablesToCloud() {
+  const obj = {};
+  WEARABLE_KEYS.forEach(k => { const v = localStorage.getItem(k); if (v != null) obj[k] = v; });
+  cloudSave('wearables', obj);
+}
+function restoreWearablesFromCloud(w) {
+  if (!w || typeof w !== 'object') return false;
+  let changed = false;
+  WEARABLE_KEYS.forEach(k => {
+    if (w[k] != null && localStorage.getItem(k) == null) { localStorage.setItem(k, w[k]); changed = true; }
+  });
+  return changed;
+}
+window.syncWearablesToCloud = syncWearablesToCloud;
+
 function cloudPull() {
   if (!_db || !_uid) return;
   const ref = _db.ref(`users/${_uid}`);
@@ -1804,6 +1827,13 @@ function cloudPull() {
     if (remote.investor) {
       saveStore({ investor: remote.investor });
       restoreInvestorUI(remote.investor);
+    }
+    // wearables (Whoop/Oura/Strava) — restaura tokens se o localStorage foi limpo
+    if (remote.wearables && restoreWearablesFromCloud(remote.wearables)) {
+      ['renderWhoop','renderOura','renderStrava'].forEach(fn => {
+        try { const el = document.getElementById('h-' + fn.replace('render','').toLowerCase());
+          if (el && el.classList.contains('active') && typeof window[fn] === 'function') window[fn](); } catch(e){}
+      });
     }
     showToast('Dados sincronizados da nuvem!', 'success');
   }).catch(e => console.warn('cloudPull error:', e));
@@ -2396,6 +2426,263 @@ async function aiAnswer(q) {
   if (sim) return sim;
 
   // ───────── NOVOS INTENTS — APROFUNDAMENTO ─────────
+
+  // ───────── RODADA 2 — NOVOS INTENTS ─────────
+
+  // Salário líquido vs bruto / descontos INSS + IRRF
+  if (/salario liquido|liquido vs bruto|bruto vs liquido|descontos do salario|quanto sobra do salario|irrf|desconto de inss e ir/.test(t)) {
+    const br = s.income || 5000;
+    let inss;
+    if (br <= 1518) inss = br * 0.075; else if (br <= 2793.88) inss = 1518 * 0.075 + (br - 1518) * 0.09;
+    else if (br <= 4190.83) inss = 1518 * 0.075 + (2793.88 - 1518) * 0.09 + (br - 2793.88) * 0.12;
+    else if (br <= 8157.41) inss = 1518 * 0.075 + (2793.88 - 1518) * 0.09 + (4190.83 - 2793.88) * 0.12 + (br - 4190.83) * 0.14;
+    else inss = 951.62;
+    const base = br - inss;
+    let ir = 0;
+    if (base > 4664.68) ir = base * 0.275 - 896.00; else if (base > 3751.05) ir = base * 0.225 - 662.77;
+    else if (base > 2826.65) ir = base * 0.15 - 381.44; else if (base > 2259.20) ir = base * 0.075 - 169.44;
+    ir = Math.max(0, ir);
+    const liq = br - inss - ir;
+    return `<b>Salário líquido vs bruto — para onde vai o desconto (tabelas 2025):</b><br><br>` +
+      `• Sobre o bruto de <b>${aiFmt(br)}</b>: INSS ~${aiFmt(inss)} (alíquota progressiva 7,5%→14%, teto de contribuição ~R$ 951).<br>` +
+      `• <b>IRRF</b> sobre o que sobra: ~${aiFmt(ir)} (faixas 7,5%→27,5%, isento até R$ 2.259/mês).<br>` +
+      `• Líquido estimado: <b>~${aiFmt(liq)}</b> — ou seja, ~${br ? Math.round((liq / br) * 100) : 0}% do bruto cai na conta.<br>` +
+      `• Reduza o IR legalmente: PGBL (deduz até 12% da renda), dependentes, plano de saúde e previdência.<br>` +
+      `• O bruto é o que importa para FGTS, 13º e férias; o líquido é o que você planeja no orçamento. Use o LÍQUIDO no 50/30/20.`;
+  }
+
+  // Bola de neve vs avalanche — comparação dedicada
+  if (/bola de neve|avalanche/.test(t)) {
+    return `<b>Bola de neve vs avalanche — qual método de quitar dívidas usar:</b><br><br>` +
+      `• <b>Avalanche</b> (matemática): ataque a dívida de <b>maior juro</b> primeiro (rotativo ~14% a.m., cheque especial ~8% a.m.). Paga menos juros no total — é o ótimo financeiro.<br>` +
+      `• <b>Bola de neve</b> (psicologia): quite a <b>menor dívida</b> primeiro. Cada quitação dá um "ganho" que mantém a motivação — vence quem desanima fácil.<br>` +
+      `• Em ambos: pague o mínimo de todas e jogue o excedente na dívida-alvo; ao quitar uma, role o valor para a próxima (o "snowball").<br>` +
+      `• Híbrido esperto: bola de neve nas 1–2 menores para ganhar moral, depois avalanche no resto.<br>` +
+      `• Antes de tudo: troque dívida cara por barata (consignado ~2% a.m., portabilidade) e pause aportes enquanto houver dívida acima de ~1,5% a.m.`;
+  }
+
+  // Leasing
+  if (/leasing|arrendamento mercantil/.test(t)) {
+    return `<b>Leasing — alugar com opção de compra:</b><br><br>` +
+      `• É um arrendamento: você paga parcelas para usar o bem (carro, equipamento) e no fim pode quitar o <b>VRG</b> (valor residual) e ficar com ele.<br>` +
+      `• Diferença para o financiamento: no leasing o bem fica no nome da arrendadora até o fim — não entra como seu patrimônio enquanto paga.<br>` +
+      `• Vantagem para <b>PJ</b>: as parcelas podem ser despesa dedutível (Lucro Real/Presumido) — fala com o contador.<br>` +
+      `• Para pessoa física, raramente vence um financiamento (CDC) simples — compare sempre o <b>CET</b>, não a parcela.<br>` +
+      `• Quitar o VRG antecipado ou desistir no meio costuma ter custo alto — leia a cláusula antes de assinar.`;
+  }
+
+  // Carro à vista vs financiado — decisão dedicada
+  if (/carro a vista|a vista ou financiado|financiar (o |um )?carro|comprar carro a vista|veiculo a vista/.test(t)) {
+    return `<b>Carro à vista vs financiado — a conta fria:</b><br><br>` +
+      `• Financiamento de veículo custa <b>~1,5–2,5% a.m.</b> (≈ 20–34% a.a.) — muito acima do que sua reserva rende (CDI ~1% a.m.).<br>` +
+      `• Regra: se o juro do financiamento &gt; o que seu dinheiro rende investido, <b>à vista vence</b> sempre que sobrar reserva depois.<br>` +
+      `• <b>Nunca zere a reserva</b> para comprar à vista — ficar sem colchão por um carro é trocar um risco por outro.<br>` +
+      `• Meio-termo: dê a maior entrada possível (reduz juros) e financie o mínimo no menor prazo (regra 20/4/10).<br>` +
+      `• Tática: junte a "parcela" numa caixinha rendendo CDI por alguns meses e negocie à vista com desconto — o vendedor adora dinheiro na hora.`;
+  }
+
+  // Renda variável vs renda fixa para iniciante
+  if (/renda variavel vs|variavel ou fixa|fixa ou variavel|diferenca.*renda fixa.*variavel|renda fixa vs/.test(t)) {
+    return `<b>Renda fixa vs renda variável — entenda antes de escolher:</b><br><br>` +
+      `• <b>Renda fixa</b>: você empresta dinheiro (Tesouro, CDB, LCI) e sabe a regra do rendimento desde o início. Risco baixo, retorno previsível.<br>` +
+      `• <b>Renda variável</b>: você vira sócio/proprietário (ações, FIIs, ETFs). Sem garantia de retorno, oscila — mas no longo prazo tende a render mais.<br>` +
+      `• Ordem para iniciante: (1) reserva em renda fixa pós-fixada, (2) só depois pingue na variável via ETF.<br>` +
+      `• Regra dos 100: <i>100 − sua idade</i> ≈ % máxima em variável. Aos 30, até ~70% — mas só o que aguenta ver cair 30% sem vender no pânico.<br>` +
+      `• Não é "ou": é mix. A renda fixa segura a base; a variável faz o patrimônio crescer acima da inflação no longo prazo.`;
+  }
+
+  // Dollar cost averaging / preço médio
+  if (/preco medio|custo medio|aporte constante|dollar cost|comprar aos poucos|aporte regular|dca\b/.test(t)) {
+    return `<b>Preço médio (DCA) — aportar sempre vence acertar o timing:</b><br><br>` +
+      `• <b>Dollar Cost Averaging</b>: invista o mesmo valor TODO mês, caia ou suba o mercado — você compra mais cotas na baixa e menos na alta.<br>` +
+      `• Elimina a pior decisão do investidor: tentar "adivinhar o fundo". Quem espera o momento perfeito quase nunca entra.<br>` +
+      `• Funciona porque tira a emoção: aporte automático no dia do salário, sem olhar a cotação.<br>` +
+      `• Ideal para ETFs, ações boas e cripto (na fatia pequena) — ativos voláteis que sobem no longo prazo.<br>` +
+      `• Com ${aiFmt(Math.max(100, Math.round((s.income || 5000) * 0.1)))}/mês constante por 10 anos a 1% a.m., você acumula a disciplina que vale mais que qualquer "dica quente".`;
+  }
+
+  // Rebalanceamento de carteira — dedicado
+  if (/rebalance|rebalancear|realocar carteira|ajustar carteira|quando vender.*carteira/.test(t)) {
+    return `<b>Rebalanceamento — a manutenção que mantém o risco no lugar:</b><br><br>` +
+      `• Com o tempo, o que sobe vira fatia grande demais (ex.: ações de 30%→45%) e desbalanceia seu risco. Rebalancear devolve a carteira ao alvo.<br>` +
+      `• Como: <b>venda o que subiu</b> e <b>compre o que caiu</b> até voltar aos pesos definidos — "compre na baixa" virando regra, não emoção.<br>` +
+      `• Frequência: 1–2× ao ano OU quando uma classe desviar mais de 5 pontos do alvo. Mais que isso só gera custo e imposto.<br>` +
+      `• Modo barato: rebalanceie com os <b>aportes novos</b> — direcione o aporte para a classe que ficou abaixo, sem precisar vender (evita IR).<br>` +
+      `• Disciplina chata que funciona: trava lucro do que esticou e força compra do que está descontado.`;
+  }
+
+  // Metas SMART
+  if (/meta smart|metas smart|objetivo smart|definir metas|planejar metas|metas financeiras/.test(t)) {
+    return `<b>Metas SMART — transformando desejo em plano:</b><br><br>` +
+      `• <b>S</b>pecífica: "juntar para a entrada de um apê", não "ficar rico".<br>` +
+      `• <b>M</b>ensurável: valor exato. Ex.: R$ 60.000 de entrada.<br>` +
+      `• <b>A</b>tingível: o aporte cabe na sua sobra (${aiFmt(Math.max(0, (s.income || 5000) - (s.expense || 4000)))}/mês hoje)?<br>` +
+      `• <b>R</b>elevante: conecta com um objetivo de vida real — meta sem porquê é abandonada.<br>` +
+      `• <b>T</b>emporal: com prazo. R$ 60 mil em 3 anos = <b>~${aiFmt(60000 / 36)}/mês</b> rendendo CDI.<br>` +
+      `Cadastre como <b>Metas</b> aqui no app e eu calculo o aporte mensal e o ritmo de cada uma automaticamente.`;
+  }
+
+  // Reserva de emergência por perfil / tamanho ideal
+  if (/tamanho da reserva|quantos meses de reserva|reserva ideal|reserva por perfil|3 6 12 meses/.test(t)) {
+    const e = s.expense || 4000;
+    return `<b>Tamanho ideal da reserva — depende da estabilidade da sua renda:</b><br><br>` +
+      `• <b>Servidor/CLT estável</b>: 3–6 meses de despesas → ${aiFmt(e * 3)} a ${aiFmt(e * 6)}.<br>` +
+      `• <b>CLT em setor instável / único provedor</b>: 6–9 meses → ${aiFmt(e * 6)} a ${aiFmt(e * 9)}.<br>` +
+      `• <b>Autônomo / PJ / renda variável</b>: 9–12 meses → ${aiFmt(e * 9)} a ${aiFmt(e * 12)}.<br>` +
+      `• Base de cálculo é a <b>despesa</b> (${aiFmt(e)}/mês), não a renda — é quanto você precisa para viver, não para manter o padrão.<br>` +
+      `• Onde: 100% em liquidez diária e baixo risco (Tesouro Selic / CDB 100%+ CDI). Reserva é seguro, nunca aposta.`;
+  }
+
+  // Como declarar cripto no IR — dedicado
+  if (/(declarar|declaracao).*(cripto|bitcoin)|cripto.*(declarar|imposto de renda|receita)|como declaro bitcoin/.test(t)) {
+    return `<b>Declarar cripto no IR — passo a passo:</b><br><br>` +
+      `• <b>Bens e Direitos</b> (grupo 08, código próprio de cripto): declare o saldo pelo <b>custo de aquisição</b> em 31/12, não pelo valor de mercado.<br>` +
+      `• Obrigatório declarar se o total em cada tipo de cripto passou de R$ 5.000 no ano.<br>` +
+      `• <b>Ganho de capital</b>: vendas que somam mais de <b>R$ 35.000 no mês</b> têm o lucro tributado a 15%+ (progressivo) — DARF até o último dia útil do mês seguinte (programa GCAP).<br>` +
+      `• <b>IN 1.888</b>: operações em exchange estrangeira ou P2P acima de R$ 30 mil/mês exigem declaração mensal própria à Receita.<br>` +
+      `• Exchanges brasileiras reportam tudo — divergência cai direto na malha fina. Guarde extratos de cada operação.`;
+  }
+
+  // INSS / como funciona a aposentadoria pública
+  if (/como funciona o inss|aposentadoria do inss|aposentadoria por idade|tempo de contribuicao|regras de aposentadoria|me aposento (pelo inss|com)/.test(t)) {
+    return `<b>Aposentadoria pelo INSS — as regras pós-reforma:</b><br><br>` +
+      `• <b>Idade mínima</b>: 65 anos (homem) / 62 (mulher) + 15 anos de contribuição (regra geral). Há regras de transição para quem já contribuía.<br>` +
+      `• O valor parte de 60% da média de TODOS os salários (desde 07/1994) + 2% por ano que exceder 20 (homem) / 15 (mulher) anos.<br>` +
+      `• <b>Teto do INSS</b> em 2025: ~R$ 8.157 — quem ganha mais NÃO se aposenta com o salário cheio. A diferença você cobre com previdência privada/investimentos.<br>` +
+      `• Contribua sempre sobre um valor real: contribuir só sobre o mínimo dá aposentadoria mínima.<br>` +
+      `• Trate o INSS como <b>piso de segurança</b>, não como plano. Some Tesouro IPCA+/RendA+ e PGBL para o padrão que você quer.`;
+  }
+
+  // Pensão alimentícia
+  if (/pensao alimenticia|pensao do filho|pensao alimentar|pagar pensao/.test(t)) {
+    return `<b>Pensão alimentícia — o que saber:</b><br><br>` +
+      `• Não há percentual fixo em lei: o juiz fixa pela <b>necessidade</b> de quem recebe e a <b>possibilidade</b> de quem paga — costuma girar em 15–30% da renda líquida por filho.<br>` +
+      `• Pode incidir sobre salário, 13º e até FGTS/rescisão. Atraso é uma das poucas dívidas que levam à <b>prisão civil</b>.<br>` +
+      `• A pensão paga é <b>dedutível no IR</b> (se homologada judicialmente) para quem paga; é rendimento tributável para quem recebe.<br>` +
+      `• Mudou de renda (perdeu emprego, novo filho)? Cabe ação de <b>revisão</b> — não pare de pagar por conta própria.<br>` +
+      `• Provisione a pensão como despesa fixa no orçamento, com a mesma prioridade da moradia.`;
+  }
+
+  // PLR / participação nos lucros
+  if (/\bplr\b|participacao nos lucros|participacao nos resultados|bonus anual/.test(t)) {
+    return `<b>PLR e bônus — o extra que pode virar patrimônio:</b><br><br>` +
+      `• <b>PLR</b> tem tributação de IR <b>separada e mais leve</b> (tabela exclusiva, isenta até ~R$ 7.640/ano) — não soma ao salário do mês.<br>` +
+      `• Não conte com ela no orçamento mensal: é variável e pode não vir. Trate como dinheiro de "destino especial".<br>` +
+      `• Ordem inteligente: (1) quitar dívida cara, (2) completar reserva, (3) aportar em longo prazo. Consumo só com a sobra.<br>` +
+      `• Quem investe a PLR todo ano em vez de gastar antecipa anos de independência financeira.<br>` +
+      `• Bônus de meta/comissão entra na folha e é tributado normal (até 27,5%) — o líquido é menor do que o anúncio sugere.`;
+  }
+
+  // Vale-refeição / alimentação / benefícios
+  if (/vale.?(refeicao|alimentacao)|\bvr\b|\bva\b|beneficios (do |da )?(empresa|trabalho)|caju|flash|ticket/.test(t)) {
+    return `<b>Vale-refeição, alimentação e benefícios — use bem:</b><br><br>` +
+      `• VR/VA caem em cartão de benefício (Flash, Caju, Alelo, Ticket) e <b>não podem ser sacados</b> — são para alimentação, ponto final.<br>` +
+      `• São descontados de você só simbolicamente (até 20% no PAT) — na prática, é renda extra. Aproveite no mercado e poupe o dinheiro vivo que sobra.<br>` +
+      `• Saldo não usado costuma <b>acumular</b> (não expira como antes) — junte para a compra grande do mês.<br>` +
+      `• Compare benefícios na hora de trocar de emprego: VR+VA+plano+PLR podem valer R$ 1.000+/mês além do salário.<br>` +
+      `• Cuidado com "trocar VR por dinheiro" em apps — costuma ser golpe ou desconto enorme. Não vale.`;
+  }
+
+  // Home equity / empréstimo com garantia de imóvel
+  if (/home equity|garantia de imovel|refinanciamento de imovel|emprestimo com garantia|credito com garantia/.test(t)) {
+    return `<b>Crédito com garantia de imóvel (home equity):</b><br><br>` +
+      `• Você dá o imóvel quitado em garantia e pega um dos empréstimos <b>mais baratos do mercado</b>: ~1–1,5% a.m. (muito abaixo de crédito pessoal).<br>` +
+      `• Prazos longos (até 20 anos) e valores altos (até ~60% do imóvel) — bom para quitar dívida cara ou capital de negócio.<br>` +
+      `• <b>Risco real</b>: atrasou, perde o imóvel (alienação fiduciária). Só use para algo que aumente patrimônio/renda, nunca consumo.<br>` +
+      `• Compare o <b>CET</b> e some custos de avaliação/cartório. Ainda assim costuma vencer trocar uma dívida de 8% a.m. por uma de 1,2%.<br>` +
+      `• Não confunda com financiamento de compra — aqui o imóvel já é seu e vira a chave para crédito barato.`;
+  }
+
+  // Cartão consignado
+  if (/cartao consignado|consignado de cartao|cartao com desconto em folha/.test(t)) {
+    return `<b>Cartão consignado — cuidado com a armadilha:</b><br><br>` +
+      `• É um cartão cuja fatura mínima é descontada direto da folha/benefício — vendido como "juro baixo" para aposentados e servidores.<br>` +
+      `• O problema: o desconto em folha paga só o <b>mínimo</b>, e o resto cai no <b>rotativo</b> (juros altos) — vira dívida eterna disfarçada.<br>` +
+      `• Já houve venda enganosa em massa para aposentados INSS — confira se você não tem um sem saber (consulte no Meu INSS).<br>` +
+      `• Se precisa de crédito barato com desconto em folha, prefira o <b>consignado tradicional</b> (parcela fixa ~1,5–2,5% a.m.), não o cartão.<br>` +
+      `• Suspeita de contratação indevida? Conteste no banco e registre no Procon/INSS — há direito a cancelamento e devolução.`;
+  }
+
+  // Antecipação / saque-aniversário FGTS detalhado
+  if (/antecipacao.*fgts|saque aniversario|antecipar fgts|emprestimo do fgts/.test(t)) {
+    return `<b>Saque-aniversário e antecipação do FGTS — pense duas vezes:</b><br><br>` +
+      `• No <b>saque-aniversário</b> você libera uma parcela do FGTS todo ano (no mês do aniversário), mas <b>abre mão do saque total</b> se for demitido.<br>` +
+      `• A <b>antecipação</b> pega vários anos futuros de saque-aniversário de uma vez — com juros e desconto. Você recebe menos do que sacaria.<br>` +
+      `• Faz sentido só para trocar dívida MUITO cara (rotativo ~14% a.m.) por um custo menor — nunca para consumo.<br>` +
+      `• Lembre: ao optar pelo saque-aniversário, na demissão você fica sem o colchão do FGTS (só a multa de 40%). Reavalie se a renda é instável.<br>` +
+      `• Voltar para o saque-rescisão é possível, mas só vale após 2 anos — leia as regras antes de migrar.`;
+  }
+
+  // Inflação no dia a dia / cesta básica
+  if (/cesta basica|preco dos alimentos|comida (esta|ta) cara|mercado caro|inflacao dos alimentos|carne cara/.test(t)) {
+    return `<b>Inflação no dia a dia — defenda o orçamento do supermercado:</b><br><br>` +
+      `• Alimentos sobem mais que o IPCA geral em ciclos de seca/câmbio. Sentir no mercado é normal — o jeito é ajustar o método de compra.<br>` +
+      `• <b>Lista fechada + compra mensal</b> no atacarejo para não perecíveis; feira/hortifruti no fim de semana para o fresco (mais barato e melhor).<br>` +
+      `• Troque marca pela <b>marca própria</b> do mercado em itens-commodity (arroz, açúcar, limpeza): mesma qualidade, 20–30% menos.<br>` +
+      `• Apps de comparação e cashback de supermercado + planejar cardápio da semana evitam o desperdício (que é dinheiro no lixo).<br>` +
+      `• Acompanhe sua categoria <b>Mercado</b> aqui no app: se subiu, ajuste o teto no Orçamento antes de estourar.`;
+  }
+
+  // Auxílios previdenciários (doença/maternidade)
+  if (/auxilio.?doenca|auxilio maternidade|salario maternidade|beneficio por incapacidade|inss doenca|encostar pelo inss/.test(t)) {
+    return `<b>Auxílios do INSS — o que você tem direito:</b><br><br>` +
+      `• <b>Auxílio por incapacidade temporária</b> (antigo auxílio-doença): para quem fica incapaz +15 dias. CLT: a empresa paga os 15 primeiros dias, o INSS assume depois.<br>` +
+      `• <b>Salário-maternidade</b>: 120 dias, pago pela empresa (CLT) ou direto pelo INSS (autônoma/MEI com carência de 10 meses).<br>` +
+      `• <b>Aposentadoria por incapacidade permanente</b>: para incapacidade definitiva, após perícia.<br>` +
+      `• Autônomo/MEI: só tem direito se estiver <b>em dia com a contribuição</b> e cumprir a carência — mais um motivo para nunca atrasar o DAS/GPS.<br>` +
+      `• Reforço: mesmo com auxílio, a renda cai — por isso reserva de 6–12 meses é inegociável, principalmente para autônomos.`;
+  }
+
+  // Custódia / corretora segura / onde abrir conta
+  if (/corretora segura|qual corretora|onde abrir conta de investimento|custodia|minha corretora quebrar|corretora confiavel/.test(t)) {
+    return `<b>Escolher corretora com segurança:</b><br><br>` +
+      `• Seu dinheiro não fica "na corretora": ações/títulos ficam custodiados na <b>B3</b> e no seu CPF — se a corretora quebrar, você transfere os ativos para outra.<br>` +
+      `• Saldo em conta da corretora aguardando investir é coberto pela cobertura do BSM (até R$ 120 mil) em caso de fraude/falha — não deixe muito parado lá.<br>` +
+      `• Critérios: taxa zero de corretagem e custódia, solidez do grupo, boa plataforma e atendimento. Hoje as grandes são gratuitas.<br>` +
+      `• Confira o registro na <b>CVM</b> e o status no site da B3 antes de transferir valores altos.<br>` +
+      `• Dica: 2 corretoras dão redundância (manutenção/instabilidade num dia de pregão importante não te trava).`;
+  }
+
+  // Vaquinha / bolão / rateio de presente
+  if (/vaquinha|bolao|rateio|dividir presente|amigo secreto|caixinha do grupo/.test(t)) {
+    return `<b>Vaquinha e bolão — sem dor de cabeça depois:</b><br><br>` +
+      `• Use uma <b>chave PIX dedicada</b> (ou conta/caixinha separada) para o dinheiro do grupo — nunca misture com o seu, vira confusão e prejuízo.<br>` +
+      `• Defina valor por pessoa, prazo e o que acontece com a sobra ANTES de começar. Transparência evita 100% das brigas.<br>` +
+      `• Bolão de loteria: registre o bilhete e a lista de cotistas por escrito/foto — prêmio dividido sem comprovação já virou processo.<br>` +
+      `• Plataformas de vaquinha cobram taxa (5–10%) — para grupos pequenos, PIX direto é mais barato.<br>` +
+      `• Lembre da regra das odds: loteria é entretenimento, não plano financeiro — entre só com o que toparia perder.`;
+  }
+
+  // Quitar financiamento antecipado / amortizar
+  if (/amortizar|quitar financiamento|adiantar parcelas|abater financiamento|amortizacao/.test(t)) {
+    return `<b>Amortizar financiamento — corte juros de forma cirúrgica:</b><br><br>` +
+      `• Você tem direito a <b>desconto proporcional dos juros</b> ao quitar/antecipar (Código de Defesa do Consumidor) — exija que abatam os juros futuros, não só o saldo.<br>` +
+      `• <b>Reduzir prazo</b> &gt; reduzir parcela: amortizar encurtando o prazo elimina muito mais juros no total.<br>` +
+      `• Vale a pena quando o <b>juro do financiamento</b> (veja o CET) supera o que seu dinheiro renderia investido (CDI). Imobiliário às vezes é o contrário — compare.<br>` +
+      `• Use FGTS para amortizar habitacional a cada 2 anos — dinheiro que rende mal lá vira corte de juros aqui.<br>` +
+      `• Antes de amortizar: garanta a reserva intacta. Ficar sem colchão para quitar dívida é trocar de risco.`;
+  }
+
+  // Conta salário vs conta corrente / portabilidade de salário
+  if (/conta salario|portabilidade de salario|receber salario em outro banco|conta do convenio/.test(t)) {
+    return `<b>Conta-salário e portabilidade — receba onde quiser:</b><br><br>` +
+      `• A <b>conta-salário</b> é gratuita e só recebe o crédito do empregador — você não é obrigado a usá-la como conta corrente.<br>` +
+      `• <b>Portabilidade de salário</b>: peça (sem custo) para que o valor seja transferido automaticamente para o banco/corretora da sua escolha no mesmo dia.<br>` +
+      `• Assim você foge de tarifas e leva o dinheiro para onde rende — não precisa pedir conta específica ao RH.<br>` +
+      `• Configure transferência automática no dia do crédito: parte para investir ("pague-se primeiro"), o resto para gastar.<br>` +
+      `• Tarifa de pacote em banco tradicional virou opcional — bancos digitais sólidos zeram TED, PIX, cartão e manutenção.`;
+  }
+
+  // Garantia estendida / seguro de produto
+  if (/garantia estendida|seguro de celular|seguro de produto|garantia de loja/.test(t)) {
+    return `<b>Garantia estendida — quase sempre não vale:</b><br><br>` +
+      `• É um seguro com <b>margem de 50–70%</b> para a loja — por isso o vendedor insiste tanto e ganha comissão.<br>` +
+      `• A maioria dos defeitos aparece dentro da garantia legal (90 dias) + garantia do fabricante (1 ano) — você já está coberto de graça.<br>` +
+      `• Para eletrônicos baratos, o custo da garantia chega perto de comprar outro — não compensa.<br>` +
+      `• Alternativa: guarde o valor da garantia numa caixinha de "manutenção" — na prática vira seu autosseguro, e a sobra é sua.<br>` +
+      `• Exceção possível: aparelho caro e frágil (celular topo de linha) com cobertura de quebra/roubo — aí faça a conta fria do prêmio vs valor.`;
+  }
+
 
   // PIX e transferências
   if (/\bpix\b|transferencia|ted\b|doc\b|chave pix/.test(t) && !/golpe|fraude|errado/.test(t)) {

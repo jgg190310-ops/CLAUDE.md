@@ -1069,6 +1069,294 @@
 </ul>
 <p style="margin-top:8px">Esperar motivação para começar é uma armadilha. Comece, e ela vem no caminho. 🚀</p>`;
 
+    // ═════════ NOVOS INTENTS (2ª rodada) — colocados antes do fallback ═════════
+
+    if (/52.?17|5217|pomodoro longo|ciclo longo|90.?20|112.?26|pausa ativa do pomodoro/.test(t))
+      return `<p><strong>Variações do Pomodoro (além do 25/5):</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>52/17:</b> 52 min de foco + 17 min de pausa — ótimo para tarefas que exigem imersão maior</li>
+  <li><b>90/20:</b> alinhado ao ciclo ultradiano do cérebro (~90 min de pico) + descanso real</li>
+  <li><b>112/26:</b> ritmo de "deep work" para quem já tem foco treinado</li>
+  <li><b>Regra de ouro:</b> a pausa precisa ser <b>real</b> (longe da tela), não scroll no feed</li>
+</ul>
+<p style="margin-top:8px">Teste 1-2 semanas cada e meça onde você rende mais. Não existe número mágico — existe o seu. ⏲️</p>`;
+
+    if (/sq3r|sq4r|pq4r|robinson|panorama de leitura|survey question read/.test(t))
+      return `<p><strong>Método SQ3R para leitura ativa:</strong></p>
+<ol style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Survey:</b> folheie títulos, negritos e resumos (2-3 min) antes de ler</li>
+  <li><b>Question:</b> transforme cada subtítulo em pergunta</li>
+  <li><b>Read:</b> leia buscando responder essas perguntas</li>
+  <li><b>Recite:</b> feche o livro e responda em voz alta ou no papel</li>
+  <li><b>Review:</b> revise 1, 7 e 30 dias depois o que não fixou</li>
+</ol>
+<p style="margin-top:8px">Transforma leitura passiva em active recall embutido. Funciona muito bem para concurso e provas teóricas. 📖</p>`;
+
+    if (/notion|obsidian|segundo cerebro|segundo cérebro|zettelkasten|nota digital|notas digitais|app de anotac/.test(t))
+      return `<p><strong>Notion, Obsidian e o "segundo cérebro":</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Notion:</b> ótimo para organizar matérias, cronogramas e bancos de questões em tabelas</li>
+  <li><b>Obsidian:</b> notas em markdown com <b>links entre ideias</b> (Zettelkasten) — cria uma rede de conhecimento</li>
+  <li><b>Princípio:</b> a ferramenta não estuda por você — conecte e reescreva com suas palavras</li>
+  <li><b>Cuidado:</b> não vire "produtividade pornô" arrumando o app em vez de estudar</li>
+</ul>
+<p style="margin-top:8px">Papel vence em retenção de conteúdo novo; digital vence em busca e revisão. Use os dois conforme a fase. 🧠</p>`;
+
+    if (/papel ou digital|caneta ou teclado|manuscrit|escrever a mao|escrever à mão|digitar ou escrever|laptop na aula/.test(t))
+      return `<p><strong>Anotar à mão vs no computador:</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>À mão:</b> você é mais lento, então <b>resume e reformula</b> — isso processa melhor o conteúdo</li>
+  <li><b>Digital:</b> rápido, busca fácil, mas vira transcrição passiva e abre porta para distração</li>
+  <li><b>Estudo Mueller & Oppenheimer:</b> manuscrito teve melhor desempenho em questões conceituais</li>
+  <li><b>Meio-termo:</b> anote à mão na aula, depois digite organizando — vira 2ª revisão</li>
+</ul>
+<p style="margin-top:8px">Para aprender, à mão tende a ganhar. Para arquivar e buscar depois, digital ganha. ✍️</p>`;
+
+    if (/configurar anki|config do anki|deck|intervalo do anki|ease|cartao anki|cartão anki|como usar anki/.test(t))
+      return `<p><strong>Configurar o Anki direito:</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Cartões atômicos:</b> 1 fato por cartão — pergunta clara, resposta curta</li>
+  <li><b>Novos cartões/dia:</b> comece com <b>10-20</b>, não 200 (a avalanche de revisões te quebra)</li>
+  <li><b>Não decore o cartão:</b> entenda antes de adicionar, senão vira papagaio</li>
+  <li><b>Seja honesto nos botões</b> (de novo/difícil/bom/fácil) — o algoritmo depende disso</li>
+  <li><b>Cloze deletion</b> (lacunas) é poderoso para leis e definições</li>
+</ul>
+<p style="margin-top:8px">Revise <b>todo dia</b>, mesmo que pouco. Pular dias acumula e desmotiva. 🃏</p>`;
+
+    if (/oab|exame de ordem|primeira fase|segunda fase da oab|peca pratica|peça prática/.test(t))
+      return `<p><strong>Estratégia para a OAB:</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>1ª fase:</b> 80 questões — domine <b>Ética, Constitucional, Civil e Processo</b> (maiores pesos)</li>
+  <li><b>Resolva provas da FGV:</b> a banca repete muito o estilo — questões antigas são ouro</li>
+  <li><b>Meta de aprovação:</b> 40 acertos; foque em garantir as disciplinas que mais caem</li>
+  <li><b>2ª fase:</b> escolha a área com antecedência e treine <b>peça + questões</b> cronometradas</li>
+  <li><b>Vade mecum:</b> aprenda a localizar artigos rápido — na 2ª fase ele é permitido</li>
+</ul>
+<p style="margin-top:8px">Questões > teoria pura. Estude pelo gabarito comentado da FGV. ⚖️</p>`;
+
+    if (/medicina|vestibular de medicina|fuvest|residencia|residência med|carreira medica/.test(t))
+      return `<p><strong>Vestibular de Medicina (alta concorrência):</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Biologia, Química e Física</b> têm peso extra na maioria das provas — priorize</li>
+  <li><b>Redação forte é decisiva:</b> em provas como a Fuvest, ela desempata vagas concorridíssimas</li>
+  <li><b>Rotina de 6-8h/dia</b> com revisão espaçada e muitos exercícios</li>
+  <li><b>Simulados quinzenais</b> nas condições reais (4-5h) treinam resistência</li>
+  <li><b>Caderno de erros</b> é indispensável nesse nível de concorrência</li>
+</ul>
+<p style="margin-top:8px">Maratona de 1-3 anos. Constância e saúde mental valem tanto quanto o conteúdo. 🩺</p>`;
+
+    if (/multitarefa|multitask|fazer varias coisas|várias coisas ao mesmo tempo|duas coisas ao mesmo tempo/.test(t))
+      return `<p><strong>Multitarefa é um mito (para estudar):</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li>O cérebro <b>não</b> faz duas tarefas cognitivas juntas — ele alterna ("task switching")</li>
+  <li>Cada troca custa atenção e tempo: estudar com WhatsApp aberto pode <b>dobrar</b> o tempo</li>
+  <li>Estudos mostram queda de desempenho e mais erros em quem "multitarefa"</li>
+  <li><b>Monotarefa intencional:</b> 1 coisa de cada vez, com bloco de tempo definido</li>
+</ul>
+<p style="margin-top:8px">Você não é lento — você está dividido. Feche as abas e foque numa coisa só. 🎯</p>`;
+
+    if (/bloquead|bloquear app|bloquear site|forest|cold turkey|app de foco|freedom|tempo de tela|screen time/.test(t))
+      return `<p><strong>Apps para bloquear distração digital:</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Forest:</b> planta uma árvore que morre se você sair do app — gamifica o foco</li>
+  <li><b>Cold Turkey / Freedom:</b> bloqueiam sites e apps por blocos de tempo</li>
+  <li><b>Modo Foco / Tempo de Tela</b> (iOS/Android) já fazem isso nativamente, de graça</li>
+  <li><b>Truque físico:</b> celular em outro cômodo bate qualquer app — a fricção vence o impulso</li>
+</ul>
+<p style="margin-top:8px">O melhor bloqueador é a distância: o que não está ao alcance da mão não te interrompe. 🌳</p>`;
+
+    if (/impostor|nao sou capaz|não sou capaz|nao sou bom o suficiente|fraude|sentir que nao mereco/.test(t))
+      return `<p><strong>Síndrome do impostor:</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>É comum justamente em quem se esforça</b> — sentir-se "fraude" não significa que você é</li>
+  <li><b>Registre vitórias:</b> mantenha um log de acertos e progressos para confrontar a sensação</li>
+  <li><b>Separe sentimento de fato:</b> "me sinto despreparado" ≠ "estou despreparado"</li>
+  <li><b>Compare-se com seu eu de ontem</b>, não com os outros</li>
+  <li>Falar sobre isso com colegas mostra que quase todos sentem o mesmo</li>
+</ul>
+<p style="margin-top:8px">Dúvida sobre a própria capacidade costuma andar junto com competência real. Siga em frente. 💛</p>`;
+
+    if (/comparar com|comparacao com outros|comparação com outros|todo mundo sabe mais|estou atrasad|me comparo/.test(t))
+      return `<p><strong>Parar de se comparar com os outros:</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Você vê o resultado dos outros, não o processo</b> — comparação é sempre injusta</li>
+  <li><b>Régua única:</b> o você de hoje vs o você de 1 mês atrás</li>
+  <li><b>Redes sociais distorcem:</b> ninguém posta as horas travado e desmotivado</li>
+  <li><b>Use o outro como referência, não como juiz:</b> aprenda o método, ignore o ranking</li>
+</ul>
+<p style="margin-top:8px">A corrida que importa é contra a sua própria estagnação. Foque na sua trilha. 🛤️</p>`;
+
+    if (/voltar a estudar|parei de estudar|recomecar|recomeçar|sair do zero de novo|fiquei parado|destreinad/.test(t))
+      return `<p><strong>Voltar a estudar depois de parar:</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Não tente recuperar tudo de uma vez:</b> recaída comum é querer 6h no dia 1 e abandonar no dia 3</li>
+  <li><b>Recomece minúsculo:</b> 20-30 min/dia na primeira semana só para reativar o hábito</li>
+  <li><b>Sem culpa pelo tempo parado:</b> ela só consome energia que serviria para estudar</li>
+  <li><b>Reabilite a base:</b> uma revisão leve do que já sabia destrava a confiança</li>
+  <li><b>Marque os dias</b> (efeito streak) para reconstruir o ritmo</li>
+</ul>
+<p style="margin-top:8px">Recomeçar não é voltar à estaca zero — você ainda carrega o que aprendeu. Suba a rampa devagar. 🔄</p>`;
+
+    if (/gamific|gamificar|streak|xp de estudo|pontos de estudo|nivel de estudo|nível de estudo|recompensa/.test(t))
+      return `<p><strong>Gamificar os estudos:</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Streak (corrente):</b> não quebrar a sequência de dias vira motivação por si só</li>
+  <li><b>Pontos/XP:</b> dê pontos por bloco concluído e defina "níveis" semanais</li>
+  <li><b>Recompensas atreladas:</b> episódio da série só depois de 2 pomodoros</li>
+  <li><b>Barra de progresso visível:</b> ver o avanço libera dopamina e puxa pra continuar</li>
+  <li><b>Cuidado:</b> a recompensa deve seguir o esforço, não substituí-lo</li>
+</ul>
+<p style="margin-top:8px">No StudyOS, suas metas de horas já funcionam como placar — transforme estudo em jogo que você quer vencer. 🎮</p>`;
+
+    if (/accountability|parceiro de estudo|cobranca mutua|cobrança mútua|responsabiliza|body doubling|alguem pra cobrar/.test(t))
+      return `<p><strong>Parceiro de estudo (accountability):</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Compromisso público</b> com alguém aumenta muito a taxa de cumprimento da meta</li>
+  <li><b>Check-in diário:</b> mande "feito" ao parceiro ao fim da sessão</li>
+  <li><b>Body doubling:</b> estudar junto (presencial ou em chamada de vídeo) reduz a procrastinação</li>
+  <li><b>Metas claras e mensuráveis</b> para o parceiro poder cobrar de fato</li>
+  <li><b>Comunidades online</b> (Discord de estudos, "study with me") cumprem esse papel</li>
+</ul>
+<p style="margin-top:8px">A gente falha com a gente fácil — falhar com outra pessoa custa mais. Use isso a seu favor. 🤝</p>`;
+
+    if (/videoaula|video aula|video-aula|aula gravada|velocidade do video|acelerar video|2x|assistir aula/.test(t))
+      return `<p><strong>Aprender com videoaula (sem ilusão de produtividade):</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Velocidade 1.25x-1.5x</b> costuma manter compreensão; 2x só para revisão do que já sabe</li>
+  <li><b>Pause e anote</b> com suas palavras — assistir passivo fixa pouquíssimo</li>
+  <li><b>Teste depois:</b> feche o vídeo e tente recriar o raciocínio (active recall)</li>
+  <li><b>Refaça os exercícios sozinho</b> antes de ver a resolução</li>
+  <li><b>Cuidado com a maratona:</b> 5 aulas seguidas viram entretenimento, não estudo</li>
+</ul>
+<p style="margin-top:8px">Vídeo é input passivo. O aprendizado real vem do que você faz com a pausa. ▶️</p>`;
+
+    if (/podcast|audio para estudar|áudio para estudar|escutar enquanto/.test(t))
+      return `<p><strong>Podcasts educativos no estudo:</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Ótimos para tempos mortos:</b> trânsito, academia, tarefas domésticas</li>
+  <li><b>Melhor para revisão e visão geral</b> do que para aprender conteúdo novo e técnico</li>
+  <li><b>Áudio é passivo:</b> depois, anote 3 pontos que lembrou para virar active recall</li>
+  <li><b>Não substitui</b> a prática de exercícios em exatas</li>
+</ul>
+<p style="margin-top:8px">Use podcast para "aproveitar o tempo que ia se perder", não como estudo principal. 🎧</p>`;
+
+    if (/jejum de dopamina|dopamine|reduzir dopamina|detox digital|excesso de estimulo|excesso de estímulo/.test(t))
+      return `<p><strong>"Jejum de dopamina" e foco:</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Ideia central:</b> estímulos rápidos (reels, jogos, açúcar) elevam tanto a recompensa que estudar parece "sem graça"</li>
+  <li><b>Reduza o pico:</b> corte scroll infinito e notificações nas horas de estudo</li>
+  <li><b>Recompensa lenta:</b> reaprenda a achar satisfação em tarefas que exigem esforço</li>
+  <li><b>Comece o dia sem o celular:</b> proteger a manhã preserva a atenção para o resto</li>
+</ul>
+<p style="margin-top:8px">Não precisa de "jejum" radical — basta baixar o ruído digital para o estudo voltar a competir. 📵</p>`;
+
+    if (/perfeccion|tudo perfeito|nunca esta bom|nunca está bom|medo de errar|paralis/.test(t))
+      return `<p><strong>Perfeccionismo que trava o estudo:</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Feito > perfeito:</b> um resumo "bom o bastante" hoje vale mais que o perfeito que nunca sai</li>
+  <li><b>Errar faz parte do método:</b> o erro é onde o aprendizado acontece, não um fracasso</li>
+  <li><b>Defina "bom o suficiente"</b> antes de começar para não polir infinitamente</li>
+  <li><b>Cronometre:</b> dar prazo à tarefa corta o loop de revisão sem fim</li>
+  <li><b>Caderno bonito ≠ aprendizado:</b> não gaste horas decorando anotações</li>
+</ul>
+<p style="margin-top:8px">Perfeccionismo costuma ser procrastinação disfarçada de capricho. Avance imperfeito. 🌗</p>`;
+
+    if (/prova oral|apresentacao|apresentação|seminario|seminário|falar em publico|falar em público|defesa oral/.test(t))
+      return `<p><strong>Prova oral e apresentações:</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Domine a estrutura, não o roteiro decorado:</b> saber a sequência de ideias evita o branco</li>
+  <li><b>Ensaie em voz alta</b> e cronometrado — pensar ≠ falar fluentemente</li>
+  <li><b>Grave-se:</b> ouvir revela vícios, "né?", pausas e ritmo</li>
+  <li><b>Antecipe perguntas</b> e prepare respostas curtas</li>
+  <li><b>Respiração 4-7-8</b> antes de começar baixa o nervosismo</li>
+</ul>
+<p style="margin-top:8px">Quem ensaia em voz alta domina o conteúdo e o nervoso. Repetição é confiança. 🎤</p>`;
+
+    if (/tcc|monografia|trabalho de conclusao|trabalho de conclusão|dissertacao de mestrado|tese|artigo cientifico|artigo científico/.test(t))
+      return `<p><strong>TCC / monografia sem sofrimento:</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Recorte estreito:</b> tema específico é mais fácil que tema amplo — delimite logo</li>
+  <li><b>Pergunta de pesquisa clara</b> guia tudo: tudo que não responde a ela, corta</li>
+  <li><b>Escreva sujo primeiro:</b> rascunho ruim é editável; página em branco não</li>
+  <li><b>Metas diárias minúsculas:</b> "300 palavras/dia" termina monografias</li>
+  <li><b>Gerencie referências</b> com Zotero/Mendeley desde o início — economiza dias</li>
+</ul>
+<p style="margin-top:8px">TCC não se faz numa maratona final — se faz em pequenos blocos constantes. Comece a escrever antes de "terminar de ler tudo". 📑</p>`;
+
+    if (/decoreba|decorar vs entender|entender ou decorar|so decorei|só decorei|aprendizado profundo|aprendizado superficial/.test(t))
+      return `<p><strong>Decorar vs entender:</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Decoreba some sob pressão:</b> na prova difícil, o que foi só memorizado evapora</li>
+  <li><b>Entendimento se reconstrói:</b> se você sabe o "porquê", recria o que esqueceu</li>
+  <li><b>Teste-se com "por quê?":</b> se só sabe o "o quê", ainda é superficial</li>
+  <li><b>Algumas coisas exigem memória mesmo</b> (vocabulário, leis) — aí use repetição espaçada</li>
+  <li><b>Feynman</b> expõe na hora o que você decorou sem entender</li>
+</ul>
+<p style="margin-top:8px">Entenda primeiro, memorize o que sobrar. Compreensão é memória que não trai. 🧩</p>`;
+
+    if (/grupo de estudo eficaz|grupo eficiente|reuniao de estudo|reunião de estudo|estudar coletivo/.test(t))
+      return `<p><strong>Grupo de estudo que realmente funciona:</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Máximo 3-5 pessoas</b> com nível e objetivo parecidos</li>
+  <li><b>Pauta e tempo definidos</b> antes — senão vira papo</li>
+  <li><b>Cada um ensina um tópico</b> (Feynman coletivo) — expõe lacunas de todos</li>
+  <li><b>Resolvam questões juntos</b> e discutam os porquês das alternativas</li>
+  <li><b>Conteúdo novo se aprende sozinho;</b> grupo serve para revisar e tirar dúvidas</li>
+</ul>
+<p style="margin-top:8px">Grupo bom é máquina de tirar dúvida e ensinar; grupo ruim é distração coletiva. Combine regras. 👥</p>`;
+
+    if (/revisao espacada cronograma|cronograma de revisao|cronograma de revisão|1.?7.?30|um sete trinta|quando revisar/.test(t))
+      return `<p><strong>Cronograma de revisão 1-7-30:</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Mesmo dia:</b> revisão rápida do que estudou, ainda fresco</li>
+  <li><b>1 dia depois:</b> primeira revisão de verdade, com active recall</li>
+  <li><b>7 dias depois:</b> reforça antes que a curva do esquecimento derrube</li>
+  <li><b>30 dias depois:</b> consolidação de longo prazo</li>
+  <li><b>Acertou fácil?</b> Espace mais. <b>Errou?</b> Encurte o intervalo</li>
+</ul>
+<p style="margin-top:8px">3 revisões curtas espaçadas valem mais que reler 5 vezes seguidas. Sistematize as datas. 📆</p>`;
+
+    if (/em pe|em pé|de pe|de pé|estudar andando|estudar caminhando|mesa em pe|movimento|estudar em movimento/.test(t))
+      return `<p><strong>Estudar em pé ou em movimento:</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Mesa em pé</b> reduz a sonolência e melhora a circulação em sessões longas</li>
+  <li><b>Andar enquanto revisa</b> (flashcards, áudios) ativa o cérebro — bom para mente dispersa/TDAH</li>
+  <li><b>Alterne posições:</b> sentar e levantar a cada bloco evita fadiga postural</li>
+  <li><b>Para escrever/resolver exercícios</b>, sentar com boa postura ainda é melhor</li>
+</ul>
+<p style="margin-top:8px">Movimento leve combina com revisão e memorização; foco profundo de escrita pede estabilidade. 🚶</p>`;
+
+    if (/cinco porques|cinco porquês|5 porques|5 porquês|analise de causa|análise de causa|por que errei/.test(t))
+      return `<p><strong>Técnica dos 5 Porquês (achar a causa raiz):</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li>Diante de um erro ou dificuldade, pergunte <b>"por quê?"</b> cinco vezes seguidas</li>
+  <li>Ex.: "Errei a questão" → por quê? "não sabia a fórmula" → por quê? "não revisei" → por quê? "sem cronograma"...</li>
+  <li>Cada resposta vira a próxima pergunta até chegar à <b>causa real</b></li>
+  <li>Aí você corrige a raiz, não o sintoma</li>
+</ul>
+<p style="margin-top:8px">Muito útil no caderno de erros: o "porquê" final costuma ser um problema de método, não de inteligência. ❓</p>`;
+
+    if (/montar meta de horas|meta de horas|quantas horas devo|meta realista|carga horaria|carga horária/.test(t))
+      return `<p><strong>Montar uma meta de horas realista:</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Parta do tempo que sobra de fato</b> na sua semana, não do ideal imaginário</li>
+  <li><b>Conte só foco real:</b> 1h de pomodoro vale mais que 3h "ligado no automático"</li>
+  <li><b>Comece 20% abaixo do que acha que aguenta</b> — meta batível cria momentum</li>
+  <li><b>Distribua por dia</b> e deixe 1 dia de folga/buffer para imprevistos</li>
+  <li><b>Ajuste semanalmente</b> com base no que você realmente cumpriu</li>
+</ul>
+<p style="margin-top:8px">Meta inflada que você nunca bate desmotiva. No StudyOS, defina horas semanais por matéria e acompanhe o real. 🕒</p>`;
+
+    if (/cafe e foco|café e foco|cafeina e foco|cafeína e foco|tomar cafe|tomar café|quanto de cafe|quanto de café/.test(t))
+      return `<p><strong>Café e cafeína para focar:</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Dose útil:</b> ~1-2 xícaras melhoram alerta e atenção; mais que isso dá ansiedade e tremor</li>
+  <li><b>Evite após as 14-16h:</b> a cafeína tem meia-vida ~5-6h e atrapalha o sono (que consolida memória)</li>
+  <li><b>Não dependa em jejum:</b> com o estômago vazio pode aumentar a ansiedade</li>
+  <li><b>Tolerância sobe:</b> pausas de alguns dias restauram o efeito</li>
+</ul>
+<p style="margin-top:8px">Café é aliado pontual, não substituto de sono. Use para potencializar foco, não para tapar exaustão. ☕</p>`;
+
     // ───────── fallback inteligente (sugere o tópico mais próximo) ─────────
     {
       const topics = [

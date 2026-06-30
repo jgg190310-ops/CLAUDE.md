@@ -773,6 +773,134 @@
       return `<b>Frutas — naturais e nutritivas:</b> 🍎<br><br>• Têm açúcar, sim, mas vêm com <b>fibra, água, vitaminas e antioxidantes</b> — o pacote completo. Não engordam no contexto de uma dieta equilibrada.<br>• <b>Coma a fruta inteira</b> em vez de suco (suco perde a fibra e concentra açúcar).<br>• <b>Mais fibra/menos açúcar</b>: maçã, pera, frutas vermelhas, abacate, kiwi.<br>• Banana e manga são ótimas <b>pré-treino</b> (energia rápida).<br>• Mire <b>2-3 porções/dia</b>, variando as cores.<br><br>Casca, quando comestível (maçã, pera, uva), tem fibra e nutrientes — lave bem e coma. 🍓`;
     }
 
+    // ───────── NOVOS INTENTS — RODADA 2 ─────────
+
+    // creatina (como tomar)
+    if (/(creatina|monohidrat|monoidrat|creapure)/.test(norm)) {
+      return `<b>Creatina — o suplemento mais estudado que existe:</b> 💪<br><br>• <b>Dose</b>: 3-5g por dia, todo dia (inclusive nos dias sem treino). Saturação leva ~3-4 semanas.<br>• <b>Saturação rápida</b> (opcional): 20g/dia divididos em 4 doses por 5-7 dias, depois 5g/dia de manutenção.<br>• <b>Horário não importa</b> — o efeito é por acúmulo no músculo, não agudo. Tome quando lembrar.<br>• <b>Tipo</b>: monohidratada é a melhor (custo-benefício e evidência). Não precisa "Creapure" caro nem versões fancy.<br>• Ganha 1-2kg de água intramuscular no início — é normal e desejável (volume e força).<br><br>Segura para rins saudáveis. Não é esteroide nem causa queda de cabelo na maioria. 🧪`;
+    }
+
+    // whey — tipos (concentrado, isolado, hidrolisado)
+    if (/(whey)/.test(norm) && /(tipo|concentrad|isolad|hidrolis|qual whey|diferenca|diferença|melhor whey|comprar whey)/.test(norm)) {
+      return `<b>Tipos de whey — qual escolher:</b> 🥛<br><br>• <b>Concentrado (WPC)</b>: 70-80% proteína, tem um pouco de lactose e gordura. Mais barato e ótimo para a maioria. ~24g prot/scoop.<br>• <b>Isolado (WPI)</b>: 90%+ proteína, quase sem lactose/gordura. Bom para intolerantes ou cutting.<br>• <b>Hidrolisado (WPH)</b>: pré-digerido, absorção mais rápida e caro — ganho marginal para a maioria.<br>• <b>Vegano</b>: ervilha + arroz combinados fecham o aminograma (boa opção sem lactose).<br><br>Whey é só comida em pó prática — se você bate sua proteína com frango, ovo e feijão, é opcional. 🍳`;
+    }
+
+    // dieta mediterrânea
+    if (/(mediterran|mediterrâne|dieta dash)/.test(norm)) {
+      return `<b>Dieta mediterrânea — a mais validada do mundo:</b> 🫒<br><br>• Base: <b>azeite de oliva</b>, vegetais, frutas, leguminosas, grãos integrais, castanhas.<br>• <b>Peixe e frutos do mar</b> 2-3x/semana; aves e ovos com moderação; carne vermelha pouca.<br>• Laticínios em quantidade moderada (queijo, iogurte natural).<br>• Açúcar e ultraprocessados são raros; vinho tinto é opcional e moderado.<br>• Associada a <b>menos doenças cardíacas</b>, melhor colesterol e longevidade.<br><br>Versão brasileira: azeite, feijão, arroz integral, peixe, muita verdura e fruta da estação. Sustentável e gostosa. 🐟`;
+    }
+
+    // B12 / vegano (detalhe de suplementação)
+    if (/(b12|vitamina b12|cobalamina|cianocobalamina)/.test(norm)) {
+      return `<b>Vitamina B12 — atenção redobrada para veg*:</b> 💉<br><br>• Encontrada quase só em <b>alimentos de origem animal</b> (carne, peixe, ovo, leite).<br>• <b>Veganos devem suplementar sempre</b> — não há fonte vegetal confiável (espirulina não conta).<br>• Dose comum: ~2500 mcg/semana ou 250 mcg/dia (cianocobalamina). Ajuste com exame.<br>• <b>Deficiência</b> causa anemia, fadiga, formigamento e dano neurológico que pode ser irreversível.<br>• Vegetarianos (ovolacto) costumam ter menos risco, mas vale checar no exame.<br><br>⚠️ Faça dosagem sérica e siga orientação médica. 🩺`;
+    }
+
+    // adoçantes — quais usar
+    if (/(adoçante|adocante)/.test(norm) && /(qual|melhor|seguro|engorda|faz mal|stevia|sucralose|xilitol|eritritol|aspartame)/.test(norm)) {
+      return `<b>Adoçantes — quais valem:</b> 🍯<br><br>• <b>Naturais</b>: <b>Stevia</b> e <b>eritritol</b> são bem tolerados, zero/baixa caloria e não elevam glicemia. Boas escolhas.<br>• <b>Xilitol</b>: ok, mas em excesso solta o intestino (e é tóxico para cães).<br>• <b>Sucralose e aspartame</b>: seguros nas doses usuais segundo as agências; alguns sentem desconforto.<br>• <b>Cuidado</b>: produtos "zero açúcar" podem manter o paladar viciado em doce — o ideal é reduzir o doce no geral.<br><br>Nenhum adoçante é "milagre de emagrecimento"; o ganho é trocar açúcar líquido (refri) por versão zero. 🥤`;
+    }
+
+    // chá verde / termogênicos naturais
+    if (/(cha verde|chá verde|termogenic|termogênic|cha de hibisco|chá de hibisco|chá emagrece|cha emagrece|gengibre emagrece)/.test(norm)) {
+      return `<b>Chás e "termogênicos" naturais:</b> 🍵<br><br>• <b>Chá verde</b>: cafeína + catequinas dão um leve empurrão no metabolismo e foco — efeito real mas <b>pequeno</b>.<br>• <b>Gengibre, canela, pimenta, hibisco</b>: ajudam pouco; servem mais como bebida sem açúcar e saciedade.<br>• Nenhum chá "derrete gordura" — o que emagrece é o <b>déficit calórico</b>.<br>• Útil de verdade: chá no lugar de refri/suco corta calorias líquidas e hidrata.<br>• ⚠️ Chá verde tem cafeína — evite à noite e não exagere se você é sensível.<br><br>Use como hábito de apoio, não como solução. 🌿`;
+    }
+
+    // eletrólitos
+    if (/(eletrolito|eletrólito|sais minerais|isotonico|isotônico|repor sal|sodio potassio|cãibra|caibra|cambra)/.test(norm)) {
+      return `<b>Eletrólitos — quando importam:</b> ⚡<br><br>• Principais: <b>sódio, potássio, magnésio e cálcio</b> — regulam contração muscular, hidratação e nervos.<br>• <b>Treino &lt; 1h</b>: água pura basta. <b>Treino longo/muito suor/calor</b>: reponha sódio e potássio.<br>• <b>Cãibras</b> ligam-se a perda de sódio/magnésio e desidratação — não é só "falta de banana".<br>• Caseiro: 500ml água + pitada de sal + suco de limão + um pouco de mel já é um isotônico decente.<br>• Low carb no início "perde água e sódio" — adicionar sal ajuda na adaptação (evita dor de cabeça/moleza).<br><br>Isotônico de mercado é açúcar caro para a maioria — só justifica em esforço prolongado. 🏃`;
+    }
+
+    // ressaca alcoólica
+    if (/(ressaca|hangover|bebi demais|de ressaca|dor de cabeca depois de beber|dor de cabeça depois de beber)/.test(norm)) {
+      return `<b>Ressaca — o que ajuda de verdade:</b> 🥴<br><br>• A ressaca é <b>desidratação + inflamação + queda de açúcar</b> no sangue, não "toxina mágica".<br>• <b>Hidrate muito</b>: água e eletrólitos (sódio/potássio) — caldo, água de coco, soro caseiro.<br>• <b>Coma carbo + proteína</b>: ovos (cisteína ajuda o fígado), pão, fruta, para repor glicose.<br>• Evite "virar" café forte em jejum — pode piorar o estômago. Hidrate primeiro.<br>• <b>Prevenção</b>: 1 copo de água por dose, comer antes/durante, e dormir o suficiente.<br>• Nada de "beber de novo" (corote/chopp) — só adia o problema.<br><br>O único antídoto real é tempo + água + comida. 💧`;
+    }
+
+    // TPM / ciclo menstrual
+    if (/(tpm|ciclo menstrual|menstruacao|menstruação|periodo menstrual|período menstrual|colica|cólica|tensao pre menstrual|tensão pré menstrual)/.test(norm)) {
+      return `<b>Alimentação na TPM e no ciclo:</b> 🌸<br><br>• <b>Vontade de doce/carbo</b> na fase pré-menstrual é hormonal (queda de serotonina) — prefira <b>chocolate 70%+</b>, fruta e carbo integral em vez de se culpar.<br>• <b>Magnésio</b> (castanhas, cacau, folhas verdes) ajuda em cólica, humor e retenção.<br>• <b>Cálcio e B6</b> aliviam sintomas de TPM.<br>• <b>Ferro</b>: o fluxo menstrual perde ferro — capriche em carne, feijão e folhas + vitamina C.<br>• <b>Menos sódio e cafeína</b> reduzem inchaço e irritabilidade nessa fase.<br>• Retenção e +1-2kg na balança perto da menstruação é água, não gordura — relaxe. 💧<br><br>Movimento leve (caminhada, yoga) alivia cólica e melhora o humor.`;
+    }
+
+    // colesterol alto — dieta prática (não colide: foco em alimentos)
+    if (/(baixar colesterol|reduzir colesterol|dieta para colesterol|alimentos para colesterol|colesterol alto o que comer)/.test(norm)) {
+      return `<b>Comer para baixar o colesterol:</b> 🫀<br><br>• <b>Fibra solúvel</b> (aveia, feijão, maçã, cevada) "varre" colesterol — 1 tigela de aveia/dia ajuda.<br>• <b>Gorduras boas</b>: azeite, abacate, castanhas, peixe (ômega-3) elevam o HDL.<br>• <b>Corte gordura trans</b> (margarina dura, biscoito recheado, frituras industriais) — o maior vilão.<br>• <b>Fitosteróis</b> (vegetais, sementes) competem com a absorção do colesterol.<br>• <b>Menos açúcar e álcool</b> derruba triglicerídeos rápido.<br>• Atividade física e perder gordura abdominal melhoram todo o perfil.<br><br>⚠️ Genética influencia muito — acompanhe com exames e médico. 🩺`;
+    }
+
+    // gordura no fígado (esteatose)
+    if (/(gordura no figado|gordura no fígado|esteatose|figado gordo|fígado gordo|figado gorduroso|fígado gorduroso)/.test(norm)) {
+      return `<b>Gordura no fígado (esteatose hepática):</b> 🫛<br><br>• Causa principal não é "comer gordura" — é <b>excesso de açúcar, frutose líquida e álcool</b> + sobrepeso.<br>• <b>Corte refrigerante e sucos</b> (frutose vira gordura no fígado), doces e ultraprocessados.<br>• <b>Perder 7-10% do peso</b> reverte boa parte da gordura hepática.<br>• <b>Reduza/zere o álcool</b> — é tóxico direto ao fígado.<br>• Mais fibras, café (sem açúcar tem efeito protetor), peixe e exercício ajudam.<br>• Evite "chás detox" milagrosos — o fígado se cura com dieta e perda de peso, não com poções.<br><br>⚠️ É reversível nos estágios iniciais — acompanhe com médico. 🩺`;
+    }
+
+    // ácido úrico / gota
+    if (/(acido urico|ácido úrico|gota|hiperuricemia|purina|cristais nas articula)/.test(norm)) {
+      return `<b>Ácido úrico e gota:</b> 🦶<br><br>• Excesso de <b>purinas</b> vira ácido úrico, que cristaliza nas articulações (dor intensa, geralmente no dedão).<br>• <b>Evite/reduza</b>: carnes vermelhas e vísceras (fígado, rim), frutos do mar, <b>cerveja e destilados</b>, e <b>frutose</b> (refri, suco de caixinha).<br>• <b>Beba muita água</b> (2-3L) — ajuda a eliminar o ácido úrico.<br>• <b>Ajuda</b>: laticínios magros, café, cereja e vitamina C reduzem os níveis.<br>• Perder peso de forma gradual ajuda (jejum/dietas radicais podem disparar crise).<br><br>⚠️ Crises e ácido úrico alto precisam de acompanhamento médico — às vezes medicação. 🩺`;
+    }
+
+    // alimentos anti-inflamatórios
+    if (/(anti.?inflamator|antiinflamator|inflamacao|inflamação|alimentos que inflamam|inflamado)/.test(norm)) {
+      return `<b>Alimentação anti-inflamatória:</b> 🔥<br><br>• <b>Pró-inflamatórios</b>: açúcar, ultraprocessados, gordura trans, excesso de álcool e óleos refinados em excesso.<br>• <b>Anti-inflamatórios</b>: peixes gordurosos (ômega-3), azeite, frutas vermelhas, vegetais coloridos, cúrcuma + pimenta, gengibre, chá verde, castanhas.<br>• <b>Fibras e fermentados</b> (microbiota saudável) reduzem inflamação sistêmica.<br>• Manter <b>peso saudável e dormir bem</b> baixam marcadores inflamatórios mais que qualquer "superalimento".<br><br>Não existe alimento único milagroso — é o padrão geral (estilo mediterrâneo) que conta. 🥗`;
+    }
+
+    // insônia / comer à noite e sono
+    if (/(insonia|insônia|nao consigo dormir|não consigo dormir|alimento para dormir|o que comer para dormir|comida que ajuda a dormir|triptofano|triptofano)/.test(norm)) {
+      return `<b>Comer para dormir melhor:</b> 🌙<br><br>• <b>Triptofano</b> (precursor da melatonina/serotonina): leite, ovo, banana, aveia, castanhas, peru.<br>• <b>Carbo leve + proteína</b> à noite ajuda o triptofano a chegar ao cérebro. Ex.: iogurte com banana e aveia.<br>• <b>Evite à noite</b>: cafeína (corte após 14-16h), álcool (fragmenta o sono), refeição muito pesada/gordurosa e líquido em excesso.<br>• <b>Magnésio</b> (folhas, sementes, cacau) relaxa músculos e nervos.<br>• Fome ou açúcar no sangue baixo também atrapalham — um lanche leve ajuda quem deita com fome.<br><br>Rotina, quarto escuro e menos tela contam tanto quanto a comida. 😴`;
+    }
+
+    // gestante / gravidez
+    if (/(gestante|gravida|grávida|gravidez|gestacao|gestação|amamenta|lactante)/.test(norm)) {
+      return `<b>Nutrição na gravidez e amamentação:</b> 🤰<br><br>• <b>Ácido fólico</b> (folato): essencial antes e no início da gestação — folhas verdes, leguminosas + suplemento prescrito.<br>• <b>Ferro e cálcio</b> aumentam muito; <b>ômega-3 (DHA)</b> ajuda o cérebro do bebê (peixe de baixo mercúrio).<br>• Não é "comer por dois" — só ~300-500 kcal extras a partir do 2º trimestre.<br>• <b>Evite</b>: álcool (zero), peixes de alto mercúrio, carne/ovo crus, queijos não pasteurizados, excesso de cafeína (&lt;200mg/dia).<br>• Hidrate bem e capriche em fibras (prisão de ventre é comum).<br><br>⚠️ Acompanhamento com obstetra e nutricionista é indispensável — isto é orientação geral. 🩺`;
+    }
+
+    // idoso / terceira idade
+    if (/(idoso|terceira idade|idade avançada|idade avancada|sarcopenia|perda de massa com a idade|massa muscular idoso)/.test(norm)) {
+      return `<b>Nutrição na terceira idade:</b> 👴<br><br>• <b>Proteína mais alta</b> (1,2-1,6g/kg) para combater a <b>sarcopenia</b> (perda de músculo) — distribua em todas as refeições.<br>• <b>Treino de força</b> é inegociável: preserva músculo, ossos e independência.<br>• <b>Cálcio + vitamina D</b> para os ossos (e prevenir quedas/fraturas).<br>• <b>B12</b>: absorção cai com a idade — vale checar e suplementar se baixa.<br>• <b>Hidratação</b>: a sede diminui — lembre de beber água ao longo do dia.<br>• Comida macia e saborosa + fibras ajudam apetite e intestino.<br><br>⚠️ Ajuste com médico/nutricionista, especialmente com medicações. 🩺`;
+    }
+
+    // alimentação infantil
+    if (/(crianca|criança|infantil|meu filho|minha filha|bebe come|bebê come|alimentacao do bebe|alimentação do bebê|introducao alimentar|introdução alimentar)/.test(norm)) {
+      return `<b>Alimentação infantil — princípios:</b> 🧒<br><br>• <b>Comida de verdade</b> desde cedo: a criança aprende o paladar que é oferecido em casa.<br>• <b>Evite ao máximo</b> açúcar, refrigerante e ultraprocessados nos primeiros anos (a OMS recomenda <b>zero açúcar antes dos 2 anos</b>).<br>• Ofereça variedade e cores; criança pode recusar um alimento 8-10 vezes antes de aceitar — insista sem forçar.<br>• Não use doce como recompensa nem comida como castigo.<br>• <b>Pais são espelho</b>: criança come o que vê os adultos comerem.<br><br>⚠️ Introdução alimentar (a partir dos ~6 meses) e dietas restritivas exigem pediatra/nutricionista. 🩺`;
+    }
+
+    // efeito sanfona
+    if (/(efeito sanfona|engordei de novo|recuperei o peso|voltei a engordar|recuperar peso perdido|emagreci e engordei)/.test(norm)) {
+      return `<b>Efeito sanfona — por que acontece:</b> 🪗<br><br>• Vem de <b>dietas radicais e temporárias</b>: você corta tudo, perde rápido (inclusive músculo), e ao voltar ao normal recupera com juros.<br>• Menos músculo = metabolismo mais baixo = engorda mais fácil depois.<br>• <b>Como quebrar o ciclo</b>: déficit moderado (não radical), <b>muita proteína</b> e <b>treino de força</b> para preservar músculo.<br>• <b>Mude hábitos, não faça "dieta"</b> com data para acabar — o que você sustenta para sempre é o que mantém o peso.<br>• Inclua flexibilidade (80/20) para não viver em restrição e estourar depois.<br><br>Perda lenta e sustentável bate perda rápida que volta. 🐢`;
+    }
+
+    // recomposição corporal
+    if (/(recomposi|ganhar musculo e perder gordura|perder gordura e ganhar musculo|trocar gordura por musculo|magro mas com barriga|skinny fat)/.test(norm)) {
+      return `<b>Recomposição corporal (ganhar músculo + perder gordura):</b> ⚖️<br><br>• É possível, principalmente para <b>iniciantes</b>, quem voltou a treinar ou está acima do peso.<br>• Fique perto da <b>manutenção calórica</b> (déficit bem leve ou zero) com <b>proteína alta</b> (1,8-2,2g/kg).<br>• <b>Treino de força progressivo</b> é o motor — sem estímulo, não há músculo novo.<br>• Processo é <b>lento</b>: a balança quase não muda, mas o espelho e a roupa sim. Use fotos e medidas, não só o peso.<br>• Avançados costumam render mais alternando fases de bulking e cutting.<br><br>Paciência: recomposição premia constância de meses, não semanas. 📸`;
+    }
+
+    // cutting (definição)
+    if (/(cutting|definicao|definição|secar para verao|secar para o verao|secar pro verão|fase de corte|ficar definido)/.test(norm)) {
+      const sug = suggestKcal({ ...body, objective: 'lose' });
+      return `<b>Cutting (fase de definição):</b> 🔪<br><br>• <b>Déficit moderado</b> (~300-500 kcal abaixo do gasto)${sug ? ` — meta ~<b>${kcalFmt(sug)} kcal/dia</b> pra você` : ''}; nada de cortes radicais.<br>• <b>Proteína bem alta</b> (2,0-2,4g/kg) para preservar músculo enquanto perde gordura.<br>• <b>Mantenha o treino pesado</b> — é o sinal de "não queime meu músculo". Cardio entra para ampliar o déficit.<br>• Carbo perto do treino para manter força; gordura suficiente para hormônios.<br>• Esperado: 0,5-1% do peso por semana. Mais rápido = perde músculo e água.<br><br>Cutting sem treino de força vira só "emagrecer" — e você fica magro e flácido. 💪`;
+    }
+
+    // vinagre de maçã / mitos detox
+    if (/(vinagre de maca|vinagre de maçã|detox|suco verde|chá detox|cha detox|limpar o organismo|desintoxicar|suco detox)/.test(norm)) {
+      return `<b>"Detox" e vinagre de maçã — separando fato de mito:</b> 🧪<br><br>• Seu corpo <b>já se desintoxica</b> sozinho — fígado e rins fazem isso 24h. Nenhum suco "limpa" o que eles não limpem.<br>• <b>Suco verde</b> é saudável como bebida nutritiva, mas não "derrete gordura" nem desintoxica nada.<br>• <b>Vinagre de maçã</b>: pode reduzir levemente o pico de glicose após refeições; efeito modesto. Não emagrece sozinho e em excesso irrita o esôfago/esmalte.<br>• <b>"Chás detox" comerciais</b>: muitos são só diuréticos/laxantes — você perde água, não gordura.<br><br>O verdadeiro "detox" é comer comida de verdade, beber água e dormir. Sem milagre. 🚱`;
+    }
+
+    // proteína vegetal / combinar fontes
+    if (/(proteina vegetal|proteína vegetal|combinar proteina|proteina de planta|aminoacido vegetal|tofu proteina|grao de bico proteina)/.test(norm)) {
+      return `<b>Proteína vegetal — como acertar:</b> 🌱<br><br>• A maioria das fontes vegetais é "incompleta" (falta algum aminoácido), então <b>combine</b> ao longo do dia.<br>• Clássico brasileiro: <b>arroz + feijão</b> juntos formam proteína completa. 🍚<br>• Boas fontes: <b>soja/tofu (completa)</b>, grão-de-bico, lentilha, ervilha, quinoa, edamame, sementes.<br>• Veganos precisam de <b>mais volume</b> de comida para bater a proteína (alvo 1,6-2,2g/kg).<br>• Mix de proteína em pó vegana (ervilha + arroz) ajuda a fechar a conta.<br>• Não esqueça <b>B12</b> (suplementar) — não vem das plantas.<br><br>Dá para ganhar músculo vegano, mas exige planejamento. 💪`;
+    }
+
+    // óleo de coco / qual gordura cozinhar
+    if (/(oleo de coco|óleo de coco|qual oleo|qual óleo|gordura para cozinhar|fritar com|banha|manteiga ou margarina|qual gordura usar)/.test(norm)) {
+      return `<b>Qual gordura usar para cozinhar:</b> 🫗<br><br>• <b>Cozinhar/refogar</b>: azeite de oliva é ótimo (aguenta o fogo doméstico melhor do que diziam). 🫒<br>• <b>Frituras de alta temperatura</b>: óleos estáveis como o de abacate; evite reusar óleo velho (forma compostos ruins).<br>• <b>Manteiga</b> com moderação é melhor que <b>margarina</b> com gordura trans/hidrogenada.<br>• <b>Óleo de coco</b>: virou moda mas é rico em gordura saturada — sem superpoderes; use com parcimônia pelo sabor.<br>• Evite excesso de óleos refinados (soja/milho) muito processados.<br><br>Mais importante que o tipo é a <b>quantidade</b> — 1 colher de óleo já são ~120 kcal. 🥄`;
+    }
+
+    // churrasco / fim de semana saudável
+    if (/(churrasco|churras|comer no churrasco|feijoada|pizza saudavel|pizza saudável|happy hour|sair com amigos)/.test(norm)) {
+      return `<b>Churrasco, feijoada e festa sem culpa:</b> 🍖<br><br>• <b>Vá com fome controlada</b>, não em jejum total (chega faminto e exagera). Coma uma fruta/proteína antes.<br>• <b>Carne magra à vontade</b> (alcatra, fraldinha, frango) é proteína — o problema é pão de alho, farofa, maionese e cerveja.<br>• <b>Encha metade do prato de salada/vinagrete</b> e vá com calma nos acompanhamentos.<br>• <b>Álcool</b> é o que mais soma calorias escondidas — alterne com água.<br>• Um dia "fora" não engorda; o que engorda é o fim de semana inteiro virar exceção.<br><br>80% da semana no controle = liberdade para curtir os 20%. 🍻`;
+    }
+
+    // panturrilha de café / café preto benefícios
+    if (/(beneficio do cafe|benefício do café|cafe faz mal|café faz mal|cafe preto|café preto|quanto cafe por dia|quanto café por dia)/.test(norm) && !/(treino|pre.?treino)/.test(norm)) {
+      return `<b>Café — vilão ou aliado?</b> ☕<br><br>• Para a maioria, <b>café é saudável</b>: rico em antioxidantes, associado a menor risco de diabetes, doença hepática e Parkinson.<br>• <b>Limite seguro</b>: até ~400 mg de cafeína/dia (3-4 xícaras de coado). Gestantes: &lt;200 mg.<br>• O problema costuma ser o que se <b>adiciona</b>: açúcar, creme, calda — vira sobremesa líquida.<br>• <b>Corte após 14-16h</b> para não prejudicar o sono (meia-vida ~5-6h).<br>• Pode ser leve diurético e estimular o intestino — normal.<br><br>Café puro, sem açúcar, é uma das bebidas mais saudáveis que existem. Sem exageros. 🌿`;
+    }
+
     // ───────── saudação ─────────
     if (/^(oi|olá|ola|bom dia|boa tarde|boa noite|e ai|eai|opa|hey|tudo bem|ola nutri)/.test(norm)) {
       return `Olá! 👋 Sou o <b>NutriBot</b>, sua IA de nutrição e performance. Posso:<br><br>• Calcular suas calorias, macros e IMC com seus dados<br>• Dizer as calorias de cada alimento<br>• Orientar emagrecimento, ganho de massa, pré/pós-treino<br>• Falar de suplementos (creatina, whey, cafeína), jejum, colesterol, glicemia, sono e mais<br>• Usar sua <b>recuperação da Whoop</b> para sugerir treino e dieta do dia 🟢<br><br>Pergunte à vontade ou toque numa sugestão. 🥗`;

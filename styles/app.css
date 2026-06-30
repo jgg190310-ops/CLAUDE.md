@@ -535,18 +535,31 @@ body {
 
 /* ── GOALS ── */
 .goals-summary {
-  display: flex;
-  gap: 24px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
   margin-bottom: 24px;
-  flex-wrap: wrap;
+  overflow: hidden;
 }
 .goal-stat {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
+  padding: 22px 24px;
+  border-right: 1px solid var(--glass-border);
 }
-.gs-value { font-size: 36px; font-weight: 800; letter-spacing: -1.5px; }
-.gs-label { font-size: 13px; color: var(--text-3); font-weight: 500; }
+.goal-stat:last-child { border-right: none; }
+.gs-value { font-size: 30px; font-weight: 800; letter-spacing: -1px; line-height: 1; }
+.gs-label { font-size: 12.5px; color: var(--text-3); font-weight: 500; }
+
+@media (max-width: 600px) {
+  .goals-summary { grid-template-columns: 1fr 1fr; }
+  .goal-stat { padding: 18px 16px; }
+  .goal-stat:nth-child(even) { border-right: none; }
+  .goal-stat:nth-child(-n+2) { border-bottom: 1px solid var(--glass-border); }
+  .gs-value { font-size: 26px; }
+  .gs-label { font-size: 11.5px; }
+}
 
 .goals-grid {
   display: grid;

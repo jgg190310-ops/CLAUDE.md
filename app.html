@@ -37,7 +37,7 @@
       window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
     }
   </script>
-  <link rel="stylesheet" href="styles/app.css?v=49" />
+  <link rel="stylesheet" href="styles/app.css?v=50" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -1703,10 +1703,10 @@
   </a>
 </nav>
 
-<script src="js/firebase-config.js?v=37"></script>
-<script src="js/app.js?v=38"></script>
-<script src="js/health.js?v=38"></script>
-<script src="js/study.js?v=37"></script>
+<script src="js/firebase-config.js?v=39"></script>
+<script src="js/app.js?v=39"></script>
+<script src="js/health.js?v=39"></script>
+<script src="js/study.js?v=39"></script>
 <script>
 /* ═══════════════════════════════════════════════
    WHOOP — OAuth 2.0 PKCE real integration
@@ -1755,6 +1755,7 @@
     if (data.refresh_token) localStorage.setItem('whoop_refresh', data.refresh_token);
     const expiresIn = data.expires_in || 3600;
     localStorage.setItem('whoop_expires_at', String(Date.now() + (expiresIn - 60) * 1000));
+    if (typeof syncWearablesToCloud === 'function') syncWearablesToCloud();
   }
 
   async function whoopRefreshToken() {
@@ -2228,7 +2229,8 @@
 
   window.whoopConnect    = window.whoopGo;
   window.whoopDisconnect = function() {
-    ['whoop_access','whoop_refresh','whoop_cid','whoop_cv','whoop_secret','whoop_challenge'].forEach(k => localStorage.removeItem(k));
+    ['whoop_access','whoop_refresh','whoop_cid','whoop_cv','whoop_secret','whoop_challenge','whoop_expires_at'].forEach(k => localStorage.removeItem(k));
+    if (typeof syncWearablesToCloud === 'function') syncWearablesToCloud();
     const el = document.getElementById('h-whoop');
     if (el) { delete el.dataset.loaded; window.renderWhoop(); }
     if (typeof showToast === 'function') showToast('Whoop desconectado.', 'info');
@@ -2672,6 +2674,7 @@
     if (!token || token.length < 10) { if(typeof showToast==='function') showToast('Cole um token válido','error'); return; }
     localStorage.setItem('oura_token', token);
     ouraClearDiag();
+    if (typeof syncWearablesToCloud === 'function') syncWearablesToCloud();
     if (typeof showToast==='function') showToast('Oura conectada! ✓','success');
     renderOura();
   };
@@ -2679,6 +2682,7 @@
   window.ouraDisconnect = function(){
     localStorage.removeItem('oura_token');
     localStorage.removeItem('oura_diag');
+    if (typeof syncWearablesToCloud === 'function') syncWearablesToCloud();
     renderOura();
   };
 
@@ -2764,6 +2768,7 @@
     localStorage.setItem('strava_access', d.access_token);
     if (d.refresh_token) localStorage.setItem('strava_refresh', d.refresh_token);
     if (d.expires_at) localStorage.setItem('strava_expires_at', String(d.expires_at*1000));
+    if (typeof syncWearablesToCloud === 'function') syncWearablesToCloud();
   }
   async function stRefresh(){
     const cid=localStorage.getItem('strava_cid'), sec=localStorage.getItem('strava_secret'), rt=localStorage.getItem('strava_refresh');
@@ -2909,7 +2914,7 @@
     }catch(e){ stDiag('Erro ao chamar Worker: '+e.message); return false; }
   }
 
-  window.stravaDisconnect = function(){ ['strava_access','strava_refresh','strava_expires_at','strava_diag'].forEach(k=>localStorage.removeItem(k)); renderStrava(); };
+  window.stravaDisconnect = function(){ ['strava_access','strava_refresh','strava_expires_at','strava_diag'].forEach(k=>localStorage.removeItem(k)); if(typeof syncWearablesToCloud==='function')syncWearablesToCloud(); renderStrava(); };
 
   window.renderStrava = function(){
     const el=document.getElementById('h-strava'); if(!el) return;
