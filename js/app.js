@@ -3659,6 +3659,178 @@ async function aiAnswer(q) {
     return `De nada! 💪 Estou aqui sempre que precisar. Lembre-se: consistência vence intensidade — pequenas decisões certas todo mês constroem patrimônio.`;
   }
 
+  // ───────── ONDA 1 — NICHOS APROFUNDADOS ─────────
+
+  // COE — Certificado de Operações Estruturadas
+  if (/\bcoe\b|certificado de operacoes estruturadas|capital protegido/.test(t)) {
+    return `<b>COE — o produto que o gerente adora vender:</b><br><br>` +
+      `• Mistura renda fixa + derivativos numa caixa-preta: promete "ganho da bolsa com capital protegido". O detalhe está nas letras miúdas.<br>` +
+      `• Versão <b>capital protegido</b>: no pior caso você recebe o valor aplicado de volta — mas <b>sem correção</b>, perdendo anos de inflação e CDI (custo de oportunidade enorme).<br>` +
+      `• <b>Sem FGC</b>, baixa liquidez (preso até o vencimento, 2–5 anos) e a participação no índice costuma ser limitada (cap de 80–120%).<br>` +
+      `• O banco embute a margem dele no "custo de estruturação" que você não enxerga — por isso é tão empurrado.<br>` +
+      `• Quase sempre vence montar você mesmo: Tesouro Selic + uma fatia em ETF. Mais barato, líquido e transparente.`;
+  }
+
+  // Marcação a mercado — vender título antes do vencimento
+  if (/marcacao a mercado|marcacao no mercado|vender (o )?tesouro (antes|no lucro)|titulo subiu de preco|agio.*tesouro|desagio/.test(t)) {
+    return `<b>Marcação a mercado — por que seu Tesouro IPCA+ oscila:</b><br><br>` +
+      `• Títulos prefixados e IPCA+ têm preço diário que sobe quando os juros de mercado <b>caem</b> e cai quando os juros <b>sobem</b> — relação inversa.<br>` +
+      `• Se você <b>segurar até o vencimento</b>, recebe exatamente a taxa contratada — a oscilação no meio do caminho não te afeta.<br>` +
+      `• <b>Oportunidade</b>: comprou IPCA+ a 7% e a taxa caiu para 5,5%? O título valorizou — dá para vender antes e antecipar lucro (paga IR 15%+).<br>` +
+      `• Quanto maior o vencimento (a <b>duration</b>), mais o preço balança — Tesouro 2045 sobe/cai muito mais que 2029.<br>` +
+      `• Reserva e curto prazo: fique no <b>Tesouro Selic</b> (pós-fixado, quase sem marcação). Marcação a mercado só vira problema para quem vende prefixado no susto.`;
+  }
+
+  // JCP vs dividendos
+  if (/\bjcp\b|juros sobre capital|juros sobre o capital proprio/.test(t)) {
+    return `<b>JCP x dividendos — duas formas de a empresa te pagar:</b><br><br>` +
+      `• <b>Dividendos</b>: distribuição do lucro, hoje <b>isenta de IR</b> para você (pessoa física).<br>` +
+      `• <b>JCP (juros sobre capital próprio)</b>: também cai na sua conta, mas vem com <b>15% de IR retido na fonte</b> — você recebe o líquido.<br>` +
+      `• Por que a empresa usa JCP: ela deduz o JCP do lucro tributável e paga menos imposto na pessoa jurídica — por isso bancos e elétricas adoram.<br>` +
+      `• Para você, JCP rende um pouco menos que dividendo do mesmo valor bruto, mas some no fluxo de proventos — não rejeite.<br>` +
+      `• Declare: JCP entra como "rendimento sujeito à tributação exclusiva" no IR; dividendo, como "rendimento isento". Os informes da empresa separam tudo.`;
+  }
+
+  // Aluguel de ações / BTC (empréstimo de ativos)
+  if (/aluguel de aco|alugar acoes|emprestimo de acoes|\bbtc\b.*acoes|doador.*acoes|renda com.*acoes paradas/.test(t)) {
+    return `<b>Aluguel de ações — renda extra das ações que você já tem:</b><br><br>` +
+      `• Você empresta seus papéis (via BTC da B3) para quem precisa, e recebe uma <b>taxa de aluguel</b> (varia de ~0,5% a 20%+ a.a. conforme a demanda).<br>` +
+      `• Continua dono: recebe dividendos/JCP normalmente e pode <b>recomprar/vender</b> a maioria dos contratos quando quiser (com aviso).<br>` +
+      `• Renda de carry: ótimo para ações de longo prazo que ficariam paradas na carteira de qualquer jeito.<br>` +
+      `• A taxa do aluguel recebido é tributada como <b>renda comum</b> (carnê-leão, até 27,5%) — não cai na isenção de R$ 20 mil.<br>` +
+      `• Ative na sua corretora (área de "doador/aluguel"). Risco operacional é baixo — a B3 garante a liquidação.`;
+  }
+
+  // Subscrição / bonificação / desdobramento (eventos corporativos)
+  if (/subscricao|direito de subscri|bonificacao|desdobramento|grupamento|split de aco|inplit/.test(t)) {
+    return `<b>Eventos corporativos — o que fazer quando chega o aviso:</b><br><br>` +
+      `• <b>Subscrição</b>: a empresa oferece novas ações a um preço, na proporção do que você tem. Vale se o preço de subscrição estiver abaixo do mercado — senão, pode <b>vender o direito</b>.<br>` +
+      `• <b>Bonificação</b>: você ganha ações novas de graça (capitalização de reservas) — não é "dinheiro caído do céu", o preço se ajusta, mas atualiza seu custo de aquisição.<br>` +
+      `• <b>Desdobramento (split)</b>: 1 ação vira várias (ex.: 1→4), baixando o preço unitário — sua posição total não muda, só fica mais "fracionável".<br>` +
+      `• <b>Grupamento (inplit)</b>: o inverso (10→1), para sair de "centavo de ação" — também neutro no valor total.<br>` +
+      `• Em todos, ajuste o <b>preço médio</b> no seu controle de IR — esquecer disso é causa comum de erro na hora de calcular o ganho.`;
+  }
+
+  // Tag along / governança / Novo Mercado
+  if (/tag along|novo mercado|governanca corporativa|nivel 1|nivel 2|free float|acionista minoritario/.test(t)) {
+    return `<b>Governança e tag along — proteção do minoritário:</b><br><br>` +
+      `• <b>Tag along</b>: se a empresa for vendida, você (minoritário) tem direito de vender suas ações pelo mesmo preço — 100% no Novo Mercado, mínimo 80% por lei.<br>` +
+      `• <b>Novo Mercado</b> (o nível máximo da B3): só ações ON, tag along 100%, conselho independente, 100% de transparência. Mais segurança para você.<br>` +
+      `• <b>Níveis 1 e 2</b> e o tradicional têm proteções menores — papéis PN (preferenciais) podem ter tag along zero. Leia o estatuto.<br>` +
+      `• <b>Free float</b> (ações em circulação) alto = mais liquidez e menos manipulação. Empresas com dono de 95% são arriscadas para o minoritário.<br>` +
+      `• Regra prática para iniciante: priorize empresas do Novo Mercado — a governança protege seu dinheiro tanto quanto o balanço.`;
+  }
+
+  // ETFs de renda fixa
+  if (/etf de renda fixa|imab|b5p211|irfm|fixa11|ima.b/.test(t)) {
+    return `<b>ETFs de renda fixa — uma cesta de títulos públicos numa cota:</b><br><br>` +
+      `• <b>IMAB11 / B5P211</b>: seguem o índice de Tesouro IPCA+ (IMA-B) — exposição diversificada à inflação + juro real numa única compra.<br>` +
+      `• <b>IRFM11 / FIXA11</b>: seguem prefixados (IRF-M). <b>B5P211</b> foca em IPCA+ de até 5 anos (menos volátil).<br>` +
+      `• Vantagem: rebalanceamento automático e liquidez na bolsa. Desvantagem vs Tesouro direto: <b>não há "segurar até o vencimento"</b> — você está sempre na marcação a mercado.<br>` +
+      `• Tributação: <b>15% sobre o ganho</b> na venda (como ETF de ações), sem a tabela regressiva e sem come-cotas — simples.<br>` +
+      `• Bom para quem quer IPCA+ sem escolher título a título; quem aguenta a oscilação ganha praticidade.`;
+  }
+
+  // IOF regressivo em resgate antes de 30 dias
+  if (/iof.*(30 dias|resgate|antes de um mes)|iof regressivo|resgatar antes de 30/.test(t)) {
+    return `<b>IOF nos investimentos — o pedágio dos primeiros 30 dias:</b><br><br>` +
+      `• Resgatou renda fixa (CDB, Tesouro, fundo) com <b>menos de 30 dias</b>? Há IOF regressivo sobre o rendimento: <b>96% no dia 1</b>, caindo a 0% no dia 30.<br>` +
+      `• Ou seja: dinheiro que você pode precisar em poucos dias, mantenha pelo menos 30 dias aplicado para não doar o rendimento ao IOF.<br>` +
+      `• Após 30 dias, IOF some — aí entra só o IR pela tabela regressiva (22,5%→15%).<br>` +
+      `• Reserva de emergência idealmente fica >30 dias parada; para gasto de "esta semana", deixe na conta remunerada/caixinha, não num CDB novo.<br>` +
+      `• O IOF de câmbio/crédito é outro bicho — esse aqui é só o de aplicações financeiras de curtíssimo prazo.`;
+  }
+
+  // Fundo exclusivo / offshore — Lei 14.754
+  if (/fundo exclusivo|offshore|come.cotas.*offshore|lei 14.?754|tributacao no exterior|trust\b/.test(t)) {
+    return `<b>Offshore e fundos exclusivos — o fim do diferimento (Lei 14.754/2023):</b><br><br>` +
+      `• <b>Offshore</b> (empresa sua no exterior): lucros passaram a ser tributados <b>anualmente a 15%</b> no IR, mesmo sem distribuir — acabou "deixar acumulando lá fora sem pagar".<br>` +
+      `• <b>Fundos exclusivos</b> (fechados, "dos ricos"): agora pagam <b>come-cotas semestral</b> (15%) como fundos abertos — o diferimento sumiu.<br>` +
+      `• Faz sentido só para patrimônios <b>grandes</b> (a partir de uns R$ 10 mi), pelo custo de estrutura e contador especializado.<br>` +
+      `• <b>Trusts</b> no exterior agora têm regras de transparência fiscal — os bens são considerados do instituidor/beneficiário.<br>` +
+      `• Para 99% das pessoas, investir no exterior via <b>ETF/BDR na B3</b> ou conta global é mais simples e barato do que montar offshore.`;
+  }
+
+  // CBE — Capitais Brasileiros no Exterior
+  if (/\bcbe\b|capitais brasileiros no exterior|declaracao ao banco central|patrimonio no exterior|bens no exterior/.test(t)) {
+    return `<b>CBE — declarar seu patrimônio no exterior ao Banco Central:</b><br><br>` +
+      `• É <b>diferente do IR</b>: a CBE vai ao Banco Central, não à Receita. São duas obrigações separadas para quem tem dinheiro fora.<br>` +
+      `• <b>Anual</b>: obrigatória se você tinha <b>US$ 1 milhão ou mais</b> em bens no exterior em 31/12 (entrega entre fev e abril).<br>` +
+      `• <b>Trimestral</b>: a partir de <b>US$ 100 milhões</b> — raro para pessoa física.<br>` +
+      `• Conta toda aplicação lá fora: ações, conta corrente, imóvel, participação em empresa.<br>` +
+      `• Não confunda com a declaração do IR (onde os bens entram em "Bens e Direitos" e os ganhos no carnê-leão/GCAP). Multa por omitir a CBE é salgada — fique atento se passar do limite.`;
+  }
+
+  // DARF na prática / como pagar imposto de ações
+  if (/como (pago|emitir|emito|gerar).*darf|darf de aco|sicalc|codigo (do )?darf|pagar imposto de aco|como recolher ir.*venda/.test(t)) {
+    return `<b>Emitindo o DARF de ações na prática:</b><br><br>` +
+      `• Vendeu com lucro acima da isenção? <b>Você</b> apura e paga — a corretora não recolhe (só o "dedo-duro" de 1% em day trade / 0,005% em swing).<br>` +
+      `• Calcule o ganho líquido do <b>mês</b>, compense prejuízos anteriores, aplique <b>15%</b> (swing) ou <b>20%</b> (day trade) e gere o DARF no programa <b>Sicalc</b> da Receita.<br>` +
+      `• Código: <b>6015</b> (ganhos de renda variável, pessoa física). Vencimento: <b>último dia útil do mês seguinte</b> à venda.<br>` +
+      `• DARF mínimo é <b>R$ 10</b>: se deu menos, acumule para o próximo mês em que o total passar de R$ 10.<br>` +
+      `• Atrasou? Multa de 0,33%/dia (teto 20%) + Selic. Guarde notas de corretagem — a apuração mensal é sua responsabilidade legal.`;
+  }
+
+  // Refis / parcelamento de dívida tributária
+  if (/\brefis\b|parcelar imposto|divida com a receita|parcelamento de tributo|divida ativa|regularizar imposto|transacao tributaria/.test(t)) {
+    return `<b>Dívida com o Fisco — como regularizar:</b><br><br>` +
+      `• Imposto atrasado cresce com <b>Selic + multa</b> e, se inscrito em <b>dívida ativa</b>, pode virar execução fiscal e bloqueio de bens — não ignore.<br>` +
+      `• <b>Parcelamento ordinário</b>: a maioria dos tributos federais parcela em até <b>60 vezes</b> direto no e-CAC, sem precisar de programa especial.<br>` +
+      `• <b>Refis / transação tributária</b>: programas pontuais com descontos de multa e juros (às vezes 50%+) para quem tem dificuldade — fique de olho nos editais da PGFN.<br>` +
+      `• Estar em dia é pré-requisito para <b>CND</b> (certidão negativa) — sem ela, trava financiamento, licitação e venda de imóvel.<br>` +
+      `• MEI/Simples com DAS atrasado: regularize rápido para não ser <b>excluído</b> do regime (a alíquota fora do Simples é muito maior).`;
+  }
+
+  // Previdência privada — portabilidade e taxas
+  if (/portabilidade de previdencia|trocar de previdencia|taxa de carregamento|previdencia (cara|ruim)|migrar pgbl|migrar vgbl/.test(t)) {
+    return `<b>Previdência privada — como não ser comido pelas taxas:</b><br><br>` +
+      `• <b>Taxa de carregamento</b>: cobrada sobre cada aporte (até 5% em planos antigos) — fuja, hoje os bons cobram <b>0%</b>.<br>` +
+      `• <b>Taxa de administração</b> acima de ~1% a.a. em previdência conservadora destrói o longo prazo — compare antes de assinar.<br>` +
+      `• <b>Portabilidade</b>: você pode migrar PGBL→PGBL ou VGBL→VGBL para um plano melhor <b>sem pagar IR</b> e <b>sem reiniciar a tabela regressiva</b> (o tempo é preservado).<br>` +
+      `• Não pode misturar tipos (PGBL não vira VGBL) nem zerar o relógio dos 10 anos para o IR de 10% — por isso portar &gt; resgatar e reaplicar.<br>` +
+      `• Prefira a <b>tabela regressiva</b> para aposentadoria (10% após 10 anos) e fundos com baixa taxa — ou monte o "DIY" com Tesouro IPCA+ e ETFs.`;
+  }
+
+  // Fundo DI vs Tesouro Selic
+  if (/fundo di|fundo simples|fundo de renda fixa.*reserva|fundo selic|tesouro selic ou fundo/.test(t)) {
+    return `<b>Fundo DI x Tesouro Selic — onde a reserva rende mais:</b><br><br>` +
+      `• Ambos acompanham o CDI/Selic com liquidez quase diária — a diferença está nos <b>custos e impostos</b>.<br>` +
+      `• <b>Fundo DI</b>: cuidado com taxa de administração (só vale se for &lt;0,3% a.a.) e com o <b>come-cotas</b> semestral, que antecipa IR e corrói os juros compostos.<br>` +
+      `• <b>Tesouro Selic</b>: taxa B3 de 0,20% a.a. (isenta até R$ 10 mil), <b>sem come-cotas</b> — o IR só sai no resgate. Costuma ganhar no líquido.<br>` +
+      `• Para reserva e curto prazo, Tesouro Selic ou CDB liquidez 100%+ CDI geralmente batem o fundo DI médio dos bancões.<br>` +
+      `• Só prefira o fundo se for de taxa zero/baixíssima e você valoriza a praticidade do resgate automático.`;
+  }
+
+  // Consórcio contemplado / lance / carta de crédito
+  if (/consorcio contemplado|carta de credito|lance no consorcio|lance embutido|comprar consorcio contemplado/.test(t)) {
+    return `<b>Consórcio contemplado e lances — o que olhar:</b><br><br>` +
+      `• <b>Carta contemplada</b> à venda: alguém já foi sorteado e vende a cota — você usa o crédito logo, mas confira a <b>idoneidade</b> e transfira pela administradora (golpe é comum aqui).<br>` +
+      `• <b>Lance embutido</b>: usa parte do próprio crédito como lance — antecipa a contemplação sem dinheiro do bolso, mas reduz o valor que você recebe.<br>` +
+      `• <b>Lance fixo x livre</b>: no fixo todos ofertam o mesmo %; no livre vence o maior — junte caixa antes se a estratégia for dar lance.<br>` +
+      `• A carta de crédito pode comprar bem de valor diferente (sobra vira quitação de parcelas ou abate saldo) — flexível, mas leia o regulamento.<br>` +
+      `• Lembre da conta-base: a <b>taxa de administração</b> (15–25%) continua existindo — consórcio é poupança forçada cara, não mágica de juro zero.`;
+  }
+
+  // Auditoria de assinaturas e gastos recorrentes / "vampiros"
+  if (/assinatura|streaming|gastos recorrentes|gastos invisiveis|vampiro|cancelar servico|mensalidade esquecida/.test(t)) {
+    return `<b>Caça aos gastos recorrentes — os vampiros da sua conta:</b><br><br>` +
+      `• Mapeie TODAS as cobranças mensais na fatura e no app do banco — o brasileiro médio tem <b>2–3 assinaturas que esqueceu</b> que paga.<br>` +
+      `• Streaming, academia sem uso, apps premium, seguros embutidos: somam fácil <b>R$ 150–400/mês</b> = ${aiFmt(300 * 12)}/ano que viram patrimônio.<br>` +
+      `• Regra do "não usei em 30 dias, cancelo" — recontratar leva 2 cliques, o desperdício é o padrão.<br>` +
+      `• Rotacione streamings: assine 1 por vez, maratone e troque — ninguém assiste 4 ao mesmo tempo.<br>` +
+      `• Cuidado com <b>renovação automática</b> de promoção: anote no calendário o fim do período promocional para renegociar ou sair.`;
+  }
+
+  // Doação / filantropia / dedução no IR
+  if (/doacao|doar dinheiro|filantropia|caridade|fundo da crianca|incentivo fiscal.*doacao|deduzir doacao/.test(t)) {
+    return `<b>Doar com inteligência (e abater no IR):</b><br><br>` +
+      `• Na declaração <b>completa</b>, doações a <b>Fundos da Criança e do Adolescente</b> e do <b>Idoso</b> são dedutíveis até <b>6% do imposto devido</b> — você direciona parte do IR em vez de só pagar.<br>` +
+      `• Incentivos culturais (Lei Rouanet), esporte e saúde (Pronas/Pronon) também entram no limite — exigem recibo e projeto aprovado.<br>` +
+      `• Parte pode ser feita <b>na própria declaração</b> (até 3% para os fundos da criança/idoso) mesmo sem ter doado durante o ano.<br>` +
+      `• Doação em vida a herdeiros é outra coisa: paga <b>ITCMD</b> (até 8%) e ajuda no planejamento sucessório.<br>` +
+      `• Reserve uma fatia fixa do orçamento para doar (o "pote do doar") — generosidade planejada é sustentável; impulso, não.`;
+  }
+
   // sugestão por proximidade — tenta adivinhar o tema mais próximo
   {
     const topics = [

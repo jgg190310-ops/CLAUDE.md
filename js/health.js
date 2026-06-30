@@ -901,6 +901,98 @@
       return `<b>Café — vilão ou aliado?</b> ☕<br><br>• Para a maioria, <b>café é saudável</b>: rico em antioxidantes, associado a menor risco de diabetes, doença hepática e Parkinson.<br>• <b>Limite seguro</b>: até ~400 mg de cafeína/dia (3-4 xícaras de coado). Gestantes: &lt;200 mg.<br>• O problema costuma ser o que se <b>adiciona</b>: açúcar, creme, calda — vira sobremesa líquida.<br>• <b>Corte após 14-16h</b> para não prejudicar o sono (meia-vida ~5-6h).<br>• Pode ser leve diurético e estimular o intestino — normal.<br><br>Café puro, sem açúcar, é uma das bebidas mais saudáveis que existem. Sem exageros. 🌿`;
     }
 
+    // ───────── NOVOS INTENTS — ONDA 1 ─────────
+
+    // potássio
+    if (/\bpotassio\b|\bpotássio\b|agua de coco mineral|banana potassio/.test(norm)) {
+      return `<b>Potássio — o mineral que equilibra o sódio:</b> 🍌<br><br>• Mire <b>~3500-4700 mg/dia</b> — a maioria dos brasileiros fica abaixo.<br>• <b>Função</b>: controla pressão arterial, contração muscular e batimento cardíaco; combate a retenção causada pelo sódio.<br>• <b>Fontes</b>: banana (~420mg/un), feijão (~600mg/concha), batata, abacate, água de coco (~600mg/copo), folhas verdes.<br>• Quanto mais ultraprocessado (sódio) você come, mais potássio precisa para equilibrar.<br>• Cãibras frequentes podem ligar-se a potássio + magnésio + hidratação baixos.<br><br>⚠️ Quem tem doença renal deve controlar potássio com médico. 🩺`;
+    }
+
+    // selênio / castanha-do-pará
+    if (/\bselenio\b|\bselênio\b|castanha do para|castanha do pará|castanha-do-para/.test(norm)) {
+      return `<b>Selênio — pouco e poderoso:</b> 🌰<br><br>• Antioxidante essencial para <b>tireoide, imunidade e fertilidade</b>.<br>• A <b>castanha-do-pará</b> é a maior fonte: <b>1-2 unidades/dia</b> já cobrem a necessidade (~55 mcg/dia).<br>• ⚠️ <b>Não exagere</b>: mais de 4-5 castanhas/dia pode dar excesso (náusea, queda de cabelo, unhas frágeis). Mais não é melhor.<br>• Outras fontes: peixes, ovos, frango, sementes.<br>• Importante para converter o hormônio T4 em T3 (tireoide ativa).<br><br>Regra simples: 1 castanha-do-pará por dia e está resolvido. 🥜`;
+    }
+
+    // iodo / tireoide alimentação
+    if (/\biodo\b|tireoide|tireóide|hipotireoid|sal iodado|metabolismo tireoide/.test(norm)) {
+      return `<b>Iodo e saúde da tireoide:</b> 🦋<br><br>• A tireoide comanda o <b>metabolismo</b> — precisa de iodo, selênio e zinco para funcionar.<br>• <b>Iodo</b>: vem do <b>sal iodado</b> (obrigatório no Brasil), peixes, frutos do mar e ovos. Necessidade ~150 mcg/dia.<br>• <b>Selênio</b> (1 castanha-do-pará) e <b>zinco</b> ajudam a converter T4 em T3.<br>• Hipotireoidismo desacelera o metabolismo (cansaço, ganho de peso, frio) — mas é minoria dos casos de "metabolismo lento".<br>• Excesso de iodo também atrapalha — nem falta nem demais.<br><br>⚠️ Suspeita de tireoide? Peça TSH e T4 livre ao médico — não se autodiagnostique. 🩺`;
+    }
+
+    // congelar / conservar comida (meal prep avançado)
+    if (/congelar|descongelar|conservar (a )?comida|validade da marmita|guardar comida|sobra de comida|freezer/.test(norm)) {
+      return `<b>Congelar e conservar comida com segurança:</b> ❄️<br><br>• <b>Marmita na geladeira</b>: consuma em até <b>3-4 dias</b>. No <b>freezer</b>: 2-3 meses.<br>• <b>Resfrie rápido</b> antes de guardar — comida quente no fechado prolifera bactéria.<br>• <b>Congele em porções</b> já divididas (potes de vidro ou sacos); rotule com a data.<br>• <b>Descongele na geladeira</b> ou no micro, nunca em temperatura ambiente por horas.<br>• <b>Não recongele</b> o que já foi descongelado cru.<br>• Arroz cozido estraga rápido — esfrie e refrigere em até 1h.<br><br>Cozinhar 1x e congelar economiza tempo e dinheiro (R$ e blinda a dieta). 🍱`;
+    }
+
+    // orçamento / comer bem barato
+    if (/comer bem barato|dieta barata|comida barata|economizar (na |com )?comida|proteina barata|proteína barata|sem dinheiro|orcamento|orçamento|gastar pouco/.test(norm)) {
+      return `<b>Comer bem gastando pouco (R$):</b> 💰<br><br>• <b>Proteína barata</b>: ovo (~R$0,80/un, 6g prot), frango (~R$15/kg), sardinha em lata (~R$5), feijão.<br>• <b>Arroz + feijão</b>: proteína completa por poucos reais a porção — base imbatível.<br>• <b>Compre da estação e a granel</b> (feira no fim do dia tem desconto); congele o que sobrar.<br>• Whey é opcional — bater proteína com ovo e frango sai mais barato que scoop.<br>• <b>Evite ultraprocessado</b>: salgadinho e refri são caros e vazios; comida de verdade rende mais.<br>• Fruta da estação e legumes congelados cabem no bolso.<br><br>Marmita caseira custa ~1/3 do delivery. Cozinhar é o maior atalho financeiro. 🍳`;
+    }
+
+    // colágeno
+    if (/colageno|colágeno|pele firme suplemento|articulacao suplemento|articulação suplemento|colageno hidrolisado/.test(norm)) {
+      return `<b>Colágeno — vale o investimento?</b> 🧴<br><br>• É uma proteína estrutural da pele, tendões e articulações — a produção cai ~1%/ano após os 25-30.<br>• <b>Evidência moderada</b>: 10g/dia de colágeno hidrolisado por 8-12 semanas pode melhorar elasticidade da pele e dor articular.<br>• <b>Potencialize com vitamina C</b> — necessária para sintetizar colágeno.<br>• <b>Não é proteína "completa"</b> para músculo (aminograma pobre) — não substitui whey/carne na meta proteica.<br>• Caldo de osso e gelatina são fontes naturais mais baratas.<br><br>Útil para pele/articulação, secundário para shape. Dieta proteica + treino + sol contam mais. ☀️`;
+    }
+
+    // ômega-3 suplemento / qual comprar
+    if (/(omega.?3|ômega.?3)/.test(norm) && /(suplement|capsula|cápsula|qual comprar|epa|dha|oleo de peixe|óleo de peixe|quanto tomar)/.test(norm)) {
+      return `<b>Suplemento de ômega-3 (óleo de peixe):</b> 🐟<br><br>• O que importa é a soma de <b>EPA + DHA</b> na cápsula — leia o rótulo, não os "1000mg de óleo".<br>• <b>Dose comum</b>: 1-2g de EPA+DHA/dia (mais para triglicerídeos altos, com médico).<br>• Vale a pena se você <b>não come peixe gordo 2x/semana</b>.<br>• <b>Qualidade</b>: prefira marcas com selo de pureza (baixo mercúrio); guarde na geladeira (oxida).<br>• <b>Veganos</b>: óleo de algas fornece DHA/EPA direto (chia/linhaça só dão ALA, conversão baixa).<br>• Anti-inflamatório, bom para coração, cérebro e olhos.<br><br>Sardinha 2x/semana resolve barato; cápsula é o plano B. 🥫`;
+    }
+
+    // probióticos / fermentados
+    if (/probiotic|probiótic|kefir|kombucha|fermentado|iogurte natural beneficio|lactobacilo|saude intestinal suplemento/.test(norm)) {
+      return `<b>Probióticos e fermentados:</b> 🦠<br><br>• Alimentam a <b>microbiota</b> (bactérias boas do intestino) — ligada a imunidade, humor e digestão.<br>• <b>Fontes naturais</b>: iogurte natural, kefir, kombucha, chucrute, kimchi, missô.<br>• <b>Prebióticos</b> (a "comida" dos probióticos): cebola, alho, banana verde, aveia, leguminosas — tão importantes quanto.<br>• Cápsulas de probiótico ajudam em casos específicos (pós-antibiótico, diarreia), mas comida fermentada + fibra é a base.<br>• Resultado vem com <b>constância</b> (semanas), não em 1 dose.<br><br>Intestino saudável melhora absorção de nutrientes e até reduz inchaço. 🌱`;
+    }
+
+    // antioxidantes / radicais livres
+    if (/antioxidante|radicais livres|envelhecimento alimentacao|envelhecimento alimentação|alimentos coloridos|polifenois|polifenóis/.test(norm)) {
+      return `<b>Antioxidantes — defesa contra o envelhecimento:</b> 🫐<br><br>• Combatem os <b>radicais livres</b> (estresse oxidativo) gerados por poluição, sol, estresse e ultraprocessados.<br>• <b>Coma o arco-íris</b>: cada cor é um antioxidante diferente — frutas vermelhas (antocianinas), cenoura (betacaroteno), tomate (licopeno), folhas verdes, cacau 70%+, chá verde.<br>• <b>Vitaminas C e E</b> e o mineral <b>selênio</b> são antioxidantes-chave.<br>• Comida real bate qualquer cápsula isolada — megadoses de antioxidante sintético podem até fazer mal.<br>• Dormir bem e não fumar reduzem o estresse oxidativo mais que "superalimentos".<br><br>5 cores no prato por dia é a meta simples e poderosa. 🌈`;
+    }
+
+    // enxaqueca / dor de cabeça e comida
+    if (/enxaqueca|dor de cabeca (frequente|recorrente|alimento)|dor de cabeça (frequente|recorrente|alimento)|cefaleia|cefaléia|gatilho de enxaqueca|comida que da dor de cabeca/.test(norm)) {
+      return `<b>Enxaqueca e alimentação:</b> 🤕<br><br>• <b>Gatilhos comuns</b>: jejum prolongado (queda de glicose), desidratação, álcool (vinho tinto), queijos curados, embutidos (nitritos), excesso de cafeína — e a <b>abstinência</b> de cafeína também.<br>• <b>Glutamato monossódico</b> e adoçantes em excesso incomodam algumas pessoas.<br>• <b>Previna</b>: refeições regulares (não pule), hidratação, sono constante.<br>• <b>Magnésio</b> e <b>vitamina B2 (riboflavina)</b> têm evidência para reduzir frequência de crises.<br>• Anote o que comeu antes das crises por 2-3 semanas — revela seu gatilho pessoal.<br><br>⚠️ Enxaqueca frequente merece avaliação médica/neurológica. 🩺`;
+    }
+
+    // pele / acne e dieta
+    if (/\bacne\b|espinha|pele oleosa|dieta para pele|alimento para pele|pele e alimentacao|pele e alimentação|cravos/.test(norm)) {
+      return `<b>Pele, acne e alimentação:</b> ✨<br><br>• <b>Pioram a acne</b>: alto índice glicêmico (açúcar, pão branco, doces) e, para alguns, <b>leite</b> (especialmente desnatado) — testam-se cortes individuais.<br>• <b>Ajudam a pele</b>: ômega-3 (peixe), zinco (sementes, carne), vitaminas A e C (vegetais coloridos), água.<br>• <b>Ultraprocessado e açúcar</b> elevam insulina e inflamação, que disparam oleosidade.<br>• Microbiota saudável (fibras, fermentados) reflete na pele.<br>• Comida não é o único fator — genética, hormônios e skincare contam muito.<br><br>⚠️ Acne persistente é caso de dermatologista; dieta é coadjuvante. 🩺`;
+    }
+
+    // cabelo e unhas / queda
+    if (/queda de cabelo|cabelo caindo|cabelo fraco|unha fraca|unhas fracas|biotina|cabelo e alimentacao|cabelo e alimentação|fortalecer cabelo/.test(norm)) {
+      return `<b>Cabelo e unhas — o que comer:</b> 💇<br><br>• Cabelo e unha são <b>proteína (queratina)</b> — dieta proteica baixa enfraquece os dois.<br>• <b>Nutrientes-chave</b>: ferro (queda ligada à anemia), zinco, biotina (B7), vitamina D, ômega-3 e proteína suficiente.<br>• <b>Queda</b> costuma vir de deficiência de ferro/vitamina D, dietas muito restritivas, estresse e pós-parto.<br>• Biotina só ajuda quem tem deficiência real — megadose não faz crescer mais em quem já tem o suficiente.<br>• Crescimento é lento: melhoras aparecem em <b>3-6 meses</b>.<br><br>⚠️ Queda acentuada? Investigue ferritina, vitamina D e tireoide com médico. 🩺`;
+    }
+
+    // libido / testosterona natural
+    if (/libido|testosterona|hormonio masculino|hormônio masculino|disposicao sexual|disposição sexual|aumentar testosterona|baixa testosterona/.test(norm)) {
+      return `<b>Testosterona e libido — o que a dieta faz:</b> 🔋<br><br>• <b>Gordura suficiente</b> (20-35% das calorias) é essencial — dietas zero gordura derrubam hormônios.<br>• <b>Zinco e vitamina D</b> são críticos para a produção de testosterona; magnésio ajuda.<br>• <b>Evite</b>: déficit calórico extremo e excesso de álcool — ambos baixam testosterona.<br>• <b>Sono é hormônio</b>: dormir <5h derruba a testosterona como envelhecer anos.<br>• <b>Treino de força</b> e manter gordura corporal saudável otimizam naturalmente.<br>• Cuidado com "boosters" milagrosos — quase nenhum tem evidência forte.<br><br>⚠️ Sintomas reais (cansaço, libido baixa) pedem exame e médico — não suplemente no chute. 🩺`;
+    }
+
+    // olhos / visão
+    if (/\bvisao\b|\bvisão\b|saude dos olhos|saúde dos olhos|alimento para os olhos|luteina|luteína|vitamina a olhos|cansaco visual/.test(norm)) {
+      return `<b>Alimentação para a visão:</b> 👁️<br><br>• <b>Vitamina A / betacaroteno</b>: cenoura, batata-doce, abóbora, manga — essenciais para a retina.<br>• <b>Luteína e zeaxantina</b>: folhas verde-escuras (couve, espinafre), gema de ovo, milho — protegem a mácula da luz azul.<br>• <b>Ômega-3</b> (peixe): combate olho seco e protege a retina.<br>• <b>Vitamina C, E e zinco</b>: reduzem risco de degeneração macular com a idade.<br>• Hidratação e pausas das telas (regra 20-20-20) aliviam o cansaço visual.<br><br>Prato colorido + peixe + folhas verdes cobre quase tudo que o olho precisa. 🥕`;
+    }
+
+    // gases / flatulência
+    if (/\bgases\b|flatulencia|flatulência|pum|barriga estufada gases|gases no feijao|gases no feijão|barriga roncando/.test(norm)) {
+      return `<b>Gases e flatulência — como reduzir:</b> 💨<br><br>• <b>Causas comuns</b>: leguminosas (feijão, grão-de-bico), repolho/brócolis, refrigerante, adoçantes (xilitol/sorbitol), comer rápido (engolir ar).<br>• <b>Feijão</b>: deixe de molho 8-12h e troque a água antes de cozinhar — reduz muito os gases.<br>• <b>Coma devagar</b> e mastigue bem; evite mascar chiclete e beber com canudo (engole ar).<br>• Aumente fibras <b>aos poucos</b> — salto brusco fermenta e estufa.<br>• Intolerância à lactose e excesso de adoçante são gatilhos frequentes.<br><br>⚠️ Gases com dor forte, perda de peso ou alteração do hábito intestinal merecem médico. 🩺`;
+    }
+
+    // saciedade / sensação de fome
+    if (/saciedade|fome o tempo todo|sempre com fome|nao sinto saciedade|não sinto saciedade|controlar a fome|matar a fome|alimento que sacia/.test(norm) && !/emocional|compuls|doce/.test(norm)) {
+      return `<b>Domando a fome — comer mais e comer menos:</b> 🍽️<br><br>• <b>Proteína</b> é o macro mais saciante — comece a refeição por ela.<br>• <b>Fibra + água</b> (volume): saladas, legumes, frutas com casca, sopas enchem o estômago com poucas calorias.<br>• <b>Alimentos "voláteis"</b> (líquidos açucarados, biscoito) somam calorias sem saciar — cortam o efeito chega.<br>• <b>Durma bem</b>: noite ruim eleva grelina (fome) e baixa leptina (saciedade).<br>• Coma devagar — a saciedade leva ~20 min para registrar.<br>• Às vezes é <b>sede</b>: beba água e espere 10 min.<br><br>Prato com proteína + muito vegetal + fibra = fome controlada o dia todo. 💧`;
+    }
+
+    // jantar leve / o que comer na janta
+    if (/o que (comer|jantar) (no jantar|a noite|na janta)|jantar saudavel|jantar saudável|jantar leve|montar (o )?jantar|ideia de jantar/.test(norm)) {
+      return `<b>Jantar saudável e prático:</b> 🍽️<br><br>• Estrutura: <b>proteína + vegetais</b> sempre; carbo conforme seu gasto/treino do dia.<br>• <b>Leve e nutritivo</b>: omelete com legumes, peixe grelhado com salada, frango desfiado com abobrinha, sopa de legumes com proteína.<br>• Treinou à noite? Inclua carbo (arroz, batata) para repor glicogênio.<br>• Evite refeição muito pesada/gordurosa perto de dormir (atrapalha o sono).<br>• <b>Ex. ~450 kcal | 35g prot</b>: 150g de frango + legumes salteados + 2 col de arroz integral.<br><br>Jantar não precisa ser "sem carbo" — precisa caber nas suas calorias do dia. 🌙`;
+    }
+
+    // água com gás / refrigerante zero / bebidas
+    if (/agua com gas|água com gás|refrigerante zero|refri zero|bebida zero|agua saborizada|água saborizada|o que beber no lugar/.test(norm)) {
+      return `<b>O que beber além de água:</b> 🥤<br><br>• <b>Água com gás</b> (pura ou com limão/hortelã): zero caloria, mata a vontade de refri. Ótima troca.<br>• <b>Refrigerante zero</b>: sem açúcar/calorias; melhor que o normal, mas mantém o paladar viciado em doce — use como ponte, não hábito eterno.<br>• <b>Chá gelado sem açúcar, café, água saborizada caseira</b> (água + frutas/ervas): hidratam sem somar calorias.<br>• <b>Cuidado</b>: "águas" e chás de garrafa prontos costumam ter açúcar escondido — leia o rótulo.<br>• Suco natural conta como calorias líquidas — prefira a fruta inteira.<br><br>Meta: hidratar com bebidas de ~zero caloria e reservar as calóricas para a comida. 💧`;
+    }
+
     // ───────── saudação ─────────
     if (/^(oi|olá|ola|bom dia|boa tarde|boa noite|e ai|eai|opa|hey|tudo bem|ola nutri)/.test(norm)) {
       return `Olá! 👋 Sou o <b>NutriBot</b>, sua IA de nutrição e performance. Posso:<br><br>• Calcular suas calorias, macros e IMC com seus dados<br>• Dizer as calorias de cada alimento<br>• Orientar emagrecimento, ganho de massa, pré/pós-treino<br>• Falar de suplementos (creatina, whey, cafeína), jejum, colesterol, glicemia, sono e mais<br>• Usar sua <b>recuperação da Whoop</b> para sugerir treino e dieta do dia 🟢<br><br>Pergunte à vontade ou toque numa sugestão. 🥗`;

@@ -1357,6 +1357,216 @@
 </ul>
 <p style="margin-top:8px">Café é aliado pontual, não substituto de sono. Use para potencializar foco, não para tapar exaustão. ☕</p>`;
 
+    // ═════════ NOVOS INTENTS (3ª rodada / onda 1) — nichos antes do fallback ═════════
+
+    if (/\bsisu\b|prouni|fies|nota de corte|peso das materias|peso das matérias|peso enem|escolher curso enem/.test(t))
+      return `<p><strong>SISU, ProUni e FIES (usar a nota do ENEM):</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>SISU:</b> vagas em públicas; inscrição em janeiro, você concorre com 2 opções e a nota de corte muda diariamente — monitore até o último dia</li>
+  <li><b>ProUni:</b> bolsas de 50% ou 100% em privadas; exige renda familiar até <b>3 salários mínimos</b> por pessoa (100%) ou <b>3</b> (parcial) e nota mínima 450, sem zerar a redação</li>
+  <li><b>FIES:</b> financiamento com juros baixos; renda familiar até 3 salários mínimos per capita</li>
+  <li><b>Pesos importam:</b> cada curso pondera áreas diferente — Medicina pesa Natureza, Engenharia pesa Matemática</li>
+</ul>
+<p style="margin-top:8px">Calcule sua nota ponderada por curso antes de escolher: às vezes um curso "menos concorrido" cabe na sua nota. 🎓</p>`;
+
+    if (/toefl|ielts|cambridge|proficiencia|proficiência|certificado de ingles|certificado de inglês|celpe/.test(t))
+      return `<p><strong>Provas de proficiência (TOEFL, IELTS, Cambridge):</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>IELTS:</b> banda de 0 a 9; maioria das universidades pede <b>6.5-7.0</b>. Validade de 2 anos</li>
+  <li><b>TOEFL iBT:</b> 0 a 120; muitas pedem <b>80-100</b>. Tudo no computador</li>
+  <li><b>Treine as 4 habilidades separadas:</b> listening, reading, writing e speaking têm técnicas próprias</li>
+  <li><b>Familiarize-se com o formato:</b> faça simulados oficiais cronometrados — metade da prova é conhecer a estrutura</li>
+  <li><b>Speaking/Writing:</b> use templates e conectivos; grave-se e cronometre</li>
+</ul>
+<p style="margin-top:8px">Custo aproximado no Brasil: R$ 1.200-1.600. Faça simulado real antes de marcar a data. 🌎</p>`;
+
+    if (/dislexia|dislexico|disléxico|discalculia|tea\b|autis|neurodiverg|laudo/.test(t))
+      return `<p><strong>Estudar com dislexia / neurodivergência:</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Texto para áudio (TTS):</b> ouvir junto com ler reduz o esforço de decodificação</li>
+  <li><b>Fontes e espaçamento:</b> fontes tipo OpenDyslexic, linha mais espaçada e fundo creme cansam menos a vista</li>
+  <li><b>Multissensorial:</b> combine ver, ouvir, falar e escrever — fixa por mais de um canal</li>
+  <li><b>Tempo extra é direito:</b> ENEM, vestibulares e concursos concedem atendimento especializado com laudo</li>
+  <li><b>Discalculia:</b> use material concreto e visual para números antes do abstrato</li>
+</ul>
+<p style="margin-top:8px">Dificuldade específica não é falta de capacidade — é questão de método adaptado. Solicite o atendimento especializado no edital. 🧩</p>`;
+
+    if (/power nap|cochilo|soneca|sesta|nap\b|dormir de dia/.test(t))
+      return `<p><strong>Cochilo estratégico (power nap):</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>10-20 min:</b> restaura alerta e foco <b>sem inércia do sono</b> — o ideal para estudo</li>
+  <li><b>Evite 30-60 min:</b> você acorda no sono profundo e fica grogue por um tempo</li>
+  <li><b>90 min:</b> ciclo completo, bom se você está em dívida de sono, mas ocupa muito tempo</li>
+  <li><b>Coffee nap:</b> tome um café e cochile 20 min — a cafeína age ao acordar</li>
+  <li><b>Cochilar após estudar</b> ajuda a consolidar o que acabou de aprender</li>
+</ul>
+<p style="margin-top:8px">Cochilo não é preguiça — é manutenção cognitiva. Use cedo da tarde para não atrapalhar o sono da noite. 😴</p>`;
+
+    if (/vocabular|palavras novas|aumentar vocabulario|aumentar vocabulário|word list|lista de palavras/.test(t))
+      return `<p><strong>Construir vocabulário (idioma ou erudito):</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Vocabulário em contexto:</b> aprenda a palavra dentro de uma frase, não isolada — fixa o uso real</li>
+  <li><b>Frequência primeiro:</b> as <b>2.000 palavras mais comuns</b> cobrem ~80% de um texto cotidiano</li>
+  <li><b>Flashcards com cloze:</b> frase com lacuna no Anki é melhor que tradução solta</li>
+  <li><b>Raízes e afixos:</b> aprender prefixos/sufixos (bio-, -logia) destrava famílias inteiras de palavras</li>
+  <li><b>Output:</b> use a palavra nova em 2-3 frases suas no mesmo dia</li>
+</ul>
+<p style="margin-top:8px">Meta sustentável: <b>10-15 palavras/dia</b> com revisão espaçada bate "decorar 100 e esquecer 90". 📖</p>`;
+
+    if (/escrever rapido|escrever rápido|caligrafia|letra feia|escrita a mao cansa|escrita à mão cansa|caibra|cãibra|mao doi|mão dói/.test(t))
+      return `<p><strong>Escrever mais rápido e sem cansaço:</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Pegada relaxada:</b> apertar a caneta com força é a maior causa de cãibra — segure leve</li>
+  <li><b>Movimento do braço, não só dos dedos:</b> apoie o antebraço e deslize</li>
+  <li><b>Abreviações pessoais:</b> crie um sistema (q/ = que, ∴ = portanto) para anotar rápido</li>
+  <li><b>Caneta de boa esfera</b> (0.7mm gel) desliza e exige menos pressão</li>
+  <li><b>Não transcreva tudo:</b> anote palavras-chave, não frases inteiras — escreve menos e aprende mais</li>
+</ul>
+<p style="margin-top:8px">Em provas discursivas longas, treine a resistência da mão antes — escrever 2-3 redações/semana condiciona. ✏️</p>`;
+
+    if (/material de estudo|que material|qual apostila|apostila|comprar livro|melhor livro|fonte confiavel|fonte confiável/.test(t))
+      return `<p><strong>Escolher material de estudo (sem se perder):</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Menos é mais:</b> 1 fonte boa terminada vale mais que 5 começadas — evite o acúmulo</li>
+  <li><b>Alinhe ao edital/prova:</b> material genérico desperdiça tempo; busque o que cobra sua banca</li>
+  <li><b>Gratuito e bom existe:</b> Khan Academy, MEC, videoaulas oficiais, provas anteriores com gabarito</li>
+  <li><b>Atualização:</b> em Direito e atualidades, material velho induz a erro — confira o ano</li>
+  <li><b>Questões comentadas</b> costumam ensinar mais que a teoria pura</li>
+</ul>
+<p style="margin-top:8px">Defina seu material no início e pare de pesquisar "o melhor curso" — isso é procrastinação disfarçada. 📚</p>`;
+
+    if (/quimica|química|tabela periodica|tabela periódica|reacao quimica|reação química|organica|orgânica/.test(t))
+      return `<p><strong>Como estudar Química de verdade:</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Entenda a tabela periódica</b> como mapa: tendências (eletronegatividade, raio) explicam quase tudo</li>
+  <li><b>Não decore reações isoladas:</b> entenda o mecanismo e você prevê o produto</li>
+  <li><b>Orgânica = funções + reações:</b> domine os grupos funcionais antes de avançar</li>
+  <li><b>Resolva estequiometria com método:</b> sempre balanceie e use proporção em mol</li>
+  <li><b>Visualize:</b> modelos 3D e simuladores (PhET) ajudam a "ver" moléculas</li>
+</ul>
+<p style="margin-top:8px">Química mistura lógica (exatas) e memória (nomes/funções): entenda o porquê e use repetição espaçada para o resto. 🧪</p>`;
+
+    if (/historia|história|geografia|atualidades|decorar datas|linha do tempo|geopolitica|geopolítica/.test(t))
+      return `<p><strong>História, Geografia e Atualidades:</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Não decore datas soltas:</b> entenda <b>causa → consequência</b> — a cronologia se monta sozinha</li>
+  <li><b>Linha do tempo visual:</b> conecte eventos por período, não por lista</li>
+  <li><b>Geografia:</b> relacione mapa, clima, economia e população — tudo se conecta</li>
+  <li><b>Atualidades:</b> leia 1 boa fonte de notícias/dia e ligue ao conteúdo (cai muito em redação)</li>
+  <li><b>Mapas mentais</b> conectando contexto histórico e geográfico fixam muito bem</li>
+</ul>
+<p style="margin-top:8px">Humanas premiam quem conecta ideias, não quem decora fatos isolados. Pense em rede, não em lista. 🗺️</p>`;
+
+    if (/teste vocacional|nao sei o que estudar|não sei o que estudar|que carreira|escolher profissao|escolher profissão|qual faculdade/.test(t))
+      return `<p><strong>Não sei que curso/carreira escolher:</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Cruze 3 eixos:</b> o que você gosta, no que é bom e o que tem mercado — a interseção é o caminho</li>
+  <li><b>Experimente antes:</b> assista aulas abertas, converse com profissionais da área, faça job shadowing</li>
+  <li><b>Teste vocacional ajuda, não decide:</b> use como ponto de partida, não como veredito</li>
+  <li><b>Curso não é prisão:</b> muita gente migra de área — a primeira escolha não é definitiva</li>
+  <li><b>Cuidado com "status":</b> escolher por pressão externa costuma cobrar caro depois</li>
+</ul>
+<p style="margin-top:8px">Dúvida é normal aos 17 (e aos 30). Decida com a informação que tem hoje e ajuste no caminho. 🧭</p>`;
+
+    if (/dor nas costas|postura|ergonomi|pescoco|pescoço|vista cansada|olho seco|tela cansa/.test(t))
+      return `<p><strong>Ergonomia e saúde física no estudo:</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Tela na altura dos olhos:</b> topo do monitor na linha do olhar evita dor no pescoço</li>
+  <li><b>Pés no chão, costas apoiadas:</b> joelhos a ~90°, sem cruzar as pernas por horas</li>
+  <li><b>Regra 20-20-20:</b> a cada 20 min, olhe 20s para algo a 6m — alivia a vista</li>
+  <li><b>Levante a cada 30-50 min:</b> ficar sentado horas é mais nocivo que parece</li>
+  <li><b>Alongue pescoço e punhos</b> entre blocos; iluminação difusa evita fadiga ocular</li>
+</ul>
+<p style="margin-top:8px">Corpo dolorido tira o foco. Cuidar da postura é parte do método, não luxo. 🪑</p>`;
+
+    if (/decidir por onde comecar|por onde comecar|por onde começar|muito conteudo|muito conteúdo|sobrecarga de conteudo|tudo ao mesmo tempo|paralisia de analise|paralisia de análise/.test(t))
+      return `<p><strong>Muito conteúdo, sem saber por onde começar:</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Matriz peso × dificuldade:</b> ataque primeiro o que cai muito E você não domina</li>
+  <li><b>Pareto (80/20):</b> ~20% do conteúdo costuma valer 80% das questões — descubra esse núcleo</li>
+  <li><b>Diagnóstico rápido:</b> faça um simulado curto para ver onde estão as lacunas reais</li>
+  <li><b>Uma matéria por vez no bloco</b>, mas alterne ao longo da semana (interleaving)</li>
+  <li><b>Não tente abraçar tudo:</b> lista priorizada vence lista completa</li>
+</ul>
+<p style="margin-top:8px">Paralisia vem de tentar decidir tudo de uma vez. Escolha o próximo passo único e comece. 🧱</p>`;
+
+    if (/fisica|física|cinematica|cinemática|newton|eletromagnet|leis da fisica|leis da física/.test(t))
+      return `<p><strong>Como estudar Física:</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Entenda o conceito antes da fórmula:</b> física é fenômeno, fórmula é só a linguagem</li>
+  <li><b>Desenhe o problema:</b> diagrama de forças/esquema resolve metade da questão</li>
+  <li><b>Unidades e ordem de grandeza:</b> confira sempre — resposta com unidade errada já está errada</li>
+  <li><b>Poucas fórmulas-mãe:</b> entenda a derivação e você reconstrói o resto</li>
+  <li><b>Muitos exercícios variados</b> (interleaving) treinam a escolher a estratégia certa</li>
+</ul>
+<p style="margin-top:8px">3Blue1Brown e simuladores PhET dão intuição visual. Entenda o porquê e a física deixa de ser decoreba. ⚛️</p>`;
+
+    if (/orcamento de estudo|orçamento de estudo|estudar de graca|estudar de graça|sem dinheiro|recurso gratuito|material gratuito|estudar gastando pouco/.test(t))
+      return `<p><strong>Estudar com pouco (ou nenhum) dinheiro:</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Conteúdo gratuito de qualidade:</b> Khan Academy, MEC, YouTube de cursinhos, podcasts educativos</li>
+  <li><b>Anki é grátis</b> (no PC e Android) — repetição espaçada sem custo</li>
+  <li><b>Provas anteriores com gabarito</b> são o melhor material e custam R$ 0</li>
+  <li><b>Biblioteca pública</b> e acervos digitais (Domínio Público, bibliotecas universitárias)</li>
+  <li><b>Isenção de taxa:</b> ENEM e muitos concursos isentam inscritos no CadÚnico/baixa renda</li>
+</ul>
+<p style="margin-top:8px">Aprovação não se compra: método + constância + provas antigas custam quase nada. 💸</p>`;
+
+    if (/aprovado|depoimento|mentalidade de aprovado|mindset|mentalidade de crescimento|growth mindset|talento ou esforco|talento ou esforço/.test(t))
+      return `<p><strong>Mentalidade de crescimento (growth mindset):</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Habilidade se constrói:</b> "não sei ainda" no lugar de "não sou capaz" (Carol Dweck)</li>
+  <li><b>Esforço e estratégia</b> pesam mais que "talento nato" no longo prazo</li>
+  <li><b>Erro é informação,</b> não veredito sobre sua inteligência</li>
+  <li><b>Elogie o processo</b> (você se dedicou), não o rótulo (você é gênio)</li>
+  <li><b>Compare-se com seu eu de ontem,</b> não com aprovados de print</li>
+</ul>
+<p style="margin-top:8px">Quem acredita que pode melhorar, treina mais — e melhora. A crença vira resultado. 🌱</p>`;
+
+    if (/colar|cola na prova|trapacear|plagio|plágio|integridade academica|integridade acadêmica|chatgpt na prova/.test(t))
+      return `<p><strong>Por que colar e plagiar sai caro:</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Você só engana a si mesmo:</b> a lacuna de conhecimento continua lá para a próxima prova/concurso</li>
+  <li><b>Risco alto:</b> anulação, reprovação e até expulsão — não compensa</li>
+  <li><b>Plágio em TCC/artigo</b> é detectado por software e pode invalidar o trabalho</li>
+  <li><b>IA como ferramenta, não como autor:</b> use para explicar e revisar, não para entregar como seu</li>
+  <li><b>O atalho real</b> é active recall e questões — aprende de verdade e rende na hora H</li>
+</ul>
+<p style="margin-top:8px">Estudar direito é mais barato que o preço de ser pego. Construa conhecimento que ninguém tira de você. 🛡️</p>`;
+
+    if (/cronotipo|sou notur|coruja|matutino|relogio biologico|relógio biológico|ritmo circadiano|circadiano/.test(t))
+      return `<p><strong>Cronotipo: descubra seu pico de rendimento:</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Matutino ("cotovia"):</b> pico de foco de manhã — reserve o conteúdo difícil cedo</li>
+  <li><b>Vespertino/noturno ("coruja"):</b> rende melhor à tarde/noite — não force madrugar à toa</li>
+  <li><b>Observe-se 1-2 semanas:</b> anote quando se concentra melhor naturalmente</li>
+  <li><b>Aloque o mais difícil no pico</b> e tarefas leves (revisão, organização) nos vales</li>
+  <li><b>Sono regular</b> estabiliza o ritmo — dormir e acordar em horários fixos potencializa tudo</li>
+</ul>
+<p style="margin-top:8px">Trabalhar a favor do seu relógio biológico rende mais que copiar a rotina dos outros. 🕰️</p>`;
+
+    if (/dia da prova|o que levar|kit prova|véspera|vespera da prova|checklist da prova|nao esquecer documento/.test(t))
+      return `<p><strong>Checklist da véspera e do dia da prova:</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Véspera:</b> revisão leve (nada novo!), separe documento, caneta preta, comprovante e roupa</li>
+  <li><b>Durma cedo:</b> sono na véspera vale mais que qualquer revisão extra</li>
+  <li><b>Chegue com folga:</b> conheça o trajeto; atraso = porta fechada em muitos concursos</li>
+  <li><b>Leve água e lanche</b> (barra de cereal, fruta, chocolate) para provas longas</li>
+  <li><b>Documento oficial com foto</b> é obrigatório — confira a regra do edital</li>
+</ul>
+<p style="margin-top:8px">No ENEM, leve caneta preta de corpo transparente e chegue até as 13h (horário de Brasília). Prepare tudo na noite anterior. ✅</p>`;
+
+    if (/voz alta|estudar falando|ler em voz alta|gravar a propria voz|gravar a própria voz|efeito de producao|efeito de produção/.test(t))
+      return `<p><strong>Estudar em voz alta (efeito de produção):</strong></p>
+<ul style="margin:8px 0 0 16px;line-height:2">
+  <li><b>Falar o que lê fixa mais</b> que ler em silêncio — o "efeito de produção" é comprovado</li>
+  <li><b>Explique em voz alta</b> sem olhar (Feynman + active recall ao mesmo tempo)</li>
+  <li><b>Grave sua voz</b> resumindo e ouça em tempos mortos (trânsito, academia)</li>
+  <li><b>Bom para idiomas:</b> shadowing e pronúncia melhoram falando, não só lendo</li>
+  <li><b>Cuidado com o ambiente:</b> reserve um espaço onde possa falar sem incomodar</li>
+</ul>
+<p style="margin-top:8px">Som + esforço de recuperação = memória mais forte. Tire o conteúdo da cabeça pela boca. 🗣️</p>`;
+
     // ───────── fallback inteligente (sugere o tópico mais próximo) ─────────
     {
       const topics = [
