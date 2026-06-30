@@ -260,8 +260,12 @@ body {
   min-height: calc(100vh - var(--topbar-h));
   flex: 1;
   min-width: 0; /* permite encolher como flex item — evita overflow horizontal no mobile */
+  overflow-x: hidden; /* rede de segurança: nada vaza na lateral (ex.: input month no Safari) */
   background: var(--bg);
 }
+/* inputs/selects nunca estouram o card (Safari ignora min-width em form controls) */
+.cf-form input, .cf-form select { box-sizing: border-box; max-width: 100%; }
+.cf-form input[type="month"] { -webkit-appearance: none; appearance: none; }
 
 .page { display: none; padding: 32px; max-width: 1400px; min-width: 0; }
 .page.active { display: block; }
