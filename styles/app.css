@@ -4958,11 +4958,129 @@ html:not([data-theme="light"]) .oura-connect, html:not([data-theme="light"]) .mo
 
 /* perfil na sidebar: neutro, sem brilho */
 .user-avatar {
-  background: #262a31 !important;
   color: #cfd4dc !important;
   box-shadow: none !important;
-  border: 1px solid rgba(255,255,255,.12);
+  border: 1px solid rgba(255,255,255,.14);
 }
 .user-avatar img { border: none !important; box-shadow: none !important; }
 .user-plan { color: #8b93a1 !important; font-weight: 500; }
 .user-card:hover { border-color: rgba(255,255,255,.14); box-shadow: none; }
+
+/* ══════════════════════════════════════════════════════════
+   v4 — OLED EDITORIAL (a linguagem do Apple Stocks no app todo)
+   Sem caixas. Preto puro. Dados como tipografia + fios.
+══════════════════════════════════════════════════════════ */
+/* mata o anel roxo giratório do avatar de vez */
+.user-avatar::before { display: none !important; animation: none !important; }
+.topbar-title { background: none; -webkit-text-fill-color: currentColor; color: var(--text); }
+
+html:not([data-theme="light"]) body,
+html:not([data-theme="light"]) .main-content { background: #000 !important; }
+html:not([data-theme="light"]) .sidebar { background: #000; border-right-color: rgba(255,255,255,.09); }
+html:not([data-theme="light"]) .topbar { background: rgba(0,0,0,.92) !important; }
+html:not([data-theme="light"]) .bottom-nav { background: rgba(0,0,0,.92); border-top: 1px solid rgba(255,255,255,.09); }
+
+/* CARDS → SEÇÕES: sem caixa, sem raio, sem sombra; fio superior + respiro */
+html:not([data-theme="light"]) .kpi-card,
+html:not([data-theme="light"]) .chart-card,
+html:not([data-theme="light"]) .market-card,
+html:not([data-theme="light"]) .goal-card,
+html:not([data-theme="light"]) .cf-card,
+html:not([data-theme="light"]) .table-card,
+html:not([data-theme="light"]) .alerts-card,
+html:not([data-theme="light"]) .budget-item,
+html:not([data-theme="light"]) .sub-card,
+html:not([data-theme="light"]) .goals-summary,
+html:not([data-theme="light"]) .cf-kpi,
+html:not([data-theme="light"]) .calc-card,
+html:not([data-theme="light"]) .ai-card,
+html:not([data-theme="light"]) .int-card,
+html:not([data-theme="light"]) .ip-card {
+  background: transparent !important;
+  border: none !important;
+  border-top: 1px solid rgba(255,255,255,.10) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  padding-left: 2px !important;
+  padding-right: 2px !important;
+}
+
+/* KPIs → linhas de extrato: rótulo à esquerda, número à direita */
+.kpi-grid, .kpi-grid-5 { display: flex !important; flex-direction: column; gap: 0 !important; margin-bottom: 26px; }
+.kpi-card {
+  display: grid !important;
+  grid-template-columns: 1fr auto;
+  align-items: baseline;
+  gap: 2px 16px;
+  padding: 15px 2px !important;
+}
+.kpi-card .kpi-header { margin: 0; display: block; }
+.kpi-label { font-size: 11.5px !important; letter-spacing: 1.2px !important; }
+.kpi-value { font-size: 24px !important; grid-column: 2; grid-row: 1; text-align: right; }
+.kpi-change {
+  grid-column: 1 / -1;
+  border-top: none !important;
+  margin-top: 2px !important;
+  padding-top: 0 !important;
+  font-size: 11.5px;
+}
+
+/* resumo de metas idem */
+.goal-stat { border-right: none !important; border-bottom: 1px solid rgba(255,255,255,.08); flex-direction: row !important; justify-content: space-between; align-items: baseline; padding: 14px 2px !important; }
+.gs-value { font-size: 22px !important; }
+
+/* títulos de seção: small-caps editorial, sem bolinha */
+.chart-card-header h3::before, .table-header h3::before { display: none; }
+.chart-card-header h3, .table-header h3, .cf-title {
+  font-size: 12px !important;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  color: #9aa3ad !important;
+  font-weight: 600 !important;
+}
+
+/* mercado (índices) como linhas também */
+.market-overview { display: flex !important; flex-direction: column; gap: 0 !important; }
+.market-card { display: flex; align-items: center; justify-content: space-between; padding: 13px 2px !important; }
+.mc-name { margin: 0; font-size: 12px; letter-spacing: 1.2px; }
+.mc-val { margin: 0; font-size: 18px; }
+.mc-chg { margin: 0; }
+.mini-chart { display: none !important; }
+
+/* botões seguem lima sólido; selects/inputs escuros neutros */
+.period-select { background: #111; border-color: rgba(255,255,255,.12); }
+
+/* v4 — cobertura total: formulários, modais, chat, listas, perfil */
+html:not([data-theme="light"]) .modal {
+  background: #0b0b0c !important;
+  border: 1px solid rgba(255,255,255,.12) !important;
+  border-radius: 14px !important;
+}
+.form-control, .form-select, .cf-form input, .cf-form select,
+.stock-search, #whoopClientId, #whoopClientSecret {
+  background: #0d0d0f !important;
+  border: 1px solid rgba(255,255,255,.12) !important;
+  border-radius: 10px !important;
+}
+.form-control:focus, .form-select:focus { border-color: var(--lime-line) !important; box-shadow: none !important; }
+
+/* chat do assistente: bolhas planas */
+.ai-msg-bot, .ai-msg-user, .nb-msg, .sb-msg { border-radius: 12px !important; box-shadow: none !important; }
+.ai-msg-user { background: var(--lime) !important; color: #0c0e04 !important; }
+
+/* listas (transações, assinaturas, orçamentos): linhas com fio */
+.data-table th { border-bottom: 1px solid rgba(255,255,255,.12); }
+.data-table td { border-bottom: 1px solid rgba(255,255,255,.06); }
+.budget-item { border-top: none !important; border-bottom: 1px solid rgba(255,255,255,.08) !important; padding: 14px 2px !important; }
+
+/* página de perfil e upgrade */
+html:not([data-theme="light"]) .profile-card, html:not([data-theme="light"]) .up-card {
+  background: transparent !important; border: none !important;
+  border-top: 1px solid rgba(255,255,255,.10) !important; border-radius: 0 !important; box-shadow: none !important;
+}
+/* trocador de apps: flat */
+.app-switcher { background: transparent; border: none; padding: 0 12px; }
+.app-sw-btn { border-radius: 10px; }
+/* alertas/insights: linhas */
+.alert-item { background: transparent !important; border: none !important; border-bottom: 1px solid rgba(255,255,255,.07); border-radius: 0 !important; }
+.alert-icon { background: transparent !important; border: 1px solid rgba(255,255,255,.14); }
