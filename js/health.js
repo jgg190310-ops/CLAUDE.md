@@ -143,7 +143,7 @@
   ];
 
   const MEAL_LABEL = { cafe: 'Café', almoco: 'Almoço', jantar: 'Jantar', lanche: 'Lanche' };
-  const MEAL_COLOR = { cafe: '#f59e0b', almoco: '#10b981', jantar: '#6366f1', lanche: '#06b6d4' };
+  const MEAL_COLOR = { cafe: '#f59e0b', almoco: '#10b981', jantar: '#d3f34f', lanche: '#9aa3ad' };
 
   // ── cálculos (TMB, gasto, IMC) ───────────────────────────────────
   function computeTMB(body) {
@@ -199,10 +199,10 @@
 
     const kpis = [
       { ic: '#10b981', label: 'Calorias hoje', value: `${kcalFmt(kcal)}`, sub: `de ${kcalFmt(goalKcal)} kcal` },
-      { ic: remaining >= 0 ? '#6366f1' : '#ef4444', label: remaining >= 0 ? 'Ainda pode comer' : 'Acima da meta', value: `${kcalFmt(Math.abs(remaining))}`, sub: 'kcal restantes' },
-      { ic: '#06b6d4', label: 'Água', value: `${day.water}`, sub: `de ${goalWater} copos` },
+      { ic: remaining >= 0 ? '#d3f34f' : '#ef4444', label: remaining >= 0 ? 'Ainda pode comer' : 'Acima da meta', value: `${kcalFmt(Math.abs(remaining))}`, sub: 'kcal restantes' },
+      { ic: '#9aa3ad', label: 'Água', value: `${day.water}`, sub: `de ${goalWater} copos` },
       { ic: '#f59e0b', label: 'Proteína', value: `${kcalFmt(prot)}g`, sub: goalProt ? `de ${goalProt}g` : 'consumida' },
-      { ic: imcData ? (imcData.imc < 25 ? '#10b981' : imcData.imc < 30 ? '#f59e0b' : '#ef4444') : '#8b5cf6',
+      { ic: imcData ? (imcData.imc < 25 ? '#10b981' : imcData.imc < 30 ? '#f59e0b' : '#ef4444') : '#a8c93e',
         label: 'IMC', value: imcData ? `${imcData.imc}` : '—', sub: imcData ? imcData.cls : 'Configure em Metas' },
     ];
     const grid = document.getElementById('hKpis');
@@ -311,7 +311,7 @@
         data: {
           labels: ['Café', 'Almoço', 'Jantar', 'Lanche'],
           datasets: [{ data: vals.some(v => v > 0) ? vals : [1, 1, 1, 1],
-            backgroundColor: ['#f59e0b', '#10b981', '#6366f1', '#06b6d4'], borderWidth: 0 }],
+            backgroundColor: ['#f59e0b', '#10b981', '#d3f34f', '#9aa3ad'], borderWidth: 0 }],
         },
         options: {
           responsive: true, maintainAspectRatio: false, cutout: '62%',
@@ -1320,7 +1320,7 @@
       <div class="kpi-grid kpi-grid-4" style="margin-bottom:16px">
         <div class="kpi-card" style="--ic:#ef4444"><div class="kpi-label">Kcal queimadas hoje</div><div class="kpi-value">${kcalFmt(todayKcal)}</div><div class="kpi-trend" style="color:#ef4444">kcal</div></div>
         <div class="kpi-card" style="--ic:#f59e0b"><div class="kpi-label">Minutos ativos</div><div class="kpi-value">${todayMins}</div><div class="kpi-trend" style="color:#f59e0b">minutos</div></div>
-        <div class="kpi-card" style="--ic:#6366f1"><div class="kpi-label">Exercícios hoje</div><div class="kpi-value">${exs.length}</div><div class="kpi-trend" style="color:#6366f1">sessões</div></div>
+        <div class="kpi-card" style="--ic:#d3f34f"><div class="kpi-label">Exercícios hoje</div><div class="kpi-value">${exs.length}</div><div class="kpi-trend" style="color:#d3f34f">sessões</div></div>
         <div class="kpi-card" style="--ic:#10b981"><div class="kpi-label">Média semanal</div><div class="kpi-value">${kcalFmt(Math.round(last7.reduce((a,v)=>a+v,0)/7))}</div><div class="kpi-trend" style="color:#10b981">kcal/dia</div></div>
       </div>
       <div class="s-sessions-grid">
@@ -1428,9 +1428,9 @@
     el.innerHTML = `
       <div class="page-header"><div><h1>Sono</h1><p class="page-sub">Acompanhe a qualidade e duração do seu sono.</p></div></div>
       <div class="kpi-grid kpi-grid-4" style="margin-bottom:16px">
-        <div class="kpi-card" style="--ic:#8b5cf6"><div class="kpi-label">Média semanal</div><div class="kpi-value">${avgHours}h</div><div class="kpi-trend" style="color:#8b5cf6">por noite</div></div>
+        <div class="kpi-card" style="--ic:#a8c93e"><div class="kpi-label">Média semanal</div><div class="kpi-value">${avgHours}h</div><div class="kpi-trend" style="color:#a8c93e">por noite</div></div>
         <div class="kpi-card" style="--ic:#10b981"><div class="kpi-label">Melhor noite</div><div class="kpi-value">${best}h</div><div class="kpi-trend" style="color:#10b981">horas</div></div>
-        <div class="kpi-card" style="--ic:#6366f1"><div class="kpi-label">Sequência ≥7h</div><div class="kpi-value">${streak}</div><div class="kpi-trend" style="color:#6366f1">noites seguidas</div></div>
+        <div class="kpi-card" style="--ic:#d3f34f"><div class="kpi-label">Sequência ≥7h</div><div class="kpi-value">${streak}</div><div class="kpi-trend" style="color:#d3f34f">noites seguidas</div></div>
         <div class="kpi-card" style="--ic:#f59e0b"><div class="kpi-label">Registros</div><div class="kpi-value">${sleep.length}</div><div class="kpi-trend" style="color:#f59e0b">noites</div></div>
       </div>
       <div class="s-sessions-grid">
@@ -1540,10 +1540,10 @@
       <div class="page-header"><div><h1>Progresso Corporal</h1><p class="page-sub">Acompanhe sua evolução de peso ao longo do tempo.</p></div></div>
       <div class="kpi-grid kpi-grid-5" style="margin-bottom:16px">
         <div class="kpi-card" style="--ic:#10b981"><div class="kpi-label">Peso atual</div><div class="kpi-value">${current?current+'kg':'—'}</div><div class="kpi-trend" style="color:#10b981">último registro</div></div>
-        <div class="kpi-card" style="--ic:#6366f1"><div class="kpi-label">Peso inicial</div><div class="kpi-value">${start?start+'kg':'—'}</div><div class="kpi-trend" style="color:#6366f1">primeiro registro</div></div>
-        <div class="kpi-card" style="--ic:${change!==null?(change<0?'#10b981':'#ef4444'):'#8b5cf6'}"><div class="kpi-label">Variação total</div><div class="kpi-value">${change!==null?(change>0?'+':'')+change+'kg':'—'}</div><div class="kpi-trend" style="color:${change!==null?(change<0?'#10b981':'#ef4444'):'#8b5cf6'}">${change!==null?(change<0?'emagrecido':'ganho de peso'):'sem dados'}</div></div>
+        <div class="kpi-card" style="--ic:#d3f34f"><div class="kpi-label">Peso inicial</div><div class="kpi-value">${start?start+'kg':'—'}</div><div class="kpi-trend" style="color:#d3f34f">primeiro registro</div></div>
+        <div class="kpi-card" style="--ic:${change!==null?(change<0?'#10b981':'#ef4444'):'#a8c93e'}"><div class="kpi-label">Variação total</div><div class="kpi-value">${change!==null?(change>0?'+':'')+change+'kg':'—'}</div><div class="kpi-trend" style="color:${change!==null?(change<0?'#10b981':'#ef4444'):'#a8c93e'}">${change!==null?(change<0?'emagrecido':'ganho de peso'):'sem dados'}</div></div>
         <div class="kpi-card" style="--ic:#f59e0b"><div class="kpi-label">IMC atual</div><div class="kpi-value">${imcData?imcData.imc:'—'}</div><div class="kpi-trend" style="color:#f59e0b">${imcData?imcData.cls:'configure altura'}</div></div>
-        <div class="kpi-card" style="--ic:#06b6d4"><div class="kpi-label">Para a meta</div><div class="kpi-value">${toGoal!==null?(toGoal>0?'-':'')+Math.abs(toGoal)+'kg':'—'}</div><div class="kpi-trend" style="color:#06b6d4">${goalWeight?'meta: '+goalWeight+'kg':'sem meta'}</div></div>
+        <div class="kpi-card" style="--ic:#9aa3ad"><div class="kpi-label">Para a meta</div><div class="kpi-value">${toGoal!==null?(toGoal>0?'-':'')+Math.abs(toGoal)+'kg':'—'}</div><div class="kpi-trend" style="color:#9aa3ad">${goalWeight?'meta: '+goalWeight+'kg':'sem meta'}</div></div>
       </div>
       <div class="s-sessions-grid">
         <div class="cf-card">
@@ -1564,7 +1564,7 @@
       <div class="cf-card" style="margin-top:16px">
         <div style="margin-bottom:8px;font-size:14px;font-weight:600">Progresso para a meta (${goalWeight}kg)</div>
         <div style="background:var(--border);border-radius:6px;height:10px;overflow:hidden">
-          <div style="height:100%;width:${Math.min(100,Math.max(0,Math.round((1-(Math.abs(toGoal||0)/Math.abs((start||current)-goalWeight)))*100)))}%;background:linear-gradient(90deg,#10b981,#06b6d4);border-radius:6px;transition:width .5s"></div>
+          <div style="height:100%;width:${Math.min(100,Math.max(0,Math.round((1-(Math.abs(toGoal||0)/Math.abs((start||current)-goalWeight)))*100)))}%;background:linear-gradient(90deg,#10b981,#9aa3ad);border-radius:6px;transition:width .5s"></div>
         </div>
       </div>` : ''}
       <div class="cf-card" style="margin-top:16px">
@@ -1690,7 +1690,7 @@
       if (!p || !a || !el) return;
       const imc = Math.round(p / ((a/100)**2) * 10) / 10;
       const cls = imc < 18.5 ? 'Abaixo do peso' : imc < 25 ? 'Peso normal' : imc < 30 ? 'Sobrepeso' : 'Obesidade';
-      const color = imc < 18.5 ? '#06b6d4' : imc < 25 ? '#10b981' : imc < 30 ? '#f59e0b' : '#ef4444';
+      const color = imc < 18.5 ? '#9aa3ad' : imc < 25 ? '#10b981' : imc < 30 ? '#f59e0b' : '#ef4444';
       el.innerHTML = `<div class="h-calc-res" style="--rc:${color}"><span class="h-calc-big">${imc}</span><span class="h-calc-lbl">${cls}</span></div>`;
     } else if (type === 'tdee') {
       const sex = document.getElementById('cTdee_sex')?.value;
@@ -1716,7 +1716,7 @@
       if (!p||!el) return;
       const ml = Math.round(p * 35);
       const copos = Math.round(ml / 250);
-      el.innerHTML = `<div class="h-calc-res" style="--rc:#06b6d4"><span class="h-calc-big">${(ml/1000).toFixed(1)}L</span><span class="h-calc-lbl">${copos} copos de 250ml por dia</span></div>`;
+      el.innerHTML = `<div class="h-calc-res" style="--rc:#9aa3ad"><span class="h-calc-big">${(ml/1000).toFixed(1)}L</span><span class="h-calc-lbl">${copos} copos de 250ml por dia</span></div>`;
     } else if (type === 'peso') {
       const a = parseFloat(document.getElementById('cPeso_alt')?.value);
       const sex = document.getElementById('cPeso_sex')?.value;
@@ -1776,7 +1776,7 @@
               <span style="color:var(--text-2);font-size:13px">${daysPassed}/${ch.days} dias</span>
             </div>
             <div style="background:var(--border);border-radius:4px;height:8px">
-              <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,#10b981,#06b6d4);border-radius:4px;transition:width .4s"></div>
+              <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,#10b981,#9aa3ad);border-radius:4px;transition:width .4s"></div>
             </div>
             <div style="font-size:12px;color:var(--text-3);margin-top:3px">${pct}% concluído</div>
           </div>`;
@@ -1836,7 +1836,7 @@
       <div style="position:relative">
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;filter:blur(3px);pointer-events:none;opacity:.5">
           <div class="cf-card" style="padding:20px;text-align:center"><div style="font-size:24px;font-weight:800;color:#10b981">78%</div><div style="font-size:12px;opacity:.7;margin-top:4px">Recovery Score</div></div>
-          <div class="cf-card" style="padding:20px;text-align:center"><div style="font-size:24px;font-weight:800;color:#6366f1">62ms</div><div style="font-size:12px;opacity:.7;margin-top:4px">HRV</div></div>
+          <div class="cf-card" style="padding:20px;text-align:center"><div style="font-size:24px;font-weight:800;color:#d3f34f">62ms</div><div style="font-size:12px;opacity:.7;margin-top:4px">HRV</div></div>
           <div class="cf-card" style="padding:20px;text-align:center"><div style="font-size:24px;font-weight:800;color:#f59e0b">52bpm</div><div style="font-size:12px;opacity:.7;margin-top:4px">Resting HR</div></div>
           <div class="cf-card" style="padding:20px;text-align:center"><div style="font-size:24px;font-weight:800;color:#3b82f6">7h 23min</div><div style="font-size:12px;opacity:.7;margin-top:4px">Sleep</div></div>
         </div>

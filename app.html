@@ -37,7 +37,7 @@
       window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
     }
   </script>
-  <link rel="stylesheet" href="styles/app.css?v=60" />
+  <link rel="stylesheet" href="styles/app.css?v=61" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -335,7 +335,7 @@
       <div class="kpi-card">
         <div class="kpi-header">
           <span class="kpi-label">Dinheiro Líquido</span>
-          <div class="kpi-icon" style="--ic:#06b6d4">
+          <div class="kpi-icon" style="--ic:#9aa3ad">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M22 10H2"/><path d="M7 15h.01M11 15h2"/></svg>
           </div>
         </div>
@@ -384,7 +384,7 @@
           </div>
           <div class="chart-legend">
             <span class="legend-dot" style="background:#d3f34f"></span> Patrimônio
-            <span class="legend-dot" style="background:#10b981; margin-left:12px"></span> Investimentos
+            <span class="legend-dot" style="background:#8b93a1; margin-left:12px"></span> Investimentos
           </div>
         </div>
         <div class="chart-wrap"><canvas id="patrimonioChart"></canvas></div>
@@ -481,7 +481,7 @@
         <div class="bo-label">Orçamento Total</div>
         <div class="bo-value" id="boTotal">R$ 0</div>
         <div class="bo-bar-wrap">
-          <div class="bo-bar"><div class="bo-fill" id="boFill" style="width:0%; background:linear-gradient(90deg,#d3f34f,#8b5cf6)"></div></div>
+          <div class="bo-bar"><div class="bo-fill" id="boFill" style="width:0%; background:linear-gradient(90deg,#d3f34f,#a8c93e)"></div></div>
         </div>
         <div class="bo-sub" id="boTotalSub">—</div>
       </div>
@@ -1304,7 +1304,7 @@
         <div class="ai-suggestions" id="nbSuggestions"></div>
         <form class="ai-input-row" id="nbForm" onsubmit="return nbSend(event)">
           <input type="text" id="nbInput" placeholder="Pergunte sobre alimentação, calorias, dieta..." autocomplete="off" />
-          <button type="submit" class="ai-send-btn" title="Enviar" style="background:linear-gradient(135deg,#10b981,#06b6d4)">
+          <button type="submit" class="ai-send-btn" title="Enviar" style="background:linear-gradient(135deg,#10b981,#9aa3ad)">
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
           </button>
         </form>
@@ -1426,8 +1426,8 @@
           <option value="#10b981">Verde</option>
           <option value="#f59e0b">Âmbar</option>
           <option value="#ef4444">Vermelho</option>
-          <option value="#8b5cf6">Roxo</option>
-          <option value="#06b6d4">Ciano</option>
+          <option value="#a8c93e">Roxo</option>
+          <option value="#9aa3ad">Ciano</option>
         </select>
       </div>
     </div>
@@ -1467,8 +1467,8 @@
           <option value="#10b981">Verde</option>
           <option value="#f59e0b">Âmbar</option>
           <option value="#ef4444">Vermelho</option>
-          <option value="#8b5cf6">Roxo</option>
-          <option value="#06b6d4">Ciano</option>
+          <option value="#a8c93e">Roxo</option>
+          <option value="#9aa3ad">Ciano</option>
         </select>
       </div>
     </div>
@@ -1700,8 +1700,8 @@
 </nav>
 
 <script src="js/firebase-config.js?v=40"></script>
-<script src="js/app.js?v=40"></script>
-<script src="js/health.js?v=40"></script>
+<script src="js/app.js?v=41"></script>
+<script src="js/health.js?v=41"></script>
 <script src="js/study.js?v=40"></script>
 <script>
 /* ═══════════════════════════════════════════════
@@ -2975,7 +2975,7 @@ function renderBanking() {
     </div>
     <div class="cf-card" style="margin-bottom:16px;padding:24px">
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
-        <div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#10b981,#06b6d4);display:flex;align-items:center;justify-content:center">
+        <div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#10b981,#9aa3ad);display:flex;align-items:center;justify-content:center">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
         </div>
         <div><h3 style="font-size:15px;font-weight:700">Pluggy Open Finance</h3><p style="font-size:12px;opacity:.6">Agregador oficial — padrão BACEN</p></div>
@@ -2989,7 +2989,7 @@ function renderBanking() {
           <button onclick="savePluggyConfig()" style="padding:9px 18px;border-radius:8px;background:var(--indigo);color:#fff;font-weight:600;font-size:13px;border:none;cursor:pointer;align-self:flex-start">Salvar</button>
         </div>
       </details>
-      <button onclick="pluggyConnect()" style="width:100%;padding:13px;border-radius:10px;background:linear-gradient(135deg,#10b981,#06b6d4);color:#fff;font-weight:700;font-size:14px;border:none;cursor:pointer">
+      <button onclick="pluggyConnect()" style="width:100%;padding:13px;border-radius:10px;background:linear-gradient(135deg,#10b981,#9aa3ad);color:#fff;font-weight:700;font-size:14px;border:none;cursor:pointer">
         + Conectar Nova Conta Bancária
       </button>
       <p style="font-size:11px;opacity:.5;text-align:center;margin-top:10px"><svg class="lock-ico" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg> Conexão segura via Pluggy · regulamentado pelo BACEN</p>
@@ -3000,7 +3000,7 @@ function renderBanking() {
         ${items.length === 0 ? `<div class="empty-state" style="padding:24px"><p>Nenhuma conta conectada ainda.</p></div>` :
           items.map(item => `
             <div style="display:flex;align-items:center;gap:12px;padding:14px;background:var(--bg3);border-radius:10px;margin-bottom:8px">
-              <div style="width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,#10b981,#06b6d4);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#fff">${(item.connector?.name||'B')[0]}</div>
+              <div style="width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,#10b981,#9aa3ad);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#fff">${(item.connector?.name||'B')[0]}</div>
               <div style="flex:1">
                 <div style="font-size:14px;font-weight:600">${item.connector?.name || 'Banco'}</div>
                 <div style="font-size:12px;opacity:.6">${item.accounts?.length||0} conta(s) • ID: ${item.id?.slice(0,8)}…</div>
@@ -3187,9 +3187,9 @@ function cafePaint() {
   const cards = [
     { label: 'Café Arábica (KC)', val: kc != null ? kc.toFixed(2) + ' ¢/lb' : 'N/D', chg: cafeState.kcChg, has: kc != null, color: '#f59e0b' },
     { label: 'Arábica R$/saca 60kg', val: kcSacaBRL != null ? 'R$ ' + kcSacaBRL.toLocaleString('pt-BR', {maximumFractionDigits:0}) : 'N/D', chg: cafeState.kcChg, has: kc != null, color: '#10b981' },
-    { label: 'Café Robusta (RC)', val: rc != null ? 'US$ ' + rc.toLocaleString('pt-BR',{maximumFractionDigits:0}) + '/t' : 'N/D', chg: cafeState.rcChg, has: rc != null, color: '#06b6d4' },
+    { label: 'Café Robusta (RC)', val: rc != null ? 'US$ ' + rc.toLocaleString('pt-BR',{maximumFractionDigits:0}) + '/t' : 'N/D', chg: cafeState.rcChg, has: rc != null, color: '#9aa3ad' },
     { label: 'USD / BRL', val: 'R$ ' + usd.toFixed(4), chg: cafeState.usdChg, has: cafeState.usd != null, color: '#d3f34f' },
-    { label: 'CAFE11 (ETF B3)', val: etf != null ? 'R$ ' + etf.toFixed(2) : 'N/D', chg: cafeState.etfChg, has: etf != null, color: '#8b5cf6' },
+    { label: 'CAFE11 (ETF B3)', val: etf != null ? 'R$ ' + etf.toFixed(2) : 'N/D', chg: cafeState.etfChg, has: etf != null, color: '#a8c93e' },
   ];
 
   const grid = document.getElementById('cafeCards');

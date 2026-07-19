@@ -250,7 +250,7 @@ function initDashboardCharts() {
           label: 'Patrimônio',
           data: patrimonio,
           borderColor: '#d3f34f',
-          backgroundColor: 'rgba(99,102,241,0.1)',
+          backgroundColor: 'rgba(211,243,79,0.08)',
           fill: true,
           tension: 0.4,
           pointRadius: 0,
@@ -259,8 +259,8 @@ function initDashboardCharts() {
         {
           label: 'Investimentos',
           data: invest,
-          borderColor: '#10b981',
-          backgroundColor: 'rgba(16,185,129,0.05)',
+          borderColor: '#8b93a1',
+          backgroundColor: 'rgba(139,147,161,0.05)',
           fill: true,
           tension: 0.4,
           pointRadius: 0,
@@ -278,7 +278,7 @@ function initDashboardCharts() {
       labels: ['Moradia', 'Alimentação', 'Transporte', 'Lazer', 'Saúde', 'Outros'],
       datasets: [{
         data: [2200, 1200, 800, 600, 400, 220],
-        backgroundColor: ['#d3f34f','#10b981','#f59e0b','#ef4444','#8b5cf6','#06b6d4'],
+        backgroundColor: ['#d3f34f','#a8c93e','#7d9a2e','#55691f','#9aa3ad','#565e6a'],
         borderWidth: 0,
         hoverOffset: 8,
       }],
@@ -897,7 +897,7 @@ function initStocksPage() {
         labels: ['Ações BR', 'FIIs', 'Crypto', 'Ações EUA'],
         datasets: [{
           data: [0, 0, 0, 0],
-          backgroundColor: ['#d3f34f','#10b981','#f59e0b','#06b6d4'],
+          backgroundColor: ['#d3f34f','#a8c93e','#7d9a2e','#9aa3ad'],
           borderWidth: 0,
           hoverOffset: 8,
         }],
