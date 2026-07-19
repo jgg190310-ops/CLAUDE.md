@@ -249,7 +249,7 @@ function initDashboardCharts() {
         {
           label: 'Patrimônio',
           data: patrimonio,
-          borderColor: '#6366f1',
+          borderColor: '#d3f34f',
           backgroundColor: 'rgba(99,102,241,0.1)',
           fill: true,
           tension: 0.4,
@@ -278,7 +278,7 @@ function initDashboardCharts() {
       labels: ['Moradia', 'Alimentação', 'Transporte', 'Lazer', 'Saúde', 'Outros'],
       datasets: [{
         data: [2200, 1200, 800, 600, 400, 220],
-        backgroundColor: ['#6366f1','#10b981','#f59e0b','#ef4444','#8b5cf6','#06b6d4'],
+        backgroundColor: ['#d3f34f','#10b981','#f59e0b','#ef4444','#8b5cf6','#06b6d4'],
         borderWidth: 0,
         hoverOffset: 8,
       }],
@@ -422,7 +422,7 @@ function renderInsights() {
     add('info', `Meta: ${g.name}`, `${pct}% concluída — faltam ${fmt(g.target - g.current)} de ${fmt(g.target)}.`);
   });
   const done = gs.filter(g => g.current >= g.target).length;
-  if (done > 0) add('success', 'Meta concluída! 🎉', `Você já bateu ${done} meta${done > 1 ? 's' : ''}. Que tal definir a próxima?`);
+  if (done > 0) add('success', 'Meta concluída', `Você já bateu ${done} meta${done > 1 ? 's' : ''}. Que tal definir a próxima?`);
 
   // 4) Reserva de emergência
   if (income > 0 && spent > 0) {
@@ -468,7 +468,7 @@ function editCash() {
 const TX_COLORS = {
   income:     { bg: 'rgba(16,185,129,0.12)', color: '#10b981', tag: 'green' },
   expense:    { bg: 'rgba(239,68,68,0.10)',  color: '#ef4444', tag: 'red'   },
-  investment: { bg: 'rgba(99,102,241,0.10)', color: '#6366f1', tag: 'indigo' },
+  investment: { bg: 'rgba(99,102,241,0.10)', color: '#d3f34f', tag: 'indigo' },
 };
 const CAT_TYPE_MAP = {
   // Receitas
@@ -897,7 +897,7 @@ function initStocksPage() {
         labels: ['Ações BR', 'FIIs', 'Crypto', 'Ações EUA'],
         datasets: [{
           data: [0, 0, 0, 0],
-          backgroundColor: ['#6366f1','#10b981','#f59e0b','#06b6d4'],
+          backgroundColor: ['#d3f34f','#10b981','#f59e0b','#06b6d4'],
           borderWidth: 0,
           hoverOffset: 8,
         }],
@@ -971,7 +971,7 @@ function initMiniCharts() {
   window._miniCharts = {};
   const configs = [
     { key: 'ibov', id: 'ibovChart', data: [124000, 125200, 123800, 126100, 127400, 128450], color: '#10b981' },
-    { key: 'ifix', id: 'ifixChart', data: [3180, 3195, 3188, 3202, 3210, 3218], color: '#6366f1' },
+    { key: 'ifix', id: 'ifixChart', data: [3180, 3195, 3188, 3202, 3210, 3218], color: '#d3f34f' },
     { key: 'btc', id: 'btcChart', data: [365000, 358000, 360000, 355000, 350000, 352140], color: '#ef4444' },
     { key: 'usd', id: 'usdChart', data: [5.75, 5.78, 5.76, 5.80, 5.81, 5.82], color: '#10b981' },
   ];
@@ -2276,7 +2276,7 @@ function aiInsightCards() {
 
   if (s.topCats.length) {
     const [cat, val] = s.topCats[0];
-    cards.push({ icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>', color: '#6366f1', title: `Maior gasto: ${cat}`,
+    cards.push({ icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>', color: '#d3f34f', title: `Maior gasto: ${cat}`,
       text: `${aiFmt(val)} no período — ${((val / (s.expense || 1)) * 100).toFixed(0)}% das suas despesas. Reduzir 10% aqui libera ${aiFmt(val * 0.1)}/mês.` });
   }
 
@@ -4294,7 +4294,7 @@ function computeHealthScore() {
   return {
     total,
     pillars: [
-      { name: 'Poupança',   pts: Math.round(pPoupanca), color: '#6366f1' },
+      { name: 'Poupança',   pts: Math.round(pPoupanca), color: '#d3f34f' },
       { name: 'Reserva',    pts: Math.round(pReserva),  color: '#10b981' },
       { name: 'Orçamentos', pts: Math.round(pOrcam),    color: '#f59e0b' },
       { name: 'Metas',      pts: Math.round(pMetas),    color: '#8b5cf6' },
@@ -4628,8 +4628,8 @@ function renderPlan() {
           { type: 'bar', label: 'Receitas', data: proj.map(p => p.inc), backgroundColor: 'rgba(16,185,129,.55)', borderRadius: 6 },
           { type: 'bar', label: 'Despesas', data: proj.map(p => p.exp), backgroundColor: 'rgba(239,68,68,.45)', borderRadius: 6 },
           { type: 'line', label: 'Caixa acumulado', data: proj.map(p => p.acc),
-            borderColor: '#6366f1', backgroundColor: 'rgba(99,102,241,.08)',
-            borderWidth: 2.5, tension: .35, fill: true, pointRadius: 3, pointBackgroundColor: '#6366f1', yAxisID: 'y1' },
+            borderColor: '#d3f34f', backgroundColor: 'rgba(99,102,241,.08)',
+            borderWidth: 2.5, tension: .35, fill: true, pointRadius: 3, pointBackgroundColor: '#d3f34f', yAxisID: 'y1' },
         ],
       },
       options: {

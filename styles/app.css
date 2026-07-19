@@ -4844,3 +4844,33 @@ html:not([data-theme="light"]) .oura-connect, html:not([data-theme="light"]) .mo
 
 /* cadeado svg alinhado */
 .lock-ico { vertical-align: -1.5px; margin-right: 2px; opacity: .7; }
+
+/* ══════════════════════════════════════════════════════════
+   v3.1 — varredura final de resíduos indigo (todas as telas)
+══════════════════════════════════════════════════════════ */
+/* linha decorativa sob a topbar e brilhos laterais: fora */
+.topbar::after, .sidebar::before, .chart-card::before { display: none !important; }
+
+/* títulos de card em branco (eram lilás) */
+.chart-card-header h3, .table-header h3, .cf-title { color: var(--text) !important; }
+
+/* chips de KPI neutros e uniformes — identidade monocromática */
+.kpi-icon {
+  background: rgba(255,255,255,.045) !important;
+  border-color: rgba(255,255,255,.13) !important;
+  color: #c9cdd6 !important;
+  box-shadow: none !important;
+}
+
+/* links/acentos utilitários */
+.kpi-cash-edit { color: var(--lime) !important; }
+.live-badge { border-color: var(--lime-line); color: var(--lime); }
+.live-badge .live-dot { background: var(--lime); box-shadow: 0 0 6px var(--lime); }
+
+/* barras de progresso e toggles em lima */
+.gv-bar-inner, .budget-bar-inner, .wapp-need-bar > div { background: var(--lime) !important; }
+.toast { border-left-color: var(--lime); box-shadow: 0 16px 48px rgba(0,0,0,.6); }
+.toast.success { border-left-color: var(--lime); box-shadow: 0 16px 48px rgba(0,0,0,.6); }
+
+/* nav-group divisórias neutras */
+.nav-label { color: #6d7076; }

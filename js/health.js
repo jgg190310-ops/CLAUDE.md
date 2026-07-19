@@ -1840,7 +1840,7 @@
           <div class="cf-card" style="padding:20px;text-align:center"><div style="font-size:24px;font-weight:800;color:#f59e0b">52bpm</div><div style="font-size:12px;opacity:.7;margin-top:4px">Resting HR</div></div>
           <div class="cf-card" style="padding:20px;text-align:center"><div style="font-size:24px;font-weight:800;color:#3b82f6">7h 23min</div><div style="font-size:12px;opacity:.7;margin-top:4px">Sleep</div></div>
         </div>
-        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;opacity:.8">🔒 Conecte o Whoop para ver seus dados reais</div>
+        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;opacity:.8">Conecte o Whoop para ver seus dados reais</div>
       </div>`;
   }
 

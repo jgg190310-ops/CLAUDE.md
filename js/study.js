@@ -2371,8 +2371,8 @@
         </div>
         ${_fcFlipped ? `
         <div style="display:flex;gap:12px;margin-top:20px">
-          <button class="btn-cancel" style="flex:1;padding:14px" onclick="sFCAnswer('hard')">😓 Difícil</button>
-          <button class="btn-confirm" style="flex:1;padding:14px" onclick="sFCAnswer('easy')">😊 Fácil</button>
+          <button class="btn-cancel" style="flex:1;padding:14px" onclick="sFCAnswer('hard')">Difícil</button>
+          <button class="btn-confirm" style="flex:1;padding:14px" onclick="sFCAnswer('easy')">Fácil</button>
         </div>` : `
         <div style="text-align:center;margin-top:20px">
           <button class="btn-confirm" style="padding:14px 40px" onclick="sFCFlip()">Ver Resposta</button>
