@@ -193,7 +193,7 @@ const APP_LOGO = { finance: 'FinanceOS', health: 'HealthOS', study: 'StudyOS' };
 let currentApp = 'finance';
 
 function switchApp(app) {
-  if (app === 'health') app = 'finance'; // aba Saúde desativada
+  if (app === 'study') app = 'finance'; // aba Estudos desativada
   if (!APP_DEFAULT_PAGE[app]) return;
   currentApp = app;
   try { saveStore({ lastApp: app }); } catch (e) {}
@@ -1829,8 +1829,12 @@ function cloudPull() {
       saveStore({ investor: remote.investor });
       restoreInvestorUI(remote.investor);
     }
-    // wearables (Whoop/Oura/Strava) — restaura tokens se o localStorage foi limpo
-    if (remote.wearables && restoreWearablesFromCloud(remote.wearables)) {
+    // wearables (Whoop/Oura/Strava) — converge local ↔ nuvem:
+    // 1) restaura tokens que o Safari apagou; 2) re-envia o estado local
+    // (cobre conexões feitas antes do Firebase ficar pronto)
+    const restored = remote.wearables ? restoreWearablesFromCloud(remote.wearables) : false;
+    syncWearablesToCloud();
+    if (restored) {
       ['renderWhoop','renderOura','renderStrava'].forEach(fn => {
         try { const el = document.getElementById('h-' + fn.replace('render','').toLowerCase());
           if (el && el.classList.contains('active') && typeof window[fn] === 'function') window[fn](); } catch(e){}
