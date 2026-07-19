@@ -193,6 +193,7 @@ const APP_LOGO = { finance: 'FinanceOS', health: 'HealthOS', study: 'StudyOS' };
 let currentApp = 'finance';
 
 function switchApp(app) {
+  if (app === 'health') app = 'finance'; // aba Saúde desativada
   if (!APP_DEFAULT_PAGE[app]) return;
   currentApp = app;
   try { saveStore({ lastApp: app }); } catch (e) {}
