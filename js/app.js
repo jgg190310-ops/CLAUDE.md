@@ -138,6 +138,7 @@ const pageTitles = {
   stocks: 'Bolsa de Valores',
   calculator: 'Calculadora de Juros',
   assistant: 'Assistente IA',
+  news: 'Newsletter',
   cashflow: 'Fluxo de Caixa Projetado',
   health: 'Saúde Financeira',
   crisis: 'Modo Crise',
@@ -178,6 +179,7 @@ function navigateTo(page) {
   if (page === 'assistant') initAssistant();
   if (page === 'cashflow') { renderPlan(); cfSetDefaultMonths(); }
   if (page === 'subs') renderSubs();
+  if (page === 'news') { if (typeof renderNews === 'function') renderNews(); }
   if (page === 'banking') { if (typeof renderBanking === 'function') renderBanking(); }
   if (page === 'upgrade') { if (typeof renderUpgrade === 'function') renderUpgrade(); }
   if (page === 'cafe')    { if (typeof renderCafe    === 'function') renderCafe(); }

@@ -5189,3 +5189,14 @@ html:not([data-theme="light"]) .profile-card, html:not([data-theme="light"]) .up
   border: 1px solid rgba(255,255,255,.16) !important;
   color: #c9cdd6 !important;
 }
+
+/* NEWSLETTER — lista editorial */
+.news-tabs { display: flex; gap: 8px; margin-bottom: 14px; }
+.news-list { display: flex; flex-direction: column; }
+.news-row { display: block; padding: 14px 2px; border-bottom: 1px solid rgba(255,255,255,.08); text-decoration: none; }
+.news-row:first-child { border-top: 1px solid rgba(255,255,255,.10); }
+.news-row:hover { background: rgba(255,255,255,.03); }
+.news-t { font-size: 15px; font-weight: 600; color: var(--text); line-height: 1.45; }
+.news-m { font-size: 12px; color: #8b93a1; margin-top: 5px; }
+/* tabs na identidade */
+.tab.active { background: var(--lime-soft) !important; color: var(--lime) !important; border-color: var(--lime-line) !important; box-shadow: none !important; }

@@ -43,6 +43,17 @@ export default {
       return corsResponse(data, ouraRes.status, origin);
     }
 
+    // Newsletter: /news?topic=financas|saude → Google News RSS pt-BR (sem chave)
+    if (url.pathname === '/news') {
+      const topic = url.searchParams.get('topic') || 'financas';
+      const q = topic === 'saude'
+        ? 'saúde OR bem-estar OR nutrição OR medicina'
+        : 'economia OR finanças OR investimentos OR juros';
+      const r = await fetch('https://news.google.com/rss/search?q=' + encodeURIComponent(q) + '&hl=pt-BR&gl=BR&ceid=BR:pt-419');
+      const xml = await r.text();
+      return corsResponse(xml, r.status, origin);
+    }
+
     // Proxy da API Strava: /strava/api/<path> → https://www.strava.com/api/<path>
     if (url.pathname.startsWith('/strava/api/')) {
       const apiPath = url.pathname.replace('/strava', '');
