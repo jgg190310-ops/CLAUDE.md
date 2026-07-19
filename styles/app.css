@@ -5124,3 +5124,68 @@ html:not([data-theme="light"]) .profile-card, html:not([data-theme="light"]) .up
 /* barras de progresso das metas: lima, sem gradiente inline */
 .goal-bar-fill { background: var(--lime) !important; }
 .goal-bar-fill::after { display: none; }
+
+/* ══════════════════════════════════════════════════════════
+   v4.2 — cobertura TOTAL + refinamento de ritmo
+══════════════════════════════════════════════════════════ */
+/* subtítulos e textos de apoio: neutro (sem azulado) */
+.page-sub, .page-header p, .chart-card-header p { color: #8b93a1 !important; }
+.page-header { margin-bottom: 22px; }
+
+/* espaçamento vertical consistente entre seções */
+.chart-card, .table-card, .alerts-card, .cf-card, .goal-card, .sub-card { margin-bottom: 4px; }
+
+/* chips/ícones coloridos remanescentes → outline neutro */
+.budget-item-icon, .goal-icon-wrap, .alert-icon, .sub-icon, .int-icon {
+  background: transparent !important;
+  border: 1px solid rgba(255,255,255,.14) !important;
+  color: #b7bcc6 !important;
+  box-shadow: none !important;
+  border-radius: 10px !important;
+}
+.budget-item-icon svg, .goal-icon-wrap svg { stroke: #b7bcc6 !important; }
+
+/* orçamentos: barras lima, números tabulares */
+.budget-bar-inner { background: var(--lime) !important; }
+.ba-spent { color: var(--text) !important; font-family: 'Space Grotesk', sans-serif; }
+.budget-overview > * { background: transparent !important; border: none !important; border-top: 1px solid rgba(255,255,255,.10) !important; border-radius: 0 !important; box-shadow: none !important; }
+.bo-value { font-size: 22px !important; }
+
+/* fluxo de caixa: itens como linhas */
+.cf-li { background: transparent !important; border: none !important; border-bottom: 1px solid rgba(255,255,255,.07) !important; border-radius: 0 !important; padding: 12px 2px !important; }
+.cf-li-dot { border-radius: 2px; }
+
+/* chat (FinBot/NutriBot): fundo preto, entrada flat */
+.ai-chat-box, .nb-chat, .ai-input-row, .nb-input-row {
+  background: transparent !important; border-color: rgba(255,255,255,.10) !important;
+}
+.ai-msg-bot { background: #131315 !important; border: 1px solid rgba(255,255,255,.08) !important; }
+.ai-chip, .s-quick-chip, .h-foodchip {
+  background: transparent !important; border: 1px solid rgba(255,255,255,.16) !important;
+  color: #c9cdd6 !important; border-radius: 999px !important;
+}
+
+/* assinaturas / listas de item */
+.sub-item, .tx-row { border-bottom: 1px solid rgba(255,255,255,.07); }
+
+/* perfil: inputs escuros, avatar grande neutro */
+.profile-avatar-big { background: #1a1c21 !important; border: 1px solid rgba(255,255,255,.14) !important; box-shadow: none !important; }
+
+/* planos/upgrade: colunas com fio, destaque lima no popular */
+.plan-card { background: transparent !important; border: 1px solid rgba(255,255,255,.12) !important; border-radius: 14px !important; box-shadow: none !important; }
+.plan-card.popular { border-color: var(--lime-line) !important; }
+
+/* saúde: água/contadores na identidade */
+.h-water-count { color: var(--lime) !important; }
+.h-water-cup.filled { background: var(--lime) !important; border-color: var(--lime) !important; }
+.ch-card, .h-card { background: transparent !important; border: none !important; border-top: 1px solid rgba(255,255,255,.10) !important; border-radius: 0 !important; box-shadow: none !important; }
+
+/* tabelas caladas */
+.data-table tr:hover td { background: rgba(255,255,255,.02); }
+
+/* botão fantasma padrão */
+.btn-sm, .btn-ghost, .wapp-btn.ghost {
+  background: transparent !important;
+  border: 1px solid rgba(255,255,255,.16) !important;
+  color: #c9cdd6 !important;
+}
