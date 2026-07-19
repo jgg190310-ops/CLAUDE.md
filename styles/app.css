@@ -4955,3 +4955,14 @@ html:not([data-theme="light"]) .oura-connect, html:not([data-theme="light"]) .mo
   .stk-r { min-width: 88px; }
   .stk-tk { font-size: 16px; }
 }
+
+/* perfil na sidebar: neutro, sem brilho */
+.user-avatar {
+  background: #262a31 !important;
+  color: #cfd4dc !important;
+  box-shadow: none !important;
+  border: 1px solid rgba(255,255,255,.12);
+}
+.user-avatar img { border: none !important; box-shadow: none !important; }
+.user-plan { color: #8b93a1 !important; font-weight: 500; }
+.user-card:hover { border-color: rgba(255,255,255,.14); box-shadow: none; }
