@@ -2989,6 +2989,7 @@
     } catch(e){}
     const r = await fetch(NW + '/news?topic=' + topic, { signal: AbortSignal.timeout(15000) });
     const xml = await r.text();
+    if (!xml.includes('<item>')) throw new Error('worker sem rota /news');
     const doc = new DOMParser().parseFromString(xml, 'text/xml');
     const items = [...doc.querySelectorAll('item')].slice(0, 14).map(it => ({
       t: (it.querySelector('title')?.textContent || '').replace(/ - [^-]+$/, ''),
