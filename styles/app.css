@@ -4691,3 +4691,48 @@ html[data-theme="light"] body { background: #f4f6fb !important; }
 
 /* modais firmes */
 .modal { background: #12151f; border: 1px solid rgba(255,255,255,.09); }
+
+/* ══════════════════════════════════════════════════════════
+   IDENTIDADE v2.2 — topbar sólida, conexões premium, ícones
+══════════════════════════════════════════════════════════ */
+/* topbar opaca: conteúdo não "vaza" mais por trás ao rolar */
+.topbar {
+  background: #0b0d13 !important;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+/* cards de conexão: superfície neutra profunda — cor só nos acentos */
+.whoop-connect, .strava-connect, .oura-connect {
+  background: linear-gradient(180deg, #12151f 0%, #0e111a 100%);
+  border: 1px solid rgba(255,255,255,.08);
+  box-shadow: 0 1px 0 rgba(255,255,255,.04) inset, 0 16px 40px rgba(0,0,0,.4);
+}
+.whoop-connect-glow, .strava-connect-glow, .oura-connect-glow { display: none; }
+.whoop-connect { border-top: 2px solid rgba(249,115,22,.55); }
+.strava-connect { border-top: 2px solid rgba(252,76,2,.55); }
+.oura-connect { border-top: 2px solid rgba(77,208,225,.55); }
+
+/* chips de ícone das conexões: mais nítidos, brilho contido */
+.whoop-mark-icon, .strava-mark-icon { border-radius: 14px; box-shadow: 0 6px 18px rgba(249,115,22,.3), 0 1px 0 rgba(255,255,255,.25) inset; }
+.oura-ring-icon { box-shadow: 0 6px 18px rgba(77,208,225,.3); }
+
+/* inputs das conexões sobre a nova superfície */
+.whoop-field input, .strava-field input, .oura-field input {
+  background: rgba(0,0,0,.35); border-color: rgba(255,255,255,.09);
+}
+.whoop-uri { background: rgba(0,0,0,.35); border-color: rgba(255,255,255,.09); color: #ffb27d; }
+.strava-steps code { background: rgba(255,255,255,.06); color: #ffb27d; }
+
+/* CTAs das conexões: sólidos e firmes (sem gradiente lamacento) */
+.whoop-cta { background: #f97316; box-shadow: 0 1px 0 rgba(255,255,255,.2) inset, 0 8px 22px rgba(249,115,22,.32); }
+.whoop-cta:hover { background: #fb8534; }
+.strava-cta { background: #fc4c02; box-shadow: 0 1px 0 rgba(255,255,255,.2) inset, 0 8px 22px rgba(252,76,2,.32); }
+.strava-cta:hover { background: #ff6120; }
+.oura-cta { background: #26c6da; box-shadow: 0 1px 0 rgba(255,255,255,.25) inset, 0 8px 22px rgba(38,198,218,.32); }
+
+/* ícones globais mais nítidos e consistentes */
+.bn-item svg { stroke-width: 2; }
+.nav-item svg { stroke-width: 2; width: 17px; height: 17px; }
+.kpi-icon { border-radius: 11px; }
+.kpi-icon svg { stroke-width: 2.1; }
