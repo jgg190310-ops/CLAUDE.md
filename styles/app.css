@@ -5084,3 +5084,43 @@ html:not([data-theme="light"]) .profile-card, html:not([data-theme="light"]) .up
 /* alertas/insights: linhas */
 .alert-item { background: transparent !important; border: none !important; border-bottom: 1px solid rgba(255,255,255,.07); border-radius: 0 !important; }
 .alert-icon { background: transparent !important; border: 1px solid rgba(255,255,255,.14); }
+
+/* v4.1 — Metas no formato extrato */
+.goals-summary { display: flex !important; flex-direction: column !important; padding: 0 !important; margin-bottom: 26px; }
+.goal-stat {
+  display: flex !important;
+  flex-direction: row-reverse !important;
+  justify-content: space-between !important;
+  align-items: baseline !important;
+  padding: 14px 2px !important;
+  border-bottom: 1px solid rgba(255,255,255,.08) !important;
+  border-right: none !important;
+}
+.goal-stat:first-child { border-top: 1px solid rgba(255,255,255,.10); }
+.gs-label {
+  font-size: 11.5px !important;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: #8b93a1 !important;
+  font-weight: 600 !important;
+}
+.gs-value {
+  font-size: 22px !important;
+  font-family: 'Space Grotesk', sans-serif;
+  font-variant-numeric: tabular-nums;
+  color: var(--text) !important;
+}
+/* estado vazio editorial: sem caixa tracejada */
+.empty-state, .cf-empty {
+  border: none !important;
+  border-top: 1px solid rgba(255,255,255,.08) !important;
+  border-radius: 0 !important;
+  text-align: left !important;
+  padding: 18px 2px !important;
+  color: #8b93a1;
+}
+/* cards de meta criados: linhas também */
+.goal-card { padding: 16px 2px !important; }
+/* barras de progresso das metas: lima, sem gradiente inline */
+.goal-bar-fill { background: var(--lime) !important; }
+.goal-bar-fill::after { display: none; }
