@@ -4774,3 +4774,73 @@ html[data-theme="light"] body { background: #f4f6fb !important; }
   text-transform: uppercase; font-size: 10.5px !important; letter-spacing: 1.2px !important;
 }
 .whoop-uri { border-radius: 10px; }
+
+/* ══════════════════════════════════════════════════════════
+   IDENTIDADE v3 — INK & LIME
+   Sai o navy+indigo de todo dashboard da internet; entra
+   preto neutro com acento lima. Outra linguagem visual.
+══════════════════════════════════════════════════════════ */
+:root {
+  --lime: #d3f34f;
+  --lime-soft: rgba(211,243,79,.14);
+  --lime-line: rgba(211,243,79,.35);
+}
+html:not([data-theme="light"]) body { background: #0a0a0b !important; }
+html:not([data-theme="light"]) .sidebar { background: #0c0c0e; border-right-color: rgba(255,255,255,.06); }
+html:not([data-theme="light"]) .topbar { background: #0a0a0b !important; border-bottom-color: rgba(255,255,255,.06); }
+
+/* superfícies neutras (sem tom azulado) */
+html:not([data-theme="light"]) .kpi-card, html:not([data-theme="light"]) .chart-card,
+html:not([data-theme="light"]) .market-card, html:not([data-theme="light"]) .goal-card,
+html:not([data-theme="light"]) .cf-card, html:not([data-theme="light"]) .table-card,
+html:not([data-theme="light"]) .alerts-card, html:not([data-theme="light"]) .budget-item,
+html:not([data-theme="light"]) .sub-card, html:not([data-theme="light"]) .ai-card,
+html:not([data-theme="light"]) .int-card, html:not([data-theme="light"]) .ip-card,
+html:not([data-theme="light"]) .goals-summary, html:not([data-theme="light"]) .calc-card,
+html:not([data-theme="light"]) .cf-kpi,
+html:not([data-theme="light"]) .whoop-connect, html:not([data-theme="light"]) .strava-connect,
+html:not([data-theme="light"]) .oura-connect, html:not([data-theme="light"]) .modal {
+  background: #131315;
+  border-radius: 14px;
+  border-color: rgba(255,255,255,.07);
+}
+
+/* acento: navegação ativa em lima */
+.nav-item.active {
+  background: var(--lime-soft) !important;
+  box-shadow: inset 0 0 0 1px var(--lime-line) !important;
+  color: var(--lime) !important;
+}
+.nav-item.active svg { stroke: var(--lime) !important; }
+.app-sw-btn.active {
+  background: var(--lime-soft) !important;
+  box-shadow: inset 0 0 0 1px var(--lime-line) !important;
+  color: var(--lime) !important;
+}
+.app-sw-btn.active svg { stroke: var(--lime); }
+
+/* botões primários: lima com texto preto — assinatura visual */
+.btn-add, .btn-save, .btn-primary-sm, .cf-add-btn, .btn-confirm {
+  background: var(--lime) !important;
+  color: #0c0e04 !important;
+  box-shadow: 0 6px 20px rgba(211,243,79,.22) !important;
+  font-weight: 800;
+}
+.btn-add:hover, .btn-save:hover, .btn-primary-sm:hover, .cf-add-btn:hover, .btn-confirm:hover {
+  background: #e2fa6d !important;
+}
+.btn-add svg, .btn-save svg, .btn-primary-sm svg, .cf-add-btn svg { stroke: #0c0e04; }
+
+/* detalhes de marca em lima */
+.chart-card-header h3::before, .table-header h3::before { background: var(--lime); }
+.nav-badge-new { border-color: var(--lime-line); color: var(--lime) !important; }
+.period-select:focus, .form-control:focus, .form-select:focus { border-color: var(--lime-line) !important; }
+::selection { background: rgba(211,243,79,.3); }
+.bn-item.active, .bn-item.active svg { color: var(--lime); stroke: var(--lime); }
+.bn-item.active::before { background: var(--lime) !important; }
+.logo-icon { background: var(--lime) !important; }
+.logo-icon svg { stroke: #0c0e04 !important; }
+.user-card { border-color: rgba(255,255,255,.08); background: rgba(255,255,255,.025); }
+
+/* cadeado svg alinhado */
+.lock-ico { vertical-align: -1.5px; margin-right: 2px; opacity: .7; }

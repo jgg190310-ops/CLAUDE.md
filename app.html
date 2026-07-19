@@ -37,7 +37,7 @@
       window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
     }
   </script>
-  <link rel="stylesheet" href="styles/app.css?v=58" />
+  <link rel="stylesheet" href="styles/app.css?v=59" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -2279,7 +2279,7 @@
             Conectar com Whoop
           </button>
           <div id="whoopGoBox"></div>
-          <p class="whoop-priv">🔒 Suas credenciais ficam só no seu navegador.</p>
+          <p class="whoop-priv"><svg class="lock-ico" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg> Suas credenciais ficam só no seu navegador.</p>
         </div>`}`;
     if (connected) loadWhoopData();
   };
@@ -2727,7 +2727,7 @@
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.4"/></svg>
             Conectar com Oura
           </button>
-          <p class="oura-priv">🔒 Seu token fica só no seu navegador. Nada é compartilhado.</p>
+          <p class="oura-priv"><svg class="lock-ico" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg> Seu token fica só no seu navegador. Nada é compartilhado.</p>
         </div>`}`;
     if (connected) loadOuraData();
   };
@@ -2943,7 +2943,7 @@
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M13.5 2 7 14h4l-2 8 7-12h-4l2-8z"/></svg>
             Conectar com Strava
           </button>
-          <p class="strava-priv">🔒 Suas credenciais ficam só no seu navegador.</p>
+          <p class="strava-priv"><svg class="lock-ico" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg> Suas credenciais ficam só no seu navegador.</p>
         </div>`}`;
     if(connected) loadStravaData();
   };
@@ -2992,7 +2992,7 @@ function renderBanking() {
       <button onclick="pluggyConnect()" style="width:100%;padding:13px;border-radius:10px;background:linear-gradient(135deg,#10b981,#06b6d4);color:#fff;font-weight:700;font-size:14px;border:none;cursor:pointer">
         + Conectar Nova Conta Bancária
       </button>
-      <p style="font-size:11px;opacity:.5;text-align:center;margin-top:10px">🔒 Conexão segura via Pluggy · regulamentado pelo BACEN</p>
+      <p style="font-size:11px;opacity:.5;text-align:center;margin-top:10px"><svg class="lock-ico" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg> Conexão segura via Pluggy · regulamentado pelo BACEN</p>
     </div>
     <div class="cf-card" style="padding:20px">
       <div class="table-header" style="margin-bottom:16px"><h3>Contas Conectadas</h3></div>
