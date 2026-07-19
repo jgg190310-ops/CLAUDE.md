@@ -4736,3 +4736,41 @@ html[data-theme="light"] body { background: #f4f6fb !important; }
 .nav-item svg { stroke-width: 2; width: 17px; height: 17px; }
 .kpi-icon { border-radius: 11px; }
 .kpi-icon svg { stroke-width: 2.1; }
+
+/* ══════════════════════════════════════════════════════════
+   v2.3 — marcas reais nas conexões + campos editoriais
+══════════════════════════════════════════════════════════ */
+/* tiles como ícones de app verdadeiros (Strava laranja/chevron,
+   Whoop preto/W, Oura preto/anel) */
+.cx-tile {
+  width: 58px; height: 58px; border-radius: 14px; flex-shrink: 0;
+  display: flex !important; align-items: center; justify-content: center;
+  background: #101010 !important;
+  border: 1px solid rgba(255,255,255,.14);
+  box-shadow: 0 8px 22px rgba(0,0,0,.45), 0 1px 0 rgba(255,255,255,.1) inset !important;
+  animation: none !important;
+}
+.cx-tile svg { background: none !important; padding: 0 !important; width: 26px; height: 26px; border-radius: 0 !important; }
+.cx-whoop {
+  color: #fff; font-family: 'Space Grotesk', sans-serif;
+  font-size: 27px; font-weight: 700; letter-spacing: -1px;
+}
+.cx-strava { background: #fc4c02 !important; border-color: rgba(255,255,255,.18); }
+.cx-oura { background: #0d0d0d !important; }
+
+/* campos editoriais: linha inferior no lugar de caixas arredondadas */
+.whoop-field input, .strava-field input, .oura-field input {
+  background: transparent !important;
+  border: none !important;
+  border-bottom: 1.5px solid rgba(255,255,255,.14) !important;
+  border-radius: 0 !important;
+  padding: 10px 2px 12px !important;
+  font-size: 15px;
+}
+.whoop-field input:focus { border-bottom-color: #f97316 !important; box-shadow: none !important; }
+.strava-field input:focus { border-bottom-color: #fc4c02 !important; box-shadow: none !important; }
+.oura-field input:focus  { border-bottom-color: #4dd0e1 !important; box-shadow: none !important; }
+.whoop-field label, .strava-field label, .oura-field label {
+  text-transform: uppercase; font-size: 10.5px !important; letter-spacing: 1.2px !important;
+}
+.whoop-uri { border-radius: 10px; }
