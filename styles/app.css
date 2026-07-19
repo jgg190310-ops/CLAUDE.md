@@ -4874,3 +4874,38 @@ html:not([data-theme="light"]) .oura-connect, html:not([data-theme="light"]) .mo
 
 /* nav-group divisórias neutras */
 .nav-label { color: #6d7076; }
+
+/* ══════════════════════════════════════════════════════════
+   v3.2 — KPIs formais: sem ícones decorativos, estrutura
+   rótulo / número / fio / contexto (padrão private-banking)
+══════════════════════════════════════════════════════════ */
+.kpi-icon { display: none !important; }
+.kpi-card { padding: 20px 22px !important; }
+.kpi-card .kpi-header { margin-bottom: 10px; }
+.kpi-label {
+  font-size: 10.5px !important;
+  letter-spacing: 1.4px !important;
+  color: #8b93a1 !important;
+  font-weight: 600 !important;
+}
+.kpi-value {
+  font-size: 30px !important;
+  font-weight: 600 !important;
+  letter-spacing: -.6px !important;
+  margin-bottom: 0 !important;
+}
+.kpi-change {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255,255,255,.06);
+  font-weight: 500 !important;
+  color: #7d8590 !important;
+}
+#dashboard .kpi-change.positive, #dashboard .kpi-change.negative { color: #7d8590 !important; }
+.kpi-cash-edit { font-weight: 600; }
+
+@media (max-width: 760px) {
+  .kpi-card { padding: 16px 17px !important; }
+  .kpi-value { font-size: 23px !important; }
+  .kpi-change { margin-top: 10px; padding-top: 10px; font-size: 11px; }
+}
