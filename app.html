@@ -37,7 +37,7 @@
       window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
     }
   </script>
-  <link rel="stylesheet" href="styles/app.css?v=62" />
+  <link rel="stylesheet" href="styles/app.css?v=63" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -570,14 +570,7 @@
             </button>
           </div>
         </div>
-        <table class="data-table stocks-tbl">
-          <thead>
-            <tr><th>Ativo</th><th>Qtd.</th><th>Preço Médio</th><th>Preço Atual</th><th>Rentab.</th><th>Total</th><th></th></tr>
-          </thead>
-          <tbody id="stocksBody">
-            <!-- rendered by JS -->
-          </tbody>
-        </table>
+        <div class="stk-list" id="stocksBody"><!-- rendered by JS --></div>
       </div>
       <div class="portfolio-chart-card">
         <h3>Alocação da Carteira</h3>
@@ -1700,7 +1693,7 @@
 </nav>
 
 <script src="js/firebase-config.js?v=40"></script>
-<script src="js/app.js?v=41"></script>
+<script src="js/app.js?v=42"></script>
 <script src="js/health.js?v=41"></script>
 <script src="js/study.js?v=40"></script>
 <script>

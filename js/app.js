@@ -922,6 +922,20 @@ function updateAlocacaoChart() {
   }
 }
 
+// Histórico de sparkline por ticker (sessão) — alimentado a cada render/tick
+const _sparkHist = {};
+function sparkSVG(series, up) {
+  const w = 62, h = 26, n = series.length;
+  if (n < 2) return '';
+  const min = Math.min(...series), max = Math.max(...series), rng = (max - min) || 1;
+  const pts = series.map((v, i) => `${(i / (n - 1) * w).toFixed(1)},${(h - 2 - (v - min) / rng * (h - 6)).toFixed(1)}`).join(' ');
+  const col = up ? '#34c759' : '#ff453a';
+  const base = (h - 2 - (series[0] - min) / rng * (h - 6)).toFixed(1);
+  return `<svg class="stk-spark" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
+    <line x1="0" y1="${base}" x2="${w}" y2="${base}" stroke="${col}" stroke-width="1" stroke-dasharray="2 2" opacity=".45"/>
+    <polyline points="${pts}" fill="none" stroke="${col}" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+  </svg>`;
+}
 function renderStocks(tab) {
   currentTab = tab;
   const data = stocksData[tab];
@@ -930,32 +944,35 @@ function renderStocks(tab) {
   body.innerHTML = data.map(s => {
     const owned = s.qty > 0;
     const cur = s.currency === 'USD' ? 'US$' : 'R$';
-    const rentab = owned && s.avgPrice > 0 ? ((s.price - s.avgPrice) / s.avgPrice * 100) : 0;
-    const rentabClass = rentab >= 0 ? 'positive' : 'negative';
-    const rentabSign = rentab >= 0 ? '+' : '';
-    const prevP = _prevRow[s.ticker];
-    const tickCls = prevP !== undefined && prevP !== s.price ? (s.price > prevP ? 'tick-up' : 'tick-down') : '';
-    _prevRow[s.ticker] = s.price;
+    // série do sparkline: semeia com leve passeio e acumula os ticks reais
+    let hist = _sparkHist[s.ticker];
+    if (!hist) {
+      hist = [];
+      let v = s.price * (1 - 0.012 + Math.random() * 0.012);
+      for (let i = 0; i < 18; i++) { hist.push(v); v *= 1 + (Math.random() - 0.5) * 0.008; }
+      _sparkHist[s.ticker] = hist;
+    }
+    if (hist[hist.length - 1] !== s.price) { hist.push(s.price); if (hist.length > 26) hist.shift(); }
+    const dayPct = (s.price - hist[0]) / hist[0] * 100;
+    const up = dayPct >= 0;
+    const rentab = owned && s.avgPrice > 0 ? ((s.price - s.avgPrice) / s.avgPrice * 100) : null;
     const hidden = query && !`${s.ticker} ${s.name}`.toLowerCase().includes(query) ? ' style="display:none"' : '';
     return `
-    <tr${hidden}${owned ? ' class="row-owned"' : ''}>
-      <td>
-        <div class="asset-name">${s.ticker}${s.live ? ' <span class="live-tag">●</span>' : ''}</div>
-        <div class="asset-desc">${s.name}</div>
-      </td>
-      <td>${owned ? s.qty.toLocaleString('pt-BR') : '—'}</td>
-      <td>${owned ? cur + ' ' + s.avgPrice.toLocaleString('pt-BR', {minimumFractionDigits:2}) : '—'}</td>
-      <td class="${tickCls}">${cur} ${s.price.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2})}</td>
-      <td class="${owned ? rentabClass : ''}">${owned ? rentabSign + rentab.toFixed(2) + '%' : '—'}</td>
-      <td>${owned ? cur + ' ' + s.total.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2}) : '—'}</td>
-      <td>
-        <button class="btn-edit-holding" onclick="editHolding('${s.ticker}')" title="${owned ? 'Editar posição' : 'Adicionar à carteira'}">
-          ${owned
-            ? '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>'
-            : '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>'}
-        </button>
-      </td>
-    </tr>`;
+    <div class="stk-row"${hidden} onclick="editHolding('${s.ticker}')">
+      <div class="stk-l">
+        <div class="stk-tk">${s.ticker}${s.live ? ' <span class="live-tag">●</span>' : ''}</div>
+        <div class="stk-nm">${owned
+          ? `${s.qty.toLocaleString('pt-BR')} · ${cur} ${s.total.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2})}`
+          : s.name}</div>
+      </div>
+      ${sparkSVG(hist, up)}
+      <div class="stk-r">
+        <div class="stk-price">${cur === 'US$' ? 'US$ ' : ''}${s.price.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2})}</div>
+        <span class="stk-pill ${(owned && rentab !== null ? rentab >= 0 : up) ? 'up' : 'down'}">${owned && rentab !== null
+          ? (rentab >= 0 ? '+' : '') + rentab.toFixed(2) + '%'
+          : (up ? '+' : '') + dayPct.toFixed(2) + '%'}</span>
+      </div>
+    </div>`;
   }).join('');
 }
 
