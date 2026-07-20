@@ -143,7 +143,8 @@ function parallaxLoop() {
 // Em telas de toque / mobile, NÃO roda o parallax por JS (evita travar a GPU
 // e deixar a página sem resposta). Os efeitos pesados também são desligados via CSS.
 const IS_TOUCH = window.matchMedia('(hover: none), (max-width: 900px)').matches;
-if (!IS_TOUCH) parallaxLoop();
+// Parallax por mouse desativado — identidade v4 é estática e estável.
+// if (!IS_TOUCH) parallaxLoop();
 
 // 3D tilt on landing cards (delegated)
 const lpTiltSel = '.feature-card, .pricing-card, .testi-card';
@@ -153,7 +154,7 @@ document.addEventListener('mousemove', (e) => {
   const r = card.getBoundingClientRect();
   const cx = (e.clientX - r.left) / r.width  - 0.5;
   const cy = (e.clientY - r.top)  / r.height - 0.5;
-  card.style.transform = `perspective(800px) rotateX(${-cy * 8}deg) rotateY(${cx * 10}deg) translateY(-6px)`;
+  return; // tilt 3D desativado
 }, { passive: true });
 document.addEventListener('mouseout', (e) => {
   const card = e.target.closest?.(lpTiltSel);
