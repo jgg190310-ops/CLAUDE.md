@@ -2179,3 +2179,14 @@ body::after {
     radial-gradient(1px 1px at 92% 78%, rgba(255,255,255,.22) 50%, transparent 51%),
     radial-gradient(1px 1px at 8% 45%,  rgba(255,255,255,.2) 50%, transparent 51%);
 }
+
+/* mockup do hero: borda neon lima com glow */
+.dashboard-preview {
+  border: 1.5px solid rgba(211,243,79,.65) !important;
+  border-radius: 18px;
+  box-shadow:
+    0 0 12px rgba(211,243,79,.35),
+    0 0 42px rgba(211,243,79,.18),
+    0 0 0 1px rgba(211,243,79,.25) inset,
+    0 30px 70px rgba(0,0,0,.6) !important;
+}
