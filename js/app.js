@@ -1786,7 +1786,6 @@ async function initFirebase(config) {
     showToast(isAnon ? 'Nuvem conectada! Dados sincronizando…' : `Bem-vindo de volta! Logado como ${user.email || _uid.slice(0,8)}…`, 'success');
   } catch (e) {
     setCloudStatus('error');
-    showToast('Erro ao conectar: ' + e.message, 'error');
     console.error('Firebase init error:', e);
   }
 }

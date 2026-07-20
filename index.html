@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>OSHelp — Finanças, Saúde e Estudos em um só lugar</title>
   <link rel="manifest" href="manifest.webmanifest" />
-  <meta name="theme-color" content="#6366f1" />
+  <meta name="theme-color" content="#000000" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -24,9 +24,9 @@
       window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
     }
   </script>
-  <link rel="stylesheet" href="styles/landing.css?v=11" />
+  <link rel="stylesheet" href="styles/landing.css?v=12" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
   <style>
     /* OSHelp extra styles */
     .apps-section { padding: 100px 0; }
@@ -60,9 +60,9 @@
     .app-card:hover .fc-arrow { opacity: 1; }
 
     /* finance */
-    .app-card.finance { --app-grad: linear-gradient(135deg,#6366f1,#8b5cf6); }
+    .app-card.finance { --app-grad: linear-gradient(135deg,#d3f34f,#a8c93e); }
     /* health */
-    .app-card.health  { --app-grad: linear-gradient(135deg,#10b981,#06b6d4); }
+    .app-card.health  { --app-grad: linear-gradient(135deg,#10b981,#9aa3ad); }
     /* study */
     .app-card.study   { --app-grad: linear-gradient(135deg,#f59e0b,#ef4444); }
 
@@ -86,7 +86,7 @@
       <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
         <rect width="32" height="32" rx="8" fill="url(#lg1)"/>
         <path d="M8 22L13 14l4 5 3-4 4 6" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-        <defs><linearGradient id="lg1" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse"><stop stop-color="#6366f1"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient></defs>
+        <defs><linearGradient id="lg1" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse"><stop stop-color="#d3f34f"/><stop offset="1" stop-color="#a8c93e"/></linearGradient></defs>
       </svg>
       <span>OSHelp</span>
     </a>
@@ -170,7 +170,7 @@
 
     <div class="hero-apps fade-up" style="--d:780ms">
       <div class="hero-app-pill">
-        <div class="dot" style="background:#6366f1"></div>
+        <div class="dot" style="background:#d3f34f"></div>
         FinanceOS
       </div>
       <div class="hero-app-pill">
@@ -257,7 +257,7 @@
       Meta financeira atingida
     </div>
     <div class="float-badge badge-2 float-anim" style="--delay:1.2s">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2.5"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#d3f34f" stroke-width="2.5"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
       Desafio de saúde ativo
     </div>
     <div class="float-badge badge-3 float-anim" style="--delay:0.6s">
@@ -392,7 +392,7 @@
     <p class="section-sub reveal">Uma plataforma completa para quem leva a vida a sério.</p>
     <div class="features-grid">
       <div class="feature-card reveal-card" style="--ci:0">
-        <div class="fc-icon" style="--ic:#6366f1">
+        <div class="fc-icon" style="--ic:#d3f34f">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
         </div>
         <h3>Dashboards Inteligentes</h3>
@@ -424,7 +424,7 @@
         <div class="fc-arrow">→</div>
       </div>
       <div class="feature-card reveal-card" style="--ci:4">
-        <div class="fc-icon" style="--ic:#8b5cf6">
+        <div class="fc-icon" style="--ic:#a8c93e">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
         </div>
         <h3>Saúde Completa</h3>
@@ -432,7 +432,7 @@
         <div class="fc-arrow">→</div>
       </div>
       <div class="feature-card reveal-card" style="--ci:5">
-        <div class="fc-icon" style="--ic:#06b6d4">
+        <div class="fc-icon" style="--ic:#9aa3ad">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>
         </div>
         <h3>Conta na Nuvem</h3>
@@ -497,7 +497,7 @@
         <div class="tech-tags"><span>B3</span><span>Cripto</span><span>Câmbio</span></div>
       </div>
       <div class="testi-card featured reveal-card" style="--ci:1">
-        <div class="tech-icon" style="--ac:#6366f1">
+        <div class="tech-icon" style="--ac:#d3f34f">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>
         </div>
         <h3 class="tech-title">Sincronização em nuvem</h3>
@@ -621,7 +621,7 @@
         <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
           <rect width="32" height="32" rx="8" fill="url(#lg2)"/>
           <path d="M8 22L13 14l4 5 3-4 4 6" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-          <defs><linearGradient id="lg2" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse"><stop stop-color="#6366f1"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient></defs>
+          <defs><linearGradient id="lg2" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse"><stop stop-color="#d3f34f"/><stop offset="1" stop-color="#a8c93e"/></linearGradient></defs>
         </svg>
         <span>OSHelp</span>
       </a>
@@ -659,7 +659,7 @@
     <!-- LOGIN -->
     <div class="auth-panel" id="panelLogin">
       <div class="auth-logo">
-        <svg width="36" height="36" viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="8" fill="url(#alg)"/><path d="M8 22L13 14l4 5 3-4 4 6" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><defs><linearGradient id="alg" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse"><stop stop-color="#6366f1"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient></defs></svg>
+        <svg width="36" height="36" viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="8" fill="url(#alg)"/><path d="M8 22L13 14l4 5 3-4 4 6" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><defs><linearGradient id="alg" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse"><stop stop-color="#d3f34f"/><stop offset="1" stop-color="#a8c93e"/></linearGradient></defs></svg>
         <span>OSHelp</span>
       </div>
       <h2>Bem-vindo de volta</h2>
@@ -701,7 +701,7 @@
     <!-- SIGNUP -->
     <div class="auth-panel hidden" id="panelSignup">
       <div class="auth-logo">
-        <svg width="36" height="36" viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="8" fill="url(#asg)"/><path d="M8 22L13 14l4 5 3-4 4 6" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><defs><linearGradient id="asg" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse"><stop stop-color="#6366f1"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient></defs></svg>
+        <svg width="36" height="36" viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="8" fill="url(#asg)"/><path d="M8 22L13 14l4 5 3-4 4 6" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><defs><linearGradient id="asg" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse"><stop stop-color="#d3f34f"/><stop offset="1" stop-color="#a8c93e"/></linearGradient></defs></svg>
         <span>OSHelp</span>
       </div>
       <h2>Crie sua conta</h2>
