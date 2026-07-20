@@ -2204,3 +2204,17 @@ body::after {
   pointer-events: none;
   z-index: -1;
 }
+
+/* ═══ FIM DO MOVIMENTO PERPÉTUO — página estável ═══ */
+.marquee-track,
+.lp-grid-floor,
+.lp-beam, .lp-beam-1, .lp-beam-2, .lp-beam-3,
+.geo-shape, .particle,
+.sec-ring-feat, .sec-ring-testi, .sec-ring-price, .sec-ring-faq,
+.hero-bg, .spin-slow,
+.float-badge, .float-anim,
+.gradient-text {
+  animation: none !important;
+}
+/* marquee vira lista estática centrada */
+.marquee-track { transform: none !important; justify-content: center; flex-wrap: wrap; }
