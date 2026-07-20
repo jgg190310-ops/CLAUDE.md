@@ -2180,13 +2180,27 @@ body::after {
     radial-gradient(1px 1px at 8% 45%,  rgba(255,255,255,.2) 50%, transparent 51%);
 }
 
-/* mockup do hero: borda neon lima com glow */
+/* mockup do hero: borda neon lima com glow + luz projetada embaixo */
 .dashboard-preview {
   border: 1.5px solid rgba(211,243,79,.65) !important;
   border-radius: 18px;
+  position: relative;
   box-shadow:
     0 0 12px rgba(211,243,79,.35),
     0 0 42px rgba(211,243,79,.18),
     0 0 0 1px rgba(211,243,79,.25) inset,
+    0 34px 60px -18px rgba(211,243,79,.28),
     0 30px 70px rgba(0,0,0,.6) !important;
+}
+/* luz no chão: elipse lima desfocada projetada sob o quadro */
+.dashboard-preview::after {
+  content: '';
+  position: absolute;
+  left: 8%; right: 8%; bottom: -46px;
+  height: 60px;
+  background: radial-gradient(50% 100% at 50% 0%, rgba(211,243,79,.35), rgba(211,243,79,.08) 60%, transparent 80%);
+  filter: blur(18px);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: -1;
 }
