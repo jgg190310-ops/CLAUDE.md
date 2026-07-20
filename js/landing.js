@@ -143,8 +143,8 @@ function parallaxLoop() {
 // Em telas de toque / mobile, NÃO roda o parallax por JS (evita travar a GPU
 // e deixar a página sem resposta). Os efeitos pesados também são desligados via CSS.
 const IS_TOUCH = window.matchMedia('(hover: none), (max-width: 900px)').matches;
-// Parallax por mouse desativado — identidade v4 é estática e estável.
-// if (!IS_TOUCH) parallaxLoop();
+// Parallax elegante: só o mockup (tilt 3D + camadas) e badges — ornamentos seguem ocultos via CSS.
+if (!IS_TOUCH) parallaxLoop();
 
 // 3D tilt on landing cards (delegated)
 const lpTiltSel = '.feature-card, .pricing-card, .testi-card';
