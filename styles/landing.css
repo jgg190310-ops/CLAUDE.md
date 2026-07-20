@@ -2148,11 +2148,15 @@ input:focus { border-color: rgba(211,243,79,.4) !important; box-shadow: none !im
 /* v4 — sem ornamentos girando; modal sólido */
 .hero-bg, .spin-slow, .sec-ring, .sec-ring-feat, .sec-ring-testi, .sec-ring-price,
 [class*="ring-"], .bg-grid, .stars { animation: none !important; }
-.spin-slow, .sec-ring-feat, .sec-ring-testi, .sec-ring-price { display: none !important; }
+.spin-slow { display: none !important; }
+.sec-ring-feat, .sec-ring-testi, .sec-ring-price { animation: none !important; opacity: .5; }
 .auth-modal { background: #101012 !important; }
 .auth-backdrop { background: rgba(0,0,0,.8) !important; }
-/* fundo parallax/giroscópio: removido (girava com o movimento do celular) */
-.geo-shape, .orb, .lp-beam, .lp-grid-floor, .parallax-bg { display: none !important; }
+/* fundo parallax visível — sem rotação infinita (spins mortos acima) */
+.orb { opacity: .8 !important; filter: blur(70px) saturate(1.1); }
+.geo-shape { opacity: .5; }
+.lp-beam { opacity: .55; }
+.lp-grid-floor { opacity: .5; }
 
 /* fundo preto com ambiência estática: glow lima + starfield sutil */
 body::before {
