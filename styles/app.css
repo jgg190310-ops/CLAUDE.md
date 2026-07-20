@@ -5219,4 +5219,6 @@ html:not([data-theme="light"]) body::after {
     radial-gradient(1.3px 1.3px at 50% 88%, rgba(211,243,79,.28) 50%, transparent 51%),
     radial-gradient(1px 1px at 78% 62%, rgba(255,255,255,.22) 50%, transparent 51%);
 }
-.main-content, .sidebar, .topbar, .bottom-nav { position: relative; z-index: 1; }
+/* só o conteúdo fica acima do starfield; sidebar/topbar/bottom-nav mantêm
+   position:fixed e z-index próprios — NÃO sobrescrever (senão quebra o layout) */
+.main-content { position: relative; z-index: 1; }
