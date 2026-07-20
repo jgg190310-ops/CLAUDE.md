@@ -2151,3 +2151,5 @@ input:focus { border-color: rgba(211,243,79,.4) !important; box-shadow: none !im
 .spin-slow, .sec-ring-feat, .sec-ring-testi, .sec-ring-price { display: none !important; }
 .auth-modal { background: #101012 !important; }
 .auth-backdrop { background: rgba(0,0,0,.8) !important; }
+/* fundo parallax/giroscópio: removido (girava com o movimento do celular) */
+.geo-shape, .orb, .lp-beam, .lp-grid-floor, .parallax-bg { display: none !important; }
