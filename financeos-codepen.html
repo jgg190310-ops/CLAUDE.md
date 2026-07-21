@@ -7483,6 +7483,34 @@ html:not([data-theme="light"]) body::after {
    position:fixed e z-index próprios — NÃO sobrescrever (senão quebra o layout) */
 .main-content { position: relative; z-index: 1; }
 
+/* ══════════════════════════════════════════════════════════
+   MODO CLARO — cabeçalho legível
+   Havia regras escuras genéricas com !important depois do tema claro
+   (ex.: `.topbar { background:#0b0d13 !important }`) que deixavam a barra
+   superior preta, com o título escuro por cima do preto = ilegível.
+   Este bloco (seletor de tema claro + !important) vence o cascade.
+══════════════════════════════════════════════════════════ */
+html[data-theme="light"] .topbar {
+  background: rgba(255,255,255,.92) !important;
+  border-bottom: 1px solid rgba(15,23,42,.08) !important;
+  backdrop-filter: saturate(1.15) blur(14px);
+  -webkit-backdrop-filter: saturate(1.15) blur(14px);
+  box-shadow: 0 1px 16px rgba(15,23,42,.05);
+}
+html[data-theme="light"] .topbar-title {
+  background: none !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+}
+html[data-theme="light"] .topbar .icon-btn,
+html[data-theme="light"] .topbar .btn-sm,
+html[data-theme="light"] .sidebar-toggle {
+  color: #334155 !important;
+}
+html[data-theme="light"] .sidebar-toggle svg,
+html[data-theme="light"] .topbar .icon-btn svg { stroke: #334155; }
+html[data-theme="light"] .topbar .notif-dot { border-color: rgba(255,255,255,.92); }
+
 
 /* ══ VIEW SWITCHING ══ */
 #appView   { display: none; }
