@@ -535,7 +535,9 @@ async function tryFirebaseAuth(mode, email, password, name) {
 
 async function doLogin() {
   clearErrors();
-  const email = document.getElementById('loginEmail').value.trim();
+  // Normaliza o e-mail: no celular o teclado costuma capitalizar a 1ª letra
+  // e inserir espaços — isso quebrava o login (comparação exata da conta local).
+  const email = document.getElementById('loginEmail').value.trim().toLowerCase();
   const pass  = document.getElementById('loginPass').value;
 
   if (!email) { showError('loginError', 'Informe seu e-mail.'); document.getElementById('loginEmail').classList.add('error'); return; }
@@ -543,22 +545,39 @@ async function doLogin() {
 
   setLoading('loginBtn', true);
   try {
-    let user = await tryFirebaseAuth('login', email, pass, '');
-    let isLocal = false;
+    let user = null, isLocal = false, fbError = null;
+
+    // 1) Tenta a nuvem (Firebase). Se falhar, guarda o erro mas NÃO desiste:
+    //    contas de visitante/locais deste dispositivo ainda podem entrar.
+    try {
+      user = await tryFirebaseAuth('login', email, pass, '');
+    } catch (e) {
+      fbError = e;
+    }
+
+    // 2) Fallback local — funciona mesmo com o Firebase configurado
+    //    (antes esse trecho era inalcançável e travava o login no celular).
     if (!user) {
-      // Autenticação local
       const store = loadStore();
       const accounts = store.accounts || [];
-      const found = accounts.find(a => a.email === email && a.password === btoa(pass));
-      if (!found) {
-        const existsOtherDevice = !accounts.find(a => a.email === email);
-        throw new Error(existsOtherDevice
-          ? 'Conta não encontrada neste dispositivo. Contas locais só existem no navegador onde foram criadas — configure a Sincronização em Nuvem (Firebase) para acessar de qualquer lugar.'
-          : 'Senha incorreta.');
+      const found = accounts.find(a => (a.email || '').toLowerCase() === email && a.password === btoa(pass));
+      if (found) {
+        user = { email: found.email, name: found.name, uid: found.uid };
+        isLocal = true;
       }
-      user = { email: found.email, name: found.name, uid: found.uid };
-      isLocal = true;
     }
+
+    // 3) Nem nuvem nem local: mostra a mensagem mais precisa possível
+    if (!user) {
+      if (fbError) throw fbError;
+      const store = loadStore();
+      const accounts = store.accounts || [];
+      const existsLocal = accounts.find(a => (a.email || '').toLowerCase() === email);
+      throw new Error(existsLocal
+        ? 'Senha incorreta.'
+        : 'Conta não encontrada neste dispositivo. Contas locais só existem no navegador onde foram criadas — configure a Sincronização em Nuvem (Firebase) para acessar de qualquer lugar.');
+    }
+
     saveStore({ user });
     goSuccess(user.name || email.split('@')[0], null, isLocal);
   } catch (e) {
@@ -571,7 +590,7 @@ async function doLogin() {
 async function doSignup() {
   clearErrors();
   const name  = document.getElementById('signupName').value.trim();
-  const email = document.getElementById('signupEmail').value.trim();
+  const email = document.getElementById('signupEmail').value.trim().toLowerCase();
   const pass  = document.getElementById('signupPass').value;
   const pass2 = document.getElementById('signupPass2').value;
   const terms = document.getElementById('acceptTerms').checked;

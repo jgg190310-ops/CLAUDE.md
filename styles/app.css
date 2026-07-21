@@ -278,6 +278,12 @@ body {
   flex-wrap: wrap;
   gap: 16px;
 }
+.page-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
 .page-header h1 {
   font-size: 30px;
   font-weight: 800;
@@ -1728,8 +1734,9 @@ td.tick-down, .market-card.tick-down { animation: tickDownAnim 1.2s ease-out; }
   .form-grid-2 { grid-template-columns: 1fr; }
   .results-kpis { grid-template-columns: 1fr 1fr; }
 
-  /* topbar ainda mais compacta */
-  .topbar-actions > *:not(:last-child):not(.topbar-theme) { display: none; }
+  /* topbar ainda mais compacta — mantém o botão de tema (claro/escuro) visível */
+  .topbar-actions > *:not(:last-child):not(.theme-toggle) { display: none; }
+  .topbar-actions .theme-toggle { display: flex; }
 }
 
 /* ══════════════════════════════════════════════

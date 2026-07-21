@@ -3704,11 +3704,15 @@ async function aiAnswer(q) {
       `Cada ponto conquistado é progresso real: o score recalcula na hora conforme você age.`;
   }
 
-  if (/oi|ola|bom dia|boa tarde|boa noite|hello|eai|e ai/.test(t)) {
+  // Saudações — usa limites de palavra para NÃO capturar "ola"/"oi" dentro de
+  // palavras reais (ex.: esc-ola, s-ola-r, f-oi), o que sequestrava perguntas.
+  if (/\b(oi|ola|opa|salve|bom dia|boa tarde|boa noite|hello|hi|hey|eai|e ai)\b/.test(t)) {
     return `Olá! 👋 Sou o FinBot — especialista em finanças pessoais, investimentos e negócios. Analiso seus dados localmente e domino: economia doméstica, dívidas, renda fixa/variável, FIIs, cripto, impostos, financiamentos, empreendedorismo, precificação e muito mais.<br><br>Busco indicadores <b>ao vivo do Banco Central</b> (Selic, CDI, IPCA, dólar). Pergunte "indicadores de hoje" ou peça uma <i>"simulação de 500 por mês por 10 anos a 12% ao ano"</i>.`;
   }
 
-  if (/obrigad|valeu|thanks|show|top|legal/.test(t)) {
+  // Agradecimentos — limites de palavra evitam falsos positivos como
+  // "laptop" (top), "ilegal" (legal) ou "showroom" dentro de perguntas reais.
+  if (/\b(obrigad\w*|valeu|vlw|thanks|obg|brigado)\b/.test(t)) {
     return `De nada! 💪 Estou aqui sempre que precisar. Lembre-se: consistência vence intensidade — pequenas decisões certas todo mês constroem patrimônio.`;
   }
 
