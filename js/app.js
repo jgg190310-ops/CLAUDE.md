@@ -1857,6 +1857,26 @@ function cloudPull() {
       saveStore({ investor: remote.investor });
       restoreInvestorUI(remote.investor);
     }
+    // saúde (desafios, refeições, água, metas corporais, sono, peso) — faltava restaurar
+    if (remote.health && typeof remote.health === 'object') {
+      // mescla: mantém dados locais mais recentes se a nuvem estiver vazia
+      const localHealth = _store.health || {};
+      const merged = { ...remote.health };
+      // preserva sub-objetos locais não vazios que a nuvem não tenha
+      ['challenges','days','goals','body','sleep','weight','exercises'].forEach(k => {
+        const rv = remote.health[k], lv = localHealth[k];
+        const rEmpty = rv == null || (Array.isArray(rv) ? rv.length === 0 : Object.keys(rv||{}).length === 0);
+        const lHas = lv != null && (Array.isArray(lv) ? lv.length > 0 : Object.keys(lv||{}).length > 0);
+        if (rEmpty && lHas) merged[k] = lv;
+      });
+      _store.health = merged;
+      saveStore({ health: merged });
+      // re-renderiza a página de saúde ativa, se houver
+      if (typeof window.onAppNavigate === 'function') {
+        const active = document.querySelector('.page.active');
+        if (active && active.id && active.id.startsWith('h-')) { try { window.onAppNavigate(active.id); } catch(e){} }
+      }
+    }
     // wearables (Whoop/Oura/Strava) — converge local ↔ nuvem:
     // 1) restaura tokens que o Safari apagou; 2) re-envia o estado local
     // (cobre conexões feitas antes do Firebase ficar pronto)

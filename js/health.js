@@ -1186,40 +1186,36 @@
       return `Por nada! 💪 Constância vence intensidade — comida de verdade, proteína, água e sono todo dia constroem o resultado. Conte comigo!`;
     }
 
-    // ───────── fallback inteligente (sugere o tópico mais próximo) ─────────
+    // ───────── fallback inteligente: RESPONDE de fato pelo tópico mais próximo ─────────
     {
+      // cada tópico tem palavras-chave E uma resposta real (não só sugestão)
       const topics = [
-        { k:['caloria','kcal','gasto','tmb','energia'], s:'"quantas calorias eu preciso por dia?"' },
-        { k:['proteina','macro','whey'],               s:'"quanto de proteína por dia?"' },
-        { k:['emagrec','perder','gordura','secar'],     s:'"como emagrecer com saúde?"' },
-        { k:['massa','hipertrofia','musculo','músculo'],s:'"como ganhar massa muscular?"' },
-        { k:['treino','treinar','exercicio','exercício'],s:'"posso treinar hoje?" (uso sua Whoop)' },
-        { k:['suplement','creatina','cafe','café'],     s:'"creatina vale a pena?"' },
-        { k:['sono','dormir','recupera'],               s:'"como o sono afeta meu shape?"' },
-        { k:['agua','hidrat'],                          s:'"quanta água devo beber?"' },
-        { k:['acucar','açúcar','doce','glicemia'],      s:'"como cortar o açúcar?"' },
-        { k:['receita','comer','cardapio','cardápio'],  s:'"o que comer no café da manhã?"' },
+        { k:['metabolismo','metaboli','acelerar','lento','queima'], a:`<b>Sobre metabolismo:</b> 🔥<br><br>• Ele é a soma de tudo que seu corpo gasta — e ~60-70% é a <b>TMB</b> (gasto em repouso), que depende muito da sua <b>massa muscular</b>.<br>• Como "acelerar" de verdade: <b>ganhe músculo</b> (treino de força), <b>coma proteína</b> suficiente (gasta mais energia pra digerir), <b>durma bem</b> e <b>mova-se mais</b> no dia (NEAT).<br>• "Chá/termogênico que acelera o metabolismo" tem efeito mínimo — o que manda é músculo + atividade.<br><br>Quer que eu calcule sua TMB e meta de calorias? Manda <i>"quantas calorias eu preciso?"</i>` },
+        { k:['manh','noite','horario','que horas','janta','jantar','ceia','antes de dormir'], a:`<b>Horário das refeições:</b> ⏰<br><br>• O que decide seu peso é o <b>total do dia</b>, não a hora que você come. Comer à noite <b>não engorda mais</b> por si só.<br>• Comer proteína + fibra à noite ajuda no <b>sono</b> e evita beliscar.<br>• Se treina de manhã em jejum, tudo bem — só cuide da recuperação depois.<br><br>Sente muita fome à noite? Costuma ser <b>pouca proteína/fibra no dia</b> ou sono ruim. Quer dicas?` },
+        { k:['barriga','abdomen','abdômen','gordura localizada','cintura'], a:`<b>Perder barriga:</b> 🎯<br><br>• Não existe "queimar gordura localizada" — você perde do corpo todo com <b>déficit calórico</b>, e a barriga é onde mais acumula.<br>• Foque em: comer menos que gasta, <b>proteína alta</b>, menos açúcar líquido e ultraprocessado, <b>treino de força</b> + caminhada e <b>bom sono</b> (cortisol alto acumula gordura abdominal).<br>• Abdominal fortalece o músculo, mas não "seca" a barriga sozinho.<br><br>Quer sua meta de calorias pra emagrecer? Manda <i>"como emagrecer?"</i>` },
+        { k:['dica','saudavel','saudável','melhorar aliment','comer melhor','reeducacao','reeducação'], a:`<b>Alimentação saudável na prática:</b> 🥗<br><br>• Base: <b>comida de verdade</b> — arroz, feijão, ovos, carnes, frutas, verduras, legumes.<br>• Em cada prato: metade de vegetais, um quarto de proteína, um quarto de carbo bom.<br>• <b>Reduza</b>: açúcar líquido (refri/suco), ultraprocessados e frituras.<br>• <b>Beba água</b>, coma devagar e não pule refeições a ponto de atacar besteira depois.<br><br>Constância > perfeição. Quer um exemplo de cardápio ou de café da manhã?` },
       ];
       let best = null, bestScore = 0;
       for (const tp of topics) {
         const sc = tp.k.reduce((a,kw)=> a + (norm.includes(kw)?1:0), 0);
         if (sc > bestScore) { bestScore = sc; best = tp; }
       }
-      const hint = best && bestScore>0
-        ? `Acho que você quis perguntar algo como ${best.s} — manda assim que eu respondo certinho. 😊`
-        : `Tente algo como <i>"quantas calorias tem 1 ovo?"</i>, <i>"quanto de proteína eu preciso?"</i> ou <i>"posso treinar hoje?"</i>.`;
-      return `Sou especialista em <b>nutrição, treino e performance</b>. ${hint}<br><br>Domino: calorias e alimentos, emagrecimento, ganho de massa, pré/pós-treino, suplementos, jejum, colesterol, glicemia, intestino, imunidade, sono e integração com sua Whoop. 🥗`;
+      if (best && bestScore > 0) return best.a;
+      // nada casou — resposta calorosa e útil (não deflete)
+      return `Boa pergunta! 🥗 Sou o <b>NutriBot</b> e domino nutrição, treino e performance. Consigo te ajudar com:<br><br>• <b>Calorias e macros</b> (com seus dados) e valor de cada alimento<br>• <b>Emagrecimento</b> e <b>ganho de massa</b> sem dieta maluca<br>• <b>Pré/pós-treino</b>, suplementos (creatina, whey, cafeína), jejum<br>• <b>Colesterol, glicemia, intestino, imunidade e sono</b><br>• Sugestões usando sua <b>recuperação da Whoop</b> 🟢<br><br>Reformula pra mim com mais detalhe (ex.: <i>"o que comer pra ${norm.split(' ').slice(0,3).join(' ')}..."</i>) que eu respondo certinho. 💪`;
     }
   }
 
   function matchFood(norm) {
     // procura alimentos citados na frase (h\u00edfens viram espa\u00e7o p/ casar "batata doce")
-    const nrm = norm.replace(/-/g, ' ');
+    const nrm = ' ' + norm.replace(/-/g, ' ').replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ') + ' ';
+    const wb = (w) => nrm.includes(' ' + w + ' ') || nrm.includes(' ' + w + 's '); // limite de palavra (+ plural)
     const found = [];
     for (const key in FOODS) {
-      const base = key.replace(/\s*\(.*?\)/, '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/-/g, ' ');
+      const base = key.replace(/\s*\(.*?\)/, '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/-/g, ' ').trim();
       const word = base.split(' ')[0];
-      if (nrm.includes(base) || (word.length > 3 && nrm.includes(word))) found.push(key);
+      // casa a express\u00e3o inteira OU a primeira palavra, sempre com limite de palavra (>=4 letras)
+      if (wb(base) || (word.length >= 4 && wb(word))) found.push(key);
     }
     if (!found.length) return null;
     const uniq = [...new Set(found)].slice(0, 5);
