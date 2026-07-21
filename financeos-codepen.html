@@ -9785,6 +9785,20 @@ html:not([data-theme="light"]) body::after {
   function whoopDiag(msg)  { try { localStorage.setItem('whoop_diag', String(msg)); } catch(e){} }
   function whoopClearDiag(){ try { localStorage.removeItem('whoop_diag'); } catch(e){} }
 
+  // Gera um state OAuth aleatório de ≥8 caracteres (na prática ~22) com entropia
+  // criptográfica. Fallback sem crypto ainda garante comprimento suficiente.
+  function whoopRandState() {
+    try { return 'w' + b64url(crypto.getRandomValues(new Uint8Array(16))); }
+    catch(e) { return 'whoop_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 12); }
+  }
+  // Aceita o callback quando o state bate com o que guardamos (proteção CSRF);
+  // mantém compatibilidade com o valor legado "whoop_auth" para sessões em curso.
+  function whoopStateOk(got) {
+    if (!got) return false;
+    var expected = localStorage.getItem('whoop_state');
+    return got === expected || got === 'whoop_auth';
+  }
+
   function whoopProxied(target) {
     return [
       { label:'direto',       url: target },
@@ -10183,7 +10197,7 @@ html:not([data-theme="light"]) body::after {
 
   async function handleWhoopCallback() {
     const params = new URLSearchParams(location.search);
-    if (params.get('state') !== 'whoop_auth') return false;
+    if (!whoopStateOk(params.get('state'))) return false;
     history.replaceState({}, '', location.pathname);
 
     if (params.get('error')) {
@@ -10255,6 +10269,11 @@ html:not([data-theme="light"]) body::after {
 
     if (secret) localStorage.setItem('whoop_secret', secret);
     localStorage.setItem('whoop_cid', clientId);
+    // state OAuth aleatório com entropia real (≥8 chars). O servidor da Whoop
+    // (Ory) rejeita states curtos/ausentes com "invalid_state" — o valor fixo
+    // "whoop_auth" era frágil; agora geramos um token único e o validamos na volta.
+    var oauthState = whoopRandState();
+    localStorage.setItem('whoop_state', oauthState);
     var url = WHOOP_AUTH
       + '?response_type=code'
       + '&client_id='              + encodeURIComponent(clientId)
@@ -10262,7 +10281,7 @@ html:not([data-theme="light"]) body::after {
       + '&scope='                  + encodeURIComponent(WHOOP_SCOPE)
       + '&code_challenge='         + encodeURIComponent(challenge)
       + '&code_challenge_method=S256'
-      + '&state=whoop_auth';
+      + '&state='                  + encodeURIComponent(oauthState);
     // some com o botão "Conectar" e mostra o CTA principal de abrir a Whoop
     var btn = document.getElementById('whoopBtn');
     if (btn) btn.style.display = 'none';
@@ -10337,7 +10356,7 @@ html:not([data-theme="light"]) body::after {
   // OAuth callback handler — funciona no mesmo contexto (sem popup)
   document.addEventListener('DOMContentLoaded', async () => {
     const p = new URLSearchParams(location.search);
-    if (p.get('state') !== 'whoop_auth') return;
+    if (!whoopStateOk(p.get('state'))) return;
     if (!p.get('code') && !p.get('error')) return;
     const ok = await handleWhoopCallback();
     try { if (typeof switchApp  === 'function') switchApp('health');   } catch(e){}
@@ -10791,6 +10810,14 @@ html:not([data-theme="light"]) body::after {
   const SDOW = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
   function stDiag(m){ try{ localStorage.setItem('strava_diag', String(m)); }catch(e){} }
   function stClearDiag(){ try{ localStorage.removeItem('strava_diag'); }catch(e){} }
+  // state OAuth aleatório (≥8 chars) — proteção CSRF e robustez no retorno.
+  function stRandState(){
+    try {
+      var a = crypto.getRandomValues(new Uint8Array(16));
+      return 's' + btoa(String.fromCharCode.apply(null, a)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');
+    } catch(e){ return 'strava_' + Date.now().toString(36) + Math.random().toString(36).slice(2,12); }
+  }
+  function stStateOk(got){ if(!got) return false; return got === localStorage.getItem('strava_state') || got === 'strava_auth'; }
 
   const ST_TYPE = {
     Run:'Corrida', TrailRun:'Trail Run', Ride:'Ciclismo', VirtualRide:'Ciclismo Virtual',
@@ -10937,12 +10964,13 @@ html:not([data-theme="light"]) body::after {
     const sec=(document.getElementById('stravaClientSecret')?.value||localStorage.getItem('strava_secret')||'').trim();
     if(!cid||!sec){ if(typeof showToast==='function')showToast('Preencha Client ID e Secret','error'); return; }
     localStorage.setItem('strava_cid',cid); localStorage.setItem('strava_secret',sec);
-    location.href='https://www.strava.com/oauth/authorize?client_id='+encodeURIComponent(cid)+'&response_type=code&redirect_uri='+encodeURIComponent(ST_REDIRECT)+'&approval_prompt=auto&scope=read,activity:read_all&state=strava_auth';
+    var oauthState = stRandState(); localStorage.setItem('strava_state', oauthState);
+    location.href='https://www.strava.com/oauth/authorize?client_id='+encodeURIComponent(cid)+'&response_type=code&redirect_uri='+encodeURIComponent(ST_REDIRECT)+'&approval_prompt=auto&scope=read,activity:read_all&state='+encodeURIComponent(oauthState);
   };
 
   async function handleStravaCallback(){
     const p=new URLSearchParams(location.search);
-    if(p.get('state')!=='strava_auth') return false;
+    if(!stStateOk(p.get('state'))) return false;
     history.replaceState({},'',location.pathname);
     if(p.get('error')){ stDiag('Strava recusou: '+p.get('error')); return false; }
     const code=p.get('code'); if(!code) return false;
@@ -11000,7 +11028,7 @@ html:not([data-theme="light"]) body::after {
 
   document.addEventListener('DOMContentLoaded', async ()=>{
     const p=new URLSearchParams(location.search);
-    if(p.get('state')!=='strava_auth') return;
+    if(!stStateOk(p.get('state'))) return;
     if(!p.get('code')&&!p.get('error')) return;
     const ok=await handleStravaCallback();
     try{ if(typeof switchApp==='function')switchApp('health'); }catch(e){}
@@ -11009,6 +11037,32 @@ html:not([data-theme="light"]) body::after {
     if(ok&&typeof showToast==='function')showToast('Strava conectado! ✓','success');
   });
 })();
+/* ═══════════════════════════════════════════════
+   OAUTH — limpa erros "órfãos" presos na URL
+   (ex.: ?error=invalid_state&state= de um fluxo antigo/sem state válido).
+   Os handlers específicos (Whoop/Strava) já limpam quando reconhecem o state;
+   este só age no que sobrou, evitando que o erro fique travado na barra.
+═══════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', () => {
+  try {
+    const p = new URLSearchParams(location.search);
+    const err = p.get('error');
+    if (!err) return; // nada a limpar
+    const st = p.get('state') || '';
+    const known = st && (
+      st === localStorage.getItem('whoop_state') ||
+      st === localStorage.getItem('strava_state') ||
+      st === 'whoop_auth' || st === 'strava_auth'
+    );
+    if (known) return; // um handler específico já vai tratar/limpar
+    // erro órfão: state ausente ou não reconhecido — limpa a URL e avisa
+    history.replaceState({}, '', location.pathname);
+    const friendly = err === 'invalid_state'
+      ? 'A conexão externa falhou (state inválido). Abra a integração e conecte novamente.'
+      : ('A conexão externa retornou um erro: ' + err + '.');
+    if (typeof showToast === 'function') showToast(friendly, 'error');
+  } catch (e) {}
+});
 /* ═══════════════════════════════════════════════
    NEWSLETTER — Google News RSS via Worker (auto)
 ═══════════════════════════════════════════════ */

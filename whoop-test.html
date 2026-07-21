@@ -74,6 +74,14 @@
     localStorage.setItem('wt_cid', cid);
     var sec = document.getElementById('secret').value.trim();
     if (sec) localStorage.setItem('wt_secret', sec);
+    // state OAuth aleatório com entropia real (≥8 chars) — o servidor da Whoop
+    // (Ory) rejeita states curtos/ausentes com "invalid_state".
+    var st = localStorage.getItem('wt_state');
+    if (!st) {
+      try { st = 'w' + b64url(crypto.getRandomValues(new Uint8Array(16))); }
+      catch(e) { st = 'whoop_' + Date.now().toString(36) + Math.random().toString(36).slice(2,12); }
+      localStorage.setItem('wt_state', st);
+    }
     var url = WHOOP_AUTH
       + '?response_type=code'
       + '&client_id=' + encodeURIComponent(cid)
@@ -81,7 +89,7 @@
       + '&scope=' + encodeURIComponent(WHOOP_SCOPE)
       + '&code_challenge=' + encodeURIComponent(challenge)
       + '&code_challenge_method=S256'
-      + '&state=whoop_auth';
+      + '&state=' + encodeURIComponent(st);
     link.href = url;
   }
   document.getElementById('cid').addEventListener('input', updateLink);
