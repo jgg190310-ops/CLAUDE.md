@@ -2221,3 +2221,17 @@ html:not([data-theme="light"]) body::after {
 }
 /* marquee vira lista estática centrada */
 .marquee-track { transform: none !important; justify-content: center; flex-wrap: wrap; }
+
+/* ═══ iOS: toque 100% confiável nos elementos interativos ═══ */
+button, a, .btn-primary, .btn-ghost, .btn-hero-primary, .btn-hero-ghost,
+.auth-btn, .auth-btn-ghost, .nav-hamburger, .theme-toggle-lp, .hero-app-pill,
+.mobile-menu a, .mobile-menu button {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: rgba(211,243,79,.15);
+  cursor: pointer;
+}
+/* garante que a camada de conteúdo do hero e a nav fiquem acima de tudo */
+.nav { z-index: 1000; }
+.hero-content, .hero-actions, .nav-cta, .mobile-menu { position: relative; z-index: 5; }
+/* fundo e ambiência nunca capturam toque */
+.parallax-bg, .parallax-bg *, body::before, body::after { pointer-events: none !important; }
