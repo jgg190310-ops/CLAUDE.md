@@ -5257,3 +5257,51 @@ html[data-theme="light"] .sidebar-toggle {
 html[data-theme="light"] .sidebar-toggle svg,
 html[data-theme="light"] .topbar .icon-btn svg { stroke: #334155; }
 html[data-theme="light"] .topbar .notif-dot { border-color: rgba(255,255,255,.92); }
+
+/* ══════════════════════════════════════════════════════════
+   MODO CLARO — MESMO VISUAL EDITORIAL DO MODO ESCURO
+   O modo escuro usa "seções" planas (sem caixa, sem sombra, só um fio
+   fino no topo). No claro os cards ainda eram caixinhas brancas com
+   tons diferentes. Este bloco replica o editorial no claro, trocando só
+   o fio branco por um fio escuro — mesmo layout, tudo uniforme.
+══════════════════════════════════════════════════════════ */
+/* fundo uniforme (sem os leves tons/gradientes que "quebravam" a página) */
+html[data-theme="light"] body,
+html[data-theme="light"] .main-content { background: #f4f6fb !important; }
+html[data-theme="light"] body { background-image: none !important; }
+
+/* cards → seções planas com fio superior escuro (igual ao escuro) */
+html[data-theme="light"] .kpi-card,
+html[data-theme="light"] .chart-card,
+html[data-theme="light"] .market-card,
+html[data-theme="light"] .goal-card,
+html[data-theme="light"] .cf-card,
+html[data-theme="light"] .table-card,
+html[data-theme="light"] .alerts-card,
+html[data-theme="light"] .budget-item,
+html[data-theme="light"] .sub-card,
+html[data-theme="light"] .goals-summary,
+html[data-theme="light"] .cf-kpi,
+html[data-theme="light"] .calc-card,
+html[data-theme="light"] .ai-card,
+html[data-theme="light"] .int-card,
+html[data-theme="light"] .ip-card {
+  background: transparent !important;
+  border: none !important;
+  border-top: 1px solid rgba(15,23,42,.12) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  padding-left: 2px !important;
+  padding-right: 2px !important;
+}
+html[data-theme="light"] .kpi-card:hover,
+html[data-theme="light"] .goal-card:hover,
+html[data-theme="light"] .market-card:hover { box-shadow: none !important; }
+/* linhas internas (resumo de metas / fios) coerentes no claro */
+html[data-theme="light"] .goal-stat { border-right: none !important; border-bottom-color: rgba(15,23,42,.10) !important; }
+/* select de período neutro (sem o fundo escuro do editorial dark) */
+html[data-theme="light"] .period-select { background: rgba(15,23,42,.04) !important; border-color: rgba(15,23,42,.14) !important; color: var(--text) !important; }
+/* fios/realces que no escuro eram claros → escuros no claro */
+html[data-theme="light"] .kpi-card::before,
+html[data-theme="light"] .chart-card::before,
+html[data-theme="light"] .table-card::before { background: rgba(15,23,42,.12) !important; }
