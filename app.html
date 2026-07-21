@@ -1137,13 +1137,19 @@
   <!-- PAINEL DE SAÚDE -->
   <section class="page" id="news">
     <div class="page-header">
-      <div><h1>Newsletter</h1><p class="page-sub">Notícias de finanças e saúde, atualizadas automaticamente.</p></div>
-      <button class="btn-sm" onclick="renderNews(true)">Atualizar</button>
+      <div><h1>Newsletter</h1><p class="page-sub">Notícias de finanças, mercado e saúde, atualizadas automaticamente.</p></div>
+      <button class="btn-sm" onclick="renderNews(true)">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="vertical-align:-2px;margin-right:5px"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+        Atualizar
+      </button>
     </div>
     <div class="news-tabs">
       <button class="tab active" onclick="newsTab(this,'financas')">Finanças</button>
+      <button class="tab" onclick="newsTab(this,'mercado')">Mercado</button>
+      <button class="tab" onclick="newsTab(this,'cripto')">Cripto</button>
       <button class="tab" onclick="newsTab(this,'saude')">Saúde</button>
     </div>
+    <div id="newsUpdated" class="news-updated"></div>
     <div id="newsList" class="news-list"><p class="empty-state">Carregando notícias…</p></div>
   </section>
 
@@ -3033,51 +3039,136 @@ document.addEventListener('DOMContentLoaded', () => {
 (function(){
   const NW = 'https://whoop-token.jgg190310.workers.dev';
   let curTopic = 'financas';
+  let lastUpdated = {};
+
   function timeAgo(d){
-    const m = Math.round((Date.now()-d)/60000);
+    const m = Math.max(0, Math.round((Date.now()-d)/60000));
+    if (m < 1) return 'agora';
     if (m < 60) return m + ' min';
     const h = Math.round(m/60); if (h < 24) return h + ' h';
     return Math.round(h/24) + ' d';
   }
+  function esc(s){ return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  // Google News formata o título como "Manchete - Fonte". Separa os dois.
+  function cleanTitle(t){ return String(t||'').replace(/\s+[-–—]\s+[^-–—]+$/, '').trim() || String(t||'').trim(); }
+  function srcFromTitle(t){ const m = String(t||'').match(/\s+[-–—]\s+([^-–—]+)$/); return m ? m[1].trim() : ''; }
+
+  const QUERIES = {
+    financas: 'economia OR finanças OR investimentos OR juros',
+    mercado:  'bolsa OR ibovespa OR ações OR dólar OR mercado financeiro',
+    cripto:   'bitcoin OR ethereum OR criptomoedas OR blockchain',
+    saude:    'saúde OR bem-estar OR nutrição OR medicina',
+  };
+
+  function normXml(xml){
+    if (!xml || xml.indexOf('<item') === -1) return null;
+    const doc = new DOMParser().parseFromString(xml, 'text/xml');
+    const out = [...doc.querySelectorAll('item')].slice(0, 18).map(it => {
+      const rawT = it.querySelector('title')?.textContent || '';
+      return {
+        t: cleanTitle(rawT),
+        l: it.querySelector('link')?.textContent || '#',
+        s: (it.getElementsByTagName('source')[0]?.textContent) || srcFromTitle(rawT),
+        d: Date.parse(it.querySelector('pubDate')?.textContent || '') || Date.now(),
+      };
+    }).filter(n => n.t);
+    return out.length ? out : null;
+  }
+  function normJson(j){
+    const arr = j && (j.items || j.articles);
+    if (!Array.isArray(arr) || !arr.length) return null;
+    const out = arr.slice(0, 18).map(it => {
+      const rawT = it.title || '';
+      return {
+        t: cleanTitle(rawT),
+        l: it.link || it.url || '#',
+        s: (it.author || it.source?.name || '') || srcFromTitle(rawT),
+        d: Date.parse(it.pubDate || it.published || it.date || '') || Date.now(),
+      };
+    }).filter(n => n.t);
+    return out.length ? out : null;
+  }
+
+  // Busca resiliente: tenta várias fontes até uma responder. Não depende só do Worker.
   async function fetchTopic(topic, force){
     const ck = 'news_' + topic;
-    try {
-      const c = JSON.parse(localStorage.getItem(ck) || 'null');
-      if (!force && c && Date.now() - c.ts < 30*60*1000) return c.items;
-    } catch(e){}
-    const r = await fetch(NW + '/news?topic=' + topic, { signal: AbortSignal.timeout(15000) });
-    const xml = await r.text();
-    if (!xml.includes('<item>')) throw new Error('worker sem rota /news');
-    const doc = new DOMParser().parseFromString(xml, 'text/xml');
-    const items = [...doc.querySelectorAll('item')].slice(0, 14).map(it => ({
-      t: (it.querySelector('title')?.textContent || '').replace(/ - [^-]+$/, ''),
-      l: it.querySelector('link')?.textContent || '#',
-      s: it.querySelector('source')?.textContent || '',
-      d: Date.parse(it.querySelector('pubDate')?.textContent || '') || Date.now(),
-    }));
-    try { localStorage.setItem(ck, JSON.stringify({ ts: Date.now(), items })); } catch(e){}
-    return items;
+    let cached = null;
+    try { cached = JSON.parse(localStorage.getItem(ck) || 'null'); } catch(e){}
+    if (!force && cached && cached.items?.length && Date.now() - cached.ts < 30*60*1000) {
+      lastUpdated[topic] = cached.ts; return cached.items;
+    }
+
+    const q = QUERIES[topic] || QUERIES.financas;
+    const gnews = 'https://news.google.com/rss/search?q=' + encodeURIComponent(q) + '&hl=pt-BR&gl=BR&ceid=BR:pt-419';
+    const sources = [
+      { u: NW + '/news?topic=' + encodeURIComponent(topic), kind:'xml' },
+      { u: 'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(gnews), kind:'json' },
+      { u: 'https://api.allorigins.win/raw?url=' + encodeURIComponent(gnews), kind:'xml' },
+      { u: 'https://corsproxy.io/?url=' + encodeURIComponent(gnews), kind:'xml' },
+    ];
+
+    for (const s of sources){
+      try {
+        const r = await fetch(s.u, { signal: AbortSignal.timeout(12000) });
+        if (!r.ok) continue;
+        const items = s.kind === 'json' ? normJson(await r.json()) : normXml(await r.text());
+        if (items && items.length){
+          try { localStorage.setItem(ck, JSON.stringify({ ts: Date.now(), items })); } catch(e){}
+          lastUpdated[topic] = Date.now();
+          return items;
+        }
+      } catch(e){ /* tenta a próxima fonte */ }
+    }
+    // Se tudo falhou, mostra o cache antigo (melhor que nada)
+    if (cached && cached.items?.length){ lastUpdated[topic] = cached.ts; return cached.items; }
+    throw new Error('Nenhuma fonte de notícias respondeu. Verifique a conexão e tente novamente.');
   }
+
+  function skeleton(){
+    let rows = '';
+    for (let i=0;i<6;i++) rows += `<div class="news-skel"><div class="sk-line sk-w1"></div><div class="sk-line sk-w2"></div></div>`;
+    return rows;
+  }
+  function updatedLabel(topic){
+    const ts = lastUpdated[topic];
+    const el = document.getElementById('newsUpdated');
+    if (el) el.textContent = ts ? ('Atualizado há ' + timeAgo(ts)) : '';
+  }
+
   window.newsTab = function(el, topic){
     document.querySelectorAll('.news-tabs .tab').forEach(t => t.classList.remove('active'));
     el.classList.add('active');
     curTopic = topic;
     renderNews();
   };
+
   window.renderNews = async function(force){
     const el = document.getElementById('newsList');
     if (!el) return;
-    el.innerHTML = '<p class="empty-state">Carregando notícias…</p>';
+    el.innerHTML = skeleton();
+    updatedLabel(curTopic);
     try {
       const items = await fetchTopic(curTopic, force);
-      if (!items.length) { el.innerHTML = '<p class="empty-state">Nenhuma notícia agora. Tente atualizar.</p>'; return; }
-      el.innerHTML = items.map(n => `
-        <a class="news-row" href="${n.l}" target="_blank" rel="noopener">
-          <div class="news-t">${n.t}</div>
-          <div class="news-m">${n.s ? n.s + ' · ' : ''}há ${timeAgo(n.d)}</div>
-        </a>`).join('');
+      if (!items.length){ el.innerHTML = `<div class="news-empty"><p>Nenhuma notícia agora.</p><button class="btn-sm" onclick="renderNews(true)">Tentar novamente</button></div>`; return; }
+      const [lead, ...rest] = items;
+      el.innerHTML =
+        `<a class="news-lead" href="${esc(lead.l)}" target="_blank" rel="noopener">
+           ${lead.s ? `<span class="news-badge">${esc(lead.s)}</span>` : ''}
+           <div class="news-lead-t">${esc(lead.t)}</div>
+           <div class="news-m">há ${timeAgo(lead.d)}</div>
+         </a>` +
+        rest.map(n => `
+          <a class="news-row" href="${esc(n.l)}" target="_blank" rel="noopener">
+            <div class="news-t">${esc(n.t)}</div>
+            <div class="news-m">${n.s ? `<span class="news-src">${esc(n.s)}</span> · ` : ''}há ${timeAgo(n.d)}</div>
+          </a>`).join('');
+      updatedLabel(curTopic);
     } catch(e) {
-      el.innerHTML = '<p class="empty-state">Não foi possível carregar (atualize o Worker com a rota /news).</p>';
+      el.innerHTML = `<div class="news-empty">
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="opacity:.5;margin-bottom:10px"><path d="M4 11a9 9 0 0 1 9 9M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1.5" fill="currentColor" stroke="none"/></svg>
+        <p>${esc(e.message || 'Não foi possível carregar as notícias.')}</p>
+        <button class="btn-sm" onclick="renderNews(true)">Tentar novamente</button>
+      </div>`;
     }
   };
 })();
