@@ -723,7 +723,9 @@ body {
   position: fixed; inset: 0;
   background: rgba(0,0,0,.75);
   backdrop-filter: blur(12px);
-  z-index: 500;
+  /* acima da navbar (.nav tem z-index:1000) para o modal cobrir o cabeçalho —
+     sem isso, o logo "OSHelp" da navbar aparece por cima e parece duplicado. */
+  z-index: 2000;
   display: flex; align-items: center; justify-content: center;
   opacity: 0; pointer-events: none;
   transition: opacity .3s;
