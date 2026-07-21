@@ -2129,18 +2129,21 @@ html[data-theme="light"] .sec-ring { opacity: .3; }
 html[data-theme="light"] .sb-ring { opacity: .3; }
 
 /* ══════════ IDENTIDADE v4 — landing Ink & Lime ══════════ */
-body { background: #000 !important; }
+html:not([data-theme="light"]) body { background: #000 !important; }
 .hero::before, .hero::after, .orb, .aurora { display: none !important; }
 h1, h2, h3 { font-family: 'Space Grotesk', 'Inter', sans-serif; }
 .btn-primary, .cta-btn, .login-btn, .btn-hero {
   background: #d3f34f !important; color: #0c0e04 !important;
   box-shadow: 0 8px 24px rgba(211,243,79,.25) !important; border: none !important;
 }
-.card, .app-card, .login-card, .feature-card {
+html:not([data-theme="light"]) .card,
+html:not([data-theme="light"]) .app-card,
+html:not([data-theme="light"]) .login-card,
+html:not([data-theme="light"]) .feature-card {
   background: #101012 !important; border: 1px solid rgba(255,255,255,.09) !important;
   box-shadow: none !important; backdrop-filter: none !important;
 }
-input { background: #0d0d0f !important; border: 1px solid rgba(255,255,255,.12) !important; }
+html:not([data-theme="light"]) input { background: #0d0d0f !important; border: 1px solid rgba(255,255,255,.12) !important; }
 input:focus { border-color: rgba(211,243,79,.4) !important; box-shadow: none !important; }
 .btn-hero-primary { background: #d3f34f !important; color: #0c0e04 !important; box-shadow: 0 8px 26px rgba(211,243,79,.28) !important; }
 .btn-hero-primary svg { stroke: #0c0e04; }
@@ -2150,7 +2153,7 @@ input:focus { border-color: rgba(211,243,79,.4) !important; box-shadow: none !im
 [class*="ring-"], .bg-grid, .stars { animation: none !important; }
 .spin-slow { display: none !important; }
 .sec-ring-feat, .sec-ring-testi, .sec-ring-price { animation: none !important; opacity: .5; }
-.auth-modal { background: #101012 !important; }
+html:not([data-theme="light"]) .auth-modal { background: #101012 !important; }
 .auth-backdrop { background: rgba(0,0,0,.8) !important; }
 /* fundo parallax visível — sem rotação infinita (spins mortos acima) */
 .orb { opacity: .8 !important; filter: blur(70px) saturate(1.1); }
@@ -2158,15 +2161,15 @@ input:focus { border-color: rgba(211,243,79,.4) !important; box-shadow: none !im
 .lp-beam { opacity: .55; }
 .lp-grid-floor { opacity: .5; }
 
-/* fundo preto com ambiência estática: glow lima + starfield sutil */
-body::before {
+/* fundo preto com ambiência estática: glow lima + starfield sutil (só no escuro) */
+html:not([data-theme="light"]) body::before {
   content: ''; position: fixed; inset: 0; z-index: -2; pointer-events: none;
   background:
     radial-gradient(50% 40% at 85% 15%, rgba(211,243,79,.07), transparent 65%),
     radial-gradient(45% 35% at 10% 85%, rgba(211,243,79,.05), transparent 60%),
     radial-gradient(30% 25% at 70% 75%, rgba(16,185,129,.04), transparent 60%);
 }
-body::after {
+html:not([data-theme="light"]) body::after {
   content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: .5;
   background-image:
     radial-gradient(1px 1px at 12% 22%, rgba(255,255,255,.35) 50%, transparent 51%),

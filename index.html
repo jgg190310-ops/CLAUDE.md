@@ -24,7 +24,7 @@
       window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
     }
   </script>
-  <link rel="stylesheet" href="styles/landing.css?v=21" />
+  <link rel="stylesheet" href="styles/landing.css?v=22" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
   <style>
@@ -59,14 +59,14 @@
     .app-card .fc-arrow { margin-top: 24px; font-size: 1.2rem; opacity: .4; transition: opacity .2s; }
     .app-card:hover .fc-arrow { opacity: 1; }
 
-    /* finance */
-    .app-card.finance { --app-grad: linear-gradient(135deg,#d3f34f,#a8c93e); }
-    /* health */
-    .app-card.health  { --app-grad: linear-gradient(135deg,#10b981,#9aa3ad); }
+    /* finance — verde claro */
+    .app-card.finance { --app-grad: linear-gradient(135deg,#7ee787,#4ade80); }
+    /* health — vermelho */
+    .app-card.health  { --app-grad: linear-gradient(135deg,#ef4444,#dc2626); }
     /* study */
     .app-card.study   { --app-grad: linear-gradient(135deg,#f59e0b,#ef4444); }
 
-    .hero-apps { display: flex; gap: 12px; margin-top: 28px; flex-wrap: wrap; justify-content: center; }
+    .hero-apps { display: flex; gap: 12px; margin-top: 28px; margin-bottom: 40px; flex-wrap: wrap; justify-content: center; }
     .hero-app-pill {
       display: flex; align-items: center; gap: 8px;
       padding: 8px 16px; border-radius: 30px;
@@ -170,11 +170,11 @@
 
     <div class="hero-apps fade-up" style="--d:780ms">
       <div class="hero-app-pill">
-        <div class="dot" style="background:#d3f34f"></div>
+        <div class="dot" style="background:#7ee787"></div>
         FinanceOS
       </div>
       <div class="hero-app-pill">
-        <div class="dot" style="background:#10b981"></div>
+        <div class="dot" style="background:#ef4444"></div>
         HealthOS
       </div>
     </div>
