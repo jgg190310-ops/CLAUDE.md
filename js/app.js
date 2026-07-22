@@ -4363,6 +4363,14 @@ window.aiClearConfig = function () {
   aiUpdateAdvBadge();
   if (typeof showToast === 'function') showToast('IA avançada desligada.', 'success');
 };
+window.aiOpenCfg = function () {
+  const o = document.getElementById('aiCfgOverlay');
+  if (o) { o.classList.add('open'); aiUpdateAdvBadge(); }
+};
+window.aiCloseCfg = function () {
+  const o = document.getElementById('aiCfgOverlay');
+  if (o) o.classList.remove('open');
+};
 function aiUpdateAdvBadge() {
   const cfg = aiGetConfig();
   const on = !!cfg.key;

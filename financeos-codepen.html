@@ -7789,6 +7789,19 @@ html[data-theme="light"] .nt-ed-pin { background: rgba(15,23,42,.04); }
 .ai-cfg-help:hover { text-decoration: underline; }
 html[data-theme="light"] .ai-cfg-input { background: rgba(15,23,42,.04); }
 
+/* ── IA avançada: engrenagem no header + overlay (acessível no celular) ── */
+.ai-gear { margin-left: auto; width: 36px; height: 36px; flex: 0 0 36px; border-radius: 50%; border: 1px solid var(--border); background: var(--bg3); color: var(--text-2); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: color .2s, border-color .2s; }
+.ai-gear:hover { color: var(--text); border-color: rgba(99,102,241,.4); }
+html[data-theme="light"] .ai-gear { background: rgba(15,23,42,.04); }
+.ai-cfg-overlay { position: fixed; inset: 0; z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px; background: rgba(0,0,0,.6); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); opacity: 0; pointer-events: none; transition: opacity .25s; }
+.ai-cfg-overlay.open { opacity: 1; pointer-events: auto; }
+.ai-cfg-panel { position: relative; width: 100%; max-width: 460px; background: var(--bg2, #12151f); border: 1px solid var(--border); border-radius: 20px; padding: 24px 20px 20px; box-shadow: 0 40px 100px rgba(0,0,0,.55); transform: scale(.95) translateY(10px); transition: transform .3s cubic-bezier(.16,1,.3,1); max-height: 88vh; overflow-y: auto; }
+.ai-cfg-overlay.open .ai-cfg-panel { transform: scale(1) translateY(0); }
+.ai-cfg-panel h4 { font-size: 16px; font-weight: 800; margin-bottom: 10px; padding-right: 34px; }
+.ai-cfg-close { position: absolute; top: 12px; right: 12px; width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border); background: var(--bg3); color: var(--text-2); cursor: pointer; font-size: 13px; display: flex; align-items: center; justify-content: center; }
+html[data-theme="light"] .ai-cfg-panel { background: #fff; box-shadow: 0 40px 100px rgba(15,23,42,.28); }
+html[data-theme="light"] .ai-cfg-close { background: rgba(15,23,42,.04); }
+
 
 /* ══ VIEW SWITCHING ══ */
 #appView   { display: none; }
@@ -9056,6 +9069,9 @@ html[data-theme="light"] .ai-cfg-input { background: rgba(15,23,42,.04); }
             <h3>FinBot</h3>
             <span class="ai-status"><span class="ai-status-dot"></span>Analisando seus dados localmente</span>
           </div>
+          <button class="ai-gear" onclick="aiOpenCfg()" title="IA avançada" aria-label="Configurar IA avançada">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          </button>
         </div>
         <div class="ai-chat-messages" id="aiMessages"></div>
         <div class="ai-suggestions" id="aiSuggestions"></div>
@@ -9067,20 +9083,6 @@ html[data-theme="light"] .ai-cfg-input { background: rgba(15,23,42,.04); }
         </form>
       </div>
       <div class="ai-side">
-        <div class="ai-side-card ai-connect">
-          <h4>IA avançada <span id="aiAdvBadge" class="ai-adv-badge">desligada</span></h4>
-          <p class="ai-connect-sub">Conecte uma IA de verdade para o FinBot responder <b>qualquer</b> pergunta. Sem chave, ele usa as respostas prontas. A chave fica <b>só no seu navegador</b>.</p>
-          <select id="aiProvider" class="ai-cfg-input">
-            <option value="gemini">Google Gemini (grátis)</option>
-            <option value="openai">OpenAI (GPT)</option>
-          </select>
-          <input id="aiKeyInput" class="ai-cfg-input" type="password" placeholder="Cole sua chave de API aqui" autocomplete="off" />
-          <div class="ai-cfg-row">
-            <button class="ai-cfg-save" onclick="aiSaveConfig()">Ativar</button>
-            <button class="ai-cfg-clear" onclick="aiClearConfig()">Remover</button>
-          </div>
-          <a class="ai-cfg-help" id="aiCfgHelp" href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Pegar uma chave grátis do Gemini ↗</a>
-        </div>
         <div class="ai-side-card">
           <h4>O que posso fazer</h4>
           <ul class="ai-capabilities">
@@ -9095,6 +9097,25 @@ html[data-theme="light"] .ai-cfg-input { background: rgba(15,23,42,.04); }
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
           <p>Seus dados nunca saem do navegador. O FinBot apenas consulta APIs públicas oficiais (Banco Central, AwesomeAPI, CoinGecko) para taxas em tempo real — sem enviar nada seu.</p>
         </div>
+      </div>
+    </div>
+
+    <!-- IA AVANÇADA — overlay (acessível no celular pela engrenagem do FinBot) -->
+    <div id="aiCfgOverlay" class="ai-cfg-overlay" onclick="if(event.target===this)aiCloseCfg()">
+      <div class="ai-cfg-panel">
+        <button class="ai-cfg-close" onclick="aiCloseCfg()" aria-label="Fechar">✕</button>
+        <h4>IA avançada <span id="aiAdvBadge" class="ai-adv-badge">desligada</span></h4>
+        <p class="ai-connect-sub">Conecte uma IA de verdade para o FinBot responder <b>qualquer</b> pergunta — não só finanças. Sem chave, ele usa as respostas prontas. A chave fica <b>só no seu navegador</b>.</p>
+        <select id="aiProvider" class="ai-cfg-input">
+          <option value="gemini">Google Gemini (grátis)</option>
+          <option value="openai">OpenAI (GPT)</option>
+        </select>
+        <input id="aiKeyInput" class="ai-cfg-input" type="password" placeholder="Cole sua chave de API aqui" autocomplete="off" />
+        <div class="ai-cfg-row">
+          <button class="ai-cfg-save" onclick="aiSaveConfig()">Ativar</button>
+          <button class="ai-cfg-clear" onclick="aiClearConfig()">Remover</button>
+        </div>
+        <a class="ai-cfg-help" id="aiCfgHelp" href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Pegar uma chave grátis do Gemini ↗</a>
       </div>
     </div>
   </section>
@@ -10162,7 +10183,7 @@ html[data-theme="light"] .ai-cfg-input { background: rgba(15,23,42,.04); }
 </nav>
 
 <script src="js/firebase-config.js?v=40"></script>
-<script src="js/app.js?v=45"></script>
+<script src="js/app.js?v=46"></script>
 <script src="js/health.js?v=43"></script>
 <script src="js/study.js?v=40"></script>
 <script>
@@ -16615,6 +16636,14 @@ window.aiClearConfig = function () {
   const k = document.getElementById('aiKeyInput'); if (k) k.value = '';
   aiUpdateAdvBadge();
   if (typeof showToast === 'function') showToast('IA avançada desligada.', 'success');
+};
+window.aiOpenCfg = function () {
+  const o = document.getElementById('aiCfgOverlay');
+  if (o) { o.classList.add('open'); aiUpdateAdvBadge(); }
+};
+window.aiCloseCfg = function () {
+  const o = document.getElementById('aiCfgOverlay');
+  if (o) o.classList.remove('open');
 };
 function aiUpdateAdvBadge() {
   const cfg = aiGetConfig();
