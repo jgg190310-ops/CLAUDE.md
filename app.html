@@ -1157,6 +1157,14 @@
     </div>
     <div id="newsUpdated" class="news-updated"></div>
     <div id="newsList" class="news-list"><p class="empty-state">Carregando notícias…</p></div>
+
+    <!-- PRÉVIA DA NOTÍCIA (foto + legenda) -->
+    <div id="newsDetail" class="news-detail" onclick="if(event.target===this)newsCloseDetail()">
+      <div class="news-detail-panel">
+        <button class="news-detail-close" onclick="newsCloseDetail()" aria-label="Fechar">✕</button>
+        <div id="newsDetailBody"></div>
+      </div>
+    </div>
   </section>
 
   <!-- ═══════════════════════════════ NOTAS & TAREFAS ═══════════════════════════════ -->
@@ -3159,15 +3167,15 @@ document.addEventListener('DOMContentLoaded', () => {
     return out.length ? out : null;
   }
 
-  // Busca resiliente: tenta várias fontes até uma responder. Não depende só do Worker.
-  async function fetchTopic(topic, force){
-    const ck = 'news_' + topic;
-    let cached = null;
-    try { cached = JSON.parse(localStorage.getItem(ck) || 'null'); } catch(e){}
-    if (!force && cached && cached.items?.length && Date.now() - cached.ts < 30*60*1000) {
-      lastUpdated[topic] = cached.ts; return cached.items;
-    }
+  // Lê o cache local do tópico (qualquer idade) — usado para mostrar algo NA HORA.
+  function readCache(topic){
+    try { const c = JSON.parse(localStorage.getItem('news_' + topic) || 'null'); return (c && c.items && c.items.length) ? c : null; }
+    catch(e){ return null; }
+  }
 
+  // Busca FRESCA na rede (tempo real). Guarda no cache e devolve; lança erro se tudo falhar.
+  async function fetchFresh(topic){
+    const ck = 'news_' + topic;
     const q = QUERIES[topic] || QUERIES.financas;
     const gnews = 'https://news.google.com/rss/search?q=' + encodeURIComponent(q) + '&hl=pt-BR&gl=BR&ceid=BR:pt-419';
     const sources = [];
@@ -3197,8 +3205,6 @@ document.addEventListener('DOMContentLoaded', () => {
       lastUpdated[topic] = Date.now();
       return best;
     }
-    // Se tudo falhou, mostra o cache antigo (melhor que nada)
-    if (cached && cached.items?.length){ lastUpdated[topic] = cached.ts; return cached.items; }
     throw new Error('Nenhuma fonte de notícias respondeu. Verifique a conexão e tente novamente.');
   }
 
@@ -3207,10 +3213,38 @@ document.addEventListener('DOMContentLoaded', () => {
     for (let i=0;i<6;i++) rows += `<div class="news-skel"><div class="sk-line sk-w1"></div><div class="sk-line sk-w2"></div></div>`;
     return rows;
   }
-  function updatedLabel(topic){
-    const ts = lastUpdated[topic];
+  function setUpdated(topic, updating){
     const el = document.getElementById('newsUpdated');
-    if (el) el.textContent = ts ? ('Atualizado há ' + timeAgo(ts)) : '';
+    if (!el) return;
+    const ts = lastUpdated[topic];
+    let txt = ts ? ('Atualizado há ' + timeAgo(ts)) : '';
+    if (updating) txt = (txt ? txt + ' · ' : '') + 'buscando em tempo real…';
+    el.textContent = txt;
+  }
+
+  // itens atualmente exibidos (para o clique abrir a prévia da notícia certa)
+  let displayed = [];
+
+  function paintList(items){
+    const el = document.getElementById('newsList');
+    if (!el) return;
+    displayed = items || [];
+    if (!displayed.length){
+      el.innerHTML = `<div class="news-empty"><p>Nenhuma notícia agora.</p><button class="btn-sm" onclick="renderNews(true)">Tentar novamente</button></div>`;
+      return;
+    }
+    const [lead, ...rest] = displayed;
+    el.innerHTML =
+      `<button class="news-lead" onclick="newsOpen(0)">
+         ${lead.s ? `<span class="news-badge">${esc(lead.s)}</span>` : ''}
+         <div class="news-lead-t">${esc(lead.t)}</div>
+         <div class="news-m">há ${timeAgo(lead.d)}</div>
+       </button>` +
+      rest.map((n, i) => `
+        <button class="news-row" onclick="newsOpen(${i + 1})">
+          <div class="news-t">${esc(n.t)}</div>
+          <div class="news-m">${n.s ? `<span class="news-src">${esc(n.s)}</span> · ` : ''}há ${timeAgo(n.d)}</div>
+        </button>`).join('');
   }
 
   window.newsTab = function(el, topic){
@@ -3220,28 +3254,33 @@ document.addEventListener('DOMContentLoaded', () => {
     renderNews();
   };
 
+  // Estratégia "mostra já, atualiza depois": pinta o cache na hora e busca
+  // as notícias em tempo real em segundo plano, trocando quando chegam.
   window.renderNews = async function(force){
     const el = document.getElementById('newsList');
     if (!el) return;
-    el.innerHTML = skeleton();
-    updatedLabel(curTopic);
+    const topic = curTopic;
+    const cached = readCache(topic);
+    let hadCache = false;
+
+    if (cached && !force){
+      lastUpdated[topic] = cached.ts;
+      paintList(cached.items);
+      setUpdated(topic, true);
+      hadCache = true;
+    } else {
+      el.innerHTML = skeleton();
+      setUpdated(topic, true);
+    }
+
     try {
-      const items = await fetchTopic(curTopic, force);
-      if (!items.length){ el.innerHTML = `<div class="news-empty"><p>Nenhuma notícia agora.</p><button class="btn-sm" onclick="renderNews(true)">Tentar novamente</button></div>`; return; }
-      const [lead, ...rest] = items;
-      el.innerHTML =
-        `<a class="news-lead" href="${esc(lead.l)}" target="_blank" rel="noopener">
-           ${lead.s ? `<span class="news-badge">${esc(lead.s)}</span>` : ''}
-           <div class="news-lead-t">${esc(lead.t)}</div>
-           <div class="news-m">há ${timeAgo(lead.d)}</div>
-         </a>` +
-        rest.map(n => `
-          <a class="news-row" href="${esc(n.l)}" target="_blank" rel="noopener">
-            <div class="news-t">${esc(n.t)}</div>
-            <div class="news-m">${n.s ? `<span class="news-src">${esc(n.s)}</span> · ` : ''}há ${timeAgo(n.d)}</div>
-          </a>`).join('');
-      updatedLabel(curTopic);
-    } catch(e) {
+      const items = await fetchFresh(topic);
+      if (curTopic !== topic) return;   // usuário trocou de aba durante a busca
+      paintList(items);
+      setUpdated(topic, false);
+    } catch(e){
+      if (curTopic !== topic) return;
+      if (hadCache){ setUpdated(topic, false); return; }  // mantém o cache na tela
       el.innerHTML = `<div class="news-empty">
         <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="opacity:.5;margin-bottom:10px"><path d="M4 11a9 9 0 0 1 9 9M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1.5" fill="currentColor" stroke="none"/></svg>
         <p>${esc(e.message || 'Não foi possível carregar as notícias.')}</p>
@@ -3249,6 +3288,53 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>`;
     }
   };
+
+  // Prévia da notícia: foto + legenda (og:image / og:description via microlink).
+  // Sem foto → mostra só a legenda; sem legenda → convida a abrir a matéria.
+  window.newsOpen = async function(idx){
+    const n = displayed[idx];
+    if (!n) return;
+    const overlay = document.getElementById('newsDetail');
+    const body = document.getElementById('newsDetailBody');
+    if (!overlay || !body) return;
+    overlay.classList.add('open');
+    body.innerHTML = `<div class="nd-loading"><span class="ai-typing"><span></span><span></span><span></span></span><p>Carregando prévia…</p></div>`;
+    let img = '', caption = '', realUrl = n.l, pub = n.s || '';
+    try {
+      const r = await fetch('https://api.microlink.io/?audio=false&video=false&url=' + encodeURIComponent(n.l), { signal: AbortSignal.timeout(10000) });
+      const j = await r.json();
+      if (j && j.status === 'success' && j.data){
+        img = (j.data.image && j.data.image.url) || (j.data.logo && j.data.logo.url) || '';
+        caption = j.data.description || '';
+        realUrl = j.data.url || n.l;
+        pub = j.data.publisher || pub;
+      }
+    } catch(e){ /* sem prévia — cai no fallback abaixo */ }
+    if (!overlay.classList.contains('open')) return; // usuário fechou enquanto carregava
+    body.innerHTML =
+      (img
+        ? `<img class="nd-img" src="${esc(img)}" alt="" loading="lazy" onerror="this.remove()"/>`
+        : `<div class="nd-noimg"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg><span>Sem foto disponível</span></div>`) +
+      `<div class="nd-content">
+         ${pub ? `<span class="news-badge">${esc(pub)}</span>` : ''}
+         <h3 class="nd-title">${esc(n.t)}</h3>
+         <p class="nd-caption">${caption ? esc(caption) : 'Sem descrição disponível — abra a matéria completa para ler o conteúdo.'}</p>
+         <div class="nd-foot">
+           <span class="nd-time">há ${timeAgo(n.d)}</span>
+           <a class="nd-open" href="${esc(realUrl)}" target="_blank" rel="noopener">Ler matéria completa
+             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M7 17 17 7M8 7h9v9"/></svg>
+           </a>
+         </div>
+       </div>`;
+  };
+  window.newsCloseDetail = function(){ const o = document.getElementById('newsDetail'); if (o) o.classList.remove('open'); };
+
+  // Pré-aquece o cache do tópico padrão pouco depois de abrir o app, para a
+  // Newsletter já ter "notícias do dia" na hora que o usuário entrar.
+  setTimeout(() => {
+    const c = readCache('financas');
+    if (!c || Date.now() - c.ts > 20*60*1000) { fetchFresh('financas').catch(() => {}); }
+  }, 4000);
 })();
 /* ═══════════════════════════════════════════════
    NOTAS & TAREFAS — bloco de notas + lista de afazeres
