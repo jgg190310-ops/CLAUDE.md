@@ -5352,7 +5352,7 @@ html[data-theme="light"] .table-card::before { background: rgba(15,23,42,.12) !i
    uniforme, mantendo o alinhamento editorial. Vale para os dois temas.
 ══════════════════════════════════════════════════════════ */
 @media (max-width: 640px) {
-  .page { padding-left: 26px !important; padding-right: 26px !important; }
+  .page { padding-left: 30px !important; padding-right: 30px !important; }
 }
 
 /* ══════════════════════════════════════════════════════════
