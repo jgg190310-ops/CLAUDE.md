@@ -7749,6 +7749,18 @@ html[data-theme="light"] .news-list button.news-row { border-bottom-color: rgba(
 html[data-theme="light"] .news-detail-panel { background: #fff; box-shadow: 0 40px 100px rgba(15,23,42,.28); }
 html[data-theme="light"] .news-detail-close { background: rgba(15,23,42,.55); }
 
+/* ══════════════════════════════════════════════════════════
+   BOLSA — mais respiro entre "Minha Carteira" e os botões (BR/EUA/FIIs/Crypto)
+══════════════════════════════════════════════════════════ */
+.stocks-table-wrap .table-header { gap: 20px; flex-wrap: wrap; }
+@media (max-width: 640px) {
+  /* no celular os botões vão para a própria linha, longe do título */
+  .stocks-table-wrap .table-header .tab-group {
+    width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch;
+    padding-bottom: 2px;
+  }
+}
+
 
 /* ══ VIEW SWITCHING ══ */
 #appView   { display: none; }
