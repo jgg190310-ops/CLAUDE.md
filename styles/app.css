@@ -5354,3 +5354,98 @@ html[data-theme="light"] .table-card::before { background: rgba(15,23,42,.12) !i
 @media (max-width: 640px) {
   .page { padding-left: 26px !important; padding-right: 26px !important; }
 }
+
+/* ══════════════════════════════════════════════════════════
+   NOTAS & TAREFAS
+══════════════════════════════════════════════════════════ */
+.nt-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; align-items: start; }
+.nt-col-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; gap: 10px; }
+.nt-col-head h3 { font-size: 12.5px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase; color: var(--text-2); }
+.nt-stat { font-size: 12px; color: var(--text-3); white-space: nowrap; }
+
+/* adicionar tarefa */
+.nt-add-row { display: flex; gap: 8px; }
+.nt-add-row input {
+  flex: 1; min-width: 0; background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 12px; padding: 12px 14px; color: var(--text); font-size: 14px;
+  font-family: inherit; outline: none; transition: border-color .2s;
+}
+.nt-add-row input:focus { border-color: rgba(211,243,79,.5); }
+.nt-add-btn {
+  width: 44px; flex: 0 0 44px; border-radius: 12px; border: none; cursor: pointer;
+  background: var(--lime, #d3f34f); color: #0c0e04; display: flex; align-items: center; justify-content: center;
+  transition: transform .15s;
+}
+.nt-add-btn:active { transform: scale(.94); }
+.nt-filters { margin-top: 12px; margin-bottom: 4px; }
+
+/* lista de tarefas */
+.nt-todo-list { display: flex; flex-direction: column; }
+.nt-todo { display: flex; align-items: center; gap: 12px; padding: 12px 2px; border-bottom: 1px solid var(--border); }
+.nt-check {
+  width: 22px; height: 22px; flex: 0 0 22px; border-radius: 7px;
+  border: 2px solid var(--border-light); background: transparent; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; color: #0c0e04;
+  transition: background .15s, border-color .15s;
+}
+.nt-todo.done .nt-check { background: var(--lime, #d3f34f); border-color: var(--lime, #d3f34f); }
+.nt-todo-text { flex: 1; font-size: 14.5px; color: var(--text); line-height: 1.4; word-break: break-word; }
+.nt-todo.done .nt-todo-text { text-decoration: line-through; color: var(--text-3); }
+.nt-del { background: none; border: none; color: var(--text-3); cursor: pointer; padding: 4px; opacity: .55; transition: opacity .15s, color .15s; flex: 0 0 auto; }
+.nt-del:hover { opacity: 1; color: var(--red, #ef4444); }
+.nt-clear { margin-top: 14px; background: none; border: 1px solid var(--border); color: var(--text-2); border-radius: 10px; padding: 8px 14px; font-size: 12.5px; font-weight: 600; cursor: pointer; transition: border-color .2s, color .2s; }
+.nt-clear:hover { border-color: rgba(239,68,68,.4); color: var(--red, #ef4444); }
+.nt-blank { padding: 30px 8px; text-align: center; color: var(--text-3); font-size: 13.5px; line-height: 1.6; }
+
+/* grade de notas */
+.nt-notes-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.nt-note {
+  text-align: left; cursor: pointer; border: 1px solid var(--border);
+  border-left: 3px solid var(--c, #6366f1); border-radius: 14px;
+  background: var(--bg2); padding: 14px; display: flex; flex-direction: column; gap: 6px;
+  min-height: 100px; transition: transform .15s, border-color .2s, box-shadow .2s; font-family: inherit;
+}
+.nt-note:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0,0,0,.25); }
+.nt-note-title { font-size: 14.5px; font-weight: 700; color: var(--text); line-height: 1.3; }
+.nt-note-body { font-size: 12.5px; color: var(--text-2); line-height: 1.45; white-space: pre-wrap;
+  display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+.nt-note-date { font-size: 11px; color: var(--text-3); margin-top: auto; }
+.nt-notes-blank { grid-column: 1 / -1; }
+
+/* editor de nota (overlay central) */
+.nt-editor {
+  position: fixed; inset: 0; z-index: 2000; display: flex; align-items: center; justify-content: center;
+  padding: 20px; background: rgba(0,0,0,.6); backdrop-filter: blur(8px);
+  opacity: 0; pointer-events: none; transition: opacity .25s;
+}
+.nt-editor.open { opacity: 1; pointer-events: auto; }
+.nt-editor-panel {
+  width: 100%; max-width: 560px; background: var(--bg2, #12151f);
+  border: 1px solid var(--border); border-radius: 22px; padding: 20px;
+  display: flex; flex-direction: column; gap: 14px; max-height: 86vh; overflow-y: auto;
+  transform: scale(.95) translateY(10px); transition: transform .3s cubic-bezier(.16,1,.3,1);
+  box-shadow: 0 40px 100px rgba(0,0,0,.55);
+}
+.nt-editor.open .nt-editor-panel { transform: scale(1) translateY(0); }
+.nt-editor-head { display: flex; align-items: center; justify-content: space-between; }
+.nt-colors { display: flex; gap: 8px; flex-wrap: wrap; }
+.nt-color { width: 22px; height: 22px; border-radius: 50%; background: var(--c); border: 2px solid transparent; cursor: pointer; padding: 0; transition: transform .15s, border-color .15s; }
+.nt-color.sel { border-color: var(--text); transform: scale(1.15); }
+.nt-editor-close { width: 32px; height: 32px; flex: 0 0 32px; border-radius: 50%; border: 1px solid var(--border); background: var(--bg3); color: var(--text-2); cursor: pointer; font-size: 13px; }
+.nt-ed-title { background: transparent; border: none; outline: none; color: var(--text); font-size: 19px; font-weight: 700; font-family: inherit; }
+.nt-ed-body { background: var(--bg3); border: 1px solid var(--border); border-radius: 12px; padding: 14px; color: var(--text); font-size: 14.5px; line-height: 1.55; font-family: inherit; resize: vertical; min-height: 170px; outline: none; }
+.nt-ed-body:focus, .nt-ed-title:focus { outline: none; }
+.nt-editor-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.nt-ed-del { background: none; border: 1px solid rgba(239,68,68,.3); color: var(--red, #ef4444); border-radius: 10px; padding: 9px 16px; font-size: 13px; font-weight: 600; cursor: pointer; }
+.nt-ed-save { background: var(--lime, #d3f34f); color: #0c0e04; border: none; border-radius: 10px; padding: 10px 26px; font-size: 14px; font-weight: 700; cursor: pointer; margin-left: auto; }
+
+@media (max-width: 720px) { .nt-layout { grid-template-columns: 1fr; gap: 26px; } }
+
+/* modo claro */
+html[data-theme="light"] .nt-add-row input,
+html[data-theme="light"] .nt-ed-body { background: rgba(15,23,42,.04); }
+html[data-theme="light"] .nt-note { background: #fff; box-shadow: 0 2px 12px rgba(15,23,42,.05); }
+html[data-theme="light"] .nt-note:hover { box-shadow: 0 12px 30px rgba(15,23,42,.12); }
+html[data-theme="light"] .nt-todo { border-bottom-color: rgba(15,23,42,.08); }
+html[data-theme="light"] .nt-editor-panel { background: #fff; box-shadow: 0 40px 100px rgba(15,23,42,.28); }
+html[data-theme="light"] .nt-editor-close { background: rgba(15,23,42,.04); }

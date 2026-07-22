@@ -87,6 +87,11 @@
         Fluxo de Caixa
         <span class="nav-badge-new">novo</span>
       </a>
+      <a href="#" class="nav-item" data-page="notes">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 13l2 2 4-4"/></svg>
+        Notas & Tarefas
+        <span class="nav-badge-new">novo</span>
+      </a>
     </div>
     <div class="nav-group" data-app="finance">
       <span class="nav-label">Investimentos</span>
@@ -1151,6 +1156,65 @@
     </div>
     <div id="newsUpdated" class="news-updated"></div>
     <div id="newsList" class="news-list"><p class="empty-state">Carregando notícias…</p></div>
+  </section>
+
+  <!-- ═══════════════════════════════ NOTAS & TAREFAS ═══════════════════════════════ -->
+  <section class="page" id="notes">
+    <div class="page-header">
+      <div><h1>Notas &amp; Tarefas</h1><p class="page-sub">Seu bloco de notas e lista de afazeres, sempre à mão.</p></div>
+      <button class="btn-add" onclick="ntNewNote()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Nova nota
+      </button>
+    </div>
+
+    <div class="nt-layout">
+      <!-- TAREFAS -->
+      <div class="nt-col">
+        <div class="nt-col-head">
+          <h3>Tarefas</h3>
+          <span id="ntTodoStat" class="nt-stat"></span>
+        </div>
+        <div class="nt-add-row">
+          <input id="ntTodoInput" type="text" placeholder="Adicionar tarefa e apertar Enter…" autocomplete="off" onkeydown="if(event.key==='Enter')ntAddTodo()" />
+          <button class="nt-add-btn" onclick="ntAddTodo()" aria-label="Adicionar tarefa">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+        </div>
+        <div id="ntTodoFilters" class="news-tabs nt-filters">
+          <button class="tab active" onclick="ntFilter(this,'all')">Todas</button>
+          <button class="tab" onclick="ntFilter(this,'pending')">Pendentes</button>
+          <button class="tab" onclick="ntFilter(this,'done')">Concluídas</button>
+        </div>
+        <div id="ntTodoList" class="nt-todo-list"></div>
+        <button id="ntClearBtn" class="nt-clear" onclick="ntClearDone()">Limpar concluídas</button>
+      </div>
+
+      <!-- NOTAS -->
+      <div class="nt-col">
+        <div class="nt-col-head">
+          <h3>Bloco de Notas</h3>
+          <button class="btn-sm" onclick="ntNewNote()">+ Nova</button>
+        </div>
+        <div id="ntNotesGrid" class="nt-notes-grid"></div>
+      </div>
+    </div>
+
+    <!-- EDITOR DE NOTA (overlay) -->
+    <div id="ntEditor" class="nt-editor" data-color="#6366f1">
+      <div class="nt-editor-panel">
+        <div class="nt-editor-head">
+          <div id="ntEdColors" class="nt-colors"></div>
+          <button class="nt-editor-close" onclick="ntCloseEditor()" aria-label="Fechar">✕</button>
+        </div>
+        <input id="ntEdTitle" class="nt-ed-title" type="text" placeholder="Título da nota" />
+        <textarea id="ntEdBody" class="nt-ed-body" placeholder="Escreva aqui…"></textarea>
+        <div class="nt-editor-foot">
+          <button id="ntDelNoteBtn" class="nt-ed-del" onclick="ntDelNote()">Excluir</button>
+          <button class="nt-ed-save" onclick="ntSaveNote()">Salvar</button>
+        </div>
+      </div>
+    </div>
   </section>
 
   <section class="page" id="h-dashboard" data-app="health">
@@ -3170,6 +3234,138 @@ document.addEventListener('DOMContentLoaded', () => {
         <button class="btn-sm" onclick="renderNews(true)">Tentar novamente</button>
       </div>`;
     }
+  };
+})();
+/* ═══════════════════════════════════════════════
+   NOTAS & TAREFAS — bloco de notas + lista de afazeres
+   Persiste no localStorage (via saveStore) e sincroniza na nuvem
+   (via cloudSave) quando o Firebase está conectado.
+═══════════════════════════════════════════════ */
+(function(){
+  let todos = [], notes = [], filter = 'all', editingId = null;
+  const NOTE_COLORS = ['#d3f34f','#6366f1','#10b981','#f59e0b','#ef4444','#06b6d4','#a855f7'];
+
+  function load(){
+    const s = (typeof loadStore === 'function') ? loadStore() : {};
+    todos = Array.isArray(s.todos) ? s.todos : [];
+    notes = Array.isArray(s.notes) ? s.notes : [];
+  }
+  function persist(){
+    try { if (typeof saveStore === 'function') saveStore({ todos, notes }); } catch(e){}
+    try { if (typeof cloudSave === 'function') { cloudSave('todos', todos); cloudSave('notes', notes); } } catch(e){}
+  }
+  const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  function fmtDate(ts){ try { return new Date(ts).toLocaleDateString('pt-BR',{day:'2-digit',month:'short'}); } catch(e){ return ''; } }
+
+  /* ── TAREFAS ── */
+  window.ntAddTodo = function(){
+    const inp = document.getElementById('ntTodoInput');
+    if (!inp) return;
+    const text = inp.value.trim();
+    if (!text) return;
+    todos.unshift({ id: uid(), text, done: false, created: Date.now() });
+    inp.value = ''; persist(); renderTodos();
+  };
+  window.ntToggleTodo = function(id){
+    const t = todos.find(x => x.id === id); if (!t) return;
+    t.done = !t.done; t.doneAt = t.done ? Date.now() : null;
+    persist(); renderTodos();
+  };
+  window.ntDelTodo = function(id){ todos = todos.filter(x => x.id !== id); persist(); renderTodos(); };
+  window.ntFilter = function(el, f){
+    filter = f;
+    document.querySelectorAll('#ntTodoFilters .tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active'); renderTodos();
+  };
+  window.ntClearDone = function(){ todos = todos.filter(x => !x.done); persist(); renderTodos(); };
+
+  function renderTodos(){
+    const list = document.getElementById('ntTodoList');
+    if (!list) return;
+    const pend = todos.filter(t => !t.done).length;
+    const done = todos.length - pend;
+    const stat = document.getElementById('ntTodoStat');
+    if (stat) stat.textContent = todos.length ? (pend + ' pendente' + (pend!==1?'s':'') + (done ? ' · ' + done + ' feita' + (done!==1?'s':'') : '')) : '';
+    const clr = document.getElementById('ntClearBtn');
+    if (clr) clr.style.display = done ? '' : 'none';
+    let items = todos;
+    if (filter === 'pending') items = todos.filter(t => !t.done);
+    else if (filter === 'done') items = todos.filter(t => t.done);
+    if (!items.length){
+      list.innerHTML = '<div class="nt-blank">' + (filter === 'done' ? 'Nenhuma tarefa concluída ainda.' : filter === 'pending' ? 'Tudo em dia por aqui. 🎉' : 'Adicione sua primeira tarefa acima.') + '</div>';
+      return;
+    }
+    list.innerHTML = items.map(t => `
+      <div class="nt-todo ${t.done ? 'done' : ''}">
+        <button class="nt-check" onclick="ntToggleTodo('${t.id}')" aria-label="Concluir tarefa">
+          ${t.done ? '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4"><polyline points="20 6 9 17 4 12"/></svg>' : ''}
+        </button>
+        <span class="nt-todo-text">${esc(t.text)}</span>
+        <button class="nt-del" onclick="ntDelTodo('${t.id}')" aria-label="Excluir tarefa">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>
+        </button>
+      </div>`).join('');
+  }
+
+  /* ── NOTAS ── */
+  window.ntNewNote = function(){ ntOpenEditor(null); };
+  window.ntOpenEditor = function(id){
+    editingId = id;
+    const note = id ? notes.find(n => n.id === id) : null;
+    const cur = note ? (note.color || NOTE_COLORS[0]) : NOTE_COLORS[0];
+    document.getElementById('ntEdTitle').value = note ? (note.title || '') : '';
+    document.getElementById('ntEdBody').value = note ? (note.body || '') : '';
+    document.getElementById('ntEdColors').innerHTML = NOTE_COLORS.map(c =>
+      `<button class="nt-color ${c===cur?'sel':''}" style="--c:${c}" onclick="ntPickColor('${c}',this)" aria-label="Cor"></button>`).join('');
+    const ed = document.getElementById('ntEditor');
+    ed.dataset.color = cur;
+    document.getElementById('ntDelNoteBtn').style.display = id ? '' : 'none';
+    ed.classList.add('open');
+    setTimeout(() => { const el = document.getElementById('ntEdTitle'); if (el) el.focus(); }, 80);
+  };
+  window.ntPickColor = function(c, el){
+    document.getElementById('ntEditor').dataset.color = c;
+    document.querySelectorAll('#ntEdColors .nt-color').forEach(b => b.classList.remove('sel'));
+    el.classList.add('sel');
+  };
+  window.ntCloseEditor = function(){ document.getElementById('ntEditor').classList.remove('open'); editingId = null; };
+  window.ntSaveNote = function(){
+    const title = document.getElementById('ntEdTitle').value.trim();
+    const body = document.getElementById('ntEdBody').value.trim();
+    const color = document.getElementById('ntEditor').dataset.color || NOTE_COLORS[0];
+    if (!title && !body){ ntCloseEditor(); return; }
+    if (editingId){
+      const n = notes.find(x => x.id === editingId);
+      if (n){ n.title = title; n.body = body; n.color = color; n.updated = Date.now(); }
+    } else {
+      notes.unshift({ id: uid(), title, body, color, updated: Date.now() });
+    }
+    persist(); ntCloseEditor(); renderNotesGrid();
+  };
+  window.ntDelNote = function(){
+    if (editingId){ notes = notes.filter(x => x.id !== editingId); persist(); }
+    ntCloseEditor(); renderNotesGrid();
+  };
+
+  function renderNotesGrid(){
+    const grid = document.getElementById('ntNotesGrid');
+    if (!grid) return;
+    if (!notes.length){ grid.innerHTML = '<div class="nt-blank nt-notes-blank">Nenhuma nota ainda.<br>Toque em “Nova nota” para começar.</div>'; return; }
+    grid.innerHTML = notes.map(n => `
+      <button class="nt-note" style="--c:${(n.color||'#6366f1')}" onclick="ntOpenEditor('${n.id}')">
+        <div class="nt-note-title">${esc(n.title || 'Sem título')}</div>
+        ${n.body ? `<div class="nt-note-body">${esc(n.body).slice(0,220)}</div>` : ''}
+        <div class="nt-note-date">${fmtDate(n.updated)}</div>
+      </button>`).join('');
+  }
+
+  window.renderNotes = function(){ load(); renderTodos(); renderNotesGrid(); };
+  // Rechamada quando a nuvem traz dados novos (multi-dispositivo)
+  window.ntReloadFromCloud = function(){
+    load();
+    const p = document.getElementById('notes');
+    if (p && p.classList.contains('active')){ renderTodos(); renderNotesGrid(); }
   };
 })();
 /* ═══════════════════════════════════════════════

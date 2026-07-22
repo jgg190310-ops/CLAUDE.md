@@ -7608,6 +7608,101 @@ html[data-theme="light"] .table-card::before { background: rgba(15,23,42,.12) !i
   .page { padding-left: 26px !important; padding-right: 26px !important; }
 }
 
+/* ══════════════════════════════════════════════════════════
+   NOTAS & TAREFAS
+══════════════════════════════════════════════════════════ */
+.nt-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; align-items: start; }
+.nt-col-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; gap: 10px; }
+.nt-col-head h3 { font-size: 12.5px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase; color: var(--text-2); }
+.nt-stat { font-size: 12px; color: var(--text-3); white-space: nowrap; }
+
+/* adicionar tarefa */
+.nt-add-row { display: flex; gap: 8px; }
+.nt-add-row input {
+  flex: 1; min-width: 0; background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 12px; padding: 12px 14px; color: var(--text); font-size: 14px;
+  font-family: inherit; outline: none; transition: border-color .2s;
+}
+.nt-add-row input:focus { border-color: rgba(211,243,79,.5); }
+.nt-add-btn {
+  width: 44px; flex: 0 0 44px; border-radius: 12px; border: none; cursor: pointer;
+  background: var(--lime, #d3f34f); color: #0c0e04; display: flex; align-items: center; justify-content: center;
+  transition: transform .15s;
+}
+.nt-add-btn:active { transform: scale(.94); }
+.nt-filters { margin-top: 12px; margin-bottom: 4px; }
+
+/* lista de tarefas */
+.nt-todo-list { display: flex; flex-direction: column; }
+.nt-todo { display: flex; align-items: center; gap: 12px; padding: 12px 2px; border-bottom: 1px solid var(--border); }
+.nt-check {
+  width: 22px; height: 22px; flex: 0 0 22px; border-radius: 7px;
+  border: 2px solid var(--border-light); background: transparent; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; color: #0c0e04;
+  transition: background .15s, border-color .15s;
+}
+.nt-todo.done .nt-check { background: var(--lime, #d3f34f); border-color: var(--lime, #d3f34f); }
+.nt-todo-text { flex: 1; font-size: 14.5px; color: var(--text); line-height: 1.4; word-break: break-word; }
+.nt-todo.done .nt-todo-text { text-decoration: line-through; color: var(--text-3); }
+.nt-del { background: none; border: none; color: var(--text-3); cursor: pointer; padding: 4px; opacity: .55; transition: opacity .15s, color .15s; flex: 0 0 auto; }
+.nt-del:hover { opacity: 1; color: var(--red, #ef4444); }
+.nt-clear { margin-top: 14px; background: none; border: 1px solid var(--border); color: var(--text-2); border-radius: 10px; padding: 8px 14px; font-size: 12.5px; font-weight: 600; cursor: pointer; transition: border-color .2s, color .2s; }
+.nt-clear:hover { border-color: rgba(239,68,68,.4); color: var(--red, #ef4444); }
+.nt-blank { padding: 30px 8px; text-align: center; color: var(--text-3); font-size: 13.5px; line-height: 1.6; }
+
+/* grade de notas */
+.nt-notes-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.nt-note {
+  text-align: left; cursor: pointer; border: 1px solid var(--border);
+  border-left: 3px solid var(--c, #6366f1); border-radius: 14px;
+  background: var(--bg2); padding: 14px; display: flex; flex-direction: column; gap: 6px;
+  min-height: 100px; transition: transform .15s, border-color .2s, box-shadow .2s; font-family: inherit;
+}
+.nt-note:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0,0,0,.25); }
+.nt-note-title { font-size: 14.5px; font-weight: 700; color: var(--text); line-height: 1.3; }
+.nt-note-body { font-size: 12.5px; color: var(--text-2); line-height: 1.45; white-space: pre-wrap;
+  display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+.nt-note-date { font-size: 11px; color: var(--text-3); margin-top: auto; }
+.nt-notes-blank { grid-column: 1 / -1; }
+
+/* editor de nota (overlay central) */
+.nt-editor {
+  position: fixed; inset: 0; z-index: 2000; display: flex; align-items: center; justify-content: center;
+  padding: 20px; background: rgba(0,0,0,.6); backdrop-filter: blur(8px);
+  opacity: 0; pointer-events: none; transition: opacity .25s;
+}
+.nt-editor.open { opacity: 1; pointer-events: auto; }
+.nt-editor-panel {
+  width: 100%; max-width: 560px; background: var(--bg2, #12151f);
+  border: 1px solid var(--border); border-radius: 22px; padding: 20px;
+  display: flex; flex-direction: column; gap: 14px; max-height: 86vh; overflow-y: auto;
+  transform: scale(.95) translateY(10px); transition: transform .3s cubic-bezier(.16,1,.3,1);
+  box-shadow: 0 40px 100px rgba(0,0,0,.55);
+}
+.nt-editor.open .nt-editor-panel { transform: scale(1) translateY(0); }
+.nt-editor-head { display: flex; align-items: center; justify-content: space-between; }
+.nt-colors { display: flex; gap: 8px; flex-wrap: wrap; }
+.nt-color { width: 22px; height: 22px; border-radius: 50%; background: var(--c); border: 2px solid transparent; cursor: pointer; padding: 0; transition: transform .15s, border-color .15s; }
+.nt-color.sel { border-color: var(--text); transform: scale(1.15); }
+.nt-editor-close { width: 32px; height: 32px; flex: 0 0 32px; border-radius: 50%; border: 1px solid var(--border); background: var(--bg3); color: var(--text-2); cursor: pointer; font-size: 13px; }
+.nt-ed-title { background: transparent; border: none; outline: none; color: var(--text); font-size: 19px; font-weight: 700; font-family: inherit; }
+.nt-ed-body { background: var(--bg3); border: 1px solid var(--border); border-radius: 12px; padding: 14px; color: var(--text); font-size: 14.5px; line-height: 1.55; font-family: inherit; resize: vertical; min-height: 170px; outline: none; }
+.nt-ed-body:focus, .nt-ed-title:focus { outline: none; }
+.nt-editor-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.nt-ed-del { background: none; border: 1px solid rgba(239,68,68,.3); color: var(--red, #ef4444); border-radius: 10px; padding: 9px 16px; font-size: 13px; font-weight: 600; cursor: pointer; }
+.nt-ed-save { background: var(--lime, #d3f34f); color: #0c0e04; border: none; border-radius: 10px; padding: 10px 26px; font-size: 14px; font-weight: 700; cursor: pointer; margin-left: auto; }
+
+@media (max-width: 720px) { .nt-layout { grid-template-columns: 1fr; gap: 26px; } }
+
+/* modo claro */
+html[data-theme="light"] .nt-add-row input,
+html[data-theme="light"] .nt-ed-body { background: rgba(15,23,42,.04); }
+html[data-theme="light"] .nt-note { background: #fff; box-shadow: 0 2px 12px rgba(15,23,42,.05); }
+html[data-theme="light"] .nt-note:hover { box-shadow: 0 12px 30px rgba(15,23,42,.12); }
+html[data-theme="light"] .nt-todo { border-bottom-color: rgba(15,23,42,.08); }
+html[data-theme="light"] .nt-editor-panel { background: #fff; box-shadow: 0 40px 100px rgba(15,23,42,.28); }
+html[data-theme="light"] .nt-editor-close { background: rgba(15,23,42,.04); }
+
 
 /* ══ VIEW SWITCHING ══ */
 #appView   { display: none; }
@@ -8248,6 +8343,11 @@ html[data-theme="light"] .table-card::before { background: rgba(15,23,42,.12) !i
       <a href="#" class="nav-item" data-page="cashflow">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 5-6"/></svg>
         Fluxo de Caixa
+        <span class="nav-badge-new">novo</span>
+      </a>
+      <a href="#" class="nav-item" data-page="notes">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 13l2 2 4-4"/></svg>
+        Notas & Tarefas
         <span class="nav-badge-new">novo</span>
       </a>
     </div>
@@ -9314,6 +9414,65 @@ html[data-theme="light"] .table-card::before { background: rgba(15,23,42,.12) !i
     </div>
     <div id="newsUpdated" class="news-updated"></div>
     <div id="newsList" class="news-list"><p class="empty-state">Carregando notícias…</p></div>
+  </section>
+
+  <!-- ═══════════════════════════════ NOTAS & TAREFAS ═══════════════════════════════ -->
+  <section class="page" id="notes">
+    <div class="page-header">
+      <div><h1>Notas &amp; Tarefas</h1><p class="page-sub">Seu bloco de notas e lista de afazeres, sempre à mão.</p></div>
+      <button class="btn-add" onclick="ntNewNote()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Nova nota
+      </button>
+    </div>
+
+    <div class="nt-layout">
+      <!-- TAREFAS -->
+      <div class="nt-col">
+        <div class="nt-col-head">
+          <h3>Tarefas</h3>
+          <span id="ntTodoStat" class="nt-stat"></span>
+        </div>
+        <div class="nt-add-row">
+          <input id="ntTodoInput" type="text" placeholder="Adicionar tarefa e apertar Enter…" autocomplete="off" onkeydown="if(event.key==='Enter')ntAddTodo()" />
+          <button class="nt-add-btn" onclick="ntAddTodo()" aria-label="Adicionar tarefa">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+        </div>
+        <div id="ntTodoFilters" class="news-tabs nt-filters">
+          <button class="tab active" onclick="ntFilter(this,'all')">Todas</button>
+          <button class="tab" onclick="ntFilter(this,'pending')">Pendentes</button>
+          <button class="tab" onclick="ntFilter(this,'done')">Concluídas</button>
+        </div>
+        <div id="ntTodoList" class="nt-todo-list"></div>
+        <button id="ntClearBtn" class="nt-clear" onclick="ntClearDone()">Limpar concluídas</button>
+      </div>
+
+      <!-- NOTAS -->
+      <div class="nt-col">
+        <div class="nt-col-head">
+          <h3>Bloco de Notas</h3>
+          <button class="btn-sm" onclick="ntNewNote()">+ Nova</button>
+        </div>
+        <div id="ntNotesGrid" class="nt-notes-grid"></div>
+      </div>
+    </div>
+
+    <!-- EDITOR DE NOTA (overlay) -->
+    <div id="ntEditor" class="nt-editor" data-color="#6366f1">
+      <div class="nt-editor-panel">
+        <div class="nt-editor-head">
+          <div id="ntEdColors" class="nt-colors"></div>
+          <button class="nt-editor-close" onclick="ntCloseEditor()" aria-label="Fechar">✕</button>
+        </div>
+        <input id="ntEdTitle" class="nt-ed-title" type="text" placeholder="Título da nota" />
+        <textarea id="ntEdBody" class="nt-ed-body" placeholder="Escreva aqui…"></textarea>
+        <div class="nt-editor-foot">
+          <button id="ntDelNoteBtn" class="nt-ed-del" onclick="ntDelNote()">Excluir</button>
+          <button class="nt-ed-save" onclick="ntSaveNote()">Salvar</button>
+        </div>
+      </div>
+    </div>
   </section>
 
   <section class="page" id="h-dashboard" data-app="health">
@@ -11336,6 +11495,138 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 })();
 /* ═══════════════════════════════════════════════
+   NOTAS & TAREFAS — bloco de notas + lista de afazeres
+   Persiste no localStorage (via saveStore) e sincroniza na nuvem
+   (via cloudSave) quando o Firebase está conectado.
+═══════════════════════════════════════════════ */
+(function(){
+  let todos = [], notes = [], filter = 'all', editingId = null;
+  const NOTE_COLORS = ['#d3f34f','#6366f1','#10b981','#f59e0b','#ef4444','#06b6d4','#a855f7'];
+
+  function load(){
+    const s = (typeof loadStore === 'function') ? loadStore() : {};
+    todos = Array.isArray(s.todos) ? s.todos : [];
+    notes = Array.isArray(s.notes) ? s.notes : [];
+  }
+  function persist(){
+    try { if (typeof saveStore === 'function') saveStore({ todos, notes }); } catch(e){}
+    try { if (typeof cloudSave === 'function') { cloudSave('todos', todos); cloudSave('notes', notes); } } catch(e){}
+  }
+  const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  function fmtDate(ts){ try { return new Date(ts).toLocaleDateString('pt-BR',{day:'2-digit',month:'short'}); } catch(e){ return ''; } }
+
+  /* ── TAREFAS ── */
+  window.ntAddTodo = function(){
+    const inp = document.getElementById('ntTodoInput');
+    if (!inp) return;
+    const text = inp.value.trim();
+    if (!text) return;
+    todos.unshift({ id: uid(), text, done: false, created: Date.now() });
+    inp.value = ''; persist(); renderTodos();
+  };
+  window.ntToggleTodo = function(id){
+    const t = todos.find(x => x.id === id); if (!t) return;
+    t.done = !t.done; t.doneAt = t.done ? Date.now() : null;
+    persist(); renderTodos();
+  };
+  window.ntDelTodo = function(id){ todos = todos.filter(x => x.id !== id); persist(); renderTodos(); };
+  window.ntFilter = function(el, f){
+    filter = f;
+    document.querySelectorAll('#ntTodoFilters .tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active'); renderTodos();
+  };
+  window.ntClearDone = function(){ todos = todos.filter(x => !x.done); persist(); renderTodos(); };
+
+  function renderTodos(){
+    const list = document.getElementById('ntTodoList');
+    if (!list) return;
+    const pend = todos.filter(t => !t.done).length;
+    const done = todos.length - pend;
+    const stat = document.getElementById('ntTodoStat');
+    if (stat) stat.textContent = todos.length ? (pend + ' pendente' + (pend!==1?'s':'') + (done ? ' · ' + done + ' feita' + (done!==1?'s':'') : '')) : '';
+    const clr = document.getElementById('ntClearBtn');
+    if (clr) clr.style.display = done ? '' : 'none';
+    let items = todos;
+    if (filter === 'pending') items = todos.filter(t => !t.done);
+    else if (filter === 'done') items = todos.filter(t => t.done);
+    if (!items.length){
+      list.innerHTML = '<div class="nt-blank">' + (filter === 'done' ? 'Nenhuma tarefa concluída ainda.' : filter === 'pending' ? 'Tudo em dia por aqui. 🎉' : 'Adicione sua primeira tarefa acima.') + '</div>';
+      return;
+    }
+    list.innerHTML = items.map(t => `
+      <div class="nt-todo ${t.done ? 'done' : ''}">
+        <button class="nt-check" onclick="ntToggleTodo('${t.id}')" aria-label="Concluir tarefa">
+          ${t.done ? '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4"><polyline points="20 6 9 17 4 12"/></svg>' : ''}
+        </button>
+        <span class="nt-todo-text">${esc(t.text)}</span>
+        <button class="nt-del" onclick="ntDelTodo('${t.id}')" aria-label="Excluir tarefa">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>
+        </button>
+      </div>`).join('');
+  }
+
+  /* ── NOTAS ── */
+  window.ntNewNote = function(){ ntOpenEditor(null); };
+  window.ntOpenEditor = function(id){
+    editingId = id;
+    const note = id ? notes.find(n => n.id === id) : null;
+    const cur = note ? (note.color || NOTE_COLORS[0]) : NOTE_COLORS[0];
+    document.getElementById('ntEdTitle').value = note ? (note.title || '') : '';
+    document.getElementById('ntEdBody').value = note ? (note.body || '') : '';
+    document.getElementById('ntEdColors').innerHTML = NOTE_COLORS.map(c =>
+      `<button class="nt-color ${c===cur?'sel':''}" style="--c:${c}" onclick="ntPickColor('${c}',this)" aria-label="Cor"></button>`).join('');
+    const ed = document.getElementById('ntEditor');
+    ed.dataset.color = cur;
+    document.getElementById('ntDelNoteBtn').style.display = id ? '' : 'none';
+    ed.classList.add('open');
+    setTimeout(() => { const el = document.getElementById('ntEdTitle'); if (el) el.focus(); }, 80);
+  };
+  window.ntPickColor = function(c, el){
+    document.getElementById('ntEditor').dataset.color = c;
+    document.querySelectorAll('#ntEdColors .nt-color').forEach(b => b.classList.remove('sel'));
+    el.classList.add('sel');
+  };
+  window.ntCloseEditor = function(){ document.getElementById('ntEditor').classList.remove('open'); editingId = null; };
+  window.ntSaveNote = function(){
+    const title = document.getElementById('ntEdTitle').value.trim();
+    const body = document.getElementById('ntEdBody').value.trim();
+    const color = document.getElementById('ntEditor').dataset.color || NOTE_COLORS[0];
+    if (!title && !body){ ntCloseEditor(); return; }
+    if (editingId){
+      const n = notes.find(x => x.id === editingId);
+      if (n){ n.title = title; n.body = body; n.color = color; n.updated = Date.now(); }
+    } else {
+      notes.unshift({ id: uid(), title, body, color, updated: Date.now() });
+    }
+    persist(); ntCloseEditor(); renderNotesGrid();
+  };
+  window.ntDelNote = function(){
+    if (editingId){ notes = notes.filter(x => x.id !== editingId); persist(); }
+    ntCloseEditor(); renderNotesGrid();
+  };
+
+  function renderNotesGrid(){
+    const grid = document.getElementById('ntNotesGrid');
+    if (!grid) return;
+    if (!notes.length){ grid.innerHTML = '<div class="nt-blank nt-notes-blank">Nenhuma nota ainda.<br>Toque em “Nova nota” para começar.</div>'; return; }
+    grid.innerHTML = notes.map(n => `
+      <button class="nt-note" style="--c:${(n.color||'#6366f1')}" onclick="ntOpenEditor('${n.id}')">
+        <div class="nt-note-title">${esc(n.title || 'Sem título')}</div>
+        ${n.body ? `<div class="nt-note-body">${esc(n.body).slice(0,220)}</div>` : ''}
+        <div class="nt-note-date">${fmtDate(n.updated)}</div>
+      </button>`).join('');
+  }
+
+  window.renderNotes = function(){ load(); renderTodos(); renderNotesGrid(); };
+  // Rechamada quando a nuvem traz dados novos (multi-dispositivo)
+  window.ntReloadFromCloud = function(){
+    load();
+    const p = document.getElementById('notes');
+    if (p && p.classList.contains('active')){ renderTodos(); renderNotesGrid(); }
+  };
+})();
+/* ═══════════════════════════════════════════════
    OPEN FINANCE — Pluggy.ai Connect Widget
 ═══════════════════════════════════════════════ */
 function renderBanking() {
@@ -11822,6 +12113,7 @@ const pageTitles = {
   calculator: 'Calculadora de Juros',
   assistant: 'Assistente IA',
   news: 'Newsletter',
+  notes: 'Notas & Tarefas',
   cashflow: 'Fluxo de Caixa Projetado',
   health: 'Saúde Financeira',
   crisis: 'Modo Crise',
@@ -11863,6 +12155,7 @@ function navigateTo(page) {
   if (page === 'cashflow') { renderPlan(); cfSetDefaultMonths(); }
   if (page === 'subs') renderSubs();
   if (page === 'news') { if (typeof renderNews === 'function') renderNews(); }
+  if (page === 'notes') { if (typeof renderNotes === 'function') renderNotes(); }
   if (page === 'banking') { if (typeof renderBanking === 'function') renderBanking(); }
   if (page === 'upgrade') { if (typeof renderUpgrade === 'function') renderUpgrade(); }
   if (page === 'cafe')    { if (typeof renderCafe    === 'function') renderCafe(); }
@@ -13539,6 +13832,12 @@ function cloudPull() {
     if (remote.investor) {
       saveStore({ investor: remote.investor });
       restoreInvestorUI(remote.investor);
+    }
+    // notas & tarefas (bloco de notas + to-do)
+    if (Array.isArray(remote.todos)) saveStore({ todos: remote.todos });
+    if (Array.isArray(remote.notes)) saveStore({ notes: remote.notes });
+    if ((Array.isArray(remote.todos) || Array.isArray(remote.notes)) && typeof window.ntReloadFromCloud === 'function') {
+      window.ntReloadFromCloud();
     }
     // saúde (desafios, refeições, água, metas corporais, sono, peso) — faltava restaurar
     if (remote.health && typeof remote.health === 'object') {

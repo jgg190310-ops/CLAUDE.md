@@ -139,6 +139,7 @@ const pageTitles = {
   calculator: 'Calculadora de Juros',
   assistant: 'Assistente IA',
   news: 'Newsletter',
+  notes: 'Notas & Tarefas',
   cashflow: 'Fluxo de Caixa Projetado',
   health: 'Saúde Financeira',
   crisis: 'Modo Crise',
@@ -180,6 +181,7 @@ function navigateTo(page) {
   if (page === 'cashflow') { renderPlan(); cfSetDefaultMonths(); }
   if (page === 'subs') renderSubs();
   if (page === 'news') { if (typeof renderNews === 'function') renderNews(); }
+  if (page === 'notes') { if (typeof renderNotes === 'function') renderNotes(); }
   if (page === 'banking') { if (typeof renderBanking === 'function') renderBanking(); }
   if (page === 'upgrade') { if (typeof renderUpgrade === 'function') renderUpgrade(); }
   if (page === 'cafe')    { if (typeof renderCafe    === 'function') renderCafe(); }
@@ -1856,6 +1858,12 @@ function cloudPull() {
     if (remote.investor) {
       saveStore({ investor: remote.investor });
       restoreInvestorUI(remote.investor);
+    }
+    // notas & tarefas (bloco de notas + to-do)
+    if (Array.isArray(remote.todos)) saveStore({ todos: remote.todos });
+    if (Array.isArray(remote.notes)) saveStore({ notes: remote.notes });
+    if ((Array.isArray(remote.todos) || Array.isArray(remote.notes)) && typeof window.ntReloadFromCloud === 'function') {
+      window.ntReloadFromCloud();
     }
     // saúde (desafios, refeições, água, metas corporais, sono, peso) — faltava restaurar
     if (remote.health && typeof remote.health === 'object') {
