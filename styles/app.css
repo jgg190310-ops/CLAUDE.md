@@ -5522,3 +5522,16 @@ html[data-theme="light"] .nt-search { background: rgba(15,23,42,.04); }
 html[data-theme="light"] .nt-ed-pin { background: rgba(15,23,42,.04); }
 .nt-ed-meta { font-size: 11.5px; color: var(--text-3); margin-top: -4px; }
 .nt-ed-count { font-size: 11.5px; color: var(--text-3); margin-right: auto; }
+
+/* ── IA avançada (configuração do LLM) ── */
+.ai-connect .ai-adv-badge { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; padding: 2px 8px; border-radius: 999px; background: var(--bg4); color: var(--text-3); margin-left: 6px; vertical-align: middle; }
+.ai-connect .ai-adv-badge.on { background: rgba(34,197,94,.16); color: #22c55e; }
+.ai-connect-sub { font-size: 12px; color: var(--text-2); line-height: 1.5; margin: 8px 0 12px; }
+.ai-cfg-input { width: 100%; background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; color: var(--text); font-size: 13px; font-family: inherit; outline: none; margin-bottom: 8px; }
+.ai-cfg-input:focus { border-color: rgba(99,102,241,.5); }
+.ai-cfg-row { display: flex; gap: 8px; }
+.ai-cfg-save { flex: 1; background: var(--lime, #d3f34f); color: #0c0e04; border: none; border-radius: 10px; padding: 9px; font-size: 13px; font-weight: 700; cursor: pointer; }
+.ai-cfg-clear { background: none; border: 1px solid var(--border); color: var(--text-2); border-radius: 10px; padding: 9px 14px; font-size: 13px; font-weight: 600; cursor: pointer; }
+.ai-cfg-help { display: inline-block; margin-top: 10px; font-size: 12px; color: var(--indigo, #818cf8); text-decoration: none; }
+.ai-cfg-help:hover { text-decoration: underline; }
+html[data-theme="light"] .ai-cfg-input { background: rgba(15,23,42,.04); }

@@ -4256,6 +4256,48 @@ async function aiAnswer(q) {
       `• <b>Aposentadoria por invalidez</b> exige perícia do INSS; em alguns casos há acréscimo de 25% se precisar de assistência permanente. Procure orientação previdenciária.`;
   }
 
+  // ───────── RODADA 3 — mais intents comuns ─────────
+  if (/\bpix\b|chave pix|limite do pix|golpe do pix/.test(t)) {
+    return `<b>Pix — use com segurança e estratégia:</b><br><br>` +
+      `• É grátis para pessoa física e cai na hora, 24h. Use no dia a dia em vez de sacar dinheiro.<br>` +
+      `• <b>Segurança</b>: desconfie de "recebi por engano, me devolve" (golpe); confira sempre o nome/CPF do recebedor antes de confirmar.<br>` +
+      `• Ative o <b>limite noturno</b> baixo e um limite por transação no app do banco — reduz o prejuízo em caso de celular roubado.<br>` +
+      `• <b>Pix agendado</b> e <b>Pix automático</b> ajudam a nunca atrasar contas.<br>` +
+      `• Nunca informe código recebido por SMS/ligação — banco nenhum pede isso.`;
+  }
+  if (/cartao de credito|usar o cartao|fatura do cartao|melhor forma.*cartao|rotativo do cartao/.test(t)) {
+    return `<b>Cartão de crédito — ferramenta, não renda extra:</b><br><br>` +
+      `• Trate o limite como um <b>meio de pagamento</b>, não como dinheiro seu. Só gaste o que consegue pagar <b>à vista na fatura</b>.<br>` +
+      `• <b>Nunca</b> pague só o mínimo: o rotativo é o juro mais caro do Brasil (~14% a.m., >400% a.a.). Se estourar, troque por um empréstimo mais barato e quite.<br>` +
+      `• Aproveite os pontos/cashback só se já pagaria aquilo à vista de qualquer forma.<br>` +
+      `• Concentre tudo num cartão sem anuidade para enxergar os gastos num lugar só.<br>` +
+      `• Deixe o vencimento poucos dias depois do salário e cadastre débito automático da fatura integral.`;
+  }
+  if (/sair do vermelho|estou no vermelho|sair das contas|organizar as contas|controlar meus gastos|comecar a me organizar/.test(t)) {
+    return `<b>Plano para sair do vermelho (4 passos):</b><br><br>` +
+      `• <b>1) Fotografe a dívida</b>: liste tudo (valor, juro, parcela). Ataque primeiro o juro mais alto (rotativo, cheque especial).<br>` +
+      `• <b>2) Corte o sangramento</b>: cancele o que não usa (streamings, assinaturas) e pause supérfluos por 1–2 meses.<br>` +
+      `• <b>3) Renegocie</b>: troque dívida cara por barata (consignado, portabilidade) e negocie desconto à vista.<br>` +
+      `• <b>4) Reserve o respiro</b>: assim que zerar, guarde 1 mês de despesas para não voltar ao cartão na próxima emergência.<br>` +
+      `• Use a aba <b>Orçamentos</b> e a regra 50/30/20 para não repetir o ciclo.`;
+  }
+  if (/dividendo|dividendos|viver de renda|renda passiva com acoes/.test(t)) {
+    return `<b>Dividendos — renda que pinga na conta:</b><br><br>` +
+      `• São parte do lucro que a empresa distribui aos acionistas. No Brasil, hoje são <b>isentos de IR</b> para pessoa física.<br>` +
+      `• <b>Dividend yield</b> = dividendos/preço. Empresas maduras (bancos, elétricas, saneamento) costumam pagar 6–12% a.a.<br>` +
+      `• Reinvista os proventos: é aí que os juros compostos aceleram a bola de neve.<br>` +
+      `• Não corra atrás só do maior yield — pode ser "dividendo de despedida" de empresa em queda. Olhe lucro consistente e dívida saudável.<br>` +
+      `• FIIs pagam renda <b>mensal</b> isenta e são uma porta de entrada popular para viver de renda.`;
+  }
+  if (/independencia financeira|aposentar cedo|\bfire\b|quanto preciso para me aposentar/.test(t)) {
+    const alvo = (s.expense || 3000) * 12 * 25;
+    return `<b>Independência financeira (método FIRE):</b><br><br>` +
+      `• Regra dos 25x: você é independente quando junta <b>25× seus gastos anuais</b> investidos. Com suas despesas de hoje, isso é aprox. <b>${aiFmt(alvo)}</b>.<br>` +
+      `• Regra dos 4%: a partir daí, dá para sacar ~4% ao ano (${aiFmt(alvo * 0.04)}/ano) sem consumir o patrimônio.<br>` +
+      `• O que mais acelera é a <b>taxa de poupança</b>: guardar 30–50% da renda encurta MUITO o caminho.<br>` +
+      `• Aporte automático + juros compostos + tempo. Use a aba <b>Calculadora</b> para simular seu prazo.`;
+  }
+
   // sugestão por proximidade — tenta adivinhar o tema mais próximo
   {
     const topics = [
@@ -4299,6 +4341,94 @@ function aiAppendMsg(html, who) {
   return div;
 }
 
+// ══════════════════════════════════════════════
+//  IA AVANÇADA (opcional) — conecta um LLM real
+//  A chave fica só no navegador; nunca vai para a nuvem.
+// ══════════════════════════════════════════════
+function aiGetConfig() {
+  try { return { provider: localStorage.getItem('ai_provider') || 'gemini', key: localStorage.getItem('ai_key') || '' }; }
+  catch (e) { return { provider: 'gemini', key: '' }; }
+}
+window.aiSaveConfig = function () {
+  const prov = document.getElementById('aiProvider')?.value || 'gemini';
+  const key = (document.getElementById('aiKeyInput')?.value || '').trim();
+  if (!key) { if (typeof showToast === 'function') showToast('Cole a chave de API primeiro.', 'error'); return; }
+  try { localStorage.setItem('ai_provider', prov); localStorage.setItem('ai_key', key); } catch (e) {}
+  aiUpdateAdvBadge();
+  if (typeof showToast === 'function') showToast('IA avançada ativada! ✓', 'success');
+};
+window.aiClearConfig = function () {
+  try { localStorage.removeItem('ai_key'); } catch (e) {}
+  const k = document.getElementById('aiKeyInput'); if (k) k.value = '';
+  aiUpdateAdvBadge();
+  if (typeof showToast === 'function') showToast('IA avançada desligada.', 'success');
+};
+function aiUpdateAdvBadge() {
+  const cfg = aiGetConfig();
+  const on = !!cfg.key;
+  const badge = document.getElementById('aiAdvBadge');
+  if (badge) { badge.textContent = on ? 'ativa ✓' : 'desligada'; badge.classList.toggle('on', on); }
+  const sel = document.getElementById('aiProvider'); if (sel && !sel.dataset.touched) sel.value = cfg.provider;
+  const help = document.getElementById('aiCfgHelp');
+  if (help) {
+    const prov = (sel ? sel.value : cfg.provider);
+    if (prov === 'openai') { help.textContent = 'Pegar uma chave da OpenAI ↗'; help.href = 'https://platform.openai.com/api-keys'; }
+    else { help.textContent = 'Pegar uma chave grátis do Gemini ↗'; help.href = 'https://aistudio.google.com/apikey'; }
+  }
+  const st = document.querySelector('#assistant .ai-status');
+  if (st && on) st.innerHTML = '<span class="ai-status-dot" style="background:#22c55e;box-shadow:0 0 8px #22c55e"></span>IA avançada conectada (' + (cfg.provider === 'openai' ? 'OpenAI' : 'Gemini') + ')';
+}
+document.addEventListener('change', function (e) { if (e.target && e.target.id === 'aiProvider') { e.target.dataset.touched = '1'; aiUpdateAdvBadge(); } });
+
+function aiTextToHtml(t) {
+  return String(t == null ? '' : t)
+    .replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]))
+    .replace(/\*\*(.+?)\*\*/g, '<b>$1</b>')
+    .replace(/(^|<br>|\n)\s*[-*]\s+/g, '$1• ')
+    .replace(/\n/g, '<br>');
+}
+
+async function aiRealLLM(question) {
+  const { provider, key } = aiGetConfig();
+  if (!key) throw new Error('no-key');
+  const s = aiSnapshot();
+  const ctx = `Contexto do usuário (use só se a pergunta pedir; não invente outros números): renda mensal aprox. ${aiFmt(s.income)}, despesas aprox. ${aiFmt(s.expense)}, dinheiro em caixa aprox. ${aiFmt(s.cash)}, taxa de poupança ~${Math.round(s.savingsRate)}%, reserva cobre ~${Math.floor(s.reserveMonths)} meses.`;
+  const sys = `Você é o FinBot, assistente de finanças pessoais, saúde e produtividade do app OSHelp. Responda SEMPRE em português do Brasil, de forma clara, prática e amigável. Seja direto e conciso (listas curtas quando ajudar). Você pode responder qualquer assunto, mas seu foco é finanças e saúde. Não invente dados do usuário além dos fornecidos. ${ctx}`;
+
+  if (provider === 'openai') {
+    const r = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
+      body: JSON.stringify({ model: 'gpt-4o-mini', temperature: 0.6, messages: [{ role: 'system', content: sys }, { role: 'user', content: question }] }),
+      signal: AbortSignal.timeout(30000),
+    });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error((j.error && j.error.message) || ('HTTP ' + r.status));
+    const txt = j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content;
+    if (!txt) throw new Error('sem resposta');
+    return txt;
+  }
+  // Gemini (padrão) — CORS liberado, chave na URL
+  const model = 'gemini-2.0-flash';
+  const url = 'https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent?key=' + encodeURIComponent(key);
+  const r = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      systemInstruction: { parts: [{ text: sys }] },
+      contents: [{ role: 'user', parts: [{ text: question }] }],
+      generationConfig: { temperature: 0.6, maxOutputTokens: 900 },
+    }),
+    signal: AbortSignal.timeout(30000),
+  });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error((j.error && j.error.message) || ('HTTP ' + r.status));
+  const parts = j.candidates && j.candidates[0] && j.candidates[0].content && j.candidates[0].content.parts;
+  const txt = Array.isArray(parts) ? parts.map(p => p.text || '').join('') : '';
+  if (!txt) throw new Error('sem resposta');
+  return txt;
+}
+
 let aiBusy = false;
 function aiSend(e, presetText) {
   if (e) e.preventDefault();
@@ -4311,13 +4441,18 @@ function aiSend(e, presetText) {
 
   aiBusy = true;
   const typing = aiAppendMsg('<span class="ai-typing"><span></span><span></span><span></span></span>', 'bot');
-  const minDelay = new Promise(res => setTimeout(res, 600 + Math.random() * 600));
-  Promise.all([aiAnswer(text), minDelay]).then(([answer]) => {
+  const useReal = !!aiGetConfig().key;
+  const minDelay = new Promise(res => setTimeout(res, useReal ? 200 : (600 + Math.random() * 600)));
+  // Com IA avançada: usa o LLM real; se falhar, cai no bot local (nunca fica sem resposta).
+  const answerP = useReal
+    ? aiRealLLM(text).then(aiTextToHtml).catch(() => aiAnswer(text))
+    : Promise.resolve(aiAnswer(text));
+  Promise.all([answerP, minDelay]).then(([answer]) => {
     typing.innerHTML = answer;
     document.getElementById('aiMessages').scrollTop = 1e9;
     aiBusy = false;
   }).catch(() => {
-    typing.innerHTML = 'Tive um problema ao buscar os dados. Tente novamente em instantes.';
+    typing.innerHTML = 'Tive um problema ao responder. Tente novamente em instantes.';
     aiBusy = false;
   });
   return false;
@@ -4326,6 +4461,7 @@ function aiSend(e, presetText) {
 let aiInited = false;
 function initAssistant() {
   renderAiInsights();
+  aiUpdateAdvBadge();
   if (aiInited) return;
   aiInited = true;
   const sug = document.getElementById('aiSuggestions');

@@ -37,7 +37,7 @@
       window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
     }
   </script>
-  <link rel="stylesheet" href="styles/app.css?v=77" />
+  <link rel="stylesheet" href="styles/app.css?v=78" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -723,6 +723,20 @@
         </form>
       </div>
       <div class="ai-side">
+        <div class="ai-side-card ai-connect">
+          <h4>IA avançada <span id="aiAdvBadge" class="ai-adv-badge">desligada</span></h4>
+          <p class="ai-connect-sub">Conecte uma IA de verdade para o FinBot responder <b>qualquer</b> pergunta. Sem chave, ele usa as respostas prontas. A chave fica <b>só no seu navegador</b>.</p>
+          <select id="aiProvider" class="ai-cfg-input">
+            <option value="gemini">Google Gemini (grátis)</option>
+            <option value="openai">OpenAI (GPT)</option>
+          </select>
+          <input id="aiKeyInput" class="ai-cfg-input" type="password" placeholder="Cole sua chave de API aqui" autocomplete="off" />
+          <div class="ai-cfg-row">
+            <button class="ai-cfg-save" onclick="aiSaveConfig()">Ativar</button>
+            <button class="ai-cfg-clear" onclick="aiClearConfig()">Remover</button>
+          </div>
+          <a class="ai-cfg-help" id="aiCfgHelp" href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Pegar uma chave grátis do Gemini ↗</a>
+        </div>
         <div class="ai-side-card">
           <h4>O que posso fazer</h4>
           <ul class="ai-capabilities">
@@ -1804,7 +1818,7 @@
 </nav>
 
 <script src="js/firebase-config.js?v=40"></script>
-<script src="js/app.js?v=44"></script>
+<script src="js/app.js?v=45"></script>
 <script src="js/health.js?v=43"></script>
 <script src="js/study.js?v=40"></script>
 <script>
