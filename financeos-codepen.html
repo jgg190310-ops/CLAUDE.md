@@ -11485,31 +11485,45 @@ document.addEventListener('DOMContentLoaded', () => {
     const sources = [];
     // Worker só para os tópicos que ele conhece (senão volta finanças)
     if (WORKER_TOPICS[topic]) sources.push({ u: NW + '/news?topic=' + encodeURIComponent(topic), kind:'xml' });
-    // proxies que devolvem o RSS completo (dezenas de itens) — evita as lacunas
-    sources.push({ u: 'https://api.allorigins.win/raw?url=' + encodeURIComponent(gnews), kind:'xml' });
+    // proxies que devolvem o RSS completo (dezenas de itens)
     sources.push({ u: 'https://corsproxy.io/?url=' + encodeURIComponent(gnews), kind:'xml' });
-    // rss2json por último: no plano grátis limita a ~10 itens (era o que gerava as lacunas)
+    sources.push({ u: 'https://api.allorigins.win/raw?url=' + encodeURIComponent(gnews), kind:'xml' });
+    // rss2json: no plano grátis limita a ~10 itens; entra na corrida mesmo assim
     sources.push({ u: 'https://api.rss2json.com/v1/api.json?count=40&rss_url=' + encodeURIComponent(gnews), kind:'json' });
 
-    // Mantém o resultado mais RICO (mais notícias), parando cedo quando já é suficiente.
-    let best = null;
-    for (const s of sources){
-      try {
-        const r = await fetch(s.u, { signal: AbortSignal.timeout(12000) });
-        if (!r.ok) continue;
-        const items = s.kind === 'json' ? normJson(await r.json()) : normXml(await r.text());
-        if (items && items.length){
-          if (!best || items.length > best.length) best = items;
-          if (best.length >= 12) break; // já temos notícias suficientes, não precisa insistir
-        }
-      } catch(e){ /* tenta a próxima fonte */ }
-    }
-    if (best && best.length){
-      try { localStorage.setItem(ck, JSON.stringify({ ts: Date.now(), items: best })); } catch(e){}
+    const save = (items) => {
+      try { localStorage.setItem(ck, JSON.stringify({ ts: Date.now(), items })); } catch(e){}
       lastUpdated[topic] = Date.now();
-      return best;
-    }
-    throw new Error('Nenhuma fonte de notícias respondeu. Verifique a conexão e tente novamente.');
+    };
+
+    // Dispara TODAS as fontes AO MESMO TEMPO (paralelo). Resolve assim que a
+    // primeira trouxer um número bom de notícias (>=8) — tempo total = a fonte
+    // mais RÁPIDA, não a soma. Se nenhuma passar de 8, usa a mais rica que veio.
+    // Timeout curto por fonte para não travar em uma lenta.
+    const attempt = (s) => (async () => {
+      const r = await fetch(s.u, { signal: AbortSignal.timeout(6500) });
+      if (!r.ok) throw 0;
+      const items = s.kind === 'json' ? normJson(await r.json()) : normXml(await r.text());
+      if (!items || !items.length) throw 0;
+      return items;
+    })();
+
+    return await new Promise((resolve, reject) => {
+      let pending = sources.length, done = false, best = null;
+      const finish = (items) => { if (done) return; done = true; save(items); resolve(items); };
+      sources.forEach(s => attempt(s)
+        .then(items => {
+          if (items.length >= 8) finish(items);
+          else if (!best || items.length > best.length) best = items;
+        })
+        .catch(() => {})
+        .finally(() => {
+          if (--pending === 0 && !done) {
+            if (best) finish(best);
+            else reject(new Error('Nenhuma fonte de notícias respondeu. Verifique a conexão e tente novamente.'));
+          }
+        }));
+    });
   }
 
   function skeleton(){
@@ -11638,7 +11652,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setTimeout(() => {
     const c = readCache('financas');
     if (!c || Date.now() - c.ts > 20*60*1000) { fetchFresh('financas').catch(() => {}); }
-  }, 4000);
+  }, 1500);
 })();
 /* ═══════════════════════════════════════════════
    NOTAS & TAREFAS — bloco de notas + lista de afazeres
