@@ -10097,7 +10097,7 @@ html[data-theme="light"] .news-detail-close { background: rgba(15,23,42,.55); }
 </nav>
 
 <script src="js/firebase-config.js?v=40"></script>
-<script src="js/app.js?v=43"></script>
+<script src="js/app.js?v=44"></script>
 <script src="js/health.js?v=43"></script>
 <script src="js/study.js?v=40"></script>
 <script>
@@ -11539,16 +11539,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     const [lead, ...rest] = displayed;
     el.innerHTML =
-      `<button class="news-lead" onclick="newsOpen(0)">
+      `<a class="news-lead" href="${esc(lead.l)}" target="_blank" rel="noopener" onclick="newsOpen(0);return false;">
          ${lead.s ? `<span class="news-badge">${esc(lead.s)}</span>` : ''}
          <div class="news-lead-t">${esc(lead.t)}</div>
          <div class="news-m">há ${timeAgo(lead.d)}</div>
-       </button>` +
+       </a>` +
       rest.map((n, i) => `
-        <button class="news-row" onclick="newsOpen(${i + 1})">
+        <a class="news-row" href="${esc(n.l)}" target="_blank" rel="noopener" onclick="newsOpen(${i + 1});return false;">
           <div class="news-t">${esc(n.t)}</div>
           <div class="news-m">${n.s ? `<span class="news-src">${esc(n.s)}</span> · ` : ''}há ${timeAgo(n.d)}</div>
-        </button>`).join('');
+        </a>`).join('');
   }
 
   window.newsTab = function(el, topic){
