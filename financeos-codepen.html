@@ -9400,7 +9400,7 @@ html[data-theme="light"] .nt-editor-close { background: rgba(15,23,42,.04); }
   <!-- PAINEL DE SAÚDE -->
   <section class="page" id="news">
     <div class="page-header">
-      <div><h1>Newsletter</h1><p class="page-sub">Notícias de finanças, mercado e saúde, atualizadas automaticamente.</p></div>
+      <div><h1>Newsletter</h1><p class="page-sub">Notícias de finanças, mercado, esporte e saúde, atualizadas automaticamente.</p></div>
       <button class="btn-sm" onclick="renderNews(true)">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="vertical-align:-2px;margin-right:5px"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
         Atualizar
@@ -9410,6 +9410,7 @@ html[data-theme="light"] .nt-editor-close { background: rgba(15,23,42,.04); }
       <button class="tab active" onclick="newsTab(this,'financas')">Finanças</button>
       <button class="tab" onclick="newsTab(this,'mercado')">Mercado</button>
       <button class="tab" onclick="newsTab(this,'cripto')">Cripto</button>
+      <button class="tab" onclick="newsTab(this,'esporte')">Esporte</button>
       <button class="tab" onclick="newsTab(this,'saude')">Saúde</button>
     </div>
     <div id="newsUpdated" class="news-updated"></div>
@@ -11376,16 +11377,21 @@ document.addEventListener('DOMContentLoaded', () => {
   function srcFromTitle(t){ const m = String(t||'').match(/\s+[-–—]\s+([^-–—]+)$/); return m ? m[1].trim() : ''; }
 
   const QUERIES = {
-    financas: 'economia OR finanças OR investimentos OR juros',
-    mercado:  'bolsa OR ibovespa OR ações OR dólar OR mercado financeiro',
-    cripto:   'bitcoin OR ethereum OR criptomoedas OR blockchain',
-    saude:    'saúde OR bem-estar OR nutrição OR medicina',
+    financas: 'economia OR finanças OR investimentos OR juros OR "Banco Central" OR inflação OR poupança',
+    mercado:  'bolsa OR ibovespa OR ações OR dólar OR "mercado financeiro" OR B3 OR commodities',
+    cripto:   'bitcoin OR ethereum OR criptomoedas OR blockchain OR cripto OR "moeda digital"',
+    saude:    'saúde OR bem-estar OR nutrição OR medicina OR "saúde mental" OR exercício',
+    esporte:  'esporte OR futebol OR brasileirão OR "Copa do Brasil" OR NBA OR "Fórmula 1" OR vôlei OR seleção brasileira',
   };
+  // O Worker só conhece os tópicos financas/saude; para os demais ele devolveria
+  // notícias de finanças. Então só o usamos nesses dois — os outros vão direto
+  // ao Google News (com a query correta do tópico) via proxies.
+  const WORKER_TOPICS = { financas: 1, saude: 1 };
 
   function normXml(xml){
     if (!xml || xml.indexOf('<item') === -1) return null;
     const doc = new DOMParser().parseFromString(xml, 'text/xml');
-    const out = [...doc.querySelectorAll('item')].slice(0, 18).map(it => {
+    const out = [...doc.querySelectorAll('item')].slice(0, 30).map(it => {
       const rawT = it.querySelector('title')?.textContent || '';
       return {
         t: cleanTitle(rawT),
@@ -11399,7 +11405,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function normJson(j){
     const arr = j && (j.items || j.articles);
     if (!Array.isArray(arr) || !arr.length) return null;
-    const out = arr.slice(0, 18).map(it => {
+    const out = arr.slice(0, 30).map(it => {
       const rawT = it.title || '';
       return {
         t: cleanTitle(rawT),
@@ -11422,24 +11428,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const q = QUERIES[topic] || QUERIES.financas;
     const gnews = 'https://news.google.com/rss/search?q=' + encodeURIComponent(q) + '&hl=pt-BR&gl=BR&ceid=BR:pt-419';
-    const sources = [
-      { u: NW + '/news?topic=' + encodeURIComponent(topic), kind:'xml' },
-      { u: 'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(gnews), kind:'json' },
-      { u: 'https://api.allorigins.win/raw?url=' + encodeURIComponent(gnews), kind:'xml' },
-      { u: 'https://corsproxy.io/?url=' + encodeURIComponent(gnews), kind:'xml' },
-    ];
+    const sources = [];
+    // Worker só para os tópicos que ele conhece (senão volta finanças)
+    if (WORKER_TOPICS[topic]) sources.push({ u: NW + '/news?topic=' + encodeURIComponent(topic), kind:'xml' });
+    // proxies que devolvem o RSS completo (dezenas de itens) — evita as lacunas
+    sources.push({ u: 'https://api.allorigins.win/raw?url=' + encodeURIComponent(gnews), kind:'xml' });
+    sources.push({ u: 'https://corsproxy.io/?url=' + encodeURIComponent(gnews), kind:'xml' });
+    // rss2json por último: no plano grátis limita a ~10 itens (era o que gerava as lacunas)
+    sources.push({ u: 'https://api.rss2json.com/v1/api.json?count=40&rss_url=' + encodeURIComponent(gnews), kind:'json' });
 
+    // Mantém o resultado mais RICO (mais notícias), parando cedo quando já é suficiente.
+    let best = null;
     for (const s of sources){
       try {
         const r = await fetch(s.u, { signal: AbortSignal.timeout(12000) });
         if (!r.ok) continue;
         const items = s.kind === 'json' ? normJson(await r.json()) : normXml(await r.text());
         if (items && items.length){
-          try { localStorage.setItem(ck, JSON.stringify({ ts: Date.now(), items })); } catch(e){}
-          lastUpdated[topic] = Date.now();
-          return items;
+          if (!best || items.length > best.length) best = items;
+          if (best.length >= 12) break; // já temos notícias suficientes, não precisa insistir
         }
       } catch(e){ /* tenta a próxima fonte */ }
+    }
+    if (best && best.length){
+      try { localStorage.setItem(ck, JSON.stringify({ ts: Date.now(), items: best })); } catch(e){}
+      lastUpdated[topic] = Date.now();
+      return best;
     }
     // Se tudo falhou, mostra o cache antigo (melhor que nada)
     if (cached && cached.items?.length){ lastUpdated[topic] = cached.ts; return cached.items; }
