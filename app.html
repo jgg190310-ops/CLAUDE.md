@@ -37,7 +37,7 @@
       window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
     }
   </script>
-  <link rel="stylesheet" href="styles/app.css?v=76" />
+  <link rel="stylesheet" href="styles/app.css?v=77" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -1202,8 +1202,12 @@
       <!-- NOTAS -->
       <div class="nt-col">
         <div class="nt-col-head">
-          <h3>Bloco de Notas</h3>
+          <h3>Bloco de Notas <span id="ntNotesCount" class="nt-count"></span></h3>
           <button class="btn-sm" onclick="ntNewNote()">+ Nova</button>
+        </div>
+        <div class="nt-search">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <input id="ntSearch" type="text" placeholder="Buscar nas notas…" autocomplete="off" oninput="ntSearchNotes()" />
         </div>
         <div id="ntNotesGrid" class="nt-notes-grid"></div>
       </div>
@@ -1214,12 +1218,19 @@
       <div class="nt-editor-panel">
         <div class="nt-editor-head">
           <div id="ntEdColors" class="nt-colors"></div>
-          <button class="nt-editor-close" onclick="ntCloseEditor()" aria-label="Fechar">✕</button>
+          <div class="nt-ed-actions">
+            <button id="ntPinBtn" class="nt-ed-pin" onclick="ntTogglePin()" title="Fixar no topo" aria-label="Fixar no topo">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3v5l2 3v2h-5v6l-1 2-1-2v-6H6v-2l2-3V3z"/></svg>
+            </button>
+            <button class="nt-editor-close" onclick="ntCloseEditor()" aria-label="Fechar">✕</button>
+          </div>
         </div>
         <input id="ntEdTitle" class="nt-ed-title" type="text" placeholder="Título da nota" />
-        <textarea id="ntEdBody" class="nt-ed-body" placeholder="Escreva aqui…"></textarea>
+        <textarea id="ntEdBody" class="nt-ed-body" placeholder="Escreva aqui…" oninput="ntUpdateWordCount()"></textarea>
+        <div class="nt-ed-meta" id="ntEdMeta"></div>
         <div class="nt-editor-foot">
           <button id="ntDelNoteBtn" class="nt-ed-del" onclick="ntDelNote()">Excluir</button>
+          <span id="ntWordCount" class="nt-ed-count"></span>
           <button class="nt-ed-save" onclick="ntSaveNote()">Salvar</button>
         </div>
       </div>
@@ -3138,6 +3149,25 @@ document.addEventListener('DOMContentLoaded', () => {
   // ao Google News (com a query correta do tópico) via proxies.
   const WORKER_TOPICS = { financas: 1, saude: 1 };
 
+  // Feeds de EDITORAS por tema — confiáveis e sem a página de consentimento do
+  // Google. Servem de reforço para as abas que só dependem de proxies.
+  const PUB_FEEDS = {
+    financas: ['https://www.infomoney.com.br/feed/'],
+    mercado:  ['https://www.infomoney.com.br/mercados/feed/'],
+    cripto:   ['https://br.cointelegraph.com/rss', 'https://livecoins.com.br/feed/'],
+    esporte:  ['https://ge.globo.com/rss/ge/', 'https://www.cnnbrasil.com.br/esportes/feed/'],
+    saude:    ['https://g1.globo.com/rss/g1/ciencia-e-saude/', 'https://www.cnnbrasil.com.br/saude/feed/'],
+  };
+  // Vários proxies CORS para o mesmo alvo — redundância (o que estiver no ar vence).
+  function proxied(target){
+    return [
+      { u: 'https://corsproxy.io/?url=' + encodeURIComponent(target), kind:'xml' },
+      { u: 'https://api.codetabs.com/v1/proxy/?quest=' + encodeURIComponent(target), kind:'xml' },
+      { u: 'https://api.allorigins.win/raw?url=' + encodeURIComponent(target), kind:'xml' },
+      { u: 'https://api.rss2json.com/v1/api.json?count=40&rss_url=' + encodeURIComponent(target), kind:'json' },
+    ];
+  }
+
   function normXml(xml){
     if (!xml || xml.indexOf('<item') === -1) return null;
     const doc = new DOMParser().parseFromString(xml, 'text/xml');
@@ -3181,11 +3211,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const sources = [];
     // Worker só para os tópicos que ele conhece (senão volta finanças)
     if (WORKER_TOPICS[topic]) sources.push({ u: NW + '/news?topic=' + encodeURIComponent(topic), kind:'xml' });
-    // proxies que devolvem o RSS completo (dezenas de itens)
-    sources.push({ u: 'https://corsproxy.io/?url=' + encodeURIComponent(gnews), kind:'xml' });
-    sources.push({ u: 'https://api.allorigins.win/raw?url=' + encodeURIComponent(gnews), kind:'xml' });
-    // rss2json: no plano grátis limita a ~10 itens; entra na corrida mesmo assim
-    sources.push({ u: 'https://api.rss2json.com/v1/api.json?count=40&rss_url=' + encodeURIComponent(gnews), kind:'json' });
+    // Google News (query certa do tópico) via vários proxies
+    sources.push(...proxied(gnews));
+    // Feeds de editoras do tema (reforço p/ cripto/esporte/saúde não ficarem vazios)
+    (PUB_FEEDS[topic] || []).forEach(f => sources.push(...proxied(f)));
 
     const save = (items) => {
       try { localStorage.setItem(ck, JSON.stringify({ ts: Date.now(), items })); } catch(e){}
@@ -3209,7 +3238,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const finish = (items) => { if (done) return; done = true; save(items); resolve(items); };
       sources.forEach(s => attempt(s)
         .then(items => {
-          if (items.length >= 8) finish(items);
+          if (items.length >= 6) finish(items);
           else if (!best || items.length > best.length) best = items;
         })
         .catch(() => {})
@@ -3423,6 +3452,20 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   /* ── NOTAS ── */
+  function fmtDateTime(ts){ try { const d = new Date(ts); return d.toLocaleDateString('pt-BR',{day:'2-digit',month:'short'}) + ' às ' + d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}); } catch(e){ return ''; } }
+  function updatePinBtn(){
+    const ed = document.getElementById('ntEditor');
+    const btn = document.getElementById('ntPinBtn');
+    if (btn && ed) btn.classList.toggle('active', !!ed.dataset.pinned);
+  }
+  window.ntUpdateWordCount = function(){
+    const b = document.getElementById('ntEdBody'), el = document.getElementById('ntWordCount');
+    if (!b || !el) return;
+    const txt = b.value.trim();
+    const w = txt ? txt.split(/\s+/).length : 0;
+    el.textContent = w + ' palavra' + (w !== 1 ? 's' : '') + ' · ' + b.value.length + ' caracteres';
+  };
+
   window.ntNewNote = function(){ ntOpenEditor(null); };
   window.ntOpenEditor = function(id){
     editingId = id;
@@ -3434,26 +3477,38 @@ document.addEventListener('DOMContentLoaded', () => {
       `<button class="nt-color ${c===cur?'sel':''}" style="--c:${c}" onclick="ntPickColor('${c}',this)" aria-label="Cor"></button>`).join('');
     const ed = document.getElementById('ntEditor');
     ed.dataset.color = cur;
+    ed.dataset.pinned = (note && note.pinned) ? '1' : '';
+    updatePinBtn();
+    ntUpdateWordCount();
+    const meta = document.getElementById('ntEdMeta');
+    if (meta) meta.textContent = note ? ('Editada em ' + fmtDateTime(note.updated)) : 'Nova nota';
     document.getElementById('ntDelNoteBtn').style.display = id ? '' : 'none';
     ed.classList.add('open');
-    setTimeout(() => { const el = document.getElementById('ntEdTitle'); if (el) el.focus(); }, 80);
+    setTimeout(() => { const el = document.getElementById(note ? 'ntEdBody' : 'ntEdTitle'); if (el) el.focus(); }, 80);
   };
   window.ntPickColor = function(c, el){
     document.getElementById('ntEditor').dataset.color = c;
     document.querySelectorAll('#ntEdColors .nt-color').forEach(b => b.classList.remove('sel'));
     el.classList.add('sel');
   };
+  window.ntTogglePin = function(){
+    const ed = document.getElementById('ntEditor');
+    ed.dataset.pinned = ed.dataset.pinned ? '' : '1';
+    updatePinBtn();
+  };
   window.ntCloseEditor = function(){ document.getElementById('ntEditor').classList.remove('open'); editingId = null; };
   window.ntSaveNote = function(){
     const title = document.getElementById('ntEdTitle').value.trim();
     const body = document.getElementById('ntEdBody').value.trim();
-    const color = document.getElementById('ntEditor').dataset.color || NOTE_COLORS[0];
+    const ed = document.getElementById('ntEditor');
+    const color = ed.dataset.color || NOTE_COLORS[0];
+    const pinned = !!ed.dataset.pinned;
     if (!title && !body){ ntCloseEditor(); return; }
     if (editingId){
       const n = notes.find(x => x.id === editingId);
-      if (n){ n.title = title; n.body = body; n.color = color; n.updated = Date.now(); }
+      if (n){ n.title = title; n.body = body; n.color = color; n.pinned = pinned; n.updated = Date.now(); }
     } else {
-      notes.unshift({ id: uid(), title, body, color, updated: Date.now() });
+      notes.unshift({ id: uid(), title, body, color, pinned, updated: Date.now() });
     }
     persist(); ntCloseEditor(); renderNotesGrid();
   };
@@ -3462,14 +3517,24 @@ document.addEventListener('DOMContentLoaded', () => {
     ntCloseEditor(); renderNotesGrid();
   };
 
+  window.ntSearchNotes = function(){ renderNotesGrid(); };
   function renderNotesGrid(){
     const grid = document.getElementById('ntNotesGrid');
     if (!grid) return;
+    const cnt = document.getElementById('ntNotesCount');
+    if (cnt) cnt.textContent = notes.length ? ('· ' + notes.length) : '';
     if (!notes.length){ grid.innerHTML = '<div class="nt-blank nt-notes-blank">Nenhuma nota ainda.<br>Toque em “Nova nota” para começar.</div>'; return; }
-    grid.innerHTML = notes.map(n => `
-      <button class="nt-note" style="--c:${(n.color||'#6366f1')}" onclick="ntOpenEditor('${n.id}')">
+    const searchEl = document.getElementById('ntSearch');
+    const qq = (searchEl ? searchEl.value : '').trim().toLowerCase();
+    // fixadas primeiro, depois mais recentes
+    let list = notes.slice().sort((a, b) => ((b.pinned ? 1 : 0) - (a.pinned ? 1 : 0)) || ((b.updated || 0) - (a.updated || 0)));
+    if (qq) list = list.filter(n => ((n.title || '') + ' ' + (n.body || '')).toLowerCase().includes(qq));
+    if (!list.length){ grid.innerHTML = '<div class="nt-blank nt-notes-blank">Nenhuma nota encontrada.</div>'; return; }
+    grid.innerHTML = list.map(n => `
+      <button class="nt-note ${n.pinned ? 'pinned' : ''}" style="--c:${(n.color || '#6366f1')}" onclick="ntOpenEditor('${n.id}')">
+        ${n.pinned ? '<svg class="nt-pin-ico" width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M16 3v5l2 3v2h-5v6l-1 2-1-2v-6H6v-2l2-3V3z"/></svg>' : ''}
         <div class="nt-note-title">${esc(n.title || 'Sem título')}</div>
-        ${n.body ? `<div class="nt-note-body">${esc(n.body).slice(0,220)}</div>` : ''}
+        ${n.body ? `<div class="nt-note-body">${esc(n.body).slice(0, 220)}</div>` : ''}
         <div class="nt-note-date">${fmtDate(n.updated)}</div>
       </button>`).join('');
   }

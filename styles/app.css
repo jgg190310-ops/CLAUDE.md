@@ -5507,3 +5507,18 @@ html[data-theme="light"] .news-detail-close { background: rgba(15,23,42,.55); }
     padding-bottom: 2px;
   }
 }
+
+/* ── NOTAS: busca, fixar e contagem (elaboração) ── */
+.nt-count { font-size: 11px; font-weight: 600; color: var(--text-3); letter-spacing: 0; }
+.nt-search { display: flex; align-items: center; gap: 8px; background: var(--bg3); border: 1px solid var(--border); border-radius: 12px; padding: 9px 12px; margin-bottom: 14px; color: var(--text-3); }
+.nt-search input { flex: 1; min-width: 0; background: none; border: none; outline: none; color: var(--text); font-size: 14px; font-family: inherit; }
+html[data-theme="light"] .nt-search { background: rgba(15,23,42,.04); }
+.nt-note { position: relative; }
+.nt-note.pinned { border-top: 2px solid var(--c); }
+.nt-pin-ico { position: absolute; top: 12px; right: 12px; color: var(--c); }
+.nt-ed-actions { display: flex; align-items: center; gap: 8px; }
+.nt-ed-pin { width: 32px; height: 32px; flex: 0 0 32px; border-radius: 50%; border: 1px solid var(--border); background: var(--bg3); color: var(--text-3); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background .15s, color .15s, border-color .15s; }
+.nt-ed-pin.active { background: var(--lime, #d3f34f); color: #0c0e04; border-color: var(--lime, #d3f34f); }
+html[data-theme="light"] .nt-ed-pin { background: rgba(15,23,42,.04); }
+.nt-ed-meta { font-size: 11.5px; color: var(--text-3); margin-top: -4px; }
+.nt-ed-count { font-size: 11.5px; color: var(--text-3); margin-right: auto; }
