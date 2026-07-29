@@ -37,7 +37,7 @@
       window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
     }
   </script>
-  <link rel="stylesheet" href="styles/app.css?v=81" />
+  <link rel="stylesheet" href="styles/app.css?v=82" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -1405,6 +1405,27 @@
       </div>
       <button class="btn-primary" style="margin-top:14px" onclick="hSaveGoals()">Salvar metas e corpo</button>
     </div>
+
+    <!-- ── Metas de saúde (personalizadas) ── -->
+    <div class="hg-head">
+      <div>
+        <h2 class="hg-head-title">Minhas metas de saúde</h2>
+        <p class="hg-head-sub">Peso, corrida, treinos, sono — acompanhe o progresso de cada meta.</p>
+      </div>
+      <button class="btn-add" onclick="hOpenGoalModal()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Nova meta
+      </button>
+    </div>
+
+    <div class="goals-summary" id="hgSummary">
+      <div class="goal-stat"><span class="gs-value" id="hgsTotal">0</span><span class="gs-label">Total de metas</span></div>
+      <div class="goal-stat"><span class="gs-value" style="color:#10b981" id="hgsDone">0</span><span class="gs-label">Concluídas</span></div>
+      <div class="goal-stat"><span class="gs-value" style="color:#d3f34f" id="hgsProgress">0</span><span class="gs-label">Em progresso</span></div>
+      <div class="goal-stat"><span class="gs-value" style="color:#f59e0b" id="hgsLate">0</span><span class="gs-label">Atrasadas</span></div>
+    </div>
+
+    <div class="goals-grid" id="hgGrid"><!-- rendered by health.js --></div>
   </section>
 
   <!-- NUTRIBOT (IA de alimentação) -->
@@ -1560,6 +1581,62 @@
     <div class="modal-footer">
       <button class="btn-cancel" onclick="closeModal('goalModal')">Cancelar</button>
       <button class="btn-confirm" onclick="addGoal()">Criar Meta</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL META DE SAÚDE -->
+<div class="modal-backdrop" id="hGoalModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="hGoalModalTitle">Nova Meta de Saúde</h3>
+      <button class="modal-close" onclick="closeModal('hGoalModal')">✕</button>
+    </div>
+    <div class="form-grid-2">
+      <div class="form-group full"><label>Nome da meta</label><input type="text" id="hGoalName" placeholder="Ex: Perder 5 kg" /></div>
+      <div class="form-group"><label>Alvo</label><input type="number" id="hGoalTarget" placeholder="5" step="0.1" /></div>
+      <div class="form-group"><label>Progresso atual</label><input type="number" id="hGoalCurrent" placeholder="0" step="0.1" /></div>
+      <div class="form-group"><label>Unidade</label>
+        <select id="hGoalUnit">
+          <option value="kg">kg</option>
+          <option value="km">km</option>
+          <option value="min">minutos</option>
+          <option value="h">horas</option>
+          <option value="treinos">treinos</option>
+          <option value="dias">dias</option>
+          <option value="passos">passos</option>
+          <option value="copos">copos de água</option>
+          <option value="kcal">kcal</option>
+          <option value="un">unidades</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Prazo</label><input type="date" id="hGoalDeadline" /></div>
+      <div class="form-group"><label>Ícone</label>
+        <select id="hGoalIcon">
+          <option value="weight">Peso / balança</option>
+          <option value="run">Corrida</option>
+          <option value="gym">Treino / academia</option>
+          <option value="sleep">Sono</option>
+          <option value="water">Água</option>
+          <option value="heart">Coração</option>
+          <option value="food">Alimentação</option>
+          <option value="other">Outro</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Cor</label>
+        <select id="hGoalColor">
+          <option value="#10b981">Verde</option>
+          <option value="#3b82f6">Azul</option>
+          <option value="#d3f34f">Lima</option>
+          <option value="#f59e0b">Âmbar</option>
+          <option value="#ef4444">Vermelho</option>
+          <option value="#a855f7">Roxo</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('hGoalModal')">Cancelar</button>
+      <button class="btn-confirm" id="hGoalSaveBtn" onclick="hSaveGoalItem()">Criar meta</button>
     </div>
   </div>
 </div>
@@ -1827,7 +1904,7 @@
 
 <script src="js/firebase-config.js?v=40"></script>
 <script src="js/app.js?v=46"></script>
-<script src="js/health.js?v=43"></script>
+<script src="js/health.js?v=44"></script>
 <script src="js/study.js?v=40"></script>
 <script>
 /* ═══════════════════════════════════════════════

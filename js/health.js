@@ -400,6 +400,7 @@
     setVal('hWeight', b.weight); setVal('hActivity', b.activity || '1.55'); setVal('hObjective', b.objective || 'maintain');
     setVal('hGoalKcal', g.kcal); setVal('hGoalProt', g.prot); setVal('hGoalWater', g.water || 8); setVal('hGoalWeight', g.weight);
     renderTmbResult();
+    renderHGoalsList();
   }
   function renderTmbResult() {
     const body = readBody();
@@ -431,6 +432,181 @@
     hPersist();
     renderTmbResult();
     if (typeof showToast === 'function') showToast('Metas e corpo salvos!', 'success');
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  //  METAS DE SAÚDE (personalizadas) — peso, corrida, treinos, sono…
+  // ════════════════════════════════════════════════════════════════
+  const HG_ICONS = {
+    weight: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M8 9.5 12 8l4 1.5"/><path d="M12 8v4"/></svg>',
+    run:    '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="14" cy="4.5" r="1.8"/><path d="M12 21l1.5-5.5L10 13l1-4.5 3.5 2 2.5-.5"/><path d="M8 10l3-1.5"/><path d="M14 15.5 17 21"/></svg>',
+    gym:    '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><rect x="4" y="8" width="3" height="8" rx="1.5"/><rect x="17" y="8" width="3" height="8" rx="1.5"/><path d="M7 12h10"/><path d="M2 11v2M22 11v2"/></svg>',
+    sleep:  '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>',
+    water:  '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M12 2C6 10 4 13.5 4 16a8 8 0 0 0 16 0c0-2.5-2-6-8-14z"/></svg>',
+    heart:  '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M20.8 6.6a5.5 5.5 0 0 0-7.8 0L12 7.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l8.8 8.8 8.8-8.8a5.5 5.5 0 0 0 0-7.8z"/></svg>',
+    food:   '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M3 2v7a3 3 0 0 0 3 3h1a3 3 0 0 0 3-3V2"/><path d="M6.5 2v20"/><path d="M18 2c-1.7 1.4-2.5 3.3-2.5 5.5S16.3 11 18 12v10"/></svg>',
+    other:  '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="m8.5 12.5 2.5 2.5 4.5-5"/></svg>',
+  };
+
+  function hgList() {
+    const h = hData();
+    if (!Array.isArray(h.healthGoals)) h.healthGoals = [];
+    return h.healthGoals;
+  }
+  function hgStatus(g) {
+    if (g.current >= g.target) return 'done';
+    if (!g.deadline) return 'on-track';
+    return new Date(g.deadline) < new Date(new Date().toDateString()) ? 'late' : 'on-track';
+  }
+  function hgNum(v) {
+    const n = Number(v) || 0;
+    return (Math.round(n * 10) / 10).toLocaleString('pt-BR');
+  }
+
+  function renderHGoalsList() {
+    const grid = document.getElementById('hgGrid');
+    if (!grid) return;
+    const list = hgList();
+
+    const stats = { total: list.length, done: 0, prog: 0, late: 0 };
+    list.forEach(g => {
+      const s = hgStatus(g);
+      if (s === 'done') stats.done++; else if (s === 'late') stats.late++; else stats.prog++;
+    });
+    const put = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+    put('hgsTotal', stats.total); put('hgsDone', stats.done);
+    put('hgsProgress', stats.prog); put('hgsLate', stats.late);
+
+    if (!list.length) {
+      grid.innerHTML = '<div class="cf-empty" style="grid-column:1/-1;padding:36px">Nenhuma meta de saúde ainda. Toque em "Nova meta" para criar a primeira — por exemplo: perder 5 kg, correr 50 km no mês ou treinar 12 vezes.</div>';
+      return;
+    }
+
+    grid.innerHTML = list.map(g => {
+      const status = hgStatus(g);
+      const pct = g.target > 0 ? Math.min(100, Math.round((g.current / g.target) * 100)) : 0;
+      const remaining = Math.max(0, g.target - g.current);
+      const statusLabel = { 'on-track': 'No prazo', late: 'Atrasada', done: 'Concluída' }[status];
+      const color = g.color || '#10b981';
+      const unit = g.unit || '';
+      const deadlineTxt = g.deadline
+        ? new Date(g.deadline + 'T12:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })
+        : 'sem prazo';
+      return `
+      <div class="goal-card hg-card">
+        <div class="goal-card-header">
+          <div class="goal-icon-wrap">
+            <div class="goal-icon-svg" style="--ic:${color}">${HG_ICONS[g.icon] || HG_ICONS.other}</div>
+            <div>
+              <div class="goal-name">${escapeHtml(g.name)}</div>
+              <div class="goal-deadline">Prazo: ${deadlineTxt}</div>
+            </div>
+          </div>
+          <div class="goal-head-right">
+            <span class="goal-status ${status}">${statusLabel}</span>
+            <button class="card-del" onclick="hgDelete(${g.id})" title="Excluir meta">✕</button>
+          </div>
+        </div>
+        <div class="goal-values">
+          <span class="gv-current">${hgNum(g.current)}${unit ? ' ' + unit : ''}</span>
+          <div style="text-align:right">
+            <div class="gv-pct" style="color:${color}">${pct}%</div>
+            <div class="gv-target">de ${hgNum(g.target)}${unit ? ' ' + unit : ''}</div>
+          </div>
+        </div>
+        <div class="goal-bar"><div class="hg-bar-fill" style="width:${pct}%;background:${color}"></div></div>
+        <div class="hg-foot">
+          <span class="hg-remaining">${status === 'done' ? 'Meta batida! 🎉' : `Faltam ${hgNum(remaining)}${unit ? ' ' + unit : ''}`}</span>
+          <span class="hg-acts">
+            <button class="hg-step" onclick="hgBump(${g.id},-1)" title="Diminuir">−</button>
+            <input class="hg-inp" type="number" step="0.1" value="${g.current}" onchange="hgSetProgress(${g.id}, this.value)" aria-label="Progresso atual" />
+            <button class="hg-step" onclick="hgBump(${g.id},1)" title="Aumentar">+</button>
+            <button class="hg-edit" onclick="hOpenGoalModal(${g.id})" title="Editar meta">Editar</button>
+          </span>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  let hgEditingId = null;
+
+  function hOpenGoalModal(id) {
+    const m = document.getElementById('hGoalModal');
+    if (!m) return;
+    hgEditingId = id != null ? id : null;
+    const g = hgEditingId != null ? hgList().find(x => x.id === hgEditingId) : null;
+    const set = (el, v) => { const e = document.getElementById(el); if (e) e.value = v; };
+    set('hGoalName', g ? g.name : '');
+    set('hGoalTarget', g ? g.target : '');
+    set('hGoalCurrent', g ? g.current : '');
+    set('hGoalUnit', g ? (g.unit || 'kg') : 'kg');
+    set('hGoalDeadline', g ? (g.deadline || '') : '');
+    set('hGoalIcon', g ? (g.icon || 'other') : 'weight');
+    set('hGoalColor', g ? (g.color || '#10b981') : '#10b981');
+    const t = document.getElementById('hGoalModalTitle');
+    if (t) t.textContent = g ? 'Editar Meta de Saúde' : 'Nova Meta de Saúde';
+    const b = document.getElementById('hGoalSaveBtn');
+    if (b) b.textContent = g ? 'Salvar alterações' : 'Criar meta';
+    m.classList.add('open');
+  }
+
+  function hSaveGoalItem() {
+    const name = (getVal('hGoalName') || '').trim();
+    const target = parseFloat(getVal('hGoalTarget')) || 0;
+    const current = parseFloat(getVal('hGoalCurrent')) || 0;
+    if (!name || target <= 0) {
+      showToast && showToast('Informe o nome e um alvo maior que zero.', 'error');
+      return;
+    }
+    const patch = {
+      name, target, current,
+      unit: getVal('hGoalUnit') || '',
+      deadline: getVal('hGoalDeadline') || '',
+      icon: getVal('hGoalIcon') || 'other',
+      color: getVal('hGoalColor') || '#10b981',
+    };
+    const list = hgList();
+    if (hgEditingId != null) {
+      const g = list.find(x => x.id === hgEditingId);
+      if (g) Object.assign(g, patch);
+    } else {
+      list.push(Object.assign({ id: Date.now() }, patch));
+    }
+    hPersist();
+    renderHGoalsList();
+    closeModal('hGoalModal');
+    showToast && showToast(hgEditingId != null ? 'Meta atualizada!' : 'Meta de saúde criada!', 'success');
+    hgEditingId = null;
+  }
+
+  function hgSetProgress(id, value) {
+    const g = hgList().find(x => x.id === id);
+    if (!g) return;
+    const wasDone = g.current >= g.target;
+    g.current = Math.max(0, parseFloat(value) || 0);
+    hPersist();
+    renderHGoalsList();
+    if (!wasDone && g.current >= g.target) showToast && showToast(`Meta "${g.name}" concluída! 🎉`, 'success');
+  }
+
+  // passo esperto: 1 para contagens, 0,5 para peso/horas, 100 para passos
+  function hgBump(id, dir) {
+    const g = hgList().find(x => x.id === id);
+    if (!g) return;
+    const step = g.unit === 'passos' ? 500 : g.unit === 'kcal' ? 50
+      : (g.unit === 'kg' || g.unit === 'h') ? 0.5 : 1;
+    hgSetProgress(id, (Number(g.current) || 0) + dir * step);
+  }
+
+  function hgDelete(id) {
+    const list = hgList();
+    const g = list.find(x => x.id === id);
+    if (!g || !confirm(`Excluir a meta "${g.name}"?`)) return;
+    const h = hData();
+    h.healthGoals = list.filter(x => x.id !== id);
+    hPersist();
+    renderHGoalsList();
+    showToast && showToast('Meta excluída');
   }
 
   // helpers DOM
@@ -1794,6 +1970,18 @@
     { id: 'steps',      title: '10.000 passos por dia',    days: 21, icon: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="4" r="1.2"/><path d="m9 20 2-5.5 2.5 2L16 10"/><path d="m7 9 3 1 2-2 3 1"/></svg>', desc: 'Caminhe pelo menos 10.000 passos diários por 3 semanas.' },
   ];
 
+  // ── estado do desafio: tempo decorrido descontando as pausas ─────
+  // c = { id, startDate, pausedMs?, pausedAt? }
+  // Enquanto pausado, o cronômetro congela em pausedAt; ao retomar, o
+  // tempo parado entra em pausedMs para não contar como progresso.
+  function chElapsedMs(c) {
+    const start = new Date(c.startDate).getTime();
+    const until = c.pausedAt ? new Date(c.pausedAt).getTime() : Date.now();
+    return Math.max(0, until - start - (c.pausedMs || 0));
+  }
+  function chDays(c) { return Math.floor(chElapsedMs(c) / 86400000); }
+  function chPaused(c) { return !!c.pausedAt; }
+
   function renderHChallenge() {
     const h = hData();
     if (!h.challenges) h.challenges = [];
@@ -1804,45 +1992,65 @@
     const active = h.challenges.filter(c => {
       const ch = CHALLENGES.find(x => x.id === c.id);
       if (!ch) return false;
-      const daysPassed = Math.floor((Date.now() - new Date(c.startDate)) / 86400000);
-      return daysPassed < ch.days;
+      return chDays(c) < ch.days;
     });
 
     el.innerHTML = `
       <div class="page-header"><div><h1>Desafios de Saúde</h1><p class="page-sub">Acompanhe desafios e desenvolva hábitos saudáveis.</p></div></div>
-      ${active.length ? `<div class="cf-card" style="margin-bottom:16px;border-color:rgba(16,185,129,.3)">
-        <h3 style="font-size:14px;font-weight:700;color:var(--green);margin-bottom:12px">✅ Desafios Ativos</h3>
+      ${active.length ? `<div class="cf-card hch-active">
+        <h3 class="hch-active-title">Desafios em andamento</h3>
         ${active.map(c => {
           const ch = CHALLENGES.find(x => x.id === c.id);
-          const daysPassed = Math.floor((Date.now() - new Date(c.startDate)) / 86400000);
+          const daysPassed = chDays(c);
           const pct = Math.min(100, Math.round(daysPassed / ch.days * 100));
-          return `<div style="margin-bottom:12px">
-            <div style="display:flex;justify-content:space-between;margin-bottom:6px">
-              <span style="font-weight:600;display:flex;align-items:center;gap:8px"><span style="color:var(--indigo)">${ch.icon}</span>${ch.title}</span>
-              <span style="color:var(--text-2);font-size:13px">${daysPassed}/${ch.days} dias</span>
+          const paused = chPaused(c);
+          return `<div class="hch-row${paused ? ' paused' : ''}">
+            <div class="hch-row-top">
+              <span class="hch-row-name"><span class="hch-row-ic">${ch.icon}</span>${ch.title}</span>
+              <span class="hch-row-days">${daysPassed}/${ch.days} dias</span>
             </div>
-            <div style="background:var(--border);border-radius:4px;height:8px">
-              <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,#10b981,#9aa3ad);border-radius:4px;transition:width .4s"></div>
+            <div class="hch-bar"><div class="hch-bar-fill" style="width:${pct}%"></div></div>
+            <div class="hch-row-foot">
+              <span class="hch-row-pct">${paused ? 'Pausado · ' : ''}${pct}% concluído</span>
+              <span class="hch-row-acts">
+                ${paused
+                  ? `<button class="hch-act resume" onclick="hResumeChallenge('${ch.id}')">Retomar</button>`
+                  : `<button class="hch-act" onclick="hPauseChallenge('${ch.id}')">Pausar</button>`}
+                <button class="hch-act" onclick="hResetChallenge('${ch.id}')">Reiniciar</button>
+                <button class="hch-act danger" onclick="hLeaveChallenge('${ch.id}')">Abandonar</button>
+              </span>
             </div>
-            <div style="font-size:12px;color:var(--text-3);margin-top:3px">${pct}% concluído</div>
           </div>`;
         }).join('')}
       </div>` : ''}
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px">
         ${CHALLENGES.map(ch => {
           const joined = h.challenges.find(c => c.id === ch.id);
-          const daysPassed = joined ? Math.floor((Date.now() - new Date(joined.startDate)) / 86400000) : 0;
+          const daysPassed = joined ? chDays(joined) : 0;
           const done = joined && daysPassed >= ch.days;
+          const paused = joined && chPaused(joined);
           const inProgress = joined && !done;
-          return `<div class="cf-card" style="border-color:${inProgress?'rgba(16,185,129,.3)':done?'rgba(99,102,241,.3)':''}">
+          return `<div class="cf-card" style="border-color:${paused?'rgba(245,158,11,.35)':inProgress?'rgba(16,185,129,.3)':done?'rgba(99,102,241,.3)':''}">
             <div style="width:40px;height:40px;border-radius:10px;background:var(--bg2);display:flex;align-items:center;justify-content:center;margin-bottom:10px;color:var(--indigo)">${ch.icon}</div>
             <h3 style="font-size:15px;font-weight:700;margin-bottom:6px">${ch.title}</h3>
             <p style="font-size:13px;color:var(--text-2);margin-bottom:12px;line-height:1.5">${ch.desc}</p>
-            <div style="display:flex;align-items:center;justify-content:space-between">
-              <span style="font-size:12px;color:var(--text-3)">${ch.days} dias</span>
-              ${done ? `<span style="color:var(--indigo);font-weight:700;font-size:12px">Concluído ✓</span>` :
-                inProgress ? `<button class="btn-cancel" onclick="hLeaveChallenge('${ch.id}')" style="font-size:12px;padding:6px 12px">Abandonar</button>` :
-                `<button class="btn-confirm" onclick="hJoinChallenge('${ch.id}')" style="font-size:12px;padding:6px 12px">Aceitar Desafio</button>`}
+            <div class="hch-card-foot">
+              <span class="hch-card-meta">
+                <span style="font-size:12px;color:var(--text-3)">${ch.days} dias${inProgress ? ` · ${daysPassed} feito${daysPassed === 1 ? '' : 's'}` : ''}</span>
+                ${done ? '<span class="hch-badge done">Concluído ✓</span>' : ''}
+                ${paused ? '<span class="hch-badge paused">Pausado</span>' : ''}
+              </span>
+              <span class="hch-row-acts">
+                ${done
+                  ? `<button class="hch-act" onclick="hResetChallenge('${ch.id}')">Fazer de novo</button>`
+                  : inProgress
+                    ? `${paused
+                         ? `<button class="hch-act resume" onclick="hResumeChallenge('${ch.id}')">Retomar</button>`
+                         : `<button class="hch-act" onclick="hPauseChallenge('${ch.id}')">Pausar</button>`}
+                       <button class="hch-act" onclick="hResetChallenge('${ch.id}')">Reiniciar</button>
+                       <button class="hch-act danger" onclick="hLeaveChallenge('${ch.id}')">Abandonar</button>`
+                    : `<button class="btn-confirm" onclick="hJoinChallenge('${ch.id}')" style="font-size:12px;padding:6px 12px">Aceitar Desafio</button>`}
+              </span>
             </div>
           </div>`;
         }).join('')}
@@ -1863,9 +2071,47 @@
   function hLeaveChallenge(id) {
     const h = hData();
     if (!h.challenges) return;
+    const ch = CHALLENGES.find(c => c.id === id);
+    if (!confirm(`Abandonar o desafio "${ch?.title || id}"? Seu progresso será perdido.`)) return;
     h.challenges = h.challenges.filter(c => c.id !== id);
     hPersist();
     renderHChallenge();
+    showToast && showToast('Desafio abandonado');
+  }
+
+  function hPauseChallenge(id) {
+    const h = hData();
+    const c = (h.challenges || []).find(x => x.id === id);
+    if (!c || c.pausedAt) return;
+    c.pausedAt = new Date().toISOString();
+    hPersist();
+    renderHChallenge();
+    showToast && showToast('Desafio pausado — o contador parou.');
+  }
+
+  function hResumeChallenge(id) {
+    const h = hData();
+    const c = (h.challenges || []).find(x => x.id === id);
+    if (!c || !c.pausedAt) return;
+    c.pausedMs = (c.pausedMs || 0) + Math.max(0, Date.now() - new Date(c.pausedAt).getTime());
+    c.pausedAt = null;
+    hPersist();
+    renderHChallenge();
+    showToast && showToast('Desafio retomado!', 'success');
+  }
+
+  function hResetChallenge(id) {
+    const h = hData();
+    const c = (h.challenges || []).find(x => x.id === id);
+    if (!c) return;
+    const ch = CHALLENGES.find(x => x.id === id);
+    if (!confirm(`Reiniciar "${ch?.title || id}"? A contagem volta para o dia 0.`)) return;
+    c.startDate = new Date().toISOString();
+    c.pausedMs = 0;
+    c.pausedAt = null;
+    hPersist();
+    renderHChallenge();
+    showToast && showToast('Desafio reiniciado do zero!', 'success');
   }
 
   function renderHWhoop() {
@@ -1910,6 +2156,8 @@
     hAddMeal, hQuickAdd, hDelMeal, hWater, hSaveGoals, hUseSuggested, nbSend,
     hAddExercise, hDelExercise, hAddSleep, hDelSleep, hAddWeight, hDelWeight,
     hJoinChallenge, hLeaveChallenge, hCalcRun, hUseSuggested, renderHWhoop,
+    hPauseChallenge, hResumeChallenge, hResetChallenge,
+    hOpenGoalModal, hSaveGoalItem, hgSetProgress, hgBump, hgDelete,
   });
 
   // ── restaura último app aberto ───────────────────────────────────

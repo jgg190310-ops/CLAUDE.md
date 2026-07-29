@@ -7960,6 +7960,84 @@ html[data-theme="light"] .wc2-uri { color-scheme: light; }
   .wc2-hero { padding: 26px 18px 22px; }
 }
 
+/* ============================================================
+   Desafios de saúde — controles de pausar / reiniciar
+   ============================================================ */
+.hch-active { margin-bottom: 16px; border-color: rgba(16,185,129,.3); }
+.hch-active-title { font-size: 14px; font-weight: 700; color: var(--green); margin-bottom: 14px; }
+.hch-row { padding: 12px 0; border-top: 1px solid var(--border); }
+.hch-row:first-of-type { border-top: none; padding-top: 0; }
+.hch-row.paused { opacity: .72; }
+.hch-row-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 8px; }
+.hch-row-name { font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 8px; min-width: 0; }
+.hch-row-ic { color: var(--indigo); flex: none; display: flex; }
+.hch-row-days { color: var(--text-2); font-size: 13px; flex: none; }
+.hch-bar { background: var(--border); border-radius: 4px; height: 8px; overflow: hidden; }
+.hch-bar-fill { height: 100%; background: linear-gradient(90deg,#10b981,#9aa3ad); border-radius: 4px; transition: width .4s; }
+.hch-row.paused .hch-bar-fill { background: linear-gradient(90deg,#f59e0b,#b98a2e); }
+.hch-row-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; margin-top: 8px; }
+.hch-row-pct { font-size: 12px; color: var(--text-3); }
+.hch-row-acts, .hch-card-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.hch-card-foot { flex-direction: column; align-items: stretch; gap: 10px; }
+.hch-card-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.hch-act {
+  font-size: 12px; font-weight: 600; padding: 6px 11px;
+  border-radius: 999px; cursor: pointer;
+  border: 1px solid var(--border); background: var(--bg3); color: var(--text-2);
+  transition: border-color .16s, color .16s, background .16s;
+}
+.hch-act:hover { color: var(--text); border-color: rgba(255,255,255,.24); }
+.hch-act.resume { color: #10b981; border-color: rgba(16,185,129,.4); background: rgba(16,185,129,.1); }
+.hch-act.danger:hover { color: #ef4444; border-color: rgba(239,68,68,.45); background: rgba(239,68,68,.08); }
+.hch-badge { font-size: 11px; font-weight: 800; letter-spacing: .03em; padding: 4px 9px; border-radius: 999px; }
+.hch-badge.done { color: var(--indigo); background: rgba(99,102,241,.12); }
+.hch-badge.paused { color: #f59e0b; background: rgba(245,158,11,.14); }
+html[data-theme="light"] .hch-act { background: rgba(15,23,42,.04); border-color: rgba(15,23,42,.12); }
+html[data-theme="light"] .hch-act:hover { border-color: rgba(15,23,42,.24); }
+
+/* ============================================================
+   Metas de saúde (personalizadas)
+   ============================================================ */
+.hg-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 14px; flex-wrap: wrap; margin: 30px 0 16px; }
+.hg-head-title { font-size: 19px; font-weight: 800; letter-spacing: -.02em; margin: 0; }
+.hg-head-sub { font-size: 13px; color: var(--text-2); margin: 4px 0 0; }
+/* barra própria: cada meta de saúde usa a cor escolhida pelo usuário
+   (o tema editorial força lima em .goal-bar-fill, só no FinanceOS) */
+.hg-bar-fill { height: 100%; border-radius: 6px; transition: width .8s cubic-bezier(.16,1,.3,1); }
+.hg-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin-top: 12px; }
+.hg-remaining { font-size: 12.5px; color: var(--text-2); }
+.hg-acts { display: flex; align-items: center; gap: 6px; }
+.hg-step {
+  width: 30px; height: 30px; flex: none;
+  border-radius: 8px; cursor: pointer;
+  border: 1px solid var(--border); background: var(--bg3); color: var(--text);
+  font-size: 16px; font-weight: 700; line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+}
+.hg-step:hover { border-color: rgba(255,255,255,.24); }
+.hg-inp {
+  width: 66px; padding: 6px 8px; text-align: center;
+  border-radius: 8px; border: 1px solid var(--border);
+  background: var(--bg3); color: var(--text); font-size: 13px; font-weight: 600;
+}
+.hg-inp:focus { outline: none; border-color: rgba(16,185,129,.55); }
+.hg-edit {
+  font-size: 12px; font-weight: 600; padding: 6px 11px;
+  border-radius: 999px; cursor: pointer;
+  border: 1px solid var(--border); background: none; color: var(--text-2);
+}
+.hg-edit:hover { color: var(--text); border-color: rgba(255,255,255,.24); }
+html[data-theme="light"] .hg-step,
+html[data-theme="light"] .hg-inp { background: rgba(15,23,42,.04); border-color: rgba(15,23,42,.12); color-scheme: light; }
+html[data-theme="light"] .hg-step:hover,
+html[data-theme="light"] .hg-edit:hover { border-color: rgba(15,23,42,.24); }
+@media (max-width: 640px) {
+  .hg-head { margin-top: 24px; }
+  .hg-foot { flex-direction: column; align-items: stretch; }
+  .hg-acts { justify-content: space-between; }
+  .hg-inp { flex: 1; width: auto; }
+}
+
 
 /* ══ VIEW SWITCHING ══ */
 #appView   { display: none; }
@@ -9920,6 +9998,27 @@ html[data-theme="light"] .wc2-uri { color-scheme: light; }
       </div>
       <button class="btn-primary" style="margin-top:14px" onclick="hSaveGoals()">Salvar metas e corpo</button>
     </div>
+
+    <!-- ── Metas de saúde (personalizadas) ── -->
+    <div class="hg-head">
+      <div>
+        <h2 class="hg-head-title">Minhas metas de saúde</h2>
+        <p class="hg-head-sub">Peso, corrida, treinos, sono — acompanhe o progresso de cada meta.</p>
+      </div>
+      <button class="btn-add" onclick="hOpenGoalModal()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Nova meta
+      </button>
+    </div>
+
+    <div class="goals-summary" id="hgSummary">
+      <div class="goal-stat"><span class="gs-value" id="hgsTotal">0</span><span class="gs-label">Total de metas</span></div>
+      <div class="goal-stat"><span class="gs-value" style="color:#10b981" id="hgsDone">0</span><span class="gs-label">Concluídas</span></div>
+      <div class="goal-stat"><span class="gs-value" style="color:#d3f34f" id="hgsProgress">0</span><span class="gs-label">Em progresso</span></div>
+      <div class="goal-stat"><span class="gs-value" style="color:#f59e0b" id="hgsLate">0</span><span class="gs-label">Atrasadas</span></div>
+    </div>
+
+    <div class="goals-grid" id="hgGrid"><!-- rendered by health.js --></div>
   </section>
 
   <!-- NUTRIBOT (IA de alimentação) -->
@@ -10075,6 +10174,62 @@ html[data-theme="light"] .wc2-uri { color-scheme: light; }
     <div class="modal-footer">
       <button class="btn-cancel" onclick="closeModal('goalModal')">Cancelar</button>
       <button class="btn-confirm" onclick="addGoal()">Criar Meta</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL META DE SAÚDE -->
+<div class="modal-backdrop" id="hGoalModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="hGoalModalTitle">Nova Meta de Saúde</h3>
+      <button class="modal-close" onclick="closeModal('hGoalModal')">✕</button>
+    </div>
+    <div class="form-grid-2">
+      <div class="form-group full"><label>Nome da meta</label><input type="text" id="hGoalName" placeholder="Ex: Perder 5 kg" /></div>
+      <div class="form-group"><label>Alvo</label><input type="number" id="hGoalTarget" placeholder="5" step="0.1" /></div>
+      <div class="form-group"><label>Progresso atual</label><input type="number" id="hGoalCurrent" placeholder="0" step="0.1" /></div>
+      <div class="form-group"><label>Unidade</label>
+        <select id="hGoalUnit">
+          <option value="kg">kg</option>
+          <option value="km">km</option>
+          <option value="min">minutos</option>
+          <option value="h">horas</option>
+          <option value="treinos">treinos</option>
+          <option value="dias">dias</option>
+          <option value="passos">passos</option>
+          <option value="copos">copos de água</option>
+          <option value="kcal">kcal</option>
+          <option value="un">unidades</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Prazo</label><input type="date" id="hGoalDeadline" /></div>
+      <div class="form-group"><label>Ícone</label>
+        <select id="hGoalIcon">
+          <option value="weight">Peso / balança</option>
+          <option value="run">Corrida</option>
+          <option value="gym">Treino / academia</option>
+          <option value="sleep">Sono</option>
+          <option value="water">Água</option>
+          <option value="heart">Coração</option>
+          <option value="food">Alimentação</option>
+          <option value="other">Outro</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Cor</label>
+        <select id="hGoalColor">
+          <option value="#10b981">Verde</option>
+          <option value="#3b82f6">Azul</option>
+          <option value="#d3f34f">Lima</option>
+          <option value="#f59e0b">Âmbar</option>
+          <option value="#ef4444">Vermelho</option>
+          <option value="#a855f7">Roxo</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('hGoalModal')">Cancelar</button>
+      <button class="btn-confirm" id="hGoalSaveBtn" onclick="hSaveGoalItem()">Criar meta</button>
     </div>
   </div>
 </div>
@@ -10342,7 +10497,7 @@ html[data-theme="light"] .wc2-uri { color-scheme: light; }
 
 <script src="js/firebase-config.js?v=40"></script>
 <script src="js/app.js?v=46"></script>
-<script src="js/health.js?v=43"></script>
+<script src="js/health.js?v=44"></script>
 <script src="js/study.js?v=40"></script>
 <script>
 /* ═══════════════════════════════════════════════
