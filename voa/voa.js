@@ -20,6 +20,24 @@
     bebidas: 'Vinhos e bebidas',
   };
 
+  /* ícones de traço 24×24, um por categoria */
+  const ICONES = {
+    moda: '<path d="M8.5 4 4 7l2.5 3.5L8 9.6V20h8V9.6l1.5.9L20 7l-4.5-3a3.5 3.5 0 0 1-7 0z"/>',
+    calcados: '<path d="M3 17v-5.5l3.5-.5L9 7l3 1.2-.4 2.6 3.4 1.5 5 1.2c.9.2 1.5 1 1.5 1.9V17z"/><path d="M3 17v2.5h18V17"/>',
+    beleza: '<path d="M9.5 3h5v3h-5zM10.5 6h3v3h-3z"/><rect x="6.5" y="9" width="11" height="12" rx="2.5"/><path d="M10 14h4"/>',
+    eletronicos: '<path d="M4 15v-2a8 8 0 0 1 16 0v2"/><rect x="3.5" y="14" width="4" height="6.5" rx="1.5"/><rect x="16.5" y="14" width="4" height="6.5" rx="1.5"/>',
+    casa: '<path d="M8.5 3h7l2.5 8H6z"/><path d="M12 11v8M8 21h8"/>',
+    livraria: '<path d="M12 6.5C10.5 5 8 4.5 4 4.5v14c4 0 6.5.5 8 2 1.5-1.5 4-2 8-2v-14c-4 0-6.5.5-8 2z"/><path d="M12 6.5v14"/>',
+    brinquedos: '<rect x="3.5" y="13" width="7" height="7" rx="1"/><rect x="13.5" y="13" width="7" height="7" rx="1"/><rect x="8.5" y="4" width="7" height="7" rx="1"/>',
+    esportes: '<circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.8 2.3 2.8 14.7 0 17M12 3.5c-2.8 2.3-2.8 14.7 0 17"/>',
+    joias: '<path d="M6.5 4h11l3.5 5-9 11L3 9z"/><path d="M3 9h18M9.5 4 8 9l4 11 4-11-1.5-5"/>',
+    chocolates: '<circle cx="12" cy="12" r="4"/><path d="M8.3 10.5 4 8v8l4.3-2.5M15.7 10.5 20 8v8l-4.3-2.5"/>',
+    flores: '<path d="M7 4.5 9.5 7 12 4l2.5 3L17 4.5V9a5 5 0 0 1-10 0z"/><path d="M12 14v7M12 18.5c-1.5-2-3.5-2.5-5.5-2M12 18.5c1.5-2 3.5-2.5 5.5-2"/>',
+    bebidas: '<path d="M8 3h8v5a4 4 0 0 1-8 0z"/><path d="M8 6.5h8M12 12v8M8.5 20.5h7"/>',
+    loja: '<path d="M4 9.5 5.5 4h13L20 9.5"/><path d="M4 9.5a2.7 2.7 0 0 0 5.3 0 2.7 2.7 0 0 0 5.4 0 2.7 2.7 0 0 0 5.3 0"/><path d="M5.5 12v8.5h13V12M10 20.5v-5h4v5"/>',
+  };
+  const icone = (cat) => `<span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true">${ICONES[cat] || ICONES.loja}</svg></span>`;
+
   const DIAS = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sab'];
   const MESES = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
 
@@ -178,10 +196,13 @@
 
     return `<article class="loja">
       <div class="loja-topo">
-        <h3>${esc(l.nome)}</h3>
-        ${l.horario ? `<span class="estado ${aberta ? 'on' : 'off'}">${aberta ? 'Aberta agora' : 'Fechada agora'}</span>` : ''}
+        ${icone(l.categoria)}
+        <div class="loja-tit">
+          <h3>${esc(l.nome)}</h3>
+          ${l.categoria ? `<p class="loja-cat">${esc(CATEGORIAS[l.categoria] || l.categoria)}</p>` : ''}
+        </div>
+        ${l.horario ? `<span class="estado ${aberta ? 'on' : 'off'}">${aberta ? 'Aberta' : 'Fechada'}</span>` : ''}
       </div>
-      ${l.categoria ? `<p class="loja-cat">${esc(CATEGORIAS[l.categoria] || l.categoria)}</p>` : ''}
       <p class="loja-local">${local.filter(Boolean).map(esc).join(' · ')}</p>
       ${l.horario ? `<p class="loja-hora">Hoje: ${faixa ? esc(faixa.replace('-', '–')) : 'fechada'}</p>` : ''}
       ${tags.length ? `<ul class="tags">${tags.map((t) => `<li>${esc(t)}</li>`).join('')}</ul>` : ''}
@@ -202,12 +223,22 @@
       .join('');
   }
 
-  function vazioHTML(titulo, texto) {
+  function flaps(n) {
+    return `<span class="flaps">${String(n).padStart(2, '0').split('').map((d) => `<span class="flap">${d}</span>`).join('')}</span>`;
+  }
+
+  /* canhoto com o contador zerado; `rotulo` fica embaixo do número */
+  function vazioHTML(titulo, texto, { rotulo = 'lojas', botao } = {}) {
+    const acao = botao === undefined
+      ? '<button class="btn-sec" type="button" data-abrir-lojista>Tenho uma loja</button>'
+      : botao;
     return `<div class="vazio">
-      <p class="vazio-cod">0 LOJAS</p>
-      <h3>${esc(titulo)}</h3>
-      <p>${esc(texto)}</p>
-      <button class="btn-sec" type="button" data-abrir-lojista>Tenho uma loja</button>
+      <div class="vazio-num" aria-hidden="true">${flaps(0)}<small>${esc(rotulo)}</small></div>
+      <div class="vazio-txt">
+        <h3>${esc(titulo)}</h3>
+        <p>${esc(texto)}</p>
+        ${acao}
+      </div>
     </div>`;
   }
 
@@ -248,12 +279,10 @@
       if (!doSetor.length) {
         lista.innerHTML = vazioHTML(setor.vazio[0], setor.vazio[1]);
       } else if (!lojas.length) {
-        lista.innerHTML = `<div class="vazio">
-          <p class="vazio-cod">0 DE ${doSetor.length}</p>
-          <h3>Nenhuma loja com esses filtros</h3>
-          <p>Tire um filtro ou escolha outra categoria.</p>
-          <button class="btn-sec" type="button" data-limpar>Limpar filtros</button>
-        </div>`;
+        lista.innerHTML = vazioHTML('Nenhuma loja com esses filtros', 'Tire um filtro ou escolha outra categoria.', {
+          rotulo: `de ${doSetor.length}`,
+          botao: '<button class="btn-sec" type="button" data-limpar>Limpar filtros</button>',
+        });
       } else {
         lista.innerHTML = listaHTML(lojas, setor.agrupar);
       }
@@ -285,24 +314,44 @@
     desenhar();
   }
 
-  /* ---------- painel de setores (início) ---------- */
-  function flaps(n) {
-    return String(n).padStart(2, '0').split('').map((d) => `<span class="flap">${d}</span>`).join('');
+  /* ---------- painel de setores (início) e canhoto de cada setor ---------- */
+  function situacao(setor, agora = new Date()) {
+    const lojas = LOJAS.filter(setor.pertence);
+    const abertas = lojas.filter((l) => abertaAgora(l, agora)).length;
+    const status = !lojas.length ? 'Aguardando lojas' : `${abertas} aberta${abertas === 1 ? '' : 's'} agora`;
+    return { total: lojas.length, abertas, status };
   }
 
   function montarPainel() {
     const agora = new Date();
     $('#painel-linhas').innerHTML = SETORES.map((s) => {
-      const lojas = LOJAS.filter(s.pertence);
-      const abertas = lojas.filter((l) => abertaAgora(l, agora)).length;
-      const status = !lojas.length ? 'Aguardando lojas' : `${abertas} aberta${abertas === 1 ? '' : 's'} agora`;
+      const { total, abertas, status } = situacao(s, agora);
       return `<li><a class="linha" href="#${s.id}" style="--c: var(${s.corPainel})">
         <span class="l-cod">${s.codigo}</span>
         <span class="l-nome"><span data-flap>${esc(s.nome)}</span><small>${esc(s.resumo)}</small></span>
-        <span class="l-lojas"><span class="sr">${plural(lojas.length)}</span><span aria-hidden="true">${flaps(lojas.length)}</span></span>
+        <span class="l-lojas"><span class="sr">${plural(total)}</span><span aria-hidden="true">${flaps(total)}</span></span>
         <span class="l-status${abertas ? ' on' : ''}">${status}</span>
       </a></li>`;
     }).join('');
+  }
+
+  function atualizarPasse(setor) {
+    const { total, abertas } = situacao(setor);
+    const view = $(`[data-view="${setor.id}"]`);
+    $('[data-passe-lojas]', view).textContent = String(total).padStart(2, '0');
+    $('[data-passe-status]', view).textContent = !total ? 'Aguardando' : `${abertas} aberta${abertas === 1 ? '' : 's'}`;
+  }
+
+  /* ---------- categorias (início) ---------- */
+  function montarCategorias() {
+    const grade = $('#cats-grade');
+    grade.innerHTML = Object.entries(CATEGORIAS).map(([cat, rotulo]) => (
+      `<button type="button" class="cat" data-cat-busca="${cat}">${icone(cat)}<span>${esc(rotulo)}</span></button>`
+    )).join('');
+    grade.addEventListener('click', (e) => {
+      const b = e.target.closest('[data-cat-busca]');
+      if (b) buscar('', b.dataset.catBusca);
+    });
   }
 
   /* letras do painel giram rapidinho antes de assentar, como num painel de aeroporto */
@@ -441,8 +490,11 @@
     function ativar(para) {
       $$('[data-para]', grupo).forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.para === para)));
       lista.innerHTML = IDEIAS[para].map(([ideia, cat]) => `<li class="ideia">
-        <strong>${esc(ideia)}</strong>
-        <button type="button" class="ideia-ir" data-cat="${cat}">Ver lojas de ${esc(CATEGORIAS[cat])}</button>
+        ${icone(cat)}
+        <div>
+          <strong>${esc(ideia)}</strong>
+          <button type="button" class="ideia-ir" data-cat="${cat}">Ver lojas de ${esc(CATEGORIAS[cat])}</button>
+        </div>
       </li>`).join('');
     }
 
@@ -461,18 +513,28 @@
 
   /* ---------- busca ---------- */
   let termo = '';
+  let catBusca = ''; // categoria escolhida na grade do início
 
   function desenharBusca() {
     const titulo = $('#busca-titulo');
     const alvo = $('#busca-lista');
+    const nomeCat = CATEGORIAS[catBusca];
     $$('[data-busca] input').forEach((i) => { i.value = termo; });
 
     if (!LOJAS.length) {
-      titulo.textContent = termo ? `Busca por “${termo}”` : 'Buscar lojas';
+      titulo.textContent = nomeCat || (termo ? `Busca por “${termo}”` : 'Buscar lojas');
       alvo.innerHTML = vazioHTML(
-        'Ainda não há lojas cadastradas na VOA',
+        nomeCat ? `Ainda não há lojas de ${nomeCat} na VOA` : 'Ainda não há lojas cadastradas na VOA',
         'Assim que as primeiras lojas entrarem, a busca encontra lojas por nome, categoria, bairro ou shopping.',
       );
+      return;
+    }
+    if (nomeCat) {
+      const achadas = LOJAS.filter((l) => l.categoria === catBusca);
+      titulo.textContent = `${nomeCat} · ${plural(achadas.length)}`;
+      alvo.innerHTML = achadas.length
+        ? listaHTML(achadas)
+        : vazioHTML(`Nenhuma loja de ${nomeCat} ainda`, 'Veja outra categoria ou busque pelo nome da loja.', { botao: '' });
       return;
     }
     if (!termo) {
@@ -487,16 +549,21 @@
     titulo.textContent = `${plural(achadas.length)} para “${termo}”`;
     alvo.innerHTML = achadas.length
       ? listaHTML(achadas)
-      : `<div class="vazio"><p class="vazio-cod">0 LOJAS</p><h3>Nada encontrado para “${esc(termo)}”</h3><p>Tente o nome da loja, uma categoria como “livraria” ou um bairro.</p></div>`;
+      : vazioHTML(`Nada encontrado para “${termo}”`, 'Tente o nome da loja, uma categoria como “livraria” ou um bairro.', { botao: '' });
+  }
+
+  function buscar(texto, cat = '') {
+    termo = texto;
+    catBusca = cat;
+    if (location.hash === '#busca') desenharBusca();
+    else location.hash = 'busca';
   }
 
   function montarBusca() {
     $$('[data-busca]').forEach((form) => {
       form.addEventListener('submit', (e) => {
         e.preventDefault();
-        termo = $('input', form).value.trim();
-        if (location.hash === '#busca') desenharBusca();
-        else location.hash = 'busca';
+        buscar($('input', form).value.trim());
       });
     });
   }
@@ -527,7 +594,7 @@
 
     if (id === 'busca') desenharBusca();
     const setor = SETORES.find((s) => s.id === id);
-    if (setor && setor.desenhar) setor.desenhar(); // atualiza "aberta agora"
+    if (setor && setor.desenhar) { setor.desenhar(); atualizarPasse(setor); } // atualiza "aberta agora"
 
     if (!primeira) {
       window.scrollTo(0, 0);
@@ -550,6 +617,8 @@
   /* ---------- início ---------- */
   montarPainel();
   SETORES.forEach(montarBloco);
+  SETORES.forEach(atualizarPasse);
+  montarCategorias();
   montarTroca();
   montarIdeias();
   montarBusca();
