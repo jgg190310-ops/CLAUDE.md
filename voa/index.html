@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>VOA</title>
+  <meta name="description" content="VOA: lojas organizadas por setor. Troca de presente, presente de última hora, shopping e lojas de rua.">
+  <meta name="theme-color" content="#0D1630">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon-180.png">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="VOA">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=B612+Mono:wght@400;700&display=swap">
+  <link rel="stylesheet" href="voa.css">
+</head>
+<body>
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
+
+<header class="topo">
+  <div class="topo-in">
+    <a class="marca" href="#inicio" aria-label="VOA, início">
+      <svg viewBox="0 0 32 32" aria-hidden="true">
+        <path class="aviao-a" d="M2 14.5 30 3 14.5 18.5z"/>
+        <path class="aviao-b" d="M14.5 18.5 30 3 21.5 29z"/>
+        <path class="aviao-c" d="M14.5 18.5 13 27l4.2-4.4z"/>
+      </svg>
+      <span>VOA</span>
+    </a>
+    <nav class="nav" aria-label="Setores">
+      <a href="#inicio" data-nav="inicio">Início</a>
+      <a href="#troca" data-nav="troca">Troca</a>
+      <a href="#ultima-hora" data-nav="ultima-hora">Última hora</a>
+      <a href="#shopping" data-nav="shopping">Shopping</a>
+      <a href="#rua" data-nav="rua">Lojas de rua</a>
+    </nav>
+    <button class="btn-lojista" type="button" data-abrir-lojista>Tenho uma loja</button>
+  </div>
+</header>
+
+<main id="conteudo" class="wrap">
+
+  <!-- Início -->
+  <section class="view" id="v-inicio" data-view="inicio">
+    <div class="inicio">
+      <div class="hero">
+        <p class="eyebrow">Presentes e lojas, por setor</p>
+        <h1 tabindex="-1">O presente certo, <em>na hora certa.</em></h1>
+        <p class="lede">Na VOA as lojas ficam em quatro setores. Troque o presente que não serviu, ache um em cima da hora ou explore as lojas de shopping e de rua da sua cidade.</p>
+        <form class="busca" role="search" data-busca>
+          <label class="sr" for="busca-q">Buscar lojas</label>
+          <input id="busca-q" type="search" name="q" placeholder="Loja, categoria ou bairro" autocomplete="off">
+          <button class="btn" type="submit">Buscar</button>
+        </form>
+      </div>
+
+      <div class="painel" role="region" aria-labelledby="painel-titulo">
+        <div class="painel-topo">
+          <h2 id="painel-titulo">Painel de setores</h2>
+          <span class="painel-hora" id="painel-hora"></span>
+        </div>
+        <div class="painel-cab" aria-hidden="true"><span>Cód.</span><span>Setor</span><span>Lojas</span><span>Status</span></div>
+        <ol class="painel-linhas" id="painel-linhas"></ol>
+      </div>
+    </div>
+
+    <div class="faixa">
+      <div class="faixa-txt">
+        <h2>Tem uma loja?</h2>
+        <p>A VOA ainda não tem lojas cadastradas. O cadastro abre em breve, e cada loja vai aparecer nos setores que combinam com ela.</p>
+      </div>
+      <button class="btn-sec" type="button" data-abrir-lojista>Como vai funcionar</button>
+    </div>
+  </section>
+
+  <!-- Troca de presente -->
+  <section class="view setor" id="v-troca" data-view="troca" data-setor="troca" hidden>
+    <header class="setor-cab">
+      <p class="setor-cod"><span>TRC</span> Setor de troca</p>
+      <h1 tabindex="-1">Troca de presente</h1>
+      <p class="lede">Ganhou um presente que não serviu? Aqui ficam as lojas com a política de troca de cada uma: prazo, se precisa de nota e em qual unidade dá para trocar.</p>
+    </header>
+
+    <div class="ferramenta" role="region" aria-labelledby="calc-titulo">
+      <form class="ferramenta-form" id="form-troca">
+        <h2 id="calc-titulo">Até quando dá para trocar?</h2>
+        <div class="campo">
+          <label for="troca-data">Data da compra <small>(ou da entrega, se veio pela internet)</small></label>
+          <input type="date" id="troca-data">
+        </div>
+        <fieldset class="seg">
+          <legend>Onde foi comprado</legend>
+          <input type="radio" name="troca-onde" id="onde-loja" value="loja" checked><label for="onde-loja">Na loja</label>
+          <input type="radio" name="troca-onde" id="onde-online" value="online"><label for="onde-online">Internet ou telefone</label>
+        </fieldset>
+        <fieldset class="seg">
+          <legend>Motivo</legend>
+          <input type="radio" name="troca-motivo" id="motivo-gosto" value="gosto" checked><label for="motivo-gosto">Não serviu ou não gostei</label>
+          <input type="radio" name="troca-motivo" id="motivo-defeito" value="defeito"><label for="motivo-defeito">Veio com defeito</label>
+        </fieldset>
+        <fieldset class="seg" id="troca-tipo" hidden>
+          <legend>Tipo de produto</legend>
+          <input type="radio" name="troca-tipo" id="tipo-duravel" value="duravel" checked><label for="tipo-duravel">Durável <small>roupa, calçado, eletrônico</small></label>
+          <input type="radio" name="troca-tipo" id="tipo-nao-duravel" value="nao-duravel"><label for="tipo-nao-duravel">Não durável <small>comida, cosmético, flores</small></label>
+        </fieldset>
+      </form>
+      <div class="ferramenta-res" id="troca-res" aria-live="polite"></div>
+    </div>
+
+    <div class="levar">
+      <h3>O que levar na troca</h3>
+      <ul>
+        <li>Nota fiscal ou cupom de troca</li>
+        <li>Etiqueta ainda presa ao produto</li>
+        <li>Produto sem sinais de uso</li>
+        <li>Embalagem original, se tiver</li>
+      </ul>
+      <p class="nota">Informação geral com base no Código de Defesa do Consumidor. Em caso de dúvida, procure o Procon da sua cidade.</p>
+    </div>
+
+    <div class="lojas-bloco" data-bloco></div>
+  </section>
+
+  <!-- Presente de última hora -->
+  <section class="view setor" id="v-ultima-hora" data-view="ultima-hora" data-setor="ultima-hora" hidden>
+    <header class="setor-cab">
+      <p class="setor-cod"><span>ULT</span> Última chamada</p>
+      <h1 tabindex="-1">Presente de última hora</h1>
+      <p class="lede">Esqueceu ou deixou para depois? Este setor mostra lojas abertas agora, com entrega no mesmo dia ou retirada rápida.</p>
+    </header>
+
+    <div class="relogio" role="region" aria-label="Relógio da última chamada">
+      <p class="relogio-hora" id="relogio-hora"></p>
+      <div class="relogio-txt">
+        <p id="relogio-msg"></p>
+        <p class="relogio-nota">Horário típico de shopping: seg. a sáb. das 10h às 22h, dom. das 14h às 20h. Cada loja tem o seu.</p>
+      </div>
+    </div>
+
+    <div class="ideias">
+      <h2>Ideias que dão certo em cima da hora</h2>
+      <div class="chips" role="group" aria-label="Para quem é o presente" id="ideias-para">
+        <button type="button" class="chip" data-para="mae" aria-pressed="true">Mãe</button>
+        <button type="button" class="chip" data-para="pai" aria-pressed="false">Pai</button>
+        <button type="button" class="chip" data-para="par" aria-pressed="false">Namorado(a)</button>
+        <button type="button" class="chip" data-para="amigo" aria-pressed="false">Amigo(a)</button>
+        <button type="button" class="chip" data-para="crianca" aria-pressed="false">Criança</button>
+        <button type="button" class="chip" data-para="colega" aria-pressed="false">Colega de trabalho</button>
+      </div>
+      <ul class="ideias-lista" id="ideias-lista"></ul>
+    </div>
+
+    <div class="lojas-bloco" data-bloco></div>
+  </section>
+
+  <!-- Shopping -->
+  <section class="view setor" id="v-shopping" data-view="shopping" data-setor="shopping" hidden>
+    <header class="setor-cab">
+      <p class="setor-cod"><span>SHP</span> Setor shopping</p>
+      <h1 tabindex="-1">Shopping</h1>
+      <p class="lede">Lojas dentro de shoppings, com piso, número da loja e horário de funcionamento.</p>
+      <p class="trilha" aria-label="Organização: shopping, piso, loja"><span>Shopping</span><i aria-hidden="true">›</i><span>Piso</span><i aria-hidden="true">›</i><span>Loja</span></p>
+    </header>
+    <div class="lojas-bloco" data-bloco></div>
+  </section>
+
+  <!-- Lojas de rua -->
+  <section class="view setor" id="v-rua" data-view="rua" data-setor="rua" hidden>
+    <header class="setor-cab">
+      <p class="setor-cod"><span>RUA</span> Setor lojas de rua</p>
+      <h1 tabindex="-1">Lojas de rua</h1>
+      <p class="lede">Comércio de rua e de bairro, com endereço, horário e se a loja faz entrega.</p>
+      <p class="trilha" aria-label="Organização: cidade, bairro, loja"><span>Cidade</span><i aria-hidden="true">›</i><span>Bairro</span><i aria-hidden="true">›</i><span>Loja</span></p>
+    </header>
+    <div class="lojas-bloco" data-bloco></div>
+  </section>
+
+  <!-- Busca -->
+  <section class="view setor" id="v-busca" data-view="busca" data-setor="busca" hidden>
+    <header class="setor-cab">
+      <p class="setor-cod"><span>BSC</span> Busca</p>
+      <h1 tabindex="-1" id="busca-titulo">Buscar lojas</h1>
+    </header>
+    <form class="busca" role="search" data-busca>
+      <label class="sr" for="busca-q2">Buscar lojas</label>
+      <input id="busca-q2" type="search" name="q" placeholder="Loja, categoria ou bairro" autocomplete="off">
+      <button class="btn" type="submit">Buscar</button>
+    </form>
+    <div class="lista busca-lista" id="busca-lista"></div>
+  </section>
+
+</main>
+
+<footer class="rodape wrap">
+  <span class="rodape-marca">VOA</span>
+  <span>Troca de presente · Última hora · Shopping · Lojas de rua</span>
+</footer>
+
+<nav class="abas" aria-label="Navegação">
+  <a href="#inicio" data-nav="inicio" style="--c-aba: var(--accent)">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 10.5 12 4l8.5 6.5V20a.5.5 0 0 1-.5.5h-5v-6h-6v6H4a.5.5 0 0 1-.5-.5z"/></svg>Início
+  </a>
+  <a href="#troca" data-nav="troca" style="--c-aba: var(--troca)">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h13.5M15 4.5 18.5 8 15 11.5M19 16H5.5M9 12.5 5.5 16 9 19.5"/></svg>Troca
+  </a>
+  <a href="#ultima-hora" data-nav="ultima-hora" style="--c-aba: var(--ultima)">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="7.5"/><path d="M12 9v4l2.5 2M9.5 2.5h5"/></svg>Última hora
+  </a>
+  <a href="#shopping" data-nav="shopping" style="--c-aba: var(--shopping)">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1.2 12.5H6.2z"/><path d="M9 10V6.5a3 3 0 0 1 6 0V10"/></svg>Shopping
+  </a>
+  <a href="#rua" data-nav="rua" style="--c-aba: var(--rua)">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5 5.5 4h13L20 9.5"/><path d="M4 9.5a2.7 2.7 0 0 0 5.3 0 2.7 2.7 0 0 0 5.4 0 2.7 2.7 0 0 0 5.3 0"/><path d="M5.5 12v8.5h13V12M10 20.5v-5h4v5"/></svg>Rua
+  </a>
+</nav>
+
+<dialog id="dlg-lojista" aria-labelledby="dlg-titulo">
+  <form method="dialog" class="dlg">
+    <div class="dlg-topo">
+      <p class="setor-cod"><span>CAD</span> Em breve</p>
+      <button class="dlg-fechar" type="submit" autofocus>Fechar</button>
+    </div>
+    <h2 id="dlg-titulo">Cadastro de lojas</h2>
+    <p>O cadastro de lojas ainda não abriu. Quando abrir, cada loja vai informar:</p>
+    <ul class="dlg-lista">
+      <li>Nome, categoria e CNPJ</li>
+      <li>Endereço, ou shopping, piso e número da loja</li>
+      <li>Horário de funcionamento</li>
+      <li>Política de troca: prazo, se precisa de nota, se troca em qualquer unidade</li>
+      <li>Se faz entrega no mesmo dia ou retirada rápida</li>
+    </ul>
+    <p>Com isso a VOA coloca a loja nos setores certos:</p>
+    <dl class="dlg-setores">
+      <div><dt>Shopping ou Lojas de rua</dt><dd>pelo endereço da loja</dd></div>
+      <div><dt>Troca de presente</dt><dd>quando a loja informa a política de troca</dd></div>
+      <div><dt>Última hora</dt><dd>quando entrega no mesmo dia ou tem retirada rápida</dd></div>
+    </dl>
+    <button class="btn" type="submit">Entendi</button>
+  </form>
+</dialog>
+
+<script src="lojas.js"></script>
+<script src="voa.js"></script>
+</body>
+</html>
