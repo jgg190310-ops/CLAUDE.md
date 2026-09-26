@@ -1,1168 +1,928 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Drink</title>
-  <meta name="description" content="Drink: o motorista chega de bike elétrica ou patinete, dobra no seu porta-malas e leva você e o seu carro para casa.">
-  <meta name="theme-color" content="#0A1A16">
+  <meta name="description" content="O motorista da vez chega de bike elétrica ou patinete, dobra no seu porta-malas e leva você e o seu carro para casa.">
+  <meta name="theme-color" content="#060913">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="icon-180.png">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-title" content="Drink">
   <meta property="og:type" content="website">
   <meta property="og:locale" content="pt_BR">
-  <meta property="og:site_name" content="Drink">
-  <meta property="og:title" content="Pede um Drink.">
+  <meta property="og:title" content="Drink · Pede um Drink.">
   <meta property="og:description" content="O motorista chega de bike elétrica ou patinete, dobra no seu porta-malas e leva você e o seu carro para casa.">
   <meta property="og:url" content="https://jgg190310-ops.github.io/CLAUDE.md/drink/">
   <meta property="og:image" content="https://jgg190310-ops.github.io/CLAUDE.md/drink/og.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="Pede um Drink. Letreiro de neon e a comanda com o preço da volta para casa.">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,300..800&family=Courier+Prime:wght@400;700&family=Tilt+Neon&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=Martian+Mono:wdth,wght@75..112.5,100..800&display=swap">
   <link rel="stylesheet" href="drink.css">
 </head>
 <body>
-<a class="pular" href="#pedir">Pular para o pedido</a>
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
 
-<!-- desenhos reaproveitados: marca, bike, patinete, pessoas, carro visto de cima e mapa do app -->
 <svg class="sprite" aria-hidden="true" focusable="false">
   <defs>
-    <symbol id="s-marca" viewBox="0 0 32 32">
-      <path d="M4 5h24L16 18z" style="fill:var(--marca-copo, #FF7A33)"/>
-      <path d="M16 18v9M10 28h12" style="fill:none;stroke:var(--marca-traco, #EEF4F0)" stroke-width="2.4" stroke-linecap="round"/>
-      <circle cx="21" cy="9" r="3.6" style="fill:none;stroke:var(--marca-traco, #EEF4F0)" stroke-width="2"/>
-      <path d="M21 5.4v7.2M17.4 9h7.2" style="fill:none;stroke:var(--marca-traco, #EEF4F0)" stroke-width="1.4"/>
+    <symbol id="i-seta" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-baixo" viewBox="0 0 24 24"><path d="M12 5v14M6 13l6 6 6-6"/></symbol>
+    <symbol id="i-escudo" viewBox="0 0 24 24"><path d="M12 3l7 3v5.2c0 4.4-3 8.1-7 9.8-4-1.7-7-5.4-7-9.8V6z"/><path d="M9 12l2.2 2.2L15.5 10"/></symbol>
+    <symbol id="i-relogio" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol>
+    <symbol id="i-bike" viewBox="0 0 24 24"><circle cx="5.5" cy="16.5" r="3.5"/><circle cx="18.5" cy="16.5" r="3.5"/><path d="M5.5 16.5L9 9.5h6.5l3 7M9 9.5l3.5 7h-7M13.5 6.5h2.5l-.5 3"/></symbol>
+    <symbol id="i-patinete" viewBox="0 0 24 24"><circle cx="5" cy="18" r="2.5"/><circle cx="19" cy="18" r="2.5"/><path d="M7.5 17.5h8.8l2.2-2M19 15.5L16 4.5M13.5 4.5h4.8"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0113 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></symbol>
+    <symbol id="i-casa" viewBox="0 0 24 24"><path d="M4 11l8-6.5 8 6.5v8.5a.5.5 0 01-.5.5H15v-5.5H9V20H4.5a.5.5 0 01-.5-.5z"/></symbol>
+    <symbol id="i-compartilhar" viewBox="0 0 24 24"><circle cx="17.5" cy="5.5" r="2.5"/><circle cx="6.5" cy="12" r="2.5"/><circle cx="17.5" cy="18.5" r="2.5"/><path d="M8.7 10.8l6.6-4M8.7 13.2l6.6 4"/></symbol>
+    <symbol id="i-estrela" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.8l-5.2 2.7 1-5.8-4.2-4.1 5.8-.8z" style="fill:currentColor;stroke:none"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+    <symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 8h3.2l1.8-2.5h6L16.8 8H20v11H4z"/><circle cx="12" cy="13.2" r="3.3"/></symbol>
+    <symbol id="i-chave" viewBox="0 0 24 24"><circle cx="8" cy="15.5" r="4"/><path d="M10.9 12.6L19 4.5M15.5 8l2.5 2.5M13.5 10l2 2"/></symbol>
+    <symbol id="i-ajuda" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v5.5M12 16.3v.2"/></symbol>
+    <symbol id="i-capacete" viewBox="0 0 24 24"><path d="M4 16.5a8 8 0 0116 0V18H4z"/><path d="M12 8.5v4M8.5 10l1.8 3M15.5 10l-1.8 3"/></symbol>
+    <symbol id="i-cnh" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="11" r="2"/><path d="M5.5 16c.6-1.5 1.7-2.3 3-2.3s2.4.8 3 2.3M14 10h4M14 13h3"/></symbol>
+    <symbol id="i-rota" viewBox="0 0 24 24"><circle cx="6" cy="18" r="2"/><circle cx="18" cy="6" r="2"/><path d="M8 18h7a3 3 0 000-6H9a3 3 0 010-6h7"/></symbol>
+    <symbol id="i-calendario" viewBox="0 0 24 24"><rect x="4" y="5.5" width="16" height="14.5" rx="2"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/></symbol>
+    <symbol id="i-pessoas" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3.5 19c.8-3 3-4.5 5.5-4.5s4.7 1.5 5.5 4.5"/><circle cx="17" cy="9" r="2.3"/><path d="M16.3 14.2c2.1.2 3.6 1.6 4.2 4.1"/></symbol>
+    <symbol id="i-carteira" viewBox="0 0 24 24"><path d="M5 8V6.5A1.5 1.5 0 016.5 5H17v3"/><rect x="4" y="8" width="16" height="11" rx="2"/><path d="M15.5 13.5h1.5"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+    <symbol id="i-fechar" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+    <symbol id="i-mais" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-mensagem" viewBox="0 0 24 24"><path d="M4.5 5h15v10.5H10l-5.5 4z"/></symbol>
+    <symbol id="i-lua" viewBox="0 0 24 24"><path d="M19.5 14.5A7.5 7.5 0 019.5 4.5a7.5 7.5 0 1010 10z"/></symbol>
+    <symbol id="i-qr" viewBox="0 0 24 24"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h2v2h-2zM18 14h2v2h-2zM14 18h2v2h-2zM18 18h2v2h-2z"/></symbol>
+    <symbol id="i-sinal" viewBox="0 0 24 24"><path d="M4 19v-2M9.3 19v-5M14.6 19v-8M20 19V6" style="stroke-width:3"/></symbol>
+    <symbol id="i-bat" viewBox="0 0 28 24"><rect x="2" y="7" width="21" height="10" rx="3"/><rect x="4.5" y="9.5" width="13" height="5" rx="1.2" style="fill:currentColor;stroke:none"/><path d="M25.5 10.5v3"/></symbol>
+    <symbol id="i-copo" viewBox="0 0 32 32"><path d="M4 5h24L16 18z" style="fill:var(--copo, #FFA53A);stroke:none"/><path d="M16 18v9M10 28h12" style="stroke-width:2.4"/><circle cx="21" cy="9" r="3.6" style="stroke-width:2"/><path d="M21 5.4v7.2M17.4 9h7.2" style="stroke-width:1.4"/></symbol>
+
+    <!-- mapa de Belo Horizonte, estilizado: quadras em grade cortadas por avenidas diagonais -->
+    <pattern id="ruas" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M0 .5H20M.5 0V20" fill="none" stroke="#161F38" stroke-width="1.6"/></pattern>
+    <symbol id="mapa" viewBox="0 0 280 320" preserveAspectRatio="xMidYMid slice">
+      <rect width="280" height="320" fill="#0A1020"/>
+      <rect width="280" height="320" fill="url(#ruas)"/>
+      <path d="M190 20l50-8 20 46-56 16z" fill="#0D231F"/>
+      <path d="M18 196l40-8 12 36-42 10z" fill="#0D231F"/>
+      <path d="M-40-10L300 330M310 0L-10 320" fill="none" stroke="#212C4F" stroke-width="7"/>
+      <path d="M0 170H280M140 0V320" fill="none" stroke="#1C2644" stroke-width="5"/>
+      <circle cx="140" cy="170" r="14" fill="#0D231F" stroke="#212C4F" stroke-width="5"/>
+      <text x="160" y="148" fill="#56628A" font-family="Martian Mono, monospace" font-size="7" letter-spacing="1">SAVASSI</text>
+      <text x="170" y="238" fill="#56628A" font-family="Martian Mono, monospace" font-size="7" letter-spacing="1">FUNCIONÁRIOS</text>
+      <text x="92" y="306" fill="#56628A" font-family="Martian Mono, monospace" font-size="7" letter-spacing="1">BURITIS</text>
     </symbol>
 
-    <g id="s-bike-corpo">
-      <circle cx="65" cy="190" r="26" fill="none" stroke="#2A3834" stroke-width="7"/>
-      <circle cx="190" cy="190" r="26" fill="none" stroke="#2A3834" stroke-width="7"/>
-      <circle cx="65" cy="190" r="4" fill="#C9D3CF"/><circle cx="190" cy="190" r="4" fill="#C9D3CF"/>
-      <path d="M36 176a30 30 0 0 1 52-10" fill="none" stroke="#C9D3CF" stroke-width="4" stroke-linecap="round"/>
-      <path d="M65 190l55-5M65 190l47-45" fill="none" stroke="#FF7A33" stroke-width="6" stroke-linecap="round"/>
-      <path d="M120 185l50-50M170 135l20 55" fill="none" stroke="#FF7A33" stroke-width="8" stroke-linecap="round"/>
-      <path d="M127 176l30-30 6 6-30 30z" fill="#C9D3CF"/>
-      <path d="M120 185l-10-55" fill="none" stroke="#C9D3CF" stroke-width="5" stroke-linecap="round"/>
-      <rect x="92" y="122" width="38" height="9" rx="4.5" fill="#C9D3CF"/>
-      <circle cx="120" cy="185" r="7" fill="none" stroke="#C9D3CF" stroke-width="3"/>
-      <path d="M120 185l8 13M122 198h13" fill="none" stroke="#C9D3CF" stroke-width="3" stroke-linecap="round"/>
-      <circle cx="145" cy="160" r="5.5" fill="#0A1814" stroke="#C9D3CF" stroke-width="3"/>
-    </g>
-    <g id="s-bike-guidao">
-      <path d="M170 137l-5-34" fill="none" stroke="#C9D3CF" stroke-width="5" stroke-linecap="round"/>
-      <path d="M150 101h32" fill="none" stroke="#C9D3CF" stroke-width="5" stroke-linecap="round"/>
-      <circle cx="175" cy="128" r="4" fill="#FFE8A3"/>
-    </g>
-    <g id="s-bike"><use href="#s-bike-corpo"/><use href="#s-bike-guidao"/></g>
-    <g id="s-bike-dobrada"><use href="#s-bike-corpo"/><g transform="rotate(-100 170 137)"><use href="#s-bike-guidao"/></g></g>
-
-    <g id="s-pat-corpo">
-      <rect x="60" y="184" width="130" height="10" rx="5" fill="#FF7A33"/>
-      <rect x="88" y="194" width="66" height="7" rx="3" fill="#C9D3CF"/>
-      <circle cx="70" cy="200" r="13" fill="none" stroke="#2A3834" stroke-width="6"/>
-      <circle cx="190" cy="200" r="13" fill="none" stroke="#2A3834" stroke-width="6"/>
-      <path d="M52 192a20 20 0 0 1 32-4" fill="none" stroke="#C9D3CF" stroke-width="4" stroke-linecap="round"/>
-    </g>
-    <g id="s-pat-guidao">
-      <path d="M185 190l-15-85" fill="none" stroke="#C9D3CF" stroke-width="6" stroke-linecap="round"/>
-      <path d="M155 103h30" fill="none" stroke="#C9D3CF" stroke-width="5" stroke-linecap="round"/>
-    </g>
-    <g id="s-patinete"><use href="#s-pat-corpo"/><use href="#s-pat-guidao"/></g>
-
-    <!-- piloto sentado na bike e em pé no patinete (mesmas coordenadas dos veículos) -->
-    <g id="s-piloto-bike">
-      <path d="M112 118 L128 152 L114 178" fill="none" stroke="#101B17" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="M112 118 L144 146 L128 196" fill="none" stroke="#1B2A26" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="M112 116 L136 64" stroke="#D4F04A" stroke-width="32" stroke-linecap="round"/>
-      <path d="M100 98 L126 108" stroke="#A8B4AD" stroke-width="5"/>
-      <path d="M136 66 L150 84 L156 100" fill="none" stroke="#27403A" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
-      <circle cx="146" cy="42" r="15" fill="#C68B64"/>
-      <path d="M129 43 A17 17 0 0 1 163 43 L166 48 H126 Z" fill="#FF7A33"/>
-    </g>
-    <g id="s-piloto-pe">
-      <path d="M104 184 L108 132 M120 184 L118 132" fill="none" stroke="#1B2A26" stroke-width="12" stroke-linecap="round"/>
-      <path d="M112 128 L126 72" stroke="#D4F04A" stroke-width="32" stroke-linecap="round"/>
-      <path d="M100 112 L128 116" stroke="#A8B4AD" stroke-width="5"/>
-      <path d="M128 76 L150 92 L162 104" fill="none" stroke="#27403A" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
-      <circle cx="132" cy="50" r="15" fill="#C68B64"/>
-      <path d="M115 51 A17 17 0 0 1 149 51 L152 56 H112 Z" fill="#FF7A33"/>
-    </g>
-    <!-- motorista em pé, com os pés em (0,0) -->
-    <g id="s-motorista">
-      <ellipse cx="0" cy="1" rx="26" ry="4" fill="#000" opacity=".35"/>
-      <rect x="-14" y="-62" width="11" height="62" rx="5" fill="#1B2A26"/>
-      <rect x="3" y="-62" width="11" height="62" rx="5" fill="#1B2A26"/>
-      <rect x="-28" y="-126" width="10" height="58" rx="5" fill="#27403A"/>
-      <rect x="18" y="-126" width="10" height="58" rx="5" fill="#27403A"/>
-      <rect x="-22" y="-134" width="44" height="80" rx="14" fill="#D4F04A"/>
-      <rect x="-22" y="-90" width="44" height="7" fill="#A8B4AD"/>
-      <rect x="-22" y="-78" width="44" height="4" fill="#A8B4AD"/>
-      <circle cx="0" cy="-154" r="15" fill="#C68B64"/>
-      <path d="M-17 -153 A17 17 0 0 1 17 -153 L20 -148 H-20 Z" fill="#FF7A33"/>
-      <path d="M-18 -150 H18" stroke="#B94E14" stroke-width="2"/>
-    </g>
-
-    <symbol id="s-carro-topo" viewBox="0 0 120 200">
-      <rect x="8" y="26" width="13" height="36" rx="5" fill="#0B0E0D"/>
-      <rect x="99" y="26" width="13" height="36" rx="5" fill="#0B0E0D"/>
-      <rect x="8" y="138" width="13" height="36" rx="5" fill="#0B0E0D"/>
-      <rect x="99" y="138" width="13" height="36" rx="5" fill="#0B0E0D"/>
-      <path d="M60 4 C92 4 104 18 104 44 V160 C104 186 92 196 60 196 C28 196 16 186 16 160 V44 C16 18 28 4 60 4 Z" fill="#23413A" stroke="#132D27" stroke-width="3"/>
-      <path d="M30 58 Q60 46 90 58 L84 86 H36 Z" fill="#A9D4CC"/>
-      <rect x="36" y="90" width="48" height="56" rx="8" fill="#2F5A50"/>
-      <path d="M36 150 H84 L90 170 Q60 180 30 170 Z" fill="#A9D4CC"/>
-      <rect x="4" y="62" width="14" height="8" rx="3" fill="#23413A"/>
-      <rect x="102" y="62" width="14" height="8" rx="3" fill="#23413A"/>
-      <rect x="25" y="9" width="18" height="8" rx="3" fill="#FFE7A8"/>
-      <rect x="77" y="9" width="18" height="8" rx="3" fill="#FFE7A8"/>
-      <rect x="25" y="185" width="18" height="6" rx="3" fill="#E23B3B"/>
-      <rect x="77" y="185" width="18" height="6" rx="3" fill="#E23B3B"/>
-    </symbol>
-
-    <!-- o mapa corta as laterais em telas altas: rotas e pinos ficam entre x=96 e x=224 -->
-    <g id="mapa">
-      <rect width="320" height="300" fill="var(--mapa-bg)"/>
-      <rect x="104" y="78" width="48" height="64" rx="6" fill="var(--mapa-parque)"/>
-      <path d="M32-10V310M288-10V310M-10 110H96M160 190H330M128 230V310M192-10V70" fill="none" stroke="var(--mapa-rua)" stroke-width="4"/>
-      <path d="M-10 70H330M-10 150H330M-10 230H330M96-10V310M160-10V310M224-10V310" fill="none" stroke="var(--mapa-rua)" stroke-width="8"/>
-      <path d="M-10 310 330-10" fill="none" stroke="var(--mapa-av)" stroke-width="14"/>
-    </g>
-    <g id="pin-carro">
-      <circle r="22" fill="var(--app-accent)" opacity=".2"/>
-      <circle r="12.5" fill="var(--app-accent)"/>
-      <path d="M-7 3.2V.4l1.9-4h10.2l1.9 4v2.8z" fill="var(--app-on-accent)"/>
-      <circle cx="-3.9" cy="3.6" r="1.9" fill="var(--app-on-accent)"/>
-      <circle cx="3.9" cy="3.6" r="1.9" fill="var(--app-on-accent)"/>
-    </g>
-    <g id="pin-bike">
-      <circle r="12" fill="var(--app-surface)" stroke="var(--app-accent)" stroke-width="2.5"/>
-      <g fill="none" stroke="var(--app-accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="-4.2" cy="2.4" r="3"/>
-        <circle cx="4.2" cy="2.4" r="3"/>
-        <path d="M-4.2 2.4-1.2-2.6h4.2l1.2 5M-1.2-2.6-2-4.6"/>
+    <!-- carro visto de cima, em traço -->
+    <symbol id="carro-topo" viewBox="0 0 160 260">
+      <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="30" y="14" width="100" height="232" rx="38"/>
+        <path d="M44 86Q80 72 116 86L109 114Q80 106 51 114Z"/>
+        <rect x="50" y="120" width="60" height="62" rx="10"/>
+        <path d="M51 188Q80 194 109 188L114 208Q80 216 46 208Z"/>
+        <path d="M30 100h-9v12h9M130 100h9v12h-9"/>
+        <path d="M25 52v28M25 182v28M135 52v28M135 182v28" stroke-width="5"/>
+        <path d="M46 26q-6 6-7 14M114 26q6 6 7 14M64 20h32M42 234q6 5 16 5M118 234q-6 5-16 5"/>
       </g>
-    </g>
-    <g id="pin-casa">
-      <circle r="12" fill="var(--app-ok)"/>
-      <path d="M-6 .8 0-5.2 6 .8v4.8H-6z" fill="var(--app-bg)"/>
-    </g>
+    </symbol>
+
+    <!-- bike dobrada, com as mesmas medidas do desenho técnico -->
+    <symbol id="bike-dobrada" viewBox="0 20 82 84">
+      <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="24" cy="80" r="20"/>
+        <circle cx="32" cy="80" r="20" stroke-dasharray="3 2.5"/>
+        <path d="M56 82L24 80L51 52M56 82L49 40M53.3 66L75 61L53 56L56 44M53 56L32 80M56 44L42.2 73M36.6 71l11.3 4.1M12 56h34"/>
+        <circle cx="56" cy="82" r="8.5"/>
+        <path d="M51.3 53.8l-2-14M40.3 39.3c5-2.5 13-3 20-1"/>
+        <rect x="14" y="48" width="30" height="8" rx="2" style="stroke:var(--sodio, #FFA53A)"/>
+      </g>
+    </symbol>
+
+    <radialGradient id="g-poste" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#FFC57A" stop-opacity=".9"/>
+      <stop offset=".35" stop-color="#FFA53A" stop-opacity=".35"/>
+      <stop offset="1" stop-color="#FFA53A" stop-opacity="0"/>
+    </radialGradient>
   </defs>
 </svg>
 
 <header class="topo" id="topo">
   <div class="topo-in">
     <a class="marca" href="#inicio" aria-label="Drink, início">
-      <svg viewBox="0 0 32 32" aria-hidden="true"><use href="#s-marca"/></svg>
+      <svg class="marca-copo" aria-hidden="true"><use href="#i-copo"/></svg>
       <span>Drink</span>
     </a>
     <nav class="nav" aria-label="Seções">
       <a href="#como-funciona" data-aba="como">Como funciona</a>
+      <a href="#dobra" data-aba="dobra">A dobra</a>
       <a href="#preco" data-aba="preco">Preço</a>
       <a href="#seguranca" data-aba="seguranca">Segurança</a>
       <a href="#eventos" data-aba="eventos">Eventos</a>
       <a href="#motorista" data-aba="motorista">Seja um Drink</a>
     </nav>
-    <a class="btn btn-topo" href="#pedir">Pedir agora</a>
+    <a class="btn btn-sodio btn-p topo-cta" href="#pedir">Pedir<span class="cta-longo">&nbsp;um Drink</span></a>
+    <button class="menu-btn" id="menu-btn" type="button" aria-expanded="false" aria-controls="menu">
+      <svg class="i" aria-hidden="true"><use href="#i-menu"/></svg><span class="sr">Abrir o menu</span>
+    </button>
   </div>
 </header>
 
+<div class="menu" id="menu" hidden>
+  <nav class="menu-nav" aria-label="Menu">
+    <a href="#como-funciona">Como funciona</a>
+    <a href="#dobra">A dobra</a>
+    <a href="#preco">Preço</a>
+    <a href="#seguranca">Segurança</a>
+    <a href="#eventos">Eventos</a>
+    <a href="#motorista">Seja um Drink</a>
+    <a href="#perguntas">Perguntas</a>
+  </nav>
+  <a class="btn btn-sodio btn-cheio" href="#pedir">Pedir um Drink</a>
+</div>
+
 <main id="conteudo">
 
-  <!-- ================= Dentro do bar ================= -->
+  <!-- ================= Início ================= -->
   <section class="hero" id="inicio" data-secao="pedir" aria-labelledby="hero-titulo">
-    <div class="hero-fundo" aria-hidden="true">
-      <svg class="prateleira" viewBox="0 0 640 200">
-        <defs>
-          <linearGradient id="h-g-garrafas" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stop-color="#FFB36B" stop-opacity="0"/>
-            <stop offset="1" stop-color="#FFB36B" stop-opacity=".22"/>
-          </linearGradient>
-        </defs>
-        <rect x="0" y="40" width="640" height="130" fill="url(#h-g-garrafas)"/>
-        <g class="garrafas">
-          <path transform="translate(40 168)" d="M-11 0V-58Q-11-70-4-76V-102H4V-76Q11-70 11-58V0Z" fill="#1E4B3F"/>
-          <path transform="translate(80 168)" d="M-17 0V-60Q-17-64-12-66H-5V-80H5V-66H12Q17-64 17-60V0Z" fill="#7A3F14"/>
-          <path transform="translate(122 168)" d="M-12 0V-72Q-12-80-6-84V-100H6V-84Q12-80 12-72V0Z" fill="#2B5E50"/>
-          <path transform="translate(160 168)" d="M-9 0V-40Q-9-46-3-48V-60H3V-48Q9-46 9-40V0Z" fill="#8A4A16"/>
-          <path transform="translate(200 168)" d="M0 0C-22 0-24-30-14-44Q-6-52-4-58V-78H4V-58Q6-52 14-44C24-30 22 0 0 0Z" fill="#3E6E62"/>
-          <path transform="translate(246 168)" d="M-11 0V-58Q-11-70-4-76V-102H4V-76Q11-70 11-58V0Z" fill="#14362E"/>
-          <path transform="translate(290 168)" d="M-17 0V-60Q-17-64-12-66H-5V-80H5V-66H12Q17-64 17-60V0Z" fill="#9A5418"/>
-          <path transform="translate(334 168)" d="M-12 0V-72Q-12-80-6-84V-100H6V-84Q12-80 12-72V0Z" fill="#1E4B3F"/>
-          <path transform="translate(372 168)" d="M-9 0V-40Q-9-46-3-48V-60H3V-48Q9-46 9-40V0Z" fill="#B84A2A"/>
-          <path transform="translate(414 168)" d="M-11 0V-58Q-11-70-4-76V-102H4V-76Q11-70 11-58V0Z" fill="#2B5E50"/>
-          <path transform="translate(458 168)" d="M0 0C-22 0-24-30-14-44Q-6-52-4-58V-78H4V-58Q6-52 14-44C24-30 22 0 0 0Z" fill="#7A3F14"/>
-          <path transform="translate(504 168)" d="M-17 0V-60Q-17-64-12-66H-5V-80H5V-66H12Q17-64 17-60V0Z" fill="#14362E"/>
-          <path transform="translate(548 168)" d="M-12 0V-72Q-12-80-6-84V-100H6V-84Q12-80 12-72V0Z" fill="#8A4A16"/>
-          <path transform="translate(590 168)" d="M-11 0V-58Q-11-70-4-76V-102H4V-76Q11-70 11-58V0Z" fill="#3E6E62"/>
-        </g>
-        <g fill="#EADFCB" opacity=".55">
-          <rect x="70" y="130" width="20" height="14" rx="2"/><rect x="190" y="128" width="20" height="16" rx="3"/>
-          <rect x="280" y="130" width="20" height="14" rx="2"/><rect x="448" y="128" width="20" height="16" rx="3"/>
-          <rect x="494" y="130" width="20" height="14" rx="2"/>
-        </g>
-        <path d="M34 160V110M116 160V104M240 160V110M328 160V104M408 160V110M542 160V104M584 160V110" stroke="#FFFFFF" stroke-opacity=".16" stroke-width="2" stroke-linecap="round"/>
-        <rect x="0" y="168" width="640" height="10" fill="#3A2416"/>
-        <rect x="0" y="168" width="640" height="2" fill="#7A4E2C"/>
-        <path d="M60 178v14h10M580 178v14h-10" fill="none" stroke="#2A190E" stroke-width="5"/>
-      </svg>
-
-      <svg class="luminarias" viewBox="0 0 700 440">
-        <defs>
-          <linearGradient id="h-g-cone" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stop-color="#FFD9A0" stop-opacity=".4"/>
-            <stop offset="1" stop-color="#FFD9A0" stop-opacity="0"/>
-          </linearGradient>
-          <radialGradient id="h-g-bulbo">
-            <stop offset="0" stop-color="#FFF1D6"/>
-            <stop offset=".35" stop-color="#FFD9A0" stop-opacity=".7"/>
-            <stop offset="1" stop-color="#FFB36B" stop-opacity="0"/>
-          </radialGradient>
-        </defs>
-        <g>
-          <path d="M120 0V116" stroke="#2B4A42" stroke-width="2"/>
-          <path d="M92 184 L20 440 H220 L148 184 Z" fill="url(#h-g-cone)"/>
-          <circle cx="120" cy="184" r="54" fill="url(#h-g-bulbo)"/>
-          <path d="M108 116 H132 L158 182 H82 Z" fill="#1A3D35"/>
-          <path d="M110 116 H130" stroke="#C9A55C" stroke-width="4" stroke-linecap="round"/>
-          <path d="M80 182 H160" stroke="#C9A55C" stroke-width="3" stroke-linecap="round"/>
-          <ellipse cx="120" cy="185" rx="17" ry="5" fill="#FFF1D6"/>
-        </g>
-        <g>
-          <path d="M560 0V66" stroke="#2B4A42" stroke-width="2"/>
-          <path d="M532 134 L470 440 H650 L588 134 Z" fill="url(#h-g-cone)"/>
-          <circle cx="560" cy="134" r="48" fill="url(#h-g-bulbo)"/>
-          <path d="M548 66 H572 L598 132 H522 Z" fill="#1A3D35"/>
-          <path d="M550 66 H570" stroke="#C9A55C" stroke-width="4" stroke-linecap="round"/>
-          <path d="M520 132 H600" stroke="#C9A55C" stroke-width="3" stroke-linecap="round"/>
-          <ellipse cx="560" cy="135" rx="17" ry="5" fill="#FFF1D6"/>
-        </g>
-      </svg>
-    </div>
-
-    <div class="hero-grade">
+    <canvas class="rastros" id="rastros" aria-hidden="true"></canvas>
+    <div class="hero-in">
       <div class="hero-texto">
-        <p class="rotulo">O motorista da vez, de bike ou patinete</p>
-        <h1 id="hero-titulo"><span class="h1-a">Pede um</span> <span class="neon">Drink.</span></h1>
-        <p class="lede">O <strong>Drink</strong> chega de <strong>bike elétrica ou patinete</strong>, dobra no seu porta-malas e leva você e o seu carro para casa.</p>
+        <p class="sobre"><span class="sobre-ponto" aria-hidden="true"></span>Motorista da vez, de bike ou patinete</p>
+        <h1 class="hero-titulo" id="hero-titulo"><span class="ht-a">Pede um</span> <span class="ht-b">Drink.</span></h1>
+        <p class="hero-lede">O Drink chega de bike elétrica ou patinete, dobra tudo no seu porta-malas e leva você e o seu carro para casa.</p>
         <div class="acoes">
-          <a class="btn" href="#pedir">Pedir meu Drink</a>
-          <a class="btn-fantasma" href="#como-funciona">Ver como funciona</a>
+          <a class="btn btn-sodio" href="#pedir">Pedir um Drink<svg class="i" aria-hidden="true"><use href="#i-seta"/></svg></a>
+          <a class="btn btn-vidro" href="#como-funciona">Como funciona</a>
         </div>
-        <ul class="selos">
-          <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 4.5 6v5.5c0 4.6 3.1 8.2 7.5 9.5 4.4-1.3 7.5-4.9 7.5-9.5V6z"/><path d="m8.8 12 2.3 2.3 4.2-4.6"/></svg>Seguro do carro incluso</li>
-          <li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="7.5"/><path d="M12 9v4l2.5 2M9.5 2.5h5"/></svg>Agora ou agendado</li>
-          <li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="2.5"/><path d="M3.8 10.5h5.9M14.3 10.5h5.9M12 14.5v6"/></svg>Manual ou automático</li>
+        <ul class="hero-fatos">
+          <li><svg class="i" aria-hidden="true"><use href="#i-carteira"/></svg>R$ 25 + R$ 3,50 por km</li>
+          <li><svg class="i" aria-hidden="true"><use href="#i-escudo"/></svg>Seguro do carro incluso</li>
+          <li><svg class="i" aria-hidden="true"><use href="#i-relogio"/></svg>Chega em até 15 min</li>
         </ul>
       </div>
 
-      <div class="hero-comanda" id="pedir">
-        <div class="comanda-sombra">
-          <form class="comanda" id="comanda" aria-labelledby="comanda-titulo">
-            <div class="comanda-cab">
-              <h2 id="comanda-titulo">DRINK</h2>
-              <p>Comanda nº <span id="c-num">0000</span></p>
-            </div>
-            <div class="c-campo">
-              <label class="c-rot" for="c-de">Onde está o carro</label>
-              <input type="text" id="c-de" value="Savassi" autocomplete="off" maxlength="60">
-            </div>
-            <div class="c-campo">
-              <label class="c-rot" for="c-para">Para onde</label>
-              <input type="text" id="c-para" value="Casa" autocomplete="off" maxlength="60">
-            </div>
-            <div class="c-campo">
-              <label class="c-rot" for="c-km">Distância</label>
-              <div class="c-km">
-                <input type="range" id="c-km" min="2" max="40" value="9">
-                <output id="c-km-out" for="c-km">9 km</output>
+      <div class="hero-visual" aria-hidden="true">
+        <div class="fone fone-hero">
+          <div class="fone-tela">
+            <div class="fone-ilha"></div>
+            <div class="tela ativa">
+              <div class="t-barra"><span>23:58</span><span class="t-ic"><svg><use href="#i-sinal"/></svg><svg class="t-bat"><use href="#i-bat"/></svg></span></div>
+              <div class="t-mapa">
+                <svg viewBox="0 0 280 320" preserveAspectRatio="xMidYMid slice">
+                  <use href="#mapa" width="280" height="320"/>
+                  <path class="m-rota" d="M140 170L60 250V292"/>
+                  <path class="m-rota-feita" id="h-rota" d="M140 170L60 250V292" pathLength="100" stroke-dasharray="55 100"/>
+                  <circle class="m-inicio" cx="140" cy="170" r="4"/>
+                  <g class="m-casa" transform="translate(60 292)"><circle r="9"/><use href="#i-casa" x="-6" y="-6.5" width="12" height="12"/></g>
+                  <g class="m-carro" id="h-carro" transform="translate(79.7 230.3)"><circle class="m-carro-halo" r="15"/><circle r="8.5"/><use href="#carro-topo" x="-4" y="-6.5" width="8" height="13"/></g>
+                </svg>
+                <p class="t-chip t-chip-topo"><span class="t-vivo"></span>Ao vivo · compartilhada com Ana</p>
+              </div>
+              <div class="t-folha">
+                <div class="t-chegada">
+                  <div><p class="t-rot">Chegada</p><p class="t-grande">00:07</p></div>
+                  <div class="t-dir"><p class="t-rot">Faltam</p><p class="t-medio">3,8 km</p></div>
+                </div>
+                <div class="t-mot">
+                  <span class="t-av">RS</span>
+                  <div><b>Rafael está dirigindo</b><span>o seu carro, com a bike no porta-malas</span></div>
+                </div>
+                <div class="t-acoes"><p class="t-bt"><svg><use href="#i-compartilhar"/></svg>Compartilhar</p><p class="t-bt"><svg><use href="#i-ajuda"/></svg>Ajuda</p></div>
               </div>
             </div>
-            <fieldset class="seg-c">
-              <legend>Quando</legend>
-              <div class="opts">
-                <input type="radio" name="quando" id="q-agora" value="agora" checked><label for="q-agora">Agora</label>
-                <input type="radio" name="quando" id="q-agendar" value="agendar"><label for="q-agendar">Agendar</label>
-              </div>
-            </fieldset>
-            <div class="c-campo agenda" id="agenda" hidden>
-              <label class="c-rot" for="c-agenda">Horário da volta</label>
-              <input type="time" id="c-agenda" value="01:30">
-            </div>
-            <fieldset class="seg-c">
-              <legend>O Drink chega de</legend>
-              <div class="opts">
-                <input type="radio" name="veic" id="ve-qq" value="qualquer" checked><label for="ve-qq">Tanto faz</label>
-                <input type="radio" name="veic" id="ve-bike" value="bike"><label for="ve-bike">Bike</label>
-                <input type="radio" name="veic" id="ve-pat" value="patinete"><label for="ve-pat">Patinete</label>
-              </div>
-            </fieldset>
-            <fieldset class="seg-c">
-              <legend>Câmbio do carro</legend>
-              <div class="opts">
-                <input type="radio" name="cambio" id="cb-auto" value="auto" checked><label for="cb-auto">Automático</label>
-                <input type="radio" name="cambio" id="cb-man" value="manual"><label for="cb-man">Manual</label>
-              </div>
-            </fieldset>
-            <ul class="itens" id="itens"></ul>
-            <p class="total" aria-live="polite"><span>Total</span><span id="c-total">R$ 0,00</span></p>
-            <button class="btn" type="submit" id="c-pedir">Pedir meu Drink</button>
-            <ol class="trilha" id="trilha" hidden></ol>
-            <p class="sr" id="c-status" aria-live="polite"></p>
-            <p class="c-nota">Simulação com valores de exemplo. Entre 0h e 5h a tarifa tem +20%.</p>
-            <p class="c-carimbo" id="c-carimbo" aria-hidden="true"></p>
-          </form>
+          </div>
+        </div>
+        <div class="flutua flutua-a">
+          <span class="flutua-ic flutua-ok"><svg class="i"><use href="#i-escudo"/></svg></span>
+          <span><b>Seguro ativo</b><small>desde 23:49</small></span>
+        </div>
+        <div class="flutua flutua-b">
+          <span class="flutua-ic"><svg class="i-dobrada"><use href="#bike-dobrada"/></svg></span>
+          <span><b>Bike no porta-malas</b><small>dobrada em 18 s</small></span>
         </div>
       </div>
     </div>
-
-    <div class="balcao" aria-hidden="true">
-      <svg class="balcao-itens" viewBox="0 0 300 150">
-        <ellipse cx="78" cy="147" rx="30" ry="4" fill="#000" opacity=".4"/>
-        <path d="M24 38 H132 L78 98 Z" fill="#FF7A33" opacity=".92"/>
-        <path d="M30 44 H126" stroke="#FFD2B0" stroke-width="3" stroke-linecap="round" opacity=".7"/>
-        <path d="M18 32 H138 L78 100 Z" fill="none" stroke="#DDEBE3" stroke-opacity=".55" stroke-width="2.5" stroke-linejoin="round"/>
-        <path d="M78 100 V140" stroke="#DDEBE3" stroke-opacity=".7" stroke-width="4" stroke-linecap="round"/>
-        <ellipse cx="78" cy="143" rx="26" ry="5" fill="#DDEBE3" opacity=".6"/>
-        <circle cx="122" cy="32" r="15" fill="#D4F04A"/>
-        <circle cx="122" cy="32" r="15" fill="none" stroke="#86A52B" stroke-width="3"/>
-        <path d="M122 20V44M110 32H134M113.5 23.5L130.5 40.5M130.5 23.5L113.5 40.5" stroke="#F4FBD0" stroke-width="1.6"/>
-        <ellipse cx="226" cy="147" rx="44" ry="4" fill="#000" opacity=".4"/>
-        <circle cx="198" cy="136" r="11" fill="none" stroke="#C9A55C" stroke-width="3"/>
-        <rect x="206" y="128" width="30" height="18" rx="7" fill="#1B2A26"/>
-        <path d="M236 134 H268 V138 H262 V142 H256 V138 H236 Z" fill="#C9D3CF"/>
-        <path d="M168 122 L190 128 L186 146 L162 140 Z" fill="#FF7A33"/>
-        <circle cx="184" cy="131" r="2.4" fill="#0A1A16"/>
-      </svg>
-    </div>
   </section>
 
-  <!-- ================= A volta, na rua ================= -->
-  <section class="historia" id="como-funciona" data-secao="como" aria-labelledby="historia-titulo">
-    <div class="wrap historia-cab">
+  <!-- ================= Números ================= -->
+  <section class="faixa" aria-label="O Drink em números">
+    <ul class="faixa-in">
+      <li><b>Zero</b><span>tolerância na Lei Seca. Se beber, alguém sóbrio dirige por você.</span></li>
+      <li><b>1 <small>viagem</small></b><span>em vez de dois carros de aplicativo e o estacionamento.</span></li>
+      <li><b>15 <small>min</small></b><span>é a meta para o Drink chegar nos bairros atendidos.</span></li>
+      <li><b>Em casa</b><span>é onde o carro dorme. Nada de buscar no dia seguinte.</span></li>
+    </ul>
+  </section>
+
+  <!-- ================= Como funciona ================= -->
+  <section class="como" id="como-funciona" data-secao="como" aria-labelledby="como-titulo">
+    <div class="wrap cab">
       <p class="rotulo">Como funciona</p>
-      <h2 id="historia-titulo">Da porta do bar até a sua garagem.</h2>
-      <p class="lede">Role a página e acompanhe uma volta inteira, do pedido à chave na sua mão.</p>
+      <h2 id="como-titulo">Da mesa do bar à sua garagem.</h2>
+      <p class="lede">Seis passos, do pedido à chave na sua mão. Role a página para acompanhar a volta no app.</p>
     </div>
 
-    <ol class="sr" id="historia-passos">
-      <li><strong>O Drink chega de bike</strong> <span>Você pede pelo app e o Drink mais perto vem de bike elétrica ou patinete. A meta é chegar em até 15 minutos.</span></li>
-      <li><strong>Confere o seu nome e pega a chave</strong> <span>Ele se apresenta com o nome e a foto que aparecem no app, confere o seu nome e só então pega a chave.</span></li>
-      <li><strong>Vistoria com 5 fotos</strong> <span>Frente, traseira, laterais e painel. As fotos ficam salvas na viagem e o seguro começa a valer aqui.</span></li>
-      <li><strong>Dobra e guarda no porta-malas</strong> <span>Ele forra o porta-malas com a capa protetora, dobra a bike ou o patinete e guarda em poucos segundos.</span></li>
-      <li><strong>Vocês vão para casa</strong> <span>Você vai no banco do passageiro ou no de trás. A viagem aparece ao vivo no app e dá para compartilhar com alguém.</span></li>
-      <li><strong>Chegou. Chave na sua mão</strong> <span>Carro estacionado, fotos finais e chave entregue. O Drink tira a bike do porta-malas e segue para o próximo pedido.</span></li>
-    </ol>
+    <div class="wrap como-grade">
+      <div class="como-palco" aria-hidden="true">
+        <div class="fone" id="fone" data-tela="1">
+          <div class="fone-tela">
+            <div class="fone-ilha"></div>
 
-    <div class="trilho" id="trilho">
-      <div class="palco" id="palco" data-passo="0" data-veic="bike">
-        <div class="palco-cena">
-          <svg class="cena" id="cena" viewBox="0 0 1200 600" preserveAspectRatio="xMidYMax slice" aria-hidden="true" focusable="false">
-            <defs>
-              <linearGradient id="c-g-ceu" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0" stop-color="#030A08"/><stop offset=".6" stop-color="#0A1D18"/><stop offset="1" stop-color="#143229"/>
-              </linearGradient>
-              <radialGradient id="c-g-lua"><stop offset="0" stop-color="#DDEBE3" stop-opacity=".28"/><stop offset="1" stop-color="#DDEBE3" stop-opacity="0"/></radialGradient>
-              <linearGradient id="c-g-cone" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFD27A" stop-opacity=".4"/><stop offset="1" stop-color="#FFD27A" stop-opacity="0"/></linearGradient>
-              <radialGradient id="c-g-poca"><stop offset="0" stop-color="#FFD27A" stop-opacity=".3"/><stop offset="1" stop-color="#FFD27A" stop-opacity="0"/></radialGradient>
-              <linearGradient id="c-g-farol" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#FFE7A8" stop-opacity=".62"/><stop offset="1" stop-color="#FFE7A8" stop-opacity="0"/></linearGradient>
-              <radialGradient id="c-g-lanterna"><stop offset="0" stop-color="#FF3B3B" stop-opacity=".6"/><stop offset="1" stop-color="#FF3B3B" stop-opacity="0"/></radialGradient>
-              <linearGradient id="c-g-vitrine" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFC27A"/><stop offset="1" stop-color="#B8581C"/></linearGradient>
-              <radialGradient id="c-g-luz"><stop offset="0" stop-color="#FFD27A" stop-opacity=".62"/><stop offset="1" stop-color="#FFD27A" stop-opacity="0"/></radialGradient>
-              <mask id="c-m-lua"><rect width="1200" height="600" fill="#fff"/><circle cx="1066" cy="138" r="24" fill="#000"/></mask>
-              <g id="c-poste">
-                <path d="M-40 262 L-106 452 H24 Z" fill="url(#c-g-cone)"/>
-                <ellipse cx="-40" cy="455" rx="100" ry="12" fill="url(#c-g-poca)"/>
-                <rect x="-4" y="236" width="8" height="200" rx="3" fill="#1D3A33"/>
-                <path d="M0 242 Q0 226 -16 226 H-40" fill="none" stroke="#1D3A33" stroke-width="6" stroke-linecap="round"/>
-                <path d="M-56 226 H-26 L-31 258 H-51 Z" fill="#1D3A33"/>
-                <rect x="-49" y="256" width="18" height="5" rx="2" fill="#FFE7A8"/>
-              </g>
-            </defs>
-
-            <rect width="1200" height="600" fill="url(#c-g-ceu)"/>
-            <g id="c-estrelas" fill="#DDEBE3"></g>
-            <circle cx="1052" cy="146" r="80" fill="url(#c-g-lua)"/>
-            <circle cx="1052" cy="146" r="26" fill="#E3EEE7" mask="url(#c-m-lua)"/>
-
-            <!-- a "câmera": no celular ela acompanha a ação de cada passo -->
-            <g class="c-camera">
-            <g class="c-longe" id="c-longe"></g>
-            <g class="c-meio" id="c-meio"></g>
-
-            <g class="c-perto">
-              <rect x="-200" y="430" width="3900" height="44" fill="#13302A"/>
-              <rect x="-200" y="470" width="3900" height="7" fill="#22463C"/>
-              <rect x="-200" y="477" width="3900" height="140" fill="#0A1814"/>
-              <path d="M-200 578 H3700" stroke="#2A4B42" stroke-width="5" stroke-dasharray="46 38"/>
-
-              <!-- o bar -->
-              <rect x="20" y="104" width="540" height="328" fill="#16362F"/>
-              <rect x="12" y="96" width="556" height="12" fill="#1F463D"/>
-              <rect x="60" y="130" width="84" height="56" rx="3" fill="#0B1C18"/>
-              <rect x="248" y="130" width="84" height="56" rx="3" fill="#FFD27A" opacity=".5"/>
-              <rect x="436" y="130" width="84" height="56" rx="3" fill="#0B1C18"/>
-              <g class="c-letreiro" font-family="'Tilt Neon', 'Bricolage Grotesque', sans-serif" font-size="62" text-anchor="middle">
-                <text x="234" y="248" fill="none" stroke="#FF7A33" stroke-width="16" stroke-opacity=".12">Drink</text>
-                <text x="234" y="248" fill="none" stroke="#FF7A33" stroke-width="7" stroke-opacity=".3">Drink</text>
-                <text x="234" y="248" fill="#FFE9DA" stroke="#FF9A5C" stroke-width="1.5">Drink</text>
-              </g>
-              <rect x="54" y="264" width="360" height="20" fill="#0F2A24"/>
-              <path d="M54 284 h360 v2 q-15 14 -30 0 q-15 14 -30 0 q-15 14 -30 0 q-15 14 -30 0 q-15 14 -30 0 q-15 14 -30 0 q-15 14 -30 0 q-15 14 -30 0 q-15 14 -30 0 q-15 14 -30 0 q-15 14 -30 0 q-15 14 -30 0 Z" fill="#FF7A33"/>
-              <rect x="66" y="300" width="336" height="118" rx="3" fill="url(#c-g-vitrine)" opacity=".82"/>
-              <g fill="#3A1D0B" opacity=".6">
-                <circle cx="120" cy="352" r="12"/><path d="M98 418 Q98 372 120 370 Q142 372 142 418 Z"/>
-                <circle cx="206" cy="358" r="11"/><path d="M186 418 Q186 378 206 376 Q226 378 226 418 Z"/>
-                <circle cx="340" cy="350" r="12"/><path d="M318 418 Q318 370 340 368 Q362 370 362 418 Z"/>
-                <rect x="240" y="392" width="70" height="6" rx="3"/>
-              </g>
-              <path d="M178 300 V418 M290 300 V418" stroke="#16362F" stroke-width="6"/>
-              <rect x="440" y="298" width="86" height="134" fill="#0B1C18"/>
-              <rect x="452" y="310" width="62" height="70" fill="#FFB36B" opacity=".42"/>
-              <circle cx="508" cy="388" r="3" fill="#C9A55C"/>
-              <circle cx="483" cy="284" r="46" fill="url(#c-g-luz)"/>
-              <rect x="475" y="278" width="16" height="8" rx="3" fill="#FFE7A8"/>
-
-              <!-- fachadas do caminho (geradas no script) -->
-              <g id="c-fachadas"></g>
-
-              <use href="#c-poste" x="1110"/>
-              <use href="#c-poste" x="1900"/>
-              <use href="#c-poste" x="2700"/>
-              <use href="#c-poste" x="3620"/>
-
-              <!-- a casa -->
-              <rect x="2980" y="262" width="520" height="170" fill="#1B3A33"/>
-              <path d="M2958 266 L3240 168 L3522 266 Z" fill="#11281F"/>
-              <rect x="3386" y="188" width="30" height="52" fill="#11281F"/>
-              <rect x="3000" y="322" width="236" height="110" fill="#0F241E"/>
-              <path d="M3000 344H3236M3000 366H3236M3000 388H3236M3000 410H3236" stroke="#1B3A33" stroke-width="3"/>
-              <rect x="3040" y="280" width="64" height="30" rx="3" fill="#FFD27A" opacity=".55"/>
-              <rect x="3150" y="280" width="64" height="30" rx="3" fill="#0B1C18"/>
-              <rect x="3276" y="290" width="74" height="56" rx="3" fill="#FFD27A" opacity=".6"/>
-              <path d="M3313 290 V346 M3276 318 H3350" stroke="#1B3A33" stroke-width="4"/>
-              <rect x="3380" y="330" width="62" height="102" fill="#0B1C18"/>
-              <circle cx="3432" cy="384" r="3" fill="#C9A55C"/>
-              <g class="c-luz-casa">
-                <circle cx="3411" cy="318" r="50" fill="url(#c-g-luz)"/>
-                <rect x="3403" y="312" width="16" height="8" rx="3" fill="#FFE7A8"/>
-              </g>
-              <rect x="3000" y="430" width="236" height="44" fill="#1A3A33"/>
-              <path d="M3462 432 q20 -42 44 -8 q16 -32 38 8 z" fill="#123A2E"/>
-            </g>
-
-            <!-- o carro -->
-            <g class="c-carro">
-              <ellipse cx="801" cy="547" rx="186" ry="9" fill="#000" opacity=".45"/>
-              <path class="c-farol-luz" d="M956 434 L1330 384 L1330 532 L956 452 Z" fill="url(#c-g-farol)"/>
-              <path d="M640 505 V432 Q640 420 648 410 L676 374 Q681 368 690 368 L836 366 Q846 366 852 373 L898 420 L948 428 Q962 431 962 446 V505 Q962 512 955 512 H923 A38 38 0 0 0 847 512 H753 A38 38 0 0 0 677 512 H647 Q640 512 640 505 Z" fill="#2F5A50" stroke="#173A32" stroke-width="3" stroke-linejoin="round"/>
-              <path d="M702 378 L758 377 V418 H686 Z" fill="#7FB5AC"/>
-              <path d="M770 377 L834 375 Q842 375 846 381 L878 418 H770 Z" fill="#7FB5AC"/>
-              <g class="c-cabecas" fill="#07110E"><circle cx="724" cy="399" r="10"/><path d="M708 418 Q709 408 724 408 Q739 408 740 418 Z"/><circle cx="824" cy="395" r="11"/><path d="M806 418 Q807 406 824 406 Q841 406 842 418 Z"/></g>
-              <path d="M764 424 V506 M870 430 V506" stroke="#173A32" stroke-width="2"/>
-              <rect x="780" y="436" width="18" height="4" rx="2" fill="#173A32"/>
-              <rect x="712" y="436" width="18" height="4" rx="2" fill="#173A32"/>
-              <rect x="944" y="432" width="16" height="11" rx="3" fill="#FFE7A8"/>
-              <rect class="c-interior" x="645" y="382" width="64" height="126" rx="4" fill="#040B09"/>
-              <g class="roda">
-                <circle cx="715" cy="515" r="30" fill="#060908"/><circle cx="715" cy="515" r="15" fill="#8FA39C"/>
-                <path d="M715 502V528M702 515H728" stroke="#4E605A" stroke-width="3"/><circle cx="715" cy="515" r="4" fill="#26302D"/>
-              </g>
-              <g class="roda">
-                <circle cx="885" cy="515" r="30" fill="#060908"/><circle cx="885" cy="515" r="15" fill="#8FA39C"/>
-                <path d="M885 502V528M872 515H898" stroke="#4E605A" stroke-width="3"/><circle cx="885" cy="515" r="4" fill="#26302D"/>
-              </g>
-            </g>
-
-            <!-- quem pediu -->
-            <g class="c-cliente">
-              <ellipse cx="580" cy="469" rx="24" ry="4" fill="#000" opacity=".35"/>
-              <rect x="566" y="404" width="11" height="64" rx="5" fill="#1B2A26"/>
-              <rect x="583" y="404" width="11" height="64" rx="5" fill="#1B2A26"/>
-              <g class="braco-e"><rect x="551" y="340" width="11" height="60" rx="5.5" fill="#D8CCB2"/></g>
-              <rect x="598" y="340" width="11" height="60" rx="5.5" fill="#D8CCB2"/>
-              <rect x="557" y="332" width="46" height="84" rx="15" fill="#EDE3CF"/>
-              <path d="M580 336 V412" stroke="#C9BC9F" stroke-width="2"/>
-              <circle cx="580" cy="312" r="15" fill="#8D5A3B"/>
-              <path d="M565 311 Q565 294 580 294 Q595 294 595 311 Q588 302 580 302 Q572 302 565 311 Z" fill="#1A1411"/>
-              <rect class="c-celular" x="600" y="394" width="9" height="15" rx="2" fill="#A9D4CC"/>
-            </g>
-
-            <!-- o Drink em pé -->
-            <g class="c-motorista">
-              <ellipse cx="470" cy="531" rx="24" ry="4" fill="#000" opacity=".35"/>
-              <rect x="456" y="468" width="11" height="62" rx="5" fill="#1B2A26"/>
-              <rect x="473" y="468" width="11" height="62" rx="5" fill="#1B2A26"/>
-              <rect x="442" y="404" width="10" height="58" rx="5" fill="#27403A"/>
-              <g class="braco-d"><rect x="488" y="404" width="10" height="58" rx="5" fill="#27403A"/></g>
-              <rect x="448" y="396" width="44" height="80" rx="14" fill="#D4F04A"/>
-              <rect x="448" y="440" width="44" height="7" fill="#A8B4AD"/>
-              <rect x="448" y="452" width="44" height="4" fill="#A8B4AD"/>
-              <circle cx="470" cy="376" r="15" fill="#C68B64"/>
-              <path d="M453 377 A17 17 0 0 1 487 377 L490 382 H450 Z" fill="#FF7A33"/>
-              <path d="M452 380 H488" stroke="#B94E14" stroke-width="2"/>
-            </g>
-
-            <!-- a bike (ou o patinete) chegando, que depois dobra e entra no porta-malas -->
-            <g class="c-chegada">
-              <g class="c-veiculo">
-                <g class="c-bike">
-                  <path class="c-farol-bike" d="M178 122 L340 92 L340 172 L178 134 Z" fill="url(#c-g-farol)"/>
-                  <use href="#s-bike-corpo"/>
-                  <g class="dobra"><use href="#s-bike-guidao"/></g>
-                </g>
-                <g class="c-pat">
-                  <use href="#s-pat-corpo"/>
-                  <g class="dobra"><use href="#s-pat-guidao"/></g>
-                </g>
-              </g>
-              <g class="c-piloto">
-                <use class="so-bike" href="#s-piloto-bike"/>
-                <use class="so-pat" href="#s-piloto-pe"/>
-              </g>
-            </g>
-
-            <!-- tampa do porta-malas (por cima da bike) e lanterna -->
-            <g class="c-tampa">
-              <path d="M690 368 L676 374 L648 410 Q640 420 640 432 V454 H653 V436 Q653 426 660 418 L694 378 Z" fill="#2F5A50" stroke="#173A32" stroke-width="3" stroke-linejoin="round"/>
-              <path d="M684 382 L662 408 L667 412 L689 386 Z" fill="#7FB5AC" opacity=".8"/>
-            </g>
-            <ellipse class="c-lanterna-luz" cx="632" cy="445" rx="36" ry="24" fill="url(#c-g-lanterna)"/>
-            <rect x="637" y="434" width="8" height="22" rx="3" fill="#E23B3B"/>
-
-            <!-- chave, balões, flashes e selos -->
-            <g class="c-chave">
-              <circle cx="0" cy="0" r="6" fill="none" stroke="#FFD27A" stroke-width="3"/>
-              <path d="M6 -2 H22 V2 H19 V6 H16 V2 H6 Z" fill="#FFD27A"/>
-            </g>
-            <g class="c-balao c-balao-mot">
-              <path d="M420 300 H500 Q508 300 508 308 V334 Q508 342 500 342 H470 L460 354 L456 342 H420 Q412 342 412 334 V308 Q412 300 420 300 Z" fill="#F4ECDD"/>
-              <rect x="428" y="309" width="46" height="25" rx="4" fill="none" stroke="#0A1A16" stroke-width="2.5"/>
-              <circle cx="440" cy="321" r="5" fill="#0A1A16"/>
-              <path d="M451 316H467M451 322H467M451 328H461" stroke="#0A1A16" stroke-width="2.4" stroke-linecap="round"/>
-              <path d="M482 320 l6 6 11 -12" fill="none" stroke="#1C7A4A" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
-            </g>
-            <g class="c-balao c-balao-cli">
-              <path d="M556 238 H604 Q612 238 612 246 V268 Q612 276 604 276 H590 L582 288 L578 276 H556 Q548 276 548 268 V246 Q548 238 556 238 Z" fill="#F4ECDD"/>
-              <path d="M567 257 l7 7 13 -14" fill="none" stroke="#1C7A4A" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-            </g>
-
-            <g class="c-flashes" fill="#FFFFFF" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round">
-              <g class="flash" style="--d:.1s"><circle cx="968" cy="452" r="20" stroke="none"/><path d="M968 420V432M968 472V484M936 452H948M988 452H1000M946 430L954 438M990 430L982 438M946 474L954 466M990 474L982 466"/></g>
-              <g class="flash" style="--d:.5s"><circle cx="634" cy="448" r="20" stroke="none"/><path d="M634 416V428M634 468V480M602 448H614M654 448H666M612 426L620 434M656 426L648 434M612 470L620 462M656 470L648 462"/></g>
-              <g class="flash" style="--d:.9s"><circle cx="820" cy="456" r="20" stroke="none"/><path d="M820 424V436M820 476V488M788 456H800M840 456H852M798 434L806 442M842 434L834 442M798 478L806 470M842 478L834 470"/></g>
-              <g class="flash" style="--d:1.3s"><circle cx="716" cy="452" r="20" stroke="none"/><path d="M716 420V432M716 472V484M684 452H696M736 452H748M694 430L702 438M738 430L730 438M694 474L702 466M738 474L730 466"/></g>
-              <g class="flash" style="--d:1.7s"><circle cx="864" cy="398" r="20" stroke="none"/><path d="M864 366V378M864 418V430M832 398H844M884 398H896M842 376L850 384M886 376L878 384M842 420L850 412M886 420L878 412"/></g>
-            </g>
-            <g class="c-selo">
-              <circle cx="800" cy="316" r="32" fill="#4FC786"/>
-              <path d="M800 293 L783 299 V313 Q783 330 800 339 Q817 330 817 313 V299 Z" fill="#0A1A16"/>
-              <path d="M792 315 L798 321 L809 308" fill="none" stroke="#4FC786" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
-            </g>
-
-            <!-- chegada em casa: a pessoa na porta e o Drink indo embora -->
-            <g class="c-ok-casa">
-              <circle cx="1011" cy="262" r="24" fill="#4FC786"/>
-              <path d="M1000 262 l8 8 14 -15" fill="none" stroke="#0A1A16" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-            </g>
-            <g class="c-saida">
-              <g transform="translate(650 310) scale(-1 1)">
-                <g class="so-bike"><use href="#s-bike"/><use href="#s-piloto-bike"/></g>
-                <g class="so-pat"><use href="#s-patinete"/><use href="#s-piloto-pe"/></g>
-              </g>
-            </g>
-            </g>
-          </svg>
-        </div>
-
-        <div class="palco-legenda">
-          <div class="legenda-topo">
-            <p class="legenda-n"><span id="leg-n">01</span> / 06</p>
-            <div class="seg seg-noite" role="radiogroup" aria-label="Veículo do Drink na história">
-              <input type="radio" name="hist-veic" id="hv-bike" value="bike" checked><label for="hv-bike">Bike</label>
-              <input type="radio" name="hist-veic" id="hv-pat" value="patinete"><label for="hv-pat">Patinete</label>
+            <!-- 1. pedido -->
+            <div class="tela ativa" data-tela="1">
+              <div class="t-barra"><span>23:41</span><span class="t-ic"><svg><use href="#i-sinal"/></svg><svg class="t-bat"><use href="#i-bat"/></svg></span></div>
+              <div class="t-mapa">
+                <svg viewBox="0 0 280 320" preserveAspectRatio="xMidYMid slice">
+                  <use href="#mapa" width="280" height="320"/>
+                  <g class="m-perto">
+                    <circle cx="78" cy="104" r="5"/><circle cx="226" cy="94" r="5"/><circle cx="204" cy="262" r="5"/>
+                  </g>
+                  <circle class="m-anel" cx="140" cy="170" r="20"/>
+                  <circle class="m-voce" cx="140" cy="170" r="7"/>
+                </svg>
+                <p class="t-chip t-chip-topo"><span class="t-ponto"></span>3 Drinks por perto</p>
+              </div>
+              <div class="t-folha">
+                <p class="t-rot">Para onde?</p>
+                <div class="t-rota">
+                  <p><span class="t-bol"></span>Bar do Lucas, Savassi</p>
+                  <p><span class="t-bol t-bol-fim"></span>Casa, Buritis</p>
+                </div>
+                <div class="t-opcao">
+                  <svg class="t-opcao-ic"><use href="#i-bike"/></svg>
+                  <div><b>Drink</b><span>bike ou patinete · 6 min</span></div>
+                  <b class="t-preco">R$ 56,50</b>
+                </div>
+                <p class="t-botao">Pedir Drink</p>
+              </div>
             </div>
-          </div>
-          <div class="legenda-txt" id="leg-txt" aria-hidden="true">
-            <h3 id="leg-t">O Drink chega de bike</h3>
-            <p id="leg-d">Você pede pelo app e o Drink mais perto vem de bike elétrica ou patinete. A meta é chegar em até 15 minutos.</p>
-          </div>
-          <div class="legenda-pe">
-            <div class="legenda-pontos" id="leg-pontos" role="group" aria-label="Ir para um passo da história">
-              <button type="button" data-ir-passo="1" aria-label="Passo 1: O Drink chega de bike"></button>
-              <button type="button" data-ir-passo="2" aria-label="Passo 2: Confere o seu nome e pega a chave"></button>
-              <button type="button" data-ir-passo="3" aria-label="Passo 3: Vistoria com 5 fotos"></button>
-              <button type="button" data-ir-passo="4" aria-label="Passo 4: Dobra e guarda no porta-malas"></button>
-              <button type="button" data-ir-passo="5" aria-label="Passo 5: Vocês vão para casa"></button>
-              <button type="button" data-ir-passo="6" aria-label="Passo 6: Chegou. Chave na sua mão"></button>
+
+            <!-- 2. a caminho -->
+            <div class="tela" data-tela="2">
+              <div class="t-barra"><span>23:44</span><span class="t-ic"><svg><use href="#i-sinal"/></svg><svg class="t-bat"><use href="#i-bat"/></svg></span></div>
+              <div class="t-mapa">
+                <svg viewBox="0 0 280 320" preserveAspectRatio="xMidYMid slice">
+                  <use href="#mapa" width="280" height="320"/>
+                  <path class="m-rota" d="M270 40L140 170"/>
+                  <path class="m-rota-feita" d="M270 40L140 170" pathLength="100" stroke-dasharray="65 100"/>
+                  <g class="m-bike" transform="translate(185.5 124.5)"><circle class="m-carro-halo" r="14"/><circle r="8.5"/><use href="#i-bike" x="-5.5" y="-5.5" width="11" height="11"/></g>
+                  <circle class="m-voce" cx="140" cy="170" r="7"/>
+                </svg>
+                <p class="t-chip t-chip-topo">Chega em <b>4 min</b></p>
+              </div>
+              <div class="t-folha">
+                <p class="t-titulo">Rafael está a caminho</p>
+                <div class="t-mot">
+                  <span class="t-av">RS</span>
+                  <div><b>Rafael S.</b><span><svg class="t-estrela"><use href="#i-estrela"/></svg>4,9 · CNH há 9 anos</span></div>
+                  <span class="t-veic"><svg><use href="#i-bike"/></svg></span>
+                </div>
+                <div class="t-acoes"><p class="t-bt"><svg><use href="#i-mensagem"/></svg>Mensagem</p><p class="t-bt"><svg><use href="#i-compartilhar"/></svg>Compartilhar</p></div>
+              </div>
             </div>
-            <div class="legenda-barra" aria-hidden="true"><span id="leg-barra"></span></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
 
-  <!-- ================= O app ================= -->
-  <section class="app" id="app" data-secao="como" aria-labelledby="app-titulo">
-    <div class="wrap">
-      <div class="secao-cab">
-        <p class="rotulo">No app</p>
-        <h2 id="app-titulo">Tela por tela.</h2>
-        <p class="lede">O mesmo pedido, visto no celular. Toque nos passos ou deslize o dedo sobre a tela.</p>
-      </div>
-          <div class="tour">
-            <ol class="tour-passos">
-              <li><button type="button" class="tour-passo" data-passo="0" aria-current="step"><span class="tp-n" aria-hidden="true">1</span><span class="tp-txt"><strong>Você pede ou agenda</strong><span>Informe onde o carro está e para onde vai. O app mostra o preço antes de confirmar.</span></span></button></li>
-              <li><button type="button" class="tour-passo" data-passo="1"><span class="tp-n" aria-hidden="true">2</span><span class="tp-txt"><strong>O Drink chega de bike elétrica ou patinete</strong><span>Ele se identifica com nome e foto do app e confere o seu nome antes de pegar a chave.</span></span></button></li>
-              <li><button type="button" class="tour-passo" data-passo="2"><span class="tp-n" aria-hidden="true">3</span><span class="tp-txt"><strong>Vistoria com fotos</strong><span>Vocês fotografam o carro juntos pelo app. O seguro da viagem começa aqui.</span></span></button></li>
-              <li><button type="button" class="tour-passo" data-passo="3"><span class="tp-n" aria-hidden="true">4</span><span class="tp-txt"><strong>Dobra e guarda</strong><span>Ele forra o porta-malas, dobra a bike ou o patinete e guarda. Você vai no banco do passageiro ou no de trás.</span></span></button></li>
-              <li><button type="button" class="tour-passo" data-passo="4"><span class="tp-n" aria-hidden="true">5</span><span class="tp-txt"><strong>Viagem rastreada</strong><span>Você acompanha o trajeto no app e pode compartilhar com alguém.</span></span></button></li>
-              <li><button type="button" class="tour-passo" data-passo="5"><span class="tp-n" aria-hidden="true">6</span><span class="tp-txt"><strong>Chegou</strong><span>Carro estacionado, fotos finais, chave na sua mão. O Drink pega a bike e segue para o próximo pedido.</span></span></button></li>
-            </ol>
-
-            <div class="tour-palco">
-              <div class="fone" id="fone" data-dir="1" aria-hidden="true">
-                <div class="fone-vidro">
-                  <div class="fone-ilha"></div>
-                  <div class="fone-status">
-                    <span id="fone-hora">22:41</span>
-                    <svg viewBox="0 0 54 14"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y=".5" width="3" height="11.5" rx="1"/><rect x="26" y="1" width="23" height="11" rx="3.2" fill="none" stroke="currentColor" stroke-width="1.2" opacity=".6"/><rect x="28" y="3" width="15" height="7" rx="1.8"/><rect x="50.5" y="4.5" width="1.8" height="4" rx=".9" opacity=".6"/></svg>
-                  </div>
-
-                  <!-- 1. pedido -->
-                  <div class="tela" data-tela="0" data-hora="22:41">
-                    <div class="t-mapa">
-                      <svg viewBox="0 0 320 300" preserveAspectRatio="xMidYMid slice">
-                        <use href="#mapa"/>
-                        <use href="#pin-carro" x="160" y="150"/>
-                      </svg>
-                      <span class="t-chip-mapa">Seu carro está aqui</span>
-                    </div>
-                    <div class="t-folha">
-                      <p class="t-h">Pedir um Drink</p>
-                      <div class="t-rota">
-                        <p><span class="t-rot">Onde está o carro</span>Savassi</p>
-                        <p><span class="t-rot">Para onde</span>Casa</p>
-                      </div>
-                      <p class="t-seg"><span class="on">Agora</span><span>Agendar</span></p>
-                      <p class="t-linha"><span>9 km · chega em 8 min</span><b class="t-preco">R$ 56,50</b></p>
-                      <span class="t-btn">Pedir meu Drink</span>
-                    </div>
-                  </div>
-
-                  <!-- 2. a caminho -->
-                  <div class="tela" data-tela="1" data-hora="22:43" hidden>
-                    <div class="t-mapa">
-                      <svg viewBox="0 0 320 300" preserveAspectRatio="xMidYMid slice">
-                        <use href="#mapa"/>
-                        <path d="M96 230V150h64" fill="none" stroke="var(--app-accent)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="1 9"/>
-                        <use href="#pin-carro" x="160" y="150"/>
-                        <use href="#pin-bike" x="96" y="230"/>
-                      </svg>
-                      <span class="t-chip-mapa">Chega em 8 min</span>
-                    </div>
-                    <div class="t-folha">
-                      <div class="t-motorista">
-                        <span class="t-avatar">RS</span>
-                        <p><strong>Rafael S.</strong><span class="t-rot">★ 4,9 · CNH há 9 anos</span></p>
-                        <span class="t-veic">Bike elétrica</span>
-                      </div>
-                      <p class="t-dica">Ele vai conferir o seu nome antes de pegar a chave.</p>
-                      <div class="t-duas"><span class="t-btn t-sec">Mensagem</span><span class="t-btn t-sec">Ligar</span></div>
-                    </div>
-                  </div>
-
-                  <!-- 3. vistoria -->
-                  <div class="tela t-cheia" data-tela="2" data-hora="22:50" hidden>
-                    <div class="t-topo">
-                      <p class="t-h">Vistoria</p>
-                      <p class="t-rot">Fotos tiradas com o Drink, antes da viagem</p>
-                    </div>
-                    <div class="t-progresso"><span></span></div>
-                    <ul class="t-fotos">
-                      <li><span class="t-mini"></span>Frente<svg class="t-ok" viewBox="0 0 16 16"><path d="M3.5 8.5l3 3 6-7"/></svg></li>
-                      <li><span class="t-mini"></span>Traseira<svg class="t-ok" viewBox="0 0 16 16"><path d="M3.5 8.5l3 3 6-7"/></svg></li>
-                      <li><span class="t-mini"></span>Lado esquerdo<svg class="t-ok" viewBox="0 0 16 16"><path d="M3.5 8.5l3 3 6-7"/></svg></li>
-                      <li><span class="t-mini"></span>Lado direito<svg class="t-ok" viewBox="0 0 16 16"><path d="M3.5 8.5l3 3 6-7"/></svg></li>
-                      <li><span class="t-mini"></span><span>Painel <small>48.210 km · ½ tanque</small></span><svg class="t-ok" viewBox="0 0 16 16"><path d="M3.5 8.5l3 3 6-7"/></svg></li>
-                    </ul>
-                    <p class="t-selo">5 de 5 fotos. Seguro ativo até a entrega da chave.</p>
-                    <span class="t-btn">Continuar</span>
-                  </div>
-
-                  <!-- 4. porta-malas -->
-                  <div class="tela t-cheia" data-tela="3" data-hora="22:53" hidden>
-                    <div class="t-topo">
-                      <p class="t-h">Porta-malas</p>
-                      <p class="t-rot">Bike elétrica dobrada e guardada</p>
-                    </div>
-                    <div class="t-ilustra">
-                      <svg viewBox="0 0 200 124">
-                        <path d="M52 44 62 8h76l10 36z" fill="var(--app-carro)" stroke="var(--app-carro-linha)" stroke-width="2" stroke-linejoin="round"/>
-                        <path d="M66 14h68l6 24H60z" fill="var(--app-vidro)" opacity=".7"/>
-                        <path d="M28 62q2-18 22-18h100q20 0 22 18v42q0 6-6 6H34q-6 0-6-6z" fill="var(--app-carro)" stroke="var(--app-carro-linha)" stroke-width="2"/>
-                        <rect x="46" y="50" width="108" height="52" rx="6" fill="var(--app-bg)"/>
-                        <rect x="50" y="88" width="100" height="10" rx="3" fill="var(--app-ok)" opacity=".45"/>
-                        <circle cx="86" cy="70" r="16" fill="none" stroke="var(--app-dim)" stroke-width="4"/>
-                        <circle cx="114" cy="70" r="16" fill="none" stroke="var(--app-dim)" stroke-width="4"/>
-                        <path d="M86 70h28M100 70l-8-12M100 70l7-14" fill="none" stroke="var(--app-accent)" stroke-width="4" stroke-linecap="round"/>
-                        <rect x="30" y="64" width="7" height="16" rx="2" fill="#E23B3B"/>
-                        <rect x="163" y="64" width="7" height="16" rx="2" fill="#E23B3B"/>
-                        <rect x="36" y="110" width="20" height="12" rx="3" fill="var(--app-pneu)"/>
-                        <rect x="144" y="110" width="20" height="12" rx="3" fill="var(--app-pneu)"/>
-                      </svg>
-                    </div>
-                    <ul class="t-check">
-                      <li><svg class="t-ok" viewBox="0 0 16 16"><path d="M3.5 8.5l3 3 6-7"/></svg>Capa protetora no porta-malas</li>
-                      <li><svg class="t-ok" viewBox="0 0 16 16"><path d="M3.5 8.5l3 3 6-7"/></svg>Bike dobrada e presa</li>
-                    </ul>
-                    <div class="t-grupo">
-                      <p class="t-rot">Você vai no</p>
-                      <p class="t-seg"><span class="on">Passageiro</span><span>Banco de trás</span></p>
-                    </div>
-                    <p class="t-dica">Leve com você os objetos de valor. O seguro da viagem não cobre o que fica no carro.</p>
-                    <span class="t-btn">Começar viagem</span>
-                  </div>
-
-                  <!-- 5. em viagem -->
-                  <div class="tela" data-tela="4" data-hora="22:59" hidden>
-                    <div class="t-mapa">
-                      <svg viewBox="0 0 320 300" preserveAspectRatio="xMidYMid slice">
-                        <use href="#mapa"/>
-                        <path d="M200 150h24V70" fill="none" stroke="var(--app-accent)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="1 9"/>
-                        <path d="M160 150h40" fill="none" stroke="var(--app-accent)" stroke-width="5" stroke-linecap="round"/>
-                        <circle cx="160" cy="150" r="5" fill="var(--app-accent)"/>
-                        <use href="#pin-casa" x="224" y="70"/>
-                        <use href="#pin-carro" x="200" y="150"/>
-                      </svg>
-                      <span class="t-chip-mapa">Chegada 23:07 · 4,1 km</span>
-                    </div>
-                    <div class="t-folha">
-                      <p class="t-h">Em viagem para Casa</p>
-                      <p class="t-rot">Rafael S. está dirigindo o seu carro</p>
-                      <p class="t-comp"><span class="t-avatar t-avatar-mini">A</span>Ana está acompanhando a viagem</p>
-                      <div class="t-duas"><span class="t-btn t-sec">Compartilhar</span><span class="t-btn t-perigo">Emergência</span></div>
-                    </div>
-                  </div>
-
-                  <!-- 6. chegou -->
-                  <div class="tela t-cheia" data-tela="5" data-hora="23:07" hidden>
-                    <div class="t-fim">
-                      <svg class="t-fim-ok" viewBox="0 0 48 48"><circle cx="24" cy="24" r="22"/><path d="M14 25l7 7 13-15"/></svg>
-                      <p class="t-h">Chegou em casa</p>
-                      <p class="t-rot">Carro estacionado e chave na sua mão.</p>
-                    </div>
-                    <ul class="t-recibo">
-                      <li><span>Saída</span><span>R$ 25,00</span></li>
-                      <li><span>9 km</span><span>R$ 31,50</span></li>
-                      <li><span>Seguro da viagem</span><span>grátis</span></li>
-                      <li class="t-total"><span>Pago no Pix</span><span>R$ 56,50</span></li>
-                    </ul>
-                    <div class="t-grupo">
-                      <p class="t-rot">Como foi a volta com o Rafael?</p>
-                      <p class="t-estrelas">★★★★★</p>
-                    </div>
-                    <div class="t-grupo">
-                      <p class="t-rot">Gorjeta, vai toda para ele</p>
-                      <p class="t-seg"><span>R$ 5</span><span class="on">R$ 10</span><span>R$ 15</span></p>
-                    </div>
-                    <span class="t-btn">Concluir</span>
-                  </div>
-
-                  <div class="fone-home"></div>
+            <!-- 3. vistoria -->
+            <div class="tela" data-tela="3">
+              <div class="t-barra"><span>23:48</span><span class="t-ic"><svg><use href="#i-sinal"/></svg><svg class="t-bat"><use href="#i-bat"/></svg></span></div>
+              <div class="t-cab">
+                <p class="t-titulo">Vistoria do carro</p>
+                <p class="t-sub">5 de 5 fotos · 48.210 km · tanque ½</p>
+              </div>
+              <div class="t-vist">
+                <div class="t-vist-in">
+                  <svg class="t-vist-carro" viewBox="0 0 160 260"><use href="#carro-topo"/></svg>
+                  <span class="t-vp" style="--x:50%;--y:5%"></span>
+                  <span class="t-vp" style="--x:50%;--y:95%"></span>
+                  <span class="t-vp" style="--x:12%;--y:60%"></span>
+                  <span class="t-vp" style="--x:88%;--y:60%"></span>
+                  <span class="t-vp" style="--x:50%;--y:38%"></span>
                 </div>
               </div>
+              <ul class="t-fotos">
+                <li>Frente</li><li>Traseira</li><li>Esquerda</li><li>Direita</li><li>Painel</li>
+              </ul>
+              <p class="t-ok"><svg><use href="#i-escudo"/></svg>Seguro ativo desde 23:49</p>
+            </div>
 
-              <div class="tour-ctrl">
-                <button type="button" class="tour-seta" data-ir="-1" aria-label="Passo anterior">
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
-                </button>
-                <p class="tour-leg">
-                  <span class="tour-n" id="tour-n">1 de 6</span>
-                  <strong id="tour-t">Você pede ou agenda</strong>
-                  <span id="tour-d">Informe onde o carro está e para onde vai. O app mostra o preço antes de confirmar.</span>
-                </p>
-                <button type="button" class="tour-seta" data-ir="1" aria-label="Próximo passo">
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
-                </button>
+            <!-- 4. porta-malas -->
+            <div class="tela" data-tela="4">
+              <div class="t-barra"><span>23:50</span><span class="t-ic"><svg><use href="#i-sinal"/></svg><svg class="t-bat"><use href="#i-bat"/></svg></span></div>
+              <div class="t-cab">
+                <p class="t-titulo">Bike no porta-malas</p>
+                <p class="t-sub">Dobrada em 18 s</p>
+              </div>
+              <svg class="t-malas" viewBox="0 0 200 170">
+                <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+                  <path class="tm-tampa" d="M44 78L58 14h84l14 64"/>
+                  <path class="tm-tampa" d="M62 24h76l8 40H54z"/>
+                  <path class="tm-corpo" d="M16 158v-60q0-12 10-18l18-8h112l18 8q10 6 10 18v60z"/>
+                  <rect class="tm-vao" x="44" y="80" width="112" height="54" rx="6"/>
+                  <use class="tm-bike" href="#bike-dobrada" x="68" y="82" width="58" height="52"/>
+                  <path class="tm-capa" d="M50 128q10-4 20 0t20 0 20 0 20 0 20 0"/>
+                  <path class="tm-luz" d="M24 104h18M158 104h18"/>
+                  <path class="tm-corpo" d="M28 158v8h24v-8M148 158v8h24v-8"/>
+                </g>
+              </svg>
+              <ul class="t-lista">
+                <li><svg><use href="#i-check"/></svg>Capa protetora no porta-malas</li>
+                <li><svg><use href="#i-check"/></svg>Bike dobrada e presa</li>
+                <li><svg><use href="#i-check"/></svg>Porta-malas fechado</li>
+              </ul>
+              <p class="t-botao">Começar a viagem</p>
+            </div>
+
+            <!-- 5. em viagem -->
+            <div class="tela" data-tela="5">
+              <div class="t-barra"><span>23:58</span><span class="t-ic"><svg><use href="#i-sinal"/></svg><svg class="t-bat"><use href="#i-bat"/></svg></span></div>
+              <div class="t-mapa">
+                <svg viewBox="0 0 280 320" preserveAspectRatio="xMidYMid slice">
+                  <use href="#mapa" width="280" height="320"/>
+                  <path class="m-rota" d="M140 170L60 250V292"/>
+                  <path class="m-rota-feita" d="M140 170L60 250V292" pathLength="100" stroke-dasharray="55 100"/>
+                  <circle class="m-inicio" cx="140" cy="170" r="4"/>
+                  <g class="m-casa" transform="translate(60 292)"><circle r="9"/><use href="#i-casa" x="-6" y="-6.5" width="12" height="12"/></g>
+                  <g class="m-carro" transform="translate(79.7 230.3)"><circle class="m-carro-halo" r="15"/><circle r="8.5"/><use href="#carro-topo" x="-4" y="-6.5" width="8" height="13"/></g>
+                </svg>
+                <p class="t-chip t-chip-topo"><span class="t-vivo"></span>Ao vivo · compartilhada com Ana</p>
+              </div>
+              <div class="t-folha">
+                <div class="t-chegada">
+                  <div><p class="t-rot">Chegada</p><p class="t-grande">00:07</p></div>
+                  <div class="t-dir"><p class="t-rot">Faltam</p><p class="t-medio">3,8 km</p></div>
+                </div>
+                <div class="t-mot">
+                  <span class="t-av">RS</span>
+                  <div><b>Rafael está dirigindo</b><span>o seu carro, com a bike no porta-malas</span></div>
+                </div>
               </div>
             </div>
+
+            <!-- 6. em casa -->
+            <div class="tela" data-tela="6">
+              <div class="t-barra"><span>00:08</span><span class="t-ic"><svg><use href="#i-sinal"/></svg><svg class="t-bat"><use href="#i-bat"/></svg></span></div>
+              <div class="t-fim">
+                <span class="t-fim-ic"><svg><use href="#i-casa"/></svg></span>
+                <p class="t-titulo">Carro na garagem.<br>Chave na sua mão.</p>
+                <p class="t-sub">Chegada às 00:07 · Buritis</p>
+              </div>
+              <div class="t-recibo">
+                <p><span>Saída</span><b>R$ 25,00</b></p>
+                <p><span>9 km rodados</span><b>R$ 31,50</b></p>
+                <p><span>Seguro da viagem</span><b>incluso</b></p>
+                <p class="t-total"><span>Total</span><b>R$ 56,50</b></p>
+              </div>
+              <p class="t-resumo"><span>23:41 – 00:07</span><span>26 min</span><span>9 km</span><span>vistoria de chegada ok</span></p>
+              <div class="t-avaliar">
+                <span>Avalie o Rafael</span>
+                <span class="t-estrelas"><svg><use href="#i-estrela"/></svg><svg><use href="#i-estrela"/></svg><svg><use href="#i-estrela"/></svg><svg><use href="#i-estrela"/></svg><svg><use href="#i-estrela"/></svg></span>
+              </div>
+              <p class="t-sub t-rodape">Rafael desdobrou a bike e já foi para o próximo pedido.</p>
+            </div>
           </div>
-      <p class="sr" id="tour-aviso" aria-live="polite"></p>
+        </div>
+      </div>
+
+      <ol class="como-passos" id="passos">
+        <li class="passo ativo" data-passo="1" aria-current="step">
+          <div class="passo-card">
+            <p class="passo-meta"><span class="passo-n">01</span><span>23:41 · Savassi</span></p>
+            <h3>Você pede pelo app</h3>
+            <p>Diga onde está o carro e para onde vai. O preço aparece antes de você confirmar.</p>
+          </div>
+        </li>
+        <li class="passo" data-passo="2">
+          <div class="passo-card">
+            <p class="passo-meta"><span class="passo-n">02</span><span>23:44 · a 1,2 km</span></p>
+            <h3>O Drink chega de bike ou patinete</h3>
+            <p>Um motorista verificado pedala até o seu carro. Você vê nome, foto, nota e o caminho dele no mapa.</p>
+          </div>
+        </li>
+        <li class="passo" data-passo="3">
+          <div class="passo-card">
+            <p class="passo-meta"><span class="passo-n">03</span><span>23:48 · seguro ativo</span></p>
+            <h3>Vistoria com 5 fotos</h3>
+            <p>Frente, traseira, laterais e painel, com a quilometragem e o combustível. O seguro da viagem começa a valer aqui.</p>
+          </div>
+        </li>
+        <li class="passo" data-passo="4">
+          <div class="passo-card">
+            <p class="passo-meta"><span class="passo-n">04</span><span>23:50 · dobrada em 18 s</span></p>
+            <h3>A bike vai no porta-malas</h3>
+            <p>Ele forra o porta-malas com uma capa, dobra a bike ao meio e guarda. O patinete vai deitado.</p>
+          </div>
+        </li>
+        <li class="passo" data-passo="5">
+          <div class="passo-card">
+            <p class="passo-meta"><span class="passo-n">05</span><span>23:58 · ao vivo</span></p>
+            <h3>Ele dirige o seu carro até a sua casa</h3>
+            <p>Você vai no banco do passageiro ou no de trás. A viagem aparece ao vivo, e dá para compartilhar com quem espera por você.</p>
+          </div>
+        </li>
+        <li class="passo" data-passo="6">
+          <div class="passo-card">
+            <p class="passo-meta"><span class="passo-n">06</span><span>00:08 · em casa</span></p>
+            <h3>Chave na sua mão</h3>
+            <p>Ele estaciona, faz a vistoria de chegada e desdobra a bike. Você recebe o recibo, e ele segue para o próximo pedido.</p>
+          </div>
+        </li>
+      </ol>
     </div>
   </section>
 
-  <!-- ================= Por que ================= -->
-  <section class="numeros" aria-labelledby="num-titulo">
-    <div class="wrap">
-      <h2 class="sr" id="num-titulo">Por que o Drink</h2>
-      <div class="numeros-grade">
-        <div class="num"><p class="num-v">Zero</p><p class="num-t">tolerância na Lei Seca. Se beber, alguém sóbrio dirige por você.</p></div>
-        <div class="num"><p class="num-v"><span data-conta="1">1</span> <small>viagem</small></p><p class="num-t">em vez de dois carros de aplicativo e o estacionamento.</p></div>
-        <div class="num"><p class="num-v"><span data-conta="15">15</span> <small>min</small></p><p class="num-t">é a meta para o Drink chegar nos bairros atendidos.</p></div>
-        <div class="num"><p class="num-v">Em casa</p><p class="num-t">é onde o carro dorme. Nada de buscar no dia seguinte.</p></div>
+  <!-- ================= A dobra ================= -->
+  <section class="dobra" id="dobra" data-secao="dobra" aria-labelledby="dobra-titulo">
+    <div class="wrap dobra-grade">
+      <div class="dobra-texto">
+        <p class="rotulo">A dobra</p>
+        <h2 id="dobra-titulo">Chega pedalando. Volta no <span class="sem-quebra">porta-malas.</span></h2>
+        <p class="lede">A bike elétrica dobra ao meio em 20 segundos. O patinete dobra a haste e vai deitado. Antes de guardar, o Drink forra o porta-malas com uma capa.</p>
+        <div class="seg" role="radiogroup" aria-label="Veículo do desenho">
+          <input type="radio" name="dobra-veic" id="dv-bike" value="bike" checked><label for="dv-bike"><svg class="i" aria-hidden="true"><use href="#i-bike"/></svg>Bike elétrica</label>
+          <input type="radio" name="dobra-veic" id="dv-pat" value="patinete"><label for="dv-pat"><svg class="i" aria-hidden="true"><use href="#i-patinete"/></svg>Patinete</label>
+        </div>
+        <dl class="specs" id="specs">
+          <div><dt id="sp-aberta-t">Aberta</dt><dd id="sp-aberta">134 × 88 cm</dd></div>
+          <div><dt id="sp-dobrada-t">Dobrada</dt><dd id="sp-dobrada">74 × 63 × 36 cm</dd></div>
+          <div><dt>Peso</dt><dd id="sp-peso">17 kg</dd></div>
+          <div><dt>Dobra em</dt><dd id="sp-tempo">20 s</dd></div>
+        </dl>
+        <p class="nota">Medidas de exemplo, com o desenho em escala.</p>
       </div>
+
+      <figure class="planta" id="planta" data-veic="bike" data-estado="aberta">
+        <div class="planta-topo">
+          <p class="planta-folha"><span>Folha 01</span><span id="planta-nome">Bike elétrica dobrável</span></p>
+          <button class="btn btn-sodio btn-p" id="dobrar" type="button" aria-controls="planta">Dobrar a bike</button>
+        </div>
+        <svg class="planta-svg" viewBox="-6 -22 166 146" aria-hidden="true">
+          <defs>
+            <pattern id="grade-10" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M10 0H0V10" fill="none" class="grade-f"/></pattern>
+            <pattern id="grade-50" width="50" height="50" patternUnits="userSpaceOnUse"><path d="M50 0H0V50" fill="none" class="grade-g"/></pattern>
+          </defs>
+          <rect x="-6" y="-22" width="166" height="146" fill="url(#grade-10)"/>
+          <rect x="-6" y="-22" width="166" height="146" fill="url(#grade-50)"/>
+          <path class="chao" d="M-6 100H160"/>
+
+          <!-- bike: meia frente gira sobre a dobradiça -->
+          <g class="v-bike">
+            <g class="tr">
+              <circle cx="24" cy="80" r="20"/>
+              <circle class="fina" cx="24" cy="80" r="16.5"/>
+              <circle class="tr-a" cx="24" cy="80" r="5.5"/>
+              <path d="M56 82L24 80L51 52M56 82L49 40M53.3 66L75 61"/>
+              <circle cx="56" cy="82" r="8.5"/>
+              <path d="M56 82l6.5 11.5M59 93.5h8M12 56h34M17 56l7 24M41 56L24 80"/>
+              <rect class="tr-a" x="14" y="48" width="30" height="8" rx="2"/>
+            </g>
+            <g class="tr" id="b-selim">
+              <path d="M49 40l-2-14M38 25.5c5-2.5 13-3 20-1"/>
+            </g>
+            <g class="tr" id="b-frente">
+              <path d="M75 61L97 56M97 56L118 80"/>
+              <path class="grossa" d="M97 56L94 44"/>
+              <circle cx="118" cy="80" r="20"/>
+              <circle class="fina" cx="118" cy="80" r="16.5"/>
+              <circle cx="118" cy="80" r="2.5"/>
+              <g id="b-guidao"><path d="M94 44L91 12M85 12h12"/></g>
+            </g>
+            <circle class="dobradica" cx="75" cy="61" r="2.6"/>
+            <g class="chamadas">
+              <path d="M77 58.5L84 32h12"/><text x="97" y="33.2">DOBRADIÇA</text>
+              <path d="M20 48L10 20H5"/><text x="-4" y="18.4">BATERIA REMOVÍVEL</text>
+              <path d="M20 76L8 60H6"/><text x="-4" y="58.2">MOTOR</text>
+            </g>
+            <g class="cotas" data-cota="aberta">
+              <path class="cota-ext" d="M4 83v30M138 83v30M100 12h50M141 100h9"/>
+              <path class="cota" d="M4 110H138M147 12V100"/>
+              <path class="cota-tick" d="M2.5 111.5l3-3M136.5 111.5l3-3M145.5 13.5l3-3M145.5 101.5l3-3"/>
+              <text class="cota-t" x="71" y="107.4" text-anchor="middle">134 cm</text>
+              <text class="cota-t" x="144.4" y="56" text-anchor="middle" transform="rotate(-90 144.4 56)">88 cm</text>
+            </g>
+            <g class="cotas" data-cota="dobrada">
+              <path class="cota-ext" d="M4 83v30M77.6 64v49M62 36.8h27M80 100h9"/>
+              <path class="cota" d="M4 110H77.6M86 36.8V100"/>
+              <path class="cota-tick" d="M2.5 111.5l3-3M76.1 111.5l3-3M84.5 38.3l3-3M84.5 101.5l3-3"/>
+              <text class="cota-t" x="40.8" y="107.4" text-anchor="middle">74 cm</text>
+              <text class="cota-t" x="83.4" y="68.4" text-anchor="middle" transform="rotate(-90 83.4 68.4)">63 cm</text>
+            </g>
+          </g>
+
+          <!-- patinete: a haste gira sobre a dobradiça e deita sobre o deck -->
+          <g class="v-pat">
+            <g class="tr">
+              <circle cx="14" cy="89" r="11"/>
+              <circle class="fina" cx="14" cy="89" r="8.5"/>
+              <circle cx="14" cy="89" r="2"/>
+              <circle cx="106" cy="89" r="11"/>
+              <circle class="fina" cx="106" cy="89" r="8.5"/>
+              <circle class="tr-a" cx="106" cy="89" r="4"/>
+              <rect x="22" y="84" width="66" height="6" rx="2"/>
+              <rect class="tr-a oculta" x="30" y="85.5" width="50" height="3" rx="1"/>
+              <path d="M1.5 89A12.5 12.5 0 0 1 24.8 82.75M88 86l16.5-8M106 89l-2.4-19"/>
+            </g>
+            <g class="tr" id="p-haste">
+              <path d="M103.6 70L93 -14M85 -14h16"/>
+            </g>
+            <circle class="dobradica" cx="103.6" cy="70" r="2.6"/>
+            <g class="chamadas">
+              <path d="M101 67.5L86 44H72"/><text x="71" y="45.2" text-anchor="end">DOBRADIÇA</text>
+              <path d="M56 85V64h6"/><text x="63" y="65.2">BATERIA NO DECK</text>
+              <path d="M103 92l-7 5h-2"/><text x="93" y="98.2" text-anchor="end">MOTOR</text>
+            </g>
+            <g class="cotas" data-cota="aberta">
+              <path class="cota-ext" d="M1.5 92v21M117 92v21M102 -14h28M118 100h12"/>
+              <path class="cota" d="M1.5 110H117M127 -14V100"/>
+              <path class="cota-tick" d="M0 111.5l3-3M115.5 111.5l3-3M125.5 -12.5l3-3M125.5 101.5l3-3"/>
+              <text class="cota-t" x="59.3" y="107.4" text-anchor="middle">116 cm</text>
+              <text class="cota-t" x="124.4" y="43" text-anchor="middle" transform="rotate(-90 124.4 43)">114 cm</text>
+            </g>
+            <g class="cotas" data-cota="dobrada">
+              <path class="cota-ext" d="M1.5 92v21M117 92v21M106 67.4h24M118 100h12"/>
+              <path class="cota" d="M1.5 110H117M127 67.4V100"/>
+              <path class="cota-tick" d="M0 111.5l3-3M115.5 111.5l3-3M125.5 68.9l3-3M125.5 101.5l3-3"/>
+              <text class="cota-t" x="59.3" y="107.4" text-anchor="middle">116 cm</text>
+              <text class="cota-t" x="124.4" y="83.7" text-anchor="middle" transform="rotate(-90 124.4 83.7)">33 cm</text>
+            </g>
+          </g>
+        </svg>
+        <figcaption class="planta-leg">
+          <span id="planta-estado" aria-live="polite">Aberta: 134 × 88 cm</span>
+          <span>Cada quadrado tem 10 cm</span>
+        </figcaption>
+      </figure>
     </div>
   </section>
 
   <!-- ================= Preço ================= -->
   <section class="preco" id="preco" data-secao="preco" aria-labelledby="preco-titulo">
     <div class="wrap preco-grade">
-      <div class="preco-txt">
+      <div class="preco-texto">
         <p class="rotulo">Preço</p>
-        <h2 id="preco-titulo">O cardápio da volta.</h2>
-        <p class="lede">O app mostra o preço antes de você confirmar. Bike ou patinete custam o mesmo, e o seguro da viagem já vem incluso.</p>
-        <a class="btn btn-escuro" href="#pedir">Simular na comanda</a>
+        <h2 id="preco-titulo">Você vê o preço antes de pedir.</h2>
+        <p class="lede">Funciona como um taxímetro, só que o valor aparece antes. Bike ou patinete custam o mesmo, e o seguro da viagem vem incluso.</p>
+        <table class="tabela">
+          <caption class="sr">Tabela de preços do Drink</caption>
+          <tbody>
+            <tr><th scope="row">Saída</th><td>R$ 25,00</td></tr>
+            <tr><th scope="row">Por km rodado</th><td>R$ 3,50</td></tr>
+            <tr><th scope="row">Bandeira 2<small>Pedidos entre 0h e 5h</small></th><td>+20%</td></tr>
+            <tr><th scope="row">Espera<small>10 min grátis, depois a cada 10 min</small></th><td>R$ 5,00</td></tr>
+            <tr><th scope="row">Agendar</th><td class="t-gratis">grátis</td></tr>
+            <tr><th scope="row">Seguro da viagem</th><td class="t-gratis">incluso</td></tr>
+          </tbody>
+        </table>
         <p class="nota">Valores de exemplo para a apresentação.</p>
       </div>
-      <figure class="quadro">
-        <figcaption>Cardápio da volta</figcaption>
-        <ul>
-          <li><span>Saída</span><span>R$ 25</span></li>
-          <li><span>Por km</span><span>R$ 3,50</span></li>
-          <li><span>Madrugada 0h–5h</span><span class="q-cor">+20%</span></li>
-          <li><span>Espera, 10 min</span><span>R$ 5</span></li>
-          <li class="q-obs"><span>Os primeiros 10 min são grátis</span></li>
-          <li><span>Agendar</span><span class="q-cor">Grátis</span></li>
-          <li><span>Bike ou patinete</span><span>Mesmo preço</span></li>
-          <li><span>Seguro da viagem</span><span class="q-cor">Incluso</span></li>
-        </ul>
-      </figure>
-    </div>
-  </section>
 
-  <section class="mesa" aria-labelledby="quando-titulo">
-    <div class="wrap">
-      <div class="secao-cab">
-        <p class="rotulo">Quando pedir</p>
-        <h2 id="quando-titulo">Toda noite tem uma volta.</h2>
-      </div>
-      <ul class="bolachas">
-        <li class="bolacha">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h12l-1.5 14a2 2 0 0 1-2 2h-5a2 2 0 0 1-2-2z"/><path d="M6.5 9h11"/></svg>
-          <h3>Happy hour</h3>
-          <p>Saiu do trabalho de carro e a conversa esticou.</p>
-        </li>
-        <li class="bolacha">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3h8l-1 6a3 3 0 0 1-6 0zM12 12v8M8.5 21h7"/></svg>
-          <h3>Casamento e festa</h3>
-          <p>Brinde à vontade e agende a volta para o fim da festa.</p>
-        </li>
-        <li class="bolacha">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V6l11-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="17.5" cy="16" r="2.5"/></svg>
-          <h3>Show e jogo</h3>
-          <p>Evite a fila do estacionamento e o trânsito da saída.</p>
-        </li>
-        <li class="bolacha">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/></svg>
-          <h3>Cansado demais</h3>
-          <p>Voltou de viagem ou de um plantão e não está em condições de dirigir.</p>
-        </li>
-      </ul>
+      <form class="calc" id="pedir" novalidate aria-labelledby="calc-titulo">
+        <div class="calc-cab">
+          <h3 id="calc-titulo">Simule a sua volta</h3>
+          <span class="calc-num">Pedido nº <span id="c-num">4821</span></span>
+        </div>
+        <div class="calc-rota">
+          <label class="campo"><span>De</span><input id="c-de" type="text" value="Bar do Lucas, Savassi" autocomplete="off"></label>
+          <label class="campo"><span>Para</span><input id="c-para" type="text" value="Casa, Buritis" autocomplete="off"></label>
+        </div>
+        <div class="faixa-campo">
+          <label for="c-km">Distância</label>
+          <output id="c-km-out" for="c-km">9 km</output>
+          <input type="range" id="c-km" min="2" max="40" value="9">
+        </div>
+        <fieldset class="grupo">
+          <legend>Quando</legend>
+          <div class="seg">
+            <input type="radio" name="quando" id="q-agora" value="agora" checked><label for="q-agora">Agora</label>
+            <input type="radio" name="quando" id="q-agendar" value="agendar"><label for="q-agendar">Agendar</label>
+          </div>
+        </fieldset>
+        <div class="campo campo-hora" id="agenda" hidden>
+          <label for="c-agenda">Horário</label>
+          <input type="time" id="c-agenda" value="01:30">
+        </div>
+        <fieldset class="grupo">
+          <legend>O Drink chega de</legend>
+          <div class="seg seg-3">
+            <input type="radio" name="veic" id="v-qualquer" value="qualquer" checked><label for="v-qualquer">Tanto faz</label>
+            <input type="radio" name="veic" id="v-bike" value="bike"><label for="v-bike">Bike</label>
+            <input type="radio" name="veic" id="v-pat" value="patinete"><label for="v-pat">Patinete</label>
+          </div>
+        </fieldset>
+        <fieldset class="grupo">
+          <legend>Câmbio do carro</legend>
+          <div class="seg">
+            <input type="radio" name="cambio" id="cb-auto" value="automatico" checked><label for="cb-auto">Automático</label>
+            <input type="radio" name="cambio" id="cb-manual" value="manual"><label for="cb-manual">Manual</label>
+          </div>
+        </fieldset>
+
+        <div class="taximetro">
+          <div class="tx-topo">
+            <span class="tx-b" id="tx-b1" data-on="true">Bandeira 1</span>
+            <span class="tx-b" id="tx-b2" data-on="false"><svg class="i" aria-hidden="true"><use href="#i-lua"/></svg>Bandeira 2</span>
+          </div>
+          <p class="tx-valor"><span class="sr">Total: </span><output id="c-total" aria-live="polite">R$ 56,50</output></p>
+          <ul class="tx-itens" id="itens"></ul>
+        </div>
+
+        <button class="btn btn-sodio btn-cheio" id="c-pedir" type="submit">Pedir este Drink</button>
+        <ol class="trilha" id="trilha" hidden></ol>
+        <p class="calc-selo" id="c-selo" hidden></p>
+        <p class="sr" id="c-status" aria-live="polite"></p>
+      </form>
     </div>
   </section>
 
   <!-- ================= Segurança ================= -->
   <section class="seguranca" id="seguranca" data-secao="seguranca" aria-labelledby="seg-titulo">
-    <div class="wrap">
-      <div class="secao-cab">
-        <p class="rotulo">Segurança</p>
-        <h2 id="seg-titulo">Segurança vem no cardápio.</h2>
-        <p class="lede">Entregar a chave do carro para um estranho assusta. Por isso a segurança vem inclusa, sem custo extra.</p>
-      </div>
+    <div class="wrap cab">
+      <p class="rotulo">Segurança</p>
+      <h2 id="seg-titulo">A chave do seu carro em boas mãos.</h2>
+      <p class="lede">Entregar a chave do carro para um estranho assusta. Por isso a segurança vem inclusa, sem custo extra.</p>
+    </div>
 
-      <div class="vistoria" aria-labelledby="vist-titulo">
-        <div class="vist-carro" id="vist-carro">
-          <svg class="vist-desenho" viewBox="0 0 120 200" aria-hidden="true"><use href="#s-carro-topo"/></svg>
-          <button type="button" class="foto" data-foto="frente" style="--x:50%;--y:-3%">Frente</button>
-          <button type="button" class="foto" data-foto="traseira" style="--x:50%;--y:103%">Traseira</button>
-          <button type="button" class="foto" data-foto="esquerda" style="--x:-6%;--y:50%">Esquerda</button>
-          <button type="button" class="foto" data-foto="direita" style="--x:106%;--y:50%">Direita</button>
-          <button type="button" class="foto" data-foto="painel" style="--x:50%;--y:36%">Painel</button>
+    <div class="wrap bento">
+      <article class="tile tile-vistoria" aria-labelledby="vist-titulo">
+        <div class="tile-cab">
+          <p class="tile-ic"><svg class="i" aria-hidden="true"><use href="#i-camera"/></svg></p>
+          <h3 id="vist-titulo">Vistoria com 5 fotos</h3>
+          <p>Toque nos pontos do carro para tirar as fotos, como o Drink faz antes de sair e na chegada. O painel registra km e combustível.</p>
         </div>
-        <div class="vist-lado">
-          <h3 id="vist-titulo">Vistoria antes e depois</h3>
-          <p>Toque em cada ponto do carro para tirar a foto. O painel registra km e combustível. As fotos ficam salvas na viagem, para você e para o motorista.</p>
-          <ol class="polaroides" id="polaroides" aria-label="Fotos da vistoria"></ol>
-          <p class="vist-res" id="vist-res" aria-live="polite">0 de 5 fotos</p>
-          <button type="button" class="link-btn" id="vist-refazer" hidden>Refazer a vistoria</button>
-          <p class="carimbo carimbo-verde" id="vist-carimbo" aria-hidden="true">Seguro ativo</p>
-        </div>
-      </div>
-
-      <div class="recibos">
-        <article class="recibo">
-          <h3>Para quem pede</h3>
-          <ul>
-            <li><p class="r-l"><strong>Seguro por viagem</strong><span class="selo-inc">Incluso</span></p><p>Cobre o carro do início da vistoria até a entrega da chave.</p></li>
-            <li><p class="r-l"><strong>Motorista verificado</strong><span class="selo-inc">Incluso</span></p><p>Antecedentes criminais, CNH há 3 anos ou mais, sem infrações gravíssimas e entrevista.</p></li>
-            <li><p class="r-l"><strong>Rastreamento ao vivo</strong><span class="selo-inc">Incluso</span></p><p>Compartilhe a viagem com família ou amigos por link.</p></li>
-            <li><p class="r-l"><strong>Botão de emergência</strong><span class="selo-inc">Incluso</span></p><p>Liga para a central do Drink e envia a localização.</p></li>
-            <li><p class="r-l"><strong>Perfil e nota</strong><span class="selo-inc">Incluso</span></p><p>Nome, foto e avaliação do motorista antes de aceitar.</p></li>
-          </ul>
-        </article>
-        <article class="recibo">
-          <h3>Para quem dirige</h3>
-          <ul>
-            <li><p class="r-l"><strong>Cliente verificado</strong><span class="selo-inc">Incluso</span></p><p>CPF e cartão cadastrados. O cliente também recebe nota.</p></li>
-            <li><p class="r-l"><strong>Volta segura</strong><span class="selo-inc">Incluso</span></p><p>O app encadeia o próximo pedido perto dali, ou paga um carro de volta em áreas de risco.</p></li>
-            <li><p class="r-l"><strong>Capacete e colete refletivo</strong><span class="selo-inc">Incluso</span></p><p>Todo Drink roda de bike ou patinete com equipamento de segurança.</p></li>
-            <li><p class="r-l"><strong>Regiões e horários definidos</strong><span class="selo-inc">No início</span></p><p>O Drink começa em bairros escolhidos e amplia aos poucos.</p></li>
-          </ul>
-        </article>
-      </div>
-
-      <div class="apolice" aria-labelledby="apolice-titulo">
-        <div class="apolice-cab">
-          <p class="rotulo">Seguro da viagem</p>
-          <h3 id="apolice-titulo">O que o seguro cobre</h3>
-        </div>
-        <div class="apolice-cols">
-          <div>
-            <p class="apolice-sub apolice-sim">Cobre</p>
-            <ul>
-              <li>Batida ou arranhão durante a viagem</li>
-              <li>Danos a outros carros e pessoas</li>
-              <li>Multa cometida pelo motorista <small>O Drink paga e transfere para quem estava dirigindo.</small></li>
-            </ul>
+        <div class="vistoria">
+          <div class="vist-carro" id="vist-carro">
+            <svg class="vist-desenho" viewBox="0 0 160 260" aria-hidden="true"><use href="#carro-topo"/></svg>
+            <button type="button" class="foto" data-foto="frente" style="--x:50%;--y:3%" aria-pressed="false"><svg class="i" aria-hidden="true"><use href="#i-camera"/></svg><span>Frente</span></button>
+            <button type="button" class="foto" data-foto="painel" style="--x:50%;--y:38%" aria-pressed="false"><svg class="i" aria-hidden="true"><use href="#i-camera"/></svg><span>Painel</span></button>
+            <button type="button" class="foto" data-foto="esquerda" style="--x:8%;--y:60%" aria-pressed="false"><svg class="i" aria-hidden="true"><use href="#i-camera"/></svg><span>Esquerda</span></button>
+            <button type="button" class="foto" data-foto="direita" style="--x:92%;--y:60%" aria-pressed="false"><svg class="i" aria-hidden="true"><use href="#i-camera"/></svg><span>Direita</span></button>
+            <button type="button" class="foto" data-foto="traseira" style="--x:50%;--y:97%" aria-pressed="false"><svg class="i" aria-hidden="true"><use href="#i-camera"/></svg><span>Traseira</span></button>
           </div>
-          <div>
-            <p class="apolice-sub apolice-nao">Não cobre</p>
-            <ul>
-              <li>Dano que já aparecia na vistoria</li>
-              <li>Objetos deixados no carro</li>
-            </ul>
+          <div class="vist-lado">
+            <ol class="vist-fotos" id="vist-fotos">
+              <li data-foto="frente"><span class="vf-nome">Frente</span><span class="vf-hora">sem foto</span></li>
+              <li data-foto="traseira"><span class="vf-nome">Traseira</span><span class="vf-hora">sem foto</span></li>
+              <li data-foto="esquerda"><span class="vf-nome">Esquerda</span><span class="vf-hora">sem foto</span></li>
+              <li data-foto="direita"><span class="vf-nome">Direita</span><span class="vf-hora">sem foto</span></li>
+              <li data-foto="painel"><span class="vf-nome">Painel</span><span class="vf-hora">sem foto</span></li>
+            </ol>
+            <div class="vist-barra" aria-hidden="true"><span id="vist-barra"></span></div>
+            <p class="vist-res" id="vist-res" aria-live="polite">0 de 5 fotos</p>
+            <button type="button" class="btn btn-vidro btn-p" id="vist-refazer" hidden>Refazer a vistoria</button>
           </div>
+        </div>
+      </article>
+
+      <article class="tile tile-seguro" aria-labelledby="seguro-titulo">
+        <p class="tile-ic tile-ic-ok"><svg class="i" aria-hidden="true"><use href="#i-escudo"/></svg></p>
+        <h3 id="seguro-titulo">Seguro por viagem, incluso</h3>
+        <p>Cobre o carro do início da vistoria até a entrega da chave.</p>
+        <div class="cobre">
+          <p class="cobre-t">Cobre</p>
+          <ul class="lista-sim">
+            <li>Batida ou arranhão durante a viagem</li>
+            <li>Danos a outros carros e pessoas</li>
+            <li>Multa cometida pelo motorista. O Drink paga e transfere para quem dirigia.</li>
+          </ul>
+          <p class="cobre-t">Não cobre</p>
+          <ul class="lista-nao">
+            <li>Dano que já aparecia na vistoria</li>
+            <li>Objetos deixados no carro</li>
+          </ul>
         </div>
         <p class="nota">Modelo de cobertura proposto, a ser fechado com uma seguradora parceira.</p>
-      </div>
+      </article>
+
+      <article class="tile tile-mot" aria-labelledby="verif-titulo">
+        <p class="tile-ic"><svg class="i" aria-hidden="true"><use href="#i-cnh"/></svg></p>
+        <h3 id="verif-titulo">Motorista verificado</h3>
+        <div class="cracha" aria-hidden="true">
+          <span class="t-av">RS</span>
+          <span class="cracha-txt"><b>Rafael S.</b><small>CNH há 9 anos</small></span>
+          <span class="cracha-ok"><svg class="i"><use href="#i-check"/></svg>Verificado</span>
+        </div>
+        <ul class="lista-sim">
+          <li>CNH há 3 anos ou mais, com EAR</li>
+          <li>Antecedentes criminais sem pendências</li>
+          <li>Sem infrações gravíssimas</li>
+          <li>Entrevista e treinamento</li>
+        </ul>
+      </article>
+
+      <article class="tile tile-vivo" aria-labelledby="vivo-titulo">
+        <p class="tile-ic"><svg class="i" aria-hidden="true"><use href="#i-rota"/></svg></p>
+        <h3 id="vivo-titulo">Viagem ao vivo</h3>
+        <p>Compartilhe a viagem por link com família ou amigos. Eles veem o carro no mapa até você chegar.</p>
+        <div class="mini-mapa" aria-hidden="true">
+          <svg viewBox="30 150 160 110" preserveAspectRatio="xMidYMid slice">
+            <use href="#mapa" width="280" height="320"/>
+            <path class="m-rota" d="M140 170L60 250V292"/>
+            <path class="m-rota-feita" d="M140 170L60 250V292" pathLength="100" stroke-dasharray="55 100"/>
+            <circle class="m-inicio" cx="140" cy="170" r="4"/>
+            <g class="m-carro" transform="translate(79.7 230.3)"><circle class="m-carro-halo" r="15"/><circle r="8.5"/><use href="#carro-topo" x="-4" y="-6.5" width="8" height="13"/></g>
+          </svg>
+          <p class="mini-chip"><span class="t-vivo"></span>Ana está acompanhando</p>
+        </div>
+      </article>
+
+      <article class="tile tile-ajuda" aria-labelledby="ajuda-titulo">
+        <p class="tile-ic"><svg class="i" aria-hidden="true"><use href="#i-ajuda"/></svg></p>
+        <h3 id="ajuda-titulo">Botão de ajuda</h3>
+        <p>Liga para a central do Drink, que atende 24 horas, e envia a sua localização.</p>
+        <div class="ajuda-arte" aria-hidden="true"><span class="ajuda-anel"></span><span class="ajuda-anel"></span><span class="ajuda-bt">Ajuda</span></div>
+      </article>
+
+      <article class="tile tile-dirige" aria-labelledby="dirige-titulo">
+        <h3 id="dirige-titulo">Para quem dirige</h3>
+        <ul class="dirige-lista">
+          <li><svg class="i" aria-hidden="true"><use href="#i-cnh"/></svg><div><b>Cliente verificado</b><span>CPF e cartão cadastrados. O cliente também recebe nota.</span></div></li>
+          <li><svg class="i" aria-hidden="true"><use href="#i-rota"/></svg><div><b>Volta segura</b><span>O app encadeia o próximo pedido perto dali, ou paga um carro de volta em áreas de risco.</span></div></li>
+          <li><svg class="i" aria-hidden="true"><use href="#i-capacete"/></svg><div><b>Capacete e colete refletivo</b><span>Todo Drink pedala com equipamento de segurança.</span></div></li>
+        </ul>
+      </article>
     </div>
   </section>
 
   <!-- ================= Eventos ================= -->
   <section class="eventos" id="eventos" data-secao="eventos" aria-labelledby="ev-titulo">
-    <svg class="varal" id="varal" viewBox="0 0 1200 150" preserveAspectRatio="xMidYMin slice" aria-hidden="true" focusable="false">
-      <defs>
-        <radialGradient id="e-g-luz"><stop offset="0" stop-color="#FFD27A" stop-opacity=".55"/><stop offset="1" stop-color="#FFD27A" stop-opacity="0"/></radialGradient>
-      </defs>
-      <path d="M-20 24 Q300 132 620 30 Q940 132 1220 24" fill="none" stroke="#2B4A42" stroke-width="2.5"/>
-      <g id="varal-lampadas"></g>
-    </svg>
-    <div class="wrap">
-      <div class="secao-cab">
+    <div class="wrap eventos-grade">
+      <div class="eventos-texto">
         <p class="rotulo">Eventos</p>
         <h2 id="ev-titulo">Drink de plantão.</h2>
-        <p class="lede">Para casamentos, formaturas, bares e casas de show. Os motoristas ficam no local com as bikes e os convidados voltam para casa no próprio carro.</p>
+        <p class="lede">Para casamentos, formaturas, bares e casas de show. Os motoristas ficam no local com as bikes, e os convidados voltam para casa no próprio carro.</p>
+        <ol class="ev-passos">
+          <li><b>Você fecha o pacote</b><span>Data, local, número de convidados e horário de fim. O preço sai fechado.</span></li>
+          <li><b>Os Drinks chegam antes do fim</b><span>Eles estacionam as bikes perto da saída e ficam num ponto de atendimento.</span></li>
+          <li><b>QR code na mesa ou no convite</b><span>O convidado escaneia, informa o endereço e entra na fila de saída.</span></li>
+          <li><b>Todo mundo volta de carro</b><span>Cada Drink leva um convidado, volta de bike e atende o próximo.</span></li>
+        </ol>
       </div>
-      <div class="ev-grade">
-        <div class="plantao">
-          <h3>Quantos Drinks o seu evento precisa?</h3>
-          <div class="chips" role="group" aria-label="Tipo de evento" id="ev-tipos">
-            <button type="button" class="chip" data-ev="0.35" aria-pressed="true">Casamento</button>
-            <button type="button" class="chip" data-ev="0.3" aria-pressed="false">Formatura</button>
-            <button type="button" class="chip" data-ev="0.25" aria-pressed="false">Bar ou restaurante</button>
-            <button type="button" class="chip" data-ev="0.2" aria-pressed="false">Casa de show</button>
-          </div>
-          <label class="rot" for="ev-conv">Convidados: <span class="val" id="ev-conv-out">200</span></label>
+
+      <div class="calc calc-ev">
+        <h3>Quantos Drinks o seu evento precisa?</h3>
+        <div class="chips" id="ev-tipos" role="group" aria-label="Tipo de evento">
+          <button type="button" class="chip" data-ev="0.35" aria-pressed="true">Casamento</button>
+          <button type="button" class="chip" data-ev="0.3" aria-pressed="false">Formatura</button>
+          <button type="button" class="chip" data-ev="0.25" aria-pressed="false">Bar ou restaurante</button>
+          <button type="button" class="chip" data-ev="0.2" aria-pressed="false">Casa de show</button>
+        </div>
+        <div class="faixa-campo">
+          <label for="ev-conv">Convidados</label>
+          <output id="ev-conv-out" for="ev-conv">200</output>
           <input type="range" id="ev-conv" min="30" max="1000" step="10" value="200">
-          <p class="numero" aria-live="polite"><strong id="ev-num">0</strong><span id="ev-num-txt">Drinks de plantão</span></p>
-          <ul class="conta" id="ev-conta"></ul>
-          <p class="nota">Estimativa: parte dos convidados vai de carro, cerca de 2 pessoas por carro, e cada Drink faz 3 viagens por noite.</p>
-          <button type="button" class="btn" data-abrir="dlg-evento">Quero o Drink no meu evento</button>
         </div>
-        <div class="ev-lado">
-          <div class="cavalete" aria-hidden="true">
-            <div class="cavalete-face">
-              <p class="cav-marca"><svg viewBox="0 0 32 32"><use href="#s-marca"/></svg>Drink</p>
-              <svg class="qr" id="qr" viewBox="0 0 25 25" shape-rendering="crispEdges"></svg>
-              <p class="cav-txt">Escaneie e volte para casa no seu carro.</p>
-              <p class="cav-mesa">Mesa 12</p>
-            </div>
-          </div>
-          <div class="lista-simples">
-            <div><h3>Para quem organiza</h3><p>Um diferencial para o convite: tem Drink de plantão. Ninguém precisa escolher entre beber e voltar dirigindo.</p></div>
-            <div><h3>Para bares e restaurantes</h3><p>O cliente fica mais e consome mais quando sabe que tem como voltar. O bar pode chamar o Drink pelo balcão.</p></div>
-            <div><h3>Preço fechado</h3><p>O evento paga um valor combinado antes, e os convidados não pagam nada na hora.</p></div>
-          </div>
-        </div>
+        <p class="ev-num" aria-live="polite"><span class="ev-num-n" id="ev-num">11</span><span id="ev-num-txt">Drinks de plantão</span></p>
+        <ul class="conta" id="ev-conta"></ul>
+        <p class="nota">Estimativa: parte dos convidados vai de carro, cerca de 2 pessoas por carro, e cada Drink faz 3 viagens por noite.</p>
+        <button class="btn btn-sodio btn-cheio" type="button" data-abrir="dlg-evento">Quero o Drink no meu evento</button>
       </div>
-      <ol class="ev-passos" aria-label="Como funciona no evento">
-        <li><h3>Você fecha o pacote</h3><p>Data, local, número de convidados e horário de fim. O preço sai fechado.</p></li>
-        <li><h3>Os Drinks chegam antes do fim</h3><p>Eles estacionam as bikes perto da saída e ficam num ponto de atendimento.</p></li>
-        <li><h3>QR code na mesa ou no convite</h3><p>O convidado escaneia, informa o endereço e entra na fila de saída.</p></li>
-        <li><h3>Todo mundo volta de carro</h3><p>Cada Drink leva um convidado, volta de bike e atende o próximo.</p></li>
-      </ol>
     </div>
+    <ul class="wrap ev-pontos">
+      <li><svg class="i" aria-hidden="true"><use href="#i-pessoas"/></svg><b>Para quem organiza</b><span>Um diferencial no convite: tem Drink de plantão. Ninguém precisa escolher entre beber e voltar dirigindo.</span></li>
+      <li><svg class="i" aria-hidden="true"><use href="#i-copo"/></svg><b>Para bares e restaurantes</b><span>O cliente fica mais quando sabe que tem como voltar. O bar pode chamar o Drink pelo balcão.</span></li>
+      <li><svg class="i" aria-hidden="true"><use href="#i-carteira"/></svg><b>Preço fechado</b><span>O evento paga um valor combinado antes, e os convidados não pagam nada na hora.</span></li>
+    </ul>
   </section>
 
   <!-- ================= Seja um Drink ================= -->
   <section class="motorista" id="motorista" data-secao="motorista" aria-labelledby="mot-titulo">
-    <div class="wrap">
-      <div class="mot-topo">
-        <div class="secao-cab">
-          <p class="rotulo">Para motoristas</p>
-          <h2 id="mot-titulo">Seja um Drink.</h2>
-          <p class="lede">Dirija nas noites que quiser, com a sua bike elétrica ou patinete. Sem carro próprio: você dirige o carro do cliente.</p>
-        </div>
-        <svg class="mot-arte" viewBox="0 0 420 260" aria-hidden="true" focusable="false">
-          <defs>
-            <radialGradient id="m-g-luz"><stop offset="0" stop-color="#FF7A33" stop-opacity=".32"/><stop offset="1" stop-color="#FF7A33" stop-opacity="0"/></radialGradient>
-          </defs>
-          <circle cx="230" cy="130" r="130" fill="url(#m-g-luz)"/>
-          <path d="M40 232 H400" stroke="#2B4A42" stroke-width="3" stroke-linecap="round"/>
-          <use href="#s-motorista" x="150" y="230"/>
-          <g transform="translate(176 72) scale(.72)"><use href="#s-bike-dobrada"/></g>
-        </svg>
+    <div class="wrap mot-grade">
+      <div class="mot-texto">
+        <p class="rotulo">Para motoristas</p>
+        <h2 id="mot-titulo">Seja um Drink.</h2>
+        <p class="lede">Dirija nas noites que quiser, com a sua bike elétrica ou patinete. Sem carro próprio: você dirige o carro do cliente.</p>
+        <h3 class="mini">O que você precisa</h3>
+        <ul class="lista-sim lista-2">
+          <li>CNH há 3 anos ou mais, com EAR</li>
+          <li>Nenhuma infração gravíssima</li>
+          <li>Antecedentes criminais sem pendências</li>
+          <li>Bike elétrica ou patinete dobrável, ou alugar um com o Drink</li>
+          <li>Dirigir carro manual e automático</li>
+          <li>Passar pelo treinamento e pela entrevista</li>
+        </ul>
+        <button class="btn btn-vidro" type="button" data-abrir="dlg-motorista">Quero me cadastrar<svg class="i" aria-hidden="true"><use href="#i-seta"/></svg></button>
       </div>
-      <div class="mot-grade">
-        <div class="plantao">
-          <h3>Quanto dá para ganhar?</h3>
-          <label class="rot" for="m-noites">Noites por semana: <span class="val" id="m-noites-out">3</span></label>
+
+      <div class="calc calc-mot">
+        <h3>Quanto dá para ganhar?</h3>
+        <div class="faixa-campo">
+          <label for="m-noites">Noites por semana</label>
+          <output id="m-noites-out" for="m-noites">3</output>
           <input type="range" id="m-noites" min="1" max="7" value="3">
-          <label class="rot" for="m-horas">Horas por noite: <span class="val" id="m-horas-out">5</span></label>
+        </div>
+        <div class="faixa-campo">
+          <label for="m-horas">Horas por noite</label>
+          <output id="m-horas-out" for="m-horas">5</output>
           <input type="range" id="m-horas" min="2" max="8" value="5">
-          <p class="rot" id="m-veic-rot">Bike ou patinete</p>
-          <div class="seg seg-noite" role="radiogroup" aria-labelledby="m-veic-rot">
+        </div>
+        <fieldset class="grupo">
+          <legend>Bike ou patinete</legend>
+          <div class="seg">
             <input type="radio" name="m-veic" id="mv-tenho" value="tenho" checked><label for="mv-tenho">Já tenho</label>
             <input type="radio" name="m-veic" id="mv-alugo" value="alugo"><label for="mv-alugo">Alugar com o Drink</label>
           </div>
-          <div class="odometro-caixa">
-            <p class="odometro"><span class="sr" id="m-ganho" aria-live="polite">R$ 0</span><span class="odo" id="m-odo" aria-hidden="true"></span></p>
-            <p class="odometro-rot">por mês, estimado</p>
-          </div>
-          <ul class="conta" id="m-conta"></ul>
-          <p class="nota">Estimativa de exemplo: 1,3 viagem por hora e R$ 45 por viagem para o motorista (75% de uma viagem média).</p>
+        </fieldset>
+        <div class="painel-odo">
+          <p class="odometro"><span class="sr" id="m-ganho" aria-live="polite">R$ 3.780</span><span class="odo" id="m-odo" aria-hidden="true">R$ 3.780</span></p>
+          <p class="odo-leg">por mês, estimado</p>
         </div>
-        <div class="mot-lado">
-          <div class="cartao-req">
-            <h3>O que você precisa</h3>
-            <ul class="req">
-              <li>CNH há 3 anos ou mais, sem infrações gravíssimas</li>
-              <li>Antecedentes criminais sem pendências</li>
-              <li>Bike elétrica ou patinete dobrável, ou alugar um com o Drink</li>
-              <li>Celular com internet e o app do Drink</li>
-              <li>Saber dirigir carro manual e automático</li>
-              <li>Passar pelo treinamento e pela entrevista</li>
-            </ul>
-            <button type="button" class="btn" data-abrir="dlg-motorista">Quero me cadastrar</button>
-          </div>
-          <div class="porque">
-            <div><h3>Sem gastar com carro</h3><p>Sem combustível, parcela ou manutenção. O carro é do cliente.</p></div>
-            <div><h3>Você faz o horário</h3><p>Ligue o app nas noites que quiser. Sexta e sábado são as mais movimentadas.</p></div>
-            <div><h3>Volta garantida</h3><p>O app encadeia o próximo pedido perto de onde você deixou o carro.</p></div>
-          </div>
-        </div>
+        <ul class="conta" id="m-conta"></ul>
+        <p class="nota">Estimativa de exemplo: 1,3 viagem por hora e R$ 45 por viagem para o motorista (75% de uma viagem média).</p>
       </div>
     </div>
+    <ul class="wrap mot-porque">
+      <li><b>Sem gastar com carro</b><span>Sem combustível, parcela ou manutenção. O carro é do cliente.</span></li>
+      <li><b>Você faz o horário</b><span>Ligue o app nas noites que quiser. Sexta e sábado são as mais movimentadas.</span></li>
+      <li><b>Volta garantida</b><span>O app encadeia o próximo pedido perto de onde você deixou o carro.</span></li>
+    </ul>
   </section>
 
   <!-- ================= Perguntas ================= -->
   <section class="faq" id="perguntas" aria-labelledby="faq-titulo">
-    <div class="wrap">
-      <div class="secao-cab">
+    <div class="wrap faq-grade">
+      <div class="cab">
         <p class="rotulo">Perguntas</p>
         <h2 id="faq-titulo">Ficou alguma dúvida?</h2>
       </div>
       <div class="faq-lista">
-        <div class="faq-col">
-          <details><summary>E se o motorista bater o meu carro?</summary><p>O seguro da viagem cobre, do início da vistoria até a entrega da chave. As fotos da vistoria mostram como o carro estava antes.</p></details>
-          <details><summary>Eu vou junto no carro?</summary><p>Sim. Você vai no banco do passageiro ou no de trás. Também dá para pedir um Drink para um amigo e acompanhar a viagem pelo app.</p></details>
-          <details><summary>A bike ou o patinete sujam o porta-malas?</summary><p>Não. O Drink leva uma capa protetora e forra o porta-malas antes de guardar.</p></details>
-          <details><summary>Meu carro é manual. Tem problema?</summary><p>Não. Todo Drink dirige carro manual e automático.</p></details>
-        </div>
-        <div class="faq-col">
-          <details><summary>Cabe no meu carro?</summary><p>O patinete dobrado cabe em quase todo porta-malas, até de hatch pequeno. A bike dobrada precisa de porta-malas médio ou grande. Se o seu carro for pequeno demais, o app manda um Drink de patinete, ou o Drink vai até você sem o veículo e o app paga a volta dele.</p></details>
-          <details><summary>Posso agendar a volta?</summary><p>Sim. Marque o horário e o Drink chega na hora. Você recebe um aviso 10 minutos antes.</p></details>
-          <details><summary>Quanto tempo o Drink demora para chegar?</summary><p>A meta é chegar em até 15 minutos nos bairros atendidos. Nas noites de sexta e sábado, agendar garante o horário.</p></details>
-          <details><summary>Como eu pago?</summary><p>Cartão ou Pix pelo app. A gorjeta é opcional e vai toda para o motorista.</p></details>
-        </div>
+        <details class="pergunta"><summary><span>E se o motorista bater o meu carro?</span><svg class="i" aria-hidden="true"><use href="#i-mais"/></svg></summary><p>O seguro da viagem cobre, do início da vistoria até a entrega da chave. As fotos da vistoria mostram como o carro estava antes.</p></details>
+        <details class="pergunta"><summary><span>Eu vou junto no carro?</span><svg class="i" aria-hidden="true"><use href="#i-mais"/></svg></summary><p>Sim. Você vai no banco do passageiro ou no de trás. Também dá para pedir um Drink para um amigo e acompanhar a viagem pelo app.</p></details>
+        <details class="pergunta"><summary><span>Cabe no meu carro?</span><svg class="i" aria-hidden="true"><use href="#i-mais"/></svg></summary><p>A bike dobrada mede 74 × 63 × 36 cm e cabe até no porta-malas de um hatch compacto. O patinete dobrado é baixo, mas tem 116 cm de comprimento: vai bem em sedã e SUV, ou no hatch com o banco de trás rebatido. No pedido, você informa o carro e o app manda o veículo que cabe.</p></details>
+        <details class="pergunta"><summary><span>A bike ou o patinete sujam o porta-malas?</span><svg class="i" aria-hidden="true"><use href="#i-mais"/></svg></summary><p>Não. O Drink leva uma capa protetora e forra o porta-malas antes de guardar.</p></details>
+        <details class="pergunta"><summary><span>Meu carro é manual. Tem problema?</span><svg class="i" aria-hidden="true"><use href="#i-mais"/></svg></summary><p>Não. Todo Drink dirige carro manual e automático.</p></details>
+        <details class="pergunta"><summary><span>Posso agendar a volta?</span><svg class="i" aria-hidden="true"><use href="#i-mais"/></svg></summary><p>Sim. Marque o horário e o Drink chega na hora. Você recebe um aviso 10 minutos antes.</p></details>
+        <details class="pergunta"><summary><span>Quanto tempo o Drink demora para chegar?</span><svg class="i" aria-hidden="true"><use href="#i-mais"/></svg></summary><p>A meta é chegar em até 15 minutos nos bairros atendidos. Nas noites de sexta e sábado, agendar garante o horário.</p></details>
+        <details class="pergunta"><summary><span>Como eu pago?</span><svg class="i" aria-hidden="true"><use href="#i-mais"/></svg></summary><p>Cartão ou Pix pelo app. A gorjeta é opcional e vai toda para o motorista.</p></details>
       </div>
     </div>
   </section>
 
-  <!-- ================= Letreiro final ================= -->
+  <!-- ================= Amanhecer ================= -->
   <section class="final" aria-labelledby="final-titulo">
+    <div class="final-ceu" aria-hidden="true">
+      <span class="sol"></span>
+      <svg class="skyline" id="skyline" viewBox="0 0 1440 240" preserveAspectRatio="xMidYMax slice"></svg>
+    </div>
     <div class="wrap final-in">
-      <svg class="final-marca" viewBox="0 0 32 32" aria-hidden="true"><use href="#s-marca"/></svg>
-      <h2 id="final-titulo" class="neon neon-final">Pede um Drink.</h2>
-      <p class="lede">Beba à vontade. O seu carro volta com você.</p>
+      <p class="rotulo rotulo-claro">06:10 · Buritis</p>
+      <h2 id="final-titulo">O seu carro dormiu em casa.</h2>
+      <p class="lede">Beba à vontade. O Drink leva você e o carro.</p>
       <div class="acoes">
-        <a class="btn" href="#pedir">Pedir meu Drink</a>
-        <a class="btn-fantasma" href="#motorista">Quero ser um Drink</a>
+        <a class="btn btn-sodio" href="#pedir">Pedir um Drink<svg class="i" aria-hidden="true"><use href="#i-seta"/></svg></a>
+        <button class="btn btn-vidro" type="button" data-abrir="dlg-motorista">Quero ser um Drink</button>
       </div>
     </div>
   </section>
-
 </main>
 
 <footer class="rodape">
   <div class="wrap rodape-in">
     <div class="rodape-marca">
-      <svg viewBox="0 0 32 32" aria-hidden="true"><use href="#s-marca"/></svg>
-      <div><strong>Drink</strong><span>O motorista da vez.</span></div>
+      <a class="marca" href="#inicio"><svg class="marca-copo" aria-hidden="true"><use href="#i-copo"/></svg><span>Drink</span></a>
+      <p>O motorista da vez.</p>
     </div>
     <nav class="rodape-nav" aria-label="Rodapé">
       <a href="#como-funciona">Como funciona</a>
+      <a href="#dobra">A dobra</a>
       <a href="#preco">Preço</a>
       <a href="#seguranca">Segurança</a>
       <a href="#eventos">Eventos</a>
       <a href="#motorista">Seja um Drink</a>
       <a href="#perguntas">Perguntas</a>
     </nav>
-    <div class="rodape-avisos">
+    <div class="rodape-legal">
       <p>Se beber, não dirija. Venda de bebidas proibida para menores de 18 anos.</p>
       <p>Protótipo. Preços, motoristas e prazos são exemplos. App para iPhone e Android em breve.</p>
     </div>
   </div>
 </footer>
 
-<nav class="abas" aria-label="Navegação">
-  <a href="#pedir" data-aba="pedir"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16l-8 9z"/><path d="M12 13v7M8 20h8"/></svg>Pedir</a>
-  <a href="#como-funciona" data-aba="como"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5.5" cy="17" r="3.5"/><circle cx="18.5" cy="17" r="3.5"/><path d="M5.5 17 10 16l4-5M10 16l-1-7M14 11l4.5 6M14 11l-1-4h3"/></svg>Como funciona</a>
-  <a href="#seguranca" data-aba="seguranca"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 4.5 6v5.5c0 4.6 3.1 8.2 7.5 9.5 4.4-1.3 7.5-4.9 7.5-9.5V6z"/><path d="m8.8 12 2.3 2.3 4.2-4.6"/></svg>Segurança</a>
-  <a href="#eventos" data-aba="eventos"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h16v12H4zM4 8l2-4h12l2 4M9 13h6"/></svg>Eventos</a>
-  <a href="#motorista" data-aba="motorista"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="2.5"/><path d="M3.8 10.5h5.9M14.3 10.5h5.9M12 14.5v6"/></svg>Seja um Drink</a>
-</nav>
-
-<dialog id="dlg-motorista" aria-labelledby="dlg-motorista-t">
-  <form method="dialog" class="dlg">
-    <div class="dlg-topo">
-      <span class="tag">Em breve</span>
-      <button class="dlg-fechar" type="submit">Fechar</button>
-    </div>
-    <h2 id="dlg-motorista-t">Cadastro de motoristas</h2>
+<dialog class="dlg" id="dlg-motorista" aria-labelledby="dlg-mot-t">
+  <form method="dialog" class="dlg-in">
+    <p class="rotulo">Em breve</p>
+    <h2 id="dlg-mot-t">Cadastro de motoristas</h2>
     <p>O cadastro ainda não abriu. Quando abrir, você vai:</p>
-    <ul class="dlg-lista">
+    <ul class="lista-sim">
       <li>Enviar CNH, antecedentes e uma foto</li>
       <li>Dizer se já tem bike elétrica ou patinete, ou se quer alugar um</li>
       <li>Agendar o treinamento e a entrevista</li>
     </ul>
-    <button class="btn" type="submit">Entendi</button>
+    <button class="btn btn-sodio" value="ok">Entendi</button>
+    <button class="dlg-x" value="fechar" aria-label="Fechar"><svg class="i" aria-hidden="true"><use href="#i-fechar"/></svg></button>
   </form>
 </dialog>
 
-<dialog id="dlg-evento" aria-labelledby="dlg-evento-t">
-  <form method="dialog" class="dlg">
-    <div class="dlg-topo">
-      <span class="tag">Em breve</span>
-      <button class="dlg-fechar" type="submit">Fechar</button>
-    </div>
-    <h2 id="dlg-evento-t">Drink no seu evento</h2>
+<dialog class="dlg" id="dlg-evento" aria-labelledby="dlg-ev-t">
+  <form method="dialog" class="dlg-in">
+    <p class="rotulo">Em breve</p>
+    <h2 id="dlg-ev-t">Drink no seu evento</h2>
     <p>O cadastro de eventos ainda não abriu. Para montar o pacote, o Drink vai pedir:</p>
-    <ul class="dlg-lista">
+    <ul class="lista-sim">
       <li>Data, local e horário de fim</li>
       <li>Número de convidados</li>
       <li>Tipo de evento</li>
     </ul>
     <p>O preço sai fechado antes do evento, e os convidados não pagam nada na hora.</p>
-    <button class="btn" type="submit">Entendi</button>
+    <button class="btn btn-sodio" value="ok">Entendi</button>
+    <button class="dlg-x" value="fechar" aria-label="Fechar"><svg class="i" aria-hidden="true"><use href="#i-fechar"/></svg></button>
   </form>
 </dialog>
 
