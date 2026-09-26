@@ -1,9 +1,15 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="112" fill="#0F2A24"/>
+  <defs>
+    <radialGradient id="g" cx="50%" cy="22%" r="80%">
+      <stop offset="0" stop-color="#1B2552"/>
+      <stop offset="1" stop-color="#060913"/>
+    </radialGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#g)"/>
   <g transform="translate(96 96) scale(10)">
-    <path d="M4 5h24L16 18z" fill="#FF7A33"/>
-    <g fill="none" stroke="#EAF3EE">
-      <path d="M16 18v9M10 28h12" stroke-width="2.4" stroke-linecap="round"/>
+    <path d="M4 5h24L16 18z" fill="#FFA53A"/>
+    <g fill="none" stroke="#EEF2FF" stroke-linecap="round">
+      <path d="M16 18v9M10 28h12" stroke-width="2.4"/>
       <circle cx="21" cy="9" r="3.6" stroke-width="2"/>
       <path d="M21 5.4v7.2M17.4 9h7.2" stroke-width="1.4"/>
     </g>

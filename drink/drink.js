@@ -1,30 +1,25 @@
-/* Drink — página única: comanda, história que anda com a rolagem, tour do app,
-   vistoria, calculadoras e navegação. É um protótipo: preços, motoristas e prazos são exemplos. */
+/* Drink — protótipo. Tudo roda no navegador; nada é enviado.
+   Animações acontecem uma vez (na chegada ou num clique) e param. */
 (function () {
   'use strict';
 
-  /* ---------- utilidades ---------- */
-  const $ = (sel, raiz = document) => raiz.querySelector(sel);
-  const $$ = (sel, raiz = document) => Array.from(raiz.querySelectorAll(sel));
-  const reduzirMovimento = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
-
-  function esc(v) {
-    return String(v == null ? '' : v).replace(/[&<>"']/g, (c) => (
-      { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
-    ));
-  }
+  const $ = (s, el = document) => el.querySelector(s);
+  const $$ = (s, el = document) => Array.from(el.querySelectorAll(s));
+  const movimentoReduzido = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const reduzirMovimento = () => movimentoReduzido.matches;
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const brl = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-  const brl0 = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
-  const hhmm = (d) => `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+  const brl0 = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  const dois = (n) => String(n).padStart(2, '0');
+  const hhmm = (d) => `${dois(d.getHours())}:${dois(d.getMinutes())}`;
+  const hhmmss = (d) => `${hhmm(d)}:${dois(d.getSeconds())}`;
+  const marcado = (nome) => { const r = document.querySelector(`input[name="${nome}"]:checked`); return r ? r.value : null; };
   const sortear = (lista) => lista[Math.floor(Math.random() * lista.length)];
-  const num = (v) => Number(v.toFixed(1));
+  const limitar = (v) => Math.max(0, Math.min(1, v));
+  const suave = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+  const freando = (t) => 1 - Math.pow(1 - t, 3);
 
-  function marcado(nome) {
-    const el = $(`input[name="${nome}"]:checked`);
-    return el ? el.value : '';
-  }
-
-  // sorteio com semente: o cenário sai sempre igual
+  // gerador com semente: o cenário sai igual em toda visita
   function semente(n) {
     return function () {
       n = (n + 0x6D2B79F5) | 0;
@@ -34,14 +29,25 @@
     };
   }
 
-  // reinicia uma animação de CSS feita por classe
-  function repetir(el, classe) {
-    el.classList.remove(classe);
-    void el.offsetWidth;
-    el.classList.add(classe);
+  // anima uma vez; com movimento reduzido vai direto ao fim
+  function animar(ms, cada, fim) {
+    if (reduzirMovimento()) { cada(1); if (fim) fim(); return () => {}; }
+    let id = 0;
+    let inicio = 0;
+    let parado = false;
+    function quadro(agora) {
+      if (parado) return;
+      if (!inicio) inicio = agora;
+      const t = Math.min(1, (agora - inicio) / ms);
+      cada(t);
+      if (t < 1) id = requestAnimationFrame(quadro);
+      else if (fim) fim();
+    }
+    id = requestAnimationFrame(quadro);
+    return () => { parado = true; cancelAnimationFrame(id); };
   }
 
-  /* ---------- preço (valores de exemplo) ---------- */
+  /* ---------- preço ---------- */
   const PRECO = { saida: 25, km: 3.5, madrugada: 0.2 };
 
   function ehMadrugada(hora) {
@@ -57,7 +63,385 @@
     return { saida: PRECO.saida, rodado, adicional, total: subtotal + adicional };
   }
 
-  /* ---------- comanda ---------- */
+  /* ---------- rastros de luz do início ---------- */
+  function montarRastros() {
+    const cv = $('#rastros');
+    if (!cv || !cv.getContext) return;
+    const ctx = cv.getContext('2d');
+    const hero = cv.parentElement;
+    let W = 0;
+    let H = 0;
+    let dpr = 1;
+    let P = null;
+    let faixa = 0;
+    let rastros = [];
+    let progresso = 0;
+
+    function ponto(t) {
+      const u = 1 - t;
+      const a = u * u * u; const b = 3 * u * u * t; const c = 3 * u * t * t; const d = t * t * t;
+      return [a * P[0][0] + b * P[1][0] + c * P[2][0] + d * P[3][0], a * P[0][1] + b * P[1][1] + c * P[2][1] + d * P[3][1]];
+    }
+    function normal(t) {
+      const u = 1 - t;
+      const dx = 3 * u * u * (P[1][0] - P[0][0]) + 6 * u * t * (P[2][0] - P[1][0]) + 3 * t * t * (P[3][0] - P[2][0]);
+      const dy = 3 * u * u * (P[1][1] - P[0][1]) + 6 * u * t * (P[2][1] - P[1][1]) + 3 * t * t * (P[3][1] - P[2][1]);
+      const l = Math.hypot(dx, dy) || 1;
+      return [-dy / l, dx / l];
+    }
+    // ponto numa faixa (off em larguras de faixa), com perspectiva: perto é largo, longe é estreito
+    const perto = (t) => 1 - 0.74 * t;
+    function naFaixa(t, off, lado = 0) {
+      const [x, y] = ponto(t);
+      const [nx, ny] = normal(t);
+      const o = (off * faixa + lado) * perto(t);
+      return [(x + nx * o) * dpr, (y + ny * o) * dpr];
+    }
+
+    function preparar() {
+      const r = hero.getBoundingClientRect();
+      dpr = Math.min(2, window.devicePixelRatio || 1);
+      W = r.width;
+      H = r.height;
+      cv.width = Math.max(1, Math.round(W * dpr));
+      cv.height = Math.max(1, Math.round(H * dpr));
+      const estreito = W < 900;
+      P = estreito
+        ? [[-0.25 * W, 0.99 * H], [0.32 * W, 0.95 * H], [0.56 * W, 0.72 * H], [1.3 * W, 0.6 * H]]
+        : [[0.15 * W, 1.2 * H], [0.55 * W, 1.08 * H], [0.66 * W, 0.72 * H], [1.12 * W, 0.5 * H]];
+      faixa = Math.min(W, H) * (estreito ? 0.066 : 0.045);
+      const rnd = semente(11);
+      rastros = [];
+      [-2.5, -1.5, -0.5, 0.5, 1.5, 2.5].forEach((f) => {
+        const vindo = f > 0;
+        [-0.19, 0.19].forEach((lado) => {
+          let cor = vindo ? [236, 242, 255] : [255, 52, 78];
+          if (f === 1.5 && lado > 0) cor = [255, 170, 72];
+          rastros.push({
+            off: f + lado + (rnd() - 0.5) * 0.08,
+            vindo,
+            cor,
+            atraso: rnd() * 0.22,
+            k1: 4 + rnd() * 6, k2: 11 + rnd() * 10, f1: rnd() * 6.28, f2: rnd() * 6.28,
+            forca: 0.7 + rnd() * 0.3,
+          });
+        });
+      });
+    }
+
+    function gradiente(r) {
+      const [x0] = naFaixa(0, r.off);
+      const [x1] = naFaixa(1, r.off);
+      const g = ctx.createLinearGradient(x0, 0, x1, 0);
+      const cor = r.cor.join(',');
+      for (let i = 0; i <= 16; i++) {
+        const t = i / 16;
+        const [x] = naFaixa(t, r.off);
+        const brilho = limitar(0.62 + 0.26 * Math.sin(t * r.k1 + r.f1) + 0.16 * Math.sin(t * r.k2 + r.f2)) * r.forca * (0.5 + 0.5 * perto(t));
+        g.addColorStop(limitar((x - x0) / (x1 - x0 || 1)), `rgba(${cor},${brilho.toFixed(3)})`);
+      }
+      return g;
+    }
+
+    function fita(r, ta, tb, largura) {
+      const S = 36;
+      const ida = [];
+      const volta = [];
+      for (let s = 0; s <= S; s++) {
+        const t = ta + ((tb - ta) * s) / S;
+        const w = (largura * (0.3 + 0.7 * perto(t))) / 2;
+        ida.push(naFaixa(t, r.off, w));
+        volta.push(naFaixa(t, r.off, -w));
+      }
+      ctx.beginPath();
+      ctx.moveTo(ida[0][0], ida[0][1]);
+      ida.forEach((q) => ctx.lineTo(q[0], q[1]));
+      for (let i = volta.length - 1; i >= 0; i--) ctx.lineTo(volta[i][0], volta[i][1]);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    function linhaTracejada(off, alfa, traco) {
+      ctx.beginPath();
+      for (let i = 0; i <= 60; i++) {
+        const [x, y] = naFaixa(i / 60, off);
+        if (i) ctx.lineTo(x, y); else ctx.moveTo(x, y);
+      }
+      ctx.setLineDash(traco ? traco.map((v) => v * dpr) : []);
+      ctx.strokeStyle = `rgba(200, 214, 255, ${alfa})`;
+      ctx.stroke();
+    }
+
+    function desenhar(p) {
+      progresso = p;
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.shadowBlur = 0;
+      ctx.clearRect(0, 0, cv.width, cv.height);
+
+      // asfalto e faixas pintadas
+      ctx.beginPath();
+      for (let i = 0; i <= 60; i++) { const [x, y] = naFaixa(i / 60, -3.3); if (i) ctx.lineTo(x, y); else ctx.moveTo(x, y); }
+      for (let i = 60; i >= 0; i--) { const [x, y] = naFaixa(i / 60, 3.3); ctx.lineTo(x, y); }
+      ctx.closePath();
+      const chao = ctx.createLinearGradient(0, cv.height, cv.width, cv.height * 0.4);
+      chao.addColorStop(0, 'rgba(26, 33, 62, .6)');
+      chao.addColorStop(1, 'rgba(26, 33, 62, 0)');
+      ctx.fillStyle = chao;
+      ctx.fill();
+      ctx.lineWidth = 1 * dpr;
+      [-2, -1, 1, 2].forEach((f) => linhaTracejada(f, 0.07, [14, 18]));
+      linhaTracejada(0, 0.1);
+      [-3.1, 3.1].forEach((f) => linhaTracejada(f, 0.09));
+      ctx.setLineDash([]);
+
+      ctx.globalCompositeOperation = 'lighter';
+
+      // postes de luz de sódio ao longo da pista
+      [0.08, 0.24, 0.4, 0.56, 0.72, 0.88].forEach((t, i) => {
+        const a = limitar(p * 1.6 - i * 0.08);
+        if (!a) return;
+        const [x, y] = naFaixa(t, 4.1);
+        const raio = (26 + 46 * perto(t)) * dpr;
+        const g = ctx.createRadialGradient(x, y, 0, x, y, raio);
+        g.addColorStop(0, `rgba(255, 200, 130, ${0.55 * a})`);
+        g.addColorStop(0.18, `rgba(255, 165, 58, ${0.22 * a})`);
+        g.addColorStop(1, 'rgba(255, 165, 58, 0)');
+        ctx.fillStyle = g;
+        ctx.fillRect(x - raio, y - raio, raio * 2, raio * 2);
+      });
+
+      // rastros: lanternas vão, faróis vêm
+      rastros.forEach((r) => {
+        const pr = limitar((p - r.atraso) / (1 - r.atraso));
+        if (!pr) return;
+        const ta = r.vindo ? 1 - pr : 0;
+        const tb = r.vindo ? 1 : pr;
+        const cor = r.cor.join(',');
+        const g = gradiente(r);
+        ctx.fillStyle = g;
+        ctx.shadowColor = `rgba(${cor}, .9)`;
+        ctx.shadowBlur = 14 * dpr;
+        fita(r, ta, tb, 2.6);
+        ctx.shadowBlur = 0;
+        ctx.globalAlpha = 0.12;
+        fita(r, ta, tb, 12);
+        ctx.globalAlpha = 1;
+        if (pr < 1) {
+          const tp = r.vindo ? ta : tb;
+          const [x, y] = naFaixa(tp, r.off);
+          const raio = (8 + 14 * perto(tp)) * dpr;
+          const h = ctx.createRadialGradient(x, y, 0, x, y, raio);
+          h.addColorStop(0, `rgba(${cor}, .95)`);
+          h.addColorStop(1, `rgba(${cor}, 0)`);
+          ctx.fillStyle = h;
+          ctx.fillRect(x - raio, y - raio, raio * 2, raio * 2);
+        }
+      });
+      ctx.globalCompositeOperation = 'source-over';
+    }
+
+    preparar();
+    const r0 = hero.getBoundingClientRect();
+    const visivel = r0.bottom > 0 && r0.top < window.innerHeight;
+    if (!visivel || reduzirMovimento()) desenhar(1);
+    else animar(2800, (t) => desenhar(freando(t)));
+
+    let largura = W;
+    let espera = 0;
+    window.addEventListener('resize', () => {
+      clearTimeout(espera);
+      espera = setTimeout(() => {
+        const r = hero.getBoundingClientRect();
+        if (Math.abs(r.width - largura) < 2 && Math.abs(r.height - H) < 40) return;
+        largura = r.width;
+        preparar();
+        desenhar(progresso);
+      }, 150);
+    });
+  }
+
+  /* ---------- celular do início: o carro anda um trecho ---------- */
+  function montarFoneHero() {
+    const rota = $('#h-rota');
+    const carro = $('#h-carro');
+    if (!rota || !carro || reduzirMovimento() || !rota.getTotalLength) return;
+    const total = rota.getTotalLength();
+    const de = 0.2;
+    const ate = 0.55;
+    function em(f) {
+      const pt = rota.getPointAtLength(total * f);
+      carro.setAttribute('transform', `translate(${pt.x.toFixed(1)} ${pt.y.toFixed(1)})`);
+      rota.setAttribute('stroke-dasharray', `${(f * 100).toFixed(2)} 100`);
+    }
+    em(de);
+    setTimeout(() => animar(2600, (t) => em(de + (ate - de) * suave(t))), 900);
+  }
+
+  /* ---------- menu do celular ---------- */
+  function montarMenu() {
+    const bt = $('#menu-btn');
+    const menu = $('#menu');
+    if (!bt || !menu) return;
+    function abrir(sim) {
+      menu.hidden = !sim;
+      bt.setAttribute('aria-expanded', String(sim));
+      $('use', bt).setAttribute('href', sim ? '#i-fechar' : '#i-menu');
+      $('.sr', bt).textContent = sim ? 'Fechar o menu' : 'Abrir o menu';
+      document.body.classList.toggle('menu-aberto', sim);
+      $('#topo').classList.toggle('solido', sim || window.scrollY > 8);
+    }
+    bt.addEventListener('click', () => abrir(menu.hidden));
+    menu.addEventListener('click', (e) => { if (e.target.closest('a')) abrir(false); });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !menu.hidden) { abrir(false); bt.focus(); }
+    });
+    const largo = window.matchMedia('(min-width: 1101px)');
+    const aoMudar = () => { if (largo.matches) abrir(false); };
+    if (largo.addEventListener) largo.addEventListener('change', aoMudar);
+  }
+
+  /* ---------- topo e seção atual ---------- */
+  function montarNavegacao() {
+    const topo = $('#topo');
+    const links = $$('.nav a[data-aba]');
+    function marcar(id) { links.forEach((a) => a.setAttribute('aria-current', String(a.dataset.aba === id))); }
+    if ('IntersectionObserver' in window) {
+      const io = new IntersectionObserver((entradas) => {
+        entradas.forEach((e) => { if (e.isIntersecting) marcar(e.target.dataset.secao); });
+      }, { rootMargin: '-45% 0px -50% 0px' });
+      $$('[data-secao]').forEach((s) => io.observe(s));
+    }
+    return function aoRolar() {
+      topo.classList.toggle('solido', window.scrollY > 8 || document.body.classList.contains('menu-aberto'));
+    };
+  }
+
+  /* ---------- como funciona: o celular acompanha o passo ---------- */
+  function montarComo() {
+    const fone = $('#fone');
+    const palco = $('.como-palco');
+    const passos = $$('.passo');
+    if (!fone || !passos.length) return () => {};
+    const telas = $$('.tela', fone);
+    const cartoes = passos.map((p) => $('.passo-card', p));
+    let atual = 1;
+
+    function mostrar(n) {
+      if (n === atual) return;
+      atual = n;
+      fone.dataset.tela = String(n);
+      telas.forEach((t) => t.classList.toggle('ativa', Number(t.dataset.tela) === n));
+      passos.forEach((p) => {
+        const sim = Number(p.dataset.passo) === n;
+        p.classList.toggle('ativo', sim);
+        if (sim) p.setAttribute('aria-current', 'step'); else p.removeAttribute('aria-current');
+      });
+    }
+
+    return function aoRolar() {
+      const alto = window.innerHeight;
+      let alvo = alto * 0.5;
+      if (window.innerWidth <= 900) {
+        const baixo = palco.getBoundingClientRect().bottom;
+        alvo = (Math.max(0, baixo) + alto) / 2;
+      }
+      let melhor = atual;
+      let menor = Infinity;
+      cartoes.forEach((c, i) => {
+        const r = c.getBoundingClientRect();
+        const d = Math.abs(r.top + r.height / 2 - alvo);
+        if (d < menor) { menor = d; melhor = i + 1; }
+      });
+      mostrar(melhor);
+    };
+  }
+
+  /* ---------- a dobra: desenho técnico que dobra de verdade ---------- */
+  const DOBRA = {
+    bike: {
+      nome: 'Bike elétrica dobrável', botao: ['Dobrar a bike', 'Abrir a bike'],
+      aberta: ['Aberta', '134 × 88 cm'], dobrada: ['Dobrada', '74 × 63 × 36 cm'], peso: '17 kg', tempo: '20 s', ms: 1700,
+    },
+    patinete: {
+      nome: 'Patinete elétrico dobrável', botao: ['Dobrar o patinete', 'Abrir o patinete'],
+      aberta: ['Aberto', '116 × 114 cm'], dobrada: ['Dobrado', '116 × 33 × 43 cm'], peso: '14 kg', tempo: '5 s', ms: 1000,
+    },
+  };
+
+  function montarDobra() {
+    const planta = $('#planta');
+    const bt = $('#dobrar');
+    if (!planta || !bt) return;
+    const guidao = $('#b-guidao');
+    const selim = $('#b-selim');
+    const frente = $('#b-frente');
+    const haste = $('#p-haste');
+    let veic = 'bike';
+    let dobrada = false;
+    let f = 0; // 0 aberta, 1 dobrada
+    let parar = null;
+
+    function poseBike(x) {
+      const g = suave(limitar(x / 0.34));
+      const s = suave(limitar((x - 0.14) / 0.3));
+      const v = suave(limitar((x - 0.3) / 0.7));
+      guidao.setAttribute('transform', `rotate(${(160 * g).toFixed(2)} 94 44)`);
+      selim.setAttribute('transform', `translate(${(2.3 * s).toFixed(2)} ${(13.8 * s).toFixed(2)})`);
+      const sx = 1 - 2 * v;
+      frente.setAttribute('transform', `translate(75 0) scale(${sx.toFixed(4)} 1) translate(-75 0)`);
+      frente.classList.toggle('atras', sx < 0);
+    }
+    function posePat(x) {
+      haste.setAttribute('transform', `rotate(${(-87.8 * suave(limitar(x))).toFixed(2)} 103.6 70)`);
+    }
+    function pose(x) {
+      f = x;
+      if (veic === 'bike') poseBike(x); else posePat(x);
+    }
+    function legenda() {
+      const d = DOBRA[veic];
+      $('#planta-nome').textContent = d.nome;
+      $('#sp-aberta-t').textContent = d.aberta[0];
+      $('#sp-aberta').textContent = d.aberta[1];
+      $('#sp-dobrada-t').textContent = d.dobrada[0];
+      $('#sp-dobrada').textContent = d.dobrada[1];
+      $('#sp-peso').textContent = d.peso;
+      $('#sp-tempo').textContent = d.tempo;
+      bt.textContent = d.botao[dobrada ? 1 : 0];
+      const e = dobrada ? d.dobrada : d.aberta;
+      $('#planta-estado').textContent = `${e[0]}: ${e[1]}`;
+    }
+
+    bt.addEventListener('click', () => {
+      if (parar) parar();
+      dobrada = !dobrada;
+      const de = f;
+      const para = dobrada ? 1 : 0;
+      planta.dataset.estado = 'mudando';
+      legenda();
+      const ms = DOBRA[veic].ms * Math.max(0.3, Math.abs(para - de));
+      parar = animar(ms, (t) => pose(de + (para - de) * t), () => {
+        parar = null;
+        planta.dataset.estado = dobrada ? 'dobrada' : 'aberta';
+      });
+    });
+
+    $$('input[name="dobra-veic"]').forEach((r) => r.addEventListener('change', () => {
+      if (parar) { parar(); parar = null; }
+      veic = r.value;
+      dobrada = false;
+      poseBike(0);
+      posePat(0);
+      f = 0;
+      planta.dataset.veic = veic;
+      planta.dataset.estado = 'aberta';
+      legenda();
+    }));
+    legenda();
+  }
+
+  /* ---------- simulação da volta ---------- */
   const MOTORISTAS = [
     { nome: 'Rafael S.', nota: '4,9', cnh: 9 },
     { nome: 'Camila R.', nota: '5,0', cnh: 12 },
@@ -65,8 +449,9 @@
     { nome: 'Juliana P.', nota: '4,9', cnh: 15 },
   ];
 
-  function montarComanda() {
-    const form = $('#comanda');
+  function montarCalculadora() {
+    const form = $('#pedir');
+    if (!form) return;
     const km = $('#c-km');
     const agenda = $('#agenda');
     const agendaHora = $('#c-agenda');
@@ -74,7 +459,7 @@
     const trilha = $('#trilha');
     const status = $('#c-status');
     const pedir = $('#c-pedir');
-    const carimbo = $('#c-carimbo');
+    const selo = $('#c-selo');
     let timer = null;
     let emAndamento = false;
 
@@ -83,28 +468,34 @@
     const agendado = () => marcado('quando') === 'agendar';
     // "Agora" usa o relógio de quem está vendo; "Agendar" usa o horário escolhido
     const horaDoPedido = () => (agendado() ? agendaHora.value : hhmm(new Date()));
-
-    function item(nome, valor, gratis) {
-      return `<li${gratis ? ' class="gratis"' : ''}><span>${esc(nome)}</span><span class="pts"></span><b>${esc(valor)}</b></li>`;
-    }
+    const item = (nome, valor, gratis) => `<li${gratis ? ' class="gratis"' : ''}><span>${esc(nome)}</span><b>${esc(valor)}</b></li>`;
 
     function atualizar() {
       const k = Number(km.value);
       $('#c-km-out').textContent = `${k} km`;
       agenda.hidden = !agendado();
       const p = precoDaViagem(k, horaDoPedido());
-      let html = item('1x Drink (saída)', brl(p.saida)) + item(`${k} km rodados`, brl(p.rodado));
-      if (p.adicional) html += item('Madrugada +20%', brl(p.adicional));
+      let html = item('Saída', brl(p.saida)) + item(`${k} km × R$ 3,50`, brl(p.rodado));
+      if (p.adicional) html += item('Bandeira 2 (+20%)', brl(p.adicional));
       if (agendado()) html += item(`Agendado para ${agendaHora.value || '--:--'}`, 'grátis', true);
-      html += item('Seguro da viagem', 'grátis', true);
+      html += item('Seguro da viagem', 'incluso', true);
       itens.innerHTML = html;
       $('#c-total').textContent = brl(p.total);
+      $('#tx-b1').dataset.on = String(!p.adicional);
+      $('#tx-b2').dataset.on = String(Boolean(p.adicional));
+    }
+
+    function limpar() {
+      if (emAndamento) return;
+      trilha.hidden = true;
+      selo.hidden = true;
+      pedir.textContent = 'Pedir este Drink';
     }
 
     function simular(passos, fim) {
       trilha.hidden = false;
+      selo.hidden = true;
       trilha.innerHTML = passos.map((p) => `<li>${esc(p)}</li>`).join('');
-      form.classList.remove('carimbada');
       const lis = $$('li', trilha);
       let i = 0;
       emAndamento = true;
@@ -117,19 +508,19 @@
           emAndamento = false;
           pedir.removeAttribute('aria-disabled');
           pedir.textContent = 'Pedir outro Drink';
-          status.textContent = 'Simulação concluída.';
-          carimbo.textContent = fim;
-          form.classList.add('carimbada');
+          status.textContent = `Simulação concluída. ${fim}.`;
+          selo.innerHTML = `<svg class="i" aria-hidden="true"><use href="#i-check"/></svg>${esc(fim)}`;
+          selo.hidden = false;
           return;
         }
         status.textContent = passos[i];
         i += 1;
-        timer = setTimeout(passo, reduzirMovimento ? 150 : 1300);
+        timer = setTimeout(passo, reduzirMovimento() ? 150 : 1300);
       }());
     }
 
-    form.addEventListener('input', atualizar);
-    form.addEventListener('change', atualizar);
+    form.addEventListener('input', () => { limpar(); atualizar(); });
+    form.addEventListener('change', () => { limpar(); atualizar(); });
     form.addEventListener('submit', (e) => {
       e.preventDefault();
       if (emAndamento) return;
@@ -150,7 +541,7 @@
           `Procurando um Drink perto de ${de}`,
           aceito,
           `${m.nome} chega de ${veiculo} às ${agendaHora.value || '--:--'}. Você recebe um aviso 10 min antes`,
-        ], 'Agendado');
+        ], `Agendado para ${agendaHora.value || '--:--'}`);
       } else {
         simular([
           `Procurando um Drink perto de ${de}`,
@@ -159,333 +550,73 @@
           'Chegou e conferiu o seu nome',
           'Vistoria feita com 5 fotos. Seguro ativo',
           `${dobrado} no porta-malas. Em viagem para ${para}`,
-          'Entregue. Carro estacionado e chave na sua mão',
+          'Carro estacionado e chave na sua mão',
         ], 'Entregue');
       }
     });
     atualizar();
   }
 
-  /* ---------- cenário da história (gerado com semente) ---------- */
-  function montarCenario() {
-    const rnd = semente(7);
-    let h = '';
-
-    // estrelas
-    for (let i = 0; i < 80; i++) {
-      h += `<circle cx="${num(rnd() * 1200)}" cy="${num(rnd() * 250)}" r="${(0.6 + rnd() * 1.2).toFixed(2)}" opacity="${(0.25 + rnd() * 0.65).toFixed(2)}"/>`;
-    }
-    $('#c-estrelas').innerHTML = h;
-
-    // prédios ao longe, com janelas acesas aqui e ali
-    h = '';
-    for (let x = -120; x < 2140;) {
-      const w = Math.round(60 + rnd() * 90);
-      const alt = Math.round(110 + rnd() * 170);
-      const topo = 430 - alt;
-      h += `<rect x="${x}" y="${topo}" width="${w}" height="${alt}" fill="#0D221D"/>`;
-      if (rnd() < 0.25) h += `<path d="M${x + w / 2} ${topo}v-${Math.round(14 + rnd() * 20)}" stroke="#0D221D" stroke-width="3"/>`;
-      for (let wy = topo + 14; wy < 418; wy += 18) {
-        for (let wx = x + 10; wx < x + w - 14; wx += 14) {
-          if (rnd() < 0.15) h += `<rect x="${wx}" y="${wy}" width="6" height="9" fill="#FFD27A" opacity="${(0.22 + rnd() * 0.36).toFixed(2)}"/>`;
-        }
-      }
-      x += w + Math.round(4 + rnd() * 14);
-    }
-    $('#c-longe').innerHTML = h;
-
-    // árvores e prédios médios
-    h = '';
-    for (let x = -80; x < 2900;) {
-      if (rnd() < 0.55) {
-        const r = Math.round(26 + rnd() * 20);
-        const cx = x + r;
-        h += `<rect x="${cx - 4}" y="360" width="8" height="70" fill="#0C211C"/>`
-          + `<circle cx="${cx}" cy="350" r="${r}" fill="#0F2E26"/>`
-          + `<circle cx="${num(cx - r * 0.6)}" cy="364" r="${num(r * 0.7)}" fill="#12352C"/>`
-          + `<circle cx="${num(cx + r * 0.6)}" cy="360" r="${num(r * 0.75)}" fill="#0E2A23"/>`;
-        x += r * 2 + Math.round(30 + rnd() * 60);
-      } else {
-        const w = Math.round(90 + rnd() * 80);
-        const alt = Math.round(150 + rnd() * 120);
-        h += `<rect x="${x}" y="${430 - alt}" width="${w}" height="${alt}" fill="#10281F"/>`;
-        for (let wy = 430 - alt + 16; wy < 410; wy += 26) {
-          for (let wx = x + 12; wx < x + w - 20; wx += 22) {
-            if (rnd() < 0.2) h += `<rect x="${wx}" y="${wy}" width="10" height="14" fill="#FFD27A" opacity="${(0.25 + rnd() * 0.3).toFixed(2)}"/>`;
-          }
-        }
-        x += w + Math.round(20 + rnd() * 40);
-      }
-    }
-    $('#c-meio').innerHTML = h;
-
-    // fachadas do caminho entre o bar e a casa
-    h = '';
-    const cores = ['#16362F', '#1A3D35', '#14302A', '#1B3A33'];
-    for (let x = 1180; x < 2890;) {
-      const w = Math.round(190 + rnd() * 170);
-      const topo = Math.round(150 + rnd() * 110);
-      h += `<rect x="${x}" y="${topo}" width="${w}" height="${432 - topo}" fill="${cores[Math.floor(rnd() * cores.length)]}"/>`
-        + `<rect x="${x - 6}" y="${topo - 8}" width="${w + 12}" height="10" fill="#1F463D"/>`;
-      for (let wy = topo + 22; wy < 290; wy += 52) {
-        for (let wx = x + 22; wx + 54 < x + w; wx += 70) {
-          const acesa = rnd() < 0.35;
-          h += acesa
-            ? `<rect x="${wx}" y="${wy}" width="44" height="32" rx="2" fill="#FFD27A" opacity="${(0.38 + rnd() * 0.25).toFixed(2)}"/>`
-            : `<rect x="${wx}" y="${wy}" width="44" height="32" rx="2" fill="#0B1C18"/>`;
-        }
-      }
-      const lx = x + 18;
-      const lw = w - 36;
-      if (rnd() < 0.5) {
-        const riscos = Array.from({ length: 8 }, (_, i) => `M${lx} ${342 + i * 12}H${lx + lw}`).join('');
-        h += `<rect x="${lx}" y="330" width="${lw}" height="102" fill="#0E221D"/><path d="${riscos}" stroke="#18332C" stroke-width="3"/>`;
-      } else {
-        h += `<rect x="${lx}" y="316" width="${lw}" height="12" fill="${rnd() < 0.5 ? '#FF7A33' : '#2B5E50'}"/>`
-          + `<rect x="${lx}" y="332" width="${lw}" height="100" fill="url(#c-g-vitrine)" opacity=".5"/>`;
-      }
-      x += w + Math.round(10 + rnd() * 40);
-    }
-    $('#c-fachadas').innerHTML = h;
-  }
-
-  /* ---------- a história que anda com a rolagem ---------- */
-  function montarHistoria() {
-    const trilho = $('#trilho');
-    const palco = $('#palco');
-    const passos = $$('#historia-passos li').map((li) => ({ t: $('strong', li).textContent, d: $('span', li).textContent }));
-    const N = passos.length;
-    const pontos = $$('#leg-pontos button');
-    const legenda = $('#leg-txt');
-    const barra = $('#leg-barra');
-    let atual = -1;
-
-    function mostrar(n) {
-      if (n === atual) return;
-      atual = n;
-      palco.dataset.passo = String(n);
-      for (let i = 1; i <= N; i++) palco.classList.toggle(`ja${i}`, n >= i);
-      const idx = Math.max(1, n) - 1;
-      $('#leg-n').textContent = String(idx + 1).padStart(2, '0');
-      $('#leg-t').textContent = passos[idx].t;
-      $('#leg-d').textContent = passos[idx].d;
-      repetir(legenda, 'troca');
-      pontos.forEach((b, i) => {
-        if (i === idx) b.setAttribute('aria-current', 'step');
-        else b.removeAttribute('aria-current');
-      });
-    }
-
-    function medir() {
-      const r = trilho.getBoundingClientRect();
-      const total = Math.max(1, r.height - window.innerHeight);
-      return { r, total, p: Math.min(1, Math.max(0, -r.top / total)) };
-    }
-
-    function aoRolar() {
-      const { r, p } = medir();
-      if (r.bottom < -50 || r.top > window.innerHeight + 50) return;
-      barra.style.transform = `scaleX(${p.toFixed(4)})`;
-      // passo 0: o palco ainda está entrando na tela; a bike espera fora de cena
-      mostrar(r.top > 1 ? 0 : Math.min(N, Math.floor(p * N) + 1));
-    }
-
-    pontos.forEach((b) => b.addEventListener('click', () => {
-      const { r, total } = medir();
-      const topo = window.scrollY + r.top;
-      window.scrollTo({ top: topo + total * ((Number(b.dataset.irPasso) - 0.5) / N), behavior: reduzirMovimento ? 'auto' : 'smooth' });
-    }));
-    $$('input[name="hist-veic"]').forEach((r) => r.addEventListener('change', () => { palco.dataset.veic = r.value; }));
-    mostrar(0);
-    return aoRolar;
-  }
-
-  /* ---------- tour do app ---------- */
-  function montarTour() {
-    const fone = $('#fone');
-    const passos = $$('.tour-passo');
-    const telas = $$('.tela', fone);
-    const [voltar, avancar] = $$('.tour-seta');
-    const aviso = $('#tour-aviso');
-    let passo = 0;
-
-    function mostrar(n, anunciar) {
-      const novo = Math.max(0, Math.min(passos.length - 1, n));
-      if (novo !== passo) fone.dataset.dir = novo > passo ? '1' : '-1';
-      passo = novo;
-
-      passos.forEach((b, i) => {
-        if (i === passo) b.setAttribute('aria-current', 'step');
-        else b.removeAttribute('aria-current');
-      });
-      telas.forEach((t, i) => { t.hidden = i !== passo; });
-      $('#fone-hora').textContent = telas[passo].dataset.hora;
-
-      const titulo = $('.tp-txt strong', passos[passo]).textContent;
-      const texto = $('.tp-txt > span', passos[passo]).textContent;
-      $('#tour-n').textContent = `${passo + 1} de ${passos.length}`;
-      $('#tour-t').textContent = titulo;
-      $('#tour-d').textContent = texto;
-      voltar.setAttribute('aria-disabled', String(passo === 0));
-      avancar.setAttribute('aria-disabled', String(passo === passos.length - 1));
-      if (anunciar) aviso.textContent = `Passo ${passo + 1} de ${passos.length}: ${titulo}. ${texto}`;
-    }
-
-    passos.forEach((b, i) => b.addEventListener('click', () => mostrar(i, true)));
-    [voltar, avancar].forEach((b) => b.addEventListener('click', () => {
-      if (b.getAttribute('aria-disabled') !== 'true') mostrar(passo + Number(b.dataset.ir), true);
-    }));
-
-    // deslizar o dedo sobre o celular troca de tela
-    let x0 = null;
-    let y0 = 0;
-    fone.addEventListener('pointerdown', (e) => { x0 = e.clientX; y0 = e.clientY; });
-    fone.addEventListener('pointerup', (e) => {
-      if (x0 === null) return;
-      const dx = e.clientX - x0;
-      const dy = e.clientY - y0;
-      x0 = null;
-      if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) mostrar(passo + (dx < 0 ? 1 : -1), true);
-    });
-    fone.addEventListener('pointercancel', () => { x0 = null; });
-
-    mostrar(0, false);
-  }
-
-  /* ---------- vistoria com polaroides ---------- */
-  const LADOS = { frente: 'Frente', traseira: 'Traseira', esquerda: 'Esquerda', direita: 'Direita', painel: 'Painel' };
-  const DESTAQUE = {
-    frente: '<rect x="12" y="-2" width="96" height="48" rx="12"/>',
-    traseira: '<rect x="12" y="154" width="96" height="48" rx="12"/>',
-    esquerda: '<rect x="-2" y="28" width="38" height="144" rx="12"/>',
-    direita: '<rect x="84" y="28" width="38" height="144" rx="12"/>',
-    painel: '<rect x="26" y="50" width="68" height="44" rx="10"/>',
-  };
-
+  /* ---------- vistoria ---------- */
   function montarVistoria() {
+    const vist = $('.vistoria');
+    if (!vist) return;
     const carro = $('#vist-carro');
-    const fotos = $$('[data-foto]', carro);
-    const lista = $('#polaroides');
+    const botoes = $$('.foto', vist);
+    const lis = $$('#vist-fotos li');
     const res = $('#vist-res');
-    const carimbo = $('#vist-carimbo');
+    const barra = $('#vist-barra');
     const refazer = $('#vist-refazer');
-    const tiradas = [];
+    const tiradas = new Map();
 
-    function desenhar(nova) {
-      lista.innerHTML = Object.keys(LADOS).map((_, i) => {
-        const lado = tiradas[i];
-        if (!lado) return `<li>${i + 1}</li>`;
-        const giro = ((i * 37) % 7) - 3;
-        return `<li class="tirada${lado === nova ? ' nova' : ''}" style="--r:${giro}deg">`
-          + `<svg viewBox="-20 -12 160 224" aria-hidden="true"><use href="#s-carro-topo" width="120" height="200"/><g fill="#FF7A33" opacity=".55">${DESTAQUE[lado]}</g></svg>`
-          + `<span>${LADOS[lado]}</span></li>`;
-      }).join('');
-      const n = tiradas.length;
+    function atualizar() {
+      const n = tiradas.size;
+      lis.forEach((li) => {
+        const h = tiradas.get(li.dataset.foto);
+        li.classList.toggle('tirada', Boolean(h));
+        $('.vf-hora', li).textContent = h ? `foto às ${h}` : 'sem foto';
+      });
+      botoes.forEach((b) => b.setAttribute('aria-pressed', String(tiradas.has(b.dataset.foto))));
+      barra.style.width = `${(n / 5) * 100}%`;
+      vist.classList.toggle('completa', n === 5);
       res.textContent = n === 5 ? 'Vistoria completa. Seguro ativado.' : `${n} de 5 fotos`;
-      carimbo.classList.toggle('batido', n === 5);
       refazer.hidden = n === 0;
     }
 
-    fotos.forEach((f) => {
-      f.setAttribute('aria-pressed', 'false');
-      f.addEventListener('click', () => {
-        const lado = f.dataset.foto;
-        const i = tiradas.indexOf(lado);
-        if (i >= 0) {
-          tiradas.splice(i, 1);
-          f.setAttribute('aria-pressed', 'false');
-          desenhar();
-        } else {
-          tiradas.push(lado);
-          f.setAttribute('aria-pressed', 'true');
-          if (!reduzirMovimento) repetir(carro, 'clarao');
-          desenhar(lado);
+    botoes.forEach((b) => b.addEventListener('click', () => {
+      const k = b.dataset.foto;
+      if (tiradas.has(k)) {
+        tiradas.delete(k);
+      } else {
+        tiradas.set(k, hhmmss(new Date()));
+        if (!reduzirMovimento()) {
+          carro.classList.remove('clarao');
+          void carro.offsetWidth;
+          carro.classList.add('clarao');
         }
-      });
-    });
+      }
+      atualizar();
+    }));
     refazer.addEventListener('click', () => {
-      tiradas.length = 0;
-      fotos.forEach((f) => f.setAttribute('aria-pressed', 'false'));
-      desenhar();
+      tiradas.clear();
+      atualizar();
+      botoes[0].focus();
     });
-    desenhar();
-  }
-
-  /* ---------- números que contam ao aparecer ---------- */
-  function montarNumeros() {
-    const alvos = $$('[data-conta]');
-    if (reduzirMovimento || !('IntersectionObserver' in window)) return;
-    const io = new IntersectionObserver((entradas) => entradas.forEach((e) => {
-      if (!e.isIntersecting) return;
-      io.unobserve(e.target);
-      const fim = Number(e.target.dataset.conta);
-      const t0 = performance.now();
-      (function passo(t) {
-        const k = Math.min(1, (t - t0) / 900);
-        e.target.textContent = String(Math.round(fim * (1 - Math.pow(1 - k, 3))));
-        if (k < 1) requestAnimationFrame(passo);
-      }(t0));
-    }), { threshold: 0.6 });
-    alvos.forEach((el) => io.observe(el));
-  }
-
-  /* ---------- varal de luzes dos eventos ---------- */
-  function montarVaral() {
-    const varal = $('#varal');
-    const curvas = [[[-20, 24], [300, 132], [620, 30]], [[620, 30], [940, 132], [1220, 24]]];
-    let h = '';
-    let i = 0;
-    curvas.forEach(([a, c, b]) => {
-      for (let k = 1; k <= 8; k++) {
-        const t = k / 9;
-        const u = 1 - t;
-        const x = num(u * u * a[0] + 2 * u * t * c[0] + t * t * b[0]);
-        const y = num(u * u * a[1] + 2 * u * t * c[1] + t * t * b[1]);
-        h += `<g class="lampada" style="--i:${i++}">`
-          + `<circle class="brilho" cx="${x}" cy="${num(y + 16)}" r="28" fill="url(#e-g-luz)"/>`
-          + `<rect x="${num(x - 3)}" y="${num(y - 1)}" width="6" height="8" rx="1" fill="#2B4A42"/>`
-          + `<ellipse class="bulbo" cx="${x}" cy="${num(y + 13)}" rx="5.5" ry="7.5"/></g>`;
-      }
-    });
-    $('#varal-lampadas').innerHTML = h;
-    if (reduzirMovimento || !('IntersectionObserver' in window)) {
-      varal.classList.add('acesa');
-      return;
-    }
-    const io = new IntersectionObserver((entradas) => {
-      if (entradas.some((e) => e.isIntersecting)) {
-        varal.classList.add('acesa');
-        io.disconnect();
-      }
-    }, { threshold: 0.4 });
-    io.observe(varal);
-  }
-
-  /* ---------- QR code de enfeite no cavalete da mesa ---------- */
-  function montarQR() {
-    const rnd = semente(3);
-    const quadro = (x, y) => `<path d="M${x} ${y}h7v7h-7zM${x + 1} ${y + 1}v5h5v-5z" fill-rule="evenodd"/><rect x="${x + 2}" y="${y + 2}" width="3" height="3"/>`;
-    let h = quadro(0, 0) + quadro(18, 0) + quadro(0, 18);
-    for (let y = 0; y < 25; y++) {
-      for (let x = 0; x < 25; x++) {
-        const noCanto = (x < 8 && y < 8) || (x > 16 && y < 8) || (x < 8 && y > 16);
-        if (!noCanto && rnd() < 0.48) h += `<rect x="${x}" y="${y}" width="1" height="1"/>`;
-      }
-    }
-    $('#qr').innerHTML = `<g fill="#1D1A14">${h}</g>`;
+    atualizar();
   }
 
   /* ---------- eventos ---------- */
   function montarEventos() {
     const tipos = $$('#ev-tipos .chip');
     const convidados = $('#ev-conv');
+    if (!convidados) return;
     let taxa = 0.35; // parte dos convidados que foi de carro e vai precisar de um Drink
 
     function calcular() {
       const c = Number(convidados.value);
       const carros = Math.max(1, Math.round((c * taxa) / 2.2));
       const n = Math.ceil(carros / 3);
-      $('#ev-conv-out').textContent = c;
+      $('#ev-conv-out').textContent = c.toLocaleString('pt-BR');
       $('#ev-num').textContent = n;
       $('#ev-num-txt').textContent = n === 1 ? 'Drink de plantão' : 'Drinks de plantão';
       $('#ev-conta').innerHTML = `<li><span>Carros para levar</span><span>cerca de ${carros}</span></li>`
@@ -511,6 +642,7 @@
       el.innerHTML = chars.map((c) => (eDigito(c)
         ? `<span class="odo-d"><span class="odo-fita">${'0123456789'.split('').map((d) => `<span>${d}</span>`).join('')}</span></span>`
         : `<span class="odo-s">${c.trim() ? esc(c) : '&nbsp;'}</span>`)).join('');
+      void el.offsetWidth;
     }
     const fitas = $$('.odo-fita', el);
     let k = 0;
@@ -523,6 +655,7 @@
   function montarMotorista() {
     const noites = $('#m-noites');
     const horas = $('#m-horas');
+    if (!noites || !horas) return;
 
     function calcular() {
       const n = Number(noites.value);
@@ -560,59 +693,80 @@
     });
   }
 
-  /* ---------- navegação: topo, seção atual e paralaxe do bar ---------- */
-  function montarNavegacao() {
-    const topo = $('#topo');
-    const links = $$('[data-aba]');
-    const hero = $('.hero');
-    const fundo = $('.hero-fundo');
-
-    function marcar(aba) {
-      links.forEach((a) => {
-        if (a.dataset.aba === aba) a.setAttribute('aria-current', 'true');
-        else a.removeAttribute('aria-current');
-      });
+  /* ---------- amanhecer: prédios contra o céu ---------- */
+  function montarSkyline() {
+    const svg = $('#skyline');
+    if (!svg) return;
+    const rnd = semente(23);
+    function fileira(base, min, var_, largMin, largVar) {
+      const predios = [];
+      let x = -10;
+      while (x < 1450) {
+        const w = largMin + Math.floor(rnd() * largVar);
+        const h = min + Math.floor(rnd() * var_) + (rnd() < 0.12 ? 70 : 0);
+        predios.push({ x, w, h });
+        x += w + (rnd() < 0.2 ? 6 : 0);
+      }
+      const d = predios.map((p) => `M${p.x} ${base}V${base - p.h}H${p.x + p.w}V${base}Z`).join('');
+      return { d, predios };
     }
-    if ('IntersectionObserver' in window) {
-      const io = new IntersectionObserver((entradas) => entradas.forEach((e) => {
-        if (e.isIntersecting) marcar(e.target.dataset.secao);
-      }), { rootMargin: '-45% 0px -50% 0px' });
-      $$('[data-secao]').forEach((s) => io.observe(s));
-    }
+    const fundo = fileira(240, 70, 110, 40, 70);
+    const frente = fileira(240, 36, 90, 30, 60);
+    let janelas = '';
+    frente.predios.forEach((p) => {
+      if (p.h < 60 || rnd() < 0.45) return;
+      const q = 1 + Math.floor(rnd() * 3);
+      for (let i = 0; i < q; i++) {
+        const jx = p.x + 6 + Math.floor(rnd() * Math.max(1, p.w - 14));
+        const jy = 240 - p.h + 10 + Math.floor(rnd() * Math.max(1, p.h - 30));
+        janelas += `<rect x="${jx}" y="${jy}" width="4" height="5" rx="1"/>`;
+      }
+    });
+    let antenas = '';
+    frente.predios.forEach((p) => {
+      if (rnd() < 0.12) antenas += `<rect x="${p.x + Math.floor(p.w / 2)}" y="${240 - p.h - 22}" width="2" height="22"/>`;
+    });
+    svg.innerHTML = `<path d="${fundo.d}" fill="#3A2150" opacity=".55"/>`
+      + `<path d="${frente.d}"/>${antenas}`
+      + `<g fill="#FFC57A" opacity=".85">${janelas}</g>`;
+  }
 
-    return function (y) {
-      topo.classList.toggle('solido', y > 8);
-      // o fundo do bar (luminárias e prateleira) anda mais devagar que a página
-      if (!reduzirMovimento && y < hero.offsetHeight) fundo.style.transform = `translate3d(0, ${(y * 0.28).toFixed(1)}px, 0)`;
-    };
+  /* ---------- faixas de rolagem pintadas até o valor ---------- */
+  function montarFaixas() {
+    $$('input[type="range"]').forEach((r) => {
+      const pintar = () => {
+        const min = Number(r.min || 0);
+        const max = Number(r.max || 100);
+        r.style.setProperty('--p', `${((Number(r.value) - min) / (max - min || 1)) * 100}%`);
+      };
+      pintar();
+      r.addEventListener('input', pintar);
+    });
   }
 
   /* ---------- início ---------- */
-  montarComanda();
-  montarCenario();
-  const historiaAoRolar = montarHistoria();
-  montarTour();
+  montarSkyline();
+  montarRastros();
+  montarFoneHero();
+  montarMenu();
+  const aoRolarTopo = montarNavegacao();
+  const aoRolarComo = montarComo();
+  montarDobra();
+  montarCalculadora();
   montarVistoria();
-  montarNumeros();
-  montarVaral();
-  montarQR();
   montarEventos();
   montarMotorista();
   montarDialogos();
-  const navegacaoAoRolar = montarNavegacao();
+  montarFaixas();
 
-  let pedido = false;
-  function aoRolar() {
-    if (pedido) return;
-    pedido = true;
-    requestAnimationFrame(() => {
-      pedido = false;
-      const y = window.scrollY;
-      navegacaoAoRolar(y);
-      historiaAoRolar();
-    });
+  let pendente = false;
+  function rolar() {
+    pendente = false;
+    aoRolarTopo();
+    aoRolarComo();
   }
-  window.addEventListener('scroll', aoRolar, { passive: true });
-  window.addEventListener('resize', aoRolar);
-  aoRolar();
-})();
+  const pedirQuadro = () => { if (!pendente) { pendente = true; requestAnimationFrame(rolar); } };
+  window.addEventListener('scroll', pedirQuadro, { passive: true });
+  window.addEventListener('resize', pedirQuadro);
+  rolar();
+}());
