@@ -317,44 +317,363 @@
     };
   }
 
-  /* ---------- como funciona: o celular acompanha o passo ---------- */
-  function montarComo() {
-    const fone = $('#fone');
-    const palco = $('.como-palco');
-    const passos = $$('.passo');
-    if (!fone || !passos.length) return () => {};
-    const telas = $$('.tela', fone);
-    const cartoes = passos.map((p) => $('.passo-card', p));
-    let atual = 1;
+  /* ---------- experimente o app: um pedido inteiro dentro do celular ---------- */
+  const DESTINOS = {
+    casa: { nome: 'Casa', bairro: 'Buritis', km: 9, rota: 'M140 170L60 250V292', fim: [60, 292], rotulo: '' },
+    trabalho: { nome: 'Trabalho', bairro: 'Funcionários', km: 3, rota: 'M140 170L210 240H250', fim: [250, 240], rotulo: '' },
+    bia: { nome: 'Casa da Bia', bairro: 'Sion', km: 6, rota: 'M140 170V292', fim: [140, 292], rotulo: 'SION' },
+    pampulha: { nome: 'Orla da Pampulha', bairro: 'Pampulha', km: 14, rota: 'M140 170V26', fim: [140, 26], rotulo: 'PAMPULHA' },
+  };
+  const VEICULOS = { qualquer: 'Tanto faz', bike: 'Bike', patinete: 'Patinete' };
+  const ETAPA_TELA = { pedir: 'inicio', caminho: 'caminho', vistoria: 'vistoria', malas: 'malas', viagem: 'viagem', casa: 'casa' };
 
-    function mostrar(n) {
-      if (n === atual) return;
-      atual = n;
-      fone.dataset.tela = String(n);
-      telas.forEach((t) => t.classList.toggle('ativa', Number(t.dataset.tela) === n));
-      passos.forEach((p) => {
-        const sim = Number(p.dataset.passo) === n;
-        p.classList.toggle('ativo', sim);
-        if (sim) p.setAttribute('aria-current', 'step'); else p.removeAttribute('aria-current');
+  function montarDemo() {
+    const demo = $('#demo');
+    if (!demo) return;
+    const telas = $$('.d-tela', demo);
+    const etapas = $$('#etapas li');
+    const toast = $('#d-toast');
+    const est = {};
+    let timers = [];
+    let paradas = [];
+    let timerToast = 0;
+
+    function zerar() {
+      Object.assign(est, {
+        destino: 'casa', quando: 'agora', hora: '01:30', veic: 'qualquer', cambio: 'Automático', pag: 'Pix',
+        motorista: MOTORISTAS[0], veiculo: 'bike', fotos: new Set(), nota: 0, gorjeta: 0, chegada: '',
+      });
+    }
+    const esperar = (ms, fn) => { timers.push(setTimeout(fn, reduzirMovimento() ? Math.min(ms, 120) : ms)); };
+    function limpar() {
+      timers.forEach(clearTimeout);
+      timers = [];
+      paradas.forEach((parar) => parar());
+      paradas = [];
+    }
+    const agora = () => hhmm(new Date());
+    const primeiro = () => est.motorista.nome.split(' ')[0];
+    const iniciais = (nome) => nome.replace(/\./g, '').split(' ').map((p) => p[0]).join('').slice(0, 2).toUpperCase();
+    const destino = () => DESTINOS[est.destino];
+    const preco = () => precoDaViagem(destino().km, est.quando === 'agendar' ? est.hora : agora());
+    const nomeVeiculo = () => (est.veiculo === 'patinete' ? 'patinete' : 'bike');
+
+    function aviso(texto) {
+      toast.textContent = texto;
+      toast.hidden = false;
+      clearTimeout(timerToast);
+      timerToast = setTimeout(() => { toast.hidden = true; }, 2800);
+    }
+
+    function marcarEtapa(etapa) {
+      etapas.forEach((li) => {
+        const sim = li.dataset.etapa === etapa;
+        li.classList.toggle('atual', sim);
+        const b = $('button', li);
+        if (sim) b.setAttribute('aria-current', 'step'); else b.removeAttribute('aria-current');
       });
     }
 
-    return function aoRolar() {
-      const alto = window.innerHeight;
-      let alvo = alto * 0.5;
-      if (window.innerWidth <= 900) {
-        const baixo = palco.getBoundingClientRect().bottom;
-        alvo = (Math.max(0, baixo) + alto) / 2;
-      }
-      let melhor = atual;
-      let menor = Infinity;
-      cartoes.forEach((c, i) => {
-        const r = c.getBoundingClientRect();
-        const d = Math.abs(r.top + r.height / 2 - alvo);
-        if (d < menor) { menor = d; melhor = i + 1; }
+    function ir(nome, foco = true) {
+      limpar();
+      const tela = telas.find((t) => t.dataset.d === nome);
+      telas.forEach((t) => {
+        t.hidden = t !== tela;
+        t.classList.remove('entrando');
       });
-      mostrar(melhor);
+      if (!reduzirMovimento()) { void tela.offsetWidth; tela.classList.add('entrando'); }
+      $$('.d-hora', tela).forEach((h) => { h.textContent = agora(); });
+      marcarEtapa(tela.dataset.etapa);
+      if (ENTRAR[nome]) ENTRAR[nome](tela);
+      if (foco) {
+        const t = $('.d-titulo', tela);
+        if (t) t.focus({ preventScroll: true });
+      }
+    }
+
+    function preencherMotorista() {
+      const m = est.motorista;
+      $$('[data-mot="nome"]', demo).forEach((el) => { el.textContent = m.nome; });
+      $$('[data-mot="primeiro"]', demo).forEach((el) => { el.textContent = primeiro(); });
+      $$('[data-mot="iniciais"]', demo).forEach((el) => { el.textContent = iniciais(m.nome); });
+      $$('[data-mot="info"]', demo).forEach((el) => { el.textContent = `${m.nota} · CNH há ${m.cnh} anos`; });
+      $$('[data-mot="veiculo"]', demo).forEach((el) => { el.textContent = est.veiculo === 'patinete' ? 'o patinete' : 'a bike'; });
+      $$('use[data-mot="veic"]', demo).forEach((el) => el.setAttribute('href', est.veiculo === 'patinete' ? '#i-patinete' : '#i-bike'));
+    }
+
+    function desenharRota(rota, fim, rotulo) {
+      const d = destino();
+      rota.forEach((r) => r.setAttribute('d', d.rota));
+      fim.setAttribute('transform', `translate(${d.fim[0]} ${d.fim[1]})`);
+      rotulo.textContent = d.rotulo;
+      rotulo.setAttribute('x', d.fim[0] + 13);
+      rotulo.setAttribute('y', d.fim[1] + 3);
+    }
+
+    function atualizarOpcoes() {
+      const d = destino();
+      const p = preco();
+      $('#d-dest-t').textContent = `${d.nome} · ${d.bairro}`;
+      const chega = est.veic === 'qualquer' ? 'bike ou patinete' : (est.veic === 'bike' ? 'bike elétrica' : 'patinete');
+      $('#d-chega').textContent = est.quando === 'agendar' ? `${chega} · às ${est.hora}` : `${chega} · 6 min`;
+      $('#d-preco').textContent = brl(p.total);
+      $('#d-band').hidden = !p.adicional;
+      $('#d-pedir').textContent = est.quando === 'agendar' ? `Agendar para ${est.hora} · ${brl(p.total)}` : `Pedir Drink · ${brl(p.total)}`;
+      $$('[data-quando]', demo).forEach((b) => b.setAttribute('aria-checked', String(b.dataset.quando === est.quando)));
+      $('#d-horas').hidden = est.quando !== 'agendar';
+      $$('[data-hora]', demo).forEach((b) => b.setAttribute('aria-checked', String(b.dataset.hora === est.hora)));
+      $('#d-veic').textContent = VEICULOS[est.veic];
+      $('#d-cambio').textContent = est.cambio;
+      $('#d-pag').textContent = est.pag;
+      desenharRota([$('#d-rota-prev')], $('#d-fim-prev'), $('#d-rot-prev'));
+    }
+
+    function atualizarFotos() {
+      const n = est.fotos.size;
+      $$('.d-foto', demo).forEach((b) => b.setAttribute('aria-pressed', String(est.fotos.has(b.dataset.foto))));
+      $('#d-vist-barra').style.width = `${n * 20}%`;
+      const bt = $('#d-malas-bt');
+      bt.disabled = n < 5;
+      bt.textContent = n < 5 ? `${n} de 5 fotos` : `Guardar ${est.veiculo === 'patinete' ? 'o patinete' : 'a bike'}`;
+      const sub = $('#d-vist-sub');
+      sub.textContent = n < 5 ? 'Toque nos 5 pontos para fotografar' : `Seguro ativo desde ${agora()}`;
+      sub.classList.toggle('ok', n === 5);
+    }
+
+    function preencherRecibo() {
+      const d = destino();
+      const p = preco();
+      $('#d-fim-sub').textContent = `Chegada às ${est.chegada || agora()} · ${d.bairro}`;
+      const linha = (a, b, classe = '') => `<p${classe ? ` class="${classe}"` : ''}><span>${esc(a)}</span><b>${esc(b)}</b></p>`;
+      let html = linha('Saída', brl(p.saida)) + linha(`${d.km} km rodados`, brl(p.rodado));
+      if (p.adicional) html += linha('Bandeira 2 (+20%)', brl(p.adicional));
+      html += linha('Seguro da viagem', 'incluso');
+      if (est.gorjeta) html += linha('Gorjeta', brl(est.gorjeta));
+      html += linha(`Total · ${est.pag.split(' ')[0]}`, brl(p.total + est.gorjeta), 't-total');
+      $('#d-recibo').innerHTML = html;
+      $('#d-avaliar-t').textContent = `Como foi com ${est.motorista.nome.startsWith('Camila') || est.motorista.nome.startsWith('Juliana') ? 'a' : 'o'} ${primeiro()}?`;
+      $$('[data-nota]', demo).forEach((b) => {
+        const n = Number(b.dataset.nota);
+        b.classList.toggle('on', n <= est.nota);
+        b.setAttribute('aria-checked', String(n === est.nota));
+      });
+      $$('[data-gorjeta]', demo).forEach((b) => b.setAttribute('aria-checked', String(Number(b.dataset.gorjeta) === est.gorjeta)));
+    }
+
+    const ENTRAR = {
+      inicio(tela) {
+        const h = new Date().getHours();
+        $('.d-saudacao', tela).textContent = h >= 5 && h < 12 ? 'Bom dia' : (h >= 12 && h < 18 ? 'Boa tarde' : 'Boa noite');
+      },
+      opcoes: atualizarOpcoes,
+      buscando() {
+        esperar(2300, () => {
+          est.motorista = sortear(MOTORISTAS);
+          est.veiculo = est.veic === 'qualquer' ? (Math.random() < 0.5 ? 'bike' : 'patinete') : est.veic;
+          ir(est.quando === 'agendar' ? 'agendado' : 'caminho');
+        });
+      },
+      agendado() {
+        preencherMotorista();
+        $('#d-agendado-txt').textContent = `${est.motorista.nome} chega às ${est.hora}, de ${nomeVeiculo()}. Você recebe um aviso 10 minutos antes.`;
+      },
+      caminho() {
+        preencherMotorista();
+        const rota = $('#d-rota-aprox');
+        const bike = $('#d-bike');
+        const eta = $('#d-eta');
+        const bt = $('#d-vistoria-bt');
+        const titulo = $('#d-caminho-t');
+        const total = rota.getTotalLength();
+        const em = (f) => {
+          const p = rota.getPointAtLength(total * f);
+          bike.setAttribute('transform', `translate(${p.x.toFixed(1)} ${p.y.toFixed(1)})`);
+          rota.setAttribute('stroke-dasharray', `${(f * 100).toFixed(1)} 100`);
+        };
+        titulo.textContent = `${primeiro()} está a caminho`;
+        bt.disabled = true;
+        bt.textContent = 'Aguardando o Drink';
+        eta.innerHTML = 'Chega em <b>4 min</b>';
+        em(0);
+        paradas.push(animar(6000, (t) => {
+          em(suave(t));
+          if (t < 1) eta.innerHTML = `Chega em <b>${Math.max(1, 4 - Math.floor(t * 4))} min</b>`;
+        }, () => {
+          eta.innerHTML = '<b>Chegou</b> no Bar do Lucas';
+          titulo.textContent = `${primeiro()} chegou`;
+          bt.disabled = false;
+          bt.textContent = 'Fazer a vistoria';
+          aviso(`${primeiro()} chegou e conferiu o seu nome.`);
+        }));
+      },
+      vistoria() {
+        est.fotos = new Set();
+        atualizarFotos();
+      },
+      malas(tela) {
+        const patinete = est.veiculo === 'patinete';
+        $('#d-malas-t').textContent = patinete ? 'Patinete no porta-malas' : 'Bike no porta-malas';
+        $('#d-malas-sub').textContent = `${primeiro()} está guardando ${patinete ? 'o patinete' : 'a bike'}`;
+        $('#d-check-dobra').textContent = patinete ? 'Patinete dobrado e preso' : 'Bike dobrada e presa';
+        const carga = $('#d-carga');
+        if (patinete) {
+          carga.setAttribute('href', '#pat-dobrado');
+          carga.setAttribute('x', 52); carga.setAttribute('y', 96); carga.setAttribute('width', 96); carga.setAttribute('height', 32);
+        } else {
+          carga.setAttribute('href', '#bike-dobrada');
+          carga.setAttribute('x', 68); carga.setAttribute('y', 82); carga.setAttribute('width', 58); carga.setAttribute('height', 52);
+        }
+        const svg = $('.d-malas', tela);
+        const itens = $$('.d-checks li', tela);
+        const bt = $('#d-viagem-bt');
+        svg.classList.remove('guardada');
+        itens.forEach((li) => li.classList.remove('ok'));
+        bt.disabled = true;
+        bt.textContent = 'Guardando';
+        void svg.getBoundingClientRect();
+        esperar(60, () => svg.classList.add('guardada'));
+        itens.forEach((li, i) => esperar(900 + i * 650, () => li.classList.add('ok')));
+        esperar(900 + 3 * 650, () => {
+          bt.disabled = false;
+          bt.textContent = 'Começar a viagem';
+          $('#d-malas-sub').textContent = `Dobrad${patinete ? 'o' : 'a'} em 18 s`;
+        });
+      },
+      viagem() {
+        preencherMotorista();
+        const d = destino();
+        const rota = $('#d-rota');
+        const feita = $('#d-rota-feita');
+        const carro = $('#d-carro');
+        desenharRota([rota, feita], $('#d-fim'), $('#d-rot-fim'));
+        const minutos = Math.round(d.km * 1.8) + 2;
+        est.chegada = hhmm(new Date(Date.now() + minutos * 60000));
+        $('#d-chegada').textContent = est.chegada;
+        const total = rota.getTotalLength();
+        const em = (f) => {
+          const p = rota.getPointAtLength(total * f);
+          carro.setAttribute('transform', `translate(${p.x.toFixed(1)} ${p.y.toFixed(1)})`);
+          feita.setAttribute('stroke-dasharray', `${(f * 100).toFixed(1)} 100`);
+          $('#d-faltam').textContent = `${(d.km * (1 - f)).toFixed(1).replace('.', ',')} km`;
+        };
+        em(0);
+        paradas.push(animar(8000, (t) => em(suave(t)), () => esperar(700, () => ir('casa'))));
+      },
+      casa: preencherRecibo,
     };
+
+    // cliques dentro do celular
+    demo.addEventListener('click', (e) => {
+      const b = e.target.closest('button');
+      if (!b || !demo.contains(b) || b.disabled) return;
+      const ds = b.dataset;
+      if (b.id === 'demo-sair') { fecharCheia(); return; }
+      if (ds.destino) { est.destino = ds.destino; ir('opcoes'); return; }
+      if (ds.ir) { ir(ds.ir); return; }
+      if (ds.quando) { est.quando = ds.quando; atualizarOpcoes(); return; }
+      if (ds.hora) { est.hora = ds.hora; atualizarOpcoes(); return; }
+      if (ds.foto) {
+        if (est.fotos.has(ds.foto)) est.fotos.delete(ds.foto);
+        else {
+          est.fotos.add(ds.foto);
+          const carro = $('#d-vist-carro');
+          if (!reduzirMovimento()) { carro.classList.remove('clarao'); void carro.offsetWidth; carro.classList.add('clarao'); }
+        }
+        atualizarFotos();
+        return;
+      }
+      if (ds.nota) { est.nota = Number(ds.nota); preencherRecibo(); return; }
+      if (ds.gorjeta) { est.gorjeta = Number(ds.gorjeta); preencherRecibo(); return; }
+      if (ds.acao === 'mensagem') { aviso(`${primeiro()}: “Estou chegando de ${nomeVeiculo()}. Pode esperar na porta.”`); return; }
+      if (ds.acao === 'compartilhar') { aviso('Link ao vivo enviado para a Ana.'); return; }
+      if (ds.acao === 'ajuda') { aviso('A central do Drink vai ligar para você agora.'); return; }
+      switch (b.id) {
+        case 'd-veic': {
+          const ordem = Object.keys(VEICULOS);
+          est.veic = ordem[(ordem.indexOf(est.veic) + 1) % ordem.length];
+          atualizarOpcoes();
+          break;
+        }
+        case 'd-cambio': est.cambio = est.cambio === 'Automático' ? 'Manual' : 'Automático'; atualizarOpcoes(); break;
+        case 'd-pag': est.pag = est.pag === 'Pix' ? 'Cartão •••• 4821' : 'Pix'; atualizarOpcoes(); break;
+        case 'd-pedir': ir('buscando'); break;
+        case 'd-concluir':
+          aviso(est.nota ? `Obrigado! Você deu ${est.nota} ${est.nota === 1 ? 'estrela' : 'estrelas'}. O recibo ficou no app.` : 'Obrigado! O recibo ficou salvo no app.');
+          esperar(1600, () => { zerar(); ir('inicio'); });
+          break;
+        default:
+      }
+    });
+
+    // etapas ao lado: pulam direto para aquela parte
+    etapas.forEach((li) => $('button', li).addEventListener('click', () => {
+      const alvo = ETAPA_TELA[li.dataset.etapa];
+      if (alvo === 'inicio') zerar();
+      ir(alvo);
+    }));
+    $('#demo-recomecar').addEventListener('click', () => { zerar(); ir('inicio'); });
+
+    // tela cheia: no celular vira o próprio app; no computador, o aparelho no centro
+    const fundo = document.createElement('div');
+    fundo.className = 'app-fundo';
+    fundo.hidden = true;
+    document.body.appendChild(fundo);
+    let voltarPara = null;
+    function abrirCheia(origem) {
+      voltarPara = origem || document.activeElement;
+      $$('dialog[open]').forEach((d) => d.close());
+      document.body.classList.remove('menu-aberto');
+      const menu = $('#menu');
+      if (menu && !menu.hidden) $('#menu-btn').click();
+      fundo.hidden = false;
+      demo.classList.add('cheia');
+      document.body.classList.add('app-aberto');
+      demo.setAttribute('aria-modal', 'true');
+      demo.setAttribute('role', 'dialog');
+      const t = $('.d-tela:not([hidden]) .d-titulo', demo);
+      (t || $('#demo-sair')).focus({ preventScroll: true });
+    }
+    function fecharCheia() {
+      if (!demo.classList.contains('cheia')) return;
+      demo.classList.remove('cheia');
+      document.body.classList.remove('app-aberto');
+      demo.setAttribute('role', 'region');
+      demo.removeAttribute('aria-modal');
+      fundo.hidden = true;
+      if (voltarPara && voltarPara.focus) voltarPara.focus({ preventScroll: true });
+    }
+    document.addEventListener('click', (e) => {
+      const gatilho = e.target.closest('[data-app-cheia]');
+      if (!gatilho) return;
+      e.preventDefault();
+      abrirCheia(gatilho);
+    });
+    fundo.addEventListener('click', fecharCheia);
+    document.addEventListener('keydown', (e) => {
+      if (!demo.classList.contains('cheia')) return;
+      if (e.key === 'Escape') { fecharCheia(); return; }
+      if (e.key !== 'Tab') return;
+      // mantém o foco dentro do app aberto
+      const focaveis = $$('button:not([disabled])', demo).filter((el) => el.offsetParent !== null && !el.closest('[hidden]'));
+      if (!focaveis.length) return;
+      const primeiroEl = focaveis[0];
+      const ultimo = focaveis[focaveis.length - 1];
+      if (e.shiftKey && document.activeElement === primeiroEl) { e.preventDefault(); ultimo.focus(); }
+      else if (!e.shiftKey && document.activeElement === ultimo) { e.preventDefault(); primeiroEl.focus(); }
+    });
+
+    zerar();
+    ir('inicio', false);
+  }
+
+  /* ---------- tudo pelo app: quem pede e quem dirige ---------- */
+  function montarRecursos() {
+    const grade = $('#rec-grade');
+    if (!grade) return;
+    $$('input[name="rec-lado"]').forEach((r) => r.addEventListener('change', () => {
+      grade.dataset.lado = r.value;
+      grade.scrollLeft = 0;
+    }));
   }
 
   /* ---------- a dobra: desenho técnico que dobra de verdade ---------- */
@@ -750,7 +1069,6 @@
   montarFoneHero();
   montarMenu();
   const aoRolarTopo = montarNavegacao();
-  const aoRolarComo = montarComo();
   montarDobra();
   montarCalculadora();
   montarVistoria();
@@ -758,12 +1076,13 @@
   montarMotorista();
   montarDialogos();
   montarFaixas();
+  montarDemo();
+  montarRecursos();
 
   let pendente = false;
   function rolar() {
     pendente = false;
     aoRolarTopo();
-    aoRolarComo();
   }
   const pedirQuadro = () => { if (!pendente) { pendente = true; requestAnimationFrame(rolar); } };
   window.addEventListener('scroll', pedirQuadro, { passive: true });

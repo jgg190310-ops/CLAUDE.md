@@ -56,6 +56,14 @@
     <symbol id="i-qr" viewBox="0 0 24 24"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h2v2h-2zM18 14h2v2h-2zM14 18h2v2h-2zM18 18h2v2h-2z"/></symbol>
     <symbol id="i-sinal" viewBox="0 0 24 24"><path d="M4 19v-2M9.3 19v-5M14.6 19v-8M20 19V6" style="stroke-width:3"/></symbol>
     <symbol id="i-bat" viewBox="0 0 28 24"><rect x="2" y="7" width="21" height="10" rx="3"/><rect x="4.5" y="9.5" width="13" height="5" rx="1.2" style="fill:currentColor;stroke:none"/><path d="M25.5 10.5v3"/></symbol>
+    <symbol id="i-busca" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L20 20"/></symbol>
+    <symbol id="i-voltar" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></symbol>
+    <symbol id="i-maleta" viewBox="0 0 24 24"><rect x="3.5" y="7.5" width="17" height="12" rx="2"/><path d="M9 7.5V6a1.5 1.5 0 011.5-1.5h3A1.5 1.5 0 0115 6v1.5M3.5 12.5h17"/></symbol>
+    <symbol id="i-expandir" viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></symbol>
+    <symbol id="i-recomecar" viewBox="0 0 24 24"><path d="M4.5 12a7.5 7.5 0 107.5-7.5H7.5"/><path d="M10 2L7.5 4.5 10 7"/></symbol>
+    <symbol id="i-celular" viewBox="0 0 24 24"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M10.5 18.5h3"/></symbol>
+    <symbol id="i-cartao" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10h18M6.5 14.5h4"/></symbol>
+    <symbol id="i-toque" viewBox="0 0 24 24"><circle cx="12" cy="12" r="2.5"/><circle cx="12" cy="12" r="6.5" style="stroke-dasharray:2 2.6"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2"/></symbol>
     <symbol id="i-copo" viewBox="0 0 32 32"><path d="M4 5h24L16 18z" style="fill:var(--copo, #FFA53A);stroke:none"/><path d="M16 18v9M10 28h12" style="stroke-width:2.4"/><circle cx="21" cy="9" r="3.6" style="stroke-width:2"/><path d="M21 5.4v7.2M17.4 9h7.2" style="stroke-width:1.4"/></symbol>
 
     <!-- mapa de Belo Horizonte, estilizado: quadras em grade cortadas por avenidas diagonais -->
@@ -98,6 +106,16 @@
       </g>
     </symbol>
 
+    <!-- patinete dobrado, com as mesmas medidas do desenho técnico -->
+    <symbol id="pat-dobrado" viewBox="0 64 120 38">
+      <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="14" cy="89" r="11"/>
+        <circle cx="106" cy="89" r="11"/>
+        <rect x="22" y="84" width="66" height="6" rx="2"/>
+        <path d="M1.5 89A12.5 12.5 0 0 1 24.8 82.75M88 86l16.5-8M106 89l-2.4-19M103.6 70L19.2 77.4M18.9 85.4l.7-16"/>
+      </g>
+    </symbol>
+
     <radialGradient id="g-poste" cx="50%" cy="50%" r="50%">
       <stop offset="0" stop-color="#FFC57A" stop-opacity=".9"/>
       <stop offset=".35" stop-color="#FFA53A" stop-opacity=".35"/>
@@ -113,14 +131,14 @@
       <span>Drink</span>
     </a>
     <nav class="nav" aria-label="Seções">
-      <a href="#como-funciona" data-aba="como">Como funciona</a>
+      <a href="#app" data-aba="app">O app</a>
       <a href="#dobra" data-aba="dobra">A dobra</a>
       <a href="#preco" data-aba="preco">Preço</a>
       <a href="#seguranca" data-aba="seguranca">Segurança</a>
       <a href="#eventos" data-aba="eventos">Eventos</a>
       <a href="#motorista" data-aba="motorista">Seja um Drink</a>
     </nav>
-    <a class="btn btn-sodio btn-p topo-cta" href="#pedir">Pedir<span class="cta-longo">&nbsp;um Drink</span></a>
+    <a class="btn btn-sodio btn-p topo-cta" href="#app" data-app-cheia>Pedir<span class="cta-longo">&nbsp;um Drink</span></a>
     <button class="menu-btn" id="menu-btn" type="button" aria-expanded="false" aria-controls="menu">
       <svg class="i" aria-hidden="true"><use href="#i-menu"/></svg><span class="sr">Abrir o menu</span>
     </button>
@@ -129,7 +147,8 @@
 
 <div class="menu" id="menu" hidden>
   <nav class="menu-nav" aria-label="Menu">
-    <a href="#como-funciona">Como funciona</a>
+    <a href="#app">O app</a>
+    <a href="#recursos">Tudo pelo app</a>
     <a href="#dobra">A dobra</a>
     <a href="#preco">Preço</a>
     <a href="#seguranca">Segurança</a>
@@ -137,7 +156,7 @@
     <a href="#motorista">Seja um Drink</a>
     <a href="#perguntas">Perguntas</a>
   </nav>
-  <a class="btn btn-sodio btn-cheio" href="#pedir">Pedir um Drink</a>
+  <a class="btn btn-sodio btn-cheio" href="#app" data-app-cheia>Abrir o app</a>
 </div>
 
 <main id="conteudo">
@@ -151,8 +170,8 @@
         <h1 class="hero-titulo" id="hero-titulo"><span class="ht-a">Pede um</span> <span class="ht-b">Drink.</span></h1>
         <p class="hero-lede">O Drink chega de bike elétrica ou patinete, dobra tudo no seu porta-malas e leva você e o seu carro para casa.</p>
         <div class="acoes">
-          <a class="btn btn-sodio" href="#pedir">Pedir um Drink<svg class="i" aria-hidden="true"><use href="#i-seta"/></svg></a>
-          <a class="btn btn-vidro" href="#como-funciona">Como funciona</a>
+          <a class="btn btn-sodio" href="#app" data-app-cheia>Pedir um Drink<svg class="i" aria-hidden="true"><use href="#i-seta"/></svg></a>
+          <a class="btn btn-vidro" href="#app"><svg class="i" aria-hidden="true"><use href="#i-celular"/></svg>Experimente o app</a>
         </div>
         <ul class="hero-fatos">
           <li><svg class="i" aria-hidden="true"><use href="#i-carteira"/></svg>R$ 25 + R$ 3,50 por km</li>
@@ -162,6 +181,65 @@
       </div>
 
       <div class="hero-visual" aria-hidden="true">
+        <div class="fone fone-lado fone-lado-esq">
+          <div class="fone-tela">
+            <div class="fone-ilha"></div>
+            <div class="tela ativa">
+              <div class="t-barra"><span>23:41</span><span class="t-ic"><svg><use href="#i-sinal"/></svg><svg class="t-bat"><use href="#i-bat"/></svg></span></div>
+              <div class="t-mapa">
+                <svg viewBox="0 0 280 320" preserveAspectRatio="xMidYMid slice">
+                  <use href="#mapa" width="280" height="320"/>
+                  <g class="m-perto">
+                    <circle cx="78" cy="104" r="5"/><circle cx="226" cy="94" r="5"/><circle cx="204" cy="262" r="5"/>
+                  </g>
+                  <circle class="m-anel" cx="140" cy="170" r="20"/>
+                  <circle class="m-voce" cx="140" cy="170" r="7"/>
+                </svg>
+                <p class="t-chip t-chip-topo"><span class="t-ponto"></span>3 Drinks por perto</p>
+              </div>
+              <div class="t-folha">
+                <p class="t-rot">Para onde?</p>
+                <div class="t-rota">
+                  <p><span class="t-bol"></span>Bar do Lucas, Savassi</p>
+                  <p><span class="t-bol t-bol-fim"></span>Casa, Buritis</p>
+                </div>
+                <div class="t-opcao">
+                  <svg class="t-opcao-ic"><use href="#i-bike"/></svg>
+                  <div><b>Drink</b><span>bike ou patinete · 6 min</span></div>
+                  <b class="t-preco">R$ 56,50</b>
+                </div>
+                <p class="t-botao">Pedir Drink</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="fone fone-lado fone-lado-dir">
+          <div class="fone-tela">
+            <div class="fone-ilha"></div>
+            <div class="tela ativa">
+              <div class="t-barra"><span>23:44</span><span class="t-ic"><svg><use href="#i-sinal"/></svg><svg class="t-bat"><use href="#i-bat"/></svg></span></div>
+              <div class="t-mapa">
+                <svg viewBox="0 0 280 320" preserveAspectRatio="xMidYMid slice">
+                  <use href="#mapa" width="280" height="320"/>
+                  <path class="m-rota" d="M270 40L140 170"/>
+                  <path class="m-rota-feita" d="M270 40L140 170" pathLength="100" stroke-dasharray="65 100"/>
+                  <g class="m-bike" transform="translate(185.5 124.5)"><circle class="m-carro-halo" r="14"/><circle r="8.5"/><use href="#i-bike" x="-5.5" y="-5.5" width="11" height="11"/></g>
+                  <circle class="m-voce" cx="140" cy="170" r="7"/>
+                </svg>
+                <p class="t-chip t-chip-topo">Chega em <b>4 min</b></p>
+              </div>
+              <div class="t-folha">
+                <p class="t-titulo">Rafael está a caminho</p>
+                <div class="t-mot">
+                  <span class="t-av">RS</span>
+                  <div><b>Rafael S.</b><span><svg class="t-estrela"><use href="#i-estrela"/></svg>4,9 · CNH há 9 anos</span></div>
+                  <span class="t-veic"><svg><use href="#i-bike"/></svg></span>
+                </div>
+                <div class="t-acoes"><p class="t-bt"><svg><use href="#i-mensagem"/></svg>Mensagem</p><p class="t-bt"><svg><use href="#i-compartilhar"/></svg>Compartilhar</p></div>
+              </div>
+            </div>
+          </div>
+        </div>
         <div class="fone fone-hero">
           <div class="fone-tela">
             <div class="fone-ilha"></div>
@@ -214,218 +292,420 @@
     </ul>
   </section>
 
-  <!-- ================= Como funciona ================= -->
-  <section class="como" id="como-funciona" data-secao="como" aria-labelledby="como-titulo">
-    <div class="wrap cab">
-      <p class="rotulo">Como funciona</p>
-      <h2 id="como-titulo">Da mesa do bar à sua garagem.</h2>
-      <p class="lede">Seis passos, do pedido à chave na sua mão. Role a página para acompanhar a volta no app.</p>
-    </div>
+  <!-- ================= Experimente o app ================= -->
+  <section class="demo" id="app" data-secao="app" aria-labelledby="app-titulo">
+    <div class="wrap demo-grade">
+      <div class="demo-cab">
+        <p class="rotulo">Como funciona</p>
+        <h2 id="app-titulo">Experimente o app.</h2>
+        <p class="lede">Toque no celular e faça um pedido de mentira, da mesa do bar até a chave na sua mão. Na demonstração, tudo acontece em segundos.</p>
+      </div>
 
-    <div class="wrap como-grade">
-      <div class="como-palco" aria-hidden="true">
-        <div class="fone" id="fone" data-tela="1">
+      <div class="demo-palco">
+        <div class="fone fone-demo" id="demo" role="region" aria-label="Protótipo do app do Drink">
           <div class="fone-tela">
-            <div class="fone-ilha"></div>
+            <div class="fone-ilha" aria-hidden="true"></div>
+            <button type="button" class="d-sair" id="demo-sair" aria-label="Fechar o app e voltar ao site"><svg class="i" aria-hidden="true"><use href="#i-fechar"/></svg></button>
 
-            <!-- 1. pedido -->
-            <div class="tela ativa" data-tela="1">
-              <div class="t-barra"><span>23:41</span><span class="t-ic"><svg><use href="#i-sinal"/></svg><svg class="t-bat"><use href="#i-bat"/></svg></span></div>
-              <div class="t-mapa">
+            <!-- início -->
+            <div class="d-tela" data-d="inicio" data-etapa="pedir">
+              <div class="t-barra" aria-hidden="true"><span class="d-hora">23:41</span><span class="t-ic"><svg><use href="#i-sinal"/></svg><svg class="t-bat"><use href="#i-bat"/></svg></span></div>
+              <div class="t-mapa" aria-hidden="true">
                 <svg viewBox="0 0 280 320" preserveAspectRatio="xMidYMid slice">
                   <use href="#mapa" width="280" height="320"/>
-                  <g class="m-perto">
-                    <circle cx="78" cy="104" r="5"/><circle cx="226" cy="94" r="5"/><circle cx="204" cy="262" r="5"/>
-                  </g>
+                  <g class="m-perto"><circle cx="78" cy="104" r="5"/><circle cx="226" cy="94" r="5"/><circle cx="204" cy="262" r="5"/></g>
                   <circle class="m-anel" cx="140" cy="170" r="20"/>
                   <circle class="m-voce" cx="140" cy="170" r="7"/>
                 </svg>
-                <p class="t-chip t-chip-topo"><span class="t-ponto"></span>3 Drinks por perto</p>
+                <p class="t-chip t-chip-topo"><span class="t-ponto"></span>3 Drinks a menos de 1 km</p>
               </div>
               <div class="t-folha">
-                <p class="t-rot">Para onde?</p>
-                <div class="t-rota">
-                  <p><span class="t-bol"></span>Bar do Lucas, Savassi</p>
-                  <p><span class="t-bol t-bol-fim"></span>Casa, Buritis</p>
+                <h3 class="d-titulo d-ola" tabindex="-1"><span class="d-saudacao">Boa noite</span>, Ana</h3>
+                <p class="d-local"><svg aria-hidden="true"><use href="#i-pin"/></svg>Você está no Bar do Lucas, Savassi</p>
+                <button type="button" class="d-busca" data-ir="destino"><svg aria-hidden="true"><use href="#i-busca"/></svg>Para onde?</button>
+                <div class="d-atalhos">
+                  <button type="button" data-destino="casa"><svg aria-hidden="true"><use href="#i-casa"/></svg><span><b>Casa</b><small>Buritis · 9 km</small></span></button>
+                  <button type="button" data-destino="trabalho"><svg aria-hidden="true"><use href="#i-maleta"/></svg><span><b>Trabalho</b><small>Funcionários · 3 km</small></span></button>
                 </div>
-                <div class="t-opcao">
-                  <svg class="t-opcao-ic"><use href="#i-bike"/></svg>
-                  <div><b>Drink</b><span>bike ou patinete · 6 min</span></div>
-                  <b class="t-preco">R$ 56,50</b>
-                </div>
-                <p class="t-botao">Pedir Drink</p>
               </div>
             </div>
 
-            <!-- 2. a caminho -->
-            <div class="tela" data-tela="2">
-              <div class="t-barra"><span>23:44</span><span class="t-ic"><svg><use href="#i-sinal"/></svg><svg class="t-bat"><use href="#i-bat"/></svg></span></div>
+            <!-- destino -->
+            <div class="d-tela" data-d="destino" data-etapa="pedir" hidden>
+              <div class="t-barra" aria-hidden="true"><span class="d-hora">23:41</span><span class="t-ic"><svg><use href="#i-sinal"/></svg><svg class="t-bat"><use href="#i-bat"/></svg></span></div>
+              <div class="d-cab">
+                <button type="button" class="d-voltar" data-ir="inicio" aria-label="Voltar"><svg aria-hidden="true"><use href="#i-voltar"/></svg></button>
+                <h3 class="d-titulo" tabindex="-1">Para onde?</h3>
+              </div>
+              <div class="d-campos" aria-hidden="true">
+                <p><span class="t-bol"></span>Bar do Lucas, Savassi</p>
+                <p class="d-campo-ativo"><span class="t-bol t-bol-fim"></span>Escolha o destino</p>
+              </div>
+              <p class="d-sec">Salvos</p>
+              <ul class="d-lista">
+                <li><button type="button" data-destino="casa"><svg aria-hidden="true"><use href="#i-casa"/></svg><span><b>Casa</b><small>Buritis</small></span><em>9 km</em></button></li>
+                <li><button type="button" data-destino="trabalho"><svg aria-hidden="true"><use href="#i-maleta"/></svg><span><b>Trabalho</b><small>Funcionários</small></span><em>3 km</em></button></li>
+                <li><button type="button" data-destino="bia"><svg aria-hidden="true"><use href="#i-pin"/></svg><span><b>Casa da Bia</b><small>Sion</small></span><em>6 km</em></button></li>
+              </ul>
+              <p class="d-sec">Recentes</p>
+              <ul class="d-lista">
+                <li><button type="button" data-destino="pampulha"><svg aria-hidden="true"><use href="#i-relogio"/></svg><span><b>Orla da Pampulha</b><small>Pampulha</small></span><em>14 km</em></button></li>
+              </ul>
+            </div>
+
+            <!-- opções e preço -->
+            <div class="d-tela" data-d="opcoes" data-etapa="pedir" hidden>
+              <div class="t-barra" aria-hidden="true"><span class="d-hora">23:41</span><span class="t-ic"><svg><use href="#i-sinal"/></svg><svg class="t-bat"><use href="#i-bat"/></svg></span></div>
+              <div class="t-mapa d-mapa-curto">
+                <svg viewBox="0 0 280 320" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+                  <use href="#mapa" width="280" height="320"/>
+                  <path class="m-rota-feita m-previa" id="d-rota-prev" d="M140 170L60 250V292"/>
+                  <circle class="m-inicio" cx="140" cy="170" r="5"/>
+                  <g class="m-casa" id="d-fim-prev" transform="translate(60 292)"><circle r="9"/><use href="#i-pin" x="-6" y="-6.5" width="12" height="12"/></g>
+                  <text class="m-rot" id="d-rot-prev" x="0" y="0"></text>
+                </svg>
+                <button type="button" class="d-voltar d-voltar-flut" data-ir="destino" aria-label="Voltar"><svg aria-hidden="true"><use href="#i-voltar"/></svg></button>
+              </div>
+              <div class="t-folha">
+                <h3 class="d-titulo" id="d-dest-t" tabindex="-1">Casa · Buritis</h3>
+                <div class="t-opcao">
+                  <svg class="t-opcao-ic" aria-hidden="true"><use href="#i-bike"/></svg>
+                  <div><b>Drink</b><span id="d-chega">bike ou patinete · 6 min</span></div>
+                  <b class="t-preco"><span id="d-preco">R$ 56,50</span><small id="d-band" hidden>bandeira 2</small></b>
+                </div>
+                <div class="d-seg" role="radiogroup" aria-label="Quando">
+                  <button type="button" role="radio" aria-checked="true" data-quando="agora">Agora</button>
+                  <button type="button" role="radio" aria-checked="false" data-quando="agendar">Agendar</button>
+                </div>
+                <div class="d-horas" id="d-horas" role="radiogroup" aria-label="Horário" hidden>
+                  <button type="button" role="radio" aria-checked="false" data-hora="23:30">23:30</button>
+                  <button type="button" role="radio" aria-checked="false" data-hora="00:00">00:00</button>
+                  <button type="button" role="radio" aria-checked="false" data-hora="00:30">00:30</button>
+                  <button type="button" role="radio" aria-checked="false" data-hora="01:00">01:00</button>
+                  <button type="button" role="radio" aria-checked="true" data-hora="01:30">01:30</button>
+                </div>
+                <ul class="d-linhas">
+                  <li><span>Chega de</span><button type="button" id="d-veic">Tanto faz</button></li>
+                  <li><span>Câmbio</span><button type="button" id="d-cambio">Automático</button></li>
+                  <li><span>Pagamento</span><button type="button" id="d-pag">Pix</button></li>
+                </ul>
+                <button type="button" class="t-botao" id="d-pedir">Pedir Drink · R$ 56,50</button>
+              </div>
+            </div>
+
+            <!-- procurando -->
+            <div class="d-tela d-centro" data-d="buscando" data-etapa="pedir" hidden>
+              <div class="t-barra" aria-hidden="true"><span class="d-hora">23:41</span><span class="t-ic"><svg><use href="#i-sinal"/></svg><svg class="t-bat"><use href="#i-bat"/></svg></span></div>
+              <div class="d-meio">
+                <div class="d-radar" aria-hidden="true"><span></span><span></span><span></span><svg><use href="#i-bike"/></svg></div>
+                <h3 class="d-titulo" tabindex="-1">Procurando um Drink</h3>
+                <p class="t-sub">perto do Bar do Lucas, Savassi</p>
+              </div>
+              <button type="button" class="t-bt d-baixo" data-ir="opcoes">Cancelar</button>
+            </div>
+
+            <!-- agendado -->
+            <div class="d-tela d-centro" data-d="agendado" data-etapa="pedir" hidden>
+              <div class="t-barra" aria-hidden="true"><span class="d-hora">23:41</span><span class="t-ic"><svg><use href="#i-sinal"/></svg><svg class="t-bat"><use href="#i-bat"/></svg></span></div>
+              <div class="d-meio">
+                <span class="t-fim-ic d-ic-sodio" aria-hidden="true"><svg><use href="#i-calendario"/></svg></span>
+                <h3 class="d-titulo" tabindex="-1">Volta agendada</h3>
+                <p class="t-sub" id="d-agendado-txt">Rafael S. chega às 01:30. Você recebe um aviso 10 minutos antes.</p>
+                <div class="t-mot d-mot-cartao">
+                  <span class="t-av" data-mot="iniciais">RS</span>
+                  <div><b data-mot="nome">Rafael S.</b><span><svg class="t-estrela" aria-hidden="true"><use href="#i-estrela"/></svg><span data-mot="info">4,9 · CNH há 9 anos</span></span></div>
+                </div>
+              </div>
+              <button type="button" class="t-botao d-baixo" data-ir="caminho">Pular para a hora (demonstração)</button>
+            </div>
+
+            <!-- a caminho -->
+            <div class="d-tela" data-d="caminho" data-etapa="caminho" hidden>
+              <div class="t-barra" aria-hidden="true"><span class="d-hora">23:44</span><span class="t-ic"><svg><use href="#i-sinal"/></svg><svg class="t-bat"><use href="#i-bat"/></svg></span></div>
               <div class="t-mapa">
-                <svg viewBox="0 0 280 320" preserveAspectRatio="xMidYMid slice">
+                <svg viewBox="0 0 280 320" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
                   <use href="#mapa" width="280" height="320"/>
                   <path class="m-rota" d="M270 40L140 170"/>
-                  <path class="m-rota-feita" d="M270 40L140 170" pathLength="100" stroke-dasharray="65 100"/>
-                  <g class="m-bike" transform="translate(185.5 124.5)"><circle class="m-carro-halo" r="14"/><circle r="8.5"/><use href="#i-bike" x="-5.5" y="-5.5" width="11" height="11"/></g>
+                  <path class="m-rota-feita" id="d-rota-aprox" d="M270 40L140 170" pathLength="100" stroke-dasharray="0 100"/>
                   <circle class="m-voce" cx="140" cy="170" r="7"/>
+                  <g class="m-bike" id="d-bike" transform="translate(270 40)"><circle class="m-carro-halo" r="14"/><circle r="8.5"/><use data-mot="veic" href="#i-bike" x="-5.5" y="-5.5" width="11" height="11"/></g>
                 </svg>
-                <p class="t-chip t-chip-topo">Chega em <b>4 min</b></p>
+                <p class="t-chip t-chip-topo" id="d-eta" aria-live="polite">Chega em <b>4 min</b></p>
               </div>
               <div class="t-folha">
-                <p class="t-titulo">Rafael está a caminho</p>
+                <h3 class="d-titulo" id="d-caminho-t" tabindex="-1">Rafael está a caminho</h3>
                 <div class="t-mot">
-                  <span class="t-av">RS</span>
-                  <div><b>Rafael S.</b><span><svg class="t-estrela"><use href="#i-estrela"/></svg>4,9 · CNH há 9 anos</span></div>
-                  <span class="t-veic"><svg><use href="#i-bike"/></svg></span>
+                  <span class="t-av" data-mot="iniciais">RS</span>
+                  <div><b data-mot="nome">Rafael S.</b><span><svg class="t-estrela" aria-hidden="true"><use href="#i-estrela"/></svg><span data-mot="info">4,9 · CNH há 9 anos</span></span></div>
+                  <span class="t-veic" aria-hidden="true"><svg><use data-mot="veic" href="#i-bike"/></svg></span>
                 </div>
-                <div class="t-acoes"><p class="t-bt"><svg><use href="#i-mensagem"/></svg>Mensagem</p><p class="t-bt"><svg><use href="#i-compartilhar"/></svg>Compartilhar</p></div>
+                <div class="t-acoes">
+                  <button type="button" class="t-bt" data-acao="mensagem"><svg aria-hidden="true"><use href="#i-mensagem"/></svg>Mensagem</button>
+                  <button type="button" class="t-bt" data-acao="compartilhar"><svg aria-hidden="true"><use href="#i-compartilhar"/></svg>Compartilhar</button>
+                </div>
+                <button type="button" class="t-botao" id="d-vistoria-bt" data-ir="vistoria" disabled>Aguardando o Drink</button>
               </div>
             </div>
 
-            <!-- 3. vistoria -->
-            <div class="tela" data-tela="3">
-              <div class="t-barra"><span>23:48</span><span class="t-ic"><svg><use href="#i-sinal"/></svg><svg class="t-bat"><use href="#i-bat"/></svg></span></div>
+            <!-- vistoria -->
+            <div class="d-tela" data-d="vistoria" data-etapa="vistoria" hidden>
+              <div class="t-barra" aria-hidden="true"><span class="d-hora">23:48</span><span class="t-ic"><svg><use href="#i-sinal"/></svg><svg class="t-bat"><use href="#i-bat"/></svg></span></div>
               <div class="t-cab">
-                <p class="t-titulo">Vistoria do carro</p>
-                <p class="t-sub">5 de 5 fotos · 48.210 km · tanque ½</p>
+                <h3 class="d-titulo t-titulo" tabindex="-1">Vistoria do carro</h3>
+                <p class="t-sub" id="d-vist-sub" aria-live="polite">Toque nos 5 pontos para fotografar</p>
               </div>
               <div class="t-vist">
-                <div class="t-vist-in">
-                  <svg class="t-vist-carro" viewBox="0 0 160 260"><use href="#carro-topo"/></svg>
-                  <span class="t-vp" style="--x:50%;--y:5%"></span>
-                  <span class="t-vp" style="--x:50%;--y:95%"></span>
-                  <span class="t-vp" style="--x:12%;--y:60%"></span>
-                  <span class="t-vp" style="--x:88%;--y:60%"></span>
-                  <span class="t-vp" style="--x:50%;--y:38%"></span>
+                <div class="t-vist-in" id="d-vist-carro">
+                  <svg class="t-vist-carro" viewBox="0 0 160 260" aria-hidden="true"><use href="#carro-topo"/></svg>
+                  <button type="button" class="d-foto" data-foto="frente" style="--x:50%;--y:5%" aria-pressed="false" aria-label="Fotografar a frente"><svg aria-hidden="true"><use href="#i-camera"/></svg></button>
+                  <button type="button" class="d-foto" data-foto="painel" style="--x:50%;--y:38%" aria-pressed="false" aria-label="Fotografar o painel"><svg aria-hidden="true"><use href="#i-camera"/></svg></button>
+                  <button type="button" class="d-foto" data-foto="esquerda" style="--x:12%;--y:62%" aria-pressed="false" aria-label="Fotografar o lado esquerdo"><svg aria-hidden="true"><use href="#i-camera"/></svg></button>
+                  <button type="button" class="d-foto" data-foto="direita" style="--x:88%;--y:62%" aria-pressed="false" aria-label="Fotografar o lado direito"><svg aria-hidden="true"><use href="#i-camera"/></svg></button>
+                  <button type="button" class="d-foto" data-foto="traseira" style="--x:50%;--y:95%" aria-pressed="false" aria-label="Fotografar a traseira"><svg aria-hidden="true"><use href="#i-camera"/></svg></button>
                 </div>
               </div>
-              <ul class="t-fotos">
-                <li>Frente</li><li>Traseira</li><li>Esquerda</li><li>Direita</li><li>Painel</li>
-              </ul>
-              <p class="t-ok"><svg><use href="#i-escudo"/></svg>Seguro ativo desde 23:49</p>
+              <div class="d-progresso" aria-hidden="true"><span id="d-vist-barra"></span></div>
+              <button type="button" class="t-botao" id="d-malas-bt" data-ir="malas" disabled>0 de 5 fotos</button>
             </div>
 
-            <!-- 4. porta-malas -->
-            <div class="tela" data-tela="4">
-              <div class="t-barra"><span>23:50</span><span class="t-ic"><svg><use href="#i-sinal"/></svg><svg class="t-bat"><use href="#i-bat"/></svg></span></div>
+            <!-- porta-malas -->
+            <div class="d-tela" data-d="malas" data-etapa="malas" hidden>
+              <div class="t-barra" aria-hidden="true"><span class="d-hora">23:50</span><span class="t-ic"><svg><use href="#i-sinal"/></svg><svg class="t-bat"><use href="#i-bat"/></svg></span></div>
               <div class="t-cab">
-                <p class="t-titulo">Bike no porta-malas</p>
-                <p class="t-sub">Dobrada em 18 s</p>
+                <h3 class="d-titulo t-titulo" id="d-malas-t" tabindex="-1">Bike no porta-malas</h3>
+                <p class="t-sub" id="d-malas-sub">Rafael está guardando a bike</p>
               </div>
-              <svg class="t-malas" viewBox="0 0 200 170">
+              <svg class="t-malas d-malas" viewBox="0 0 200 170" aria-hidden="true">
                 <g fill="none" stroke-linecap="round" stroke-linejoin="round">
                   <path class="tm-tampa" d="M44 78L58 14h84l14 64"/>
                   <path class="tm-tampa" d="M62 24h76l8 40H54z"/>
                   <path class="tm-corpo" d="M16 158v-60q0-12 10-18l18-8h112l18 8q10 6 10 18v60z"/>
                   <rect class="tm-vao" x="44" y="80" width="112" height="54" rx="6"/>
-                  <use class="tm-bike" href="#bike-dobrada" x="68" y="82" width="58" height="52"/>
+                  <g class="d-carga"><use class="tm-bike" id="d-carga" href="#bike-dobrada" x="68" y="82" width="58" height="52"/></g>
                   <path class="tm-capa" d="M50 128q10-4 20 0t20 0 20 0 20 0 20 0"/>
                   <path class="tm-luz" d="M24 104h18M158 104h18"/>
                   <path class="tm-corpo" d="M28 158v8h24v-8M148 158v8h24v-8"/>
                 </g>
               </svg>
-              <ul class="t-lista">
-                <li><svg><use href="#i-check"/></svg>Capa protetora no porta-malas</li>
-                <li><svg><use href="#i-check"/></svg>Bike dobrada e presa</li>
-                <li><svg><use href="#i-check"/></svg>Porta-malas fechado</li>
+              <ul class="t-lista d-checks">
+                <li><svg aria-hidden="true"><use href="#i-check"/></svg>Capa protetora no porta-malas</li>
+                <li><svg aria-hidden="true"><use href="#i-check"/></svg><span id="d-check-dobra">Bike dobrada e presa</span></li>
+                <li><svg aria-hidden="true"><use href="#i-check"/></svg>Porta-malas fechado</li>
               </ul>
-              <p class="t-botao">Começar a viagem</p>
+              <button type="button" class="t-botao" id="d-viagem-bt" data-ir="viagem" disabled>Guardando</button>
             </div>
 
-            <!-- 5. em viagem -->
-            <div class="tela" data-tela="5">
-              <div class="t-barra"><span>23:58</span><span class="t-ic"><svg><use href="#i-sinal"/></svg><svg class="t-bat"><use href="#i-bat"/></svg></span></div>
+            <!-- em viagem -->
+            <div class="d-tela" data-d="viagem" data-etapa="viagem" hidden>
+              <div class="t-barra" aria-hidden="true"><span class="d-hora">23:51</span><span class="t-ic"><svg><use href="#i-sinal"/></svg><svg class="t-bat"><use href="#i-bat"/></svg></span></div>
               <div class="t-mapa">
-                <svg viewBox="0 0 280 320" preserveAspectRatio="xMidYMid slice">
+                <svg viewBox="0 0 280 320" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
                   <use href="#mapa" width="280" height="320"/>
-                  <path class="m-rota" d="M140 170L60 250V292"/>
-                  <path class="m-rota-feita" d="M140 170L60 250V292" pathLength="100" stroke-dasharray="55 100"/>
+                  <path class="m-rota" id="d-rota" d="M140 170L60 250V292"/>
+                  <path class="m-rota-feita" id="d-rota-feita" d="M140 170L60 250V292" pathLength="100" stroke-dasharray="0 100"/>
                   <circle class="m-inicio" cx="140" cy="170" r="4"/>
-                  <g class="m-casa" transform="translate(60 292)"><circle r="9"/><use href="#i-casa" x="-6" y="-6.5" width="12" height="12"/></g>
-                  <g class="m-carro" transform="translate(79.7 230.3)"><circle class="m-carro-halo" r="15"/><circle r="8.5"/><use href="#carro-topo" x="-4" y="-6.5" width="8" height="13"/></g>
+                  <g class="m-casa" id="d-fim" transform="translate(60 292)"><circle r="9"/><use href="#i-pin" x="-6" y="-6.5" width="12" height="12"/></g>
+                  <text class="m-rot" id="d-rot-fim" x="0" y="0"></text>
+                  <g class="m-carro" id="d-carro" transform="translate(140 170)"><circle class="m-carro-halo" r="15"/><circle r="8.5"/><use href="#carro-topo" x="-4" y="-6.5" width="8" height="13"/></g>
                 </svg>
-                <p class="t-chip t-chip-topo"><span class="t-vivo"></span>Ao vivo · compartilhada com Ana</p>
+                <p class="t-chip t-chip-topo"><span class="t-vivo"></span>Ao vivo</p>
               </div>
               <div class="t-folha">
+                <h3 class="d-titulo sr" tabindex="-1">Em viagem</h3>
                 <div class="t-chegada">
-                  <div><p class="t-rot">Chegada</p><p class="t-grande">00:07</p></div>
-                  <div class="t-dir"><p class="t-rot">Faltam</p><p class="t-medio">3,8 km</p></div>
+                  <div><p class="t-rot">Chegada</p><p class="t-grande" id="d-chegada">00:07</p></div>
+                  <div class="t-dir"><p class="t-rot">Faltam</p><p class="t-medio" id="d-faltam">9,0 km</p></div>
                 </div>
                 <div class="t-mot">
-                  <span class="t-av">RS</span>
-                  <div><b>Rafael está dirigindo</b><span>o seu carro, com a bike no porta-malas</span></div>
+                  <span class="t-av" data-mot="iniciais">RS</span>
+                  <div><b><span data-mot="primeiro">Rafael</span> está dirigindo</b><span>o seu carro, com <span data-mot="veiculo">a bike</span> no porta-malas</span></div>
+                </div>
+                <div class="t-acoes">
+                  <button type="button" class="t-bt" data-acao="compartilhar"><svg aria-hidden="true"><use href="#i-compartilhar"/></svg>Compartilhar</button>
+                  <button type="button" class="t-bt" data-acao="ajuda"><svg aria-hidden="true"><use href="#i-ajuda"/></svg>Ajuda</button>
                 </div>
               </div>
             </div>
 
-            <!-- 6. em casa -->
-            <div class="tela" data-tela="6">
-              <div class="t-barra"><span>00:08</span><span class="t-ic"><svg><use href="#i-sinal"/></svg><svg class="t-bat"><use href="#i-bat"/></svg></span></div>
+            <!-- em casa -->
+            <div class="d-tela" data-d="casa" data-etapa="casa" hidden>
+              <div class="t-barra" aria-hidden="true"><span class="d-hora">00:08</span><span class="t-ic"><svg><use href="#i-sinal"/></svg><svg class="t-bat"><use href="#i-bat"/></svg></span></div>
               <div class="t-fim">
-                <span class="t-fim-ic"><svg><use href="#i-casa"/></svg></span>
-                <p class="t-titulo">Carro na garagem.<br>Chave na sua mão.</p>
-                <p class="t-sub">Chegada às 00:07 · Buritis</p>
+                <span class="t-fim-ic" aria-hidden="true"><svg><use href="#i-casa"/></svg></span>
+                <h3 class="d-titulo t-titulo" tabindex="-1">Carro na garagem.<br>Chave na sua mão.</h3>
+                <p class="t-sub" id="d-fim-sub">Chegada às 00:07 · Buritis</p>
               </div>
-              <div class="t-recibo">
-                <p><span>Saída</span><b>R$ 25,00</b></p>
-                <p><span>9 km rodados</span><b>R$ 31,50</b></p>
-                <p><span>Seguro da viagem</span><b>incluso</b></p>
-                <p class="t-total"><span>Total</span><b>R$ 56,50</b></p>
+              <div class="t-recibo" id="d-recibo"></div>
+              <div class="d-avaliar">
+                <p id="d-avaliar-t">Como foi com o Rafael?</p>
+                <div class="d-estrelas" role="radiogroup" aria-label="Nota para o motorista">
+                  <button type="button" role="radio" aria-checked="false" data-nota="1" aria-label="1 estrela"><svg aria-hidden="true"><use href="#i-estrela"/></svg></button>
+                  <button type="button" role="radio" aria-checked="false" data-nota="2" aria-label="2 estrelas"><svg aria-hidden="true"><use href="#i-estrela"/></svg></button>
+                  <button type="button" role="radio" aria-checked="false" data-nota="3" aria-label="3 estrelas"><svg aria-hidden="true"><use href="#i-estrela"/></svg></button>
+                  <button type="button" role="radio" aria-checked="false" data-nota="4" aria-label="4 estrelas"><svg aria-hidden="true"><use href="#i-estrela"/></svg></button>
+                  <button type="button" role="radio" aria-checked="false" data-nota="5" aria-label="5 estrelas"><svg aria-hidden="true"><use href="#i-estrela"/></svg></button>
+                </div>
               </div>
-              <p class="t-resumo"><span>23:41 – 00:07</span><span>26 min</span><span>9 km</span><span>vistoria de chegada ok</span></p>
-              <div class="t-avaliar">
-                <span>Avalie o Rafael</span>
-                <span class="t-estrelas"><svg><use href="#i-estrela"/></svg><svg><use href="#i-estrela"/></svg><svg><use href="#i-estrela"/></svg><svg><use href="#i-estrela"/></svg><svg><use href="#i-estrela"/></svg></span>
+              <div class="d-gorjeta" role="radiogroup" aria-label="Gorjeta">
+                <button type="button" role="radio" aria-checked="true" data-gorjeta="0">Sem gorjeta</button>
+                <button type="button" role="radio" aria-checked="false" data-gorjeta="5">R$ 5</button>
+                <button type="button" role="radio" aria-checked="false" data-gorjeta="10">R$ 10</button>
               </div>
-              <p class="t-sub t-rodape">Rafael desdobrou a bike e já foi para o próximo pedido.</p>
+              <button type="button" class="t-botao" id="d-concluir">Concluir</button>
             </div>
+
+            <p class="d-toast" id="d-toast" role="status" aria-live="polite" hidden></p>
           </div>
         </div>
+        <p class="demo-dica" aria-hidden="true"><svg class="i"><use href="#i-toque"/></svg>Toque para usar</p>
       </div>
 
-      <ol class="como-passos" id="passos">
-        <li class="passo ativo" data-passo="1" aria-current="step">
-          <div class="passo-card">
-            <p class="passo-meta"><span class="passo-n">01</span><span>23:41 · Savassi</span></p>
-            <h3>Você pede pelo app</h3>
-            <p>Diga onde está o carro e para onde vai. O preço aparece antes de você confirmar.</p>
-          </div>
-        </li>
-        <li class="passo" data-passo="2">
-          <div class="passo-card">
-            <p class="passo-meta"><span class="passo-n">02</span><span>23:44 · a 1,2 km</span></p>
-            <h3>O Drink chega de bike ou patinete</h3>
-            <p>Um motorista verificado pedala até o seu carro. Você vê nome, foto, nota e o caminho dele no mapa.</p>
-          </div>
-        </li>
-        <li class="passo" data-passo="3">
-          <div class="passo-card">
-            <p class="passo-meta"><span class="passo-n">03</span><span>23:48 · seguro ativo</span></p>
-            <h3>Vistoria com 5 fotos</h3>
-            <p>Frente, traseira, laterais e painel, com a quilometragem e o combustível. O seguro da viagem começa a valer aqui.</p>
-          </div>
-        </li>
-        <li class="passo" data-passo="4">
-          <div class="passo-card">
-            <p class="passo-meta"><span class="passo-n">04</span><span>23:50 · dobrada em 18 s</span></p>
-            <h3>A bike vai no porta-malas</h3>
-            <p>Ele forra o porta-malas com uma capa, dobra a bike ao meio e guarda. O patinete vai deitado.</p>
-          </div>
-        </li>
-        <li class="passo" data-passo="5">
-          <div class="passo-card">
-            <p class="passo-meta"><span class="passo-n">05</span><span>23:58 · ao vivo</span></p>
-            <h3>Ele dirige o seu carro até a sua casa</h3>
-            <p>Você vai no banco do passageiro ou no de trás. A viagem aparece ao vivo, e dá para compartilhar com quem espera por você.</p>
-          </div>
-        </li>
-        <li class="passo" data-passo="6">
-          <div class="passo-card">
-            <p class="passo-meta"><span class="passo-n">06</span><span>00:08 · em casa</span></p>
-            <h3>Chave na sua mão</h3>
-            <p>Ele estaciona, faz a vistoria de chegada e desdobra a bike. Você recebe o recibo, e ele segue para o próximo pedido.</p>
-          </div>
-        </li>
-      </ol>
+      <div class="demo-etapas">
+        <ol class="etapas" id="etapas" aria-label="Etapas do pedido">
+          <li data-etapa="pedir" class="atual"><button type="button" aria-current="step"><span class="et-n">01</span><span class="et-txt"><b>Você pede pelo app</b><span>Diga para onde vai. O preço aparece antes de confirmar, e dá para agendar.</span></span></button></li>
+          <li data-etapa="caminho"><button type="button"><span class="et-n">02</span><span class="et-txt"><b>O Drink chega de bike ou patinete</b><span>Você vê nome, foto, nota e o caminho dele no mapa.</span></span></button></li>
+          <li data-etapa="vistoria"><button type="button"><span class="et-n">03</span><span class="et-txt"><b>Vistoria com 5 fotos</b><span>Frente, traseira, laterais e painel. O seguro começa a valer aqui.</span></span></button></li>
+          <li data-etapa="malas"><button type="button"><span class="et-n">04</span><span class="et-txt"><b>A bike vai no porta-malas</b><span>Ele forra o porta-malas com uma capa e guarda a bike dobrada.</span></span></button></li>
+          <li data-etapa="viagem"><button type="button"><span class="et-n">05</span><span class="et-txt"><b>Ele dirige o seu carro até a sua casa</b><span>Você vai junto, e a viagem aparece ao vivo para quem você escolher.</span></span></button></li>
+          <li data-etapa="casa"><button type="button"><span class="et-n">06</span><span class="et-txt"><b>Chave na sua mão</b><span>Recibo no app, nota para o motorista, e ele segue para o próximo pedido.</span></span></button></li>
+        </ol>
+        <div class="acoes">
+          <button type="button" class="btn btn-sodio" data-app-cheia><svg class="i" aria-hidden="true"><use href="#i-expandir"/></svg>Abrir em tela cheia</button>
+          <button type="button" class="btn btn-vidro" id="demo-recomecar"><svg class="i" aria-hidden="true"><use href="#i-recomecar"/></svg>Recomeçar</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= Tudo pelo app ================= -->
+  <section class="recursos" id="recursos" aria-labelledby="rec-titulo">
+    <div class="wrap rec-cab">
+      <div class="cab">
+        <p class="rotulo">Tudo pelo app</p>
+        <h2 id="rec-titulo">Um app para a noite inteira.</h2>
+        <p class="lede">Para quem pede e para quem dirige. Do agendamento ao recibo, sem ligação e sem dinheiro na mão.</p>
+      </div>
+      <div class="seg rec-seg" role="radiogroup" aria-label="Ver o app de quem">
+        <input type="radio" name="rec-lado" id="rl-pede" value="pede" checked><label for="rl-pede"><svg class="i" aria-hidden="true"><use href="#i-pessoas"/></svg>Para quem pede</label>
+        <input type="radio" name="rec-lado" id="rl-dirige" value="dirige"><label for="rl-dirige"><svg class="i" aria-hidden="true"><use href="#i-bike"/></svg>Para quem dirige</label>
+      </div>
+    </div>
+
+    <div class="wrap">
+      <div class="rec-grade" id="rec-grade" data-lado="pede">
+        <!-- para quem pede -->
+        <article class="rec" data-lado="pede">
+          <div class="rec-txt"><h3>Agende a volta</h3><p>Marque o horário antes de sair de casa. O Drink chega na hora e avisa 10 minutos antes.</p></div>
+          <div class="rec-fone" aria-hidden="true"><div class="rec-tela">
+            <p class="mu-cab">Agendar volta</p>
+            <div class="mu-dias"><span>Sex<b>26</b></span><span class="on">Sáb<b>27</b></span><span>Dom<b>28</b></span></div>
+            <div class="mu-horas"><span>00:30</span><span>01:00</span><span class="on">01:30</span><span>02:00</span></div>
+            <p class="mu-ok"><svg><use href="#i-check"/></svg>Aviso 10 min antes</p>
+          </div></div>
+        </article>
+        <article class="rec" data-lado="pede">
+          <div class="rec-txt"><h3>Compartilhe a viagem</h3><p>Quem espera por você acompanha o carro no mapa, ao vivo, até a porta de casa.</p></div>
+          <div class="rec-fone" aria-hidden="true"><div class="rec-tela">
+            <p class="mu-cab">Compartilhar viagem</p>
+            <ul class="mu-lista">
+              <li><span class="mu-av">AN</span>Ana<em class="on">Enviado</em></li>
+              <li><span class="mu-av mu-av-2">PE</span>Pedro<em>Enviar</em></li>
+              <li><span class="mu-av mu-av-3">M</span>Mãe<em>Enviar</em></li>
+            </ul>
+            <p class="mu-ok"><svg><use href="#i-rota"/></svg>Link ao vivo até você chegar</p>
+          </div></div>
+        </article>
+        <article class="rec" data-lado="pede">
+          <div class="rec-txt"><h3>Pague pelo app</h3><p>Pix ou cartão, com o valor fechado antes de pedir. Nada de dinheiro na mão no fim da noite.</p></div>
+          <div class="rec-fone" aria-hidden="true"><div class="rec-tela">
+            <p class="mu-cab">Pagamento</p>
+            <div class="mu-pago"><span class="mu-selo"><svg><use href="#i-check"/></svg></span><b>R$ 56,50</b><small>Pago com Pix às 00:08</small></div>
+            <ul class="mu-formas"><li class="on"><svg><use href="#i-carteira"/></svg>Pix</li><li><svg><use href="#i-cartao"/></svg>Cartão •••• 4821</li></ul>
+          </div></div>
+        </article>
+        <article class="rec" data-lado="pede">
+          <div class="rec-txt"><h3>Histórico e recibos</h3><p>Todas as voltas com trajeto, horário, fotos da vistoria e recibo para baixar.</p></div>
+          <div class="rec-fone" aria-hidden="true"><div class="rec-tela">
+            <p class="mu-cab">Suas voltas</p>
+            <ul class="mu-hist">
+              <li><span><b>Savassi → Buritis</b><small>Sex, 19 set · 9 km</small></span><em>R$ 56,50</em></li>
+              <li><span><b>Lourdes → Sion</b><small>Sáb, 13 set · 5 km</small></span><em>R$ 42,50</em></li>
+              <li><span><b>Funcionários → Buritis</b><small>Sex, 5 set · 8 km</small></span><em>R$ 53,00</em></li>
+            </ul>
+          </div></div>
+        </article>
+        <article class="rec" data-lado="pede">
+          <div class="rec-txt"><h3>Chegou bem</h3><p>O app avisa quem você escolher quando o carro estaciona e a chave volta para a sua mão.</p></div>
+          <div class="rec-fone" aria-hidden="true"><div class="rec-tela">
+            <p class="mu-cab">Avisar quando eu chegar</p>
+            <p class="mu-chave"><span>Ana</span><span class="mu-sw on"></span></p>
+            <p class="mu-chave"><span>Pedro</span><span class="mu-sw"></span></p>
+            <p class="mu-bolha">Ana recebeu: “Cheguei em casa. O carro está na garagem.”</p>
+          </div></div>
+        </article>
+        <article class="rec" data-lado="pede">
+          <div class="rec-txt"><h3>Avalie e dê gorjeta</h3><p>A nota ajuda a manter os melhores motoristas. A gorjeta é opcional e vai toda para quem dirigiu.</p></div>
+          <div class="rec-fone" aria-hidden="true"><div class="rec-tela">
+            <p class="mu-cab">Como foi com o Rafael?</p>
+            <p class="mu-estrelas"><svg><use href="#i-estrela"/></svg><svg><use href="#i-estrela"/></svg><svg><use href="#i-estrela"/></svg><svg><use href="#i-estrela"/></svg><svg><use href="#i-estrela"/></svg></p>
+            <div class="mu-horas"><span>Sem gorjeta</span><span class="on">R$ 5</span><span>R$ 10</span></div>
+            <p class="mu-ok"><svg><use href="#i-check"/></svg>Obrigado! Recibo salvo</p>
+          </div></div>
+        </article>
+
+        <!-- para quem dirige -->
+        <article class="rec" data-lado="dirige">
+          <div class="rec-txt"><h3>Novo pedido</h3><p>Trajeto, distância, câmbio e quanto você recebe aparecem antes de aceitar.</p></div>
+          <div class="rec-fone" aria-hidden="true"><div class="rec-tela">
+            <p class="mu-cab">Novo pedido</p>
+            <div class="mu-pedido"><b>Savassi → Buritis</b><small>9 km · câmbio automático</small><strong>R$ 42,38 para você</strong></div>
+            <div class="mu-anel"><span>12 s</span></div>
+            <div class="mu-botoes"><span>Recusar</span><span class="on">Aceitar</span></div>
+          </div></div>
+        </article>
+        <article class="rec" data-lado="dirige">
+          <div class="rec-txt"><h3>Vistoria guiada</h3><p>O app pede cada foto na ordem e confere se o painel mostra km e combustível.</p></div>
+          <div class="rec-fone" aria-hidden="true"><div class="rec-tela">
+            <p class="mu-cab">Vistoria · 4 de 5</p>
+            <ul class="mu-fotos"><li class="on">Frente</li><li class="on">Traseira</li><li class="on">Esquerda</li><li class="on">Direita</li><li>Painel</li></ul>
+            <p class="mu-dica"><svg><use href="#i-camera"/></svg>Enquadre o painel com km e combustível</p>
+          </div></div>
+        </article>
+        <article class="rec" data-lado="dirige">
+          <div class="rec-txt"><h3>Dobra passo a passo</h3><p>Do guidão ao selim, em três passos. Na primeira semana o app mostra cada um.</p></div>
+          <div class="rec-fone" aria-hidden="true"><div class="rec-tela">
+            <p class="mu-cab">Dobra · passo 2 de 3</p>
+            <svg class="mu-desenho" viewBox="0 20 82 84"><use href="#bike-dobrada"/></svg>
+            <p class="mu-dica"><svg><use href="#i-check"/></svg>Dobre o guidão para baixo até travar</p>
+          </div></div>
+        </article>
+        <article class="rec" data-lado="dirige">
+          <div class="rec-txt"><h3>Próximo pedido perto</h3><p>Ao entregar a chave, o app já procura o próximo pedido perto dali para você não voltar vazio.</p></div>
+          <div class="rec-fone" aria-hidden="true"><div class="rec-tela">
+            <p class="mu-cab">Próximo pedido</p>
+            <div class="mu-mapa"><svg viewBox="40 140 200 110" preserveAspectRatio="xMidYMid slice"><use href="#mapa" width="280" height="320"/><path class="m-rota-feita" d="M60 250L140 170H200"/><circle class="m-voce" cx="60" cy="250" r="6"/><g class="m-casa" transform="translate(200 170)"><circle r="9"/><use href="#i-pin" x="-6" y="-6.5" width="12" height="12"/></g></svg></div>
+            <div class="mu-pedido"><b>Funcionários, a 1,1 km</b><small>6 min de bike</small></div>
+          </div></div>
+        </article>
+        <article class="rec" data-lado="dirige">
+          <div class="rec-txt"><h3>Ganhos da noite</h3><p>Cada viagem com o valor, a gorjeta e o total do dia. O repasse cai na sua conta toda semana.</p></div>
+          <div class="rec-fone" aria-hidden="true"><div class="rec-tela">
+            <p class="mu-cab">Ganhos da noite</p>
+            <p class="mu-grande">R$ 186,40</p>
+            <ul class="mu-barras"><li style="--v:.78"><span>22h</span></li><li style="--v:.92"><span>23h</span></li><li style="--v:1"><span>0h</span></li><li style="--v:.64"><span>1h</span></li></ul>
+            <p class="mu-dica"><svg><use href="#i-carteira"/></svg>4 viagens e R$ 12 de gorjeta</p>
+          </div></div>
+        </article>
+        <article class="rec" data-lado="dirige">
+          <div class="rec-txt"><h3>Central 24 horas</h3><p>Suporte por mensagem durante a viagem, para cliente e motorista, a noite toda.</p></div>
+          <div class="rec-fone" aria-hidden="true"><div class="rec-tela">
+            <p class="mu-cab">Central do Drink</p>
+            <p class="mu-bolha">Oi, Rafael! Recebemos a foto do painel.</p>
+            <p class="mu-bolha mu-eu">O cliente pediu para esperar 5 min.</p>
+            <p class="mu-bolha">Tudo certo. A espera entra na conta dele.</p>
+          </div></div>
+        </article>
+      </div>
     </div>
   </section>
 
@@ -864,10 +1144,11 @@
     <div class="wrap final-in">
       <p class="rotulo rotulo-claro">06:10 · Buritis</p>
       <h2 id="final-titulo">O seu carro dormiu em casa.</h2>
-      <p class="lede">Beba à vontade. O Drink leva você e o carro.</p>
+      <p class="lede">Beba à vontade. O Drink leva você e o carro. É só abrir o app.</p>
       <div class="acoes">
-        <a class="btn btn-sodio" href="#pedir">Pedir um Drink<svg class="i" aria-hidden="true"><use href="#i-seta"/></svg></a>
-        <button class="btn btn-vidro" type="button" data-abrir="dlg-motorista">Quero ser um Drink</button>
+        <a class="btn btn-sodio" href="#app" data-app-cheia>Abrir o app<svg class="i" aria-hidden="true"><use href="#i-seta"/></svg></a>
+        <button class="loja" type="button" data-abrir="dlg-loja"><svg class="i" aria-hidden="true"><use href="#i-celular"/></svg><span><small>Em breve na</small><b>App Store</b></span></button>
+        <button class="loja" type="button" data-abrir="dlg-loja"><svg class="i" aria-hidden="true"><use href="#i-celular"/></svg><span><small>Em breve no</small><b>Google Play</b></span></button>
       </div>
     </div>
   </section>
@@ -880,7 +1161,8 @@
       <p>O motorista da vez.</p>
     </div>
     <nav class="rodape-nav" aria-label="Rodapé">
-      <a href="#como-funciona">Como funciona</a>
+      <a href="#app">O app</a>
+      <a href="#recursos">Tudo pelo app</a>
       <a href="#dobra">A dobra</a>
       <a href="#preco">Preço</a>
       <a href="#seguranca">Segurança</a>
@@ -922,6 +1204,19 @@
     </ul>
     <p>O preço sai fechado antes do evento, e os convidados não pagam nada na hora.</p>
     <button class="btn btn-sodio" value="ok">Entendi</button>
+    <button class="dlg-x" value="fechar" aria-label="Fechar"><svg class="i" aria-hidden="true"><use href="#i-fechar"/></svg></button>
+  </form>
+</dialog>
+
+<dialog class="dlg" id="dlg-loja" aria-labelledby="dlg-loja-t">
+  <form method="dialog" class="dlg-in">
+    <p class="rotulo">Em breve</p>
+    <h2 id="dlg-loja-t">O app ainda não está nas lojas</h2>
+    <p>O Drink para iPhone e Android está em desenvolvimento. Enquanto isso, dá para usar o protótipo aqui no site.</p>
+    <div class="acoes">
+      <button class="btn btn-sodio" type="button" data-app-cheia>Abrir o protótipo</button>
+      <button class="btn btn-vidro" value="ok">Fechar</button>
+    </div>
     <button class="dlg-x" value="fechar" aria-label="Fechar"><svg class="i" aria-hidden="true"><use href="#i-fechar"/></svg></button>
   </form>
 </dialog>
