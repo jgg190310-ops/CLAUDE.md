@@ -1,0 +1,17 @@
+{
+  "name": "Drink",
+  "short_name": "Drink",
+  "description": "O motorista chega de bike elétrica ou patinete, dobra no seu porta-malas e leva você e o seu carro para casa.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0F2A24",
+  "theme_color": "#0F2A24",
+  "lang": "pt-BR",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}
