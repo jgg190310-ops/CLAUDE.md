@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Drink</title>
   <meta name="description" content="O motorista da vez chega de bike elétrica ou patinete, dobra no seu porta-malas e leva você e o seu carro para casa.">
-  <meta name="theme-color" content="#060913">
+  <meta name="theme-color" content="#161513">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="icon-180.png">
@@ -20,7 +20,7 @@
   <meta name="twitter:card" content="summary_large_image">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=Martian+Mono:wdth,wght@75..112.5,100..800&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wdth,wght@62..125,100..900&family=Martian+Mono:wdth,wght@75..112.5,100..800&family=Permanent+Marker&display=swap">
   <link rel="stylesheet" href="drink.css">
 </head>
 <body>
@@ -68,21 +68,22 @@
     <symbol id="i-perfil" viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.5"/><path d="M5 19.5c1-3.6 3.8-5.5 7-5.5s6 1.9 7 5.5"/></symbol>
     <symbol id="i-cupom" viewBox="0 0 24 24"><path d="M4 7.5A1.5 1.5 0 015.5 6h13A1.5 1.5 0 0120 7.5V10a2 2 0 000 4v2.5a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 014 16.5V14a2 2 0 000-4z"/><path d="M14.5 6.5v11" style="stroke-dasharray:2 2.2"/></symbol>
     <symbol id="i-carro" viewBox="0 0 24 24"><path d="M3.5 15.5v-3l2-4.6a2 2 0 011.8-1.2h9.4a2 2 0 011.8 1.2l2 4.6v3a1 1 0 01-1 1h-1"/><path d="M8.3 16.5h7.4M5.5 12h13"/><circle cx="6.5" cy="16.5" r="1.8"/><circle cx="17.5" cy="16.5" r="1.8"/></symbol>
-    <symbol id="i-copo" viewBox="0 0 32 32"><path d="M4 5h24L16 18z" style="fill:var(--copo, #FFA53A);stroke:none"/><path d="M16 18v9M10 28h12" style="stroke-width:2.4"/><circle cx="21" cy="9" r="3.6" style="stroke-width:2"/><path d="M21 5.4v7.2M17.4 9h7.2" style="stroke-width:1.4"/></symbol>
+    <symbol id="i-copo" viewBox="0 0 32 32"><path d="M4 5h24L16 18z" style="fill:var(--copo, #FF4FA3);stroke:none"/><path d="M16 18v9M10 28h12" style="stroke-width:2.4"/><circle cx="21" cy="9" r="3.6" style="stroke-width:2"/><path d="M21 5.4v7.2M17.4 9h7.2" style="stroke-width:1.4"/></symbol>
 
     <!-- mapa de Belo Horizonte, estilizado: quadras em grade cortadas por avenidas diagonais -->
-    <pattern id="ruas" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M0 .5H20M.5 0V20" fill="none" stroke="#161F38" stroke-width="1.6"/></pattern>
+    <pattern id="ruas" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M0 .5H20M.5 0V20" fill="none" stroke="#252320" stroke-width="1.6"/></pattern>
+    <pattern id="praca" width="5" height="5" patternUnits="userSpaceOnUse"><circle cx="2.5" cy="2.5" r="1.15" fill="#2F7A4E"/></pattern>
     <symbol id="mapa" viewBox="0 0 280 320" preserveAspectRatio="xMidYMid slice">
-      <rect width="280" height="320" fill="#0A1020"/>
+      <rect width="280" height="320" fill="#121110"/>
       <rect width="280" height="320" fill="url(#ruas)"/>
-      <path d="M190 20l50-8 20 46-56 16z" fill="#0D231F"/>
-      <path d="M18 196l40-8 12 36-42 10z" fill="#0D231F"/>
-      <path d="M-40-10L300 330M310 0L-10 320" fill="none" stroke="#212C4F" stroke-width="7"/>
-      <path d="M0 170H280M140 0V320" fill="none" stroke="#1C2644" stroke-width="5"/>
-      <circle cx="140" cy="170" r="14" fill="#0D231F" stroke="#212C4F" stroke-width="5"/>
-      <text x="160" y="148" fill="#56628A" font-family="Martian Mono, monospace" font-size="7" letter-spacing="1">SAVASSI</text>
-      <text x="170" y="238" fill="#56628A" font-family="Martian Mono, monospace" font-size="7" letter-spacing="1">FUNCIONÁRIOS</text>
-      <text x="92" y="306" fill="#56628A" font-family="Martian Mono, monospace" font-size="7" letter-spacing="1">BURITIS</text>
+      <path d="M190 20l50-8 20 46-56 16z" fill="url(#praca)"/>
+      <path d="M18 196l40-8 12 36-42 10z" fill="url(#praca)"/>
+      <path d="M-40-10L300 330M310 0L-10 320" fill="none" stroke="#36332E" stroke-width="7"/>
+      <path d="M0 170H280M140 0V320" fill="none" stroke="#2D2A26" stroke-width="5"/>
+      <circle cx="140" cy="170" r="14" fill="url(#praca)" stroke="#36332E" stroke-width="5"/>
+      <text x="160" y="148" fill="#8E877B" font-family="Anton, Impact, sans-serif" font-size="10" letter-spacing="1.6">SAVASSI</text>
+      <text x="166" y="238" fill="#8E877B" font-family="Anton, Impact, sans-serif" font-size="10" letter-spacing="1.6">FUNCIONÁRIOS</text>
+      <text x="92" y="306" fill="#8E877B" font-family="Anton, Impact, sans-serif" font-size="10" letter-spacing="1.6">BURITIS</text>
     </symbol>
 
     <!-- carro visto de cima, em traço -->
@@ -120,11 +121,6 @@
       </g>
     </symbol>
 
-    <radialGradient id="g-poste" cx="50%" cy="50%" r="50%">
-      <stop offset="0" stop-color="#FFC57A" stop-opacity=".9"/>
-      <stop offset=".35" stop-color="#FFA53A" stop-opacity=".35"/>
-      <stop offset="1" stop-color="#FFA53A" stop-opacity="0"/>
-    </radialGradient>
   </defs>
 </svg>
 
@@ -167,83 +163,29 @@
 
   <!-- ================= Início ================= -->
   <section class="hero" id="inicio" data-secao="pedir" aria-labelledby="hero-titulo">
-    <canvas class="rastros" id="rastros" aria-hidden="true"></canvas>
     <div class="hero-in">
-      <div class="hero-texto">
-        <p class="sobre"><span class="sobre-ponto" aria-hidden="true"></span>Motorista da vez, de bike ou patinete</p>
+      <div class="cartaz cartaz-rosa hero-cartaz">
+        <p class="hero-topo"><span>Belo Horizonte</span><span>Toda noite, das 20h às 5h</span></p>
         <h1 class="hero-titulo" id="hero-titulo"><span class="ht-a">Pede um</span> <span class="ht-b">Drink.</span></h1>
-        <p class="hero-lede">O Drink chega de bike elétrica ou patinete, dobra tudo no seu porta-malas e leva você e o seu carro para casa.</p>
+        <p class="hero-lede">Bebeu? O motorista da vez chega de bike elétrica ou patinete, dobra tudo no seu porta-malas e leva você e o seu carro para casa.</p>
         <div class="acoes">
           <a class="btn btn-sodio" href="#app" data-app-cheia>Pedir um Drink<svg class="i" aria-hidden="true"><use href="#i-seta"/></svg></a>
           <a class="btn btn-vidro" href="#app"><svg class="i" aria-hidden="true"><use href="#i-celular"/></svg>Experimente o app</a>
         </div>
         <ul class="hero-fatos">
-          <li><svg class="i" aria-hidden="true"><use href="#i-carteira"/></svg>R$ 25 + R$ 3,50 por km</li>
-          <li><svg class="i" aria-hidden="true"><use href="#i-escudo"/></svg>Seguro do carro incluso</li>
-          <li><svg class="i" aria-hidden="true"><use href="#i-relogio"/></svg>Chega em até 15 min</li>
+          <li>R$ 25 + R$ 3,50 por km</li>
+          <li>Seguro do carro incluso</li>
+          <li>Chega em até 15 min</li>
         </ul>
+        <svg class="carimbo-selo hero-carimbo" viewBox="0 0 120 120" aria-hidden="true">
+          <defs><path id="carimbo-volta" d="M60 60m-43 0a43 43 0 1 1 86 0a43 43 0 1 1-86 0"/></defs>
+          <circle class="cs-borda" cx="60" cy="60" r="56"/><circle class="cs-miolo" cx="60" cy="60" r="31"/>
+          <text class="cs-volta"><textPath href="#carimbo-volta" textLength="266" lengthAdjust="spacing">MOTORISTA DA VEZ ★ SEU CARRO DORME EM CASA ★</textPath></text>
+          <text class="cs-meio" x="60" y="69" text-anchor="middle">DRINK</text>
+        </svg>
       </div>
 
       <div class="hero-visual" aria-hidden="true">
-        <div class="fone fone-lado fone-lado-esq">
-          <div class="fone-tela">
-            <div class="fone-ilha"></div>
-            <div class="tela ativa">
-              <div class="t-barra"><span>23:41</span><span class="t-ic"><svg><use href="#i-sinal"/></svg><svg class="t-bat"><use href="#i-bat"/></svg></span></div>
-              <div class="t-mapa">
-                <svg viewBox="0 0 280 320" preserveAspectRatio="xMidYMid slice">
-                  <use href="#mapa" width="280" height="320"/>
-                  <g class="m-perto">
-                    <circle cx="78" cy="104" r="5"/><circle cx="226" cy="94" r="5"/><circle cx="204" cy="262" r="5"/>
-                  </g>
-                  <circle class="m-anel" cx="140" cy="170" r="20"/>
-                  <circle class="m-voce" cx="140" cy="170" r="7"/>
-                </svg>
-                <p class="t-chip t-chip-topo"><span class="t-ponto"></span>3 Drinks por perto</p>
-              </div>
-              <div class="t-folha">
-                <p class="t-rot">Para onde?</p>
-                <div class="t-rota">
-                  <p><span class="t-bol"></span>Bar do Lucas, Savassi</p>
-                  <p><span class="t-bol t-bol-fim"></span>Casa, Buritis</p>
-                </div>
-                <div class="t-opcao">
-                  <svg class="t-opcao-ic"><use href="#i-bike"/></svg>
-                  <div><b>Drink</b><span>bike ou patinete · 6 min</span></div>
-                  <b class="t-preco">R$ 56,50</b>
-                </div>
-                <p class="t-botao">Pedir Drink</p>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="fone fone-lado fone-lado-dir">
-          <div class="fone-tela">
-            <div class="fone-ilha"></div>
-            <div class="tela ativa">
-              <div class="t-barra"><span>23:44</span><span class="t-ic"><svg><use href="#i-sinal"/></svg><svg class="t-bat"><use href="#i-bat"/></svg></span></div>
-              <div class="t-mapa">
-                <svg viewBox="0 0 280 320" preserveAspectRatio="xMidYMid slice">
-                  <use href="#mapa" width="280" height="320"/>
-                  <path class="m-rota" d="M270 40L140 170"/>
-                  <path class="m-rota-feita" d="M270 40L140 170" pathLength="100" stroke-dasharray="65 100"/>
-                  <g class="m-bike" transform="translate(185.5 124.5)"><circle class="m-carro-halo" r="14"/><circle r="8.5"/><use href="#i-bike" x="-5.5" y="-5.5" width="11" height="11"/></g>
-                  <circle class="m-voce" cx="140" cy="170" r="7"/>
-                </svg>
-                <p class="t-chip t-chip-topo">Chega em <b>4 min</b></p>
-              </div>
-              <div class="t-folha">
-                <p class="t-titulo">Rafael está a caminho</p>
-                <div class="t-mot">
-                  <span class="t-av">RS</span>
-                  <div><b>Rafael S.</b><span><svg class="t-estrela"><use href="#i-estrela"/></svg>4,9 · CNH há 9 anos</span></div>
-                  <span class="t-veic"><svg><use href="#i-bike"/></svg></span>
-                </div>
-                <div class="t-acoes"><p class="t-bt"><svg><use href="#i-mensagem"/></svg>Mensagem</p><p class="t-bt"><svg><use href="#i-compartilhar"/></svg>Compartilhar</p></div>
-              </div>
-            </div>
-          </div>
-        </div>
         <div class="fone fone-hero">
           <div class="fone-tela">
             <div class="fone-ilha"></div>
@@ -274,14 +216,9 @@
             </div>
           </div>
         </div>
-        <div class="flutua flutua-a">
-          <span class="flutua-ic flutua-ok"><svg class="i"><use href="#i-escudo"/></svg></span>
-          <span><b>Seguro ativo</b><small>desde 23:49</small></span>
-        </div>
-        <div class="flutua flutua-b">
-          <span class="flutua-ic"><svg class="i-dobrada"><use href="#bike-dobrada"/></svg></span>
-          <span><b>Bike no porta-malas</b><small>dobrada em 18 s</small></span>
-        </div>
+        <p class="mao hero-nota">ele dobra a bike e guarda no seu porta-malas!</p>
+        <svg class="mao-seta hero-seta" viewBox="0 0 96 64"><path d="M6 10c26 0 56 12 74 40M80 50l-16-3M80 50l1-16"/></svg>
+        <p class="ingresso hero-cupom"><small>Primeira volta</small><b>R$ 10 off</b><small>cupom PRIMEIRADRINK</small></p>
       </div>
     </div>
   </section>
@@ -301,7 +238,7 @@
     <div class="wrap demo-grade">
       <div class="demo-cab">
         <p class="rotulo">Como funciona</p>
-        <h2 id="app-titulo">Experimente o app.</h2>
+        <h2 id="app-titulo">Experimente <span class="destaque">o app.</span></h2>
         <p class="lede">Toque no celular e faça um pedido de mentira, da mesa do bar até a chave na sua mão. Converse com o motorista, compartilhe a viagem, use o cupom e veja o recibo. Na demonstração, tudo acontece em segundos.</p>
       </div>
 
@@ -719,7 +656,7 @@
     <div class="wrap rec-cab">
       <div class="cab">
         <p class="rotulo">Tudo pelo app</p>
-        <h2 id="rec-titulo">Um app para a noite inteira.</h2>
+        <h2 id="rec-titulo">Um app para <span class="destaque">a noite inteira.</span></h2>
         <p class="lede">Para quem pede e para quem dirige. Do agendamento ao recibo, sem ligação e sem dinheiro na mão.</p>
       </div>
       <div class="seg rec-seg" role="radiogroup" aria-label="Ver o app de quem">
@@ -851,7 +788,7 @@
     <div class="wrap dobra-grade">
       <div class="dobra-texto">
         <p class="rotulo">A dobra</p>
-        <h2 id="dobra-titulo">Chega pedalando. Volta no <span class="sem-quebra">porta-malas.</span></h2>
+        <h2 id="dobra-titulo">Chega pedalando. Volta no <span class="sem-quebra destaque">porta-malas.</span></h2>
         <p class="lede">A bike elétrica dobra ao meio em 20 segundos. O patinete dobra a haste e vai deitado. Antes de guardar, o Drink forra o porta-malas com uma capa.</p>
         <div class="seg" role="radiogroup" aria-label="Veículo do desenho">
           <input type="radio" name="dobra-veic" id="dv-bike" value="bike" checked><label for="dv-bike"><svg class="i" aria-hidden="true"><use href="#i-bike"/></svg>Bike elétrica</label>
@@ -975,8 +912,10 @@
     <div class="wrap preco-grade">
       <div class="preco-texto">
         <p class="rotulo">Preço</p>
-        <h2 id="preco-titulo">Você vê o preço antes de pedir.</h2>
+        <h2 id="preco-titulo">Você vê o preço <span class="destaque">antes de pedir.</span></h2>
         <p class="lede">Funciona como um taxímetro, só que o valor aparece antes. Bike ou patinete custam o mesmo, e o seguro da viagem vem incluso.</p>
+        <div class="cartaz cartaz-verde tabela-cartaz">
+        <p class="tabela-cab" aria-hidden="true"><span>Tabela</span><span>bike ou patinete, mesmo preço</span></p>
         <table class="tabela">
           <caption class="sr">Tabela de preços do Drink</caption>
           <tbody>
@@ -988,6 +927,7 @@
             <tr><th scope="row">Seguro da viagem</th><td class="t-gratis">incluso</td></tr>
           </tbody>
         </table>
+        </div>
         <p class="nota">Valores de exemplo para a apresentação.</p>
       </div>
 
@@ -1053,7 +993,7 @@
   <section class="seguranca" id="seguranca" data-secao="seguranca" aria-labelledby="seg-titulo">
     <div class="wrap cab">
       <p class="rotulo">Segurança</p>
-      <h2 id="seg-titulo">A chave do seu carro em boas mãos.</h2>
+      <h2 id="seg-titulo" class="folga">A chave do seu carro <span class="destaque">em boas mãos.</span></h2>
       <p class="lede">Entregar a chave do carro para um estranho assusta. Por isso a segurança vem inclusa, sem custo extra.</p>
     </div>
 
@@ -1090,6 +1030,7 @@
 
       <article class="tile tile-seguro" aria-labelledby="seguro-titulo">
         <p class="tile-ic tile-ic-ok"><svg class="i" aria-hidden="true"><use href="#i-escudo"/></svg></p>
+        <p class="carimbo carimbo-seguro" aria-hidden="true">Incluso</p>
         <h3 id="seguro-titulo">Seguro por viagem, incluso</h3>
         <p>Cobre o carro do início da vistoria até a entrega da chave.</p>
         <div class="cobre">
@@ -1161,9 +1102,9 @@
   <!-- ================= Eventos ================= -->
   <section class="eventos" id="eventos" data-secao="eventos" aria-labelledby="ev-titulo">
     <div class="wrap eventos-grade">
-      <div class="eventos-texto">
+      <div class="eventos-texto cartaz cartaz-laranja">
         <p class="rotulo">Eventos</p>
-        <h2 id="ev-titulo">Drink de plantão.</h2>
+        <h2 id="ev-titulo" class="folga">Drink de plantão.</h2>
         <p class="lede">Para casamentos, formaturas, bares e casas de show. Os motoristas ficam no local com as bikes, e os convidados voltam para casa no próprio carro.</p>
         <ol class="ev-passos">
           <li><b>Você fecha o pacote</b><span>Data, local, número de convidados e horário de fim. O preço sai fechado.</span></li>
@@ -1173,7 +1114,7 @@
         </ol>
       </div>
 
-      <div class="calc calc-ev">
+      <div class="calc calc-ev ingresso-calc">
         <h3>Quantos Drinks o seu evento precisa?</h3>
         <div class="chips" id="ev-tipos" role="group" aria-label="Tipo de evento">
           <button type="button" class="chip" data-ev="0.35" aria-pressed="true">Casamento</button>
@@ -1202,7 +1143,8 @@
   <!-- ================= Seja um Drink ================= -->
   <section class="motorista" id="motorista" data-secao="motorista" aria-labelledby="mot-titulo">
     <div class="wrap mot-grade">
-      <div class="mot-texto">
+      <div class="mot-texto cartaz cartaz-amarelo">
+        <p class="precisa" aria-hidden="true">Precisa-se</p>
         <p class="rotulo">Para motoristas</p>
         <h2 id="mot-titulo">Seja um Drink.</h2>
         <p class="lede">Dirija nas noites que quiser, com a sua bike elétrica ou patinete. Sem carro próprio: você dirige o carro do cliente.</p>
@@ -1215,7 +1157,8 @@
           <li>Dirigir carro manual e automático</li>
           <li>Passar pelo treinamento e pela entrevista</li>
         </ul>
-        <button class="btn btn-vidro" type="button" data-abrir="dlg-motorista">Quero me cadastrar<svg class="i" aria-hidden="true"><use href="#i-seta"/></svg></button>
+        <button class="btn btn-sodio" type="button" data-abrir="dlg-motorista">Quero me cadastrar<svg class="i" aria-hidden="true"><use href="#i-seta"/></svg></button>
+        <ul class="tiras" aria-hidden="true"><li>Seja um Drink</li><li>Seja um Drink</li><li class="arrancada">Seja um Drink</li><li>Seja um Drink</li><li>Seja um Drink</li><li class="arrancada">Seja um Drink</li><li>Seja um Drink</li></ul>
       </div>
 
       <div class="mot-app">
@@ -1463,7 +1406,7 @@
     <div class="wrap faq-grade">
       <div class="cab">
         <p class="rotulo">Perguntas</p>
-        <h2 id="faq-titulo">Ficou alguma dúvida?</h2>
+        <h2 id="faq-titulo" class="folga">Ficou alguma <span class="destaque">dúvida?</span></h2>
       </div>
       <div class="faq-lista">
         <details class="pergunta"><summary><span>E se o motorista bater o meu carro?</span><svg class="i" aria-hidden="true"><use href="#i-mais"/></svg></summary><p>O seguro da viagem cobre, do início da vistoria até a entrega da chave. As fotos da vistoria mostram como o carro estava antes.</p></details>
@@ -1480,18 +1423,17 @@
 
   <!-- ================= Amanhecer ================= -->
   <section class="final" aria-labelledby="final-titulo">
-    <div class="final-ceu" aria-hidden="true">
-      <span class="sol"></span>
-      <svg class="skyline" id="skyline" viewBox="0 0 1440 240" preserveAspectRatio="xMidYMax slice"></svg>
-    </div>
-    <div class="wrap final-in">
-      <p class="rotulo rotulo-claro">06:10 · Buritis</p>
-      <h2 id="final-titulo">O seu carro dormiu em casa.</h2>
-      <p class="lede">Beba à vontade. O Drink leva você e o carro. É só abrir o app.</p>
-      <div class="acoes">
-        <a class="btn btn-sodio" href="#app" data-app-cheia>Abrir o app<svg class="i" aria-hidden="true"><use href="#i-seta"/></svg></a>
-        <button class="loja" type="button" data-abrir="dlg-loja"><svg class="i" aria-hidden="true"><use href="#i-celular"/></svg><span><small>Em breve na</small><b>App Store</b></span></button>
-        <button class="loja" type="button" data-abrir="dlg-loja"><svg class="i" aria-hidden="true"><use href="#i-celular"/></svg><span><small>Em breve no</small><b>Google Play</b></span></button>
+    <div class="wrap">
+      <div class="cartaz cartaz-amarelo final-in">
+        <span class="final-sol" aria-hidden="true"></span>
+        <p class="rotulo">06:10 · Buritis</p>
+        <h2 id="final-titulo">O seu carro dormiu em casa.</h2>
+        <p class="lede">Beba à vontade. O Drink leva você e o carro. É só abrir o app.</p>
+        <div class="acoes">
+          <a class="btn btn-sodio" href="#app" data-app-cheia>Abrir o app<svg class="i" aria-hidden="true"><use href="#i-seta"/></svg></a>
+          <button class="loja" type="button" data-abrir="dlg-loja"><svg class="i" aria-hidden="true"><use href="#i-celular"/></svg><span><small>Em breve na</small><b>App Store</b></span></button>
+          <button class="loja" type="button" data-abrir="dlg-loja"><svg class="i" aria-hidden="true"><use href="#i-celular"/></svg><span><small>Em breve no</small><b>Google Play</b></span></button>
+        </div>
       </div>
     </div>
   </section>
@@ -1514,7 +1456,8 @@
       <a href="#perguntas">Perguntas</a>
     </nav>
     <div class="rodape-legal">
-      <p>Se beber, não dirija. Venda de bebidas proibida para menores de 18 anos.</p>
+      <p>Se beber, não dirija.</p>
+      <p>Venda de bebidas proibida para menores de 18 anos.</p>
       <p>Protótipo. Preços, motoristas e prazos são exemplos. App para iPhone e Android em breve.</p>
     </div>
   </div>

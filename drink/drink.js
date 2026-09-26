@@ -17,17 +17,6 @@
   const sortear = (lista) => lista[Math.floor(Math.random() * lista.length)];
   const limitar = (v) => Math.max(0, Math.min(1, v));
   const suave = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
-  const freando = (t) => 1 - Math.pow(1 - t, 3);
-
-  // gerador com semente: o cenário sai igual em toda visita
-  function semente(n) {
-    return function () {
-      n = (n + 0x6D2B79F5) | 0;
-      let t = Math.imul(n ^ (n >>> 15), 1 | n);
-      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-    };
-  }
 
   // anima uma vez; com movimento reduzido vai direto ao fim
   function animar(ms, cada, fim) {
@@ -61,204 +50,6 @@
     const subtotal = PRECO.saida + rodado;
     const adicional = ehMadrugada(hora) ? subtotal * PRECO.madrugada : 0;
     return { saida: PRECO.saida, rodado, adicional, total: subtotal + adicional };
-  }
-
-  /* ---------- rastros de luz do início ---------- */
-  function montarRastros() {
-    const cv = $('#rastros');
-    if (!cv || !cv.getContext) return;
-    const ctx = cv.getContext('2d');
-    const hero = cv.parentElement;
-    let W = 0;
-    let H = 0;
-    let dpr = 1;
-    let P = null;
-    let faixa = 0;
-    let rastros = [];
-    let progresso = 0;
-
-    function ponto(t) {
-      const u = 1 - t;
-      const a = u * u * u; const b = 3 * u * u * t; const c = 3 * u * t * t; const d = t * t * t;
-      return [a * P[0][0] + b * P[1][0] + c * P[2][0] + d * P[3][0], a * P[0][1] + b * P[1][1] + c * P[2][1] + d * P[3][1]];
-    }
-    function normal(t) {
-      const u = 1 - t;
-      const dx = 3 * u * u * (P[1][0] - P[0][0]) + 6 * u * t * (P[2][0] - P[1][0]) + 3 * t * t * (P[3][0] - P[2][0]);
-      const dy = 3 * u * u * (P[1][1] - P[0][1]) + 6 * u * t * (P[2][1] - P[1][1]) + 3 * t * t * (P[3][1] - P[2][1]);
-      const l = Math.hypot(dx, dy) || 1;
-      return [-dy / l, dx / l];
-    }
-    // ponto numa faixa (off em larguras de faixa), com perspectiva: perto é largo, longe é estreito
-    const perto = (t) => 1 - 0.74 * t;
-    function naFaixa(t, off, lado = 0) {
-      const [x, y] = ponto(t);
-      const [nx, ny] = normal(t);
-      const o = (off * faixa + lado) * perto(t);
-      return [(x + nx * o) * dpr, (y + ny * o) * dpr];
-    }
-
-    function preparar() {
-      const r = hero.getBoundingClientRect();
-      dpr = Math.min(2, window.devicePixelRatio || 1);
-      W = r.width;
-      H = r.height;
-      cv.width = Math.max(1, Math.round(W * dpr));
-      cv.height = Math.max(1, Math.round(H * dpr));
-      const estreito = W < 900;
-      P = estreito
-        ? [[-0.25 * W, 0.99 * H], [0.32 * W, 0.95 * H], [0.56 * W, 0.72 * H], [1.3 * W, 0.6 * H]]
-        : [[0.15 * W, 1.2 * H], [0.55 * W, 1.08 * H], [0.66 * W, 0.72 * H], [1.12 * W, 0.5 * H]];
-      faixa = Math.min(W, H) * (estreito ? 0.066 : 0.045);
-      const rnd = semente(11);
-      rastros = [];
-      [-2.5, -1.5, -0.5, 0.5, 1.5, 2.5].forEach((f) => {
-        const vindo = f > 0;
-        [-0.19, 0.19].forEach((lado) => {
-          let cor = vindo ? [236, 242, 255] : [255, 52, 78];
-          if (f === 1.5 && lado > 0) cor = [255, 170, 72];
-          rastros.push({
-            off: f + lado + (rnd() - 0.5) * 0.08,
-            vindo,
-            cor,
-            atraso: rnd() * 0.22,
-            k1: 4 + rnd() * 6, k2: 11 + rnd() * 10, f1: rnd() * 6.28, f2: rnd() * 6.28,
-            forca: 0.7 + rnd() * 0.3,
-          });
-        });
-      });
-    }
-
-    function gradiente(r) {
-      const [x0] = naFaixa(0, r.off);
-      const [x1] = naFaixa(1, r.off);
-      const g = ctx.createLinearGradient(x0, 0, x1, 0);
-      const cor = r.cor.join(',');
-      for (let i = 0; i <= 16; i++) {
-        const t = i / 16;
-        const [x] = naFaixa(t, r.off);
-        const brilho = limitar(0.62 + 0.26 * Math.sin(t * r.k1 + r.f1) + 0.16 * Math.sin(t * r.k2 + r.f2)) * r.forca * (0.5 + 0.5 * perto(t));
-        g.addColorStop(limitar((x - x0) / (x1 - x0 || 1)), `rgba(${cor},${brilho.toFixed(3)})`);
-      }
-      return g;
-    }
-
-    function fita(r, ta, tb, largura) {
-      const S = 36;
-      const ida = [];
-      const volta = [];
-      for (let s = 0; s <= S; s++) {
-        const t = ta + ((tb - ta) * s) / S;
-        const w = (largura * (0.3 + 0.7 * perto(t))) / 2;
-        ida.push(naFaixa(t, r.off, w));
-        volta.push(naFaixa(t, r.off, -w));
-      }
-      ctx.beginPath();
-      ctx.moveTo(ida[0][0], ida[0][1]);
-      ida.forEach((q) => ctx.lineTo(q[0], q[1]));
-      for (let i = volta.length - 1; i >= 0; i--) ctx.lineTo(volta[i][0], volta[i][1]);
-      ctx.closePath();
-      ctx.fill();
-    }
-
-    function linhaTracejada(off, alfa, traco) {
-      ctx.beginPath();
-      for (let i = 0; i <= 60; i++) {
-        const [x, y] = naFaixa(i / 60, off);
-        if (i) ctx.lineTo(x, y); else ctx.moveTo(x, y);
-      }
-      ctx.setLineDash(traco ? traco.map((v) => v * dpr) : []);
-      ctx.strokeStyle = `rgba(200, 214, 255, ${alfa})`;
-      ctx.stroke();
-    }
-
-    function desenhar(p) {
-      progresso = p;
-      ctx.setTransform(1, 0, 0, 1, 0, 0);
-      ctx.globalCompositeOperation = 'source-over';
-      ctx.shadowBlur = 0;
-      ctx.clearRect(0, 0, cv.width, cv.height);
-
-      // asfalto e faixas pintadas
-      ctx.beginPath();
-      for (let i = 0; i <= 60; i++) { const [x, y] = naFaixa(i / 60, -3.3); if (i) ctx.lineTo(x, y); else ctx.moveTo(x, y); }
-      for (let i = 60; i >= 0; i--) { const [x, y] = naFaixa(i / 60, 3.3); ctx.lineTo(x, y); }
-      ctx.closePath();
-      const chao = ctx.createLinearGradient(0, cv.height, cv.width, cv.height * 0.4);
-      chao.addColorStop(0, 'rgba(26, 33, 62, .6)');
-      chao.addColorStop(1, 'rgba(26, 33, 62, 0)');
-      ctx.fillStyle = chao;
-      ctx.fill();
-      ctx.lineWidth = 1 * dpr;
-      [-2, -1, 1, 2].forEach((f) => linhaTracejada(f, 0.07, [14, 18]));
-      linhaTracejada(0, 0.1);
-      [-3.1, 3.1].forEach((f) => linhaTracejada(f, 0.09));
-      ctx.setLineDash([]);
-
-      ctx.globalCompositeOperation = 'lighter';
-
-      // postes de luz de sódio ao longo da pista
-      [0.08, 0.24, 0.4, 0.56, 0.72, 0.88].forEach((t, i) => {
-        const a = limitar(p * 1.6 - i * 0.08);
-        if (!a) return;
-        const [x, y] = naFaixa(t, 4.1);
-        const raio = (26 + 46 * perto(t)) * dpr;
-        const g = ctx.createRadialGradient(x, y, 0, x, y, raio);
-        g.addColorStop(0, `rgba(255, 200, 130, ${0.55 * a})`);
-        g.addColorStop(0.18, `rgba(255, 165, 58, ${0.22 * a})`);
-        g.addColorStop(1, 'rgba(255, 165, 58, 0)');
-        ctx.fillStyle = g;
-        ctx.fillRect(x - raio, y - raio, raio * 2, raio * 2);
-      });
-
-      // rastros: lanternas vão, faróis vêm
-      rastros.forEach((r) => {
-        const pr = limitar((p - r.atraso) / (1 - r.atraso));
-        if (!pr) return;
-        const ta = r.vindo ? 1 - pr : 0;
-        const tb = r.vindo ? 1 : pr;
-        const cor = r.cor.join(',');
-        const g = gradiente(r);
-        ctx.fillStyle = g;
-        ctx.shadowColor = `rgba(${cor}, .9)`;
-        ctx.shadowBlur = 14 * dpr;
-        fita(r, ta, tb, 2.6);
-        ctx.shadowBlur = 0;
-        ctx.globalAlpha = 0.12;
-        fita(r, ta, tb, 12);
-        ctx.globalAlpha = 1;
-        if (pr < 1) {
-          const tp = r.vindo ? ta : tb;
-          const [x, y] = naFaixa(tp, r.off);
-          const raio = (8 + 14 * perto(tp)) * dpr;
-          const h = ctx.createRadialGradient(x, y, 0, x, y, raio);
-          h.addColorStop(0, `rgba(${cor}, .95)`);
-          h.addColorStop(1, `rgba(${cor}, 0)`);
-          ctx.fillStyle = h;
-          ctx.fillRect(x - raio, y - raio, raio * 2, raio * 2);
-        }
-      });
-      ctx.globalCompositeOperation = 'source-over';
-    }
-
-    preparar();
-    const r0 = hero.getBoundingClientRect();
-    const visivel = r0.bottom > 0 && r0.top < window.innerHeight;
-    if (!visivel || reduzirMovimento()) desenhar(1);
-    else animar(2800, (t) => desenhar(freando(t)));
-
-    let largura = W;
-    let espera = 0;
-    window.addEventListener('resize', () => {
-      clearTimeout(espera);
-      espera = setTimeout(() => {
-        const r = hero.getBoundingClientRect();
-        if (Math.abs(r.width - largura) < 2 && Math.abs(r.height - H) < 40) return;
-        largura = r.width;
-        preparar();
-        desenhar(progresso);
-      }, 150);
-    });
   }
 
   /* ---------- celular do início: o carro anda um trecho ---------- */
@@ -1375,44 +1166,6 @@
     });
   }
 
-  /* ---------- amanhecer: prédios contra o céu ---------- */
-  function montarSkyline() {
-    const svg = $('#skyline');
-    if (!svg) return;
-    const rnd = semente(23);
-    function fileira(base, min, var_, largMin, largVar) {
-      const predios = [];
-      let x = -10;
-      while (x < 1450) {
-        const w = largMin + Math.floor(rnd() * largVar);
-        const h = min + Math.floor(rnd() * var_) + (rnd() < 0.12 ? 70 : 0);
-        predios.push({ x, w, h });
-        x += w + (rnd() < 0.2 ? 6 : 0);
-      }
-      const d = predios.map((p) => `M${p.x} ${base}V${base - p.h}H${p.x + p.w}V${base}Z`).join('');
-      return { d, predios };
-    }
-    const fundo = fileira(240, 70, 110, 40, 70);
-    const frente = fileira(240, 36, 90, 30, 60);
-    let janelas = '';
-    frente.predios.forEach((p) => {
-      if (p.h < 60 || rnd() < 0.45) return;
-      const q = 1 + Math.floor(rnd() * 3);
-      for (let i = 0; i < q; i++) {
-        const jx = p.x + 6 + Math.floor(rnd() * Math.max(1, p.w - 14));
-        const jy = 240 - p.h + 10 + Math.floor(rnd() * Math.max(1, p.h - 30));
-        janelas += `<rect x="${jx}" y="${jy}" width="4" height="5" rx="1"/>`;
-      }
-    });
-    let antenas = '';
-    frente.predios.forEach((p) => {
-      if (rnd() < 0.12) antenas += `<rect x="${p.x + Math.floor(p.w / 2)}" y="${240 - p.h - 22}" width="2" height="22"/>`;
-    });
-    svg.innerHTML = `<path d="${fundo.d}" fill="#3A2150" opacity=".55"/>`
-      + `<path d="${frente.d}"/>${antenas}`
-      + `<g fill="#FFC57A" opacity=".85">${janelas}</g>`;
-  }
-
   /* ---------- faixas de rolagem pintadas até o valor ---------- */
   function montarFaixas() {
     $$('input[type="range"]').forEach((r) => {
@@ -1427,8 +1180,6 @@
   }
 
   /* ---------- início ---------- */
-  montarSkyline();
-  montarRastros();
   montarFoneHero();
   montarMenu();
   const aoRolarTopo = montarNavegacao();
