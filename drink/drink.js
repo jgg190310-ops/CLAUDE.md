@@ -1,5 +1,5 @@
-/* Drink — navegação, comanda, cena da bike, tour do app e calculadoras.
-   É um protótipo: preços, motoristas e prazos são exemplos. */
+/* Drink — página única: comanda, história que anda com a rolagem, tour do app,
+   vistoria, calculadoras e navegação. É um protótipo: preços, motoristas e prazos são exemplos. */
 (function () {
   'use strict';
 
@@ -17,10 +17,28 @@
   const brl0 = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
   const hhmm = (d) => `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
   const sortear = (lista) => lista[Math.floor(Math.random() * lista.length)];
+  const num = (v) => Number(v.toFixed(1));
 
   function marcado(nome) {
     const el = $(`input[name="${nome}"]:checked`);
     return el ? el.value : '';
+  }
+
+  // sorteio com semente: o cenário sai sempre igual
+  function semente(n) {
+    return function () {
+      n = (n + 0x6D2B79F5) | 0;
+      let t = Math.imul(n ^ (n >>> 15), 1 | n);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  // reinicia uma animação de CSS feita por classe
+  function repetir(el, classe) {
+    el.classList.remove(classe);
+    void el.offsetWidth;
+    el.classList.add(classe);
   }
 
   /* ---------- preço (valores de exemplo) ---------- */
@@ -56,6 +74,7 @@
     const trilha = $('#trilha');
     const status = $('#c-status');
     const pedir = $('#c-pedir');
+    const carimbo = $('#c-carimbo');
     let timer = null;
     let emAndamento = false;
 
@@ -82,9 +101,10 @@
       $('#c-total').textContent = brl(p.total);
     }
 
-    function simular(passos) {
+    function simular(passos, fim) {
       trilha.hidden = false;
       trilha.innerHTML = passos.map((p) => `<li>${esc(p)}</li>`).join('');
+      form.classList.remove('carimbada');
       const lis = $$('li', trilha);
       let i = 0;
       emAndamento = true;
@@ -98,6 +118,8 @@
           pedir.removeAttribute('aria-disabled');
           pedir.textContent = 'Pedir outro Drink';
           status.textContent = 'Simulação concluída.';
+          carimbo.textContent = fim;
+          form.classList.add('carimbada');
           return;
         }
         status.textContent = passos[i];
@@ -123,13 +145,14 @@
       const aceito = `Pedido aceito por ${m.nome}, nota ${m.nota}, CNH há ${m.cnh} anos`
         + (marcado('cambio') === 'manual' ? '. Dirige câmbio manual' : '');
 
-      simular(agendado()
-        ? [
+      if (agendado()) {
+        simular([
           `Procurando um Drink perto de ${de}`,
           aceito,
           `${m.nome} chega de ${veiculo} às ${agendaHora.value || '--:--'}. Você recebe um aviso 10 min antes`,
-        ]
-        : [
+        ], 'Agendado');
+      } else {
+        simular([
           `Procurando um Drink perto de ${de}`,
           aceito,
           `A caminho de ${veiculo}, chega em ${5 + Math.floor(Math.random() * 8)} min`,
@@ -137,98 +160,144 @@
           'Vistoria feita com 5 fotos. Seguro ativo',
           `${dobrado} no porta-malas. Em viagem para ${para}`,
           'Entregue. Carro estacionado e chave na sua mão',
-        ]);
+        ], 'Entregue');
+      }
     });
     atualizar();
   }
 
-  /* ---------- bike ou patinete ---------- */
-  const FICHAS = {
-    bike: {
-      titulo: 'Bike elétrica dobrável',
-      texto: 'Rodas pequenas, quadro que dobra ao meio e guidão que abaixa. Vai longe e sobe ladeira sem esforço.',
-      dados: [
-        ['Melhor para', 'Distâncias maiores e bairros com subida'],
-        ['Porta-malas', 'Médio ou grande'],
-        ['Dobra', 'O quadro dobra ao meio e o guidão abaixa'],
-        ['No carro', 'Vai em pé ou deitada sobre a capa protetora'],
-      ],
-    },
-    patinete: {
-      titulo: 'Patinete elétrico',
-      texto: 'Leve e compacto. Dobra na base do guidão e cabe em quase qualquer porta-malas.',
-      dados: [
-        ['Melhor para', 'Trechos curtos e regiões planas'],
-        ['Porta-malas', 'Qualquer um, até hatch pequeno'],
-        ['Dobra', 'O guidão deita sobre a base'],
-        ['No carro', 'Vai deitado sobre a capa protetora'],
-      ],
-    },
-  };
+  /* ---------- cenário da história (gerado com semente) ---------- */
+  function montarCenario() {
+    const rnd = semente(7);
+    let h = '';
 
-  const CABE = {
-    bike: {
-      hatch: ['Cabe com o banco rebatido', 'A bike dobrada é maior que o patinete. Em hatch, o motorista rebate metade do banco traseiro.'],
-      seda: ['Cabe, mas justo', 'Em sedã pequeno pode não caber. Nesse caso o app manda um Drink de patinete.'],
-      suv: ['Cabe com folga', 'A bike dobrada vai em pé no porta-malas e ainda sobra espaço.'],
-      picape: ['Cabe', 'A bike vai na caçamba, presa com cinta.'],
-      esportivo: ['Não cabe, mas tem jeito', 'O Drink vai até você sem a bike e o app paga a volta dele.'],
-    },
-    patinete: {
-      hatch: ['Cabe', 'Com o patinete dobrado, deitado no porta-malas.'],
-      seda: ['Cabe', 'O patinete dobrado vai deitado no porta-malas.'],
-      suv: ['Cabe com folga', 'O patinete vai no porta-malas e sobra bastante espaço.'],
-      picape: ['Cabe', 'O patinete vai na caçamba, preso com cinta.'],
-      esportivo: ['Cabe, às vezes', 'Em porta-malas muito pequeno, o Drink vai sem o patinete e o app paga a volta dele.'],
-    },
-  };
+    // estrelas
+    for (let i = 0; i < 80; i++) {
+      h += `<circle cx="${num(rnd() * 1200)}" cy="${num(rnd() * 250)}" r="${(0.6 + rnd() * 1.2).toFixed(2)}" opacity="${(0.25 + rnd() * 0.65).toFixed(2)}"/>`;
+    }
+    $('#c-estrelas').innerHTML = h;
 
-  function montarCena() {
-    const cena = $('#cena');
-    const botao = $('#btn-dobrar');
-    const msg = $('#cena-msg');
-    const grupos = { bike: $('#v-bike'), patinete: $('#v-pat') };
-    const tipos = $$('#tipos .chip');
-    let veiculo = 'bike';
-    let tipo = 'suv';
+    // prédios ao longe, com janelas acesas aqui e ali
+    h = '';
+    for (let x = -120; x < 2140;) {
+      const w = Math.round(60 + rnd() * 90);
+      const alt = Math.round(110 + rnd() * 170);
+      const topo = 430 - alt;
+      h += `<rect x="${x}" y="${topo}" width="${w}" height="${alt}" fill="#0D221D"/>`;
+      if (rnd() < 0.25) h += `<path d="M${x + w / 2} ${topo}v-${Math.round(14 + rnd() * 20)}" stroke="#0D221D" stroke-width="3"/>`;
+      for (let wy = topo + 14; wy < 418; wy += 18) {
+        for (let wx = x + 10; wx < x + w - 14; wx += 14) {
+          if (rnd() < 0.15) h += `<rect x="${wx}" y="${wy}" width="6" height="9" fill="#FFD27A" opacity="${(0.22 + rnd() * 0.36).toFixed(2)}"/>`;
+        }
+      }
+      x += w + Math.round(4 + rnd() * 14);
+    }
+    $('#c-longe').innerHTML = h;
 
-    function mostrarEstado() {
-      const guardado = cena.classList.contains('guardado');
-      msg.textContent = !guardado ? '' : (veiculo === 'bike' ? 'Bike dobrada e guardada.' : 'Patinete dobrado e guardado.');
-      botao.textContent = guardado ? 'Tirar do porta-malas' : 'Dobrar e guardar';
-      botao.setAttribute('aria-pressed', String(guardado));
+    // árvores e prédios médios
+    h = '';
+    for (let x = -80; x < 2900;) {
+      if (rnd() < 0.55) {
+        const r = Math.round(26 + rnd() * 20);
+        const cx = x + r;
+        h += `<rect x="${cx - 4}" y="360" width="8" height="70" fill="#0C211C"/>`
+          + `<circle cx="${cx}" cy="350" r="${r}" fill="#0F2E26"/>`
+          + `<circle cx="${num(cx - r * 0.6)}" cy="364" r="${num(r * 0.7)}" fill="#12352C"/>`
+          + `<circle cx="${num(cx + r * 0.6)}" cy="360" r="${num(r * 0.75)}" fill="#0E2A23"/>`;
+        x += r * 2 + Math.round(30 + rnd() * 60);
+      } else {
+        const w = Math.round(90 + rnd() * 80);
+        const alt = Math.round(150 + rnd() * 120);
+        h += `<rect x="${x}" y="${430 - alt}" width="${w}" height="${alt}" fill="#10281F"/>`;
+        for (let wy = 430 - alt + 16; wy < 410; wy += 26) {
+          for (let wx = x + 12; wx < x + w - 20; wx += 22) {
+            if (rnd() < 0.2) h += `<rect x="${wx}" y="${wy}" width="10" height="14" fill="#FFD27A" opacity="${(0.25 + rnd() * 0.3).toFixed(2)}"/>`;
+          }
+        }
+        x += w + Math.round(20 + rnd() * 40);
+      }
+    }
+    $('#c-meio').innerHTML = h;
+
+    // fachadas do caminho entre o bar e a casa
+    h = '';
+    const cores = ['#16362F', '#1A3D35', '#14302A', '#1B3A33'];
+    for (let x = 1180; x < 2890;) {
+      const w = Math.round(190 + rnd() * 170);
+      const topo = Math.round(150 + rnd() * 110);
+      h += `<rect x="${x}" y="${topo}" width="${w}" height="${432 - topo}" fill="${cores[Math.floor(rnd() * cores.length)]}"/>`
+        + `<rect x="${x - 6}" y="${topo - 8}" width="${w + 12}" height="10" fill="#1F463D"/>`;
+      for (let wy = topo + 22; wy < 290; wy += 52) {
+        for (let wx = x + 22; wx + 54 < x + w; wx += 70) {
+          const acesa = rnd() < 0.35;
+          h += acesa
+            ? `<rect x="${wx}" y="${wy}" width="44" height="32" rx="2" fill="#FFD27A" opacity="${(0.38 + rnd() * 0.25).toFixed(2)}"/>`
+            : `<rect x="${wx}" y="${wy}" width="44" height="32" rx="2" fill="#0B1C18"/>`;
+        }
+      }
+      const lx = x + 18;
+      const lw = w - 36;
+      if (rnd() < 0.5) {
+        const riscos = Array.from({ length: 8 }, (_, i) => `M${lx} ${342 + i * 12}H${lx + lw}`).join('');
+        h += `<rect x="${lx}" y="330" width="${lw}" height="102" fill="#0E221D"/><path d="${riscos}" stroke="#18332C" stroke-width="3"/>`;
+      } else {
+        h += `<rect x="${lx}" y="316" width="${lw}" height="12" fill="${rnd() < 0.5 ? '#FF7A33' : '#2B5E50'}"/>`
+          + `<rect x="${lx}" y="332" width="${lw}" height="100" fill="url(#c-g-vitrine)" opacity=".5"/>`;
+      }
+      x += w + Math.round(10 + rnd() * 40);
+    }
+    $('#c-fachadas').innerHTML = h;
+  }
+
+  /* ---------- a história que anda com a rolagem ---------- */
+  function montarHistoria() {
+    const trilho = $('#trilho');
+    const palco = $('#palco');
+    const passos = $$('#historia-passos li').map((li) => ({ t: $('strong', li).textContent, d: $('span', li).textContent }));
+    const N = passos.length;
+    const pontos = $$('#leg-pontos button');
+    const legenda = $('#leg-txt');
+    const barra = $('#leg-barra');
+    let atual = -1;
+
+    function mostrar(n) {
+      if (n === atual) return;
+      atual = n;
+      palco.dataset.passo = String(n);
+      for (let i = 1; i <= N; i++) palco.classList.toggle(`ja${i}`, n >= i);
+      const idx = Math.max(1, n) - 1;
+      $('#leg-n').textContent = String(idx + 1).padStart(2, '0');
+      $('#leg-t').textContent = passos[idx].t;
+      $('#leg-d').textContent = passos[idx].d;
+      repetir(legenda, 'troca');
+      pontos.forEach((b, i) => {
+        if (i === idx) b.setAttribute('aria-current', 'step');
+        else b.removeAttribute('aria-current');
+      });
     }
 
-    function mostrarCabe() {
-      const [titulo, texto] = CABE[veiculo][tipo];
-      $('#cabe-veic').textContent = veiculo === 'bike' ? 'Com bike elétrica' : 'Com patinete';
-      $('#cabe-tit').textContent = titulo;
-      $('#cabe-txt').textContent = texto;
+    function medir() {
+      const r = trilho.getBoundingClientRect();
+      const total = Math.max(1, r.height - window.innerHeight);
+      return { r, total, p: Math.min(1, Math.max(0, -r.top / total)) };
     }
 
-    function trocar(v) {
-      veiculo = v;
-      cena.classList.remove('guardado');
-      // grupos de SVG não têm a propriedade .hidden, só o atributo
-      Object.entries(grupos).forEach(([nome, g]) => g.toggleAttribute('hidden', nome !== v));
-      const f = FICHAS[v];
-      $('#ficha').innerHTML = `<h3>${esc(f.titulo)}</h3><p>${esc(f.texto)}</p>
-        <dl>${f.dados.map(([dt, dd]) => `<div><dt>${esc(dt)}</dt><dd>${esc(dd)}</dd></div>`).join('')}</dl>`;
-      mostrarEstado();
-      mostrarCabe();
+    function aoRolar() {
+      const { r, p } = medir();
+      if (r.bottom < -50 || r.top > window.innerHeight + 50) return;
+      barra.style.transform = `scaleX(${p.toFixed(4)})`;
+      // passo 0: o palco ainda está entrando na tela; a bike espera fora de cena
+      mostrar(r.top > 1 ? 0 : Math.min(N, Math.floor(p * N) + 1));
     }
 
-    $$('input[name="cena-v"]').forEach((r) => r.addEventListener('change', () => trocar(r.value)));
-    botao.addEventListener('click', () => {
-      cena.classList.toggle('guardado');
-      mostrarEstado();
-    });
-    tipos.forEach((b) => b.addEventListener('click', () => {
-      tipos.forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
-      tipo = b.dataset.tipo;
-      mostrarCabe();
+    pontos.forEach((b) => b.addEventListener('click', () => {
+      const { r, total } = medir();
+      const topo = window.scrollY + r.top;
+      window.scrollTo({ top: topo + total * ((Number(b.dataset.irPasso) - 0.5) / N), behavior: reduzirMovimento ? 'auto' : 'smooth' });
     }));
-    trocar('bike');
+    $$('input[name="hist-veic"]').forEach((r) => r.addEventListener('change', () => { palco.dataset.veic = r.value; }));
+    mostrar(0);
+    return aoRolar;
   }
 
   /* ---------- tour do app ---------- */
@@ -283,26 +352,127 @@
     mostrar(0, false);
   }
 
-  /* ---------- vistoria ---------- */
-  function montarVistoria() {
-    const fotos = $$('[data-foto]');
+  /* ---------- vistoria com polaroides ---------- */
+  const LADOS = { frente: 'Frente', traseira: 'Traseira', esquerda: 'Esquerda', direita: 'Direita', painel: 'Painel' };
+  const DESTAQUE = {
+    frente: '<rect x="12" y="-2" width="96" height="48" rx="12"/>',
+    traseira: '<rect x="12" y="154" width="96" height="48" rx="12"/>',
+    esquerda: '<rect x="-2" y="28" width="38" height="144" rx="12"/>',
+    direita: '<rect x="84" y="28" width="38" height="144" rx="12"/>',
+    painel: '<rect x="26" y="50" width="68" height="44" rx="10"/>',
+  };
 
-    function atualizar() {
-      const n = fotos.filter((f) => f.getAttribute('aria-pressed') === 'true').length;
-      $('#vist-barra').style.width = `${(n / fotos.length) * 100}%`;
-      $('#vist-res').textContent = n === fotos.length
-        ? 'Vistoria completa. Seguro ativado.'
-        : `${n} de ${fotos.length} fotos`;
+  function montarVistoria() {
+    const carro = $('#vist-carro');
+    const fotos = $$('[data-foto]', carro);
+    const lista = $('#polaroides');
+    const res = $('#vist-res');
+    const carimbo = $('#vist-carimbo');
+    const refazer = $('#vist-refazer');
+    const tiradas = [];
+
+    function desenhar(nova) {
+      lista.innerHTML = Object.keys(LADOS).map((_, i) => {
+        const lado = tiradas[i];
+        if (!lado) return `<li>${i + 1}</li>`;
+        const giro = ((i * 37) % 7) - 3;
+        return `<li class="tirada${lado === nova ? ' nova' : ''}" style="--r:${giro}deg">`
+          + `<svg viewBox="-20 -12 160 224" aria-hidden="true"><use href="#s-carro-topo" width="120" height="200"/><g fill="#FF7A33" opacity=".55">${DESTAQUE[lado]}</g></svg>`
+          + `<span>${LADOS[lado]}</span></li>`;
+      }).join('');
+      const n = tiradas.length;
+      res.textContent = n === 5 ? 'Vistoria completa. Seguro ativado.' : `${n} de 5 fotos`;
+      carimbo.classList.toggle('batido', n === 5);
+      refazer.hidden = n === 0;
     }
 
     fotos.forEach((f) => {
       f.setAttribute('aria-pressed', 'false');
       f.addEventListener('click', () => {
-        f.setAttribute('aria-pressed', String(f.getAttribute('aria-pressed') !== 'true'));
-        atualizar();
+        const lado = f.dataset.foto;
+        const i = tiradas.indexOf(lado);
+        if (i >= 0) {
+          tiradas.splice(i, 1);
+          f.setAttribute('aria-pressed', 'false');
+          desenhar();
+        } else {
+          tiradas.push(lado);
+          f.setAttribute('aria-pressed', 'true');
+          if (!reduzirMovimento) repetir(carro, 'clarao');
+          desenhar(lado);
+        }
       });
     });
-    atualizar();
+    refazer.addEventListener('click', () => {
+      tiradas.length = 0;
+      fotos.forEach((f) => f.setAttribute('aria-pressed', 'false'));
+      desenhar();
+    });
+    desenhar();
+  }
+
+  /* ---------- números que contam ao aparecer ---------- */
+  function montarNumeros() {
+    const alvos = $$('[data-conta]');
+    if (reduzirMovimento || !('IntersectionObserver' in window)) return;
+    const io = new IntersectionObserver((entradas) => entradas.forEach((e) => {
+      if (!e.isIntersecting) return;
+      io.unobserve(e.target);
+      const fim = Number(e.target.dataset.conta);
+      const t0 = performance.now();
+      (function passo(t) {
+        const k = Math.min(1, (t - t0) / 900);
+        e.target.textContent = String(Math.round(fim * (1 - Math.pow(1 - k, 3))));
+        if (k < 1) requestAnimationFrame(passo);
+      }(t0));
+    }), { threshold: 0.6 });
+    alvos.forEach((el) => io.observe(el));
+  }
+
+  /* ---------- varal de luzes dos eventos ---------- */
+  function montarVaral() {
+    const varal = $('#varal');
+    const curvas = [[[-20, 24], [300, 132], [620, 30]], [[620, 30], [940, 132], [1220, 24]]];
+    let h = '';
+    let i = 0;
+    curvas.forEach(([a, c, b]) => {
+      for (let k = 1; k <= 8; k++) {
+        const t = k / 9;
+        const u = 1 - t;
+        const x = num(u * u * a[0] + 2 * u * t * c[0] + t * t * b[0]);
+        const y = num(u * u * a[1] + 2 * u * t * c[1] + t * t * b[1]);
+        h += `<g class="lampada" style="--i:${i++}">`
+          + `<circle class="brilho" cx="${x}" cy="${num(y + 16)}" r="28" fill="url(#e-g-luz)"/>`
+          + `<rect x="${num(x - 3)}" y="${num(y - 1)}" width="6" height="8" rx="1" fill="#2B4A42"/>`
+          + `<ellipse class="bulbo" cx="${x}" cy="${num(y + 13)}" rx="5.5" ry="7.5"/></g>`;
+      }
+    });
+    $('#varal-lampadas').innerHTML = h;
+    if (reduzirMovimento || !('IntersectionObserver' in window)) {
+      varal.classList.add('acesa');
+      return;
+    }
+    const io = new IntersectionObserver((entradas) => {
+      if (entradas.some((e) => e.isIntersecting)) {
+        varal.classList.add('acesa');
+        io.disconnect();
+      }
+    }, { threshold: 0.4 });
+    io.observe(varal);
+  }
+
+  /* ---------- QR code de enfeite no cavalete da mesa ---------- */
+  function montarQR() {
+    const rnd = semente(3);
+    const quadro = (x, y) => `<path d="M${x} ${y}h7v7h-7zM${x + 1} ${y + 1}v5h5v-5z" fill-rule="evenodd"/><rect x="${x + 2}" y="${y + 2}" width="3" height="3"/>`;
+    let h = quadro(0, 0) + quadro(18, 0) + quadro(0, 18);
+    for (let y = 0; y < 25; y++) {
+      for (let x = 0; x < 25; x++) {
+        const noCanto = (x < 8 && y < 8) || (x > 16 && y < 8) || (x < 8 && y > 16);
+        if (!noCanto && rnd() < 0.48) h += `<rect x="${x}" y="${y}" width="1" height="1"/>`;
+      }
+    }
+    $('#qr').innerHTML = `<g fill="#1D1A14">${h}</g>`;
   }
 
   /* ---------- eventos ---------- */
@@ -331,7 +501,25 @@
     calcular();
   }
 
-  /* ---------- seja um Drink ---------- */
+  /* ---------- seja um Drink: ganho em odômetro ---------- */
+  function odometro(el, texto) {
+    const chars = Array.from(texto);
+    const eDigito = (c) => /\d/.test(c);
+    const antes = Array.from(el.dataset.valor || '');
+    const mesmaForma = antes.length === chars.length && antes.every((c, i) => eDigito(c) === eDigito(chars[i]));
+    if (!mesmaForma) {
+      el.innerHTML = chars.map((c) => (eDigito(c)
+        ? `<span class="odo-d"><span class="odo-fita">${'0123456789'.split('').map((d) => `<span>${d}</span>`).join('')}</span></span>`
+        : `<span class="odo-s">${c.trim() ? esc(c) : '&nbsp;'}</span>`)).join('');
+    }
+    const fitas = $$('.odo-fita', el);
+    let k = 0;
+    chars.forEach((c) => {
+      if (eDigito(c)) fitas[k++].style.transform = `translateY(${-Number(c) * 1.18}em)`;
+    });
+    el.dataset.valor = texto;
+  }
+
   function montarMotorista() {
     const noites = $('#m-noites');
     const horas = $('#m-horas');
@@ -344,7 +532,9 @@
       const viagens = Math.round(n * 4.3 * h * 1.3);
       const bruto = viagens * 45;
       const aluguel = marcado('m-veic') === 'alugo' ? Math.round(60 * 4.3) : 0;
-      $('#m-ganho').textContent = brl0(bruto - aluguel);
+      const ganho = brl0(bruto - aluguel);
+      $('#m-ganho').textContent = ganho;
+      odometro($('#m-odo'), ganho);
       let html = `<li><span>Cerca de ${viagens} viagens</span><span>${brl0(bruto)}</span></li>`;
       if (aluguel) html += `<li><span>Aluguel com o Drink (R$ 60 por semana)</span><span>− ${brl0(aluguel)}</span></li>`;
       $('#m-conta').innerHTML = html;
@@ -370,51 +560,59 @@
     });
   }
 
-  /* ---------- navegação ---------- */
-  const TITULOS = {
-    inicio: 'Drink',
-    'como-funciona': 'Como funciona · Drink',
-    seguranca: 'Segurança · Drink',
-    eventos: 'Eventos · Drink',
-    motorista: 'Seja um Drink',
-  };
-  let telaAtual = null;
+  /* ---------- navegação: topo, seção atual e paralaxe do bar ---------- */
+  function montarNavegacao() {
+    const topo = $('#topo');
+    const links = $$('[data-aba]');
+    const hero = $('.hero');
+    const fundo = $('.hero-fundo');
 
-  function rota() {
-    let id = 'inicio';
-    try { id = decodeURIComponent(location.hash.slice(1)) || 'inicio'; } catch (e) { /* hash malformado */ }
-    let view = $$('[data-view]').find((v) => v.dataset.view === id);
-    if (!view) {
-      if (telaAtual) return; // âncora comum (ex.: pular para o conteúdo), não é uma tela
-      id = 'inicio';
-      view = $('[data-view="inicio"]');
+    function marcar(aba) {
+      links.forEach((a) => {
+        if (a.dataset.aba === aba) a.setAttribute('aria-current', 'true');
+        else a.removeAttribute('aria-current');
+      });
     }
-    if (id === telaAtual) return;
-    const primeira = telaAtual === null;
-    telaAtual = id;
-
-    $$('[data-view]').forEach((v) => { v.hidden = v !== view; });
-    $$('[data-nav]').forEach((a) => {
-      if (a.dataset.nav === id) a.setAttribute('aria-current', 'page');
-      else a.removeAttribute('aria-current');
-    });
-    document.title = TITULOS[id] || 'Drink';
-
-    if (!primeira) {
-      window.scrollTo(0, 0);
-      const h1 = $('h1', view);
-      if (h1) h1.focus({ preventScroll: true });
+    if ('IntersectionObserver' in window) {
+      const io = new IntersectionObserver((entradas) => entradas.forEach((e) => {
+        if (e.isIntersecting) marcar(e.target.dataset.secao);
+      }), { rootMargin: '-45% 0px -50% 0px' });
+      $$('[data-secao]').forEach((s) => io.observe(s));
     }
+
+    return function (y) {
+      topo.classList.toggle('solido', y > 8);
+      // o fundo do bar (luminárias e prateleira) anda mais devagar que a página
+      if (!reduzirMovimento && y < hero.offsetHeight) fundo.style.transform = `translate3d(0, ${(y * 0.28).toFixed(1)}px, 0)`;
+    };
   }
 
   /* ---------- início ---------- */
   montarComanda();
-  montarCena();
+  montarCenario();
+  const historiaAoRolar = montarHistoria();
   montarTour();
   montarVistoria();
+  montarNumeros();
+  montarVaral();
+  montarQR();
   montarEventos();
   montarMotorista();
   montarDialogos();
-  window.addEventListener('hashchange', rota);
-  rota();
+  const navegacaoAoRolar = montarNavegacao();
+
+  let pedido = false;
+  function aoRolar() {
+    if (pedido) return;
+    pedido = true;
+    requestAnimationFrame(() => {
+      pedido = false;
+      const y = window.scrollY;
+      navegacaoAoRolar(y);
+      historiaAoRolar();
+    });
+  }
+  window.addEventListener('scroll', aoRolar, { passive: true });
+  window.addEventListener('resize', aoRolar);
+  aoRolar();
 })();
