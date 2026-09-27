@@ -200,6 +200,8 @@ h2 { font-size: clamp(3rem, 7.4vw, 7.2rem); line-height: .92; text-wrap: balance
   display: inline-block; padding: .04em .12em 0; border-radius: .08em; line-height: .9;
   background: var(--destaque-fundo);
 }
+/* o til do PLANTÃO fica acima das maiúsculas: a tarja cresce um pouco para cima */
+.destaque.com-acento { padding-top: .17em; }
 .sem-quebra { white-space: nowrap; }
 h3 { font-family: var(--f-display); font-weight: 800; font-stretch: 85%; font-size: 1.7rem; line-height: 1.02; letter-spacing: -.015em; text-wrap: balance; }
 .lede { font-size: clamp(1.08rem, 1.4vw, 1.24rem); line-height: 1.55; color: var(--ink-2); max-width: 50ch; text-wrap: pretty; }
