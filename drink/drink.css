@@ -1091,3 +1091,126 @@ input[type="range"]:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 2px var(
   .pergunta summary { font-size: 1.02rem; padding: 18px 16px 18px 18px; }
   .pergunta p { padding: 0 18px 20px; }
 }
+
+
+/* ---------- o jeito descontraído: adesivos, anotações à mão, riscos de caneta, ondas e a conversa ---------- */
+:root {
+  --f-mao: "Caveat Brush", "Bradley Hand", "Segoe Print", "Comic Sans MS", cursive;
+  --onda: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 140 20' preserveAspectRatio='none'><path d='M0 10C17.5 10 17.5 1 35 1S52.5 10 70 10 87.5 19 105 19 122.5 10 140 10V20H0Z'/></svg>");
+}
+
+/* adesivo colado meio torto, com a borda branca de adesivo recortado */
+.adesivo {
+  display: inline-block; padding: .44em .95em .5em; border-radius: 999px; white-space: nowrap;
+  background: var(--rosa); color: var(--tinta);
+  font-family: var(--f-texto); font-weight: 800; font-stretch: 100%; font-size: 1.02rem; line-height: 1; letter-spacing: .01em; text-transform: none;
+  rotate: -7deg; pointer-events: none;
+  box-shadow: 0 0 0 .2em var(--creme), 0 .7em 1.1em -.5em rgba(8, 10, 60, .55);
+}
+.hero-titulo-caixa { --th: clamp(4.6rem, 12vw, 12.6rem); position: relative; }
+.adesivo-hero { position: absolute; z-index: 2; left: calc(var(--th) * 2.3); top: calc(var(--th) * -.08); font-size: clamp(.95rem, 1.3vw, 1.2rem); }
+.carta { position: relative; }
+.adesivo-carta { position: absolute; right: -10px; top: -16px; rotate: 6deg; background: var(--lima); }
+.planta { position: relative; }
+.adesivo-dobra { position: absolute; z-index: 3; left: -14px; top: -18px; rotate: -5deg; }
+.titulo-caixa { position: relative; }
+.adesivo-ev { position: absolute; right: 2%; top: -.9em; rotate: 7deg; background: var(--lima); }
+
+/* anotação à mão, com a seta desenhada */
+.anota {
+  position: absolute; z-index: 4; display: flex; align-items: flex-end; gap: 4px; margin: 0;
+  font-family: var(--f-mao); font-weight: 400; font-stretch: 100%; font-size: clamp(1.35rem, 1.7vw, 1.7rem); line-height: .98;
+  letter-spacing: 0; text-transform: none; color: var(--lima); rotate: -5deg; pointer-events: none; white-space: nowrap;
+}
+.anota-seta {
+  flex: none; width: 74px; height: 58px; overflow: visible;
+  fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round;
+}
+.anota-hero { left: -18%; bottom: -12%; flex-direction: row; }
+.anota-hero .anota-seta { margin-bottom: 26px; }
+.anota-demo { right: 60%; bottom: -60px; flex-direction: row; color: var(--cobalto); rotate: -4deg; }
+.anota-demo .anota-seta { margin-bottom: 22px; }
+.painel-odo { position: relative; }
+.adesivo-odo { position: absolute; right: -14px; top: -16px; rotate: 6deg; background: var(--lima); box-shadow: 0 0 0 .2em var(--preto), 0 .7em 1.1em -.5em rgba(0, 0, 0, .6); }
+
+/* círculo e sublinhado de caneta nos títulos */
+.risco { position: relative; display: inline-block; }
+.risco-traco {
+  position: absolute; left: -9%; top: -16%; width: 118%; height: 132%; overflow: visible; pointer-events: none;
+  fill: none; stroke: var(--rosa); stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round;
+}
+.risco-baixo .risco-traco { top: auto; bottom: -.2em; left: -1%; width: 102%; height: .28em; stroke-width: 3.6; }
+
+/* seta e risco se desenham uma vez, quando aparecem */
+.js-revela :is(.anota, .risco).revela { transform: none; }
+.js-revela .anota:not(.visto) .anota-seta, .js-revela .risco:not(.visto) .risco-traco { stroke-dasharray: 1; stroke-dashoffset: 1; }
+.js-revela .anota.visto .anota-seta { stroke-dasharray: 1; animation: risca .7s .35s cubic-bezier(.5, 0, .3, 1) both; }
+.js-revela .risco.visto .risco-traco { stroke-dasharray: 1; animation: risca .8s .45s cubic-bezier(.5, 0, .3, 1) both; }
+@keyframes risca { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+@media (prefers-reduced-motion: no-preference) {
+  .adesivo-hero { animation: gruda .55s 1s cubic-bezier(.3, 1.6, .5, 1) both; }
+  .hero-texto > .hero-titulo-caixa { animation: none; }
+}
+@keyframes gruda { from { opacity: 0; transform: scale(.4) rotate(-18deg); } to { opacity: 1; transform: none; } }
+
+/* bordas em onda entre as seções de cor */
+section.onda {
+  --onda-h: clamp(14px, 1.8vw, 24px);
+  position: relative; z-index: 1;
+  margin-top: calc(var(--onda-h) * -1); padding-top: calc(var(--secao) + var(--onda-h));
+  -webkit-mask: var(--onda) top left / calc(var(--onda-h) * 7) var(--onda-h) repeat-x, linear-gradient(#000 0 0) 0 var(--onda-h) / 100% 100% no-repeat;
+  mask: var(--onda) top left / calc(var(--onda-h) * 7) var(--onda-h) repeat-x, linear-gradient(#000 0 0) 0 var(--onda-h) / 100% 100% no-repeat;
+}
+
+/* perguntas numa conversa: você pergunta, o Drink responde */
+.conversa {
+  display: grid; gap: 14px; padding: 16px 18px 18px; border-radius: 30px;
+  background: var(--preto-2); box-shadow: inset 0 0 0 1px rgba(255, 243, 226, .08);
+}
+.conversa-cab { display: flex; align-items: center; gap: 12px; padding: 2px 4px 14px; border-bottom: 1px solid rgba(255, 243, 226, .1); }
+.conversa-av { flex: none; width: 44px; height: 44px; border-radius: 50%; background: var(--limao-svg) center / 100% no-repeat; }
+.conversa-cab b { display: block; font-weight: 800; font-size: 1.06rem; line-height: 1.2; }
+.conversa-cab small { display: flex; align-items: center; gap: 7px; font-size: .86rem; color: var(--luz-3); }
+.conversa-cab i { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--lima); }
+.conversa .faq-lista { gap: 10px; }
+.conversa .pergunta, .conversa .pergunta[open] { display: grid; gap: 8px; border-radius: 0; background: none; }
+.conversa .pergunta summary {
+  justify-self: end; max-width: 88%; gap: 12px; padding: 11px 11px 11px 18px;
+  border-radius: 22px 22px 6px 22px; background: var(--preto-3); color: var(--luz);
+  font-size: 1.02rem; text-align: left; transition: background-color .2s, color .2s;
+}
+.conversa .pergunta summary:hover { background: #34323F; }
+.conversa .pergunta[open] summary { background: var(--lima); color: var(--tinta); }
+.conversa .pergunta summary .i { width: 30px; height: 30px; padding: 7px; }
+.conversa .pergunta[open] summary .i { background: var(--tinta); color: var(--lima); }
+.conversa .pergunta p {
+  position: relative; justify-self: start; max-width: min(84%, 56ch); margin-left: 44px; padding: 12px 18px 13px;
+  border-radius: 22px 22px 22px 6px; background: var(--creme); color: var(--tinta);
+  font-size: 1rem; line-height: 1.45;
+}
+.conversa .pergunta p::before {
+  content: ""; position: absolute; left: -44px; bottom: 0; width: 34px; height: 34px; border-radius: 50%;
+  background: var(--limao-svg) center / 100% no-repeat;
+}
+.conversa-pe { text-align: center; font-family: var(--f-mao); font-size: 1.4rem; line-height: 1; color: var(--luz-3); }
+@media (prefers-reduced-motion: no-preference) {
+  .conversa .pergunta[open] p { animation: bolha .38s cubic-bezier(.2, .9, .3, 1.15) both; transform-origin: 0 100%; }
+}
+@keyframes bolha { from { opacity: 0; transform: translateY(10px) scale(.92); } to { opacity: 1; transform: none; } }
+
+@media (max-width: 900px) {
+  .anota-hero { left: -2%; bottom: -16%; }
+  .anota-demo { right: 56%; bottom: -66px; }
+}
+@media (max-width: 560px) {
+  .hero-titulo-caixa { --th: clamp(4rem, 25vw, 7rem); }
+  .adesivo-hero { left: auto; right: -6px; top: calc(var(--th) * .7); font-size: .88rem; rotate: -10deg; }
+  .anota { font-size: 1.3rem; }
+  .anota-hero { left: -4%; bottom: -20%; }
+  .anota-demo { display: none; }
+  .adesivo-odo { right: -6px; }
+  .conversa { padding: 12px 12px 14px; border-radius: 24px; }
+  .conversa .pergunta summary { max-width: 94%; font-size: .98rem; }
+  .conversa .pergunta p { max-width: calc(100% - 44px); font-size: .96rem; }
+  .adesivo-ev { right: 0; top: -2.7em; font-size: .9rem; }
+}

@@ -20,7 +20,7 @@
   <meta name="twitter:card" content="summary_large_image">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&family=Caveat+Brush&display=swap">
   <link rel="stylesheet" href="app-telas.css">
   <link rel="stylesheet" href="drink.css">
 </head>
@@ -71,6 +71,13 @@
     <symbol id="i-carro" viewBox="0 0 24 24"><path d="M3.5 15.5v-3l2-4.6a2 2 0 011.8-1.2h9.4a2 2 0 011.8 1.2l2 4.6v3a1 1 0 01-1 1h-1"/><path d="M8.3 16.5h7.4M5.5 12h13"/><circle cx="6.5" cy="16.5" r="1.8"/><circle cx="17.5" cy="16.5" r="1.8"/></symbol>
     <symbol id="i-limao" viewBox="0 0 32 32"><circle cx="16" cy="16" r="15.2" style="fill:var(--limao-casca, #8CD62A);stroke:none"/><circle cx="16" cy="16" r="12.9" style="fill:var(--limao-miolo, #F3FFC4);stroke:none"/><path style="fill:var(--limao-polpa, #D2FF3C);stroke:none" d="M16.14 14.11L16.83 4.63A11.4 11.4 0 0 1 23.45 7.37L17.24 14.56ZM17.44 14.76L24.63 8.55A11.4 11.4 0 0 1 27.37 15.17L17.89 15.86ZM17.89 16.14L27.37 16.83A11.4 11.4 0 0 1 24.63 23.45L17.44 17.24ZM17.24 17.44L23.45 24.63A11.4 11.4 0 0 1 16.83 27.37L16.14 17.89ZM15.86 17.89L15.17 27.37A11.4 11.4 0 0 1 8.55 24.63L14.76 17.44ZM14.56 17.24L7.37 23.45A11.4 11.4 0 0 1 4.63 16.83L14.11 16.14ZM14.11 15.86L4.63 15.17A11.4 11.4 0 0 1 7.37 8.55L14.56 14.76ZM14.76 14.56L8.55 7.37A11.4 11.4 0 0 1 15.17 4.63L15.86 14.11Z"/></symbol>
     <symbol id="i-copo" viewBox="0 0 32 32"><path d="M4 5h24L16 18z" style="fill:var(--copo, #D2FF3C);stroke:none"/><path d="M16 18v9M10 28h12" style="stroke-width:2.4"/><circle cx="21" cy="9" r="3.6" style="stroke-width:2"/><path d="M21 5.4v7.2M17.4 9h7.2" style="stroke-width:1.4"/></symbol>
+
+    <!-- riscos de caneta: setas das anotações, círculo e sublinhado nos títulos -->
+    <symbol id="seta-desce" viewBox="0 0 90 70"><path pathLength="1" d="M6 8C34 2 66 14 74 52M74 52L62 42M74 52L82 38"/></symbol>
+    <symbol id="seta-sobe" viewBox="0 0 90 70"><path pathLength="1" d="M8 60C24 58 54 52 72 18M72 18L58 22M72 18L76 32"/></symbol>
+    <symbol id="seta-volta" viewBox="0 0 90 70"><path pathLength="1" d="M84 10C56 2 18 12 14 50M14 50L8 36M14 50L28 42"/></symbol>
+    <symbol id="risco-roda" viewBox="0 0 200 70" preserveAspectRatio="none"><path pathLength="1" d="M22 14C64 3 150 2 186 18 204 30 186 58 110 64 46 69 4 56 8 34 12 16 58 8 104 7"/></symbol>
+    <symbol id="risco-sub" viewBox="0 0 200 20" preserveAspectRatio="none"><path pathLength="1" d="M4 12C46 6 104 4 196 8M28 17C80 13 136 12 184 14"/></symbol>
 
     <!-- mapa de Belo Horizonte, estilizado: quadras em grade cortadas por avenidas diagonais -->
     <pattern id="ruas" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M0 .5H20M.5 0V20" fill="none" stroke="#1B1A30" stroke-width="1.6"/></pattern>
@@ -170,16 +177,19 @@
     <div class="hero-in">
       <div class="hero-texto">
         <p class="sobre"><span class="sobre-ponto" aria-hidden="true"></span>Motorista da vez em Belo Horizonte</p>
-        <h1 class="hero-titulo" id="hero-titulo"><span>Pede um</span> <em>Drink.</em></h1>
-        <p class="hero-lede">O motorista chega de bike elétrica ou patinete, dobra tudo no seu porta-malas e leva você e o seu carro para casa.</p>
+        <div class="hero-titulo-caixa">
+          <h1 class="hero-titulo" id="hero-titulo"><span>Pede um</span> <em>Drink.</em></h1>
+          <span class="adesivo adesivo-hero" aria-hidden="true">bebeu? relaxa</span>
+        </div>
+        <p class="hero-lede">O motorista chega de bike ou patinete, dobra ela no seu porta-malas e leva você e o seu carro pra casa. Simples assim.</p>
         <div class="acoes">
           <a class="btn btn-sodio" href="#app" data-app-cheia>Pedir um Drink<svg class="i" aria-hidden="true"><use href="#i-seta"/></svg></a>
-          <a class="btn btn-vidro" href="#app"><svg class="i" aria-hidden="true"><use href="#i-celular"/></svg>Experimente o app</a>
+          <a class="btn btn-vidro" href="#app"><svg class="i" aria-hidden="true"><use href="#i-celular"/></svg>Testa o app aqui</a>
         </div>
         <ul class="hero-fatos">
-          <li><svg class="i" aria-hidden="true"><use href="#i-carteira"/></svg><span><b>R$ 25 + R$ 3,50 por km</b><small>preço fechado antes de pedir</small></span></li>
-          <li><svg class="i" aria-hidden="true"><use href="#i-escudo"/></svg><span><b>Seguro incluso</b><small>da vistoria à entrega da chave</small></span></li>
-          <li><svg class="i" aria-hidden="true"><use href="#i-relogio"/></svg><span><b>Até 15 minutos</b><small>para o Drink chegar</small></span></li>
+          <li><svg class="i" aria-hidden="true"><use href="#i-carteira"/></svg><span><b>R$ 25 + R$ 3,50 por km</b><small>preço na lata, antes de pedir</small></span></li>
+          <li><svg class="i" aria-hidden="true"><use href="#i-escudo"/></svg><span><b>Seguro incluso</b><small>da vistoria até a chave na mão</small></span></li>
+          <li><svg class="i" aria-hidden="true"><use href="#i-relogio"/></svg><span><b>Até 15 minutos</b><small>pro Drink chegar até você</small></span></li>
         </ul>
       </div>
 
@@ -223,6 +233,7 @@
           <span class="flutua-ic"><svg class="i-dobrada"><use href="#bike-dobrada"/></svg></span>
           <span><b>Bike no porta-malas</b><small>dobrada em 18 s</small></span>
         </div>
+        <p class="anota anota-hero"><span>tipo app de corrida,<br>só que o carro é o seu ;)</span><svg class="anota-seta"><use href="#seta-sobe"/></svg></p>
       </div>
     </div>
     <svg class="serra serra-topo" aria-hidden="true"><use href="#serra-corpo" class="serra-corpo"/></svg>
@@ -232,10 +243,10 @@
   <section class="faixa" aria-label="O Drink em números">
     <div class="letreiro" aria-hidden="true"><p class="letreiro-trilho"><span>Se beber, chame um Drink</span><svg><use href="#i-limao"/></svg><span>Savassi</span><svg><use href="#i-limao"/></svg><span>Lourdes</span><svg><use href="#i-limao"/></svg><span>Funcionários</span><svg><use href="#i-limao"/></svg><span>Santa Tereza</span><svg><use href="#i-limao"/></svg><span>Buritis</span><svg><use href="#i-limao"/></svg><span>Sion</span><svg><use href="#i-limao"/></svg><span>Pampulha</span><svg><use href="#i-limao"/></svg><span>Centro</span><svg><use href="#i-limao"/></svg><span>Se beber, chame um Drink</span><svg><use href="#i-limao"/></svg><span>Savassi</span><svg><use href="#i-limao"/></svg><span>Lourdes</span><svg><use href="#i-limao"/></svg><span>Funcionários</span><svg><use href="#i-limao"/></svg><span>Santa Tereza</span><svg><use href="#i-limao"/></svg><span>Buritis</span><svg><use href="#i-limao"/></svg><span>Sion</span><svg><use href="#i-limao"/></svg><span>Pampulha</span><svg><use href="#i-limao"/></svg><span>Centro</span><svg><use href="#i-limao"/></svg></p></div>
     <ul class="faixa-in">
-      <li><b>Zero</b><span>tolerância na Lei Seca. Se beber, alguém sóbrio dirige por você.</span></li>
-      <li><b>1 <small>viagem</small></b><span>em vez de dois carros de aplicativo e o estacionamento.</span></li>
-      <li><b>15 <small>min</small></b><span>é a meta para o Drink chegar nos bairros atendidos.</span></li>
-      <li><b>Em casa</b><span>é onde o carro dorme. Nada de buscar no dia seguinte.</span></li>
+      <li><b>Zero</b><span>de tolerância na Lei Seca. Bebeu? Quem dirige é o Drink.</span></li>
+      <li><b>1 <small>viagem</small></b><span>no lugar de dois carros de aplicativo e do estacionamento.</span></li>
+      <li><b>15 <small>min</small></b><span>é a meta pro Drink chegar nos bairros atendidos.</span></li>
+      <li><b>Em casa</b><span>é onde o carro dorme. Nada de buscar no dia seguinte, de ressaca.</span></li>
     </ul>
   </section>
 
@@ -244,8 +255,8 @@
     <div class="wrap demo-grade">
       <div class="demo-cab">
         <p class="rotulo">Como funciona</p>
-        <h2 id="app-titulo">Experimente <span class="destaque">o app.</span></h2>
-        <p class="lede">Toque no celular e faça um pedido de mentira, da mesa do bar até a chave na sua mão. Converse com o motorista, compartilhe a viagem, use o cupom e veja o recibo. Na demonstração, tudo acontece em segundos.</p>
+        <h2 id="app-titulo">Bora testar <span class="destaque">o app?</span></h2>
+        <p class="lede">Toca no celular e faz um pedido de mentirinha, da mesa do bar até a chave na sua mão. Conversa com o motorista, compartilha a viagem, usa o cupom e vê o recibo. Aqui tudo acontece em segundos.</p>
       </div>
 
       <div class="demo-palco">
@@ -637,6 +648,7 @@
             <p class="d-toast" id="d-toast" role="status" aria-live="polite" hidden><span class="d-toast-ic" aria-hidden="true"><svg><use href="#i-limao"/></svg></span><span class="d-toast-txt" id="d-toast-txt"></span></p>
           </div>
         </div>
+        <p class="anota anota-demo"><span>pode fuçar à vontade,<br>é tudo de mentirinha</span><svg class="anota-seta"><use href="#seta-sobe"/></svg></p>
         <div class="demo-dica" aria-hidden="true"><svg class="selo-giro-txt" viewBox="0 0 120 120"><path id="giro-demo" d="M60 60m-45 0a45 45 0 1 1 90 0a45 45 0 1 1-90 0" fill="none"/><text textLength="280" lengthAdjust="spacing"><textPath href="#giro-demo">TOQUE PARA USAR • EXPERIMENTE • </textPath></text></svg><svg class="i"><use href="#i-toque"/></svg></div>
       </div>
 
@@ -659,12 +671,12 @@
   </section>
 
   <!-- ================= Tudo pelo app ================= -->
-  <section class="recursos" id="recursos" aria-labelledby="rec-titulo">
+  <section class="recursos onda" id="recursos" aria-labelledby="rec-titulo">
     <div class="wrap rec-cab">
       <div class="cab">
         <p class="rotulo">Tudo pelo app</p>
-        <h2 id="rec-titulo">Um app para <span class="destaque">a noite inteira.</span></h2>
-        <p class="lede">Para quem pede e para quem dirige. Do agendamento ao recibo, sem ligação e sem dinheiro na mão.</p>
+        <h2 id="rec-titulo">Um app pra <span class="destaque">noite toda.</span></h2>
+        <p class="lede">Pra quem pede e pra quem dirige. Do agendamento ao recibo, sem ligar pra ninguém e sem dinheiro na mão.</p>
       </div>
       <div class="seg rec-seg" role="radiogroup" aria-label="Ver o app de quem">
         <input type="radio" name="rec-lado" id="rl-pede" value="pede" checked><label for="rl-pede"><svg class="i" aria-hidden="true"><use href="#i-pessoas"/></svg>Para quem pede</label>
@@ -796,7 +808,7 @@
       <div class="dobra-texto">
         <p class="rotulo">A dobra</p>
         <h2 id="dobra-titulo">Chega pedalando. Volta no <span class="sem-quebra destaque">porta-malas.</span></h2>
-        <p class="lede">A bike elétrica dobra ao meio em 20 segundos. O patinete dobra a haste e vai deitado. Antes de guardar, o Drink forra o porta-malas com uma capa.</p>
+        <p class="lede">A bike elétrica dobra ao meio em 20 segundos. O patinete dobra a haste e vai deitadinho. E antes de guardar, o Drink forra o porta-malas com uma capa.</p>
         <div class="seg" role="radiogroup" aria-label="Veículo do desenho">
           <input type="radio" name="dobra-veic" id="dv-bike" value="bike" checked><label for="dv-bike"><svg class="i" aria-hidden="true"><use href="#i-bike"/></svg>Bike elétrica</label>
           <input type="radio" name="dobra-veic" id="dv-pat" value="patinete"><label for="dv-pat"><svg class="i" aria-hidden="true"><use href="#i-patinete"/></svg>Patinete</label>
@@ -811,6 +823,7 @@
       </div>
 
       <figure class="planta" id="planta" data-veic="bike" data-estado="aberta">
+        <span class="adesivo adesivo-dobra" aria-hidden="true">uai, cabe até em hatch!</span>
         <div class="planta-topo">
           <p class="planta-folha"><span>Folha 01</span><span id="planta-nome">Bike elétrica dobrável</span></p>
           <button class="btn btn-sodio btn-p" id="dobrar" type="button" aria-controls="planta">Dobrar a bike</button>
@@ -915,13 +928,14 @@
   </section>
 
   <!-- ================= Preço ================= -->
-  <section class="preco" id="preco" data-secao="preco" aria-labelledby="preco-titulo">
+  <section class="preco onda" id="preco" data-secao="preco" aria-labelledby="preco-titulo">
     <div class="wrap preco-grade">
       <div class="preco-texto">
         <p class="rotulo">Preço</p>
-        <h2 id="preco-titulo">Você vê o preço <span class="destaque">antes de pedir.</span></h2>
-        <p class="lede">Funciona como um taxímetro, só que o valor aparece antes. Bike ou patinete custam o mesmo, e o seguro da viagem vem incluso.</p>
+        <h2 id="preco-titulo">Preço <span class="sem-quebra"><span class="risco">na lata<svg class="risco-traco" aria-hidden="true"><use href="#risco-roda"/></svg></span>,</span> <span class="destaque">antes de pedir.</span></h2>
+        <p class="lede">Funciona igual taxímetro, só que você vê o valor antes de pedir. Bike ou patinete custam igual, e o seguro da viagem já vem incluso.</p>
         <div class="carta">
+        <span class="adesivo adesivo-carta" aria-hidden="true">sem pegadinha</span>
         <p class="carta-cab" aria-hidden="true"><span>Carta de preços</span><span>Bike ou patinete, mesmo valor</span></p>
         <table class="tabela">
           <caption class="sr">Tabela de preços do Drink</caption>
@@ -1000,8 +1014,8 @@
   <section class="seguranca" id="seguranca" data-secao="seguranca" aria-labelledby="seg-titulo">
     <div class="wrap cab">
       <p class="rotulo">Segurança</p>
-      <h2 id="seg-titulo">A chave do seu carro <span class="destaque">em boas mãos.</span></h2>
-      <p class="lede">Entregar a chave do carro para um estranho assusta. Por isso a segurança vem inclusa, sem custo extra.</p>
+      <h2 id="seg-titulo">Pode confiar <span class="destaque risco risco-baixo">a chave.<svg class="risco-traco" aria-hidden="true"><use href="#risco-sub"/></svg></span></h2>
+      <p class="lede">Entregar a chave do carro pra um estranho dá um frio na barriga, né? Por isso a segurança vem inclusa, sem pagar nada a mais.</p>
     </div>
 
     <div class="wrap bento">
@@ -1107,12 +1121,15 @@
   </section>
 
   <!-- ================= Eventos ================= -->
-  <section class="eventos" id="eventos" data-secao="eventos" aria-labelledby="ev-titulo">
+  <section class="eventos onda" id="eventos" data-secao="eventos" aria-labelledby="ev-titulo">
     <div class="wrap eventos-grade">
       <div class="eventos-texto">
         <p class="rotulo">Eventos</p>
-        <h2 id="ev-titulo">Drink de <span class="destaque com-acento">plantão.</span></h2>
-        <p class="lede">Para casamentos, formaturas, bares e casas de show. Os motoristas ficam no local com as bikes, e os convidados voltam para casa no próprio carro.</p>
+        <div class="titulo-caixa">
+          <h2 id="ev-titulo">Drink de <span class="destaque com-acento">plantão.</span></h2>
+          <span class="adesivo adesivo-ev" aria-hidden="true">open bar sem culpa</span>
+        </div>
+        <p class="lede">Casamento, formatura, bar, casa de show. Os motoristas ficam de plantão com as bikes, e a galera volta pra casa no próprio carro.</p>
         <ol class="ev-passos">
           <li><b>Você fecha o pacote</b><span>Data, local, número de convidados e horário de fim. O preço sai fechado.</span></li>
           <li><b>Os Drinks chegam antes do fim</b><span>Eles estacionam as bikes perto da saída e ficam num ponto de atendimento.</span></li>
@@ -1148,12 +1165,12 @@
   </section>
 
   <!-- ================= Seja um Drink ================= -->
-  <section class="motorista" id="motorista" data-secao="motorista" aria-labelledby="mot-titulo">
+  <section class="motorista onda" id="motorista" data-secao="motorista" aria-labelledby="mot-titulo">
     <div class="wrap mot-grade">
       <div class="mot-texto">
         <p class="rotulo">Para motoristas</p>
         <h2 id="mot-titulo">Seja um <span class="destaque">Drink.</span></h2>
-        <p class="lede">Dirija nas noites que quiser, com a sua bike elétrica ou patinete. Sem carro próprio: você dirige o carro do cliente.</p>
+        <p class="lede">Dirija nas noites que quiser, com a sua bike elétrica ou patinete. Nem precisa ter carro: você dirige o do cliente.</p>
         <h3 class="mini">O que você precisa</h3>
         <ul class="lista-sim">
           <li>CNH há 3 anos ou mais, com EAR</li>
@@ -1373,7 +1390,7 @@
       </div>
 
       <div class="calc calc-mot">
-        <h3>Quanto dá para ganhar?</h3>
+        <h3>Quanto dá pra ganhar?</h3>
         <div class="faixa-campo">
           <label for="m-noites">Noites por semana</label>
           <output id="m-noites-out" for="m-noites">3</output>
@@ -1392,6 +1409,7 @@
           </div>
         </fieldset>
         <div class="painel-odo">
+          <span class="adesivo adesivo-odo" aria-hidden="true">grana extra de noite</span>
           <p class="odometro"><span class="sr" id="m-ganho" aria-live="polite">R$ 3.780</span><span class="odo" id="m-odo" aria-hidden="true">R$ 3.780</span></p>
           <p class="odo-leg">por mês, estimado</p>
         </div>
@@ -1407,26 +1425,33 @@
   </section>
 
   <!-- ================= Perguntas ================= -->
-  <section class="faq" id="perguntas" aria-labelledby="faq-titulo">
+  <section class="faq onda" id="perguntas" aria-labelledby="faq-titulo">
     <div class="wrap faq-grade">
       <div class="cab">
         <p class="rotulo">Perguntas</p>
-        <h2 id="faq-titulo">Ficou alguma <span class="destaque">dúvida?</span></h2>
+        <h2 id="faq-titulo">Pergunta <span class="destaque">aí.</span></h2>
         <div class="faq-ajuda">
           <svg class="faq-ajuda-ic" aria-hidden="true"><use href="#i-mensagem"/></svg>
-          <p><b>Não achou a resposta?</b> A central do Drink responde pelo app, a qualquer hora da noite.</p>
-          <a class="btn btn-sodio btn-p" href="#app" data-app-cheia>Abrir o app<svg class="i" aria-hidden="true"><use href="#i-seta"/></svg></a>
+          <p><b>Não achou aqui?</b> A central do Drink responde pelo app, a qualquer hora da noite.</p>
+          <a class="btn btn-sodio btn-p" href="app/">Abrir o app<svg class="i" aria-hidden="true"><use href="#i-seta"/></svg></a>
         </div>
       </div>
-      <div class="faq-lista">
-        <details class="pergunta"><summary><span>E se o motorista bater o meu carro?</span><svg class="i" aria-hidden="true"><use href="#i-mais"/></svg></summary><p>O seguro da viagem cobre, do início da vistoria até a entrega da chave. As fotos da vistoria mostram como o carro estava antes.</p></details>
-        <details class="pergunta"><summary><span>Eu vou junto no carro?</span><svg class="i" aria-hidden="true"><use href="#i-mais"/></svg></summary><p>Sim. Você vai no banco do passageiro ou no de trás. Também dá para pedir um Drink para um amigo e acompanhar a viagem pelo app.</p></details>
-        <details class="pergunta"><summary><span>Cabe no meu carro?</span><svg class="i" aria-hidden="true"><use href="#i-mais"/></svg></summary><p>A bike dobrada mede 74 × 63 × 36 cm e cabe até no porta-malas de um hatch compacto. O patinete dobrado é baixo, mas tem 116 cm de comprimento: vai bem em sedã e SUV, ou no hatch com o banco de trás rebatido. No pedido, você informa o carro e o app manda o veículo que cabe.</p></details>
-        <details class="pergunta"><summary><span>A bike ou o patinete sujam o porta-malas?</span><svg class="i" aria-hidden="true"><use href="#i-mais"/></svg></summary><p>Não. O Drink leva uma capa protetora e forra o porta-malas antes de guardar.</p></details>
-        <details class="pergunta"><summary><span>Meu carro é manual. Tem problema?</span><svg class="i" aria-hidden="true"><use href="#i-mais"/></svg></summary><p>Não. Todo Drink dirige carro manual e automático.</p></details>
-        <details class="pergunta"><summary><span>Posso agendar a volta?</span><svg class="i" aria-hidden="true"><use href="#i-mais"/></svg></summary><p>Sim. Marque o horário e o Drink chega na hora. Você recebe um aviso 10 minutos antes.</p></details>
-        <details class="pergunta"><summary><span>Quanto tempo o Drink demora para chegar?</span><svg class="i" aria-hidden="true"><use href="#i-mais"/></svg></summary><p>A meta é chegar em até 15 minutos nos bairros atendidos. Nas noites de sexta e sábado, agendar garante o horário.</p></details>
+      <div class="conversa">
+        <div class="conversa-cab" aria-hidden="true">
+          <span class="conversa-av"></span>
+          <span><b>Drink</b><small><i></i>online agora · responde rapidinho</small></span>
+        </div>
+        <div class="faq-lista">
+        <details class="pergunta"><summary><span>E se o motorista bater o meu carro?</span><svg class="i" aria-hidden="true"><use href="#i-mais"/></svg></summary><p>Relaxa: o seguro da viagem cobre, do começo da vistoria até a entrega da chave. E as fotos da vistoria mostram como o carro estava antes.</p></details>
+        <details class="pergunta"><summary><span>Eu vou junto no carro?</span><svg class="i" aria-hidden="true"><use href="#i-mais"/></svg></summary><p>Vai, sim! No banco do passageiro ou no de trás. E dá pra pedir um Drink pra um amigo e acompanhar a viagem pelo app.</p></details>
+        <details class="pergunta"><summary><span>Cabe no meu carro?</span><svg class="i" aria-hidden="true"><use href="#i-mais"/></svg></summary><p>Cabe! A bike dobrada mede 74 × 63 × 36 cm e vai até no porta-malas de um hatch compacto. O patinete dobrado é baixo, mas tem 116 cm de comprimento: vai bem em sedã e SUV, ou no hatch com o banco de trás rebatido. No pedido, você informa o carro e o app manda o veículo que cabe.</p></details>
+        <details class="pergunta"><summary><span>A bike ou o patinete sujam o porta-malas?</span><svg class="i" aria-hidden="true"><use href="#i-mais"/></svg></summary><p>Nada disso. O Drink leva uma capa protetora e forra o porta-malas antes de guardar.</p></details>
+        <details class="pergunta"><summary><span>Meu carro é manual. Tem problema?</span><svg class="i" aria-hidden="true"><use href="#i-mais"/></svg></summary><p>Problema nenhum. Todo Drink dirige carro manual e automático.</p></details>
+        <details class="pergunta"><summary><span>Posso agendar a volta?</span><svg class="i" aria-hidden="true"><use href="#i-mais"/></svg></summary><p>Pode! Marca o horário e o Drink chega na hora. Você recebe um aviso 10 minutos antes.</p></details>
+        <details class="pergunta"><summary><span>Quanto tempo o Drink demora pra chegar?</span><svg class="i" aria-hidden="true"><use href="#i-mais"/></svg></summary><p>A meta é chegar em até 15 minutos nos bairros atendidos. Sexta e sábado a noite ferve, então agendar garante o horário.</p></details>
         <details class="pergunta"><summary><span>Como eu pago?</span><svg class="i" aria-hidden="true"><use href="#i-mais"/></svg></summary><p>Cartão ou Pix pelo app. A gorjeta é opcional e vai toda para o motorista.</p></details>
+        </div>
+        <p class="conversa-pe" aria-hidden="true">toca numa pergunta pra ver a resposta</p>
       </div>
     </div>
   </section>
@@ -1442,7 +1467,7 @@
     <div class="wrap final-in">
       <p class="rotulo">06:10 · Buritis</p>
       <h2 id="final-titulo">O seu carro <span class="destaque">dormiu em casa.</span></h2>
-      <p class="lede">Beba à vontade. O Drink leva você e o carro. É só abrir o app.</p>
+      <p class="lede">Bebe à vontade. O Drink leva você e o carro. É só abrir o app.</p>
       <div class="acoes">
         <a class="btn btn-sodio" href="app/">Abrir o app<svg class="i" aria-hidden="true"><use href="#i-seta"/></svg></a>
         <button class="loja" type="button" data-abrir="dlg-loja"><svg class="i" aria-hidden="true"><use href="#i-celular"/></svg><span><small>Instalar no</small><b>iPhone</b></span></button>

@@ -202,7 +202,7 @@
   /* ---------- seções entram de leve quando aparecem ---------- */
   function montarRevela() {
     if (!('IntersectionObserver' in window) || reduzirMovimento()) return;
-    const alvos = $$('.cab, .tile, .rec, .ev-pontos li, .mot-porque li, .pergunta, .faixa-in li, .calc, .planta, .tabela, .specs, .ev-passos li');
+    const alvos = $$('.cab, .tile, .rec, .ev-pontos li, .mot-porque li, .pergunta, .faixa-in li, .calc, .planta, .tabela, .specs, .ev-passos li, .anota, .risco');
     document.documentElement.classList.add('js-revela');
     alvos.forEach((el) => el.classList.add('revela'));
     const io = new IntersectionObserver((entradas) => {
