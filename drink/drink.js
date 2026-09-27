@@ -69,6 +69,35 @@
     setTimeout(() => animar(2600, (t) => em(de + (ate - de) * suave(t))), 900);
   }
 
+  /* ---------- letreiro, selo, lua e sol andam junto com a rolagem (parados quando ela para) ---------- */
+  function montarLetreiro() {
+    const trilho = $('.letreiro-trilho');
+    const selo = $('.selo-giro-txt');
+    const lua = $('.lua');
+    const final = $('.final');
+    const sol = $('.sol');
+    if (reduzirMovimento()) return () => {};
+    let meia = 0;
+    const medir = () => { meia = trilho ? trilho.scrollWidth / 2 : 0; };
+    medir();
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(medir);
+    window.addEventListener('resize', medir);
+    return function aoRolar() {
+      const y = window.scrollY;
+      const alto = window.innerHeight;
+      const caixa = final && sol ? final.getBoundingClientRect() : null;
+      if (trilho && meia) trilho.style.transform = `translateX(${(-((y * 0.4) % meia)).toFixed(1)}px)`;
+      if (selo) selo.style.transform = `rotate(${(y * 0.12).toFixed(1)}deg)`;
+      if (lua && y < alto * 1.5) lua.style.rotate = `${(y * 0.05).toFixed(2)}deg`;
+      if (caixa && caixa.top < alto && caixa.bottom > 0) {
+        // o sol sobe enquanto o final entra na tela
+        const p = Math.min(1, Math.max(0, (alto - caixa.top) / caixa.height));
+        sol.style.translate = `0 ${((1 - p) * 38).toFixed(1)}%`;
+        sol.style.rotate = `${(p * 40).toFixed(1)}deg`;
+      }
+    };
+  }
+
   /* ---------- menu do celular ---------- */
   function montarMenu() {
     const bt = $('#menu-btn');
@@ -1183,6 +1212,7 @@
   montarFoneHero();
   montarMenu();
   const aoRolarTopo = montarNavegacao();
+  const aoRolarLetreiro = montarLetreiro();
   montarDobra();
   montarCalculadora();
   montarVistoria();
@@ -1199,6 +1229,7 @@
   function rolar() {
     pendente = false;
     aoRolarTopo();
+    aoRolarLetreiro();
   }
   const pedirQuadro = () => { if (!pendente) { pendente = true; requestAnimationFrame(rolar); } };
   window.addEventListener('scroll', pedirQuadro, { passive: true });
