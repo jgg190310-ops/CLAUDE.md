@@ -701,6 +701,13 @@ body {
   .mesa-nota { display: none; }
 }
 
+/* ---------- no toque, o botão não fica aceso depois de tocado ---------- */
+@media (hover: none) {
+  .app-fone .t-botao:hover:not(:disabled) { background: var(--lima); }
+  .app .d-busca:hover { background: var(--creme); }
+  .app .rt-mira:hover { background: var(--creme); }
+}
+
 /* ---------- movimento reduzido: tudo aparece de uma vez ---------- */
 @media (prefers-reduced-motion: reduce) {
   .en-docs li.vendo::before { transition: none; }
