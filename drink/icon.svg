@@ -1,17 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <defs>
-    <radialGradient id="fundo" cx="50%" cy="36%" r="72%">
-      <stop offset="0" stop-color="#1E4E3E"/>
-      <stop offset="1" stop-color="#0B1B17"/>
-    </radialGradient>
-  </defs>
-  <rect width="512" height="512" rx="112" fill="url(#fundo)"/>
-  <g transform="translate(96 90) scale(10)">
-    <path d="M4 5h24L16 18z" fill="#C7F36B"/>
-    <g fill="none" stroke="#EEF1EA" stroke-linecap="round">
-      <path d="M16 18v9M10 28h12" stroke-width="2.4"/>
-      <circle cx="21" cy="9" r="3.6" stroke-width="2" fill="#C7F36B"/>
-      <path d="M21 5.4v7.2M17.4 9h7.2" stroke-width="1.4"/>
-    </g>
+  <rect width="512" height="512" rx="112" fill="#2E3CF2"/>
+  <g transform="translate(76 76) scale(11.25)">
+    <circle cx="16" cy="16" r="15.2" fill="#8CD62A"/>
+    <circle cx="16" cy="16" r="12.9" fill="#F3FFC4"/>
+    <path fill="#D2FF3C" d="M16.14 14.11L16.83 4.63A11.4 11.4 0 0 1 23.45 7.37L17.24 14.56ZM17.44 14.76L24.63 8.55A11.4 11.4 0 0 1 27.37 15.17L17.89 15.86ZM17.89 16.14L27.37 16.83A11.4 11.4 0 0 1 24.63 23.45L17.44 17.24ZM17.24 17.44L23.45 24.63A11.4 11.4 0 0 1 16.83 27.37L16.14 17.89ZM15.86 17.89L15.17 27.37A11.4 11.4 0 0 1 8.55 24.63L14.76 17.44ZM14.56 17.24L7.37 23.45A11.4 11.4 0 0 1 4.63 16.83L14.11 16.14ZM14.11 15.86L4.63 15.17A11.4 11.4 0 0 1 7.37 8.55L14.56 14.76ZM14.76 14.56L8.55 7.37A11.4 11.4 0 0 1 15.17 4.63L15.86 14.11Z"/>
   </g>
 </svg>
