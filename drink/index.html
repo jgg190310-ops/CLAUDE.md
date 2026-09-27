@@ -6,7 +6,7 @@
   <title>Drink</title>
   <meta name="description" content="O motorista da vez chega de bike elétrica ou patinete, dobra no seu porta-malas e leva você e o seu carro para casa.">
   <meta name="theme-color" content="#2E3CF2">
-  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="manifest" href="app/manifest.webmanifest">
   <link rel="icon" href="icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="icon-180.png">
   <meta property="og:type" content="website">
@@ -21,6 +21,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&display=swap">
+  <link rel="stylesheet" href="app-telas.css">
   <link rel="stylesheet" href="drink.css">
 </head>
 <body>
@@ -141,7 +142,7 @@
       <a href="#eventos" data-aba="eventos">Eventos</a>
       <a href="#motorista" data-aba="motorista">Seja um Drink</a>
     </nav>
-    <a class="btn btn-sodio btn-p topo-cta" href="#app" data-app-cheia>Pedir<span class="cta-longo">&nbsp;um Drink</span></a>
+    <a class="btn btn-sodio btn-p topo-cta" href="app/"><svg class="i" aria-hidden="true"><use href="#i-celular"/></svg>Baixar<span class="cta-longo">&nbsp;o app</span></a>
     <button class="menu-btn" id="menu-btn" type="button" aria-expanded="false" aria-controls="menu">
       <svg class="i" aria-hidden="true"><use href="#i-menu"/></svg><span class="sr">Abrir o menu</span>
     </button>
@@ -159,7 +160,7 @@
     <a href="#motorista">Seja um Drink</a>
     <a href="#perguntas">Perguntas</a>
   </nav>
-  <a class="btn btn-sodio btn-cheio" href="#app" data-app-cheia>Abrir o app</a>
+  <a class="btn btn-sodio btn-cheio" href="app/">Baixar o app</a>
 </div>
 
 <main id="conteudo">
@@ -273,7 +274,7 @@
                 <p class="t-chip t-chip-topo"><span class="t-ponto"></span>3 Drinks a menos de 1 km</p>
               </div>
               <div class="t-folha">
-                <h3 class="d-titulo d-ola" tabindex="-1"><span class="d-saudacao">Boa noite</span>, Júlia</h3>
+                <h3 class="d-titulo d-ola" tabindex="-1"><span class="d-saudacao">Boa noite</span>, <span data-usuario="primeiro">Júlia</span></h3>
                 <p class="d-local"><svg aria-hidden="true"><use href="#i-pin"/></svg>Você está no Bar do Lucas, Savassi</p>
                 <button type="button" class="d-busca" data-ir="destino"><svg aria-hidden="true"><use href="#i-busca"/></svg>Para onde?</button>
                 <div class="d-atalhos">
@@ -555,8 +556,8 @@
             <div class="d-tela com-abas" data-d="perfil" data-etapa="pedir" data-aba="perfil" hidden>
               <div class="t-barra" aria-hidden="true"><span class="d-hora">23:41</span><span class="t-ic"><svg><use href="#i-sinal"/></svg><svg class="t-bat"><use href="#i-bat"/></svg></span></div>
               <div class="d-perfil-cab">
-                <span class="t-av d-av-cliente">JA</span>
-                <div><h3 class="d-titulo" tabindex="-1">Júlia Andrade</h3><small>Nota 4,9 como cliente</small></div>
+                <span class="t-av d-av-cliente" data-usuario="iniciais">JA</span>
+                <div><h3 class="d-titulo" tabindex="-1" data-usuario="nome">Júlia Andrade</h3><small>Nota 4,9 como cliente</small></div>
               </div>
               <p class="d-sec">Seu carro</p>
               <div class="d-carro">
@@ -652,6 +653,7 @@
           <button type="button" class="btn btn-sodio" data-app-cheia><svg class="i" aria-hidden="true"><use href="#i-expandir"/></svg>Abrir em tela cheia</button>
           <button type="button" class="btn btn-vidro" id="demo-recomecar"><svg class="i" aria-hidden="true"><use href="#i-recomecar"/></svg>Recomeçar</button>
         </div>
+        <a class="demo-app" href="app/"><svg class="i" aria-hidden="true"><use href="#i-celular"/></svg><span>Curtiu? Tem o <b>app de verdade</b>, com cadastro e tudo</span><svg class="i" aria-hidden="true"><use href="#i-seta"/></svg></a>
       </div>
     </div>
   </section>
@@ -1174,8 +1176,8 @@
             <div class="d-tela ma-tela" data-ma="off">
               <div class="t-barra" aria-hidden="true"><span class="d-hora">22:10</span><span class="t-ic"><svg><use href="#i-sinal"/></svg><svg class="t-bat"><use href="#i-bat"/></svg></span></div>
               <div class="ma-topo">
-                <span class="t-av ma-av">VT</span>
-                <div><b>Olá, Vitor</b><small>Bike elétrica dobrável · nota 4,9</small></div>
+                <span class="t-av ma-av" data-motorista="iniciais">VT</span>
+                <div><b>Olá, <span data-motorista="primeiro">Vitor</span></b><small><span data-motorista="veiculo">Bike elétrica dobrável</span> · nota 4,9</small></div>
               </div>
               <div class="ma-ganhos"><small>Ganhos de hoje</small><b class="ma-hoje">R$ 0,00</b><span class="ma-viagens">0 viagens</span></div>
               <div class="ma-previsao">
@@ -1442,9 +1444,9 @@
       <h2 id="final-titulo">O seu carro <span class="destaque">dormiu em casa.</span></h2>
       <p class="lede">Beba à vontade. O Drink leva você e o carro. É só abrir o app.</p>
       <div class="acoes">
-        <a class="btn btn-sodio" href="#app" data-app-cheia>Abrir o app<svg class="i" aria-hidden="true"><use href="#i-seta"/></svg></a>
-        <button class="loja" type="button" data-abrir="dlg-loja"><svg class="i" aria-hidden="true"><use href="#i-celular"/></svg><span><small>Em breve na</small><b>App Store</b></span></button>
-        <button class="loja" type="button" data-abrir="dlg-loja"><svg class="i" aria-hidden="true"><use href="#i-celular"/></svg><span><small>Em breve no</small><b>Google Play</b></span></button>
+        <a class="btn btn-sodio" href="app/">Abrir o app<svg class="i" aria-hidden="true"><use href="#i-seta"/></svg></a>
+        <button class="loja" type="button" data-abrir="dlg-loja"><svg class="i" aria-hidden="true"><use href="#i-celular"/></svg><span><small>Instalar no</small><b>iPhone</b></span></button>
+        <button class="loja" type="button" data-abrir="dlg-loja"><svg class="i" aria-hidden="true"><use href="#i-celular"/></svg><span><small>Instalar no</small><b>Android</b></span></button>
       </div>
     </div>
   </section>
@@ -1477,15 +1479,18 @@
 
 <dialog class="dlg" id="dlg-motorista" aria-labelledby="dlg-mot-t">
   <form method="dialog" class="dlg-in">
-    <p class="rotulo">Em breve</p>
+    <p class="rotulo">Pelo app</p>
     <h2 id="dlg-mot-t">Cadastro de motoristas</h2>
-    <p>O cadastro ainda não abriu. Quando abrir, você vai:</p>
+    <p>O cadastro é no app, em poucos minutos. Lá você vai:</p>
     <ul class="lista-sim">
       <li>Enviar CNH, antecedentes e uma foto</li>
       <li>Dizer se já tem bike elétrica ou patinete, ou se quer alugar um</li>
       <li>Agendar o treinamento e a entrevista</li>
     </ul>
-    <button class="btn btn-sodio" value="ok">Entendi</button>
+    <div class="acoes">
+      <a class="btn btn-sodio" href="app/">Cadastrar no app</a>
+      <button class="btn btn-vidro" value="ok">Agora não</button>
+    </div>
     <button class="dlg-x" value="fechar" aria-label="Fechar"><svg class="i" aria-hidden="true"><use href="#i-fechar"/></svg></button>
   </form>
 </dialog>
@@ -1508,17 +1513,22 @@
 
 <dialog class="dlg" id="dlg-loja" aria-labelledby="dlg-loja-t">
   <form method="dialog" class="dlg-in">
-    <p class="rotulo">Em breve</p>
-    <h2 id="dlg-loja-t">O app ainda não está nas lojas</h2>
-    <p>O Drink para iPhone e Android está em desenvolvimento. Enquanto isso, dá para usar o protótipo aqui no site.</p>
+    <p class="rotulo">Sem loja, sem fila</p>
+    <h2 id="dlg-loja-t">O Drink instala direto do site</h2>
+    <p>Abre o app no celular e toca em <b>Instalar o app</b>. No iPhone é pelo Safari: <b>Compartilhar</b> e depois <b>Adicionar à Tela de Início</b>. No Android, o Chrome pergunta sozinho.</p>
+    <div class="dlg-qr">
+      <svg viewBox="-2 -2 37 37" role="img" aria-label="Código QR com o endereço do app"><rect x="-2" y="-2" width="37" height="37" rx="2.4"/><path d="M0 0h7v1h-7zM9 0h4v1h-4zM16 0h1v1h-1zM18 0h2v1h-2zM22 0h3v1h-3zM26 0h7v1h-7zM0 1h1v1h-1zM6 1h1v1h-1zM10 1h2v1h-2zM15 1h1v1h-1zM18 1h1v1h-1zM20 1h2v1h-2zM26 1h1v1h-1zM32 1h1v1h-1zM0 2h1v1h-1zM2 2h3v1h-3zM6 2h1v1h-1zM8 2h1v1h-1zM11 2h2v1h-2zM14 2h1v1h-1zM16 2h1v1h-1zM18 2h2v1h-2zM21 2h2v1h-2zM24 2h1v1h-1zM26 2h1v1h-1zM28 2h3v1h-3zM32 2h1v1h-1zM0 3h1v1h-1zM2 3h3v1h-3zM6 3h1v1h-1zM8 3h3v1h-3zM18 3h1v1h-1zM22 3h3v1h-3zM26 3h1v1h-1zM28 3h3v1h-3zM32 3h1v1h-1zM0 4h1v1h-1zM2 4h3v1h-3zM6 4h1v1h-1zM8 4h1v1h-1zM10 4h1v1h-1zM13 4h6v1h-6zM21 4h1v1h-1zM23 4h1v1h-1zM26 4h1v1h-1zM28 4h3v1h-3zM32 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM8 5h1v1h-1zM11 5h2v1h-2zM17 5h1v1h-1zM20 5h2v1h-2zM24 5h1v1h-1zM26 5h1v1h-1zM32 5h1v1h-1zM0 6h7v1h-7zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM20 6h1v1h-1zM22 6h1v1h-1zM24 6h1v1h-1zM26 6h7v1h-7zM8 7h1v1h-1zM11 7h2v1h-2zM14 7h1v1h-1zM16 7h1v1h-1zM18 7h4v1h-4zM23 7h2v1h-2zM0 8h1v1h-1zM2 8h5v1h-5zM9 8h1v1h-1zM11 8h1v1h-1zM13 8h2v1h-2zM17 8h1v1h-1zM19 8h2v1h-2zM26 8h5v1h-5zM2 9h4v1h-4zM7 9h1v1h-1zM9 9h5v1h-5zM17 9h4v1h-4zM22 9h3v1h-3zM26 9h2v1h-2zM29 9h2v1h-2zM1 10h2v1h-2zM4 10h4v1h-4zM13 10h3v1h-3zM17 10h1v1h-1zM22 10h1v1h-1zM25 10h2v1h-2zM28 10h1v1h-1zM30 10h2v1h-2zM0 11h4v1h-4zM5 11h1v1h-1zM7 11h1v1h-1zM9 11h1v1h-1zM11 11h3v1h-3zM17 11h2v1h-2zM21 11h1v1h-1zM24 11h1v1h-1zM26 11h1v1h-1zM28 11h5v1h-5zM3 12h1v1h-1zM5 12h3v1h-3zM12 12h1v1h-1zM14 12h3v1h-3zM22 12h1v1h-1zM25 12h1v1h-1zM27 12h3v1h-3zM0 13h2v1h-2zM3 13h1v1h-1zM8 13h1v1h-1zM10 13h1v1h-1zM12 13h2v1h-2zM15 13h1v1h-1zM18 13h2v1h-2zM21 13h1v1h-1zM23 13h1v1h-1zM26 13h2v1h-2zM29 13h1v1h-1zM31 13h2v1h-2zM0 14h1v1h-1zM2 14h1v1h-1zM4 14h3v1h-3zM10 14h2v1h-2zM14 14h4v1h-4zM24 14h3v1h-3zM30 14h2v1h-2zM1 15h2v1h-2zM4 15h2v1h-2zM10 15h3v1h-3zM15 15h1v1h-1zM21 15h2v1h-2zM25 15h2v1h-2zM29 15h2v1h-2zM0 16h3v1h-3zM4 16h1v1h-1zM6 16h2v1h-2zM9 16h7v1h-7zM17 16h1v1h-1zM20 16h1v1h-1zM25 16h1v1h-1zM27 16h2v1h-2zM30 16h1v1h-1zM32 16h1v1h-1zM1 17h1v1h-1zM4 17h1v1h-1zM7 17h4v1h-4zM13 17h2v1h-2zM16 17h1v1h-1zM18 17h3v1h-3zM22 17h3v1h-3zM26 17h2v1h-2zM29 17h2v1h-2zM1 18h1v1h-1zM5 18h2v1h-2zM9 18h8v1h-8zM18 18h1v1h-1zM20 18h1v1h-1zM25 18h4v1h-4zM30 18h2v1h-2zM2 19h1v1h-1zM4 19h2v1h-2zM9 19h1v1h-1zM11 19h6v1h-6zM19 19h5v1h-5zM25 19h1v1h-1zM27 19h6v1h-6zM0 20h1v1h-1zM3 20h1v1h-1zM5 20h2v1h-2zM9 20h1v1h-1zM11 20h1v1h-1zM13 20h1v1h-1zM15 20h1v1h-1zM18 20h3v1h-3zM24 20h2v1h-2zM27 20h1v1h-1zM29 20h1v1h-1zM31 20h2v1h-2zM0 21h1v1h-1zM2 21h3v1h-3zM8 21h1v1h-1zM10 21h1v1h-1zM12 21h1v1h-1zM14 21h4v1h-4zM19 21h3v1h-3zM23 21h1v1h-1zM26 21h1v1h-1zM30 21h1v1h-1zM32 21h1v1h-1zM0 22h1v1h-1zM2 22h1v1h-1zM4 22h1v1h-1zM6 22h5v1h-5zM12 22h1v1h-1zM18 22h1v1h-1zM21 22h1v1h-1zM26 22h2v1h-2zM29 22h3v1h-3zM0 23h1v1h-1zM3 23h1v1h-1zM8 23h2v1h-2zM16 23h1v1h-1zM21 23h3v1h-3zM26 23h1v1h-1zM29 23h2v1h-2zM0 24h1v1h-1zM2 24h3v1h-3zM6 24h4v1h-4zM11 24h1v1h-1zM14 24h1v1h-1zM16 24h2v1h-2zM23 24h9v1h-9zM8 25h2v1h-2zM12 25h3v1h-3zM16 25h2v1h-2zM19 25h2v1h-2zM22 25h1v1h-1zM24 25h1v1h-1zM28 25h1v1h-1zM30 25h1v1h-1zM32 25h1v1h-1zM0 26h7v1h-7zM9 26h2v1h-2zM13 26h1v1h-1zM15 26h1v1h-1zM17 26h1v1h-1zM20 26h1v1h-1zM22 26h3v1h-3zM26 26h1v1h-1zM28 26h1v1h-1zM30 26h1v1h-1zM0 27h1v1h-1zM6 27h1v1h-1zM8 27h2v1h-2zM12 27h1v1h-1zM15 27h1v1h-1zM17 27h2v1h-2zM20 27h5v1h-5zM28 27h5v1h-5zM0 28h1v1h-1zM2 28h3v1h-3zM6 28h1v1h-1zM8 28h1v1h-1zM11 28h1v1h-1zM13 28h1v1h-1zM16 28h1v1h-1zM19 28h2v1h-2zM22 28h1v1h-1zM24 28h6v1h-6zM31 28h2v1h-2zM0 29h1v1h-1zM2 29h3v1h-3zM6 29h1v1h-1zM8 29h2v1h-2zM11 29h1v1h-1zM13 29h1v1h-1zM15 29h1v1h-1zM18 29h4v1h-4zM23 29h1v1h-1zM25 29h1v1h-1zM28 29h5v1h-5zM0 30h1v1h-1zM2 30h3v1h-3zM6 30h1v1h-1zM8 30h2v1h-2zM15 30h2v1h-2zM20 30h2v1h-2zM23 30h2v1h-2zM26 30h2v1h-2zM29 30h2v1h-2zM0 31h1v1h-1zM6 31h1v1h-1zM9 31h1v1h-1zM11 31h2v1h-2zM15 31h1v1h-1zM18 31h1v1h-1zM21 31h1v1h-1zM25 31h1v1h-1zM28 31h3v1h-3zM0 32h7v1h-7zM8 32h4v1h-4zM14 32h2v1h-2zM17 32h1v1h-1zM24 32h1v1h-1zM27 32h1v1h-1zM30 32h2v1h-2z"/></svg>
+      <p><b>Tá no computador?</b> Aponta a câmera do celular para o código e o app abre lá.</p>
+    </div>
     <div class="acoes">
-      <button class="btn btn-sodio" type="button" data-app-cheia>Abrir o protótipo</button>
+      <a class="btn btn-sodio" href="app/">Abrir o app</a>
       <button class="btn btn-vidro" value="ok">Fechar</button>
     </div>
     <button class="dlg-x" value="fechar" aria-label="Fechar"><svg class="i" aria-hidden="true"><use href="#i-fechar"/></svg></button>
   </form>
 </dialog>
 
+<script src="app-nucleo.js"></script>
 <script src="drink.js"></script>
 </body>
 </html>
