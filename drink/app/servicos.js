@@ -1,5 +1,5 @@
-/* Drink — serviços reais usados pelo app: GPS do aparelho, busca de endereços (Photon, com dados do
-   OpenStreetMap), rotas (OSRM) e o preço da corrida. Se um serviço cair, o app segue com uma estimativa. */
+/* Drink — serviços reais usados pelo app: GPS do aparelho, mapa e busca de endereços (OpenStreetMap e
+   Photon), rotas (OSRM) e o preço da corrida. Se um serviço cair, o app segue com uma estimativa. */
 (function () {
   'use strict';
 
@@ -10,9 +10,14 @@
     ntfy: 'https://ntfy.sh',
     photon: 'https://photon.komoot.io',
     osrm: 'https://router.project-osrm.org',
-    mapa: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
-    creditos: '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> © <a href="https://carto.com/attributions" target="_blank" rel="noopener">CARTO</a>',
+    // mapa aberto do OpenStreetMap, sem chave; se ele não responder, o da comunidade francesa
+    mapa: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+    mapaReserva: 'https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png',
+    creditos: '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>',
     sala: 'drink-bh-9r4t-v1',
+    // SMS de verdade no cadastro: a configuração do app da Web do projeto no Firebase (apiKey, authDomain,
+    // projectId, appId). Sem ela, o código aparece na própria tela.
+    firebase: null,
   };
   try { Object.assign(cfg, JSON.parse(localStorage.getItem('drink-servicos') || '{}')); } catch (e) { /* sem ajuste */ }
 
