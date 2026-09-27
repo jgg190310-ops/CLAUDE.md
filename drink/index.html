@@ -169,7 +169,7 @@
     <div class="hero-in">
       <div class="hero-texto">
         <p class="sobre"><span class="sobre-ponto" aria-hidden="true"></span>Motorista da vez em Belo Horizonte</p>
-        <h1 class="hero-titulo" id="hero-titulo">Pede um <em>Drink.</em></h1>
+        <h1 class="hero-titulo" id="hero-titulo"><span>Pede um</span> <em>Drink.</em></h1>
         <p class="hero-lede">O motorista chega de bike elétrica ou patinete, dobra tudo no seu porta-malas e leva você e o seu carro para casa.</p>
         <div class="acoes">
           <a class="btn btn-sodio" href="#app" data-app-cheia>Pedir um Drink<svg class="i" aria-hidden="true"><use href="#i-seta"/></svg></a>
@@ -636,7 +636,7 @@
             <p class="d-toast" id="d-toast" role="status" aria-live="polite" hidden><span class="d-toast-ic" aria-hidden="true"><svg><use href="#i-limao"/></svg></span><span class="d-toast-txt" id="d-toast-txt"></span></p>
           </div>
         </div>
-        <p class="demo-dica" aria-hidden="true"><svg class="i"><use href="#i-toque"/></svg>Toque para usar</p>
+        <div class="demo-dica" aria-hidden="true"><svg class="selo-giro-txt" viewBox="0 0 120 120"><path id="giro-demo" d="M60 60m-45 0a45 45 0 1 1 90 0a45 45 0 1 1-90 0" fill="none"/><text textLength="280" lengthAdjust="spacing"><textPath href="#giro-demo">TOQUE PARA USAR • EXPERIMENTE • </textPath></text></svg><svg class="i"><use href="#i-toque"/></svg></div>
       </div>
 
       <div class="demo-etapas">
@@ -1367,7 +1367,7 @@
             </div>
           </div>
         </div>
-        <p class="demo-dica" aria-hidden="true"><svg class="i"><use href="#i-toque"/></svg>Toque para usar</p>
+        <div class="demo-dica" aria-hidden="true"><svg class="selo-giro-txt" viewBox="0 0 120 120"><path id="giro-mot" d="M60 60m-45 0a45 45 0 1 1 90 0a45 45 0 1 1-90 0" fill="none"/><text textLength="280" lengthAdjust="spacing"><textPath href="#giro-mot">TOQUE PARA USAR • APP DO MOTORISTA • </textPath></text></svg><svg class="i"><use href="#i-toque"/></svg></div>
       </div>
 
       <div class="calc calc-mot">
@@ -1410,6 +1410,11 @@
       <div class="cab">
         <p class="rotulo">Perguntas</p>
         <h2 id="faq-titulo">Ficou alguma <span class="destaque">dúvida?</span></h2>
+        <div class="faq-ajuda">
+          <svg class="faq-ajuda-ic" aria-hidden="true"><use href="#i-mensagem"/></svg>
+          <p><b>Não achou a resposta?</b> A central do Drink responde pelo app, a qualquer hora da noite.</p>
+          <a class="btn btn-sodio btn-p" href="#app" data-app-cheia>Abrir o app<svg class="i" aria-hidden="true"><use href="#i-seta"/></svg></a>
+        </div>
       </div>
       <div class="faq-lista">
         <details class="pergunta"><summary><span>E se o motorista bater o meu carro?</span><svg class="i" aria-hidden="true"><use href="#i-mais"/></svg></summary><p>O seguro da viagem cobre, do início da vistoria até a entrega da chave. As fotos da vistoria mostram como o carro estava antes.</p></details>
@@ -1423,6 +1428,8 @@
       </div>
     </div>
   </section>
+
+  <div class="letreiro letreiro-rosa" aria-hidden="true"><p class="letreiro-trilho letreiro-volta"><span>Beba à vontade</span><svg><use href="#i-limao"/></svg><span>O Drink leva você e o carro</span><svg><use href="#i-limao"/></svg><span>Chave na sua mão</span><svg><use href="#i-limao"/></svg><span>Carro na garagem</span><svg><use href="#i-limao"/></svg><span>Beba à vontade</span><svg><use href="#i-limao"/></svg><span>O Drink leva você e o carro</span><svg><use href="#i-limao"/></svg><span>Chave na sua mão</span><svg><use href="#i-limao"/></svg><span>Carro na garagem</span><svg><use href="#i-limao"/></svg></p></div>
 
   <!-- ================= Amanhecer ================= -->
   <section class="final" aria-labelledby="final-titulo">
@@ -1465,6 +1472,7 @@
       <p>Protótipo. Preços, motoristas e prazos são exemplos. App para iPhone e Android em breve.</p>
     </div>
   </div>
+  <p class="rodape-gigante" aria-hidden="true"><span>drink</span><svg><use href="#i-limao"/></svg></p>
 </footer>
 
 <dialog class="dlg" id="dlg-motorista" aria-labelledby="dlg-mot-t">
