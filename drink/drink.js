@@ -69,25 +69,33 @@
     setTimeout(() => animar(2600, (t) => em(de + (ate - de) * suave(t))), 900);
   }
 
-  /* ---------- letreiro, selo, lua e sol andam junto com a rolagem (parados quando ela para) ---------- */
+  /* ---------- letreiros, selos, lua e sol andam junto com a rolagem (parados quando ela para) ---------- */
   function montarLetreiro() {
-    const trilho = $('.letreiro-trilho');
-    const selo = $('.selo-giro-txt');
+    const trilhos = $$('.letreiro-trilho');
+    const selos = $$('.selo-giro-txt');
     const lua = $('.lua');
     const final = $('.final');
     const sol = $('.sol');
+    const roda = $('.rodape-gigante svg');
     if (reduzirMovimento()) return () => {};
-    let meia = 0;
-    const medir = () => { meia = trilho ? trilho.scrollWidth / 2 : 0; };
+    let meias = [];
+    const medir = () => { meias = trilhos.map((t) => t.scrollWidth / 2); };
     medir();
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(medir);
     window.addEventListener('resize', medir);
     return function aoRolar() {
+      // primeiro lê tudo, depois escreve
       const y = window.scrollY;
       const alto = window.innerHeight;
       const caixa = final && sol ? final.getBoundingClientRect() : null;
-      if (trilho && meia) trilho.style.transform = `translateX(${(-((y * 0.4) % meia)).toFixed(1)}px)`;
-      if (selo) selo.style.transform = `rotate(${(y * 0.12).toFixed(1)}deg)`;
+      trilhos.forEach((t, i) => {
+        const meia = meias[i];
+        if (!meia) return;
+        const x = (y * 0.4) % meia;
+        // o letreiro de volta anda para o outro lado
+        t.style.transform = `translateX(${(t.classList.contains('letreiro-volta') ? x - meia : -x).toFixed(1)}px)`;
+      });
+      selos.forEach((s) => { s.style.transform = `rotate(${(y * 0.12).toFixed(1)}deg)`; });
       if (lua && y < alto * 1.5) lua.style.rotate = `${(y * 0.05).toFixed(2)}deg`;
       if (caixa && caixa.top < alto && caixa.bottom > 0) {
         // o sol sobe enquanto o final entra na tela
@@ -95,6 +103,7 @@
         sol.style.translate = `0 ${((1 - p) * 38).toFixed(1)}%`;
         sol.style.rotate = `${(p * 40).toFixed(1)}deg`;
       }
+      if (roda) roda.style.rotate = `${(y * 0.08).toFixed(1)}deg`;
     };
   }
 
@@ -133,7 +142,11 @@
       $$('[data-secao]').forEach((s) => io.observe(s));
     }
     return function aoRolar() {
+      // barra fina no pé do topo mostra quanto da página já foi lido
+      const total = document.documentElement.scrollHeight - window.innerHeight;
+      const lido = total > 0 ? Math.min(1, Math.max(0, window.scrollY / total)) : 0;
       topo.classList.toggle('solido', window.scrollY > 8 || document.body.classList.contains('menu-aberto'));
+      topo.style.setProperty('--lido', lido.toFixed(4));
     };
   }
 
