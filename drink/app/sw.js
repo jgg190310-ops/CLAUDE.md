@@ -1,18 +1,22 @@
-/* Drink — o service worker do app: guarda o app no aparelho para abrir rápido e funcionar sem internet.
-   Páginas vêm da rede primeiro; o resto sai do que está guardado e se atualiza por trás. */
-const VERSAO = 'drink-app-2';
+/* Drink — o service worker do app. Guarda o app no aparelho para abrir sem internet e mostra os avisos
+   (pedido novo, motorista chegou, mensagem…) que chegam pelo ntfy mesmo com o app fechado.
+   Com internet, tudo vem da rede primeiro: o celular sempre usa a versão mais nova do app. */
+const VERSAO = 'drink-app-3';
 const FONTES = 'drink-fontes-1';
+const V = '?v=3';
 const ARQUIVOS = [
-  './', 'app.css', 'app.js', 'manifest.webmanifest',
-  'servicos.js', 'rede.js', 'mapa.js', 'pix.js', 'robo.js', 'passageiro.js', 'motorista.js',
-  'vendor/leaflet.js', 'vendor/leaflet.css', 'vendor/qrcode.js',
-  '../app-telas.css', '../app-nucleo.js',
+  './', 'manifest.webmanifest',
+  ...['app.css', 'app.js', 'servicos.js', 'rede.js', 'mapa.js', 'pix.js', 'robo.js', 'avisos.js', 'sms.js',
+    'passageiro.js', 'motorista.js', 'vendor/leaflet.js', 'vendor/leaflet.css', 'vendor/qrcode.js',
+    '../app-telas.css', '../app-nucleo.js'].map((a) => a + V),
   '../icon.svg', '../icon-180.png', '../icon-192.png', '../icon-512.png',
   'icone-maskable-192.png', 'icone-maskable-512.png',
 ];
 
 self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open(VERSAO).then((c) => c.addAll(ARQUIVOS)).then(() => self.skipWaiting()));
+  e.waitUntil(caches.open(VERSAO)
+    .then((c) => c.addAll(ARQUIVOS.map((a) => new Request(a, { cache: 'reload' }))))
+    .then(() => self.skipWaiting()));
 });
 
 self.addEventListener('activate', (e) => {
@@ -36,31 +40,69 @@ self.addEventListener('fetch', (e) => {
   }
   if (url.origin !== self.location.origin) return;
 
-  // a página do app: rede primeiro, para sempre pegar a versão nova; sem internet, a guardada
-  if (req.mode === 'navigate') {
-    e.respondWith(fetch(req).then((resp) => {
-      if (resp.ok) {
-        const copia = resp.clone();
-        e.waitUntil(caches.open(VERSAO).then((c) => c.put('./', copia)));
-      }
-      return resp;
-    }).catch(() => caches.match('./')));
-    return;
-  }
-
-  // o resto: responde com o guardado na hora e atualiza por trás
-  const rede = fetch(req).then((resp) => {
+  // o app: rede primeiro (conferindo se mudou); sem internet, o que está guardado
+  const pagina = req.mode === 'navigate';
+  const chave = pagina ? './' : req;
+  const daRede = pagina
+    ? fetch(req.url, { cache: 'no-cache', credentials: 'same-origin' })
+    : fetch(req, { cache: 'no-cache' });
+  e.respondWith(daRede.then((resp) => {
     if (resp.ok) {
       const copia = resp.clone();
-      caches.open(VERSAO).then((c) => c.put(req, copia));
+      e.waitUntil(caches.open(VERSAO).then((c) => c.put(chave, copia)));
     }
     return resp;
-  });
-  e.respondWith(caches.match(req).then((salvo) => salvo || rede));
-  e.waitUntil(rede.then(() => {}, () => {}));
+  }).catch(() => caches.match(chave).then((salvo) => salvo || caches.match(req, { ignoreSearch: true }))));
 });
 
-// tocar no aviso (pedido novo, motorista chegou…) traz o app para a frente
+/* ---------- avisos que chegam pelo ntfy com o app fechado ---------- */
+const AVISOS = {
+  aceite: ['Um Drink aceitou', 'O motorista está indo até você.'],
+  chegou: ['O Drink chegou', 'Confere o código antes de entregar a chave.'],
+  chegada: ['Chegou!', 'Avalia a corrida e paga com Pix.'],
+  msg: ['Mensagem nova', 'Abre o Drink para ler.'],
+  cancelado: ['Corrida cancelada', 'Abre o Drink para ver o que aconteceu.'],
+  confirmado: ['Corrida confirmada', 'Vai buscar o passageiro. O endereço está no app.'],
+  paguei: ['O passageiro pagou', 'Confere no app do seu banco se o Pix caiu.'],
+};
+const reais = (v) => `R$ ${Number(v || 0).toFixed(2).replace('.', ',')}`;
+const bairro = (p) => String((p && p.bairro) || '').slice(0, 30) || 'BH';
+
+async function mostrarAviso(dados) {
+  let titulo = 'Drink';
+  let texto = 'Tem novidade no Drink.';
+  let tag = 'drink';
+  if (dados && dados.event === 'subscription_expiring') {
+    texto = 'Abre o Drink para continuar recebendo os avisos.';
+    tag = 'drink-expira';
+  } else if (dados && dados.message) {
+    let corpo = null;
+    try { corpo = JSON.parse(dados.message.message); } catch (e) { corpo = null; }
+    if (corpo && corpo.tipo === 'pedido') {
+      titulo = 'Pedido novo no Drink';
+      texto = `${bairro(corpo.de)} → ${bairro(corpo.para)} · ${reais(corpo.valor)}`;
+      tag = 'drink-pedido';
+    } else if (corpo && AVISOS[corpo.tipo]) {
+      [titulo, texto] = AVISOS[corpo.tipo];
+      tag = 'drink-corrida';
+    }
+  }
+  // com o app na tela, o aviso chega sem som (o próprio app já avisou)
+  const abertos = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+  const naTela = abertos.some((c) => c.visibilityState === 'visible');
+  return self.registration.showNotification(titulo, {
+    body: texto, tag, renotify: true, silent: naTela,
+    icon: '../icon-192.png', badge: '../icon-192.png', data: { url: './' },
+  });
+}
+
+self.addEventListener('push', (e) => {
+  let dados = null;
+  try { dados = e.data ? e.data.json() : null; } catch (x) { dados = null; }
+  e.waitUntil(mostrarAviso(dados));
+});
+
+// tocar no aviso traz o app para a frente
 self.addEventListener('notificationclick', (e) => {
   e.notification.close();
   e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((abertos) => {

@@ -182,6 +182,7 @@
       const u = eu();
       q('#rm-alerta').hidden = true;
       if (!u.pix || !u.pix.chave) { op.editarPix('Antes de ficar online, cadastra a chave Pix onde você recebe.'); return; }
+      op.pedirNotificacao();
       if (!R.cifraPronta) { alerta('Esse navegador não tem a proteção que o Drink usa. Usa o Chrome ou o Safari atualizados.'); return; }
       try { if (!som) som = new (window.AudioContext || window.webkitAudioContext)(); if (som.state === 'suspended') som.resume(); } catch (e) { /* sem som */ }
       ligarGps();
@@ -189,9 +190,10 @@
         alerta(e && e.code === 1 ? 'Sem a sua localização não dá pra receber pedidos. Libera a localização nas configurações do navegador.' : 'Não deu pra achar você no mapa. Tenta de novo num lugar aberto.');
         return;
       }
-      op.pedirNotificacao();
       travarTela();
       online = true;
+      avisos().definir('motorista', [R.topico.pedidos()]);
+      if (avisos().estado() === 'instalar') op.avisar('Dica: instala o Drink na tela de início para receber os pedidos com o app fechado.');
       if (!u.idMotorista) { u.idMotorista = R.idAleatorio(9); op.salvar(); }
       ouvirPedidos();
       presenca();
@@ -209,7 +211,7 @@
     function ouvirPedidos() {
       if (assPedidos) return;
       pedidos = new Map([...pedidos].filter(([, p]) => p.teste));
-      assPedidos = R.canal.assinar([R.topico.pedidos()], (msg) => receberPedido(msg, R.canal), { desde: '4m' });
+      assPedidos = R.canal.assinar([R.topico.pedidos(), R.topico.fechados()], (msg) => receberPedido(msg, R.canal), { desde: '4m' });
     }
     function pararPedidos() {
       if (assPedidos) { assPedidos.fechar(); assPedidos = null; }
@@ -227,6 +229,7 @@
       clearInterval(presencaTimer);
       clearInterval(limpezaTimer);
       if (estava) presenca('offline');
+      if (!corrida) avisos().definir('motorista', []);
       if (trava) { trava.release().catch(() => {}); trava = null; }
       pedidos.clear();
       if (!corrida) desligarGps();
@@ -256,7 +259,7 @@
       pedidos.set(msg.id, { ...msg, canal, chegou: Date.now() });
       if (!corrida && !aceito) {
         tocar();
-        op.notificar('Pedido novo no Drink', `${msg.de.bairro} → ${msg.para.bairro} · ${brl(msg.valor)}`);
+        op.notificar('Pedido novo no Drink', `${msg.de.bairro} → ${msg.para.bairro} · ${brl(msg.valor)}`, 'drink-pedido');
       }
       if (atual === 'online') desenharPedidos();
     }
@@ -303,12 +306,17 @@
         motorista: { nome: nomeCurto(u), nota: nota(u), corridas: u.totalCorridas || 0, veiculo: u.veiculo || 'bike' },
         pos: pos ? { lat: pos.lat, lon: pos.lon } : null,
       });
+      if (!p.teste) {
+        avisos().mandar(R.topico.aviso(id, 'p'), 'aceite');
+        avisos().definir('motorista', [R.topico.aviso(id, 'm')]);
+      }
       agendar(() => {
         if (aceito && aceito.id === id && !corrida) { desistir(); op.avisar('O passageiro não confirmou. Voltando pros pedidos.'); }
       }, 60000);
     }
     function desistir() {
       if (assCorrida) { assCorrida.fechar(); assCorrida = null; }
+      avisos().definir('motorista', online ? [R.topico.pedidos()] : []);
       if (aceito) pedidos.delete(aceito.id);
       aceito = null;
       limparTimers();
@@ -316,6 +324,11 @@
     }
 
     /* ---------- a corrida ---------- */
+    const avisos = () => window.Drink.avisos;
+    // aviso curto no celular do passageiro (só em corrida de verdade)
+    function avisarPassageiro(tipo) {
+      if (corrida && !corrida.teste) avisos().mandar(R.topico.aviso(corrida.id, 'p'), tipo);
+    }
     function assinarCorrida(id, desde) {
       if (assCorrida) assCorrida.fechar();
       assCorrida = canalCorrida.assinar([R.topico.corrida(id)], (env, meta) => {
@@ -429,6 +442,7 @@
       if (atual === 'buscar' && mapa) mapa.ponto('eu', pos, Mapa.ICONE.motorista(eu().veiculo));
     }
     function encerrar() {
+      if (corrida && !corrida.teste) avisos().definir('motorista', online ? [R.topico.pedidos()] : []);
       clearInterval(posTimer);
       limparTimers();
       if (assCorrida) { assCorrida.fechar(); assCorrida = null; }
@@ -618,6 +632,7 @@
       const u = eu();
       c.etapa = 'receber';
       enviar({ tipo: 'etapa', etapa: 'chegada', valor: c.valor });
+      avisarPassageiro('chegada');
       enviar(c.teste
         ? { tipo: 'cobranca', simulado: true }
         : { tipo: 'cobranca', pix: { chave: u.pix.chave, nome: [u.nome, u.sobrenome].filter(Boolean).join(' '), cidade: 'BELO HORIZONTE' } });
@@ -687,6 +702,7 @@
       const t = String(txt || '').trim().slice(0, 300);
       if (!t || !corrida) return;
       enviar({ tipo: 'msg', txt: t });
+      avisarPassageiro('msg');
       adicionarMsg('eu', t);
     }
 
@@ -744,12 +760,14 @@
           corrida.etapa = 'codigo';
           clearInterval(posTimer);
           enviar({ tipo: 'etapa', etapa: 'chegou' });
+          avisarPassageiro('chegou');
           salvarCorrida();
           ir('codigo');
         },
         cancelar: () => {
           if (!corrida) return;
           enviar({ tipo: 'cancelado', motivo: 'motorista' });
+          avisarPassageiro('cancelado');
           encerrar();
           op.avisar('Corrida cancelada.');
           if (online) { ouvirPedidos(); ir('online'); } else ir('off');
@@ -796,6 +814,7 @@
           corrida = c;
           canalCorrida = R.canal;
           ligarGps();
+          avisos().definir('motorista', [R.topico.aviso(c.id, 'm')]);
           assinarCorrida(c.id, c.ultimo || String(Math.floor(c.t0 / 1000) - 5));
           const tela = { buscar: 'buscar', codigo: 'codigo', vistoria: 'vistoria', dobra: 'dobra', viagem: 'viagem', receber: 'receber' }[c.etapa] || 'buscar';
           if (c.etapa === 'buscar') { clearInterval(posTimer); posTimer = setInterval(() => enviarPosicao(true), 45000); }

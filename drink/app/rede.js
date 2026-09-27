@@ -157,9 +157,13 @@
   const canal = ntfy(cfg.ntfy);
   const topico = {
     pedidos: () => `${cfg.sala}-pedidos`,
+    // pedidos fechados ficam num canal à parte: no canal de pedidos, cada mensagem vira um aviso no celular
+    fechados: () => `${cfg.sala}-fechados`,
     online: () => `${cfg.sala}-online`,
     corrida: (id) => `drk-${id}`,
     rastreio: (id) => `drk-${id}-r`,
+    // avisos curtos da corrida: p para o passageiro, m para o motorista
+    aviso: (id, quem) => `drk-${id}-a${quem}`,
   };
 
   window.Drink.rede = {

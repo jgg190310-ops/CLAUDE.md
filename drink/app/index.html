@@ -6,6 +6,10 @@
   <title>Drink</title>
   <meta name="description" content="O app do Drink. Bebeu? O motorista chega de bike ou patinete, dobra no seu porta-malas e leva você e o seu carro para casa.">
   <meta name="theme-color" content="#2E3CF2">
+  <script>
+    // quem já tem conta (ou abriu um link de acompanhar) cai no app escuro: a barra do celular já começa escura
+    try { if (/acompanhar=/.test(location.search) || (JSON.parse(localStorage.getItem('drink-app') || '{}') || {}).atual) document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0F0E15'); } catch (e) { /* sem armazenamento */ }
+  </script>
   <meta name="color-scheme" content="dark">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -25,9 +29,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&display=swap">
-  <link rel="stylesheet" href="../app-telas.css">
-  <link rel="stylesheet" href="vendor/leaflet.css">
-  <link rel="stylesheet" href="app.css">
+  <link rel="stylesheet" href="../app-telas.css?v=3">
+  <link rel="stylesheet" href="vendor/leaflet.css?v=3">
+  <link rel="stylesheet" href="app.css?v=3">
 </head>
 <body>
 <svg class="sprite" aria-hidden="true" focusable="false">
@@ -136,6 +140,7 @@
     <symbol id="i-enviar" viewBox="0 0 24 24"><path d="M4.5 11.5L20 4l-6.5 16-2.8-6.3z"/><path d="M10.7 13.7L20 4"/></symbol>
     <symbol id="i-pix" viewBox="0 0 24 24"><path d="M12 2.8l3.3 3.3L12 9.4 8.7 6.1zM12 14.6l3.3 3.3-3.3 3.3-3.3-3.3zM2.8 12l3.3-3.3L9.4 12l-3.3 3.3zM14.6 12l3.3-3.3 3.3 3.3-3.3 3.3z"/></symbol>
     <symbol id="i-lixo" viewBox="0 0 24 24"><path d="M5 7h14M10 7V5h4v2M7 7l1 12.5h8L17 7"/></symbol>
+    <symbol id="i-sino" viewBox="0 0 24 24"><path d="M6 16.5V11a6 6 0 0112 0v5.5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 004 0"/></symbol>
     <symbol id="i-ios-compartilhar" viewBox="0 0 24 24"><path d="M8.5 9.5H6.5v11h11v-11h-2M12 3.5v11M8.5 7L12 3.5 15.5 7"/></symbol>
     <symbol id="i-sair" viewBox="0 0 24 24"><path d="M14 4.5h4.5v15H14M10.5 8L6.5 12l4 4M6.5 12h9"/></symbol>
     <symbol id="i-trocar" viewBox="0 0 24 24"><path d="M5 8.5h13.5L15 5M19 15.5H5.5L9 19"/></symbol>
@@ -234,7 +239,7 @@
           </div>
           <p class="en-erro" id="en-cel-erro" role="alert" hidden></p>
           <button type="submit" class="t-botao" id="en-cel-bt" disabled>Receber código</button>
-          <p class="en-nota"><svg aria-hidden="true"><use href="#i-escudo"/></svg><span>Protótipo: vale qualquer número. Nenhum SMS de verdade é enviado.</span></p>
+          <p class="en-nota"><svg aria-hidden="true"><use href="#i-escudo"/></svg><span id="en-cel-nota">Protótipo: vale qualquer número. Nenhum SMS de verdade é enviado.</span></p>
         </form>
       </section>
 
@@ -246,7 +251,7 @@
             <ol class="en-passos" aria-label="Passo 2 de 3"><li class="feito"></li><li class="on"></li><li></li></ol>
           </div>
           <h2 class="en-t" id="cod-t" tabindex="-1">Digita o código</h2>
-          <p class="en-sub" id="cod-sub">Mandamos 4 números para <b id="en-cel-txt">o seu celular</b>. <button type="button" class="en-link" data-app="voltar">Trocar número</button></p>
+          <p class="en-sub" id="cod-sub">Mandamos <span id="en-cod-qtd">4 números</span> para <b id="en-cel-txt">o seu celular</b>. <button type="button" class="en-link" data-app="voltar">Trocar número</button></p>
           <div class="en-cod" id="en-cod">
             <input id="en-cod-in" name="codigo" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="4" aria-label="Código de 4 números" aria-describedby="cod-sub en-cod-erro">
             <span class="en-cod-caixa"></span><span class="en-cod-caixa"></span><span class="en-cod-caixa"></span><span class="en-cod-caixa"></span>
@@ -254,6 +259,7 @@
           <p class="en-erro" id="en-cod-erro" role="alert" hidden></p>
           <button type="submit" class="t-botao" id="en-cod-bt" disabled>Confirmar</button>
           <button type="button" class="en-link en-reenviar" id="en-reenviar" data-app="reenviar" disabled>Reenviar código em 0:30</button>
+          <div class="en-recaptcha" id="en-recaptcha"></div>
         </form>
       </section>
 
@@ -574,6 +580,7 @@
           <ul class="en-conta" id="rp-contatos"></ul>
           <p class="d-sec">Conta</p>
           <ul class="en-conta">
+            <li><button type="button" data-app="avisos"><svg aria-hidden="true"><use href="#i-sino"/></svg><span><b>Avisos no celular</b><small data-avisos>Toca para ligar</small></span></button></li>
             <li><button type="button" data-app="virar-motorista"><svg aria-hidden="true"><use href="#i-bike"/></svg><span><b>Quero dirigir com o Drink</b><small>Ganhe à noite com a sua bike ou patinete</small></span></button></li>
             <li data-instalar hidden><button type="button" data-app="instalar"><svg aria-hidden="true"><use href="#i-celular"/></svg><span><b>Instalar o app</b><small>Na tela de início, sem passar pela loja</small></span></button></li>
             <li><button type="button" class="en-sair" data-app="sair"><svg aria-hidden="true"><use href="#i-sair"/></svg><span><b>Sair da conta</b><small>A conta continua salva neste aparelho</small></span></button></li>
@@ -919,6 +926,7 @@
         <ul class="en-conta">
           <li><button type="button" data-app="trocar-veiculo"><svg aria-hidden="true"><use href="#i-trocar"/></svg><span><b id="en-veic-t">Trocar para patinete</b><small id="en-veic-sub">Hoje você chega de bike elétrica</small></span></button></li>
           <li><button type="button" data-app="editar-pix"><svg aria-hidden="true"><use href="#i-pix"/></svg><span><b>Chave Pix</b><small id="en-pix-atual">Onde você recebe</small></span></button></li>
+          <li><button type="button" data-app="avisos"><svg aria-hidden="true"><use href="#i-sino"/></svg><span><b>Avisos no celular</b><small data-avisos>Toca para ligar</small></span></button></li>
           <li><button type="button" data-app="virar-passageiro"><svg aria-hidden="true"><use href="#i-carro"/></svg><span><b>Pedir um Drink</b><small>Usar o app como passageiro</small></span></button></li>
           <li data-instalar hidden><button type="button" data-app="instalar"><svg aria-hidden="true"><use href="#i-celular"/></svg><span><b>Instalar o app</b><small>Na tela de início, sem passar pela loja</small></span></button></li>
           <li><button type="button" class="en-sair" data-app="sair"><svg aria-hidden="true"><use href="#i-sair"/></svg><span><b>Sair da conta</b><small>A conta continua salva neste aparelho</small></span></button></li>
@@ -964,16 +972,18 @@
   </div>
 </div>
 
-<script src="vendor/leaflet.js"></script>
-<script src="vendor/qrcode.js"></script>
-<script src="../app-nucleo.js"></script>
-<script src="servicos.js"></script>
-<script src="rede.js"></script>
-<script src="mapa.js"></script>
-<script src="pix.js"></script>
-<script src="robo.js"></script>
-<script src="passageiro.js"></script>
-<script src="motorista.js"></script>
-<script src="app.js"></script>
+<script src="vendor/leaflet.js?v=3"></script>
+<script src="vendor/qrcode.js?v=3"></script>
+<script src="../app-nucleo.js?v=3"></script>
+<script src="servicos.js?v=3"></script>
+<script src="rede.js?v=3"></script>
+<script src="mapa.js?v=3"></script>
+<script src="pix.js?v=3"></script>
+<script src="robo.js?v=3"></script>
+<script src="avisos.js?v=3"></script>
+<script src="sms.js?v=3"></script>
+<script src="passageiro.js?v=3"></script>
+<script src="motorista.js?v=3"></script>
+<script src="app.js?v=3"></script>
 </body>
 </html>

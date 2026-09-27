@@ -252,6 +252,12 @@ body {
 @keyframes estala { from { transform: scale(.82); } to { transform: none; } }
 @keyframes treme { 0%, 100% { transform: none; } 20% { transform: translateX(-.45em); } 40% { transform: translateX(.45em); } 60% { transform: translateX(-.3em); } 80% { transform: translateX(.2em); } }
 .en-reenviar { align-self: center; font-size: .88em; }
+/* SMS de verdade: 6 números */
+.en-cod[data-n="6"] { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: .45em; max-width: 26em; }
+.en-cod[data-n="6"] .en-cod-caixa { font-size: 1.85em; }
+/* a verificação de robô do Google fica invisível (o aviso dela está no texto da tela do celular) */
+.en-recaptcha { height: 0; overflow: hidden; }
+.grecaptcha-badge { visibility: hidden; }
 
 /* caixinha de aceite */
 .en-check { position: relative; display: flex; align-items: flex-start; gap: .75em; font-size: .84em; color: var(--a-texto-2); cursor: pointer; }
@@ -395,10 +401,10 @@ body {
 /* ---------- os apps de verdade: o mapa por baixo e as telas por cima ---------- */
 .app .rt { font-size: var(--app-fs); }
 .modo-real { background: var(--a-bg); }
-.mapa { position: absolute; inset: 0; z-index: 0; background: #12111C; }
-.app .leaflet-container { background: #12111C; font-family: var(--f-texto); font-size: 12px; outline: none; }
-/* o mapa escuro da CARTO puxado para o azul da noite do Drink */
-.mapa .leaflet-tile-pane { filter: sepia(.45) hue-rotate(195deg) saturate(1.9) brightness(.92) contrast(1.06); }
+.mapa { position: absolute; inset: 0; z-index: 0; background: #1C2395; }
+.app .leaflet-container { background: #1C2395; font-family: var(--f-texto); font-size: 12px; outline: none; }
+/* o mapa claro do OpenStreetMap invertido; meio transparente, ele pega o azul da noite que está por baixo */
+.mapa .leaflet-tile-pane { filter: invert(1) hue-rotate(180deg) saturate(.6) brightness(.95) contrast(1.05); }
 .mapa .leaflet-top { top: var(--topo); font-size: var(--app-fs); }
 .app .leaflet-control-attribution {
   margin: 0; padding: .1em .65em .2em; border-radius: 0 0 0 .7em;

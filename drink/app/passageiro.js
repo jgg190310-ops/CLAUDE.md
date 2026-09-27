@@ -385,6 +385,11 @@
     }
 
     /* ---------- a corrida ---------- */
+    const avisos = () => window.Drink.avisos;
+    // aviso curto no celular do motorista (só em corrida de verdade, depois que ele aceitou)
+    function avisarMotorista(tipo) {
+      if (corrida && !corrida.simulada && corrida.motorista) avisos().mandar(R.topico.aviso(corrida.id, 'm'), tipo);
+    }
     function salvarCorrida() {
       const u = eu();
       if (!u) return;
@@ -419,6 +424,7 @@
 
     async function pedir(simulada) {
       const u = eu();
+      if (!simulada) op.pedirNotificacao();
       if (!R.cifraPronta) { op.avisar('Esse navegador não tem a proteção que o Drink usa. Tenta no Chrome ou no Safari atualizados.'); return; }
       if (!u.carro) { abrirFolha('rp-carro'); q('#rp-carro-erro').hidden = false; q('#rp-carro-erro').textContent = 'Antes de pedir, conta qual é o seu carro.'; return; }
       if (!rota || !embarque || !destino) { op.avisar('Espera a rota aparecer no mapa e toca de novo.'); return; }
@@ -460,8 +466,8 @@
         return;
       }
       if (simulada) robo = window.Drink.robo.motorista(canal, { pedido, codigo: corrida.codigo });
+      else avisos().definir('passageiro', [R.topico.aviso(corrida.id, 'p')]);
       contarPrazo(agora + PRAZO_BUSCA);
-      op.pedirNotificacao();
     }
     function contarPrazo(ate) {
       const barra = q('#rp-prazo');
@@ -485,9 +491,10 @@
     }
     function publicarFechado() {
       if (!corrida || corrida.simulada) return;
-      R.canal.publicar(R.topico.pedidos(), { v: 1, tipo: 'fechado', id: corrida.id, segredo: corrida.segredo }).catch(() => {});
+      R.canal.publicar(R.topico.fechados(), { v: 1, tipo: 'fechado', id: corrida.id, segredo: corrida.segredo }).catch(() => {});
     }
     function encerrar() {
+      if (corrida && !corrida.simulada) avisos().definir('passageiro', []);
       limparTimers();
       clearInterval(rastreioTimer);
       if (assinatura) { assinatura.fechar(); assinatura = null; }
@@ -538,6 +545,7 @@
             destino: { lat: c.destino.lat, lon: c.destino.lon, nome: c.destino.nome, bairro: c.destino.bairro },
             carro: c.carro, valor: c.valor, km: c.km,
           });
+          avisarMotorista('confirmado');
           publicarFechado();
           op.notificar(`${primeiroNome(c.motorista.nome)} aceitou`, 'O Drink está indo até você.');
           ir('caminho');
@@ -854,6 +862,7 @@
       if (c.paguei) { if (c.podeConcluir) concluir(); return; }
       c.paguei = true;
       enviar({ tipo: 'paguei', total: totalAtual() });
+      avisarMotorista('paguei');
       salvarCorrida();
       if (c.recebido) { concluir(); return; }
       mostrarPix();
@@ -885,7 +894,7 @@
       if (!c) return;
       if (['preparo', 'viagem', 'chegada', 'pagando'].includes(c.etapa)) { op.avisar('A corrida já começou. Se precisar, usa a Ajuda.'); return; }
       if (c.etapa === 'buscando') publicarFechado();
-      else enviar({ tipo: 'cancelado', motivo: 'passageiro' });
+      else { enviar({ tipo: 'cancelado', motivo: 'passageiro' }); avisarMotorista('cancelado'); }
       encerrar();
       op.avisar('Corrida cancelada.');
       ir(destino ? 'opcoes' : 'inicio');
@@ -915,6 +924,7 @@
       const t = String(txt || '').trim().slice(0, 300);
       if (!t || !corrida || !corrida.motorista) return;
       enviar({ tipo: 'msg', txt: t });
+      avisarMotorista('msg');
       adicionarMsg('eu', t);
     }
 
@@ -1129,6 +1139,7 @@
           destino = c.destino;
           embarque = c.embarque;
           assinarCorrida();
+          avisos().definir('passageiro', [R.topico.aviso(c.id, 'p')]);
           const tela = { buscando: 'buscando', 'a-caminho': 'caminho', chegou: 'caminho', preparo: 'preparo', viagem: 'viagem', chegada: 'chegou', pagando: 'pix' }[c.etapa] || 'inicio';
           if (c.etapa === 'buscando') {
             if (Date.now() > c.t0 + PRAZO_BUSCA) { semMotorista(); return; }

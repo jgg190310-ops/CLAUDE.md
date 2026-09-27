@@ -1,4 +1,4 @@
-/* Drink — o mapa de verdade (Leaflet, com o mapa do OpenStreetMap no estilo escuro da CARTO).
+/* Drink — o mapa de verdade (Leaflet, com o mapa do OpenStreetMap escurecido no azul da noite do Drink).
    Marcadores do app: você, o Drink chegando, o destino e os Drinks online por perto. */
 (function () {
   'use strict';
@@ -27,7 +27,15 @@
     });
     mapa.attributionControl.setPosition('topright')
       .setPrefix('<a href="https://leafletjs.com" target="_blank" rel="noopener">Leaflet</a>');
-    L.tileLayer(cfg.mapa, { subdomains: 'abcd', maxZoom: 20, attribution: cfg.creditos }).addTo(mapa);
+    // o mapa claro do OpenStreetMap fica escuro no CSS (invertido, meio transparente sobre o azul da noite)
+    const camada = L.tileLayer(cfg.mapa, { subdomains: 'abc', maxZoom: 19, opacity: 0.8, attribution: cfg.creditos }).addTo(mapa);
+    let carregados = 0;
+    let falhas = 0;
+    camada.on('tileload', () => { carregados += 1; });
+    camada.on('tileerror', () => {
+      falhas += 1;
+      if (cfg.mapaReserva && falhas >= 6 && carregados < 2 && camada._url !== cfg.mapaReserva) camada.setUrl(cfg.mapaReserva);
+    });
 
     const pontos = {};
     const tweens = {};
