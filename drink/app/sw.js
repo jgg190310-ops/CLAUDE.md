@@ -1,9 +1,11 @@
 /* Drink — o service worker do app: guarda o app no aparelho para abrir rápido e funcionar sem internet.
    Páginas vêm da rede primeiro; o resto sai do que está guardado e se atualiza por trás. */
-const VERSAO = 'drink-app-1';
+const VERSAO = 'drink-app-2';
 const FONTES = 'drink-fontes-1';
 const ARQUIVOS = [
   './', 'app.css', 'app.js', 'manifest.webmanifest',
+  'servicos.js', 'rede.js', 'mapa.js', 'pix.js', 'robo.js', 'passageiro.js', 'motorista.js',
+  'vendor/leaflet.js', 'vendor/leaflet.css', 'vendor/qrcode.js',
   '../app-telas.css', '../app-nucleo.js',
   '../icon.svg', '../icon-180.png', '../icon-192.png', '../icon-512.png',
   'icone-maskable-192.png', 'icone-maskable-512.png',
@@ -56,4 +58,14 @@ self.addEventListener('fetch', (e) => {
   });
   e.respondWith(caches.match(req).then((salvo) => salvo || rede));
   e.waitUntil(rede.then(() => {}, () => {}));
+});
+
+// tocar no aviso (pedido novo, motorista chegou…) traz o app para a frente
+self.addEventListener('notificationclick', (e) => {
+  e.notification.close();
+  e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((abertos) => {
+    const app = abertos.find((c) => new URL(c.url).pathname.startsWith(new URL('./', self.location).pathname));
+    if (app) return app.focus();
+    return self.clients.openWindow('./');
+  }));
 });

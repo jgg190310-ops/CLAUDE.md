@@ -1,10 +1,12 @@
 /* Drink — o app. Abertura, boas-vindas, cadastro e login com código por SMS, escolha entre passageiro e motorista,
-   cadastro de motorista e os dois apps do núcleo (../app-nucleo.js) em tela cheia.
-   A conta fica salva só no aparelho; nada é enviado. Animações acontecem uma vez e param. */
+   cadastro de motorista com a chave Pix e os dois apps de verdade (passageiro.js e motorista.js), com mapa, GPS
+   e as corridas passando de um celular para o outro. A conta fica salva só no aparelho.
+   Animações acontecem uma vez e param. */
 (function () {
   'use strict';
 
   const { $, $$, reduzirMovimento, brl } = window.Drink.util;
+  const PIX = window.Drink.pix;
   const app = $('#app');
   const abertura = $('#abertura');
   const meta = $('meta[name="theme-color"]');
@@ -25,12 +27,6 @@
     try { localStorage.setItem(CHAVE, JSON.stringify(banco)); } catch (e) { /* idem */ }
   }
   const eu = () => (banco.atual && banco.usuarios[banco.atual]) || null;
-  const copia = (o) => JSON.parse(JSON.stringify(o));
-  const contaNova = () => ({
-    creditos: 10, pag: 'Pix', historico: [],
-    contatos: { Ana: true, Pedro: false, 'Mãe': false },
-    ajustes: { avisar: true, sempre: false, codigo: true },
-  });
   function hoje() {
     const d = new Date();
     return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
@@ -83,6 +79,7 @@
 
   function mostrar(el, anim) {
     limparTimers();
+    soltar(el);
     [...telasEn, modos.passageiro, modos.motorista].forEach((t) => {
       if (t !== el) t.hidden = true;
       t.classList.remove('entra', 'volta');
@@ -93,6 +90,27 @@
   }
 
   const CAMPO = { celular: '#en-cel', codigo: '#en-cod-in', nome: '#en-nome' };
+
+  /* ---------- chave Pix do motorista ---------- */
+  function ajustarCampoPix(tipo, campo) {
+    const t = PIX.TIPOS[tipo.value] || PIX.TIPOS.celular;
+    campo.placeholder = t.exemplo;
+    campo.inputMode = t.teclado;
+    campo.type = { email: 'email', tel: 'tel' }[t.teclado] || 'text';
+  }
+  const chaveNoCampo = (pix) => (pix.tipo === 'celular' && pix.chave.startsWith('+55') ? formatarCel(pix.chave.slice(3)) : pix.chave);
+  // confere a chave; se estiver errada, mostra o porquê e devolve null
+  function lerPix(tipoSel, chaveSel, erroSel) {
+    const tipo = $(tipoSel).value;
+    const r = PIX.normalizarChave(tipo, $(chaveSel).value);
+    if (r.erro) { mostrarErro(erroSel, r.erro); $(chaveSel).focus(); return null; }
+    $(erroSel).hidden = true;
+    return { tipo, chave: r.chave };
+  }
+  [['#en-pix-tipo', '#en-pix-chave', '#en-pix-erro'], ['#en-pf-tipo', '#en-pf-chave', '#en-pf-erro']].forEach(([t, c, e]) => {
+    $(t).addEventListener('change', () => { ajustarCampoPix($(t), $(c)); $(e).hidden = true; });
+    $(c).addEventListener('input', () => { $(e).hidden = true; });
+  });
   function focar(t, nome) {
     const campo = CAMPO[nome] && $(CAMPO[nome]);
     const alvo = campo || $('.en-t, .boas-t', t);
@@ -114,6 +132,10 @@
     'mot-cad'() {
       const u = eu();
       escolherVeiculo((u && u.veiculo) || 'bike');
+      $('#en-pix-tipo').value = (u && u.pix && u.pix.tipo) || 'celular';
+      $('#en-pix-chave').value = u && u.pix ? chaveNoCampo(u.pix) : '';
+      ajustarCampoPix($('#en-pix-tipo'), $('#en-pix-chave'));
+      $('#en-pix-erro').hidden = true;
       $$('#en-docs li').forEach((li) => { li.classList.remove('vendo', 'ok'); $('em', li).textContent = 'pendente'; });
       const bt = $('#en-verificar');
       bt.disabled = false;
@@ -364,7 +386,7 @@
     if (erro) { mostrarErro('#en-nome-erro', erro); campo.focus(); return; }
     const u = {
       nome: capitalizar(nome), sobrenome: capitalizar(sobrenome, true), email, celular: fluxo.celular,
-      papel: null, veiculo: 'bike', motoristaOk: false, conta: contaNova(), ganhos: 0, viagens: 0, dia: hoje(),
+      papel: null, veiculo: 'bike', motoristaOk: false, ganhos: 0, viagens: 0, dia: hoje(),
     };
     banco.usuarios[u.celular] = u;
     banco.atual = u.celular;
@@ -399,7 +421,7 @@
     u.papel = papel;
     salvar();
     entrarNoApp(u, 'entra');
-    if (papel === 'passageiro' && u.conta && u.conta.creditos > 0) avisar(`Tudo pronto, ${primeiro(u)}! Tem R$ 10 de desconto na primeira volta.`);
+    if (papel === 'passageiro') avisar(`Tudo pronto, ${primeiro(u)}! Bebeu? Pede um Drink.`);
   }
 
   function escolherVeiculo(v) {
@@ -408,6 +430,10 @@
   }
 
   function verificar() {
+    const pix = lerPix('#en-pix-tipo', '#en-pix-chave', '#en-pix-erro');
+    if (!pix) return;
+    const u = eu();
+    if (u) { u.pix = pix; salvar(); }
     const bt = $('#en-verificar');
     const itens = $$('#en-docs li');
     const passo = 520;
@@ -421,13 +447,16 @@
       bt.disabled = false;
       bt.textContent = 'Começar a dirigir';
       bt.dataset.app = 'dirigir';
-      avisar('Cadastro aprovado na hora. Aqui é de mentirinha!');
+      avisar('Documentos aprovados na hora: essa parte ainda é de mentirinha.');
     }, itens.length * passo + 250);
   }
 
   function comecarADirigir() {
     const u = eu();
     if (!u) { irEn('boas'); return; }
+    const pix = lerPix('#en-pix-tipo', '#en-pix-chave', '#en-pix-erro');
+    if (!pix) return;
+    u.pix = pix;
     u.motoristaOk = true;
     u.papel = 'motorista';
     u.veiculo = veiculoCadastro;
@@ -440,6 +469,32 @@
   let passageiro = null;
   let motorista = null;
 
+  // aviso do sistema quando o app está em segundo plano (com a tela aberta, o aviso do app basta)
+  function notificar(titulo, corpo) {
+    if (!document.hidden) return;
+    try {
+      if (!('Notification' in window) || Notification.permission !== 'granted') return;
+      const opcoes = { body: corpo, icon: '../icon-192.png', badge: '../icon-192.png', tag: 'drink', renotify: true, vibrate: [180, 90, 180] };
+      if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+        navigator.serviceWorker.ready.then((r) => r.showNotification(titulo, opcoes)).catch(() => {});
+      } else new Notification(titulo, opcoes);
+    } catch (e) { /* sem notificação */ }
+  }
+  function pedirNotificacao() {
+    try {
+      if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission().catch(() => {});
+    } catch (e) { /* navegador sem notificação */ }
+  }
+  const opcoes = () => ({ eu, salvar, avisar, notificar, pedirNotificacao });
+  function garantirPassageiro() {
+    if (!passageiro) passageiro = window.Drink.Passageiro.criar({ raiz: modos.passageiro, ...opcoes() });
+    return passageiro;
+  }
+  function garantirMotorista() {
+    if (!motorista) motorista = window.Drink.Motorista.criar({ raiz: modos.motorista, ...opcoes(), editarPix: (msg) => editarPix(msg) });
+    return motorista;
+  }
+
   function preencherConta() {
     const u = eu();
     if (!u) return;
@@ -448,77 +503,49 @@
     $$('[data-en-primeiro]').forEach((el) => { el.textContent = primeiro(u); });
     $$('[data-en-iniciais]').forEach((el) => { el.textContent = iniciais(nome); });
     $$('[data-en-fone]').forEach((el) => { el.textContent = `+55 ${formatarCel(u.celular)}`; });
+    if (u.dia !== hoje()) { u.dia = hoje(); u.ganhos = 0; u.viagens = 0; salvar(); }
     $$('[data-en-ganhos]').forEach((el) => { el.textContent = brl(u.ganhos || 0); });
     $$('[data-en-viagens]').forEach((el) => { el.textContent = `${u.viagens || 0} ${u.viagens === 1 ? 'viagem' : 'viagens'}`; });
     const patinete = u.veiculo === 'patinete';
     $('#en-veic-t').textContent = patinete ? 'Trocar para bike' : 'Trocar para patinete';
     $('#en-veic-sub').textContent = `Hoje você chega de ${patinete ? 'patinete elétrico' : 'bike elétrica'}`;
-    // no mapa e no status do motorista, o desenho do veículo certo
-    $$('#motorista .ma-status use, #ma-bike use').forEach((el) => el.setAttribute('href', patinete ? '#i-patinete' : '#i-bike'));
+    $('#en-pix-atual').textContent = u.pix ? `${PIX.TIPOS[u.pix.tipo].nome} · ${PIX.mascarar(u.pix.chave)}` : 'Cadastra onde você recebe';
+    if (motorista) motorista.preencher();
   }
 
-  function abrirPassageiro(anim) {
+  function abrirPassageiro(anim, telaInicial) {
     const u = eu();
     if (!u) { irEn('boas'); return; }
     fecharFolha(false);
-    if (!passageiro) {
-      passageiro = window.Drink.cliente({
-        raiz: modos.passageiro,
-        usuario: () => eu() || { nome: '', sobrenome: '' },
-        conta: copia(u.conta || contaNova()),
-        aoMudar: (conta) => { const x = eu(); if (x) { x.conta = copia(conta); salvar(); } },
-      });
-    } else {
-      Object.assign(passageiro.conta, copia(u.conta || contaNova()));
-      passageiro.zerar();
-      passageiro.ir('inicio', false);
-    }
+    garantirPassageiro();
     preencherConta();
     mostrar(modos.passageiro, anim);
     cor(COR.noite);
+    passageiro.abrir();
+    if (telaInicial && !passageiro.corridaAtiva()) passageiro.ir(telaInicial);
   }
 
   function abrirMotorista(anim) {
     const u = eu();
     if (!u) { irEn('boas'); return; }
-    if (u.dia !== hoje()) { u.dia = hoje(); u.ganhos = 0; u.viagens = 0; salvar(); }
     fecharFolha(false);
-    if (!motorista) {
-      motorista = window.Drink.motorista({
-        raiz: modos.motorista,
-        usuario: () => eu() || { nome: '', sobrenome: '' },
-        veiculo: () => (eu() && eu().veiculo) || 'bike',
-        ganhos: u.ganhos || 0,
-        viagens: u.viagens || 0,
-        aoGanhar: (g, v) => {
-          const x = eu();
-          if (!x) return;
-          x.ganhos = g;
-          x.viagens = v;
-          x.dia = hoje();
-          salvar();
-          preencherConta();
-        },
-      });
-    } else {
-      motorista.definir(u.ganhos || 0, u.viagens || 0);
-      motorista.preencher();
-      motorista.ir('off', false);
-    }
+    garantirMotorista();
     preencherConta();
     mostrar(modos.motorista, anim);
     cor(COR.noite);
+    motorista.abrir();
   }
 
-  // o app que está escondido para de contar tempo
-  function pararEscondidos() {
-    if (passageiro && modos.passageiro.hidden) { passageiro.zerar(); passageiro.ir('inicio', false); }
-    if (motorista && modos.motorista.hidden) motorista.ir('off', false);
+  // o app que sai de cena para de usar o GPS e a rede
+  function soltar(proxima) {
+    if (passageiro && vista === modos.passageiro && proxima !== modos.passageiro) passageiro.fechar();
+    if (motorista && vista === modos.motorista && proxima !== modos.motorista && motorista.online() && !motorista.corridaAtiva()) motorista.ficarOffline();
   }
 
   function virarMotorista() {
     const u = eu();
     if (!u) return;
+    if (passageiro && passageiro.corridaAtiva()) { avisar('Termina a sua volta antes de trocar de modo.'); return; }
     if (u.motoristaOk) {
       u.papel = 'motorista';
       salvar();
@@ -528,16 +555,16 @@
       origemCadastro = 'passageiro';
       irEn('mot-cad');
     }
-    pararEscondidos();
   }
 
   function virarPassageiro() {
     const u = eu();
     if (!u) return;
+    if (motorista && motorista.corridaAtiva()) { fecharFolha(false); avisar('Termina a corrida antes de trocar de modo.'); return; }
+    if (motorista && motorista.online()) motorista.ficarOffline();
     u.papel = 'passageiro';
     salvar();
     abrirPassageiro('entra');
-    pararEscondidos();
     avisar('Modo passageiro. Bebeu? Pede um Drink.');
   }
 
@@ -546,13 +573,41 @@
     if (!u) return;
     u.veiculo = u.veiculo === 'patinete' ? 'bike' : 'patinete';
     salvar();
-    if (motorista) motorista.preencher();
     preencherConta();
     avisar(u.veiculo === 'patinete' ? 'Hoje você vai de patinete.' : 'Hoje você vai de bike.');
   }
 
+  function editarPix(msg, origem) {
+    const u = eu();
+    if (!u) return;
+    $('#en-pf-tipo').value = (u.pix && u.pix.tipo) || 'celular';
+    $('#en-pf-chave').value = u.pix ? chaveNoCampo(u.pix) : '';
+    ajustarCampoPix($('#en-pf-tipo'), $('#en-pf-chave'));
+    const erro = $('#en-pf-erro');
+    erro.textContent = msg || '';
+    erro.hidden = !msg;
+    abrirFolha('en-pix-folha', origem);
+  }
+  $('#en-pf-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const pix = lerPix('#en-pf-tipo', '#en-pf-chave', '#en-pf-erro');
+    const u = eu();
+    if (!pix || !u) return;
+    u.pix = pix;
+    salvar();
+    fecharFolha();
+    preencherConta();
+    avisar(`Chave Pix salva: ${PIX.mascarar(pix.chave)}. É nela que os passageiros pagam.`);
+  });
+
   function sairDaConta() {
     fecharFolha(false);
+    if ((passageiro && passageiro.corridaAtiva()) || (motorista && motorista.corridaAtiva())) {
+      avisar('Tem uma corrida acontecendo. Termina ela antes de sair da conta.');
+      return;
+    }
+    if (passageiro) passageiro.sair();
+    if (motorista) motorista.sair();
     banco.atual = null;
     salvar();
     limparFormularios();
@@ -562,8 +617,22 @@
     irEn('boas', { anim: null });
     void boas.offsetWidth;
     boas.classList.add('entrou', 'pousou');
-    pararEscondidos();
     avisar('Você saiu da conta. Até a próxima!');
+  }
+
+  /* ---------- acompanhar a volta de alguém pelo link ---------- */
+  function abrirAcompanhar(id, chave) {
+    abertura.hidden = true;
+    const t = tela('acompanhar');
+    mostrar(t, null);
+    cor(COR.noite);
+    if (!/^[\w-]{16,32}$/.test(id) || !/^[\w-]{40,50}$/.test(chave)) {
+      $('#ac-vivo').textContent = 'Link incompleto';
+      $('#ac-t').textContent = 'Esse link veio pela metade';
+      $('#ac-txt').textContent = 'Pede pra pessoa mandar o link da viagem de novo, inteiro.';
+      return;
+    }
+    window.Drink.Passageiro.acompanhar(t, id, chave);
   }
 
   /* ---------- folhas da conta: menu do motorista e instalar ---------- */
@@ -634,6 +703,7 @@
     'virar-motorista': virarMotorista,
     'virar-passageiro': virarPassageiro,
     'trocar-veiculo': trocarVeiculo,
+    'editar-pix': (b) => editarPix('', b),
     menu: (b) => { preencherConta(); abrirFolha('en-menu', b); },
     instalar: (b) => instalar(b),
     fechar: () => fecharFolha(),
@@ -659,25 +729,11 @@
     if (en === 'celular') { irEn('boas', { anim: 'volta' }); return true; }
     if (en === 'codigo' || en === 'nome') { irEn('celular', { anim: 'volta' }); return true; }
     if (en === 'mot-cad') {
-      if (origemCadastro === 'passageiro' && eu()) { abrirPassageiro('volta'); passageiro.ir('perfil', false); } else irEn('papel', { anim: 'volta' });
+      if (origemCadastro === 'passageiro' && eu()) abrirPassageiro('volta', 'perfil'); else irEn('papel', { anim: 'volta' });
       return true;
     }
-    if (vista === modos.passageiro && passageiro) {
-      if (passageiro.folhaAberta()) { passageiro.fecharFolha(); return true; }
-      const atras = { destino: 'inicio', opcoes: 'destino', buscando: 'opcoes', agendado: 'inicio', viagens: 'inicio', carteira: 'inicio', perfil: 'inicio' }[passageiro.telaAtual()];
-      if (atras) { if (atras === 'inicio') passageiro.zerar(); passageiro.ir(atras); return true; }
-      if (passageiro.telaAtual() === 'inicio') return false;
-      passageiro.aviso('A volta está em andamento. Termina por aqui mesmo.');
-      return true;
-    }
-    if (vista === modos.motorista && motorista) {
-      const t = motorista.telaAtual();
-      if (t === 'off') return false;
-      if (t === 'online' || t === 'fim') { motorista.ir('off'); return true; }
-      if (t === 'pedido') { motorista.ir('online'); return true; }
-      avisar('Termina a viagem antes de voltar.');
-      return true;
-    }
+    if (vista === modos.passageiro && passageiro) return passageiro.voltar();
+    if (vista === modos.motorista && motorista) return motorista.voltar();
     return false;
   }
 
@@ -701,8 +757,13 @@
   }
 
   /* ---------- começo ---------- */
+  const busca = new URLSearchParams(location.search);
+  if (busca.get('acompanhar')) {
+    abrirAcompanhar(busca.get('acompanhar'), location.hash.slice(1));
+    return;
+  }
   const u = eu();
-  const pedidoPapel = new URLSearchParams(location.search).get('papel');
+  const pedidoPapel = busca.get('papel');
   if (u && (pedidoPapel === 'passageiro' || pedidoPapel === 'motorista')) {
     u.papel = pedidoPapel;
     salvar();
