@@ -831,7 +831,7 @@
           if (resto) mapa.rota(resto.linha);
           else { mapa.semRota(); tracarAproximacao(); }
         }
-        if (enquadrar) mapa.enquadrar([c.pos, c.embarque], { maxZoom: 17 });
+        if (enquadrar) mapa.enquadrar(() => [c.pos, c.embarque], { maxZoom: 17 });
       } else {
         chip.innerHTML = 'Esperando a posição do Drink';
         if (enquadrar) mapa.centrar(c.embarque, 16);
@@ -869,7 +869,7 @@
       mapa.rota(c.linha);
       mapa.ponto('destino', c.destino, Mapa.ICONE.destino());
       const aqui = pos || c.pos;
-      mapa.enquadrar([aqui || c.embarque, c.destino]);
+      mapa.enquadrar(() => [c.aqui || aqui || c.embarque, c.destino]);
       andarNaViagem(aqui || c.embarque);
       if (c.compartilhada) ligarRastreio();
     }
@@ -1591,6 +1591,8 @@
     setTimeout(() => mapa.ajustar(), 50);
     let primeira = true;
     let ultima = 0;
+    // o carro e o destino de agora: se o celular virar, o mapa volta a mostrar os dois
+    const visto = { carro: null, destino: null };
     function mostrarIdade() {
       if (!ultima) return;
       const s = Math.round((Date.now() - ultima) / 1000);
@@ -1606,13 +1608,15 @@
       ultima = Number.isFinite(d.t) ? d.t : Date.now();
       mostrarIdade();
       const p = { lat: d.lat, lon: d.lon };
+      visto.carro = p;
+      if (d.destino) visto.destino = d.destino;
       mapa.ponto('carro', p, Mapa.ICONE.carro());
       if (d.destino) mapa.ponto('destino', d.destino, Mapa.ICONE.destino());
       q('#ac-t').textContent = d.etapa === 'chegou' ? `${d.quem || 'A pessoa'} chegou em casa` : `${d.quem || 'Alguém'} está voltando com o Drink`;
       q('#ac-txt').textContent = d.etapa === 'chegou'
         ? `Chegou em ${d.destino ? d.destino.nome : 'casa'}. Carro na garagem.`
         : `Indo para ${d.destino ? [d.destino.nome, d.destino.bairro].filter(Boolean).join(' · ') : 'casa'}${d.eta ? ` · chega por volta de ${d.eta}` : ''}${d.motorista ? ` · dirigindo: ${d.motorista}` : ''}`;
-      if (primeira) { mapa.enquadrar([p, d.destino].filter(Boolean)); primeira = false; }
+      if (primeira) { mapa.enquadrar(() => [visto.carro, visto.destino]); primeira = false; }
     }, { desde: '12h' });
   }
 
