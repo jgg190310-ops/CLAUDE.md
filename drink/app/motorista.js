@@ -865,6 +865,36 @@
         : `<li class="rm-feitas-vazio">${diaEscolhido ? 'Nenhuma corrida nesse dia.' : 'Quando você fizer corridas, elas aparecem aqui com o valor, a espera e a gorjeta.'}</li>`;
     }
 
+    /* ---------- ajuda de emergência ---------- */
+    // para quem vai ajudar: onde o motorista está e em que carro (o do passageiro), conforme a etapa
+    function textoAjuda() {
+      const c = corrida;
+      const aqui = `Estou aqui: https://maps.google.com/?q=${pos.lat.toFixed(6)},${pos.lon.toFixed(6)}`;
+      if (!c) return `Sou motorista do Drink. ${aqui}`;
+      const carro = c.carro || {};
+      const placa = CARROS.placa.valida(carro.placa || '') ? `placa ${CARROS.placa.formatar(carro.placa)}` : '';
+      const qual = [[carro.marca, carro.modelo, carro.cor].filter(Boolean).join(' '), placa].filter(Boolean).join(', ');
+      const lugar = (l) => [l.nome, l.bairro].filter(Boolean).join(' · ');
+      if (c.etapa === 'buscar' || c.etapa === 'codigo') {
+        return `Sou motorista do Drink e estou ${c.etapa === 'buscar' ? 'indo buscar' : 'encontrando'} um passageiro em ${lugar(c.embarque)}.${qual ? ` Carro dele: ${qual}.` : ''} ${aqui}`;
+      }
+      return `Sou motorista do Drink e estou levando um passageiro no carro dele${qual ? `: ${qual}` : ''}. Indo para ${lugar(c.destino)}. ${aqui}`;
+    }
+    async function mandarLocal() {
+      if (!pos) { op.avisar('Ainda não achei você no mapa. Liga a localização do celular.'); return; }
+      const texto = textoAjuda();
+      fecharFolha();
+      if (navigator.share) {
+        try { await navigator.share({ text: texto }); return; } catch (e) { if (e && e.name === 'AbortError') return; }
+      }
+      try {
+        await navigator.clipboard.writeText(texto);
+        op.avisar('Localização copiada. Cola no WhatsApp de quem vai te ajudar.');
+      } catch (e) {
+        op.avisar('Não deu pra copiar sozinho. Liga para o 190 se estiver em perigo.');
+      }
+    }
+
     /* ---------- folhas ---------- */
     function abrirFolha(id) {
       fecharFolha();
@@ -935,6 +965,7 @@
         dobrar: () => { if (corrida) { corrida.etapa = 'dobra'; salvarCorrida(); ir('dobra'); } },
         passo: proximoPasso,
         chegada: cheguei,
+        'mandar-local': mandarLocal,
         recebi,
         'nao-caiu': () => { mandarMsg('O Pix ainda não caiu aqui. Confere pra mim?'); op.avisar('Mandamos uma mensagem pro passageiro.'); },
       };
