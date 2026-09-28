@@ -193,6 +193,25 @@
     }
     return km;
   }
+  // n pontos ao longo de uma linha [[lat, lon], ...], com a mesma distância entre eles; o último é o fim da linha
+  // (é por eles que anda o motorista ou o carro de uma simulação)
+  function pontosNaLinha(linha, n) {
+    const pts = (linha || []).map(([lat, lon]) => ({ lat, lon }));
+    if (pts.length < 2) return pts.slice(0, 1);
+    const acum = [0];
+    for (let i = 1; i < pts.length; i += 1) acum.push(acum[i - 1] + distancia(pts[i - 1], pts[i]));
+    const total = acum[acum.length - 1];
+    const saida = [];
+    let j = 1;
+    for (let k = 1; k <= n; k += 1) {
+      const alvo = (total * k) / n;
+      while (j < pts.length - 1 && acum[j] < alvo) j += 1;
+      const trecho = acum[j] - acum[j - 1];
+      const f = trecho > 0 ? Math.min(1, Math.max(0, (alvo - acum[j - 1]) / trecho)) : 1;
+      saida.push({ lat: pts[j - 1].lat + (pts[j].lat - pts[j - 1].lat) * f, lon: pts[j - 1].lon + (pts[j].lon - pts[j - 1].lon) * f });
+    }
+    return saida;
+  }
 
   /* ---------- o dia do Drink ---------- */
   // vira às 6h da manhã: a noite de sexta (até o sábado cedo) conta inteira na sexta
@@ -208,6 +227,6 @@
 
   window.Drink.servicos = {
     cfg, BH, CAIXA, gps, distancia, textoKm, textoMin, preco, aproximar, naGrandeBH,
-    buscar, endereco, rota, faltaNaLinha, virgula, diaDoDrink, ganhosDoDia,
+    buscar, endereco, rota, faltaNaLinha, pontosNaLinha, virgula, diaDoDrink, ganhosDoDia,
   };
 }());

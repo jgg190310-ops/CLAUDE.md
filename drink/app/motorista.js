@@ -67,9 +67,16 @@
     let fotos = [];
     let timers = [];
     let vistosNoMapa = '';
+    // simulação (treino): o pedido simulado na lista, antes de aceitar, e os tempos do passageiro simulado
+    let simPedido = null;
+    let simComecando = false;
+    let simTimers = [];
 
     const agendar = (fn, ms) => { timers.push(setTimeout(fn, ms)); };
     const limparTimers = () => { timers.forEach(clearTimeout); timers = []; };
+    const simAgendar = (fn, ms) => { simTimers.push(setTimeout(fn, ms)); };
+    const pararSim = () => { simTimers.forEach(clearTimeout); simTimers = []; };
+    const emSimulacao = () => Boolean(simPedido || (aceito && aceito.simulada) || (corrida && corrida.simulada));
 
     /* ---------- mapa, GPS, tela ligada e som ---------- */
     function garantirMapa() {
@@ -149,7 +156,11 @@
         q('#rm-co-carro').innerHTML = carro.modelo
           ? `<span>Antes de pegar a chave, confere o carro: <b>${esc([carro.marca, carro.modelo, carro.cor].filter(Boolean).join(' '))}</b></span>${CARROS.placa.valida(carro.placa || '') ? CARROS.placa.html(carro.placa) : ''}`
           : '';
-        q('#rm-co-t').textContent = `Pede o código ${corrida ? `pra ${primeiroNome(corrida.passageiro.nome)}` : ''}`.trim();
+        const sim = Boolean(corrida && corrida.simulada);
+        q('#rm-co-t').textContent = sim ? 'Pede o código pro passageiro' : `Pede o código ${corrida ? `pra ${primeiroNome(corrida.passageiro.nome)}` : ''}`.trim();
+        q('#rm-co-sub').textContent = sim
+          ? `Na simulação, o passageiro fala: ${corrida.simCodigo}. Digita aqui: numa corrida de verdade, o celular dele confere se você é o Drink certo.`
+          : 'O passageiro fala 4 números. Digita aqui: o celular dele confere se você é o Drink certo.';
         setTimeout(() => campo.focus({ preventScroll: true }), 60);
       },
       vistoria() { desenharFotos(); },
@@ -231,6 +242,7 @@
       R.canal.publicar(R.topico.online(), { v: 1, tipo, d: u.idMotorista, p: pos ? S.aproximar(pos) : null, veic: u.veiculo || 'bike', t: Date.now() }).catch(() => {});
     }
     function ficarOffline() {
+      if (simPedido) { fimSimulacao('Simulação encerrada.'); return; }
       const estava = online;
       online = false;
       pararPedidos();
@@ -296,7 +308,7 @@
       pedidos.set(msg.id, { ...msg, chegou: Date.now() });
       if (!corrida && !aceito && dentro(msg)) {
         tocar();
-        op.notificar('Pedido novo no Drink', `${msg.de.bairro} → ${msg.para.bairro} · ${brl(msg.valor)}`, 'drink-pedido');
+        notificar('Pedido novo no Drink', `${msg.de.bairro} → ${msg.para.bairro} · ${brl(msg.valor)}`, 'drink-pedido');
       }
       if (atual === 'online') desenharPedidos();
     }
@@ -315,7 +327,8 @@
         q('#rm-longe').innerHTML = `${longe === 1 ? 'Mais 1 pedido' : `Mais ${longe} pedidos`} além de ${km} km.${maior ? ` <button type="button" class="en-link" data-raio="${maior}">Ver até ${maior} km</button>` : ''}`;
       }
       q('#rm-vazio').hidden = lista.length > 0;
-      q('#rm-on-chip').textContent = lista.length ? `Online · ${lista.length} ${lista.length === 1 ? 'pedido' : 'pedidos'}` : 'Online · procurando pedidos';
+      q('#rm-on-chip').textContent = simPedido ? 'Simulação · 1 pedido'
+        : (lista.length ? `Online · ${lista.length} ${lista.length === 1 ? 'pedido' : 'pedidos'}` : 'Online · procurando pedidos');
       q('#rm-pedidos').innerHTML = lista.map((p) => {
         const perto = pos ? S.textoKm((S.distancia(pos, p.de) * 1.3) / 1000) : '';
         const seg = Math.max(0, Math.round((p.expira - agora) / 1000));
@@ -340,6 +353,18 @@
       const p = pedidos.get(id);
       if (!p || aceito || corrida) return;
       if (Date.now() > p.expira) { pedidos.delete(id); desenharPedidos(); op.avisar('Esse pedido já fechou.'); return; }
+      if (p.simulada) {
+        // o passageiro simulado confirma em instantes, com o endereço, o carro e a placa
+        aceito = { id, pedido: p, simulada: true, t: Date.now() };
+        simPedido = null;
+        ir('aguardando');
+        q('#rm-ag-sub').textContent = `Você aceitou ${p.de.bairro} → ${p.para.bairro}. Na simulação, o passageiro confirma em instantes.`;
+        simAgendar(() => simManda({
+          tipo: 'confirmado', passageiro: { nome: 'Passageiro simulado' }, embarque: p.embarque, destino: p.destino,
+          carro: { marca: 'Chevrolet', modelo: 'Onix', cor: 'prata', placa: 'SIM1A23', cambio: 'automático' }, valor: p.valor, km: p.km,
+        }), 2500);
+        return;
+      }
       const u = eu();
       const par = await R.novoPar();
       const chave = await R.chaveComum(par.privada, p.pub);
@@ -360,6 +385,7 @@
       }, 60000);
     }
     function desistir() {
+      if (aceito && aceito.simulada) { fimSimulacao('Simulação encerrada.'); return; }
       if (assCorrida) { assCorrida.fechar(); assCorrida = null; }
       if (aceito) pedidos.delete(aceito.id);
       aceito = null;
@@ -372,7 +398,11 @@
     const avisos = () => window.Drink.avisos;
     // aviso curto no celular do passageiro (só em corrida de verdade)
     function avisarPassageiro(tipo) {
-      if (corrida) avisos().mandar(R.topico.aviso(corrida.id, 'p'), tipo);
+      if (corrida && !corrida.simulada) avisos().mandar(R.topico.aviso(corrida.id, 'p'), tipo);
+    }
+    // aviso no celular do motorista (aparece com o app fechado); na simulação, fica só o aviso dentro do app
+    function notificar(titulo, corpo, tag) {
+      if (!emSimulacao()) op.notificar(titulo, corpo, tag);
     }
     function assinarCorrida(id, desde) {
       if (assCorrida) assCorrida.fechar();
@@ -384,6 +414,8 @@
     async function enviar(obj) {
       const base = corrida || aceito;
       if (!base) return;
+      // na simulação, quem recebe é o passageiro simulado, no próprio celular: nada vai para a rede
+      if (base.simulada) { simRecebe(obj); return; }
       const topico = R.topico.corrida(base.id);
       const env = { v: 1, de: 'm', k: base.pub, ...(await R.cifrar(base.chave, obj)) };
       // pela fila: com o sinal fraco, a mensagem espera e sai assim que der, na ordem (posição nova troca a velha)
@@ -422,12 +454,13 @@
             valor: numero(msg.valor) && msg.valor > 0 ? msg.valor : p.valor, km: numero(msg.km) && msg.km > 0 ? msg.km : p.km,
             msgs: [], fotos: 0, avaliacao: null, paguei: false, ultimo: null,
           };
+          if (aceito.simulada) Object.assign(corrida, { simulada: true, simCodigo: p.codigo, linha: p.linha || null });
           aceito = null;
           limparTimers();
           pararPedidos();
           salvarCorrida();
           tocar();
-          op.notificar('Corrida confirmada', `Vá até ${corrida.embarque.nome}.`);
+          notificar('Corrida confirmada', `Vá até ${corrida.embarque.nome}.`);
           mandarFoto();
           ir('buscar');
           avisarSePerto();
@@ -467,7 +500,7 @@
           if (!corrida) return;
           corrida.paguei = true;
           tocar();
-          op.notificar(`${primeiroNome(corrida.passageiro.nome)} pagou`, 'Confere no app do seu banco se o Pix caiu.');
+          notificar(`${primeiroNome(corrida.passageiro.nome)} pagou`, 'Confere no app do seu banco se o Pix caiu.');
           if (atual === 'receber') mostrarReceber();
           break;
         case 'msg':
@@ -475,7 +508,7 @@
           break;
         case 'cancelado':
           if (!corrida || ['viagem', 'receber'].includes(corrida.etapa)) return;
-          op.notificar('Corrida cancelada', 'O passageiro cancelou.');
+          notificar('Corrida cancelada', 'O passageiro cancelou.');
           op.avisar('O passageiro cancelou a corrida.');
           encerrar();
           if (online) { ouvirPedidos(); ir('online'); } else ir('off');
@@ -514,14 +547,17 @@
       salvarCorrida();
     }
     function encerrar() {
-      const tinha = Boolean(corrida);
+      // só uma corrida de verdade volta a assinar os avisos de pedidos
+      const tinha = Boolean(corrida) && !corrida.simulada;
       clearInterval(posTimer);
       limparTimers();
+      pararSim();
       if (assCorrida) { assCorrida.fechar(); assCorrida = null; }
       corrida = null;
       aceito = null;
       fotos = [];
       salvarCorrida();
+      marcarSim();
       if (tinha) avisosDePedidos();
     }
 
@@ -537,7 +573,7 @@
       const c = corrida;
       if (!c) return;
       const nome = primeiroNome(c.passageiro.nome);
-      q('#rm-bu-t').textContent = `Vá buscar ${nome}`;
+      q('#rm-bu-t').textContent = c.simulada ? 'Vá buscar o passageiro' : `Vá buscar ${nome}`;
       q('#rm-bu-end').textContent = [c.embarque.nome, c.embarque.bairro].filter(Boolean).join(' · ');
       q('#rm-pa-av').textContent = iniciais(c.passageiro.nome);
       q('#rm-pa-nome').textContent = c.passageiro.nota ? `${c.passageiro.nome} · nota ${S.virgula(c.passageiro.nota)}` : c.passageiro.nome;
@@ -645,7 +681,7 @@
       });
     }
     function guardarFotos() {
-      if (!corrida) return;
+      if (!corrida || corrida.simulada) return;
       try {
         const chave = `drink-vistoria-${corrida.id}`;
         localStorage.setItem(chave, JSON.stringify({ t: Date.now(), fotos }));
@@ -664,7 +700,10 @@
       const bt = q('#rm-vi-bt');
       bt.disabled = n < 5;
       bt.textContent = n < 5 ? `${n} de 5 fotos` : `Guardar ${eu().veiculo === 'patinete' ? 'o patinete' : 'a bike'}`;
-      q('#rm-vi-sub').textContent = n < 5 ? 'Tira as 5 fotos antes de dirigir. O passageiro acompanha no celular dele.' : 'Vistoria feita. As fotos ficam guardadas e mostram como o carro estava antes de sair.';
+      const sim = Boolean(corrida && corrida.simulada);
+      q('#rm-vi-sub').textContent = n < 5 ? 'Tira as 5 fotos antes de dirigir. O passageiro acompanha no celular dele.'
+        : (sim ? 'Vistoria feita. Na simulação, as fotos não ficam guardadas.' : 'Vistoria feita. As fotos ficam guardadas e mostram como o carro estava antes de sair.');
+      q('#rm-vi-pular').hidden = !sim || n >= 5;
     }
     async function fotoTirada(input) {
       const i = Number(input.dataset.foto);
@@ -706,7 +745,7 @@
     async function mostrarViagem() {
       const c = corrida;
       if (!c) return;
-      q('#rm-vg-t').textContent = `Levando ${primeiroNome(c.passageiro.nome)}`;
+      q('#rm-vg-t').textContent = c.simulada ? 'Levando o passageiro' : `Levando ${primeiroNome(c.passageiro.nome)}`;
       q('#rm-vg-dest').textContent = [c.destino.nome, c.destino.bairro].filter(Boolean).join(' · ');
       const l = links(c.destino, 'driving');
       q('#rm-nav-g2').href = l.g;
@@ -721,11 +760,13 @@
       mapa.rota(c.linha);
       mapa.enquadrar([pos || c.embarque, c.destino]);
       atualizarViagem();
+      if (c.simulada) simViagem(c);
     }
     function atualizarViagem() {
       const c = corrida;
       if (!c || atual !== 'viagem') return;
-      const aqui = pos || c.embarque;
+      // na simulação, o carro anda pela rota sozinho (o GPS de verdade fica parado)
+      const aqui = (c.simulada && c.simAqui) || pos || c.embarque;
       mapa.tirar('eu');
       mapa.ponto('carro', aqui, Mapa.ICONE.carro());
       const falta = S.faltaNaLinha(c.linha, aqui);
@@ -734,7 +775,7 @@
     function cheguei() {
       const c = corrida;
       if (!c) return;
-      if (pos && S.distancia(pos, c.destino) > 1500 && !c.confirmouLonge) {
+      if (!c.simulada && pos && S.distancia(pos, c.destino) > 1500 && !c.confirmouLonge) {
         c.confirmouLonge = true;
         op.avisar('O GPS diz que o destino ainda está longe. Toca de novo se chegou mesmo.');
         return;
@@ -743,7 +784,8 @@
       c.etapa = 'receber';
       enviar({ tipo: 'etapa', etapa: 'chegada', valor: c.valor, espera: c.espera || 0 });
       avisarPassageiro('chegada');
-      enviar({ tipo: 'cobranca', pix: { chave: u.pix.chave, nome: [u.nome, u.sobrenome].filter(Boolean).join(' '), cidade: 'BELO HORIZONTE' } });
+      // na simulação não tem Pix (e dá para treinar antes de cadastrar a chave)
+      if (!c.simulada) enviar({ tipo: 'cobranca', pix: { chave: u.pix.chave, nome: [u.nome, u.sobrenome].filter(Boolean).join(' '), cidade: 'BELO HORIZONTE' } });
       salvarCorrida();
       ir('receber');
     }
@@ -752,18 +794,20 @@
     function mostrarReceber() {
       const c = corrida;
       if (!c) return;
-      const nome = primeiroNome(c.passageiro.nome);
+      const nome = c.simulada ? 'O passageiro' : primeiroNome(c.passageiro.nome);
       const gorjeta = c.avaliacao ? c.avaliacao.gorjeta : 0;
       const espera = c.espera || 0;
       const total = redondo(c.valor + espera + gorjeta);
       q('#rm-re-t').textContent = `Receber ${brl(total)}`;
-      q('#rm-re-sub').textContent = `${nome} paga pelo Pix direto na sua chave ${window.Drink.pix.mascarar(eu().pix.chave)}.`;
+      q('#rm-re-sub').textContent = c.simulada
+        ? 'Na simulação não tem Pix. Numa corrida de verdade, o passageiro paga direto na sua chave Pix.'
+        : `${nome} paga pelo Pix direto na sua chave ${window.Drink.pix.mascarar(eu().pix.chave)}.`;
       q('#rm-recibo').innerHTML = `<p><span>Corrida · ${esc(S.virgula(c.km))} km</span><b>${esc(brl(c.valor))}</b></p>${espera ? `<p><span>Espera</span><b>${esc(brl(espera))}</b></p>` : ''}${gorjeta ? `<p><span>Gorjeta</span><b>${esc(brl(gorjeta))}</b></p>` : ''}<p class="t-total"><span>Total</span><b>${esc(brl(total))}</b></p>`;
       const checks = $$('#rm-re-checks li', raiz);
       checks[0].classList.toggle('ok', Boolean(c.avaliacao));
       q('#rm-re-aval').textContent = c.avaliacao
         ? (c.avaliacao.nota ? `${nome} deu ${c.avaliacao.nota} ${c.avaliacao.nota === 1 ? 'estrela' : 'estrelas'}${gorjeta ? ` e ${brl(gorjeta)} de gorjeta` : ''}` : `${nome} não deu nota${gorjeta ? `, mas deu ${brl(gorjeta)} de gorjeta` : ''}`)
-        : `Esperando ${nome} avaliar`;
+        : `Esperando ${c.simulada ? 'o passageiro' : nome} avaliar`;
       checks[1].classList.toggle('ok', c.paguei);
       q('#rm-re-pago').textContent = c.paguei ? `${nome} disse que pagou. Confere no seu banco.` : 'Esperando o pagamento';
       desenharNotaPassageiro();
@@ -772,7 +816,7 @@
     function desenharNotaPassageiro() {
       const c = corrida;
       if (!c) return;
-      q('#rm-aval-t').textContent = `Como foi com ${primeiroNome(c.passageiro.nome)}?`;
+      q('#rm-aval-t').textContent = c.simulada ? 'Como foi com o passageiro?' : `Como foi com ${primeiroNome(c.passageiro.nome)}?`;
       $$('#rm-estrelas [data-nota-p]', raiz).forEach((b) => {
         const n = Number(b.dataset.notaP);
         b.classList.toggle('on', n <= (c.notaPassageiro || 0));
@@ -782,6 +826,8 @@
     function recebi() {
       const c = corrida;
       if (!c) return;
+      // o treino acaba aqui: nada entra nos ganhos, nas notas nem nas corridas feitas
+      if (c.simulada) { fimSimulacao('Simulação concluída. Numa corrida de verdade, o Pix cai direto na sua conta e a corrida entra nos seus ganhos.'); return; }
       const u = eu();
       const gorjeta = c.avaliacao ? c.avaliacao.gorjeta : 0;
       const total = redondo(c.valor + (c.espera || 0) + gorjeta);
@@ -808,7 +854,7 @@
       if (de === 'ela' && folha !== 'rm-chat') {
         corrida.novaMsg = true;
         q('#rm-nova-msg').hidden = false;
-        op.notificar(primeiroNome(corrida.passageiro.nome), txt);
+        notificar(primeiroNome(corrida.passageiro.nome), txt);
         op.avisar(`${primeiroNome(corrida.passageiro.nome)}: “${txt}”`);
       }
       const lista = q('#rm-msgs');
@@ -863,6 +909,119 @@
           return `<li class="rm-feita"><div><b>${esc(c.rota || 'Corrida')}</b><small>${esc(det)}</small></div><strong>${esc(brl(Number(c.total) || 0))}</strong></li>`;
         }).join('')}`).join('')
         : `<li class="rm-feitas-vazio">${diaEscolhido ? 'Nenhuma corrida nesse dia.' : 'Quando você fizer corridas, elas aparecem aqui com o valor, a espera e a gorjeta.'}</li>`;
+    }
+
+    /* ---------- simulação: treino, sem passageiro de verdade ---------- */
+    // Para aprender antes da primeira corrida: um pedido simulado perto de você, de um passageiro que só existe no
+    // celular. Dá para passar por tudo (aceitar, buscar, código, vistoria, dobra, viagem, receber) sem sair do lugar.
+    // Nada vai para a rede das corridas, não tem Pix e nada entra nos ganhos.
+    function marcarSim() {
+      const sim = emSimulacao();
+      const app = raiz.closest('.app');
+      if (app) app.classList.toggle('simulando', sim);
+      q('#rm-sim').hidden = !sim;
+    }
+    // o que o passageiro simulado "manda" chega como chegaria o de um passageiro de verdade
+    function simManda(msg) {
+      if (!emSimulacao()) return;
+      tratar(msg);
+      if (corrida) salvarCorrida();
+    }
+    async function simular() {
+      if (corrida || aceito || online || simPedido || simComecando) return;
+      simComecando = true;
+      let base = pos;
+      let e1 = null;
+      let e2 = null;
+      let r = null;
+      let emb = null;
+      let dst = null;
+      try {
+        ligarGps();
+        if (!base) { try { base = await S.gps.agora(8000); pos = base; } catch (e) { base = null; } }
+        base = base || S.BH;
+        // o embarque a uns 200 m de você e o destino a uns 4 km, com os nomes de rua de verdade
+        emb = { lat: base.lat + 0.0016, lon: base.lon + 0.001 };
+        dst = { lat: base.lat - 0.021, lon: base.lon - 0.027 };
+        [e1, e2, r] = await Promise.all([S.endereco(emb).catch(() => null), S.endereco(dst).catch(() => null), S.rota(emb, dst).catch(() => null)]);
+      } finally {
+        simComecando = false;
+      }
+      if (corrida || aceito || online || simPedido) return;
+      const km = r ? r.km : (S.distancia(emb, dst) * 1.3) / 1000;
+      const agora = Date.now();
+      simPedido = {
+        v: 1, tipo: 'pedido', id: `sim-${agora}`, t: agora, expira: agora + 10 * 60000, simulada: true,
+        de: { bairro: (e1 && e1.bairro) || 'Perto de você', lat: emb.lat, lon: emb.lon }, para: { bairro: (e2 && e2.bairro) || 'Destino' },
+        km: redondo(km, 1), min: Math.round(r ? r.min : km * 2.5), valor: redondo(S.preco(km).total), veic: 'qualquer', cambio: 'automático', nota: 0,
+        embarque: { ...emb, nome: (e1 && e1.nome) || 'Embarque', bairro: (e1 && e1.bairro) || '' },
+        destino: { ...dst, nome: (e2 && e2.nome) || 'Destino', bairro: (e2 && e2.bairro) || '' },
+        linha: r && r.linha && r.linha.length > 1 ? r.linha : null, codigo: String(1000 + Math.floor(Math.random() * 9000)),
+      };
+      pedidos.set(simPedido.id, { ...simPedido, chegou: agora });
+      marcarSim();
+      tocar();
+      ir('online');
+    }
+    // o que o seu celular manda para o passageiro chega no passageiro simulado
+    function simRecebe(obj) {
+      const c = corrida;
+      if (!c) return;
+      if (obj.tipo === 'codigo') {
+        const certo = String(obj.valor) === c.simCodigo;
+        simAgendar(() => simManda({ tipo: 'codigo-ok', ok: certo }), 800);
+      } else if (obj.tipo === 'etapa' && obj.etapa === 'chegada') {
+        simAgendar(() => simManda({ tipo: 'avaliacao', nota: 5, tags: ['Dirigiu com cuidado'], gorjeta: 5 }), 2000);
+        simAgendar(() => simManda({ tipo: 'paguei' }), 4500);
+      } else if (obj.tipo === 'msg') {
+        simAgendar(() => simManda({ tipo: 'msg', txt: 'Recebi! Aqui é uma simulação: numa corrida de verdade, o passageiro responde por aqui.' }), 1800);
+      }
+    }
+    // na viagem simulada, o carro anda pela rota até o destino, mais rápido
+    function simViagem(c) {
+      if (c.simAndando || !c.linha) return;
+      c.simAndando = true;
+      const passos = S.pontosNaLinha(c.linha, 25);
+      passos.forEach((p, i) => simAgendar(() => { if (corrida === c) { c.simAqui = p; atualizarViagem(); } }, 1000 * (i + 1)));
+      simAgendar(() => { if (corrida === c && atual === 'viagem') op.avisar('Chegou ao destino. Toca em Cheguei ao destino.'); }, 1000 * (passos.length + 1));
+    }
+    // fotos de treino, com o carimbo de verdade, para quem quer pular a câmera na simulação
+    function fotoDeTreino(nome) {
+      const tela = document.createElement('canvas');
+      tela.width = 320;
+      tela.height = 240;
+      const g = tela.getContext('2d');
+      const fundo = g.createLinearGradient(0, 0, 320, 240);
+      fundo.addColorStop(0, '#2B3350');
+      fundo.addColorStop(1, '#8A93A8');
+      g.fillStyle = fundo;
+      g.fillRect(0, 0, 320, 240);
+      g.fillStyle = '#FFF3E2';
+      g.textAlign = 'center';
+      g.font = '800 26px system-ui, -apple-system, "Segoe UI", sans-serif';
+      g.fillText(nome, 160, 108);
+      g.font = '600 15px system-ui, -apple-system, "Segoe UI", sans-serif';
+      g.fillText('foto de treino', 160, 134);
+      g.textAlign = 'start';
+      carimbar(g, 320, 240, nome);
+      return tela.toDataURL('image/jpeg', 0.6);
+    }
+    function pularFotos() {
+      if (!corrida || !corrida.simulada) return;
+      fotos = NOMES_FOTOS.map((nome, i) => fotos[i] || fotoDeTreino(nome));
+      corrida.fotos = 5;
+      desenharFotos();
+      enviar({ tipo: 'etapa', etapa: 'vistoria', fotos: 5 });
+    }
+    function fimSimulacao(msg) {
+      pararSim();
+      [...pedidos.keys()].forEach((id) => { if (pedidos.get(id).simulada) pedidos.delete(id); });
+      simPedido = null;
+      if ((corrida && corrida.simulada) || (aceito && aceito.simulada)) encerrar();
+      marcarSim();
+      if (!online && !corrida) desligarGps();
+      if (msg) op.avisar(msg);
+      ir(online ? 'online' : 'off');
     }
 
     /* ---------- ajuda de emergência ---------- */
@@ -939,14 +1098,15 @@
         desistir,
         cheguei: () => {
           if (!corrida) return;
-          const longe = pos ? S.distancia(pos, corrida.embarque) : 0;
+          // na simulação o embarque é de mentira: não precisa ir até lá
+          const longe = pos && !corrida.simulada ? S.distancia(pos, corrida.embarque) : 0;
           if (longe > 300 && !corrida.confirmouLongeEmb) {
             corrida.confirmouLongeEmb = true;
             op.avisar(`O GPS diz que você está a ${S.textoKm(longe / 1000)} do embarque. Toca de novo se chegou mesmo.`);
             return;
           }
           // a espera só é cobrada com o GPS mostrando o motorista no embarque
-          if (!corrida.chegouEm) { corrida.chegouEm = Date.now(); corrida.esperaConta = Boolean(pos) && longe <= 300; }
+          if (!corrida.chegouEm) { corrida.chegouEm = Date.now(); corrida.esperaConta = Boolean(pos) && longe <= 300 && !corrida.simulada; }
           corrida.etapa = 'codigo';
           clearInterval(posTimer);
           enviar({ tipo: 'etapa', etapa: 'chegou', pos: pos ? { lat: redondo(pos.lat, 5), lon: redondo(pos.lon, 5) } : null });
@@ -954,8 +1114,12 @@
           salvarCorrida();
           ir('codigo');
         },
+        simular,
+        'sair-sim': () => fimSimulacao('Simulação encerrada.'),
+        'pular-fotos': pularFotos,
         cancelar: () => {
           if (!corrida) return;
+          if (corrida.simulada) { fimSimulacao('Simulação encerrada.'); return; }
           enviar({ tipo: 'cancelado', motivo: 'motorista' });
           avisarPassageiro('cancelado');
           encerrar();
@@ -1000,7 +1164,8 @@
       const u = eu();
       if (u && u.corridaMotorista && !corrida) {
         const c = u.corridaMotorista;
-        if (Date.now() - c.t0 > 6 * 3600000) { delete u.corridaMotorista; op.salvar(); }
+        // uma simulação não volta ao abrir o app de novo
+        if (c.simulada || Date.now() - c.t0 > 6 * 3600000) { delete u.corridaMotorista; op.salvar(); }
         else {
           corrida = c;
           ligarGps();
@@ -1025,6 +1190,7 @@
       return true;
     }
     function sair() {
+      if (emSimulacao()) fimSimulacao();
       if (corrida) enviar({ tipo: 'cancelado', motivo: 'motorista' });
       encerrar();
       ficarOffline();
