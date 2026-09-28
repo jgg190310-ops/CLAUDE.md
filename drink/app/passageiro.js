@@ -104,7 +104,7 @@
         if (mapa && !(corrida && corrida.etapa === 'viagem')) mapa.ponto('voce', p, Mapa.ICONE.voce());
         if (primeira && atual === 'inicio') { centrarEmMim(); desenharAtalhos(); }
         if (!corrida) atualizarEmbarque();
-        if (corrida && corrida.etapa === 'viagem') andarNaViagem(p);
+        if (corrida && corrida.etapa === 'viagem' && !corrida.simulada) andarNaViagem(p);
       });
     }
     // o embarque é onde você está (o nome da rua vem do endereço mais perto), ou o lugar que você escolheu
@@ -417,6 +417,7 @@
       const bt = q('#rp-pedir');
       bt.disabled = true;
       bt.textContent = 'Pedir Drink';
+      q('#rp-simular').disabled = true;
       mapa.limpar();
       if (!embarque && pos) embarque = { nome: 'Sua localização', bairro: '', lat: pos.lat, lon: pos.lon };
       q('#rp-op-emb').textContent = embarque ? embarque.nome : 'Escolher';
@@ -444,6 +445,7 @@
       }
       bt.disabled = false;
       bt.textContent = `Pedir Drink · ${brl(p.total)}`;
+      q('#rp-simular').disabled = false;
     }
 
     // a conta do preço, antes de pedir
@@ -462,7 +464,11 @@
     const avisos = () => window.Drink.avisos;
     // aviso curto no celular do motorista (só em corrida de verdade, depois que ele aceitou)
     function avisarMotorista(tipo) {
-      if (corrida && corrida.motorista) avisos().mandar(R.topico.aviso(corrida.id, 'm'), tipo);
+      if (corrida && corrida.motorista && !corrida.simulada) avisos().mandar(R.topico.aviso(corrida.id, 'm'), tipo);
+    }
+    // aviso no celular da passageira (aparece com o app fechado); na simulação, fica só o aviso dentro do app
+    function notificar(titulo, corpo) {
+      if (!(corrida && corrida.simulada)) op.notificar(titulo, corpo);
     }
     function salvarCorrida() {
       const u = eu();
@@ -485,6 +491,8 @@
     // tudo é lido antes de cifrar: a corrida pode acabar logo depois (cancelar, concluir)
     async function enviar(obj, para) {
       if (!corrida) return;
+      // na simulação, quem recebe é o motorista simulado, no próprio celular: nada vai para a rede
+      if (corrida.simulada) { simRecebe(obj); return; }
       const chave = para ? para.chave : corrida.chave;
       const pub = para ? para.pub : corrida.motorista.pub;
       const topico = R.topico.corrida(corrida.id);
@@ -565,17 +573,19 @@
       q('#rp-ni-sub').textContent = 'Pode ser que ninguém esteja online perto de você agora. Tenta de novo daqui a pouco.';
     }
     function publicarFechado() {
-      if (!corrida) return;
+      if (!corrida || corrida.simulada) return;
       R.fila.mandar(R.topico.fechados(), { v: 1, tipo: 'fechado', id: corrida.id, segredo: corrida.segredo }, { validade: 10 * 60000 });
     }
     function encerrar() {
-      if (corrida) avisos().definir('passageiro', []);
+      if (corrida && !corrida.simulada) avisos().definir('passageiro', []);
       limparTimers();
+      pararSim();
       clearInterval(rastreioTimer);
       if (assinatura) { assinatura.fechar(); assinatura = null; }
       corrida = null;
       privada = null;
       salvarCorrida();
+      marcarSim();
       if (mapa) { mapa.tirar('motorista'); mapa.tirar('carro'); }
     }
 
@@ -620,7 +630,7 @@
           });
           avisarMotorista('confirmado');
           publicarFechado();
-          op.notificar(`${primeiroNome(c.motorista.nome)} aceitou`, 'O Drink está indo até você.');
+          notificar(`${primeiroNome(c.motorista.nome)} aceitou`, 'O Drink está indo até você.');
           ir('caminho');
           break;
         }
@@ -632,7 +642,7 @@
         case 'perto':
           if (c.etapa === 'a-caminho' && !c.avisouPerto) {
             c.avisouPerto = true;
-            op.notificar(`${nome} está chegando`, 'Uns 2 minutos. Vai saindo para encontrar o Drink.');
+            notificar(`${nome} está chegando`, 'Uns 2 minutos. Vai saindo para encontrar o Drink.');
             if (!document.hidden) op.avisar(`${nome} está chegando: uns 2 minutos.`);
             if (atual === 'caminho') mostrarCaminho();
           }
@@ -643,7 +653,7 @@
             // a espera só conta se o motorista está mesmo no embarque
             c.chegouEm = ponto(msg.pos) && S.distancia(msg.pos, c.embarque) <= 350 ? Date.now() : 0;
             if (ponto(msg.pos)) c.pos = { lat: msg.pos.lat, lon: msg.pos.lon, t: Date.now() };
-            op.notificar(`${nome} chegou`, 'Confere o código antes de entregar a chave.');
+            notificar(`${nome} chegou`, 'Confere o código antes de entregar a chave.');
             if (atual === 'caminho') mostrarCaminho();
             vigiarEspera();
           } else if (msg.etapa === 'vistoria') {
@@ -664,7 +674,7 @@
             c.espera = Math.min(Math.max(0, Number(msg.espera) || 0), c.esperaMax || 0);
             clearInterval(rastreioTimer);
             publicarRastreio(true);
-            op.notificar('Chegou!', 'Avalia a corrida e paga com Pix.');
+            notificar('Chegou!', 'Avalia a corrida e paga com Pix.');
             ir('chegou');
           }
           break;
@@ -721,7 +731,7 @@
           break;
         case 'cancelado':
           if (['viagem', 'chegada', 'pagando'].includes(c.etapa)) return;
-          op.notificar(`${nome} cancelou`, 'Você pode pedir outro Drink.');
+          notificar(`${nome} cancelou`, 'Você pode pedir outro Drink.');
           op.avisar(`${nome} cancelou a corrida. Pede de novo que outro Drink aceita.`);
           encerrar();
           ir(destino ? 'opcoes' : 'inicio');
@@ -757,7 +767,7 @@
       q('#rp-cam-t').textContent = c.etapa === 'chegou' ? `${nome} chegou` : (c.avisouPerto ? `${nome} está chegando` : `${nome} está a caminho`);
       rosto(q('#rp-mot-av'), m);
       q('#rp-mot-nome').textContent = m.nome;
-      q('#rp-mot-info').textContent = `${m.nota ? S.virgula(m.nota) : 'novo no Drink'} · ${veiculoTxt(m.veiculo)}`;
+      q('#rp-mot-info').textContent = `${c.simulada ? 'simulação' : (m.nota ? S.virgula(m.nota) : 'novo no Drink')} · ${veiculoTxt(m.veiculo)}`;
       q('#rp-mot-veic').setAttribute('href', m.veiculo === 'patinete' ? '#i-patinete' : '#i-bike');
       q('#rp-codigo').textContent = c.codigo.split('').join(' ');
       q('#rp-codigo-txt').textContent = c.etapa === 'chegou'
@@ -1031,6 +1041,16 @@
       q('#rp-pix-valor').textContent = brl(total);
       const qr = q('#rp-qr');
       const copiarBt = q('#rp-copiar');
+      if (c.simulada) {
+        // na simulação não existe Pix: nenhum código de pagamento de verdade aparece aqui
+        qr.innerHTML = '<p class="rt-qr-espera">Na simulação não tem Pix. Numa corrida de verdade, aqui aparece o QR code com a chave Pix do motorista e o valor certinho.</p>';
+        q('#rp-pix-para').textContent = 'Você paga pelo app do seu banco, direto para o motorista.';
+        copiarBt.disabled = true;
+        q('#rp-pix-status').textContent = '';
+        q('#rp-paguei').textContent = 'Concluir a simulação';
+        q('#rp-paguei').disabled = false;
+        return;
+      }
       if (!c.cobranca) {
         qr.innerHTML = '<p class="rt-qr-espera">Esperando a chave Pix do motorista…</p>';
         q('#rp-pix-para').textContent = `Assim que o ${primeiroNome(nome)} mandar, o QR code aparece aqui.`;
@@ -1061,6 +1081,7 @@
     function paguei() {
       const c = corrida;
       if (!c) return;
+      if (c.simulada) { fimDaSimulacao(); return; }
       if (c.paguei) { if (c.podeConcluir) concluir(); return; }
       c.paguei = true;
       enviar({ tipo: 'paguei', total: totalAtual() });
@@ -1091,10 +1112,131 @@
       ir('viagens');
     }
 
+    /* ---------- simulação ---------- */
+    // Para ver como é antes de pedir de verdade: um motorista simulado, que só existe no seu celular, faz a corrida
+    // inteira pela rota de verdade, mais rápido (aceita, vem até o embarque, digita o código, faz a vistoria, guarda a
+    // bike e dirige até o destino). Nada sai do celular: nenhum motorista recebe o pedido, não tem Pix e a volta não
+    // entra em Viagens.
+    let simTimers = [];
+    const simAgendar = (fn, ms) => { simTimers.push(setTimeout(fn, ms)); };
+    function pararSim() { simTimers.forEach(clearTimeout); simTimers = []; }
+    function marcarSim() {
+      const sim = Boolean(corrida && corrida.simulada);
+      const app = raiz.closest('.app');
+      if (app) app.classList.toggle('simulando', sim);
+      q('#rp-sim').hidden = !sim;
+    }
+    // n pontos ao longo de uma linha [[lat, lon], ...], com a mesma distância entre eles; o último é o fim da linha
+    function aoLongo(linha, n) {
+      const pts = linha.map(([lat, lon]) => ({ lat, lon }));
+      if (pts.length < 2) return pts.slice(0, 1);
+      const acum = [0];
+      for (let i = 1; i < pts.length; i += 1) acum.push(acum[i - 1] + S.distancia(pts[i - 1], pts[i]));
+      const total = acum[acum.length - 1];
+      const saida = [];
+      let j = 1;
+      for (let k = 1; k <= n; k += 1) {
+        const alvo = (total * k) / n;
+        while (j < pts.length - 1 && acum[j] < alvo) j += 1;
+        const trecho = acum[j] - acum[j - 1];
+        const f = trecho > 0 ? Math.min(1, Math.max(0, (alvo - acum[j - 1]) / trecho)) : 1;
+        saida.push({ lat: pts[j - 1].lat + (pts[j].lat - pts[j - 1].lat) * f, lon: pts[j - 1].lon + (pts[j].lon - pts[j - 1].lon) * f });
+      }
+      return saida;
+    }
+    // o que o motorista simulado "manda" chega como chegaria o de um motorista de verdade
+    function simManda(msg) {
+      if (!corrida || !corrida.simulada) return;
+      tratar(msg, 'simulado', null);
+      salvarCorrida();
+    }
+    async function simular() {
+      if (corrida) return;
+      if (!rota || !embarque || !destino) { op.avisar('Escolhe o destino e espera a rota aparecer no mapa.'); return; }
+      const u = eu();
+      const p = S.preco(rota.km);
+      corrida = {
+        id: `sim-${Date.now()}`, simulada: true, t0: Date.now(), etapa: 'buscando',
+        embarque: { ...embarque }, destino: { ...destino }, km: redondo(rota.km, 1), min: Math.round(rota.min), linha: rota.linha,
+        valor: redondo(p.total), saida: p.saida, rodado: redondo(p.rodado), adicional: redondo(p.adicional),
+        veic, carro: { ...(u.carro || {}) }, codigo: String(1000 + Math.floor(Math.random() * 9000)),
+        motorista: null, chave: null, ultimo: null, msgs: [], fotos: 0, malas: false,
+        nota: 0, tags: [], gorjeta: 0, cobranca: null, paguei: false, compartilhada: false,
+      };
+      const c = corrida;
+      salvarCorrida();
+      marcarSim();
+      ir('buscando');
+      q('#rp-bu-sub').textContent = 'Simulação: o pedido não sai do seu celular. Um motorista simulado vai aceitar.';
+      q('#rp-prazo').style.width = '0%';
+      // o motorista simulado sai de uns 1,5 km do embarque e vem pela rota de verdade
+      const inicio = { lat: c.embarque.lat + 0.0078, lon: c.embarque.lon + 0.0074 };
+      let r = null;
+      try { r = await S.rota(inicio, c.embarque); } catch (e) { r = null; }
+      if (corrida !== c) return;
+      c.simLinha = r && r.linha && r.linha.length > 1 ? r.linha : [[inicio.lat, inicio.lon], [c.embarque.lat, c.embarque.lon]];
+      simAgendar(() => {
+        const [lat, lon] = c.simLinha[0];
+        simManda({ tipo: 'aceite', motorista: { nome: 'Motorista simulado', veiculo: veic === 'patinete' ? 'patinete' : 'bike' }, pos: { lat, lon } });
+      }, 2500);
+    }
+    // o que o seu celular manda para o motorista chega no motorista simulado
+    function simRecebe(obj) {
+      const c = corrida;
+      if (!c || !c.simulada) return;
+      if (obj.tipo === 'confirmado') simIrAteEmbarque(c);
+      else if (obj.tipo === 'codigo-ok' && obj.ok) simVistoria(c);
+      else if (obj.tipo === 'msg') simAgendar(() => { if (corrida === c) simManda({ tipo: 'msg', txt: 'Recebi! Aqui é uma simulação: numa corrida de verdade, o motorista responde por aqui.' }); }, 1800);
+    }
+    function simIrAteEmbarque(c) {
+      const passos = aoLongo(c.simLinha, 24);
+      // no mapa, o caminho do motorista é a rota dele, que encurta conforme ele anda
+      aproximacao = { id: c.id, linha: c.simLinha };
+      let perto = false;
+      passos.forEach((p, i) => simAgendar(() => {
+        if (corrida !== c || c.etapa !== 'a-caminho') return;
+        simManda({ tipo: 'pos', lat: p.lat, lon: p.lon });
+        if (!perto && S.distancia(p, c.embarque) < 450) { perto = true; simManda({ tipo: 'perto' }); }
+      }, 1000 * (i + 1)));
+      simAgendar(() => {
+        if (corrida !== c || c.etapa !== 'a-caminho') return;
+        simManda({ tipo: 'etapa', etapa: 'chegou', pos: { lat: c.embarque.lat, lon: c.embarque.lon } });
+        // numa corrida de verdade você fala o código e o motorista digita; aqui ele "digita" sozinho
+        simAgendar(() => {
+          if (corrida !== c || c.etapa !== 'chegou') return;
+          op.avisar(`O motorista simulado digitou ${c.codigo}. O seu celular conferiu: é o Drink certo.`);
+          simManda({ tipo: 'codigo', valor: c.codigo });
+        }, 6000);
+      }, 1000 * (passos.length + 1));
+    }
+    function simVistoria(c) {
+      for (let n = 1; n <= 5; n += 1) simAgendar(() => { if (corrida === c) simManda({ tipo: 'etapa', etapa: 'vistoria', fotos: n }); }, 1500 * n);
+      simAgendar(() => { if (corrida === c) simManda({ tipo: 'etapa', etapa: 'malas' }); }, 10000);
+      simAgendar(() => {
+        if (corrida !== c) return;
+        simManda({ tipo: 'etapa', etapa: 'viagem' });
+        simViagem(c);
+      }, 13000);
+    }
+    // a viagem pela rota do embarque até o destino (o GPS de verdade fica de fora enquanto isso)
+    function simViagem(c) {
+      const passos = aoLongo(c.linha, 30);
+      passos.forEach((p, i) => simAgendar(() => { if (corrida === c && c.etapa === 'viagem') andarNaViagem(p); }, 1000 * (i + 1)));
+      simAgendar(() => { if (corrida === c && c.etapa === 'viagem') simManda({ tipo: 'etapa', etapa: 'chegada', valor: c.valor, espera: 0 }); }, 1000 * (passos.length + 2));
+    }
+    function fimDaSimulacao() {
+      encerrar();
+      destino = null;
+      op.avisar('Simulação concluída. Numa corrida de verdade, você paga com Pix direto para o motorista e o recibo fica em Viagens.');
+      ir('inicio');
+    }
+
     /* ---------- cancelar ---------- */
     function cancelar() {
       const c = corrida;
       if (!c) return;
+      // a simulação para a qualquer hora, sem avisar ninguém
+      if (c.simulada) { encerrar(); op.avisar('Simulação encerrada.'); ir(destino ? 'opcoes' : 'inicio'); return; }
       if (['preparo', 'viagem', 'chegada', 'pagando'].includes(c.etapa)) { op.avisar('A corrida já começou. Se precisar, usa a Ajuda.'); return; }
       if (c.etapa === 'buscando') publicarFechado();
       else { enviar({ tipo: 'cancelado', motivo: 'passageiro' }); avisarMotorista('cancelado'); }
@@ -1110,7 +1252,7 @@
       if (de === 'ele' && folha !== 'rp-chat') {
         corrida.novaMsg = true;
         q('#rp-nova-msg').hidden = false;
-        op.notificar(primeiroNome(corrida.motorista && corrida.motorista.nome), txt);
+        notificar(primeiroNome(corrida.motorista && corrida.motorista.nome), txt);
         op.avisar(`${primeiroNome(corrida.motorista && corrida.motorista.nome)}: “${txt}”`);
       }
       desenharChat();
@@ -1277,8 +1419,14 @@
         'no-mapa': () => ir('no-mapa'),
         'confirmar-no-mapa': () => { if (meioLugar) escolherLugar(meioLugar); },
         cancelar,
+        simular,
+        'sair-sim': () => { if (corrida && corrida.simulada) cancelar(); },
         tentar: () => ir('opcoes'),
-        compartilhar: () => { if (corrida) abrirCompartilhar(); },
+        compartilhar: () => {
+          if (!corrida) return;
+          if (corrida.simulada) { op.avisar('Na simulação não dá pra compartilhar. Numa corrida de verdade, quem recebe o link vê o carro no mapa até você chegar.'); return; }
+          abrirCompartilhar();
+        },
         'compartilhar-outro': () => {
           if (!corrida) return;
           marcarCompartilhada();
