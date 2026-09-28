@@ -922,6 +922,19 @@ body {
 .rp-avise small { font-size: .74em; color: var(--a-texto-2); }
 .app button.rp-avise[aria-pressed="true"] { border-style: solid; border-color: var(--lima); background: rgba(210, 255, 60, .07); }
 
+/* ---------- ajuda de emergência ---------- */
+/* o 190 e o SAMU são links tel:, com o mesmo formato dos botões da lista */
+.d-opcoes-ajuda a { display: flex; align-items: center; gap: .75em; width: 100%; padding: .7em .85em; border-radius: 1em; border: 1px solid var(--a-linha); background: var(--a-card); color: var(--farol); text-align: left; text-decoration: none; }
+.d-opcoes-ajuda a:not(.d-perigo):hover { background: var(--a-card-2); }
+/* no mapa, acima da folha: fácil de achar com o polegar */
+.rt-sos {
+  align-self: flex-end; flex: none; display: inline-flex; align-items: center; gap: .4em;
+  height: 2.75em; margin: 0 1em .8em; padding: 0 1.1em 0 .85em; border: 0; border-radius: 999px;
+  background: var(--creme); color: var(--tinta); font: inherit; font-size: .86em; font-weight: 800;
+  box-shadow: 0 .5em 1.2em -.4em rgba(0, 0, 0, .75);
+}
+.rt-sos svg { width: 1.3em; height: 1.3em; fill: none; stroke: var(--vermelho); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+
 /* ---------- seus dados ---------- */
 .en-dados-form { display: grid; gap: .7em; }
 .en-dados-nota { margin: -.3em 0 0; font-size: .76em; color: var(--a-texto-2); }

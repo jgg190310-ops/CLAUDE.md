@@ -45,10 +45,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&display=swap">
-  <link rel="stylesheet" href="../app-telas.css?v=16">
-  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=16">
-  <link rel="stylesheet" href="vendor/leaflet.css?v=16">
-  <link rel="stylesheet" href="app.css?v=16">
+  <link rel="stylesheet" href="../app-telas.css?v=17">
+  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=17">
+  <link rel="stylesheet" href="vendor/leaflet.css?v=17">
+  <link rel="stylesheet" href="app.css?v=17">
 </head>
 <body>
 <svg class="sprite" aria-hidden="true" focusable="false">
@@ -498,7 +498,10 @@
             <li><svg aria-hidden="true"><use href="#i-check"/></svg><span id="rp-check-malas">Bike dobrada no porta-malas</span></li>
           </ul>
           <div class="rt-bts rt-bts-baixo">
-            <button type="button" class="t-bt" data-rp-folha="rp-chat"><svg aria-hidden="true"><use href="#i-mensagem"/></svg>Mensagem</button>
+            <div class="t-acoes">
+              <button type="button" class="t-bt" data-rp-folha="rp-chat"><svg aria-hidden="true"><use href="#i-mensagem"/></svg>Mensagem</button>
+              <button type="button" class="t-bt" data-rp-folha="rp-ajuda"><svg aria-hidden="true"><use href="#i-ajuda"/></svg>Ajuda</button>
+            </div>
           </div>
         </section>
 
@@ -652,6 +655,7 @@
           </div>
           <ul class="d-opcoes-ajuda">
             <li><a class="d-perigo" href="tel:190"><svg aria-hidden="true"><use href="#i-escudo"/></svg><span><b>Ligar para a polícia (190)</b><small>Abre o telefone do seu celular</small></span></a></li>
+            <li><a href="tel:192"><svg aria-hidden="true"><use href="#i-mais"/></svg><span><b>Ligar para o SAMU (192)</b><small>Se alguém passar mal ou se machucar</small></span></a></li>
             <li><button type="button" data-rp="mandar-local"><svg aria-hidden="true"><use href="#i-pin"/></svg><span><b>Mandar minha localização</b><small>Para quem você escolher, pelo WhatsApp ou outro app</small></span></button></li>
             <li><button type="button" data-rp="compartilhar"><svg aria-hidden="true"><use href="#i-compartilhar"/></svg><span><b>Compartilhar a viagem ao vivo</b><small>Quem recebe vê o carro no mapa até você chegar</small></span></button></li>
           </ul>
@@ -792,6 +796,7 @@
         <!-- buscar o passageiro -->
         <section class="rt" data-rt="buscar" aria-labelledby="rm-bu-t" hidden>
           <div class="rt-topo"><p class="t-chip rt-chip" id="rm-bu-chip">Indo buscar</p></div>
+          <button type="button" class="rt-sos" data-rm-folha="rm-ajuda"><svg aria-hidden="true"><use href="#i-escudo"/></svg>Ajuda</button>
           <div class="t-folha rt-folha">
             <h3 class="d-titulo" id="rm-bu-t" tabindex="-1">Vá até o passageiro</h3>
             <p class="d-local"><svg aria-hidden="true"><use href="#i-pin"/></svg><span id="rm-bu-end">Endereço</span></p>
@@ -826,6 +831,7 @@
             <p class="en-erro" id="rm-cod-erro" role="alert" hidden></p>
             <button type="submit" class="t-botao" id="rm-cod-bt" disabled>Conferir o código</button>
             <button type="button" class="en-link" data-rm-folha="rm-chat">Mandar mensagem</button>
+            <button type="button" class="en-link" data-rm-folha="rm-ajuda">Precisa de ajuda?</button>
             <button type="button" class="en-link rt-cancelar" data-rm="cancelar">O passageiro não apareceu? Cancelar</button>
           </form>
         </section>
@@ -902,6 +908,7 @@
         <!-- viagem -->
         <section class="rt" data-rt="viagem" aria-labelledby="rm-vg-t" hidden>
           <div class="rt-topo"><p class="t-chip rt-chip"><span class="t-vivo"></span>Viagem em andamento</p></div>
+          <button type="button" class="rt-sos" data-rm-folha="rm-ajuda"><svg aria-hidden="true"><use href="#i-escudo"/></svg>Ajuda</button>
           <div class="t-folha rt-folha">
             <h3 class="d-titulo" id="rm-vg-t" tabindex="-1">Levando o passageiro</h3>
             <p class="d-rua"><svg aria-hidden="true"><use href="#i-rota"/></svg><span>para <b id="rm-vg-dest">o destino</b></span><em id="rm-vg-faltam">--</em></p>
@@ -981,6 +988,18 @@
             <input id="rm-chat-in" type="text" placeholder="Escreve uma mensagem" autocomplete="off" maxlength="300" aria-label="Mensagem">
             <button type="submit" aria-label="Enviar"><svg aria-hidden="true"><use href="#i-enviar"/></svg></button>
           </form>
+        </section>
+        <section class="d-sobre" id="rm-ajuda" aria-labelledby="rm-ajuda-t" hidden>
+          <div class="d-sobre-cab">
+            <span class="d-sobre-ic d-sobre-ic-alerta" aria-hidden="true"><svg><use href="#i-ajuda"/></svg></span>
+            <div><h4 id="rm-ajuda-t" tabindex="-1">Precisa de ajuda?</h4><small>Em perigo, liga para a polícia primeiro</small></div>
+            <button type="button" class="d-fechar" data-rm-fechar aria-label="Fechar"><svg aria-hidden="true"><use href="#i-fechar"/></svg></button>
+          </div>
+          <ul class="d-opcoes-ajuda">
+            <li><a class="d-perigo" href="tel:190"><svg aria-hidden="true"><use href="#i-escudo"/></svg><span><b>Ligar para a polícia (190)</b><small>Abre o telefone do seu celular</small></span></a></li>
+            <li><a href="tel:192"><svg aria-hidden="true"><use href="#i-mais"/></svg><span><b>Ligar para o SAMU (192)</b><small>Se o passageiro passar mal ou alguém se machucar</small></span></a></li>
+            <li><button type="button" data-rm="mandar-local"><svg aria-hidden="true"><use href="#i-pin"/></svg><span><b>Mandar minha localização</b><small>Com o carro e a placa, para quem você escolher</small></span></button></li>
+          </ul>
         </section>
       </div>
 
@@ -1195,21 +1214,21 @@
   </div>
 </div>
 
-<script src="vendor/maplibre-gl.js?v=16"></script>
-<script src="vendor/leaflet.js?v=16"></script>
-<script src="vendor/qrcode.js?v=16"></script>
-<script src="../app-nucleo.js?v=16"></script>
-<script src="servicos.js?v=16"></script>
-<script src="rede.js?v=16"></script>
-<script src="mapa-estilo.js?v=16"></script>
-<script src="mapa.js?v=16"></script>
-<script src="carros.js?v=16"></script>
-<script src="cadastro-motorista.js?v=16"></script>
-<script src="pix.js?v=16"></script>
-<script src="avisos.js?v=16"></script>
-<script src="sms.js?v=16"></script>
-<script src="passageiro.js?v=16"></script>
-<script src="motorista.js?v=16"></script>
-<script src="app.js?v=16"></script>
+<script src="vendor/maplibre-gl.js?v=17"></script>
+<script src="vendor/leaflet.js?v=17"></script>
+<script src="vendor/qrcode.js?v=17"></script>
+<script src="../app-nucleo.js?v=17"></script>
+<script src="servicos.js?v=17"></script>
+<script src="rede.js?v=17"></script>
+<script src="mapa-estilo.js?v=17"></script>
+<script src="mapa.js?v=17"></script>
+<script src="carros.js?v=17"></script>
+<script src="cadastro-motorista.js?v=17"></script>
+<script src="pix.js?v=17"></script>
+<script src="avisos.js?v=17"></script>
+<script src="sms.js?v=17"></script>
+<script src="passageiro.js?v=17"></script>
+<script src="motorista.js?v=17"></script>
+<script src="app.js?v=17"></script>
 </body>
 </html>
