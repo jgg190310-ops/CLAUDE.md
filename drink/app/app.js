@@ -759,6 +759,9 @@
     if (motorista) motorista.sair();
     banco.atual = null;
     salvar();
+    voltarParaBoas('Você saiu da conta. Até a próxima!');
+  }
+  function voltarParaBoas(msg) {
     limparFormularios();
     const boas = tela('boas');
     boas.classList.remove('entrou', 'voando', 'pousou');
@@ -766,7 +769,55 @@
     irEn('boas', { anim: null });
     void boas.offsetWidth;
     boas.classList.add('entrou', 'pousou');
-    avisar('Você saiu da conta. Até a próxima!');
+    avisar(msg);
+  }
+
+  /* ---------- termos e privacidade ---------- */
+  function abrirTermos(b) {
+    const P = window.Drink.util.PRECO;
+    $('#en-termos-preco').textContent = `Você vê o valor antes de pedir: ${brl(P.saida)} de saída mais ${brl(P.km)} por km da rota. `
+      + `Das 0h às 5h vale a bandeira 2 (mais ${Math.round(P.madrugada * 100)}%). Os primeiros ${P.esperaGratis} minutos depois que o motorista chega são grátis; `
+      + `depois, ${brl(P.espera)} a cada ${P.esperaBloco} minutos começados. A gorjeta é opcional.`;
+    abaTermos('uso');
+    abrirFolha('en-termos', b);
+  }
+  function abaTermos(aba) {
+    $$('#en-termos [data-termos]').forEach((x) => x.setAttribute('aria-selected', String(x.dataset.termos === aba)));
+    $('#en-termos-uso').hidden = aba !== 'uso';
+    $('#en-termos-privacidade').hidden = aba !== 'privacidade';
+    $('#en-termos').scrollTop = 0;
+  }
+
+  /* ---------- apagar a conta (tudo dela sai deste aparelho) ---------- */
+  const emCorrida = () => (passageiro && passageiro.corridaAtiva()) || (motorista && motorista.corridaAtiva());
+  const dirige = (u) => Boolean(u.motoristaOk || u.papel === 'motorista' || u.docs || u.selfie);
+  function pedirApagar(b) {
+    fecharFolha(false);
+    const u = eu();
+    if (!u) return;
+    if (emCorrida()) { avisar('Tem uma corrida acontecendo. Termina ela antes de apagar a conta.'); return; }
+    $('#en-apagar-txt').textContent = `Somem deste aparelho o seu cadastro (+55 ${formatarCel(u.celular)}), o carro e a placa, os lugares salvos, os contatos de confiança e o histórico de voltas`
+      + `${dirige(u) ? ', e também os documentos, a selfie, as fotos da vistoria, a chave Pix e os ganhos' : ''}. Para usar o Drink de novo, é só criar outra conta.`;
+    abrirFolha('en-apagar', b);
+  }
+  async function apagarConta() {
+    const u = eu();
+    fecharFolha(false);
+    if (!u) return;
+    if (emCorrida()) { avisar('Tem uma corrida acontecendo. Termina ela antes de apagar a conta.'); return; }
+    const cel = u.celular;
+    const eraMotorista = dirige(u);
+    if (passageiro) passageiro.sair();
+    if (motorista) motorista.sair();
+    try { await cadastro.apagarArquivos(cel); } catch (e) { /* sem banco de arquivos: não havia foto guardada */ }
+    if (eraMotorista) {
+      try { Object.keys(localStorage).filter((k) => k.startsWith('drink-vistoria-')).forEach((k) => localStorage.removeItem(k)); } catch (e) { /* segue */ }
+    }
+    try { AVISOS.definir('motorista', []); AVISOS.definir('passageiro', []); } catch (e) { /* sem avisos */ }
+    delete banco.usuarios[cel];
+    banco.atual = null;
+    salvar();
+    voltarParaBoas('Conta apagada. Nada dela ficou neste aparelho.');
   }
 
   /* ---------- acompanhar a volta de alguém pelo link ---------- */
@@ -861,10 +912,15 @@
     instalar: (b) => instalar(b),
     fechar: () => fecharFolha(),
     sair: sairDaConta,
+    termos: (b) => abrirTermos(b),
+    apagar: (b) => pedirApagar(b),
+    'apagar-sim': apagarConta,
   };
   app.addEventListener('click', (e) => {
     const v = e.target.closest('[data-veiculo]');
     if (v && app.contains(v)) { escolherVeiculo(v.dataset.veiculo); return; }
+    const aba = e.target.closest('[data-termos]');
+    if (aba && app.contains(aba)) { abaTermos(aba.dataset.termos); return; }
     const b = e.target.closest('[data-app]');
     if (!b || !app.contains(b) || b.disabled) return;
     const acao = ACOES[b.dataset.app];
