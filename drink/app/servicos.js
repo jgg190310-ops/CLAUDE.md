@@ -194,8 +194,20 @@
     return km;
   }
 
+  /* ---------- o dia do Drink ---------- */
+  // vira às 6h da manhã: a noite de sexta (até o sábado cedo) conta inteira na sexta
+  function diaDoDrink(t = Date.now()) {
+    const d = new Date(t - 6 * 3600000);
+    return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+  }
+  // quanto o motorista fez num dia do Drink, somando as corridas feitas
+  function ganhosDoDia(feitas, dia = diaDoDrink()) {
+    const lista = (feitas || []).filter((c) => c && diaDoDrink(new Date(c.data).getTime()) === dia);
+    return { total: Math.round(lista.reduce((s, c) => s + (Number(c.total) || 0), 0) * 100) / 100, n: lista.length };
+  }
+
   window.Drink.servicos = {
     cfg, BH, CAIXA, gps, distancia, textoKm, textoMin, preco, aproximar, naGrandeBH,
-    buscar, endereco, rota, faltaNaLinha, virgula,
+    buscar, endereco, rota, faltaNaLinha, virgula, diaDoDrink, ganhosDoDia,
   };
 }());

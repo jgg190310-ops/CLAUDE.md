@@ -4,7 +4,7 @@
 (function () {
   'use strict';
 
-  const { $, $$, brl, esc, reduzirMovimento, taxaEspera, PRECO } = window.Drink.util;
+  const { $, $$, brl, brl0, hhmm, esc, reduzirMovimento, taxaEspera, PRECO } = window.Drink.util;
   const S = window.Drink.servicos;
   const R = window.Drink.rede;
   const Mapa = window.Drink.mapa;
@@ -158,13 +158,16 @@
     };
 
     /* ---------- ganhos ---------- */
-    function hoje() {
-      const d = new Date();
-      return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+    // os ganhos do dia saem das corridas feitas; o dia do Drink vira às 6h (a noite conta inteira)
+    function contarDia(u) {
+      const d = S.ganhosDoDia(u.corridasFeitas);
+      const dia = S.diaDoDrink();
+      if (u.dia !== dia || u.ganhos !== d.total || u.viagens !== d.n) { u.dia = dia; u.ganhos = d.total; u.viagens = d.n; return true; }
+      return false;
     }
     function desenharGanhos() {
       const u = eu();
-      if (u.dia !== hoje()) { u.dia = hoje(); u.ganhos = 0; u.viagens = 0; op.salvar(); }
+      if (contarDia(u)) op.salvar();
       const g = brl(u.ganhos || 0);
       const n = u.viagens || 0;
       ['#rm-hoje', '#rm-hoje-2', '#rm-hoje-3'].forEach((s) => { q(s).textContent = g; });
@@ -339,12 +342,9 @@
       const base = corrida || aceito;
       if (!base) return;
       const topico = R.topico.corrida(base.id);
-      const rede = canalCorrida;
       const env = { v: 1, de: 'm', k: base.pub, ...(await R.cifrar(base.chave, obj)) };
-      try { await rede.publicar(topico, env); } catch (e) {
-        op.avisar('Sem conexão agora. Tentando de novo…');
-        setTimeout(() => rede.publicar(topico, env).catch(() => {}), 3000);
-      }
+      // pela fila: com o sinal fraco, a mensagem espera e sai assim que der, na ordem (posição nova troca a velha)
+      R.fila.mandar(topico, env, obj.tipo === 'pos' ? { troca: `pos-${base.id}`, validade: 2 * 60000 } : undefined);
     }
     function salvarCorrida() {
       const u = eu();
@@ -520,7 +520,7 @@
         const taxa = taxaEspera(Date.now() - c.chegouEm);
         q('#rm-espera').textContent = taxa
           ? `Esperando há ${min} min · espera de ${brl(taxa)} somada à corrida`
-          : `Esperando há ${min} min · ${PRECO.esperaGratis} min grátis, depois ${brl(PRECO.espera)} a cada ${PRECO.esperaBloco} min`;
+          : `Esperando há ${min} min · espera grátis até ${PRECO.esperaGratis} min`;
       };
       passo();
       esperaTimer = setInterval(passo, 15000);
@@ -712,12 +712,13 @@
       const gorjeta = c.avaliacao ? c.avaliacao.gorjeta : 0;
       const total = redondo(c.valor + (c.espera || 0) + gorjeta);
       enviar({ tipo: 'recebido', nota: c.notaPassageiro || 0 });
-      if (u.dia !== hoje()) { u.dia = hoje(); u.ganhos = 0; u.viagens = 0; }
-      u.ganhos = redondo((u.ganhos || 0) + total);
-      u.viagens = (u.viagens || 0) + 1;
       u.totalCorridas = (u.totalCorridas || 0) + 1;
       if (c.avaliacao && c.avaliacao.nota) u.avaliacoes = [...(u.avaliacoes || []), c.avaliacao.nota].slice(-100);
-      u.corridasFeitas = [{ id: c.id, data: new Date().toISOString(), rota: `${c.embarque.bairro || c.embarque.nome} → ${c.destino.bairro || c.destino.nome}`, total, km: c.km }, ...(u.corridasFeitas || [])].slice(0, 100);
+      u.corridasFeitas = [{
+        id: c.id, data: new Date().toISOString(), rota: `${c.embarque.bairro || c.embarque.nome} → ${c.destino.bairro || c.destino.nome}`,
+        total, km: c.km, valor: c.valor, espera: c.espera || 0, gorjeta, nota: c.avaliacao ? c.avaliacao.nota || 0 : 0,
+      }, ...(u.corridasFeitas || [])].slice(0, 100);
+      contarDia(u);
       encerrar();
       op.salvar();
       q('#rm-fim-t').textContent = `+ ${brl(total)}`;
@@ -748,12 +749,55 @@
       adicionarMsg('eu', t);
     }
 
+    /* ---------- seus ganhos: os últimos 7 dias em barras e as corridas de cada dia ---------- */
+    const DIAS = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
+    let diaEscolhido = null;
+    function desenharSemana() {
+      const u = eu();
+      const agora = Date.now();
+      const dias = [];
+      for (let i = 6; i >= 0; i -= 1) {
+        const t = agora - i * 86400000;
+        const quando = new Date(t - 6 * 3600000);
+        dias.push({ chave: S.diaDoDrink(t), rotulo: i === 0 ? 'hoje' : DIAS[quando.getDay()], quando, total: 0, n: 0, lista: [] });
+      }
+      (u.corridasFeitas || []).forEach((c) => {
+        const d = dias.find((x) => x.chave === S.diaDoDrink(new Date(c.data).getTime()));
+        if (d) { d.total = redondo(d.total + (Number(c.total) || 0)); d.n += 1; d.lista.push(c); }
+      });
+      if (diaEscolhido && !dias.some((d) => d.chave === diaEscolhido)) diaEscolhido = null;
+      const total = redondo(dias.reduce((soma, d) => soma + d.total, 0));
+      const n = dias.reduce((soma, d) => soma + d.n, 0);
+      q('#rm-semana-valor').textContent = brl(total);
+      q('#rm-semana-txt').textContent = `${n} ${n === 1 ? 'corrida' : 'corridas'} nos últimos 7 dias`;
+      const maior = Math.max(...dias.map((d) => d.total), 1);
+      const nomeDia = (d) => (d.rotulo === 'hoje' ? 'Hoje' : `${d.rotulo}, ${d.quando.getDate()}/${d.quando.getMonth() + 1}`);
+      q('#rm-barras').classList.toggle('escolheu', Boolean(diaEscolhido));
+      q('#rm-barras').innerHTML = dias.map((d) => {
+        // a barra mais alta tem 5 em; dia sem corrida fica só com um risco
+        const alto = d.total ? Math.max(0.5, Math.round((d.total / maior) * 50) / 10) : 0.2;
+        const on = d.chave === diaEscolhido;
+        return `<button type="button" class="rm-barra${on ? ' on' : ''}${d.rotulo === 'hoje' ? ' hoje' : ''}" data-dia="${d.chave}" aria-pressed="${on}" aria-label="${esc(`${nomeDia(d)}: ${brl(d.total)}, ${d.n} ${d.n === 1 ? 'corrida' : 'corridas'}`)}">`
+          + `<small>${d.total ? esc(brl0(d.total)) : ''}</small><i style="height:${alto}em"></i><span>${esc(d.rotulo)}</span></button>`;
+      }).join('');
+      const mostrar = dias.filter((d) => d.n && (!diaEscolhido || d.chave === diaEscolhido)).reverse();
+      q('#rm-feitas-t').textContent = diaEscolhido ? `Corridas de ${nomeDia(dias.find((d) => d.chave === diaEscolhido)).replace(/^Hoje$/, 'hoje')}` : 'Corridas';
+      q('#rm-feitas-todas').hidden = !diaEscolhido;
+      q('#rm-feitas').innerHTML = mostrar.length
+        ? mostrar.map((d) => `${diaEscolhido ? '' : `<li class="rm-feitas-dia"><span>${esc(nomeDia(d))}</span><b>${esc(brl(d.total))}</b></li>`}${d.lista.map((c) => {
+          const det = [hhmm(new Date(c.data)), c.km ? `${S.virgula(Number(c.km))} km` : '', c.espera ? `espera ${brl(c.espera)}` : '', c.gorjeta ? `gorjeta ${brl(c.gorjeta)}` : ''].filter(Boolean).join(' · ');
+          return `<li class="rm-feita"><div><b>${esc(c.rota || 'Corrida')}</b><small>${esc(det)}</small></div><strong>${esc(brl(Number(c.total) || 0))}</strong></li>`;
+        }).join('')}`).join('')
+        : `<li class="rm-feitas-vazio">${diaEscolhido ? 'Nenhuma corrida nesse dia.' : 'Quando você fizer corridas, elas aparecem aqui com o valor, a espera e a gorjeta.'}</li>`;
+    }
+
     /* ---------- folhas ---------- */
     function abrirFolha(id) {
       fecharFolha();
       folha = id;
       veu.hidden = false;
       q(`#${id}`).hidden = false;
+      if (id === 'rm-ganhos') { diaEscolhido = null; desenharSemana(); }
       if (id === 'rm-chat' && corrida) {
         corrida.novaMsg = false;
         q('#rm-nova-msg').hidden = true;
@@ -778,6 +822,8 @@
       const ds = b.dataset;
       if (ds.rmFechar !== undefined) { fecharFolha(); return; }
       if (ds.rmFolha) { abrirFolha(ds.rmFolha); return; }
+      if (ds.dia) { diaEscolhido = diaEscolhido === ds.dia ? null : ds.dia; desenharSemana(); return; }
+      if (ds.rmTodas !== undefined) { diaEscolhido = null; desenharSemana(); return; }
       if (ds.aceitar) { aceitar(ds.aceitar); return; }
       if (ds.notaP) { if (corrida) { corrida.notaPassageiro = Number(ds.notaP); desenharNotaPassageiro(); salvarCorrida(); } return; }
       if (ds.rapida) { mandarMsg(ds.rapida); return; }
