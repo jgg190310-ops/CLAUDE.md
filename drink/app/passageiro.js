@@ -154,16 +154,66 @@
         const agora = Date.now();
         const eu0 = eu();
         const vivos = [...ultimos.values()].filter((o) => o.tipo === 'online' && agora - o.t < 11 * 60000 && o.d !== (eu0 && eu0.idMotorista));
+        // perto: até uns 6 km do embarque (motorista de bike não atravessa a cidade para buscar ninguém)
+        const ref = embarque || pos;
+        const perto = ref ? vivos.filter((o) => ponto(o.p) && S.distancia(ref, o.p) <= 6000) : vivos;
         const txt = q('#rp-online-txt');
-        if (!vivos.length) txt.textContent = 'Nenhum Drink online agora';
-        else txt.textContent = `${vivos.length} ${vivos.length === 1 ? 'Drink online' : 'Drinks online'} agora`;
-        q('#rp-online').classList.toggle('vazio', !vivos.length);
+        if (perto.length) txt.textContent = `${perto.length} ${perto.length === 1 ? 'Drink online' : 'Drinks online'} perto de você`;
+        else if (vivos.length) txt.textContent = `Nenhum Drink perto agora · ${vivos.length} na cidade`;
+        else txt.textContent = 'Nenhum Drink online agora';
+        q('#rp-online').classList.toggle('vazio', !perto.length);
+        desenharAvise(perto.length);
         if (mapa && atual === 'inicio') mapa.online(vivos.filter((o) => ponto(o.p)).map((o) => ({ lat: o.p.lat, lon: o.p.lon, veic: o.veic, id: o.d })));
       } catch (e) {
         q('#rp-online-txt').textContent = 'Sem conexão com a central';
         q('#rp-online').classList.add('vazio');
       }
     }
+    /* ---------- me avise quando tiver Drink perto ---------- */
+    const esperaAtiva = () => { const e = (eu() || {}).aviseOnline; return Boolean(e && e.ate > Date.now()); };
+    function pararEspera() {
+      const u = eu();
+      if (!u || !u.aviseOnline) return;
+      delete u.aviseOnline;
+      op.salvar();
+      avisos().definir('espera', []);
+    }
+    function desenharAvise(nPerto) {
+      const bt = q('#rp-avise');
+      if (!bt) return;
+      if (!esperaAtiva() && (eu() || {}).aviseOnline) pararEspera();
+      // já tem Drink perto: o aviso cumpriu o papel
+      if (nPerto > 0 && esperaAtiva()) { pararEspera(); op.avisar('Tem Drink online perto de você agora.'); }
+      const on = esperaAtiva();
+      bt.hidden = nPerto > 0 && !on;
+      bt.setAttribute('aria-pressed', String(on));
+      q('#rp-avise-t').textContent = on ? 'Vamos te avisar quando tiver Drink perto' : 'Me avise quando tiver Drink perto';
+      q('#rp-avise-sub').textContent = on
+        ? `Aviso ligado até as ${hhmm(new Date(eu().aviseOnline.ate))}. Toca para desligar.`
+        : 'Chega uma notificação quando alguém ficar online na sua região.';
+    }
+    function pedirAviso() {
+      if (esperaAtiva()) { pararEspera(); desenharAvise(0); op.avisar('Pronto, aviso desligado.'); return; }
+      const ref = embarque || pos;
+      if (!ref) { op.avisar('Ainda não achei você no mapa.'); return; }
+      // a permissão precisa ser pedida já no toque (o iPhone só pergunta assim)
+      const pedido = avisos().pedir();
+      const u = eu();
+      u.aviseOnline = { ate: Date.now() + 2 * 3600000 };
+      op.salvar();
+      avisos().definir('espera', R.topico.regioesOnline(ref, 3));
+      desenharAvise(0);
+      pedido.then((est) => {
+        if (est === 'ligado') { op.avisar('Combinado: quando um Drink ficar online perto, o celular avisa.'); return; }
+        pararEspera();
+        desenharAvise(0);
+        op.avisar({
+          instalar: 'No iPhone, instala o Drink na tela de início para receber avisos.',
+          bloqueado: 'Os avisos do Drink estão bloqueados. Libera nas configurações do navegador.',
+        }[est] || 'Esse navegador não recebe avisos com o app fechado. Deixa o app aberto que a contagem atualiza sozinha.');
+      });
+    }
+
     function vigiarOnline(ligado) {
       clearInterval(onlineTimer);
       onlineTimer = 0;
@@ -445,6 +495,7 @@
 
     async function pedir() {
       const u = eu();
+      if (esperaAtiva()) pararEspera();
       op.pedirNotificacao();
       if (!R.cifraPronta) { op.avisar('Esse navegador não tem a proteção que o Drink usa. Tenta no Chrome ou no Safari atualizados.'); return; }
       if (!carroPronto(u.carro)) {
@@ -1205,6 +1256,7 @@
         return;
       }
       const acoes = {
+        avise: pedirAviso,
         centralizar: () => {
           if (!pos) { op.avisar('Ainda não achei você no mapa.'); centrarEmMim(); return; }
           if (embarqueManual) { embarqueManual = false; op.avisar('Embarque de volta onde você está.'); atualizarEmbarque(); }
