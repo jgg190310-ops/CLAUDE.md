@@ -908,3 +908,15 @@ body {
 .app .rm-raio button[aria-checked="true"] { background: var(--lima); color: var(--tinta); }
 .rm-longe { margin: .1em 0 0; font-size: .8em; color: var(--a-texto-2); text-align: center; }
 .rm-longe .en-link { font-size: 1em; }
+
+/* ---------- me avise quando tiver Drink perto ---------- */
+.app button.rp-avise {
+  display: flex; align-items: center; gap: .75em; width: 100%; padding: .7em .85em; border: 1px dashed var(--a-linha); border-radius: 1em;
+  background: none; color: inherit; font: inherit; text-align: left; cursor: pointer;
+}
+.app button.rp-avise[hidden] { display: none; }
+.rp-avise svg { flex: none; width: 1.5em; height: 1.5em; fill: none; stroke: var(--lima); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.rp-avise span { display: grid; gap: .1em; }
+.rp-avise b { font-size: .9em; }
+.rp-avise small { font-size: .74em; color: var(--a-texto-2); }
+.app button.rp-avise[aria-pressed="true"] { border-style: solid; border-color: var(--lima); background: rgba(210, 255, 60, .07); }

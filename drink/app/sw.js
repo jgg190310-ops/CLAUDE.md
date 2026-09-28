@@ -1,9 +1,9 @@
 /* Drink — o service worker do app. Guarda o app no aparelho para abrir sem internet e mostra os avisos
    (pedido novo, motorista chegou, mensagem…) que chegam pelo ntfy mesmo com o app fechado.
    Com internet, tudo vem da rede primeiro: o celular sempre usa a versão mais nova do app. */
-const VERSAO = 'drink-app-14';
+const VERSAO = 'drink-app-15';
 const FONTES = 'drink-fontes-1';
-const V = '?v=14';
+const V = '?v=15';
 const ARQUIVOS = [
   './', 'manifest.webmanifest',
   ...['app.css', 'app.js', 'servicos.js', 'rede.js', 'mapa-estilo.js', 'mapa.js', 'carros.js', 'cadastro-motorista.js', 'pix.js', 'avisos.js', 'sms.js',
@@ -83,6 +83,10 @@ async function mostrarAviso(dados) {
       titulo = 'Drink';
       texto = `Seu código é ${corpo.codigo}. Não passe para ninguém.`;
       tag = 'drink-codigo';
+    } else if (corpo && corpo.tipo === 'drink-perto') {
+      titulo = 'Tem Drink online perto de você';
+      texto = 'Abre o app e pede o seu. O motorista chega de bike ou patinete.';
+      tag = 'drink-online';
     } else if (corpo && corpo.tipo === 'pedido') {
       titulo = 'Pedido novo no Drink';
       texto = `${bairro(corpo.de)} → ${bairro(corpo.para)} · ${reais(corpo.valor)}`;
@@ -96,7 +100,8 @@ async function mostrarAviso(dados) {
   const abertos = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
   const naTela = abertos.some((c) => c.visibilityState === 'visible');
   return self.registration.showNotification(titulo, {
-    body: texto, tag, renotify: true, silent: naTela,
+    // "tem Drink perto" chega uma vez: os seguintes só trocam o texto, sem tocar de novo
+    body: texto, tag, renotify: tag !== 'drink-online', silent: naTela,
     icon: '../icon-192.png', badge: '../icon-192.png', data: { url: './' },
   });
 }

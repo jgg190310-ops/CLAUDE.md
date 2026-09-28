@@ -45,10 +45,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&display=swap">
-  <link rel="stylesheet" href="../app-telas.css?v=14">
-  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=14">
-  <link rel="stylesheet" href="vendor/leaflet.css?v=14">
-  <link rel="stylesheet" href="app.css?v=14">
+  <link rel="stylesheet" href="../app-telas.css?v=15">
+  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=15">
+  <link rel="stylesheet" href="vendor/leaflet.css?v=15">
+  <link rel="stylesheet" href="app.css?v=15">
 </head>
 <body>
 <svg class="sprite" aria-hidden="true" focusable="false">
@@ -380,6 +380,10 @@
             <p class="d-local"><svg aria-hidden="true"><use href="#i-pin"/></svg><span id="rp-local">Procurando você no mapa…</span></p>
             <button type="button" class="d-busca" data-rp-ir="destino"><svg aria-hidden="true"><use href="#i-busca"/></svg>Para onde?</button>
             <div class="d-atalhos" id="rp-atalhos"></div>
+            <button type="button" class="rp-avise" id="rp-avise" data-rp="avise" aria-pressed="false" hidden>
+              <svg aria-hidden="true"><use href="#i-sino"/></svg>
+              <span><b id="rp-avise-t">Me avise quando tiver Drink perto</b><small id="rp-avise-sub">Chega uma notificação quando alguém ficar online na sua região.</small></span>
+            </button>
             <p class="rt-alerta" id="rp-gps" role="status" hidden></p>
           </div>
         </section>
@@ -1041,6 +1045,7 @@
             <li><b>O pedido</b> vai para os motoristas online sem o endereço exato: o bairro e um ponto aproximado do embarque (uns 500 m), o bairro do destino, a distância, o valor, o câmbio do carro e a sua nota.</li>
             <li><b>Depois que você escolhe o motorista</b>, tudo da corrida vai cifrado de ponta a ponta: endereços, nomes, carro e placa, mensagens, posição, código, o rosto do motorista e a chave Pix dele. O serviço que leva as mensagens (ntfy.sh) só vê dados embaralhados e os guarda por poucas horas.</li>
             <li><b>Motorista online</b> aparece para os passageiros num ponto aproximado (uns 500 m), com um apelido aleatório e se está de bike ou patinete.</li>
+            <li><b>"Me avise quando tiver Drink perto"</b> faz o seu celular ouvir, por no máximo 3 horas, o canal da sua região (uns 5 km). O motorista que fica online manda para a região dele um aviso sem nome e sem posição.</li>
             <li><b>O link da viagem</b> que você compartilha leva a chave no próprio link: só quem recebe consegue ver.</li>
             <li><b>Mapa, busca e rotas</b> usam serviços abertos: OpenFreeMap para o mapa (dados do OpenStreetMap), Photon para a busca (o texto que você digita e, para achar onde você está, a sua posição) e OSRM para as rotas (os pontos de saída e de chegada).</li>
             <li><b>Avisos no celular</b> passam pelo ntfy e pelo serviço de notificações do seu celular (Apple ou Google) e dizem só o tipo do aviso, como "o motorista chegou".</li>
@@ -1166,21 +1171,21 @@
   </div>
 </div>
 
-<script src="vendor/maplibre-gl.js?v=14"></script>
-<script src="vendor/leaflet.js?v=14"></script>
-<script src="vendor/qrcode.js?v=14"></script>
-<script src="../app-nucleo.js?v=14"></script>
-<script src="servicos.js?v=14"></script>
-<script src="rede.js?v=14"></script>
-<script src="mapa-estilo.js?v=14"></script>
-<script src="mapa.js?v=14"></script>
-<script src="carros.js?v=14"></script>
-<script src="cadastro-motorista.js?v=14"></script>
-<script src="pix.js?v=14"></script>
-<script src="avisos.js?v=14"></script>
-<script src="sms.js?v=14"></script>
-<script src="passageiro.js?v=14"></script>
-<script src="motorista.js?v=14"></script>
-<script src="app.js?v=14"></script>
+<script src="vendor/maplibre-gl.js?v=15"></script>
+<script src="vendor/leaflet.js?v=15"></script>
+<script src="vendor/qrcode.js?v=15"></script>
+<script src="../app-nucleo.js?v=15"></script>
+<script src="servicos.js?v=15"></script>
+<script src="rede.js?v=15"></script>
+<script src="mapa-estilo.js?v=15"></script>
+<script src="mapa.js?v=15"></script>
+<script src="carros.js?v=15"></script>
+<script src="cadastro-motorista.js?v=15"></script>
+<script src="pix.js?v=15"></script>
+<script src="avisos.js?v=15"></script>
+<script src="sms.js?v=15"></script>
+<script src="passageiro.js?v=15"></script>
+<script src="motorista.js?v=15"></script>
+<script src="app.js?v=15"></script>
 </body>
 </html>

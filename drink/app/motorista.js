@@ -199,6 +199,8 @@
       travarTela();
       online = true;
       avisosDePedidos();
+      // quem pediu para ser avisado quando tivesse Drink perto fica sabendo (uma mensagem, na região e na hora)
+      R.fila.mandar(R.topico.regiaoOnline(pos), { v: 1, tipo: 'drink-perto', veic: u.veiculo || 'bike' }, { validade: 10 * 60000 });
       if (avisos().estado() === 'instalar') op.avisar('Dica: instala o Drink na tela de início para receber os pedidos com o app fechado.');
       if (!u.idMotorista) { u.idMotorista = R.idAleatorio(9); op.salvar(); }
       ouvirPedidos();

@@ -257,6 +257,14 @@
     };
   })();
 
+  // a cidade em regiões de 0,05° (uns 5 km)
+  const celula = (p) => [Math.floor((p.lon + 180) / 0.05), Math.floor((p.lat + 90) / 0.05)];
+  function vizinhas(p, anel) {
+    const [ix, iy] = celula(p);
+    const lista = [];
+    for (let dx = -anel; dx <= anel; dx += 1) for (let dy = -anel; dy <= anel; dy += 1) lista.push(`${ix + dx}-${iy + dy}`);
+    return lista;
+  }
   const topico = {
     pedidos: () => `${cfg.sala}-pedidos`,
     // pedidos fechados ficam num canal à parte: no canal de pedidos, cada mensagem vira um aviso no celular
@@ -264,13 +272,14 @@
     online: () => `${cfg.sala}-online`,
     // regiões de uns 5 km (0,05°): o pedido também sai no canal da região do embarque, e o motorista só
     // recebe aviso (com o app fechado) dos pedidos das regiões em volta dele
-    regiao: (p) => `${cfg.sala}-r-${Math.floor((p.lon + 180) / 0.05)}-${Math.floor((p.lat + 90) / 0.05)}`,
-    regioes: (p, anel = 1) => {
-      const ix = Math.floor((p.lon + 180) / 0.05);
-      const iy = Math.floor((p.lat + 90) / 0.05);
-      const lista = [];
-      for (let dx = -anel; dx <= anel; dx += 1) for (let dy = -anel; dy <= anel; dy += 1) lista.push(`${cfg.sala}-r-${ix + dx}-${iy + dy}`);
-      return lista;
+    regiao: (p) => `${cfg.sala}-r-${celula(p).join('-')}`,
+    regioes: (p, anel = 1) => vizinhas(p, anel).map((c) => `${cfg.sala}-r-${c}`),
+    // "me avise quando tiver Drink perto": quem fica online avisa a região dele no canal da hora cheia; quem quer
+    // ser avisado assina as regiões em volta nas próximas horas, e o aviso some sozinho quando elas passam
+    regiaoOnline: (p, hora = Math.floor(Date.now() / 3600000)) => `${cfg.sala}-o-${celula(p).join('-')}-${hora}`,
+    regioesOnline: (p, horas = 3) => {
+      const h0 = Math.floor(Date.now() / 3600000);
+      return vizinhas(p, 1).flatMap((c) => Array.from({ length: horas }, (_, k) => `${cfg.sala}-o-${c}-${h0 + k}`));
     },
     corrida: (id) => `drk-${id}`,
     rastreio: (id) => `drk-${id}-r`,
