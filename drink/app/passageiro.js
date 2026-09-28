@@ -711,6 +711,35 @@
       if (pos) mapa.ponto('voce', pos, Mapa.ICONE.voce());
       atualizarChegando(true);
     }
+    /* ---------- o caminho do Drink até o embarque ---------- */
+    // a rota de verdade do ponto onde o motorista está até o embarque: encurta conforme ele anda e é refeita
+    // se ele sair dela; o tempo e os km do aviso saem dela (de bike ou patinete, uns 17 km/h na cidade)
+    let aproximacao = null;
+    let tracandoDesde = 0;
+    function restoDaAproximacao(c) {
+      if (!aproximacao || aproximacao.id !== c.id || !c.pos) return null;
+      const linha = aproximacao.linha;
+      let perto = 0;
+      let menor = Infinity;
+      linha.forEach(([lat, lon], i) => { const d = S.distancia(c.pos, { lat, lon }); if (d < menor) { menor = d; perto = i; } });
+      if (menor > 220) return null;
+      const resto = [[c.pos.lat, c.pos.lon], ...linha.slice(perto + 1)];
+      let km = 0;
+      for (let i = 0; i < resto.length - 1; i += 1) km += S.distancia({ lat: resto[i][0], lon: resto[i][1] }, { lat: resto[i + 1][0], lon: resto[i + 1][1] }) / 1000;
+      return { linha: resto, km };
+    }
+    async function tracarAproximacao() {
+      const c = corrida;
+      if (!c || !c.pos || c.etapa !== 'a-caminho' || Date.now() - tracandoDesde < 30000) return;
+      tracandoDesde = Date.now();
+      const de = { lat: c.pos.lat, lon: c.pos.lon };
+      let r = null;
+      try { r = await S.rota(de, c.embarque); } catch (e) { r = null; }
+      if (corrida !== c || c.etapa !== 'a-caminho' || !r || r.estimada || !r.linha || r.linha.length < 2) return;
+      aproximacao = { id: c.id, linha: r.linha };
+      tracandoDesde = 0;
+      if (atual === 'caminho') atualizarChegando();
+    }
     function atualizarChegando(enquadrar) {
       const c = corrida;
       if (!c || !c.motorista) return;
@@ -718,10 +747,16 @@
       if (c.pos) {
         mapa.ponto('motorista', c.pos, Mapa.ICONE.motorista(c.motorista.veiculo));
         const d = S.distancia(c.pos, c.embarque);
-        if (c.etapa === 'chegou' || d < 60) chip.innerHTML = `<b>${esc(primeiroNome(c.motorista.nome))}</b> está no embarque${textoEspera(c)}`;
-        else {
-          const min = Math.max(1, Math.round(((d * 1.3) / 1000 / 17) * 60));
-          chip.innerHTML = `Chega em <b>${min} min</b> · ${S.textoKm((d * 1.3) / 1000)}`;
+        if (c.etapa === 'chegou' || d < 60) {
+          chip.innerHTML = `<b>${esc(primeiroNome(c.motorista.nome))}</b> está no embarque${textoEspera(c)}`;
+          if (aproximacao) { aproximacao = null; mapa.semRota(); }
+        } else {
+          const resto = restoDaAproximacao(c);
+          const km = resto ? resto.km : (d * 1.3) / 1000;
+          const min = Math.max(1, Math.round((km / 17) * 60));
+          chip.innerHTML = `Chega em <b>${min} min</b> · ${S.textoKm(km)}`;
+          if (resto) mapa.rota(resto.linha);
+          else { mapa.semRota(); tracarAproximacao(); }
         }
         if (enquadrar) mapa.enquadrar([c.pos, c.embarque], { maxZoom: 17 });
       } else {
@@ -855,6 +890,35 @@
       h += linhaRecibo(`Total · ${v.pag || 'Pix'}`, brl(v.total), 't-total');
       return h;
     }
+    // o recibo de uma volta: quem dirigiu, de onde, para onde e quando; para mandar para quem reembolsa
+    let reciboAberto = null;
+    const lugarTxt = (l) => (l ? [l.nome, l.bairro].filter(Boolean).join(' · ') : '');
+    const quandoTxt = (iso) => { const d = new Date(iso); return `${d.toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' }).replace('.', '')}, ${hhmm(d)}`; };
+    function infoRecibo(v) {
+      const linha = (a, b) => (b ? `<li><span>${esc(a)}</span><b>${esc(b)}</b></li>` : '');
+      return linha('Motorista', v.motorista) + linha('Saiu de', lugarTxt(v.embarque)) + linha('Chegou em', lugarTxt(v.destino))
+        + linha('Início', v.inicio ? quandoTxt(v.inicio) : '') + linha('Chegada', quandoTxt(v.data)) + linha('Pagamento', `${v.pag || 'Pix'} direto para o motorista`);
+    }
+    function textoRecibo(v) {
+      const d = new Date(v.data);
+      const cab = ['Recibo Drink', `${v.rota} · ${d.toLocaleDateString('pt-BR')} ${hhmm(d)}`];
+      if (v.embarque) cab.push(`Saiu de: ${lugarTxt(v.embarque)}`);
+      if (v.destino) cab.push(`Chegou em: ${lugarTxt(v.destino)}`);
+      cab.push(`Motorista: ${v.motorista}`);
+      const conta = [`Saída: ${brl(v.saida)}`, `${S.virgula(v.km)} km rodados: ${brl(v.rodado)}`];
+      if (v.adicional) conta.push(`Bandeira 2 (+20%): ${brl(v.adicional)}`);
+      if (v.espera) conta.push(`Espera: ${brl(v.espera)}`);
+      if (v.gorjeta) conta.push(`Gorjeta: ${brl(v.gorjeta)}`);
+      conta.push(`Total (${v.pag || 'Pix'}): ${brl(v.total)}`);
+      return `${cab.join('\n')}\n\n${conta.join('\n')}`;
+    }
+    async function compartilharRecibo(v) {
+      const texto = textoRecibo(v);
+      if (navigator.share) {
+        try { await navigator.share({ title: 'Recibo Drink', text: texto }); return; } catch (e) { if (e && e.name === 'AbortError') return; }
+      }
+      copiar(texto, 'Recibo copiado. É só colar onde quiser.');
+    }
     function totalAtual() { return redondo(corrida.valor + (corrida.espera || 0) + (corrida.gorjeta || 0)); }
     function mostrarChegada() {
       const c = corrida;
@@ -945,6 +1009,7 @@
         data: new Date(c.chegada || Date.now()).toISOString(), km: c.km, motorista: c.motorista ? c.motorista.nome : 'Drink',
         pag: 'Pix', saida: c.saida, rodado: c.rodado, adicional: c.adicional, espera: c.espera || 0, gorjeta: c.gorjeta, total: totalAtual(),
         nota: c.nota, destino: { nome: c.destino.nome, bairro: c.destino.bairro, detalhe: c.destino.detalhe, lat: c.destino.lat, lon: c.destino.lon },
+        embarque: { nome: c.embarque.nome, bairro: c.embarque.bairro }, inicio: c.inicioViagem ? new Date(c.inicioViagem).toISOString() : null,
       };
       u.voltas = [v, ...(u.voltas || [])].slice(0, 100);
       if (c.notaRecebida) u.notasRecebidas = [...(u.notasRecebidas || []), c.notaRecebida].slice(-100);
@@ -1113,8 +1178,11 @@
       if (ds.volta) {
         const v = eu().voltas[Number(ds.volta)];
         if (!v) return;
+        reciboAberto = v;
         q('#rp-rec-sub').textContent = `${v.rota} · ${new Date(v.data).toLocaleString('pt-BR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}`;
         q('#rp-rec-det').innerHTML = htmlRecibo(v);
+        q('#rp-rec-info').innerHTML = infoRecibo(v);
+        q('#rp-rec-bts [data-rp="recibo-de-novo"]').hidden = !(v.destino && ponto(v.destino));
         abrirFolha('rp-recibo-folha');
         return;
       }
@@ -1147,6 +1215,15 @@
           fecharFolha();
         },
         'copiar-link': () => { if (!corrida) return; marcarCompartilhada(); copiar(linkRastreio(), 'Link da viagem copiado.'); fecharFolha(); },
+        'recibo-compartilhar': () => { if (reciboAberto) compartilharRecibo(reciboAberto); },
+        'recibo-de-novo': () => {
+          const v = reciboAberto;
+          if (!v || !v.destino || !ponto(v.destino) || corrida) return;
+          fecharFolha();
+          modoBusca = 'destino';
+          destino = { nome: v.destino.nome, detalhe: v.destino.detalhe || '', bairro: v.destino.bairro || '', lat: v.destino.lat, lon: v.destino.lon };
+          ir('opcoes');
+        },
         'mandar-local': () => {
           const p = (corrida && (corrida.aqui || corrida.pos)) || pos;
           if (!p) { op.avisar('Ainda não achei você no mapa.'); return; }

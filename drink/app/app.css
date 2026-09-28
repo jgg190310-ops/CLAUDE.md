@@ -865,3 +865,11 @@ body {
 .rm-feita strong { flex: none; font-family: var(--f-display); font-weight: 800; font-stretch: 75%; font-size: 1.15em; }
 .rm-feitas-vazio { padding: .8em 0; font-size: .86em; color: var(--a-texto-2); }
 .rm-ganhos-nota { margin: 0; font-size: .76em; color: var(--a-texto-2); }
+
+/* ---------- recibo da volta ---------- */
+.rp-rec-info li b { max-width: 64%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 700; text-align: right; }
+.rp-rec-bts { display: grid; grid-template-columns: 1fr 1fr; gap: .6em; }
+.rp-rec-bts button { display: inline-flex; align-items: center; justify-content: center; gap: .45em; }
+.rp-rec-bts button[hidden] { display: none; }
+.rp-rec-bts button:only-child, .rp-rec-bts:has(button[hidden]) button:not([hidden]) { grid-column: 1 / -1; }
+.rp-rec-bts svg { width: 1.2em; height: 1.2em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
