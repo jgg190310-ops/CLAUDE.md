@@ -45,10 +45,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&display=swap">
-  <link rel="stylesheet" href="../app-telas.css?v=19">
-  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=19">
-  <link rel="stylesheet" href="vendor/leaflet.css?v=19">
-  <link rel="stylesheet" href="app.css?v=19">
+  <link rel="stylesheet" href="../app-telas.css?v=20">
+  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=20">
+  <link rel="stylesheet" href="vendor/leaflet.css?v=20">
+  <link rel="stylesheet" href="app.css?v=20">
 </head>
 <body>
 <svg class="sprite" aria-hidden="true" focusable="false">
@@ -372,7 +372,7 @@
       <div class="modo modo-real" id="passageiro" aria-label="App do passageiro" hidden>
         <div class="mapa" id="mapa-p"></div>
         <!-- simulação: uma faixa em todas as telas enquanto ela dura -->
-        <div class="rp-sim" id="rp-sim" role="status" hidden><p><b>Simulação</b> · nenhum motorista de verdade</p><button type="button" data-rp="sair-sim">Encerrar</button></div>
+        <div class="rp-sim" id="rp-sim" role="status" hidden><p><b>Simulação</b> · sem motorista de verdade</p><button type="button" data-rp="sair-sim">Encerrar</button></div>
 
         <!-- início -->
         <section class="rt" data-rt="inicio" aria-labelledby="rp-ola">
@@ -387,6 +387,7 @@
               <svg aria-hidden="true"><use href="#i-sino"/></svg>
               <span><b id="rp-avise-t">Me avise quando tiver Drink perto</b><small id="rp-avise-sub">Chega uma notificação quando alguém ficar online na sua região.</small></span>
             </button>
+            <button type="button" class="en-link rp-ver-sim" id="rp-ver-sim" data-rp="ver-simulacao" hidden>Enquanto isso, simule uma corrida para ver como funciona</button>
             <p class="rt-alerta" id="rp-gps" role="status" hidden></p>
           </div>
         </section>
@@ -747,7 +748,7 @@
       <!-- app do motorista: mapa de verdade por baixo e as telas por cima -->
       <div class="modo modo-real" id="motorista" aria-label="App do motorista" hidden>
         <div class="mapa" id="mapa-m"></div>
-        <div class="rp-sim" id="rm-sim" role="status" hidden><p><b>Simulação</b> · nenhum passageiro de verdade</p><button type="button" data-rm="sair-sim">Encerrar</button></div>
+        <div class="rp-sim" id="rm-sim" role="status" hidden><p><b>Simulação</b> · sem passageiro de verdade</p><button type="button" data-rm="sair-sim">Encerrar</button></div>
 
         <!-- offline -->
         <section class="rt rt-cheia" data-rt="off" aria-labelledby="rm-off-t">
@@ -1221,21 +1222,21 @@
   </div>
 </div>
 
-<script src="vendor/maplibre-gl.js?v=19"></script>
-<script src="vendor/leaflet.js?v=19"></script>
-<script src="vendor/qrcode.js?v=19"></script>
-<script src="../app-nucleo.js?v=19"></script>
-<script src="servicos.js?v=19"></script>
-<script src="rede.js?v=19"></script>
-<script src="mapa-estilo.js?v=19"></script>
-<script src="mapa.js?v=19"></script>
-<script src="carros.js?v=19"></script>
-<script src="cadastro-motorista.js?v=19"></script>
-<script src="pix.js?v=19"></script>
-<script src="avisos.js?v=19"></script>
-<script src="sms.js?v=19"></script>
-<script src="passageiro.js?v=19"></script>
-<script src="motorista.js?v=19"></script>
-<script src="app.js?v=19"></script>
+<script src="vendor/maplibre-gl.js?v=20"></script>
+<script src="vendor/leaflet.js?v=20"></script>
+<script src="vendor/qrcode.js?v=20"></script>
+<script src="../app-nucleo.js?v=20"></script>
+<script src="servicos.js?v=20"></script>
+<script src="rede.js?v=20"></script>
+<script src="mapa-estilo.js?v=20"></script>
+<script src="mapa.js?v=20"></script>
+<script src="carros.js?v=20"></script>
+<script src="cadastro-motorista.js?v=20"></script>
+<script src="pix.js?v=20"></script>
+<script src="avisos.js?v=20"></script>
+<script src="sms.js?v=20"></script>
+<script src="passageiro.js?v=20"></script>
+<script src="motorista.js?v=20"></script>
+<script src="app.js?v=20"></script>
 </body>
 </html>

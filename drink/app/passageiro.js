@@ -186,6 +186,8 @@
       if (nPerto > 0 && esperaAtiva()) { pararEspera(); op.avisar('Tem Drink online perto de você agora.'); }
       const on = esperaAtiva();
       bt.hidden = nPerto > 0 && !on;
+      // sem Drink perto, dá para ver como funciona numa simulação
+      q('#rp-ver-sim').hidden = nPerto > 0;
       bt.setAttribute('aria-pressed', String(on));
       q('#rp-avise-t').textContent = on ? 'Vamos te avisar quando tiver Drink perto' : 'Me avise quando tiver Drink perto';
       q('#rp-avise-sub').textContent = on
@@ -1402,6 +1404,11 @@
         'confirmar-no-mapa': () => { if (meioLugar) escolherLugar(meioLugar); },
         cancelar,
         simular,
+        'ver-simulacao': () => {
+          modoBusca = 'destino';
+          ir('destino');
+          op.avisar('Escolhe um destino. Na tela do preço, toca em "Simular esta corrida".');
+        },
         'sair-sim': () => { if (corrida && corrida.simulada) cancelar(); },
         tentar: () => ir('opcoes'),
         compartilhar: () => {

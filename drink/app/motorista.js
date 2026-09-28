@@ -604,7 +604,7 @@
       clearInterval(esperaTimer);
       const c = corrida;
       if (!c || !c.chegouEm) { q('#rm-espera').textContent = ''; return; }
-      if (!c.esperaConta) { q('#rm-espera').textContent = 'Sem o GPS no embarque, a espera não é cobrada.'; return; }
+      if (!c.esperaConta) { q('#rm-espera').textContent = c.simulada ? 'Na simulação, a espera não é cobrada.' : 'Sem o GPS no embarque, a espera não é cobrada.'; return; }
       const passo = () => {
         if (!corrida || corrida !== c || atual !== 'codigo') { clearInterval(esperaTimer); return; }
         const min = Math.floor((Date.now() - c.chegouEm) / 60000);
