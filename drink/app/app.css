@@ -869,10 +869,11 @@ body {
 /* ---------- recibo da volta ---------- */
 .rp-rec-info li b { max-width: 64%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 700; text-align: right; }
 .rp-rec-bts { display: grid; grid-template-columns: 1fr 1fr; gap: .6em; }
-.rp-rec-bts button { display: inline-flex; align-items: center; justify-content: center; gap: .45em; }
-.rp-rec-bts button[hidden] { display: none; }
-.rp-rec-bts button:only-child, .rp-rec-bts:has(button[hidden]) button:not([hidden]) { grid-column: 1 / -1; }
-.rp-rec-bts svg { width: 1.2em; height: 1.2em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.rp-rec-bts > * { display: inline-flex; align-items: center; justify-content: center; gap: .45em; min-width: 0; text-decoration: none; }
+.rp-rec-bts > [hidden] { display: none; }
+.rp-rec-bts .t-botao { grid-column: 1 / -1; }
+.rp-rec-bts span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rp-rec-bts svg { flex: none; width: 1.2em; height: 1.2em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
 /* ---------- termos e privacidade ---------- */
 /* fora da caixa de aceite: tocar no texto marca a caixa, o link fica à parte, alinhado ao texto */
@@ -920,3 +921,8 @@ body {
 .rp-avise b { font-size: .9em; }
 .rp-avise small { font-size: .74em; color: var(--a-texto-2); }
 .app button.rp-avise[aria-pressed="true"] { border-style: solid; border-color: var(--lima); background: rgba(210, 255, 60, .07); }
+
+/* ---------- seus dados ---------- */
+.en-dados-form { display: grid; gap: .7em; }
+.en-dados-nota { margin: -.3em 0 0; font-size: .76em; color: var(--a-texto-2); }
+.en-dados-form input[readonly] { color: var(--a-texto-2); }

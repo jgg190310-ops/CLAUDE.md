@@ -772,6 +772,40 @@
     avisar(msg);
   }
 
+  /* ---------- seus dados: nome e e-mail (o celular é a conta) ---------- */
+  function abrirDados(b) {
+    const u = eu();
+    if (!u) return;
+    // o nome de quem dirige é o da CNH, que o passageiro vê junto com o rosto
+    const trava = Boolean(u.motoristaOk || u.docs);
+    $('#en-dados-nome').value = u.nome || '';
+    $('#en-dados-sobrenome').value = u.sobrenome || '';
+    $('#en-dados-email').value = u.email || '';
+    $('#en-dados-cel').value = `+55 ${formatarCel(u.celular)}`;
+    ['#en-dados-nome', '#en-dados-sobrenome'].forEach((sel) => { $(sel).readOnly = trava; });
+    $('#en-dados-trava').hidden = !trava;
+    $('#en-dados-erro').hidden = true;
+    abrirFolha('en-dados', b);
+  }
+  $('#en-dados-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const u = eu();
+    if (!u) return;
+    const trava = Boolean(u.motoristaOk || u.docs);
+    const nome = limpo($('#en-dados-nome').value);
+    const sobrenome = limpo($('#en-dados-sobrenome').value);
+    const email = $('#en-dados-email').value.trim();
+    if (!trava && nome.length < 2) { mostrarErro('#en-dados-erro', 'Coloca pelo menos o seu primeiro nome.'); $('#en-dados-nome').focus(); return; }
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) { mostrarErro('#en-dados-erro', 'Esse e-mail parece incompleto.'); $('#en-dados-email').focus(); return; }
+    if (!trava) { u.nome = capitalizar(nome); u.sobrenome = capitalizar(sobrenome, true); }
+    u.email = email;
+    salvar();
+    preencherConta();
+    fecharFolha();
+    avisar('Dados salvos.');
+  });
+  $('#en-dados-form').addEventListener('input', () => { $('#en-dados-erro').hidden = true; });
+
   /* ---------- termos e privacidade ---------- */
   function abrirTermos(b) {
     const P = window.Drink.util.PRECO;
@@ -913,6 +947,7 @@
     fechar: () => fecharFolha(),
     sair: sairDaConta,
     termos: (b) => abrirTermos(b),
+    dados: (b) => abrirDados(b),
     apagar: (b) => pedirApagar(b),
     'apagar-sim': apagarConta,
   };
