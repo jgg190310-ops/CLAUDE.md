@@ -899,3 +899,12 @@ body {
 /* tela final do motorista: os ganhos de hoje abrem a semana */
 .app button.rm-fim-ganhos { font: inherit; color: inherit; text-align: left; cursor: pointer; }
 .rm-fim-ganhos .rm-ganhos-ver { position: static; flex-basis: 100%; justify-content: flex-end; margin-top: .15em; }
+
+/* ---------- até onde o motorista recebe pedidos ---------- */
+.rm-on-cab { display: flex; align-items: center; justify-content: space-between; gap: .6em; margin-top: -.2em; }
+.rm-on-cab > span { font-size: .8em; color: var(--a-texto-2); }
+.rm-raio { flex: none; display: flex; gap: .2em; padding: .2em; border-radius: 999px; background: var(--a-card); }
+.app .rm-raio button { padding: .38em .6em; border: 0; border-radius: 999px; background: none; color: var(--a-texto-2); font: inherit; font-size: .74em; font-weight: 800; cursor: pointer; }
+.app .rm-raio button[aria-checked="true"] { background: var(--lima); color: var(--tinta); }
+.rm-longe { margin: .1em 0 0; font-size: .8em; color: var(--a-texto-2); text-align: center; }
+.rm-longe .en-link { font-size: 1em; }

@@ -254,6 +254,18 @@
       }
       if (atual === 'online') desenharPedidos();
     }
+    /* ---------- até onde o motorista recebe pedidos ---------- */
+    // de bike ou patinete, pedido do outro lado da cidade não serve: fora do raio, nada de som nem de aviso
+    const RAIOS = [3, 5, 8];
+    const raio = () => (RAIOS.includes(eu().raio) ? eu().raio : 5);
+    const dentro = (p) => !pos || S.distancia(pos, p.de) <= raio() * 1000;
+    function mudarRaio(km) {
+      if (!RAIOS.includes(km)) return;
+      eu().raio = km;
+      op.salvar();
+      desenharPedidos();
+    }
+
     function receberPedido(recebido) {
       if (!recebido || recebido.v !== 1) return;
       if (recebido.tipo === 'fechado') { if (typeof recebido.id === 'string') fecharPedido(recebido); return; }
@@ -262,7 +274,7 @@
       const u = eu();
       if (msg.veic !== 'qualquer' && msg.veic !== (u.veiculo || 'bike')) return;
       pedidos.set(msg.id, { ...msg, chegou: Date.now() });
-      if (!corrida && !aceito) {
+      if (!corrida && !aceito && dentro(msg)) {
         tocar();
         op.notificar('Pedido novo no Drink', `${msg.de.bairro} → ${msg.para.bairro} · ${brl(msg.valor)}`, 'drink-pedido');
       }
@@ -271,7 +283,17 @@
     function desenharPedidos() {
       const agora = Date.now();
       [...pedidos.keys()].forEach((id) => { if (agora > pedidos.get(id).expira) pedidos.delete(id); });
-      const lista = [...pedidos.values()].sort((a, b) => b.t - a.t);
+      const todos = [...pedidos.values()];
+      // do mais perto para o mais longe (sem GPS ainda, do mais novo para o mais antigo)
+      const lista = todos.filter(dentro).sort((a, b) => (pos ? S.distancia(pos, a.de) - S.distancia(pos, b.de) : b.t - a.t));
+      const km = raio();
+      $$('#rm-raio [data-raio]', raiz).forEach((b) => b.setAttribute('aria-checked', String(Number(b.dataset.raio) === km)));
+      const longe = todos.length - lista.length;
+      q('#rm-longe').hidden = !longe;
+      if (longe) {
+        const maior = RAIOS.find((r) => r > km);
+        q('#rm-longe').innerHTML = `${longe === 1 ? 'Mais 1 pedido' : `Mais ${longe} pedidos`} além de ${km} km.${maior ? ` <button type="button" class="en-link" data-raio="${maior}">Ver até ${maior} km</button>` : ''}`;
+      }
       q('#rm-vazio').hidden = lista.length > 0;
       q('#rm-on-chip').textContent = lista.length ? `Online · ${lista.length} ${lista.length === 1 ? 'pedido' : 'pedidos'}` : 'Online · procurando pedidos';
       q('#rm-pedidos').innerHTML = lista.map((p) => {
@@ -844,6 +866,7 @@
       if (ds.dia) { diaEscolhido = diaEscolhido === ds.dia ? null : ds.dia; desenharSemana(); return; }
       if (ds.rmTodas !== undefined) { diaEscolhido = null; desenharSemana(); return; }
       if (ds.aceitar) { aceitar(ds.aceitar); return; }
+      if (ds.raio) { mudarRaio(Number(ds.raio)); return; }
       if (ds.notaP) { if (corrida) { corrida.notaPassageiro = Number(ds.notaP); desenharNotaPassageiro(); salvarCorrida(); } return; }
       if (ds.rapida) { mandarMsg(ds.rapida); return; }
       const acoes = {

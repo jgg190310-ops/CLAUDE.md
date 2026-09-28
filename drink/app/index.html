@@ -45,10 +45,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&display=swap">
-  <link rel="stylesheet" href="../app-telas.css?v=11">
-  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=11">
-  <link rel="stylesheet" href="vendor/leaflet.css?v=11">
-  <link rel="stylesheet" href="app.css?v=11">
+  <link rel="stylesheet" href="../app-telas.css?v=12">
+  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=12">
+  <link rel="stylesheet" href="vendor/leaflet.css?v=12">
+  <link rel="stylesheet" href="app.css?v=12">
 </head>
 <body>
 <svg class="sprite" aria-hidden="true" focusable="false">
@@ -757,8 +757,17 @@
           <div class="t-folha rt-folha rm-folha-lista">
             <div class="ma-linha"><small>Ganhos de hoje</small><b id="rm-hoje-2">R$ 0,00</b></div>
             <h3 class="d-titulo" id="rm-on-t" tabindex="-1">Pedidos perto de você</h3>
+            <div class="rm-on-cab">
+              <span id="rm-raio-t">Receber pedidos até</span>
+              <div class="rm-raio" id="rm-raio" role="radiogroup" aria-labelledby="rm-raio-t">
+                <button type="button" role="radio" aria-checked="false" data-raio="3">3 km</button>
+                <button type="button" role="radio" aria-checked="true" data-raio="5">5 km</button>
+                <button type="button" role="radio" aria-checked="false" data-raio="8">8 km</button>
+              </div>
+            </div>
             <ul class="rm-pedidos" id="rm-pedidos" aria-live="polite"></ul>
             <p class="rm-vazio" id="rm-vazio">Nenhum pedido agora. Quando chegar um, o celular toca e vibra.</p>
+            <p class="rm-longe" id="rm-longe" hidden></p>
             <button type="button" class="t-bt rm-offline" data-rm="offline">Ficar offline</button>
           </div>
         </section>
@@ -1157,21 +1166,21 @@
   </div>
 </div>
 
-<script src="vendor/maplibre-gl.js?v=11"></script>
-<script src="vendor/leaflet.js?v=11"></script>
-<script src="vendor/qrcode.js?v=11"></script>
-<script src="../app-nucleo.js?v=11"></script>
-<script src="servicos.js?v=11"></script>
-<script src="rede.js?v=11"></script>
-<script src="mapa-estilo.js?v=11"></script>
-<script src="mapa.js?v=11"></script>
-<script src="carros.js?v=11"></script>
-<script src="cadastro-motorista.js?v=11"></script>
-<script src="pix.js?v=11"></script>
-<script src="avisos.js?v=11"></script>
-<script src="sms.js?v=11"></script>
-<script src="passageiro.js?v=11"></script>
-<script src="motorista.js?v=11"></script>
-<script src="app.js?v=11"></script>
+<script src="vendor/maplibre-gl.js?v=12"></script>
+<script src="vendor/leaflet.js?v=12"></script>
+<script src="vendor/qrcode.js?v=12"></script>
+<script src="../app-nucleo.js?v=12"></script>
+<script src="servicos.js?v=12"></script>
+<script src="rede.js?v=12"></script>
+<script src="mapa-estilo.js?v=12"></script>
+<script src="mapa.js?v=12"></script>
+<script src="carros.js?v=12"></script>
+<script src="cadastro-motorista.js?v=12"></script>
+<script src="pix.js?v=12"></script>
+<script src="avisos.js?v=12"></script>
+<script src="sms.js?v=12"></script>
+<script src="passageiro.js?v=12"></script>
+<script src="motorista.js?v=12"></script>
+<script src="app.js?v=12"></script>
 </body>
 </html>
