@@ -262,6 +262,16 @@
     // pedidos fechados ficam num canal à parte: no canal de pedidos, cada mensagem vira um aviso no celular
     fechados: () => `${cfg.sala}-fechados`,
     online: () => `${cfg.sala}-online`,
+    // regiões de uns 5 km (0,05°): o pedido também sai no canal da região do embarque, e o motorista só
+    // recebe aviso (com o app fechado) dos pedidos das regiões em volta dele
+    regiao: (p) => `${cfg.sala}-r-${Math.floor((p.lon + 180) / 0.05)}-${Math.floor((p.lat + 90) / 0.05)}`,
+    regioes: (p, anel = 1) => {
+      const ix = Math.floor((p.lon + 180) / 0.05);
+      const iy = Math.floor((p.lat + 90) / 0.05);
+      const lista = [];
+      for (let dx = -anel; dx <= anel; dx += 1) for (let dy = -anel; dy <= anel; dy += 1) lista.push(`${cfg.sala}-r-${ix + dx}-${iy + dy}`);
+      return lista;
+    },
     corrida: (id) => `drk-${id}`,
     rastreio: (id) => `drk-${id}-r`,
     // avisos curtos da corrida: p para o passageiro, m para o motorista
