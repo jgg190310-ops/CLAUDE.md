@@ -4,7 +4,7 @@
 (function () {
   'use strict';
 
-  const { $, $$, brl, hhmm, esc, reduzirMovimento } = window.Drink.util;
+  const { $, $$, brl, hhmm, esc, reduzirMovimento, taxaEspera, PRECO } = window.Drink.util;
   const S = window.Drink.servicos;
   const R = window.Drink.rede;
   const Mapa = window.Drink.mapa;
@@ -396,6 +396,18 @@
       bt.textContent = `Pedir Drink · ${brl(p.total)}`;
     }
 
+    // a conta do preço, antes de pedir
+    function desenharPreco() {
+      const km = rota ? rota.km : 0;
+      const p = S.preco(km);
+      let h = linhaRecibo('Saída', brl(p.saida))
+        + linhaRecibo(`${S.virgula(redondo(km, 1))} km × ${brl(PRECO.km)}`, brl(p.rodado));
+      if (p.adicional) h += linhaRecibo('Bandeira 2 (+20%, de 0h às 5h)', brl(p.adicional));
+      h += linhaRecibo('Total, com Pix na chegada', brl(p.total), 't-total');
+      q('#rp-preco-det').innerHTML = h;
+      q('#rp-preco-espera').textContent = `Espera: ${PRECO.esperaGratis} min grátis depois que o Drink chega; depois, ${brl(PRECO.espera)} a cada ${PRECO.esperaBloco} min.`;
+    }
+
     /* ---------- a corrida ---------- */
     const avisos = () => window.Drink.avisos;
     // aviso curto no celular do motorista (só em corrida de verdade, depois que ele aceitou)
@@ -570,8 +582,12 @@
         case 'etapa':
           if (msg.etapa === 'chegou' && ['a-caminho'].includes(c.etapa)) {
             c.etapa = 'chegou';
+            // a espera só conta se o motorista está mesmo no embarque
+            c.chegouEm = ponto(msg.pos) && S.distancia(msg.pos, c.embarque) <= 350 ? Date.now() : 0;
+            if (ponto(msg.pos)) c.pos = { lat: msg.pos.lat, lon: msg.pos.lon, t: Date.now() };
             op.notificar(`${nome} chegou`, 'Confere o código antes de entregar a chave.');
             if (atual === 'caminho') mostrarCaminho();
+            vigiarEspera();
           } else if (msg.etapa === 'vistoria') {
             c.fotos = Math.max(c.fotos, Math.min(5, Number(msg.fotos) || 0));
             if (atual === 'preparo') mostrarPreparo();
@@ -586,6 +602,8 @@
             c.etapa = 'chegada';
             c.chegada = Date.now();
             if (Number(msg.valor) > 0) c.valor = redondo(Number(msg.valor));
+            // a espera que o motorista cobra não passa do que o celular do passageiro viu (com 2 min de folga)
+            c.espera = Math.min(Math.max(0, Number(msg.espera) || 0), c.esperaMax || 0);
             clearInterval(rastreioTimer);
             publicarRastreio(true);
             op.notificar('Chegou!', 'Avalia a corrida e paga com Pix.');
@@ -596,6 +614,8 @@
           const ok = String(msg.valor) === c.codigo;
           enviar({ tipo: 'codigo-ok', ok });
           if (ok && ['a-caminho', 'chegou'].includes(c.etapa)) {
+            c.codigoEm = Date.now();
+            c.esperaMax = taxaEspera(c.codigoEm - (c.chegouEm || c.codigoEm) + 120000);
             c.etapa = 'preparo';
             ir('preparo');
           } else if (!ok) {
@@ -654,6 +674,23 @@
 
     /* ---------- o Drink chegando ---------- */
     function veiculoTxt(v) { return v === 'patinete' ? 'patinete elétrico' : 'bike elétrica'; }
+    // depois que o Drink chega: 10 min grátis, depois R$ 5 a cada 10 min
+    function textoEspera(c) {
+      if (!c.chegouEm) return '';
+      const ms = Date.now() - c.chegouEm;
+      const taxa = taxaEspera(ms);
+      if (taxa) return ` · espera ${esc(brl(taxa))}`;
+      const falta = Math.max(1, Math.ceil(PRECO.esperaGratis - ms / 60000));
+      return ` · ${falta} min de espera grátis`;
+    }
+    let esperaTimer = 0;
+    function vigiarEspera() {
+      clearInterval(esperaTimer);
+      esperaTimer = setInterval(() => {
+        if (!corrida || corrida.etapa !== 'chegou' || atual !== 'caminho') { clearInterval(esperaTimer); return; }
+        atualizarChegando();
+      }, 15000);
+    }
     function mostrarCaminho() {
       const c = corrida;
       if (!c || !c.motorista) return;
@@ -671,6 +708,7 @@
       q('#rp-chat-t').textContent = m.nome;
       rosto(q('#rp-chat-av'), m);
       q('#rp-nova-msg').hidden = !c.novaMsg;
+      if (c.etapa === 'chegou') vigiarEspera();
       mapa.limpar();
       mapa.ponto('embarque', c.embarque, Mapa.ICONE.embarque());
       if (pos) mapa.ponto('voce', pos, Mapa.ICONE.voce());
@@ -683,7 +721,7 @@
       if (c.pos) {
         mapa.ponto('motorista', c.pos, Mapa.ICONE.motorista(c.motorista.veiculo));
         const d = S.distancia(c.pos, c.embarque);
-        if (c.etapa === 'chegou' || d < 60) chip.innerHTML = `<b>${esc(primeiroNome(c.motorista.nome))}</b> está no embarque`;
+        if (c.etapa === 'chegou' || d < 60) chip.innerHTML = `<b>${esc(primeiroNome(c.motorista.nome))}</b> está no embarque${textoEspera(c)}`;
         else {
           const min = Math.max(1, Math.round(((d * 1.3) / 1000 / 17) * 60));
           chip.innerHTML = `Chega em <b>${min} min</b> · ${S.textoKm((d * 1.3) / 1000)}`;
@@ -815,11 +853,12 @@
     function htmlRecibo(v) {
       let h = linhaRecibo('Saída', brl(v.saida)) + linhaRecibo(`${S.virgula(v.km)} km rodados`, brl(v.rodado));
       if (v.adicional) h += linhaRecibo('Bandeira 2 (+20%)', brl(v.adicional));
+      if (v.espera) h += linhaRecibo('Espera', brl(v.espera));
       if (v.gorjeta) h += linhaRecibo('Gorjeta', brl(v.gorjeta));
       h += linhaRecibo(`Total · ${v.pag || 'Pix'}`, brl(v.total), 't-total');
       return h;
     }
-    function totalAtual() { return redondo(corrida.valor + (corrida.gorjeta || 0)); }
+    function totalAtual() { return redondo(corrida.valor + (corrida.espera || 0) + (corrida.gorjeta || 0)); }
     function mostrarChegada() {
       const c = corrida;
       if (!c) return;
@@ -907,7 +946,7 @@
       const v = {
         id: c.id, rota: `${c.embarque.bairro || c.embarque.nome} → ${c.destino.bairro || c.destino.nome}`,
         data: new Date(c.chegada || Date.now()).toISOString(), km: c.km, motorista: c.motorista ? c.motorista.nome : 'Drink',
-        pag: 'Pix', saida: c.saida, rodado: c.rodado, adicional: c.adicional, gorjeta: c.gorjeta, total: totalAtual(),
+        pag: 'Pix', saida: c.saida, rodado: c.rodado, adicional: c.adicional, espera: c.espera || 0, gorjeta: c.gorjeta, total: totalAtual(),
         nota: c.nota, destino: { nome: c.destino.nome, bairro: c.destino.bairro, detalhe: c.destino.detalhe, lat: c.destino.lat, lon: c.destino.lon },
       };
       u.voltas = [v, ...(u.voltas || [])].slice(0, 100);
@@ -1027,6 +1066,7 @@
         $$('#rp-carro [data-cambio]', raiz).forEach((b) => b.setAttribute('aria-checked', String(b.dataset.cambio === (c.cambio || 'automático'))));
         q('#rp-carro-erro').hidden = true;
       }
+      if (id === 'rp-preco') desenharPreco();
       if (id === 'rp-contato') { q('#rp-contato-nome').value = ''; q('#rp-contato-cel').value = ''; q('#rp-contato-erro').hidden = true; }
       const t = $('h4', q(`#${id}`));
       if (t) t.focus({ preventScroll: true });

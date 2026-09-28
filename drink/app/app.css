@@ -379,6 +379,14 @@ body {
 .en-tr-porque.certo { color: var(--lima); }
 .en-tr-porque.errado { color: var(--laranja-2); }
 .rp-nota { display: block; margin-top: .1em; color: var(--ouro); }
+/* o preço: tocar mostra a conta */
+.app button.rt-opcao { width: 100%; font: inherit; color: inherit; text-align: left; cursor: pointer; }
+.rt-ver-conta { display: block; margin-top: .15em; font-size: .62em; font-weight: 800; letter-spacing: .04em; color: var(--lima); text-decoration: underline; text-underline-offset: .2em; }
+.rt-regras { display: grid; gap: .45em; margin: 0; padding: 0 0 0 1.1em; font-size: .8em; line-height: 1.4; color: var(--a-texto-2); }
+.rt-regras li::marker { color: var(--lima); }
+/* a espera, na tela do código do motorista */
+.rm-espera { margin: -.1em 0 .5em; font-size: .78em; color: var(--a-texto-2); text-align: center; }
+.rm-espera:empty { display: none; }
 .app .rm-avaliar { margin-top: .9em; }
 /* a alça das folhas: é por ela (e pelo cabeçalho) que o dedo arrasta a folha para baixo */
 .d-alca { position: absolute; top: 0; left: 0; right: 0; height: 1.9em; touch-action: none; }

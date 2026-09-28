@@ -4,7 +4,7 @@
 (function () {
   'use strict';
 
-  const { $, $$, brl, esc, reduzirMovimento } = window.Drink.util;
+  const { $, $$, brl, esc, reduzirMovimento, taxaEspera, PRECO } = window.Drink.util;
   const S = window.Drink.servicos;
   const R = window.Drink.rede;
   const Mapa = window.Drink.mapa;
@@ -143,6 +143,7 @@
         q('#rm-cod').classList.remove('erro', 'certo');
         q('#rm-cod-erro').hidden = true;
         desenharCodigo();
+        mostrarEspera();
         const carro = (corrida && corrida.carro) || {};
         q('#rm-co-carro').innerHTML = carro.modelo
           ? `<span>Antes de pegar a chave, confere o carro: <b>${esc([carro.marca, carro.modelo, carro.cor].filter(Boolean).join(' '))}</b></span>${CARROS.placa.valida(carro.placa || '') ? CARROS.placa.html(carro.placa) : ''}`
@@ -399,6 +400,8 @@
           const caixa = q('#rm-cod');
           if (msg.ok) {
             caixa.classList.add('certo');
+            corrida.codigoEm = Date.now();
+            corrida.espera = corrida.esperaConta ? taxaEspera(corrida.codigoEm - corrida.chegouEm) : 0;
             corrida.etapa = 'vistoria';
             agendar(() => ir('vistoria'), reduzirMovimento() ? 50 : 600);
           } else {
@@ -502,6 +505,25 @@
         mapa.rota(r.linha);
         q('#rm-bu-chip').textContent = `Até o embarque: ${S.textoKm(r.km)}`;
       }
+    }
+
+    /* ---------- espera: 10 min grátis depois que o motorista chega ---------- */
+    let esperaTimer = 0;
+    function mostrarEspera() {
+      clearInterval(esperaTimer);
+      const c = corrida;
+      if (!c || !c.chegouEm) { q('#rm-espera').textContent = ''; return; }
+      if (!c.esperaConta) { q('#rm-espera').textContent = 'Sem o GPS no embarque, a espera não é cobrada.'; return; }
+      const passo = () => {
+        if (!corrida || corrida !== c || atual !== 'codigo') { clearInterval(esperaTimer); return; }
+        const min = Math.floor((Date.now() - c.chegouEm) / 60000);
+        const taxa = taxaEspera(Date.now() - c.chegouEm);
+        q('#rm-espera').textContent = taxa
+          ? `Esperando há ${min} min · espera de ${brl(taxa)} somada à corrida`
+          : `Esperando há ${min} min · ${PRECO.esperaGratis} min grátis, depois ${brl(PRECO.espera)} a cada ${PRECO.esperaBloco} min`;
+      };
+      passo();
+      esperaTimer = setInterval(passo, 15000);
     }
 
     /* ---------- código ---------- */
@@ -645,7 +667,7 @@
       }
       const u = eu();
       c.etapa = 'receber';
-      enviar({ tipo: 'etapa', etapa: 'chegada', valor: c.valor });
+      enviar({ tipo: 'etapa', etapa: 'chegada', valor: c.valor, espera: c.espera || 0 });
       avisarPassageiro('chegada');
       enviar({ tipo: 'cobranca', pix: { chave: u.pix.chave, nome: [u.nome, u.sobrenome].filter(Boolean).join(' '), cidade: 'BELO HORIZONTE' } });
       salvarCorrida();
@@ -658,10 +680,11 @@
       if (!c) return;
       const nome = primeiroNome(c.passageiro.nome);
       const gorjeta = c.avaliacao ? c.avaliacao.gorjeta : 0;
-      const total = redondo(c.valor + gorjeta);
+      const espera = c.espera || 0;
+      const total = redondo(c.valor + espera + gorjeta);
       q('#rm-re-t').textContent = `Receber ${brl(total)}`;
       q('#rm-re-sub').textContent = `${nome} paga pelo Pix direto na sua chave ${window.Drink.pix.mascarar(eu().pix.chave)}.`;
-      q('#rm-recibo').innerHTML = `<p><span>Corrida · ${esc(S.virgula(c.km))} km</span><b>${esc(brl(c.valor))}</b></p>${gorjeta ? `<p><span>Gorjeta</span><b>${esc(brl(gorjeta))}</b></p>` : ''}<p class="t-total"><span>Total</span><b>${esc(brl(total))}</b></p>`;
+      q('#rm-recibo').innerHTML = `<p><span>Corrida · ${esc(S.virgula(c.km))} km</span><b>${esc(brl(c.valor))}</b></p>${espera ? `<p><span>Espera</span><b>${esc(brl(espera))}</b></p>` : ''}${gorjeta ? `<p><span>Gorjeta</span><b>${esc(brl(gorjeta))}</b></p>` : ''}<p class="t-total"><span>Total</span><b>${esc(brl(total))}</b></p>`;
       const checks = $$('#rm-re-checks li', raiz);
       checks[0].classList.toggle('ok', Boolean(c.avaliacao));
       q('#rm-re-aval').textContent = c.avaliacao
@@ -687,7 +710,7 @@
       if (!c) return;
       const u = eu();
       const gorjeta = c.avaliacao ? c.avaliacao.gorjeta : 0;
-      const total = redondo(c.valor + gorjeta);
+      const total = redondo(c.valor + (c.espera || 0) + gorjeta);
       enviar({ tipo: 'recebido', nota: c.notaPassageiro || 0 });
       if (u.dia !== hoje()) { u.dia = hoje(); u.ganhos = 0; u.viagens = 0; }
       u.ganhos = redondo((u.ganhos || 0) + total);
@@ -765,9 +788,17 @@
         desistir,
         cheguei: () => {
           if (!corrida) return;
+          const longe = pos ? S.distancia(pos, corrida.embarque) : 0;
+          if (longe > 300 && !corrida.confirmouLongeEmb) {
+            corrida.confirmouLongeEmb = true;
+            op.avisar(`O GPS diz que você está a ${S.textoKm(longe / 1000)} do embarque. Toca de novo se chegou mesmo.`);
+            return;
+          }
+          // a espera só é cobrada com o GPS mostrando o motorista no embarque
+          if (!corrida.chegouEm) { corrida.chegouEm = Date.now(); corrida.esperaConta = Boolean(pos) && longe <= 300; }
           corrida.etapa = 'codigo';
           clearInterval(posTimer);
-          enviar({ tipo: 'etapa', etapa: 'chegou' });
+          enviar({ tipo: 'etapa', etapa: 'chegou', pos: pos ? { lat: redondo(pos.lat, 5), lon: redondo(pos.lon, 5) } : null });
           avisarPassageiro('chegou');
           salvarCorrida();
           ir('codigo');

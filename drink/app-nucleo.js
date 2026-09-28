@@ -38,7 +38,8 @@
   }
 
   /* ---------- preço ---------- */
-  const PRECO = { saida: 25, km: 3.5, madrugada: 0.2 };
+  // espera: os primeiros 10 min depois que o motorista chega são grátis; depois, R$ 5 a cada 10 min começados
+  const PRECO = { saida: 25, km: 3.5, madrugada: 0.2, espera: 5, esperaGratis: 10, esperaBloco: 10 };
 
   function ehMadrugada(hora) {
     if (!hora) return false;
@@ -51,6 +52,11 @@
     const subtotal = PRECO.saida + rodado;
     const adicional = ehMadrugada(hora) ? subtotal * PRECO.madrugada : 0;
     return { saida: PRECO.saida, rodado, adicional, total: subtotal + adicional };
+  }
+  function taxaEspera(ms) {
+    const min = Math.max(0, Number(ms) || 0) / 60000;
+    if (min <= PRECO.esperaGratis) return 0;
+    return Math.ceil((min - PRECO.esperaGratis) / PRECO.esperaBloco) * PRECO.espera;
   }
 
 
@@ -745,7 +751,7 @@
     cliente, motorista,
     util: {
       $, $$, reduzirMovimento, esc, brl, brl0, dois, hhmm, hhmmss, marcado, sortear, limitar, suave, animar,
-      PRECO, ehMadrugada, precoDaViagem, MOTORISTAS, DESTINOS, ETAPA_TELA, ORDEM_ETAPAS,
+      PRECO, ehMadrugada, precoDaViagem, taxaEspera, MOTORISTAS, DESTINOS, ETAPA_TELA, ORDEM_ETAPAS,
     },
   };
 }());
