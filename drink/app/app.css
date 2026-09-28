@@ -912,7 +912,9 @@ html.deitado .vira {
 .en-conta .en-apagar b { color: #FF6B5E; }
 .en-apagar-txt { margin: 0; font-size: .92em; line-height: 1.5; color: var(--a-texto-2); }
 .en-apagar-bts { display: grid; gap: .6em; justify-items: center; }
-.app .t-botao.en-apagar-bt { width: 100%; background: var(--vermelho); color: #fff; }
+.app .t-botao.en-apagar-bt { width: 100%; background: var(--vermelho-fundo); color: #fff; }
+/* no dedo e no mouse, continua vermelho (o botão comum acende em limão, e a letra branca sumiria) */
+.app-fone .t-botao.en-apagar-bt:hover:not(:disabled) { background: #AE2419; }
 
 /* tela final do motorista: os ganhos de hoje abrem a semana */
 .app button.rm-fim-ganhos { font: inherit; color: inherit; text-align: left; cursor: pointer; }

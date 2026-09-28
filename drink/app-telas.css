@@ -26,6 +26,8 @@
   --laranja-escuro: #C2410C;
   --violeta: #7B4DDB;
   --vermelho: #E8392C;
+  /* vermelho de fundo de botão: com a letra branca em cima, passa do mínimo de leitura (5,6:1) */
+  --vermelho-fundo: #C62A1F;
   --ouro: #FFC93C;
   --azul-placa: #2C55C8;
 
@@ -392,7 +394,8 @@ button { -webkit-tap-highlight-color: transparent; }
 
 .d-malas .d-carga { transform: translateY(-96px); opacity: 0; transition: transform .9s cubic-bezier(.3, .7, .2, 1) .15s, opacity .3s .15s; }
 .d-malas.guardada .d-carga { transform: none; opacity: 1; }
-.d-checks li { opacity: .4; transition: opacity .3s; }
+/* o que ainda falta fica apagado, mas dá para ler (5,8:1) */
+.d-checks li { opacity: .55; transition: opacity .3s; }
 .d-checks li.ok { opacity: 1; }
 .d-checks li:not(.ok) svg { stroke: transparent; background: var(--a-card-2); }
 
@@ -631,10 +634,10 @@ button { -webkit-tap-highlight-color: transparent; }
 .d-opcoes-ajuda svg { flex: none; width: 1.4em; height: 1.4em; fill: none; stroke: var(--lima); stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
 .d-opcoes-ajuda b { display: block; font-size: .86em; font-weight: 800; }
 .d-opcoes-ajuda small { display: block; font-size: .7em; color: var(--a-texto-2); }
-.d-opcoes-ajuda .d-perigo { border-color: var(--vermelho); background: var(--vermelho); color: #fff; }
+.d-opcoes-ajuda .d-perigo { border-color: var(--vermelho-fundo); background: var(--vermelho-fundo); color: #fff; }
 .d-opcoes-ajuda .d-perigo small { color: #FFE3DF; }
 .d-opcoes-ajuda .d-perigo svg { stroke: #fff; }
-.d-opcoes-ajuda .d-perigo:hover { background: #C92E22; }
+.d-opcoes-ajuda .d-perigo:hover { background: #AE2419; }
 .d-recibo-det { margin: 0; box-shadow: 0 2px 8px rgba(0, 0, 0, .3); }
 
 /* ---------- app do motorista ---------- */
