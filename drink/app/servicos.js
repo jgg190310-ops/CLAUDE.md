@@ -225,8 +225,32 @@
     return { total: Math.round(lista.reduce((s, c) => s + (Number(c.total) || 0), 0) * 100) / 100, n: lista.length };
   }
 
+  // folha por cima da tela: vira uma janela para o leitor de tela e o resto do app fica inerte (o toque, o Tab e
+  // o leitor só alcançam a folha); o véu e os avisos que falam continuam de fora. Devolve a função que solta,
+  // e que leva o foco de volta para quem abriu a folha (se ainda estiver na tela)
+  function prenderFoco(folha) {
+    const app = document.getElementById('app');
+    const origem = document.activeElement;
+    const inertes = [];
+    folha.setAttribute('role', 'dialog');
+    folha.setAttribute('aria-modal', 'true');
+    for (let el = folha; el && el !== app && el.parentElement; el = el.parentElement) {
+      Array.from(el.parentElement.children).forEach((irmao) => {
+        if (irmao === el || irmao.hidden || irmao.inert || irmao.matches('.d-veu, .d-toast, .app-rede')) return;
+        irmao.inert = true;
+        inertes.push(irmao);
+      });
+    }
+    return function soltar(devolverFoco = true) {
+      inertes.forEach((x) => { x.inert = false; });
+      if (devolverFoco && origem && origem !== document.body && origem.isConnected && origem.getClientRects().length && !origem.closest('[hidden], [inert]')) {
+        origem.focus({ preventScroll: true });
+      }
+    };
+  }
+
   window.Drink.servicos = {
     cfg, BH, CAIXA, gps, distancia, textoKm, textoMin, preco, aproximar, naGrandeBH,
-    buscar, endereco, rota, faltaNaLinha, pontosNaLinha, virgula, diaDoDrink, ganhosDoDia,
+    buscar, endereco, rota, faltaNaLinha, pontosNaLinha, virgula, diaDoDrink, ganhosDoDia, prenderFoco,
   };
 }());
