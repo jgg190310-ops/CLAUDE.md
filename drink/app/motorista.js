@@ -83,6 +83,7 @@
         pos = p;
         if (mapa) mapa.ponto('eu', p, Mapa.ICONE.motorista((eu() || {}).veiculo));
         if (atual === 'online') desenharPedidos();
+        assinarRegioes();
         if (corrida && corrida.etapa === 'buscar') enviarPosicao();
         if (corrida && corrida.etapa === 'viagem') atualizarViagem();
       });
@@ -197,7 +198,7 @@
       }
       travarTela();
       online = true;
-      avisos().definir('motorista', [R.topico.pedidos()]);
+      avisosDePedidos();
       if (avisos().estado() === 'instalar') op.avisar('Dica: instala o Drink na tela de início para receber os pedidos com o app fechado.');
       if (!u.idMotorista) { u.idMotorista = R.idAleatorio(9); op.salvar(); }
       ouvirPedidos();
@@ -234,7 +235,7 @@
       clearInterval(presencaTimer);
       clearInterval(limpezaTimer);
       if (estava) presenca('offline');
-      if (!corrida) avisos().definir('motorista', []);
+      if (!corrida) { regioesAssinadas = ''; avisos().definir('motorista', []); }
       if (trava) { trava.release().catch(() => {}); trava = null; }
       pedidos.clear();
       if (!corrida) desligarGps();
@@ -264,6 +265,23 @@
       eu().raio = km;
       op.salvar();
       desenharPedidos();
+      assinarRegioes();
+    }
+    // avisos com o app fechado: só os pedidos das regiões em volta (até 8 km, duas voltas de regiões)
+    let regioesAssinadas = '';
+    function assinarRegioes() {
+      if (!online || corrida || aceito || !pos) return;
+      const lista = R.topico.regioes(pos, raio() > 5 ? 2 : 1);
+      const chave = lista.join();
+      if (chave === regioesAssinadas) return;
+      regioesAssinadas = chave;
+      avisos().definir('motorista', lista);
+    }
+    // de volta aos pedidos (fim da corrida, desistiu) ou offline
+    function avisosDePedidos() {
+      regioesAssinadas = '';
+      if (online) assinarRegioes();
+      else avisos().definir('motorista', []);
     }
 
     function receberPedido(recebido) {
@@ -333,6 +351,7 @@
         pos: pos ? { lat: pos.lat, lon: pos.lon } : null,
       });
       avisos().mandar(R.topico.aviso(id, 'p'), 'aceite');
+      regioesAssinadas = '';
       avisos().definir('motorista', [R.topico.aviso(id, 'm')]);
       agendar(() => {
         if (aceito && aceito.id === id && !corrida) { desistir(); op.avisar('O passageiro não confirmou. Voltando pros pedidos.'); }
@@ -340,9 +359,9 @@
     }
     function desistir() {
       if (assCorrida) { assCorrida.fechar(); assCorrida = null; }
-      avisos().definir('motorista', online ? [R.topico.pedidos()] : []);
       if (aceito) pedidos.delete(aceito.id);
       aceito = null;
+      avisosDePedidos();
       limparTimers();
       if (online) ir('online'); else ir('off');
     }
@@ -482,7 +501,7 @@
       if (atual === 'buscar' && mapa) mapa.ponto('eu', pos, Mapa.ICONE.motorista(eu().veiculo));
     }
     function encerrar() {
-      if (corrida) avisos().definir('motorista', online ? [R.topico.pedidos()] : []);
+      const tinha = Boolean(corrida);
       clearInterval(posTimer);
       limparTimers();
       if (assCorrida) { assCorrida.fechar(); assCorrida = null; }
@@ -490,6 +509,7 @@
       aceito = null;
       fotos = [];
       salvarCorrida();
+      if (tinha) avisosDePedidos();
     }
 
     /* ---------- buscar o passageiro ---------- */
@@ -940,6 +960,7 @@
         else {
           corrida = c;
           ligarGps();
+          regioesAssinadas = '';
           avisos().definir('motorista', [R.topico.aviso(c.id, 'm')]);
           assinarCorrida(c.id, c.ultimo || String(Math.floor(c.t0 / 1000) - 5));
           const tela = { buscar: 'buscar', codigo: 'codigo', vistoria: 'vistoria', dobra: 'dobra', viagem: 'viagem', receber: 'receber' }[c.etapa] || 'buscar';

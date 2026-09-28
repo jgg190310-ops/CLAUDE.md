@@ -488,6 +488,8 @@
         q('#rp-ni-sub').textContent = 'O pedido não saiu do seu celular. Confere a internet e tenta de novo.';
         return;
       }
+      // o mesmo pedido no canal da região do embarque: é por ele que chega o aviso no celular de quem está perto
+      R.fila.mandar(R.topico.regiao(embarque), pedido, { validade: 3 * 60000 });
       avisos().definir('passageiro', [R.topico.aviso(corrida.id, 'p')]);
       contarPrazo(agora + PRAZO_BUSCA);
     }
