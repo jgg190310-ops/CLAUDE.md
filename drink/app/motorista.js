@@ -84,7 +84,7 @@
         if (mapa) mapa.ponto('eu', p, Mapa.ICONE.motorista((eu() || {}).veiculo));
         if (atual === 'online') desenharPedidos();
         assinarRegioes();
-        if (corrida && corrida.etapa === 'buscar') enviarPosicao();
+        if (corrida && corrida.etapa === 'buscar') { enviarPosicao(); avisarSePerto(); }
         if (corrida && corrida.etapa === 'viagem') atualizarViagem();
       });
     }
@@ -428,6 +428,7 @@
           op.notificar('Corrida confirmada', `Vá até ${corrida.embarque.nome}.`);
           mandarFoto();
           ir('buscar');
+          avisarSePerto();
           enviarPosicao(true);
           clearInterval(posTimer);
           posTimer = setInterval(() => enviarPosicao(true), 45000);
@@ -499,6 +500,16 @@
       ultimaPosEnviada = { lat: pos.lat, lon: pos.lon, t: Date.now() };
       enviar({ tipo: 'pos', lat: redondo(pos.lat, 6), lon: redondo(pos.lon, 6) });
       if (atual === 'buscar' && mapa) mapa.ponto('eu', pos, Mapa.ICONE.motorista(eu().veiculo));
+    }
+    // perto do embarque (uns 2 min de bike): o passageiro recebe "está chegando", uma vez só
+    function avisarSePerto() {
+      const c = corrida;
+      if (!c || c.etapa !== 'buscar' || c.avisouPerto || !pos || !c.embarque) return;
+      if (S.distancia(pos, c.embarque) > 450) return;
+      c.avisouPerto = true;
+      enviar({ tipo: 'perto' });
+      avisarPassageiro('perto');
+      salvarCorrida();
     }
     function encerrar() {
       const tinha = Boolean(corrida);

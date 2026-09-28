@@ -1,9 +1,9 @@
 /* Drink — o service worker do app. Guarda o app no aparelho para abrir sem internet e mostra os avisos
    (pedido novo, motorista chegou, mensagem…) que chegam pelo ntfy mesmo com o app fechado.
    Com internet, tudo vem da rede primeiro: o celular sempre usa a versão mais nova do app. */
-const VERSAO = 'drink-app-13';
+const VERSAO = 'drink-app-14';
 const FONTES = 'drink-fontes-1';
-const V = '?v=13';
+const V = '?v=14';
 const ARQUIVOS = [
   './', 'manifest.webmanifest',
   ...['app.css', 'app.js', 'servicos.js', 'rede.js', 'mapa-estilo.js', 'mapa.js', 'carros.js', 'cadastro-motorista.js', 'pix.js', 'avisos.js', 'sms.js',
@@ -58,6 +58,7 @@ self.addEventListener('fetch', (e) => {
 /* ---------- avisos que chegam pelo ntfy com o app fechado ---------- */
 const AVISOS = {
   aceite: ['Um Drink aceitou', 'O motorista está indo até você.'],
+  perto: ['O Drink está chegando', 'Uns 2 minutos. Vai saindo para encontrar ele.'],
   chegou: ['O Drink chegou', 'Confere o código antes de entregar a chave.'],
   chegada: ['Chegou!', 'Avalia a corrida e paga com Pix.'],
   msg: ['Mensagem nova', 'Abre o Drink para ler.'],
