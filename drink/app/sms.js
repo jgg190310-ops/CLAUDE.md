@@ -1,6 +1,6 @@
 /* Drink — SMS de verdade no cadastro, pelo Firebase (Google): o código de 6 números chega no app de
    mensagens do celular. Liga quando a configuração do projeto do Firebase está em servicos.js (cfg.firebase);
-   sem ela, o código de 4 números aparece na própria tela. */
+   sem ela, o código de 4 números chega como notificação neste celular (avisos.js). */
 (function () {
   'use strict';
 

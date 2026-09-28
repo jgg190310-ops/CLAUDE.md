@@ -10,13 +10,15 @@
     ntfy: 'https://ntfy.sh',
     photon: 'https://photon.komoot.io',
     osrm: 'https://router.project-osrm.org',
-    // mapa aberto do OpenStreetMap, sem chave; se ele não responder, o da comunidade francesa
+    // o mapa: vetorial do OpenFreeMap (dados do OpenStreetMap, sem chave); se ele não responder, as imagens do
+    // OpenStreetMap e, por último, as da comunidade francesa
+    mapaVetor: 'https://tiles.openfreemap.org/planet',
+    mapaFontes: 'https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf',
     mapa: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
     mapaReserva: 'https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png',
-    creditos: '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>',
     sala: 'drink-bh-9r4t-v1',
     // SMS de verdade no cadastro: a configuração do app da Web do projeto no Firebase (apiKey, authDomain,
-    // projectId, appId). Sem ela, o código aparece na própria tela.
+    // projectId, appId). Sem ela, o código chega como notificação neste celular.
     firebase: null,
   };
   try { Object.assign(cfg, JSON.parse(localStorage.getItem('drink-servicos') || '{}')); } catch (e) { /* sem ajuste */ }
@@ -97,11 +99,14 @@
   })();
 
   /* ---------- busca de endereços (Photon) ---------- */
+  // em BH o "distrito" às vezes é a regional da prefeitura ("Regional Noroeste"), que ninguém usa como endereço:
+  // vale o bairro
+  const ehRegional = (s) => /^regional\b/i.test(String(s || '').trim());
   function lugarDe(f) {
     const p = f.properties || {};
     const [lon, lat] = f.geometry.coordinates;
     const rua = [p.street, p.housenumber].filter(Boolean).join(', ');
-    const bairro = p.district || p.locality || p.suburb || '';
+    const bairro = [p.district, p.locality, p.suburb].find((b) => b && !ehRegional(b)) || '';
     const nome = p.name || rua || bairro || p.city || 'Local sem nome';
     const detalhe = [];
     if (p.name && rua && p.name !== p.street) detalhe.push(rua);

@@ -11,7 +11,7 @@ body {
 }
 
 /* ---------- no celular o app ocupa a tela toda ---------- */
-.mesa { position: fixed; inset: 0; }
+.mesa { position: fixed; inset: 0; height: var(--app-alto, auto); }
 .mesa-nota, .aparelho-ilha { display: none; }
 .aparelho { position: absolute; inset: 0; }
 .app {
@@ -27,8 +27,9 @@ body {
 .app * { -webkit-tap-highlight-color: transparent; }
 .app input { -webkit-user-select: text; user-select: text; }
 .app button { touch-action: manipulation; }
-.app :is(.d-tela, .d-abas, .d-sobre, .en-tela, .ab, .en-sms) { font-size: var(--app-fs); }
-.app .d-toast { font-size: calc(var(--app-fs) * .9); top: calc(var(--topo) + .8em); z-index: 40; }
+.app :is(.d-tela, .d-abas, .d-sobre, .en-tela, .ab) { font-size: var(--app-fs); }
+/* o aviso só informa: o toque passa por ele (não pode tampar o botão de voltar lá em cima) */
+.app .d-toast { font-size: calc(var(--app-fs) * .9); top: calc(var(--topo) + .8em); z-index: 40; pointer-events: none; }
 .modo { position: absolute; inset: 0; }
 
 /* as telas vieram de um celular desenhado: aqui a barra de status é a do aparelho */
@@ -251,7 +252,7 @@ body {
 .en-cod.erro { animation: treme .42s ease-out; }
 @keyframes estala { from { transform: scale(.82); } to { transform: none; } }
 @keyframes treme { 0%, 100% { transform: none; } 20% { transform: translateX(-.45em); } 40% { transform: translateX(.45em); } 60% { transform: translateX(-.3em); } 80% { transform: translateX(.2em); } }
-.en-reenviar { align-self: center; font-size: .88em; }
+.en-reenviar, .en-sem-codigo { align-self: center; font-size: .88em; }
 /* SMS de verdade: 6 números */
 .en-cod[data-n="6"] { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: .45em; max-width: 26em; }
 .en-cod[data-n="6"] .en-cod-caixa { font-size: 1.85em; }
@@ -320,28 +321,65 @@ body {
   background: var(--lima) var(--check) center / 62% no-repeat;
 }
 .en-docs { display: grid; gap: .5em; }
-.en-docs li {
-  position: relative; overflow: hidden; isolation: isolate;
-  display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: .75em;
+.en-docs button, .en-selfie, .en-anexo {
+  position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: .75em; width: 100%;
   padding: .75em .85em; border-radius: 1em; border: 1px solid var(--a-linha); background: var(--a-card);
+  color: var(--luz); font: inherit; text-align: left; cursor: pointer; transition: border-color .2s;
 }
-.en-docs li::before {
-  content: ""; position: absolute; inset: 0; z-index: -1; background: rgba(210, 255, 60, .08);
-  transform: scaleX(0); transform-origin: 0 50%;
-}
-.en-docs li.vendo::before { transform: scaleX(1); transition: transform .55s ease-in-out; }
-.en-docs li.ok { border-color: rgba(210, 255, 60, .45); }
+.en-docs button.ok, .en-selfie.ok, .en-anexo.ok { border-color: rgba(210, 255, 60, .45); }
 .en-doc-ic { display: grid; place-items: center; width: 2.3em; height: 2.3em; border-radius: 50%; background: var(--a-card-2); }
-.en-doc-ic svg { width: 1.25em; height: 1.25em; fill: none; stroke: var(--lima); stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
-.en-docs b { display: block; font-size: .88em; font-weight: 800; }
-.en-docs small { display: block; font-size: .7em; color: var(--a-texto-2); }
+.en-doc-ic svg, .en-anexo-ver svg, .en-selfie-foto svg { width: 1.25em; height: 1.25em; fill: none; stroke: var(--lima); stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+.en-docs b, .en-selfie b, .en-anexo b { display: block; font-size: .88em; font-weight: 800; }
+.en-docs small, .en-selfie small, .en-anexo small { display: block; font-size: .7em; color: var(--a-texto-2); }
 .en-docs em {
   padding: .3em .65em; border-radius: 999px; font-style: normal; font-size: .68em; font-weight: 800; white-space: nowrap;
   background: var(--a-card-2); color: var(--a-texto-2);
 }
-.en-docs .vendo em { background: rgba(72, 85, 255, .3); color: #C9CDFF; }
 .en-docs .ok em { background: var(--lima); color: var(--tinta); }
+/* selfie e anexos: o campo de arquivo cobre o cartão inteiro */
+.en-selfie, .en-anexo { grid-template-columns: auto minmax(0, 1fr); }
+.en-selfie input, .en-anexo input { position: absolute; inset: 0; z-index: 2; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.en-selfie:focus-within, .en-anexo:focus-within { outline: 2px solid var(--lima); outline-offset: 2px; }
+.en-selfie-foto {
+  display: grid; place-items: center; width: 4.2em; height: 4.2em; border-radius: 50%;
+  border: 2px dashed rgba(210, 255, 60, .5); background: var(--a-card-2) center / cover no-repeat;
+}
+.en-selfie-foto svg { width: 1.6em; height: 1.6em; }
+.en-selfie-foto.com-foto { border: 2px solid var(--lima); }
+.en-selfie-foto.com-foto svg, .en-anexo-ver.com-foto svg { display: none; }
+.en-anexo-ver { display: grid; place-items: center; width: 2.6em; height: 2.6em; border-radius: .7em; background: var(--a-card-2) center / cover no-repeat; }
+.en-antec-link { justify-self: stretch; }
+.en-antec-link svg { width: 1.1em; height: 1.1em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .en-rodape { flex: none; padding: .8em 1.4em calc(1.2em + var(--base)); border-top: 1px solid var(--a-linha); background: var(--a-bg); }
+.en-falta { margin: 0 0 .6em; font-size: .78em; text-align: center; color: var(--a-texto-2); }
+.en-falta:empty { display: none; }
+/* datas no formulário da CNH */
+.en-rot input[type="date"] { min-height: 1.4em; -webkit-appearance: none; appearance: none; text-align: left; color-scheme: dark; }
+.en-rot input[type="date"]::-webkit-date-and-time-value { text-align: left; }
+/* treino */
+.en-tr { display: grid; gap: .8em; justify-items: start; min-height: 16em; align-content: start; }
+.en-tr-passo { margin: 0; font-size: .7em; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--lima); }
+.en-tr-ic { display: grid; place-items: center; width: 3.2em; height: 3.2em; border-radius: 1em; background: rgba(210, 255, 60, .12); }
+.en-tr-ic svg { width: 1.7em; height: 1.7em; fill: none; stroke: var(--lima); stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+.en-tr-fim { background: var(--lima); }
+.en-tr-fim svg { stroke: var(--tinta); stroke-width: 2.6; }
+.en-tr-t { margin: 0; font-family: var(--f-display); font-weight: 800; font-stretch: 88%; font-size: 1.3em; line-height: 1.1; letter-spacing: -.01em; outline: none; }
+.en-tr-txt { margin: 0; font-size: .92em; line-height: 1.45; color: var(--a-texto-2); }
+.app .en-tr .t-botao { justify-self: stretch; margin-top: .4em; }
+.en-tr-ops { display: grid; gap: .45em; width: 100%; }
+.en-tr-ops button {
+  width: 100%; padding: .85em 1em; border-radius: 1em; border: 1.5px solid var(--a-linha); background: var(--a-card);
+  color: var(--luz); font: inherit; font-size: .88em; font-weight: 700; text-align: left; cursor: pointer; transition: border-color .15s, background-color .15s;
+}
+.en-tr-ops button.certa { border-color: var(--lima); background: rgba(210, 255, 60, .12); }
+.en-tr-ops button.errada { border-color: var(--laranja-2); background: rgba(255, 138, 115, .1); opacity: .75; }
+.en-tr-ops button:disabled { cursor: default; }
+.en-tr-porque { margin: 0; font-size: .84em; line-height: 1.4; }
+.en-tr-porque:empty { display: none; }
+.en-tr-porque.certo { color: var(--lima); }
+.en-tr-porque.errado { color: var(--laranja-2); }
+/* avatar com foto */
+.app .t-av.com-foto { background-size: cover; background-position: center; color: transparent; }
 .app .en-rodape .t-botao { height: 3.35em; font-size: 1.02em; }
 
 /* conta: no perfil do passageiro e no menu do motorista */
@@ -370,23 +408,7 @@ body {
 .en-menu-ganhos b { font-family: var(--f-display); font-weight: 800; font-stretch: 75%; font-size: 2em; line-height: 1; color: var(--lima); }
 .en-menu-ganhos span { font-size: .78em; color: rgba(255, 243, 226, .82); }
 
-/* ---------- por cima: SMS, folhas da conta, instalar ---------- */
-.en-sms {
-  position: absolute; z-index: 35; top: calc(var(--topo) + .6em); left: .6em; right: .6em;
-  display: flex; align-items: center; gap: .75em; padding: .75em .95em .8em .75em;
-  border: 0; border-radius: 1.35em; background: rgba(250, 246, 240, .97); color: var(--tinta); text-align: left;
-  box-shadow: 0 1.2em 2.4em -1em rgba(0, 0, 0, .75);
-  animation: sms-desce .55s cubic-bezier(.2, .9, .25, 1.12);
-}
-.en-sms.saindo { animation: sms-sobe .3s ease-in forwards; }
-.en-sms-ic { flex: none; display: grid; place-items: center; width: 2.5em; height: 2.5em; border-radius: .72em; background: #34C759; }
-.en-sms-ic svg { width: 1.35em; height: 1.35em; fill: #fff; stroke: #fff; stroke-width: 1; stroke-linejoin: round; }
-.en-sms-txt { min-width: 0; display: grid; gap: .1em; font-size: .9em; line-height: 1.3; }
-.en-sms-txt small { font-size: .82em; color: rgba(14, 13, 18, .55); }
-.en-sms-txt small b { color: var(--tinta); }
-@keyframes sms-desce { from { transform: translateY(-160%); } to { transform: none; } }
-@keyframes sms-sobe { to { transform: translateY(-160%); } }
-
+/* ---------- por cima: folhas da conta, instalar ---------- */
 .en-veu { z-index: 25; }
 .app > .d-sobre { z-index: 26; }
 .en-inst { display: grid; gap: .7em; }
@@ -401,16 +423,22 @@ body {
 /* ---------- os apps de verdade: o mapa por baixo e as telas por cima ---------- */
 .app .rt { font-size: var(--app-fs); }
 .modo-real { background: var(--a-bg); }
-.mapa { position: absolute; inset: 0; z-index: 0; background: #1C2395; }
+.mapa { position: absolute; inset: 0; z-index: 0; background: #11142A; }
+.mapa.mapa-imagens { background: #1C2395; }
+.app .maplibregl-canvas { outline: none; }
 .app .leaflet-container { background: #1C2395; font-family: var(--f-texto); font-size: 12px; outline: none; }
-/* o mapa claro do OpenStreetMap invertido; meio transparente, ele pega o azul da noite que está por baixo */
+/* sem WebGL: o mapa claro do OpenStreetMap invertido; meio transparente, ele pega o azul da noite que está por baixo */
 .mapa .leaflet-tile-pane { filter: invert(1) hue-rotate(180deg) saturate(.6) brightness(.95) contrast(1.05); }
-.mapa .leaflet-top { top: var(--topo); font-size: var(--app-fs); }
-.app .leaflet-control-attribution {
-  margin: 0; padding: .1em .65em .2em; border-radius: 0 0 0 .7em;
-  background: rgba(15, 14, 21, .7); color: rgba(255, 243, 226, .55); font-size: 9.5px; line-height: 1.5;
+/* a hora e a bateria ficam legíveis por cima do mapa */
+.mapa::after {
+  content: ""; position: absolute; z-index: 2; left: 0; right: 0; top: 0; height: calc(var(--topo) + 3.4em);
+  background: linear-gradient(rgba(8, 9, 20, .7), rgba(8, 9, 20, 0)); pointer-events: none;
 }
-.app .leaflet-control-attribution a { color: rgba(255, 243, 226, .8); text-decoration: none; }
+.mapa-creditos {
+  position: absolute; z-index: 3; top: var(--topo); right: 0; margin: 0; padding: .15em .7em .25em; border-radius: 0 0 0 .7em;
+  background: rgba(15, 14, 21, .72); color: rgba(255, 243, 226, .55); font: 9.5px/1.5 var(--f-texto);
+}
+.mapa-creditos a { color: rgba(255, 243, 226, .82); text-decoration: none; }
 
 /* marcadores */
 .mk { display: grid; place-items: center; }
@@ -420,7 +448,10 @@ body {
 .mk-dest svg { width: 100%; height: 100%; overflow: visible; transform: translateY(-37.5%); filter: drop-shadow(0 4px 4px rgba(0, 0, 0, .5)); }
 .mk-mot { border-radius: 50%; background: var(--lima); box-shadow: 0 0 0 6px rgba(210, 255, 60, .25), 0 6px 14px rgba(0, 0, 0, .55); }
 .mk-mot svg { width: 62%; height: 62%; fill: none; stroke: var(--tinta); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-.mk-on i { background: var(--lima); border: 2px solid #12111C; box-shadow: 0 0 0 5px rgba(210, 255, 60, .22); }
+.mk-caixa { pointer-events: none; }
+.mk-on { border-radius: 50%; background: #1B2042; border: 2px solid var(--lima); box-shadow: 0 3px 9px rgba(0, 0, 0, .55); }
+.mk-on svg { width: 66%; height: 66%; fill: none; stroke: var(--lima); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.mk-ped i { background: var(--rosa); border: 3px solid var(--tinta); box-shadow: 0 0 0 5px rgba(255, 111, 177, .25), 0 4px 10px rgba(0, 0, 0, .5); }
 
 /* cada tela: uma folha em cima do mapa, ou uma tela cheia */
 .rt {
@@ -510,8 +541,7 @@ body {
 .rt .d-linhas button { max-width: 64%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 .rt-prazo { width: min(14em, 70%); margin-top: 1em; }
 .rt-prazo span { transition: width 1s linear; }
-.rt-cancelar, .rt-simular { justify-self: center; font-size: .84em; }
-.app .rt .rt-simular { color: var(--a-texto-2); text-decoration-color: rgba(171, 167, 188, .5); }
+.rt-cancelar { justify-self: center; font-size: .84em; }
 .app .rt .rt-cancelar { color: var(--laranja-2); }
 .rt-bts { flex: none; display: grid; gap: .6em; margin: 0 1.3em calc(1.5em + var(--base)); }
 .rt-bts .en-link { justify-self: center; }
@@ -571,6 +601,64 @@ body {
 .rt-form { display: grid; gap: .7em; }
 .app .rt-form .t-botao { height: 3.2em; }
 
+/* o carro: sugestões de modelo, as cores e a placa */
+.rt-sug { display: grid; gap: .1em; margin: -.35em 0 0; padding: .3em; border-radius: 1em; border: 1px solid var(--a-linha); background: var(--a-card); }
+.rt-sug button {
+  display: flex; align-items: baseline; justify-content: space-between; gap: .6em; width: 100%; padding: .6em .75em;
+  border: 0; border-radius: .7em; background: transparent; color: var(--luz); text-align: left; font: inherit; cursor: pointer;
+}
+.rt-sug button:focus-visible { outline: 2px solid var(--lima); outline-offset: -2px; }
+@media (hover: hover) { .rt-sug button:hover { background: var(--a-card-2); } }
+.rt-sug b { font-size: .92em; font-weight: 800; }
+.rt-sug small { font-size: .72em; color: var(--a-texto-2); }
+.rt-rot { margin: .25em 0 -.25em .2em; font-size: .68em; font-weight: 800; letter-spacing: .09em; text-transform: uppercase; color: var(--a-texto-2); }
+.rt-cores { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: .5em .15em; }
+.rt-cores button {
+  display: grid; justify-items: center; gap: .3em; min-width: 0; padding: .2em 0; border: 0; background: none;
+  color: var(--a-texto-2); font: inherit; font-size: .64em; font-weight: 700; cursor: pointer;
+}
+.rt-cores span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+.rt-cores i {
+  display: block; width: 2.7em; height: 2.7em; border-radius: 50%; background: var(--cor);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .18); transition: box-shadow .15s;
+}
+.rt-cores [aria-checked="true"] { color: var(--luz); }
+.rt-cores [aria-checked="true"] i { box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .2), 0 0 0 .2em var(--a-folha), 0 0 0 .4em var(--lima); }
+.rt-cores button:focus-visible { outline: none; }
+.rt-cores button:focus-visible i { box-shadow: 0 0 0 .2em var(--a-folha), 0 0 0 .4em var(--luz); }
+.rt-placa-ver { display: flex; justify-content: center; }
+.rt-placa-ver:empty { display: none; }
+
+/* placa de carro: a do Mercosul (branca, com a faixa azul do BRASIL e a bandeira) ou a antiga (cinza) */
+.placa {
+  display: inline-grid; min-width: 6.3em; overflow: hidden; vertical-align: middle;
+  border: .1em solid #16161C; border-radius: .34em; background: #FDFDFD; color: #111116;
+  box-shadow: 0 .12em .35em rgba(0, 0, 0, .35); line-height: 1; text-align: center; font-family: var(--f-display);
+}
+.placa-faixa {
+  position: relative; display: block; padding: .2em 2.1em .16em; background: #0F3CA6; color: #fff;
+  font-size: .36em; font-weight: 800; letter-spacing: .32em;
+}
+.placa-faixa b { font-weight: 800; }
+.placa-bandeira { position: absolute; right: .6em; top: 50%; width: 1.45em; height: 1em; transform: translateY(-50%); border-radius: .1em; background: #1A9A48; overflow: hidden; }
+.placa-bandeira::before { content: ""; position: absolute; inset: 12% 8%; background: #FFD43B; clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); }
+.placa-bandeira::after { content: ""; position: absolute; left: 50%; top: 50%; width: .42em; height: .42em; border-radius: 50%; background: #1F3A93; transform: translate(-50%, -50%); }
+.placa-num { display: block; padding: .1em .38em .15em; font-size: 1em; font-weight: 800; font-stretch: 78%; letter-spacing: .07em; white-space: nowrap; }
+.placa-antiga { background: #C3C7CE; }
+.placa-antiga .placa-num { padding: .24em .42em; }
+.placa-falta { font-style: normal; opacity: .16; }
+.placa-grande { margin: .1em 0 .25em; font-size: 2em; }
+#rp-carro-placa-mini { display: block; }
+#rp-carro-placa-mini .placa { margin-top: .4em; font-size: .8em; }
+.rm-placa .placa { font-size: .95em; }
+.rm-co-carro {
+  display: flex; align-items: center; justify-content: space-between; gap: .8em; margin: -.2em 0 .4em; padding: .75em .9em;
+  border-radius: 1em; border: 1px solid var(--a-linha); background: var(--a-card); font-size: .8em; line-height: 1.35; color: var(--a-texto-2);
+}
+.rm-co-carro:empty { display: none; }
+.rm-co-carro b { color: var(--luz); }
+.rm-co-carro .placa { flex: none; font-size: 1.15em; }
+
 /* conversa */
 .rt-enviar { display: flex; align-items: center; gap: .5em; }
 .rt-enviar input {
@@ -596,6 +684,7 @@ body {
 .rm-pedido .rm-ped-prazo { font-weight: 700; color: var(--rosa); }
 .app .rm-pedido .t-botao { height: 2.8em; margin-top: .45em; }
 .rm-vazio { padding: .1em 0 .2em; font-size: .8em; color: var(--a-texto-2); }
+.app .rm-offline { width: 100%; margin-top: .9em; }
 
 /* motorista: vistoria com a câmera */
 .rm-fotos {
@@ -700,7 +789,6 @@ body {
   .app .t-barra { visibility: visible; padding: 1.15em 1.9em .3em 2.2em; }
   .app .d-toast { top: 3.2em; }
   .boas-marca { top: 2.9em; }
-  .en-sms { top: 3em; }
 }
 @media (min-width: 780px) and (min-height: 600px) and (max-width: 980px) {
   .mesa { grid-template-columns: auto; }

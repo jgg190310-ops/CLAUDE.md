@@ -9,6 +9,22 @@
   <script>
     // quem já tem conta (ou abriu um link de acompanhar) cai no app escuro: a barra do celular já começa escura
     try { if (/acompanhar=/.test(location.search) || (JSON.parse(localStorage.getItem('drink-app') || '{}') || {}).atual) document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0F0E15'); } catch (e) { /* sem armazenamento */ }
+    // no iPhone, com o app instalado, a altura da tela às vezes vem sem a barra de status e sobra uma faixa preta
+    // embaixo: como o app ocupa a tela inteira, a altura dele passa a ser a da tela
+    (function () {
+      if (navigator.standalone !== true) return;
+      function ajustar() {
+        var retrato = window.matchMedia('(orientation: portrait)').matches;
+        var alto = retrato ? Math.max(screen.width, screen.height) : Math.min(screen.width, screen.height);
+        var largo = retrato ? Math.min(screen.width, screen.height) : Math.max(screen.width, screen.height);
+        var inteiro = Math.abs(window.innerWidth - largo) < 2 && alto - window.innerHeight < 140;
+        if (inteiro) document.documentElement.style.setProperty('--app-alto', alto + 'px');
+        else document.documentElement.style.removeProperty('--app-alto');
+      }
+      ajustar();
+      window.addEventListener('resize', ajustar);
+      window.addEventListener('orientationchange', function () { setTimeout(ajustar, 350); });
+    }());
   </script>
   <meta name="color-scheme" content="dark">
   <meta name="mobile-web-app-capable" content="yes">
@@ -29,9 +45,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&display=swap">
-  <link rel="stylesheet" href="../app-telas.css?v=3">
-  <link rel="stylesheet" href="vendor/leaflet.css?v=3">
-  <link rel="stylesheet" href="app.css?v=3">
+  <link rel="stylesheet" href="../app-telas.css?v=4">
+  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=4">
+  <link rel="stylesheet" href="vendor/leaflet.css?v=4">
+  <link rel="stylesheet" href="app.css?v=4">
 </head>
 <body>
 <svg class="sprite" aria-hidden="true" focusable="false">
@@ -166,7 +183,7 @@
     <div class="mesa-meio">
       <p class="mesa-marca"><svg aria-hidden="true"><use href="#i-limao"/></svg>drink</p>
       <p class="mesa-t">O app do Drink. <span>Pode usar.</span></p>
-      <p class="mesa-txt">Funciona de verdade: pede num celular, aceita no outro e a corrida acontece entre os dois, com mapa, GPS, conversa e Pix. Sozinho, dá para testar com um motorista simulado.</p>
+      <p class="mesa-txt">Pede num celular, o Drink aceita no dele e a corrida acontece entre os dois, com mapa, GPS, conversa cifrada e Pix direto para o motorista.</p>
     </div>
     <div class="mesa-qr">
       <svg viewBox="-2 -2 37 37" role="img" aria-label="Código QR com o endereço do app"><rect class="mesa-qr-fundo" x="-2" y="-2" width="37" height="37" rx="2.4"/><path d="M0 0h7v1h-7zM9 0h4v1h-4zM16 0h1v1h-1zM18 0h2v1h-2zM22 0h3v1h-3zM26 0h7v1h-7zM0 1h1v1h-1zM6 1h1v1h-1zM10 1h2v1h-2zM15 1h1v1h-1zM18 1h1v1h-1zM20 1h2v1h-2zM26 1h1v1h-1zM32 1h1v1h-1zM0 2h1v1h-1zM2 2h3v1h-3zM6 2h1v1h-1zM8 2h1v1h-1zM11 2h2v1h-2zM14 2h1v1h-1zM16 2h1v1h-1zM18 2h2v1h-2zM21 2h2v1h-2zM24 2h1v1h-1zM26 2h1v1h-1zM28 2h3v1h-3zM32 2h1v1h-1zM0 3h1v1h-1zM2 3h3v1h-3zM6 3h1v1h-1zM8 3h3v1h-3zM18 3h1v1h-1zM22 3h3v1h-3zM26 3h1v1h-1zM28 3h3v1h-3zM32 3h1v1h-1zM0 4h1v1h-1zM2 4h3v1h-3zM6 4h1v1h-1zM8 4h1v1h-1zM10 4h1v1h-1zM13 4h6v1h-6zM21 4h1v1h-1zM23 4h1v1h-1zM26 4h1v1h-1zM28 4h3v1h-3zM32 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM8 5h1v1h-1zM11 5h2v1h-2zM17 5h1v1h-1zM20 5h2v1h-2zM24 5h1v1h-1zM26 5h1v1h-1zM32 5h1v1h-1zM0 6h7v1h-7zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM20 6h1v1h-1zM22 6h1v1h-1zM24 6h1v1h-1zM26 6h7v1h-7zM8 7h1v1h-1zM11 7h2v1h-2zM14 7h1v1h-1zM16 7h1v1h-1zM18 7h4v1h-4zM23 7h2v1h-2zM0 8h1v1h-1zM2 8h5v1h-5zM9 8h1v1h-1zM11 8h1v1h-1zM13 8h2v1h-2zM17 8h1v1h-1zM19 8h2v1h-2zM26 8h5v1h-5zM2 9h4v1h-4zM7 9h1v1h-1zM9 9h5v1h-5zM17 9h4v1h-4zM22 9h3v1h-3zM26 9h2v1h-2zM29 9h2v1h-2zM1 10h2v1h-2zM4 10h4v1h-4zM13 10h3v1h-3zM17 10h1v1h-1zM22 10h1v1h-1zM25 10h2v1h-2zM28 10h1v1h-1zM30 10h2v1h-2zM0 11h4v1h-4zM5 11h1v1h-1zM7 11h1v1h-1zM9 11h1v1h-1zM11 11h3v1h-3zM17 11h2v1h-2zM21 11h1v1h-1zM24 11h1v1h-1zM26 11h1v1h-1zM28 11h5v1h-5zM3 12h1v1h-1zM5 12h3v1h-3zM12 12h1v1h-1zM14 12h3v1h-3zM22 12h1v1h-1zM25 12h1v1h-1zM27 12h3v1h-3zM0 13h2v1h-2zM3 13h1v1h-1zM8 13h1v1h-1zM10 13h1v1h-1zM12 13h2v1h-2zM15 13h1v1h-1zM18 13h2v1h-2zM21 13h1v1h-1zM23 13h1v1h-1zM26 13h2v1h-2zM29 13h1v1h-1zM31 13h2v1h-2zM0 14h1v1h-1zM2 14h1v1h-1zM4 14h3v1h-3zM10 14h2v1h-2zM14 14h4v1h-4zM24 14h3v1h-3zM30 14h2v1h-2zM1 15h2v1h-2zM4 15h2v1h-2zM10 15h3v1h-3zM15 15h1v1h-1zM21 15h2v1h-2zM25 15h2v1h-2zM29 15h2v1h-2zM0 16h3v1h-3zM4 16h1v1h-1zM6 16h2v1h-2zM9 16h7v1h-7zM17 16h1v1h-1zM20 16h1v1h-1zM25 16h1v1h-1zM27 16h2v1h-2zM30 16h1v1h-1zM32 16h1v1h-1zM1 17h1v1h-1zM4 17h1v1h-1zM7 17h4v1h-4zM13 17h2v1h-2zM16 17h1v1h-1zM18 17h3v1h-3zM22 17h3v1h-3zM26 17h2v1h-2zM29 17h2v1h-2zM1 18h1v1h-1zM5 18h2v1h-2zM9 18h8v1h-8zM18 18h1v1h-1zM20 18h1v1h-1zM25 18h4v1h-4zM30 18h2v1h-2zM2 19h1v1h-1zM4 19h2v1h-2zM9 19h1v1h-1zM11 19h6v1h-6zM19 19h5v1h-5zM25 19h1v1h-1zM27 19h6v1h-6zM0 20h1v1h-1zM3 20h1v1h-1zM5 20h2v1h-2zM9 20h1v1h-1zM11 20h1v1h-1zM13 20h1v1h-1zM15 20h1v1h-1zM18 20h3v1h-3zM24 20h2v1h-2zM27 20h1v1h-1zM29 20h1v1h-1zM31 20h2v1h-2zM0 21h1v1h-1zM2 21h3v1h-3zM8 21h1v1h-1zM10 21h1v1h-1zM12 21h1v1h-1zM14 21h4v1h-4zM19 21h3v1h-3zM23 21h1v1h-1zM26 21h1v1h-1zM30 21h1v1h-1zM32 21h1v1h-1zM0 22h1v1h-1zM2 22h1v1h-1zM4 22h1v1h-1zM6 22h5v1h-5zM12 22h1v1h-1zM18 22h1v1h-1zM21 22h1v1h-1zM26 22h2v1h-2zM29 22h3v1h-3zM0 23h1v1h-1zM3 23h1v1h-1zM8 23h2v1h-2zM16 23h1v1h-1zM21 23h3v1h-3zM26 23h1v1h-1zM29 23h2v1h-2zM0 24h1v1h-1zM2 24h3v1h-3zM6 24h4v1h-4zM11 24h1v1h-1zM14 24h1v1h-1zM16 24h2v1h-2zM23 24h9v1h-9zM8 25h2v1h-2zM12 25h3v1h-3zM16 25h2v1h-2zM19 25h2v1h-2zM22 25h1v1h-1zM24 25h1v1h-1zM28 25h1v1h-1zM30 25h1v1h-1zM32 25h1v1h-1zM0 26h7v1h-7zM9 26h2v1h-2zM13 26h1v1h-1zM15 26h1v1h-1zM17 26h1v1h-1zM20 26h1v1h-1zM22 26h3v1h-3zM26 26h1v1h-1zM28 26h1v1h-1zM30 26h1v1h-1zM0 27h1v1h-1zM6 27h1v1h-1zM8 27h2v1h-2zM12 27h1v1h-1zM15 27h1v1h-1zM17 27h2v1h-2zM20 27h5v1h-5zM28 27h5v1h-5zM0 28h1v1h-1zM2 28h3v1h-3zM6 28h1v1h-1zM8 28h1v1h-1zM11 28h1v1h-1zM13 28h1v1h-1zM16 28h1v1h-1zM19 28h2v1h-2zM22 28h1v1h-1zM24 28h6v1h-6zM31 28h2v1h-2zM0 29h1v1h-1zM2 29h3v1h-3zM6 29h1v1h-1zM8 29h2v1h-2zM11 29h1v1h-1zM13 29h1v1h-1zM15 29h1v1h-1zM18 29h4v1h-4zM23 29h1v1h-1zM25 29h1v1h-1zM28 29h5v1h-5zM0 30h1v1h-1zM2 30h3v1h-3zM6 30h1v1h-1zM8 30h2v1h-2zM15 30h2v1h-2zM20 30h2v1h-2zM23 30h2v1h-2zM26 30h2v1h-2zM29 30h2v1h-2zM0 31h1v1h-1zM6 31h1v1h-1zM9 31h1v1h-1zM11 31h2v1h-2zM15 31h1v1h-1zM18 31h1v1h-1zM21 31h1v1h-1zM25 31h1v1h-1zM28 31h3v1h-3zM0 32h7v1h-7zM8 32h4v1h-4zM14 32h2v1h-2zM17 32h1v1h-1zM24 32h1v1h-1zM27 32h1v1h-1zM30 32h2v1h-2z"/></svg>
@@ -220,7 +237,7 @@
             <button type="button" class="en-bt-2" data-app="entrar">Já tenho conta</button>
           </div>
           <button type="button" class="en-instalar-link" data-app="instalar" data-instalar hidden><svg aria-hidden="true"><use href="#i-celular"/></svg>Instalar o app na tela de início</button>
-          <p class="boas-leve">Protótipo: a sua conta fica só neste aparelho.</p>
+          <p class="boas-leve">A sua conta fica guardada neste celular.</p>
         </div>
       </section>
 
@@ -239,7 +256,7 @@
           </div>
           <p class="en-erro" id="en-cel-erro" role="alert" hidden></p>
           <button type="submit" class="t-botao" id="en-cel-bt" disabled>Receber código</button>
-          <p class="en-nota"><svg aria-hidden="true"><use href="#i-escudo"/></svg><span id="en-cel-nota">Protótipo: vale qualquer número. Nenhum SMS de verdade é enviado.</span></p>
+          <p class="en-nota"><svg aria-hidden="true"><use href="#i-escudo"/></svg><span id="en-cel-nota">O seu número só aparece para o motorista da sua corrida.</span></p>
         </form>
       </section>
 
@@ -251,7 +268,7 @@
             <ol class="en-passos" aria-label="Passo 2 de 3"><li class="feito"></li><li class="on"></li><li></li></ol>
           </div>
           <h2 class="en-t" id="cod-t" tabindex="-1">Digita o código</h2>
-          <p class="en-sub" id="cod-sub">Mandamos <span id="en-cod-qtd">4 números</span> para <b id="en-cel-txt">o seu celular</b>. <button type="button" class="en-link" data-app="voltar">Trocar número</button></p>
+          <p class="en-sub" id="cod-sub"><span id="cod-sub-txt">Mandamos 4 números para o seu celular.</span> <button type="button" class="en-link" data-app="voltar">Trocar número</button></p>
           <div class="en-cod" id="en-cod">
             <input id="en-cod-in" name="codigo" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="4" aria-label="Código de 4 números" aria-describedby="cod-sub en-cod-erro">
             <span class="en-cod-caixa"></span><span class="en-cod-caixa"></span><span class="en-cod-caixa"></span><span class="en-cod-caixa"></span>
@@ -259,6 +276,7 @@
           <p class="en-erro" id="en-cod-erro" role="alert" hidden></p>
           <button type="submit" class="t-botao" id="en-cod-bt" disabled>Confirmar</button>
           <button type="button" class="en-link en-reenviar" id="en-reenviar" data-app="reenviar" disabled>Reenviar código em 0:30</button>
+          <button type="button" class="en-link en-sem-codigo" id="en-sem-codigo" data-app="sem-codigo" hidden>Não chegou? Seguir sem o código</button>
           <div class="en-recaptcha" id="en-recaptcha"></div>
         </form>
       </section>
@@ -307,20 +325,26 @@
         </div>
       </section>
 
-      <!-- cadastro de motorista -->
+      <!-- cadastro de motorista: rosto, documentos e treino, conferidos de verdade -->
       <section class="en-tela" data-en="mot-cad" aria-labelledby="motcad-t" hidden>
         <div class="en-form en-rolar">
           <div class="en-cab">
             <button type="button" class="d-voltar" data-app="voltar" aria-label="Voltar"><svg aria-hidden="true"><use href="#i-voltar"/></svg></button>
           </div>
           <h2 class="en-t" id="motcad-t" tabindex="-1">Bora dirigir com o Drink</h2>
-          <p class="en-sub">Três coisinhas e você já pode ficar online.</p>
+          <p class="en-sub">Como nos apps grandes: o seu rosto, os documentos e um treino rápido. Os arquivos ficam guardados neste celular.</p>
           <p class="en-sec">1 · Com o que você chega no cliente</p>
           <div class="en-veics" role="radiogroup" aria-label="Seu veículo dobrável">
             <button type="button" role="radio" aria-checked="true" data-veiculo="bike"><svg aria-hidden="true"><use href="#i-bike"/></svg><b>Bike elétrica</b><small>dobrável · até 18 kg</small></button>
             <button type="button" role="radio" aria-checked="false" data-veiculo="patinete"><svg aria-hidden="true"><use href="#i-patinete"/></svg><b>Patinete elétrico</b><small>dobrável · até 15 kg</small></button>
           </div>
-          <p class="en-sec">2 · Onde você recebe</p>
+          <p class="en-sec">2 · O seu rosto</p>
+          <label class="en-selfie" id="en-selfie">
+            <input type="file" accept="image/*" capture="user" id="en-selfie-in" aria-describedby="en-selfie-sub">
+            <span class="en-selfie-foto" id="en-selfie-foto" aria-hidden="true"><svg><use href="#i-camera"/></svg></span>
+            <span><b id="en-selfie-t">Tirar uma selfie</b><small id="en-selfie-sub">De frente, sem óculos escuros e sem boné. É a foto que o passageiro vê quando você aceita a corrida.</small></span>
+          </label>
+          <p class="en-sec">3 · Onde você recebe</p>
           <div class="en-pix">
             <label class="en-campo en-rot en-sel"><span>Tipo de chave Pix</span>
               <select id="en-pix-tipo"><option value="celular">Celular</option><option value="cpf">CPF</option><option value="email">E-mail</option><option value="aleatoria">Chave aleatória</option><option value="cnpj">CNPJ</option></select>
@@ -329,17 +353,16 @@
             <p class="en-erro" id="en-pix-erro" role="alert" hidden></p>
             <p class="en-nota"><svg aria-hidden="true"><use href="#i-pix"/></svg><span>O passageiro paga direto nessa chave, pelo app do banco dele, quando chega em casa.</span></p>
           </div>
-          <p class="en-sec">3 · Documentos</p>
+          <p class="en-sec">4 · Documentos e treino</p>
           <ul class="en-docs" id="en-docs">
-            <li><span class="en-doc-ic" aria-hidden="true"><svg><use href="#i-cnh"/></svg></span><span><b>CNH com EAR</b><small>habilitação há 3 anos ou mais</small></span><em>pendente</em></li>
-            <li><span class="en-doc-ic" aria-hidden="true"><svg><use href="#i-escudo"/></svg></span><span><b>Antecedentes criminais</b><small>a gente consulta pelo seu CPF</small></span><em>pendente</em></li>
-            <li><span class="en-doc-ic" aria-hidden="true"><svg><use href="#i-camera"/></svg></span><span><b>Selfie de verificação</b><small>pro cliente saber quem vai chegar</small></span><em>pendente</em></li>
-            <li><span class="en-doc-ic" aria-hidden="true"><svg><use href="#i-capacete"/></svg></span><span><b>Treino de 20 minutos</b><small>dobra, vistoria e direção segura</small></span><em>pendente</em></li>
+            <li><button type="button" data-app="doc" data-doc="cnh"><span class="en-doc-ic" aria-hidden="true"><svg><use href="#i-cnh"/></svg></span><span><b>CNH e CPF</b><small data-doc-sub="cnh">Categoria B ou mais, com EAR</small></span><em data-doc-em="cnh">pendente</em></button></li>
+            <li><button type="button" data-app="doc" data-doc="antecedentes"><span class="en-doc-ic" aria-hidden="true"><svg><use href="#i-escudo"/></svg></span><span><b>Antecedentes criminais</b><small data-doc-sub="antecedentes">Certidão da Polícia Federal, de graça</small></span><em data-doc-em="antecedentes">pendente</em></button></li>
+            <li><button type="button" data-app="doc" data-doc="treino"><span class="en-doc-ic" aria-hidden="true"><svg><use href="#i-capacete"/></svg></span><span><b>Treino de segurança</b><small data-doc-sub="treino">5 minutos: código, vistoria, dobra e direção</small></span><em data-doc-em="treino">pendente</em></button></li>
           </ul>
-          <p class="en-nota"><svg aria-hidden="true"><use href="#i-escudo"/></svg><span>Protótipo: a verificação é de mentirinha e aprova na hora.</span></p>
         </div>
         <div class="en-rodape">
-          <button type="button" class="t-botao" id="en-verificar" data-app="verificar">Enviar documentos</button>
+          <p class="en-falta" id="en-falta" aria-live="polite"></p>
+          <button type="button" class="t-botao" id="en-verificar" data-app="dirigir">Começar a dirigir</button>
         </div>
       </section>
 
@@ -404,7 +427,6 @@
               <li><span>Pagamento</span><button type="button" id="rp-op-pag">Pix na chegada</button></li>
             </ul>
             <button type="button" class="t-botao" id="rp-pedir" disabled>Pedir Drink</button>
-            <button type="button" class="en-link rt-simular" data-rp="simular">Só testar, com um motorista simulado</button>
           </div>
         </section>
 
@@ -424,11 +446,10 @@
           <div class="d-meio">
             <span class="t-fim-ic d-ic-sodio" aria-hidden="true"><svg><use href="#i-lua"/></svg></span>
             <h3 class="d-titulo" id="rp-ni-t" tabindex="-1">Nenhum Drink aceitou agora</h3>
-            <p class="t-sub" id="rp-ni-sub">Pode ser que ninguém esteja online perto de você. Tenta de novo daqui a pouco, ou vê o app funcionando com um motorista simulado.</p>
+            <p class="t-sub" id="rp-ni-sub">Pode ser que ninguém esteja online perto de você agora. Tenta de novo daqui a pouco.</p>
           </div>
           <div class="rt-bts">
             <button type="button" class="t-botao" data-rp="tentar">Tentar de novo</button>
-            <button type="button" class="t-bt" data-rp="simular">Testar com motorista simulado</button>
             <button type="button" class="en-link" data-rp-ir="inicio">Voltar ao início</button>
           </div>
         </section>
@@ -558,7 +579,6 @@
           <p class="d-sec">Como você paga</p>
           <div class="d-pags">
             <p class="rt-pag on"><svg aria-hidden="true"><use href="#i-pix"/></svg><span><b>Pix na chegada</b><small>Direto para o motorista, pelo app do seu banco</small></span></p>
-            <p class="rt-pag"><svg aria-hidden="true"><use href="#i-cartao"/></svg><span><b>Cartão de crédito</b><small>Chega quando o Drink tiver uma empresa de pagamentos</small></span><em>em breve</em></p>
           </div>
         </section>
 
@@ -571,7 +591,7 @@
           <p class="d-sec">Seu carro</p>
           <button type="button" class="d-carro rt-carro" data-rp-folha="rp-carro">
             <svg aria-hidden="true"><use href="#i-carro"/></svg>
-            <span><b id="rp-carro-t">Cadastra o seu carro</b><small id="rp-carro-sub">Modelo, cor e câmbio, pro Drink achar ele</small></span>
+            <span><b id="rp-carro-t">Cadastra o seu carro</b><small id="rp-carro-sub">Modelo, cor, placa e câmbio, pro Drink achar ele</small><span id="rp-carro-placa-mini"></span></span>
             <em>editar</em>
           </button>
           <p class="d-sec">Lugares salvos</p>
@@ -648,11 +668,12 @@
             <button type="button" class="d-fechar" data-rp-fechar aria-label="Fechar"><svg aria-hidden="true"><use href="#i-fechar"/></svg></button>
           </div>
           <form class="rt-form" id="rp-carro-form" novalidate>
-            <div class="en-duplo">
-              <label class="en-campo en-rot"><span>Modelo</span><input id="rp-carro-modelo" maxlength="30" placeholder="Onix, HB20…" autocapitalize="words"></label>
-              <label class="en-campo en-rot"><span>Cor</span><input id="rp-carro-cor" maxlength="20" placeholder="prata" autocapitalize="off"></label>
-            </div>
-            <label class="en-campo en-rot"><span>Placa · opcional</span><input id="rp-carro-placa" maxlength="8" placeholder="ABC1D23" autocapitalize="characters"></label>
+            <label class="en-campo en-rot"><span>Modelo</span><input id="rp-carro-modelo" maxlength="40" placeholder="Onix, HB20, Corolla…" autocomplete="off" autocapitalize="words" spellcheck="false" aria-controls="rp-carro-sug" aria-autocomplete="list"></label>
+            <ul class="rt-sug" id="rp-carro-sug" hidden></ul>
+            <p class="rt-rot" id="rp-carro-cor-t">Cor</p>
+            <div class="rt-cores" id="rp-carro-cores" role="radiogroup" aria-labelledby="rp-carro-cor-t"></div>
+            <label class="en-campo en-rot"><span>Placa</span><input id="rp-carro-placa" maxlength="8" placeholder="Como está no carro" autocomplete="off" autocapitalize="characters" spellcheck="false" enterkeyhint="done"></label>
+            <div class="rt-placa-ver" id="rp-carro-placa-ver" aria-hidden="true"></div>
             <div class="d-seg rt-seg" role="radiogroup" aria-label="Câmbio">
               <button type="button" role="radio" aria-checked="true" data-cambio="automático">Automático</button>
               <button type="button" role="radio" aria-checked="false" data-cambio="manual">Manual</button>
@@ -716,10 +737,7 @@
             <h3 class="d-titulo" id="rm-on-t" tabindex="-1">Pedidos perto de você</h3>
             <ul class="rm-pedidos" id="rm-pedidos" aria-live="polite"></ul>
             <p class="rm-vazio" id="rm-vazio">Nenhum pedido agora. Quando chegar um, o celular toca e vibra.</p>
-            <div class="t-acoes">
-              <button type="button" class="t-bt" data-rm="teste">Pedido de teste</button>
-              <button type="button" class="t-bt" data-rm="offline">Ficar offline</button>
-            </div>
+            <button type="button" class="t-bt rm-offline" data-rm="offline">Ficar offline</button>
           </div>
         </section>
 
@@ -739,9 +757,10 @@
           <div class="t-folha rt-folha">
             <h3 class="d-titulo" id="rm-bu-t" tabindex="-1">Vá até o passageiro</h3>
             <p class="d-local"><svg aria-hidden="true"><use href="#i-pin"/></svg><span id="rm-bu-end">Endereço</span></p>
-            <div class="t-mot">
+            <div class="t-mot rm-quem">
               <span class="t-av d-av-cliente" id="rm-pa-av">PA</span>
               <div><b id="rm-pa-nome">Passageiro</b><span id="rm-pa-carro">Carro</span></div>
+              <span class="rm-placa" id="rm-pa-placa"></span>
             </div>
             <div class="rt-nav">
               <a class="t-bt" id="rm-nav-g" href="#" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#i-navegar"/></svg>Google Maps</a>
@@ -760,12 +779,12 @@
           <form class="en-form" id="rm-cod-form" novalidate>
             <h3 class="en-t" id="rm-co-t" tabindex="-1">Pede o código</h3>
             <p class="en-sub" id="rm-co-sub">O passageiro fala 4 números. Digita aqui: o celular dele confere se você é o Drink certo.</p>
+            <p class="rm-co-carro" id="rm-co-carro"></p>
             <div class="en-cod" id="rm-cod">
               <input id="rm-cod-in" type="text" inputmode="numeric" autocomplete="off" maxlength="4" aria-label="Código de 4 números" aria-describedby="rm-co-sub rm-cod-erro">
               <span class="en-cod-caixa"></span><span class="en-cod-caixa"></span><span class="en-cod-caixa"></span><span class="en-cod-caixa"></span>
             </div>
             <p class="en-erro" id="rm-cod-erro" role="alert" hidden></p>
-            <p class="en-nota" id="rm-cod-dica" hidden><svg aria-hidden="true"><use href="#i-escudo"/></svg><span></span></p>
             <button type="submit" class="t-botao" id="rm-cod-bt" disabled>Conferir o código</button>
             <button type="button" class="en-link" data-rm-folha="rm-chat">Mandar mensagem</button>
             <button type="button" class="en-link rt-cancelar" data-rm="cancelar">O passageiro não apareceu? Cancelar</button>
@@ -843,7 +862,7 @@
 
         <!-- viagem -->
         <section class="rt" data-rt="viagem" aria-labelledby="rm-vg-t" hidden>
-          <div class="rt-topo"><p class="t-chip rt-chip"><span class="t-vivo"></span>Viagem · seguro ativo</p></div>
+          <div class="rt-topo"><p class="t-chip rt-chip"><span class="t-vivo"></span>Viagem em andamento</p></div>
           <div class="t-folha rt-folha">
             <h3 class="d-titulo" id="rm-vg-t" tabindex="-1">Levando o passageiro</h3>
             <p class="d-rua"><svg aria-hidden="true"><use href="#i-rota"/></svg><span>para <b id="rm-vg-dest">o destino</b></span><em id="rm-vg-faltam">--</em></p>
@@ -908,12 +927,7 @@
         </section>
       </div>
 
-      <!-- por cima de tudo: o SMS, as folhas da conta e os avisos -->
-      <button type="button" class="en-sms" id="en-sms" data-app="usar-sms" hidden>
-        <span class="en-sms-ic" aria-hidden="true"><svg><use href="#i-mensagem"/></svg></span>
-        <span class="en-sms-txt"><small><b>Mensagens</b> · agora</small><span>Drink: seu código é <b id="en-sms-cod">0000</b>. Não passe para ninguém.</span><span class="sr"> Toque para preencher.</span></span>
-      </button>
-
+      <!-- por cima de tudo: as folhas da conta e os avisos -->
       <div class="d-veu en-veu" id="en-veu" hidden></div>
 
       <section class="d-sobre" id="en-menu" aria-labelledby="en-menu-t" hidden>
@@ -949,6 +963,66 @@
         </form>
       </section>
 
+      <section class="d-sobre" id="en-cnh" aria-labelledby="en-cnh-t" hidden>
+        <div class="d-sobre-cab">
+          <span class="d-sobre-ic" aria-hidden="true"><svg><use href="#i-cnh"/></svg></span>
+          <div><h4 id="en-cnh-t" tabindex="-1">CNH e CPF</h4><small>Do jeito que está na sua habilitação</small></div>
+          <button type="button" class="d-fechar" data-app="fechar" aria-label="Fechar"><svg aria-hidden="true"><use href="#i-fechar"/></svg></button>
+        </div>
+        <form class="rt-form" id="en-cnh-form" novalidate>
+          <div class="en-duplo">
+            <label class="en-campo en-rot"><span>CPF</span><input id="en-cpf" inputmode="numeric" autocomplete="off" maxlength="14" placeholder="000.000.000-00"></label>
+            <label class="en-campo en-rot"><span>Nascimento</span><input id="en-nasc" type="date"></label>
+          </div>
+          <label class="en-campo en-rot"><span>Nº de registro da CNH</span><input id="en-cnh-num" inputmode="numeric" autocomplete="off" maxlength="11" placeholder="11 números"></label>
+          <div class="en-duplo">
+            <label class="en-campo en-rot en-sel"><span>Categoria</span>
+              <select id="en-cnh-cat"><option>B</option><option>AB</option><option>C</option><option>AC</option><option>D</option><option>AD</option><option>E</option><option>AE</option><option value="A">A (só moto)</option></select>
+            </label>
+            <label class="en-campo en-rot"><span>Validade</span><input id="en-cnh-val" type="date"></label>
+          </div>
+          <label class="en-campo en-rot"><span>1ª habilitação</span><input id="en-cnh-pri" type="date"></label>
+          <label class="en-check"><input type="checkbox" id="en-cnh-ear"><span class="en-caixa" aria-hidden="true"></span><span>A minha CNH tem a observação <b>EAR</b> (exerce atividade remunerada).</span></label>
+          <label class="en-anexo" id="en-cnh-foto-bt">
+            <input type="file" accept="image/*" capture="environment" id="en-cnh-foto-in">
+            <span class="en-anexo-ver" id="en-cnh-foto-ver" aria-hidden="true"><svg><use href="#i-camera"/></svg></span>
+            <span><b>Foto da CNH aberta</b><small id="en-cnh-foto-sub">Frente, fora do plástico, com tudo legível</small></span>
+          </label>
+          <p class="en-erro" id="en-cnh-erro" role="alert" hidden></p>
+          <button type="submit" class="t-botao">Conferir e salvar</button>
+        </form>
+      </section>
+
+      <section class="d-sobre" id="en-antec" aria-labelledby="en-antec-t" hidden>
+        <div class="d-sobre-cab">
+          <span class="d-sobre-ic" aria-hidden="true"><svg><use href="#i-escudo"/></svg></span>
+          <div><h4 id="en-antec-t" tabindex="-1">Antecedentes criminais</h4><small>A certidão da Polícia Federal sai na hora e é de graça</small></div>
+          <button type="button" class="d-fechar" data-app="fechar" aria-label="Fechar"><svg aria-hidden="true"><use href="#i-fechar"/></svg></button>
+        </div>
+        <ol class="en-inst">
+          <li><span>1</span><p>Abre o serviço da <b>Polícia Federal</b> no gov.br e pede a certidão com o seu CPF.</p></li>
+          <li><span>2</span><p>Baixa o PDF no celular (ou tira um print da certidão).</p></li>
+          <li><span>3</span><p>Anexa aqui embaixo.</p></li>
+        </ol>
+        <a class="t-bt en-antec-link" href="https://www.gov.br/pt-br/servicos/emitir-certidao-de-antecedentes-criminais" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#i-escudo"/></svg>Tirar a certidão no gov.br</a>
+        <label class="en-anexo" id="en-antec-bt">
+          <input type="file" accept="application/pdf,image/*" id="en-antec-in">
+          <span class="en-anexo-ver" aria-hidden="true"><svg><use href="#i-copiar"/></svg></span>
+          <span><b>Anexar a certidão</b><small id="en-antec-sub">PDF ou foto da certidão</small></span>
+        </label>
+        <p class="en-erro" id="en-antec-erro" role="alert" hidden></p>
+      </section>
+
+      <section class="d-sobre en-treino" id="en-treino" aria-labelledby="en-treino-h" hidden>
+        <div class="d-sobre-cab">
+          <span class="d-sobre-ic" aria-hidden="true"><svg><use href="#i-capacete"/></svg></span>
+          <div><h4 id="en-treino-h" tabindex="-1">Treino de segurança</h4><small>O jeito Drink de cuidar do passageiro e do carro</small></div>
+          <button type="button" class="d-fechar" data-app="fechar" aria-label="Fechar"><svg aria-hidden="true"><use href="#i-fechar"/></svg></button>
+        </div>
+        <div class="d-progresso" aria-hidden="true"><span id="en-treino-barra"></span></div>
+        <div class="en-tr" id="en-treino-corpo"></div>
+      </section>
+
       <section class="d-sobre" id="en-instalar" aria-labelledby="en-inst-t" hidden>
         <div class="d-sobre-cab">
           <span class="d-sobre-ic" aria-hidden="true"><svg><use href="#i-celular"/></svg></span>
@@ -972,18 +1046,21 @@
   </div>
 </div>
 
-<script src="vendor/leaflet.js?v=3"></script>
-<script src="vendor/qrcode.js?v=3"></script>
-<script src="../app-nucleo.js?v=3"></script>
-<script src="servicos.js?v=3"></script>
-<script src="rede.js?v=3"></script>
-<script src="mapa.js?v=3"></script>
-<script src="pix.js?v=3"></script>
-<script src="robo.js?v=3"></script>
-<script src="avisos.js?v=3"></script>
-<script src="sms.js?v=3"></script>
-<script src="passageiro.js?v=3"></script>
-<script src="motorista.js?v=3"></script>
-<script src="app.js?v=3"></script>
+<script src="vendor/maplibre-gl.js?v=4"></script>
+<script src="vendor/leaflet.js?v=4"></script>
+<script src="vendor/qrcode.js?v=4"></script>
+<script src="../app-nucleo.js?v=4"></script>
+<script src="servicos.js?v=4"></script>
+<script src="rede.js?v=4"></script>
+<script src="mapa-estilo.js?v=4"></script>
+<script src="mapa.js?v=4"></script>
+<script src="carros.js?v=4"></script>
+<script src="cadastro-motorista.js?v=4"></script>
+<script src="pix.js?v=4"></script>
+<script src="avisos.js?v=4"></script>
+<script src="sms.js?v=4"></script>
+<script src="passageiro.js?v=4"></script>
+<script src="motorista.js?v=4"></script>
+<script src="app.js?v=4"></script>
 </body>
 </html>

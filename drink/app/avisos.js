@@ -92,5 +92,15 @@
     return window.Drink.rede.canal.publicar(topico, { v: 1, tipo }).catch(() => {});
   }
 
-  window.Drink.avisos = { estado, pedir, definir, sincronizar, mandar, instalado, ehIOS };
+  // o código do cadastro, mandado como notificação para este aparelho (enquanto o SMS não está ligado)
+  const topicoCodigo = () => `drk-cod-${dados.aparelho}`;
+  async function codigo(numero) {
+    if (estado() !== 'ligado') return false;
+    const ok = await definir('codigo', [topicoCodigo()]);
+    if (!ok) return false;
+    await window.Drink.rede.canal.publicar(topicoCodigo(), { v: 1, tipo: 'codigo', codigo: numero });
+    return true;
+  }
+
+  window.Drink.avisos = { estado, pedir, definir, sincronizar, mandar, instalado, ehIOS, codigo, topicoCodigo };
 }());

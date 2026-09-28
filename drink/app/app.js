@@ -1,12 +1,13 @@
-/* Drink — o app. Abertura, boas-vindas, cadastro e login com código por SMS, escolha entre passageiro e motorista,
-   cadastro de motorista com a chave Pix e os dois apps de verdade (passageiro.js e motorista.js), com mapa, GPS
-   e as corridas passando de um celular para o outro. A conta fica salva só no aparelho.
+/* Drink — o app. Abertura, boas-vindas, cadastro e login com código, escolha entre passageiro e motorista,
+   cadastro de motorista de verdade (cadastro-motorista.js) e os dois apps (passageiro.js e motorista.js), com
+   mapa, GPS e as corridas passando de um celular para o outro. A conta fica salva no aparelho.
    Animações acontecem uma vez e param. */
 (function () {
   'use strict';
 
   const { $, $$, reduzirMovimento, brl } = window.Drink.util;
   const PIX = window.Drink.pix;
+  const R = window.Drink.rede;
   const app = $('#app');
   const abertura = $('#abertura');
   const meta = $('meta[name="theme-color"]');
@@ -119,7 +120,7 @@
 
   function irEn(nome, { anim = 'entra', foco = true } = {}) {
     fecharFolha(false);
-    esconderSms();
+    if (nome !== 'codigo') pararDeOuvir();
     const t = tela(nome);
     mostrar(t, anim);
     cor(nome === 'boas' ? COR.azul : COR.noite);
@@ -136,11 +137,7 @@
       $('#en-pix-chave').value = u && u.pix ? chaveNoCampo(u.pix) : '';
       ajustarCampoPix($('#en-pix-tipo'), $('#en-pix-chave'));
       $('#en-pix-erro').hidden = true;
-      $$('#en-docs li').forEach((li) => { li.classList.remove('vendo', 'ok'); $('em', li).textContent = 'pendente'; });
-      const bt = $('#en-verificar');
-      bt.disabled = false;
-      bt.textContent = 'Enviar documentos';
-      bt.dataset.app = 'verificar';
+      cadastro.desenhar();
     },
   };
 
@@ -251,12 +248,23 @@
     el.hidden = false;
   }
 
+  // como o código chega: SMS (com o Firebase ligado), notificação neste celular ou, sem nenhum dos dois, sem código
+  function jeitoDoCodigo() {
+    if (SMS.ativo()) return 'sms';
+    return ['ligado', 'desligado'].includes(AVISOS.estado()) ? 'notificacao' : 'nenhum';
+  }
   function comecarConta(modo) {
     fluxo.modo = modo;
+    const jeito = jeitoDoCodigo();
+    const como = { sms: 'um código por SMS', notificacao: 'um código por notificação neste celular', nenhum: '' }[jeito];
     $('#cel-t').textContent = modo === 'criar' ? 'Qual é o seu celular?' : 'Entra com o seu celular';
     $('#cel-sub').textContent = modo === 'criar'
-      ? 'A gente manda um código por SMS pra confirmar que é você.'
-      : 'O mesmo número do cadastro. A gente manda um código por SMS.';
+      ? (como ? `A gente manda ${como} pra confirmar que é você.` : 'É por ele que o motorista fala com você.')
+      : `O mesmo número do cadastro.${como ? ` A gente manda ${como}.` : ''}`;
+    $('#en-cel-nota').textContent = jeito === 'sms'
+      ? 'SMS de verdade, protegido pelo reCAPTCHA do Google.'
+      : 'O seu número só aparece para o motorista da sua corrida.';
+    celBt.textContent = jeito === 'nenhum' ? 'Continuar' : 'Receber código';
     cel.value = '';
     celBt.disabled = true;
     $('#en-cel-erro').hidden = true;
@@ -274,18 +282,29 @@
     if (d.length < 11) { mostrarErro('#en-cel-erro', 'Faltam números: é o DDD mais os 9 dígitos.'); cel.focus(); return; }
     if (!celularValido(d)) { mostrarErro('#en-cel-erro', 'Esse não parece um celular. Confere o DDD e o 9 do começo.'); cel.focus(); return; }
     fluxo.celular = d;
+    const jeito = jeitoDoCodigo();
+    if (jeito === 'nenhum') {
+      // sem SMS e sem notificação neste navegador: o número fica anotado, sem código de mentira
+      const estado = AVISOS.estado();
+      avisar(estado === 'instalar' ? 'Número anotado. Com o Drink instalado na tela de início, o código chega por notificação.'
+        : (estado === 'bloqueado' ? 'Número anotado. As notificações estão bloqueadas, então seguimos sem o código.' : 'Número anotado.'));
+      depoisDoCodigo();
+      return;
+    }
     irEn('codigo');
     enviarCodigo();
   });
 
-  // o código: por SMS de verdade (Firebase, 6 números) ou, sem o Firebase ligado, na própria tela (4 números)
+  // o código: por SMS de verdade (Firebase, 6 números) ou, sem o Firebase ligado, como notificação de verdade neste
+  // celular (4 números, pelo ntfy); com o app aberto, o código que chega já preenche as caixas
   const SMS = window.Drink.sms;
+  const AVISOS = window.Drink.avisos;
   const codIn = $('#en-cod-in');
   const codCaixa = $('#en-cod');
   const codBt = $('#en-cod-bt');
-  const sms = $('#en-sms');
   let caixas = $$('.en-cod-caixa', codCaixa);
   let tamanho = 4;
+  let ouvindo = null;
 
   function montarCaixas(n) {
     if (n === tamanho && caixas.length === n) return;
@@ -300,7 +319,6 @@
       codCaixa.appendChild(c);
     }
     caixas = $$('.en-cod-caixa', codCaixa);
-    $('#en-cod-qtd').textContent = `${n} números`;
   }
   function desenharCodigo() {
     const v = codIn.value;
@@ -311,22 +329,60 @@
     });
     codBt.disabled = v.length < tamanho || fluxo.conferindo;
   }
-  async function enviarCodigo() {
+  function pararDeOuvir() { if (ouvindo) { ouvindo.fechar(); ouvindo = null; } }
+  function mostrarSemCodigo() { $('#en-sem-codigo').hidden = false; }
+  function enviarCodigo() {
     const envio = (fluxo.envio || 0) + 1;
     fluxo.envio = envio;
-    $('#en-cel-txt').textContent = `+55 ${formatarCel(fluxo.celular)}`;
     codIn.value = '';
     codCaixa.classList.remove('certo', 'erro');
     $('#en-cod-erro').hidden = true;
+    $('#en-sem-codigo').hidden = true;
     montarCaixas(SMS.digitos());
     desenharCodigo();
-    if (!SMS.ativo()) {
-      // sem SMS de verdade: o código aparece na tela, como um SMS
-      fluxo.codigo = String(1000 + Math.floor(Math.random() * 9000));
-      agendar(mostrarSms, 1300);
-      contarReenvio(20);
+    const numero = `<b>+55 ${formatarCel(fluxo.celular)}</b>`;
+    if (SMS.ativo()) {
+      $('#cod-sub-txt').innerHTML = `Mandamos um SMS com ${tamanho} números para ${numero}.`;
+      enviarSms(envio);
       return;
     }
+    // notificação: a permissão é pedida aqui, ainda dentro do toque (o iPhone só pergunta assim)
+    const pedido = AVISOS.pedir();
+    fluxo.codigo = String(1000 + Math.floor(Math.random() * 9000));
+    $('#cod-sub-txt').innerHTML = `Mandamos ${tamanho} números por notificação para este celular (${numero}).`;
+    contarReenvio(30);
+    ouvirCodigo(envio);
+    pedido.then(async (estado) => {
+      if (fluxo.envio !== envio) return;
+      if (estado !== 'ligado') {
+        pararDeOuvir();
+        avisar('Sem a permissão de notificações, seguimos sem o código.');
+        depoisDoCodigo();
+        return;
+      }
+      let foi = false;
+      try { foi = await AVISOS.codigo(fluxo.codigo); } catch (e) { foi = false; }
+      if (fluxo.envio !== envio) return;
+      if (!foi) {
+        mostrarErro('#en-cod-erro', 'Não deu pra mandar a notificação agora. Confere a internet e toca em Reenviar código.');
+        contarReenvio(0);
+        mostrarSemCodigo();
+      }
+    });
+    agendar(() => { if (fluxo.envio === envio && !codCaixa.classList.contains('certo')) mostrarSemCodigo(); }, 40000);
+  }
+  // com o app aberto, a mesma mensagem que vira notificação chega aqui e preenche o código
+  function ouvirCodigo(envio) {
+    pararDeOuvir();
+    ouvindo = R.canal.assinar([AVISOS.topicoCodigo()], (msg) => {
+      if (fluxo.envio !== envio || !msg || msg.tipo !== 'codigo' || String(msg.codigo) !== fluxo.codigo) return;
+      if (codCaixa.classList.contains('certo')) return;
+      codIn.value = fluxo.codigo;
+      desenharCodigo();
+      conferir();
+    }, { desde: String(Math.floor(Date.now() / 1000) - 5) });
+  }
+  async function enviarSms(envio) {
     fluxo.codigo = '';
     contarReenvio(60);
     try {
@@ -337,18 +393,6 @@
       mostrarErro('#en-cod-erro', SMS.explicar(e));
       contarReenvio(0);
     }
-  }
-  function mostrarSms() {
-    $('#en-sms-cod').textContent = fluxo.codigo;
-    sms.classList.remove('saindo');
-    sms.hidden = false;
-    agendar(esconderSms, 9000);
-  }
-  function esconderSms() {
-    if (sms.hidden || sms.classList.contains('saindo')) return;
-    if (reduzirMovimento()) { sms.hidden = true; return; }
-    sms.classList.add('saindo');
-    setTimeout(() => { sms.hidden = true; sms.classList.remove('saindo'); }, 300);
   }
   let reenvio = 0;
   function contarReenvio(seg) {
@@ -366,14 +410,15 @@
     codCaixa.classList.add('certo');
     codBt.disabled = true;
     codIn.blur();
-    esconderSms();
+    pararDeOuvir();
+    if (!SMS.ativo()) AVISOS.definir('codigo', []);
     agendar(depoisDoCodigo, 600);
   }
   function codigoErrado(motivo) {
     codCaixa.classList.remove('erro');
     void codCaixa.offsetWidth;
     codCaixa.classList.add('erro');
-    mostrarErro('#en-cod-erro', motivo || 'Código errado. Confere no SMS e tenta de novo.');
+    mostrarErro('#en-cod-erro', motivo || (SMS.ativo() ? 'Código errado. Confere no SMS e tenta de novo.' : 'Código errado. Confere na notificação e tenta de novo.'));
     const errado = codIn.value;
     agendar(() => { if (codIn.value === errado) { codIn.value = ''; desenharCodigo(); } }, 450);
   }
@@ -408,16 +453,12 @@
   codIn.addEventListener('focus', () => codCaixa.classList.add('foco'));
   codIn.addEventListener('blur', () => codCaixa.classList.remove('foco'));
   $('#form-cod').addEventListener('submit', (e) => { e.preventDefault(); conferir(); });
-  function usarSms() {
-    if (SMS.ativo()) return;
-    codCaixa.classList.remove('erro');
-    $('#en-cod-erro').hidden = true;
-    codIn.value = fluxo.codigo;
-    desenharCodigo();
-    esconderSms();
-    conferir();
+  function seguirSemCodigo() {
+    pararDeOuvir();
+    AVISOS.definir('codigo', []);
+    avisar('Tudo bem: o número ficou anotado sem o código.');
+    depoisDoCodigo();
   }
-  if (SMS.ativo()) $('#en-cel-nota').textContent = 'A gente manda um SMS de verdade com o código. Protegido pelo reCAPTCHA do Google.';
 
   function depoisDoCodigo() {
     const conta = banco.usuarios[fluxo.celular];
@@ -470,16 +511,23 @@
   let origemCadastro = 'papel';
   let veiculoCadastro = 'bike';
 
+  // o cadastro de motorista completo e conferido; quem se cadastrou antes completa o que falta
+  const podeDirigir = (u) => Boolean(u && u.motoristaOk && cadastro.completo(u));
+  function pedirCadastro(u, anim) {
+    origemCadastro = 'papel';
+    irEn('mot-cad', { anim });
+    if (u.motoristaOk) avisar('O cadastro de motorista agora pede o seu rosto e os documentos. Completa o que falta para voltar a dirigir.');
+  }
   function entrarNoApp(u, anim) {
     if (!u.papel) { $('#en-ok-txt').textContent = `Oi, ${primeiro(u)}`; irEn('papel', { anim }); return; }
-    if (u.papel === 'motorista' && !u.motoristaOk) { origemCadastro = 'papel'; irEn('mot-cad', { anim }); return; }
+    if (u.papel === 'motorista' && !podeDirigir(u)) { pedirCadastro(u, anim); return; }
     if (u.papel === 'motorista') abrirMotorista(anim); else abrirPassageiro(anim);
   }
 
   function escolherPapel(papel) {
     const u = eu();
     if (!u) { irEn('boas'); return; }
-    if (papel === 'motorista' && !u.motoristaOk) { origemCadastro = 'papel'; irEn('mot-cad'); return; }
+    if (papel === 'motorista' && !podeDirigir(u)) { pedirCadastro(u); return; }
     u.papel = papel;
     salvar();
     entrarNoApp(u, 'entra');
@@ -491,40 +539,25 @@
     $$('[data-veiculo]').forEach((b) => b.setAttribute('aria-checked', String(b.dataset.veiculo === v)));
   }
 
-  function verificar() {
-    const pix = lerPix('#en-pix-tipo', '#en-pix-chave', '#en-pix-erro');
-    if (!pix) return;
-    const u = eu();
-    if (u) { u.pix = pix; salvar(); }
-    const bt = $('#en-verificar');
-    const itens = $$('#en-docs li');
-    const passo = 520;
-    bt.disabled = true;
-    bt.textContent = 'Verificando os documentos';
-    itens.forEach((li, i) => {
-      agendar(() => { li.classList.add('vendo'); $('em', li).textContent = 'verificando'; }, i * passo);
-      agendar(() => { li.classList.add('ok'); $('em', li).textContent = 'aprovado'; }, i * passo + passo);
-    });
-    agendar(() => {
-      bt.disabled = false;
-      bt.textContent = 'Começar a dirigir';
-      bt.dataset.app = 'dirigir';
-      avisar('Documentos aprovados na hora: essa parte ainda é de mentirinha.');
-    }, itens.length * passo + 250);
-  }
-
   function comecarADirigir() {
     const u = eu();
     if (!u) { irEn('boas'); return; }
+    u.veiculo = veiculoCadastro;
     const pix = lerPix('#en-pix-tipo', '#en-pix-chave', '#en-pix-erro');
-    if (!pix) return;
+    if (!pix) { salvar(); return; }
     u.pix = pix;
+    salvar();
+    const falta = cadastro.faltando(u);
+    if (falta.length) {
+      cadastro.desenhar();
+      avisar(`Antes de dirigir, ${falta.length > 1 ? 'faltam' : 'falta'} ${falta.join(', ').replace(/, ([^,]*)$/, ' e $1')}.`);
+      return;
+    }
     u.motoristaOk = true;
     u.papel = 'motorista';
-    u.veiculo = veiculoCadastro;
     salvar();
     abrirMotorista('entra');
-    avisar(`Bem na hora, ${primeiro(u)}! Fica online quando quiser.`);
+    avisar(`Cadastro completo, ${primeiro(u)}! Fica online quando quiser.`);
   }
 
   /* ---------- os dois apps ---------- */
@@ -587,7 +620,11 @@
     const nome = [u.nome, u.sobrenome].filter(Boolean).join(' ');
     $$('[data-en-nome]').forEach((el) => { el.textContent = nome; });
     $$('[data-en-primeiro]').forEach((el) => { el.textContent = primeiro(u); });
-    $$('[data-en-iniciais]').forEach((el) => { el.textContent = iniciais(nome); });
+    $$('[data-en-iniciais]').forEach((el) => {
+      el.textContent = iniciais(nome);
+      el.style.backgroundImage = u.selfie ? `url("${u.selfie}")` : '';
+      el.classList.toggle('com-foto', Boolean(u.selfie));
+    });
     $$('[data-en-fone]').forEach((el) => { el.textContent = `+55 ${formatarCel(u.celular)}`; });
     if (u.dia !== hoje()) { u.dia = hoje(); u.ganhos = 0; u.viagens = 0; salvar(); }
     $$('[data-en-ganhos]').forEach((el) => { el.textContent = brl(u.ganhos || 0); });
@@ -633,7 +670,7 @@
     const u = eu();
     if (!u) return;
     if (passageiro && passageiro.corridaAtiva()) { avisar('Termina a sua volta antes de trocar de modo.'); return; }
-    if (u.motoristaOk) {
+    if (podeDirigir(u)) {
       u.papel = 'motorista';
       salvar();
       abrirMotorista('entra');
@@ -744,6 +781,9 @@
   }
   veu.addEventListener('click', () => fecharFolha());
 
+  /* ---------- cadastro de motorista: selfie, documentos e treino ---------- */
+  const cadastro = window.Drink.cadastroMotorista.criar({ eu, salvar, avisar, abrirFolha, fecharFolha });
+
   /* ---------- instalar na tela de início ---------- */
   let pedidoInstalar = null;
   const instalado = () => window.matchMedia('(display-mode: standalone)').matches
@@ -783,9 +823,9 @@
     entrar: () => comecarConta('entrar'),
     voltar: () => voltar(),
     reenviar: () => { enviarCodigo(); avisar('Código novo a caminho.'); },
-    'usar-sms': usarSms,
+    'sem-codigo': seguirSemCodigo,
     papel: (b) => escolherPapel(b.dataset.papel),
-    verificar,
+    doc: (b) => cadastro.abrirDoc(b.dataset.doc, b),
     dirigir: comecarADirigir,
     'virar-motorista': virarMotorista,
     'virar-passageiro': virarPassageiro,
@@ -812,7 +852,6 @@
   /* ---------- voltar (o botão do Android, o gesto e o do navegador) ---------- */
   function voltar() {
     if (folha) { fecharFolha(); return true; }
-    if (!sms.hidden) esconderSms();
     const en = vista && vista.dataset.en;
     if (en === 'celular') { irEn('boas', { anim: 'volta' }); return true; }
     if (en === 'codigo' || en === 'nome') { irEn('celular', { anim: 'volta' }); return true; }
@@ -870,6 +909,8 @@
     return;
   }
   const u = eu();
+  // voltas de teste de versões antigas do app não contam mais
+  if (u && Array.isArray(u.voltas) && u.voltas.some((v) => v.simulada)) { u.voltas = u.voltas.filter((v) => !v.simulada); salvar(); }
   const pedidoPapel = busca.get('papel');
   if (u && (pedidoPapel === 'passageiro' || pedidoPapel === 'motorista')) {
     u.papel = pedidoPapel;

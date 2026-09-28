@@ -1,7 +1,6 @@
 /* Drink — o app do passageiro, de verdade: GPS e mapa reais, busca de endereço, rota e preço calculados,
    pedido para os motoristas online, o Drink chegando no mapa, código conferido entre os dois celulares,
-   chat, viagem ao vivo com link para a família e pagamento por Pix direto para o motorista.
-   Sem motorista por perto, dá para ver tudo funcionando com um motorista simulado. */
+   chat, viagem ao vivo com link para a família e pagamento por Pix direto para o motorista. */
 (function () {
   'use strict';
 
@@ -10,6 +9,7 @@
   const R = window.Drink.rede;
   const Mapa = window.Drink.mapa;
   const PIX = window.Drink.pix;
+  const CARROS = window.Drink.carros;
 
   const PRAZO_BUSCA = 3 * 60 * 1000;
   const VEICULOS = { qualquer: 'Tanto faz', bike: 'Bike', patinete: 'Patinete' };
@@ -21,8 +21,17 @@
   const redondo = (v, c = 2) => Math.round(v * 10 ** c) / 10 ** c;
   const iniciais = (nome) => String(nome || '').replace(/\(.*?\)/g, '').split(' ').filter(Boolean).map((p) => p[0]).join('').slice(0, 2).toUpperCase() || 'DR';
   const primeiroNome = (nome) => String(nome || '').trim().split(' ')[0] || 'O Drink';
+  // o avatar do motorista: o rosto dele (a selfie do cadastro) ou as iniciais
+  function rosto(el, m) {
+    el.textContent = iniciais(m.nome);
+    el.style.backgroundImage = m.foto ? `url("${m.foto}")` : '';
+    el.classList.toggle('com-foto', Boolean(m.foto));
+  }
   const nomeCurto = (u) => [u.nome, u.sobrenome ? `${u.sobrenome.trim()[0]}.` : ''].filter(Boolean).join(' ');
   const digitos = (s) => String(s).replace(/\D/g, '');
+  // o carro com placa de verdade; sem placa (conta antiga), o app pede antes da primeira corrida
+  const carroPronto = (c) => Boolean(c && c.modelo && c.cor && CARROS.placa.valida(CARROS.placa.limpar(c.placa)));
+  const nomeCarro = (c) => `${c.modelo} ${c.cor}`;
   // o que chega pela rede só vale se tiver a forma certa
   const ponto = (p) => Boolean(p) && Number.isFinite(p.lat) && Number.isFinite(p.lon) && Math.abs(p.lat) <= 90 && Math.abs(p.lon) <= 180;
 
@@ -51,10 +60,9 @@
     let onlineTimer = 0;
     let corrida = null;
     let privada = null;
-    let canal = R.canal;
+    const canal = R.canal;
     let assinatura = null;
     let fila = Promise.resolve();
-    let robo = null;
     let timers = [];
     let rastreioTimer = 0;
     let gpsNegado = false;
@@ -67,7 +75,7 @@
     function garantirMapa() {
       if (mapa) return mapa;
       mapa = Mapa.criar(q('#mapa-p'), { centro: pos || S.BH, zoom: 15 });
-      mapa.mapa.on('moveend', () => { if (atual === 'no-mapa') lerMeio(); });
+      mapa.aoMover(() => { if (atual === 'no-mapa') lerMeio(); });
       return mapa;
     }
     function ligarGps() {
@@ -91,7 +99,7 @@
         if (mapa && !(corrida && corrida.etapa === 'viagem')) mapa.ponto('voce', p, Mapa.ICONE.voce());
         if (primeira && atual === 'inicio') { centrarEmMim(); desenharAtalhos(); }
         if (!corrida) atualizarEmbarque();
-        if (corrida && corrida.etapa === 'viagem' && !corrida.simulada) andarNaViagem(p);
+        if (corrida && corrida.etapa === 'viagem') andarNaViagem(p);
       });
     }
     // o embarque é onde você está (o nome da rua vem do endereço mais perto), ou o lugar que você escolheu
@@ -132,7 +140,6 @@
 
     /* ---------- Drinks online por perto ---------- */
     async function lerOnline() {
-      if (!canal.real && corrida) return;
       try {
         const lista = await R.canal.ler(R.topico.online(), '11m');
         const ultimos = new Map();
@@ -146,7 +153,7 @@
         if (!vivos.length) txt.textContent = 'Nenhum Drink online agora';
         else txt.textContent = `${vivos.length} ${vivos.length === 1 ? 'Drink online' : 'Drinks online'} agora`;
         q('#rp-online').classList.toggle('vazio', !vivos.length);
-        if (mapa && atual === 'inicio') mapa.online(vivos.map((o) => o.p).filter(ponto));
+        if (mapa && atual === 'inicio') mapa.online(vivos.filter((o) => ponto(o.p)).map((o) => ({ lat: o.p.lat, lon: o.p.lon, veic: o.veic, id: o.d })));
       } catch (e) {
         q('#rp-online-txt').textContent = 'Sem conexão com a central';
         q('#rp-online').classList.add('vazio');
@@ -351,7 +358,7 @@
       q('#rp-op-t').textContent = [destino.nome, destino.bairro && destino.bairro !== destino.nome ? destino.bairro : ''].filter(Boolean).join(' · ');
       q('#rp-op-rota').textContent = 'Calculando a rota…';
       q('#rp-op-veic').textContent = VEICULOS[veic];
-      q('#rp-op-carro').textContent = u.carro ? `${u.carro.modelo} ${u.carro.cor} · ${u.carro.cambio}` : 'Cadastrar';
+      q('#rp-op-carro').textContent = carroPronto(u.carro) ? `${nomeCarro(u.carro)} · ${CARROS.placa.formatar(u.carro.placa)}` : (u.carro ? 'Falta a placa' : 'Cadastrar');
       const bt = q('#rp-pedir');
       bt.disabled = true;
       bt.textContent = 'Pedir Drink';
@@ -388,12 +395,12 @@
     const avisos = () => window.Drink.avisos;
     // aviso curto no celular do motorista (só em corrida de verdade, depois que ele aceitou)
     function avisarMotorista(tipo) {
-      if (corrida && !corrida.simulada && corrida.motorista) avisos().mandar(R.topico.aviso(corrida.id, 'm'), tipo);
+      if (corrida && corrida.motorista) avisos().mandar(R.topico.aviso(corrida.id, 'm'), tipo);
     }
     function salvarCorrida() {
       const u = eu();
       if (!u) return;
-      if (corrida && !corrida.simulada) u.corrida = corrida;
+      if (corrida) u.corrida = corrida;
       else delete u.corrida;
       op.salvar();
     }
@@ -422,17 +429,22 @@
       }
     }
 
-    async function pedir(simulada) {
+    async function pedir() {
       const u = eu();
-      if (!simulada) op.pedirNotificacao();
+      op.pedirNotificacao();
       if (!R.cifraPronta) { op.avisar('Esse navegador não tem a proteção que o Drink usa. Tenta no Chrome ou no Safari atualizados.'); return; }
-      if (!u.carro) { abrirFolha('rp-carro'); q('#rp-carro-erro').hidden = false; q('#rp-carro-erro').textContent = 'Antes de pedir, conta qual é o seu carro.'; return; }
+      if (!carroPronto(u.carro)) {
+        abrirFolha('rp-carro');
+        q('#rp-carro-erro').hidden = false;
+        q('#rp-carro-erro').textContent = u.carro ? 'Falta a placa do seu carro: é por ela que o Drink acha ele na rua.' : 'Antes de pedir, conta qual é o seu carro e a placa dele.';
+        return;
+      }
       if (!rota || !embarque || !destino) { op.avisar('Espera a rota aparecer no mapa e toca de novo.'); return; }
       const par = await R.novoPar();
       const agora = Date.now();
       const p = S.preco(rota.km);
       corrida = {
-        id: R.idAleatorio(), t0: agora, etapa: 'buscando', simulada: Boolean(simulada),
+        id: R.idAleatorio(), t0: agora, etapa: 'buscando',
         embarque: { ...embarque }, destino: { ...destino }, km: redondo(rota.km, 1), min: Math.round(rota.min), linha: rota.linha,
         valor: redondo(p.total), saida: p.saida, rodado: redondo(p.rodado), adicional: redondo(p.adicional),
         veic, carro: { ...u.carro },
@@ -442,7 +454,6 @@
         nota: 0, tags: [], gorjeta: 0, cobranca: null, paguei: false, compartilhada: false,
       };
       privada = par.privada;
-      canal = simulada ? R.memoria() : R.canal;
       salvarCorrida();
       assinarCorrida();
       const pedido = {
@@ -453,20 +464,17 @@
         fecho: await R.resumo(corrida.segredo),
       };
       ir('buscando');
-      q('#rp-bu-sub').textContent = simulada
-        ? 'Simulação: um motorista de mentirinha vai aceitar e fazer o caminho de verdade no mapa.'
-        : `O pedido foi para os Drinks online perto ${embarque.bairro ? `de ${embarque.bairro}` : 'de você'}.`;
+      q('#rp-bu-sub').textContent = `O pedido foi para os Drinks online perto ${embarque.bairro ? `de ${embarque.bairro}` : 'de você'}.`;
       try {
         await canal.publicar(R.topico.pedidos(), pedido);
       } catch (e) {
         encerrar();
         ir('ninguem');
         q('#rp-ni-t').textContent = 'Sem conexão com a central';
-        q('#rp-ni-sub').textContent = 'O pedido não saiu do seu celular. Confere a internet e tenta de novo, ou testa com um motorista simulado.';
+        q('#rp-ni-sub').textContent = 'O pedido não saiu do seu celular. Confere a internet e tenta de novo.';
         return;
       }
-      if (simulada) robo = window.Drink.robo.motorista(canal, { pedido, codigo: corrida.codigo });
-      else avisos().definir('passageiro', [R.topico.aviso(corrida.id, 'p')]);
+      avisos().definir('passageiro', [R.topico.aviso(corrida.id, 'p')]);
       contarPrazo(agora + PRAZO_BUSCA);
     }
     function contarPrazo(ate) {
@@ -487,21 +495,19 @@
       encerrar();
       ir('ninguem');
       q('#rp-ni-t').textContent = 'Nenhum Drink aceitou agora';
-      q('#rp-ni-sub').textContent = 'Pode ser que ninguém esteja online perto de você. Tenta de novo daqui a pouco, ou vê o app funcionando com um motorista simulado.';
+      q('#rp-ni-sub').textContent = 'Pode ser que ninguém esteja online perto de você agora. Tenta de novo daqui a pouco.';
     }
     function publicarFechado() {
-      if (!corrida || corrida.simulada) return;
+      if (!corrida) return;
       R.canal.publicar(R.topico.fechados(), { v: 1, tipo: 'fechado', id: corrida.id, segredo: corrida.segredo }).catch(() => {});
     }
     function encerrar() {
-      if (corrida && !corrida.simulada) avisos().definir('passageiro', []);
+      if (corrida) avisos().definir('passageiro', []);
       limparTimers();
       clearInterval(rastreioTimer);
       if (assinatura) { assinatura.fechar(); assinatura = null; }
-      if (robo) { robo.parar(); robo = null; }
       corrida = null;
       privada = null;
-      canal = R.canal;
       salvarCorrida();
       if (mapa) { mapa.tirar('motorista'); mapa.tirar('carro'); }
     }
@@ -531,7 +537,7 @@
           const m = msg.motorista || {};
           c.motorista = {
             pub: k, nome: String(m.nome || 'Motorista').slice(0, 40), nota: Number(m.nota) || 0,
-            corridas: Number(m.corridas) || 0, veiculo: m.veiculo === 'patinete' ? 'patinete' : 'bike', teste: Boolean(m.teste),
+            corridas: Number(m.corridas) || 0, veiculo: m.veiculo === 'patinete' ? 'patinete' : 'bike',
           };
           c.chave = chave;
           c.pos = ponto(msg.pos) ? { lat: msg.pos.lat, lon: msg.pos.lon } : null;
@@ -554,8 +560,7 @@
         case 'pos':
           if (!ponto(msg)) return;
           c.pos = { lat: msg.lat, lon: msg.lon, t: Date.now() };
-          if (c.etapa === 'viagem' && c.simulada) andarNaViagem(c.pos);
-          else if (atual === 'caminho') atualizarChegando();
+          if (atual === 'caminho') atualizarChegando();
           break;
         case 'etapa':
           if (msg.etapa === 'chegou' && ['a-caminho'].includes(c.etapa)) {
@@ -597,8 +602,27 @@
           const px = msg.pix;
           const pix = px && typeof px.chave === 'string' && px.chave.length <= 77
             ? { chave: px.chave, nome: String(px.nome || '').slice(0, 60), cidade: String(px.cidade || '').slice(0, 30) } : null;
-          c.cobranca = { pix, simulado: Boolean(msg.simulado) };
+          c.cobranca = { pix };
           if (atual === 'pix') mostrarPix();
+          break;
+        }
+        case 'foto': {
+          // o rosto do motorista chega em pedaços; só vale uma foto JPEG pequena
+          const i = Number(msg.i);
+          const n = Number(msg.n);
+          if (!c.motorista || !Number.isInteger(i) || !Number.isInteger(n) || n < 1 || n > 12 || i < 0 || i >= n) return;
+          if (typeof msg.parte !== 'string' || msg.parte.length > 2600 || !/^[A-Za-z0-9+/=]*$/.test(msg.parte)) return;
+          if (c.fotoN !== n) { c.fotoN = n; c.fotoPartes = {}; }
+          c.fotoPartes[i] = msg.parte;
+          if (Object.keys(c.fotoPartes).length < n) return;
+          const b64 = Array.from({ length: n }, (_, k) => c.fotoPartes[k]).join('');
+          delete c.fotoPartes;
+          delete c.fotoN;
+          if (!b64.startsWith('/9j/') || b64.length > 31000) return;
+          c.motorista.foto = `data:image/jpeg;base64,${b64}`;
+          if (atual === 'caminho') mostrarCaminho();
+          else if (atual === 'viagem') rosto(q('#rp-via-av'), c.motorista);
+          rosto(q('#rp-chat-av'), c.motorista);
           break;
         }
         case 'recebido':
@@ -627,16 +651,16 @@
       const m = c.motorista;
       const nome = primeiroNome(m.nome);
       q('#rp-cam-t').textContent = c.etapa === 'chegou' ? `${nome} chegou` : `${nome} está a caminho`;
-      q('#rp-mot-av').textContent = iniciais(m.nome);
+      rosto(q('#rp-mot-av'), m);
       q('#rp-mot-nome').textContent = m.nome;
-      q('#rp-mot-info').textContent = `${m.nota ? S.virgula(m.nota) : 'novo no Drink'} · ${veiculoTxt(m.veiculo)}${m.teste ? ' · simulado' : ''}`;
+      q('#rp-mot-info').textContent = `${m.nota ? S.virgula(m.nota) : 'novo no Drink'} · ${veiculoTxt(m.veiculo)}`;
       q('#rp-mot-veic').setAttribute('href', m.veiculo === 'patinete' ? '#i-patinete' : '#i-bike');
       q('#rp-codigo').textContent = c.codigo.split('').join(' ');
       q('#rp-codigo-txt').textContent = c.etapa === 'chegou'
         ? `Fala esse código pro ${nome}. Quando ele digitar no app, o seu celular confere e aí você entrega a chave.`
         : 'Fala esse código pro motorista quando ele chegar. Ele digita no app e o seu celular confere se é ele mesmo.';
       q('#rp-chat-t').textContent = m.nome;
-      q('#rp-chat-av').textContent = iniciais(m.nome);
+      rosto(q('#rp-chat-av'), m);
       q('#rp-nova-msg').hidden = !c.novaMsg;
       mapa.limpar();
       mapa.ponto('embarque', c.embarque, Mapa.ICONE.embarque());
@@ -686,13 +710,13 @@
       const m = c.motorista || { nome: 'O Drink', veiculo: 'bike' };
       q('#rp-via-dest').textContent = c.destino.nome;
       q('#rp-via-nome').textContent = primeiroNome(m.nome);
-      q('#rp-via-av').textContent = iniciais(m.nome);
+      rosto(q('#rp-via-av'), m);
       q('#rp-via-veic').textContent = m.veiculo === 'patinete' ? 'o patinete' : 'a bike';
       q('#rp-vivo').textContent = c.compartilhada ? 'Ao vivo · compartilhada' : 'Ao vivo';
       mapa.limpar();
       mapa.rota(c.linha);
       mapa.ponto('destino', c.destino, Mapa.ICONE.destino());
-      const aqui = c.simulada ? c.pos : (pos || c.pos);
+      const aqui = pos || c.pos;
       mapa.enquadrar([aqui || c.embarque, c.destino]);
       andarNaViagem(aqui || c.embarque);
       if (c.compartilhada) ligarRastreio();
@@ -782,7 +806,6 @@
     function htmlRecibo(v) {
       let h = linhaRecibo('Saída', brl(v.saida)) + linhaRecibo(`${S.virgula(v.km)} km rodados`, brl(v.rodado));
       if (v.adicional) h += linhaRecibo('Bandeira 2 (+20%)', brl(v.adicional));
-      h += linhaRecibo('Seguro da viagem', 'incluso');
       if (v.gorjeta) h += linhaRecibo('Gorjeta', brl(v.gorjeta));
       h += linhaRecibo(`Total · ${v.pag || 'Pix'}`, brl(v.total), 't-total');
       return h;
@@ -833,8 +856,8 @@
         qr.innerHTML = '<p class="rt-qr-espera">Esperando a chave Pix do motorista…</p>';
         q('#rp-pix-para').textContent = `Assim que o ${primeiroNome(nome)} mandar, o QR code aparece aqui.`;
         copiarBt.disabled = true;
-      } else if (c.cobranca.simulado || !c.cobranca.pix || !c.cobranca.pix.chave) {
-        qr.innerHTML = '<p class="rt-qr-espera rt-qr-sim"><b>Simulação</b>Nenhum dinheiro de verdade. Numa corrida real, aqui aparece o QR code do Pix do motorista.</p>';
+      } else if (!c.cobranca.pix || !c.cobranca.pix.chave) {
+        qr.innerHTML = '<p class="rt-qr-espera">O motorista não mandou uma chave Pix válida. Pede a chave pela mensagem.</p>';
         q('#rp-pix-para').textContent = `Para ${nome}`;
         copiarBt.disabled = true;
       } else {
@@ -876,15 +899,14 @@
         id: c.id, rota: `${c.embarque.bairro || c.embarque.nome} → ${c.destino.bairro || c.destino.nome}`,
         data: new Date(c.chegada || Date.now()).toISOString(), km: c.km, motorista: c.motorista ? c.motorista.nome : 'Drink',
         pag: 'Pix', saida: c.saida, rodado: c.rodado, adicional: c.adicional, gorjeta: c.gorjeta, total: totalAtual(),
-        nota: c.nota, simulada: c.simulada, destino: { nome: c.destino.nome, bairro: c.destino.bairro, detalhe: c.destino.detalhe, lat: c.destino.lat, lon: c.destino.lon },
+        nota: c.nota, destino: { nome: c.destino.nome, bairro: c.destino.bairro, detalhe: c.destino.detalhe, lat: c.destino.lat, lon: c.destino.lon },
       };
       u.voltas = [v, ...(u.voltas || [])].slice(0, 100);
       op.salvar();
       embarqueManual = false;
       destino = null;
-      const simulada = c.simulada;
       encerrar();
-      op.avisar(simulada ? 'Simulação concluída. O recibo de teste ficou em Viagens.' : 'Pago! O recibo ficou salvo em Viagens.');
+      op.avisar('Pago! O recibo ficou salvo em Viagens.');
       ir('viagens');
     }
 
@@ -945,7 +967,7 @@
         const quando = d.toLocaleDateString('pt-BR', { weekday: 'short', day: 'numeric', month: 'short' }).replace('.', '');
         return `<li${i === 0 && Date.now() - d.getTime() < 60000 ? ' class="novo"' : ''}><button type="button" data-volta="${i}">`
           + '<span class="d-hist-ic" aria-hidden="true"><svg><use href="#i-rota"/></svg></span>'
-          + `<span><b>${esc(v.rota)}</b><small>${esc(quando)}, ${esc(hhmm(d))} · ${esc(v.motorista)}${v.simulada ? ' · teste' : ''}</small></span><em>${esc(brl(v.total))}</em></button></li>`;
+          + `<span><b>${esc(v.rota)}</b><small>${esc(quando)}, ${esc(hhmm(d))} · ${esc(v.motorista)}</small></span><em>${esc(brl(v.total))}</em></button></li>`;
       }).join('');
     }
     function desenharCarteira() {
@@ -957,8 +979,11 @@
     }
     function desenharPerfil() {
       const u = eu();
-      q('#rp-carro-t').textContent = u.carro ? `${u.carro.modelo} ${u.carro.cor}` : 'Cadastra o seu carro';
-      q('#rp-carro-sub').textContent = u.carro ? `${u.carro.cambio}${u.carro.placa ? ` · placa ${u.carro.placa}` : ''}` : 'Modelo, cor e câmbio, pro Drink achar ele';
+      q('#rp-carro-t').textContent = u.carro ? nomeCarro(u.carro) : 'Cadastra o seu carro';
+      q('#rp-carro-sub').textContent = u.carro
+        ? [u.carro.marca, `câmbio ${u.carro.cambio}`].filter(Boolean).join(' · ') + (carroPronto(u.carro) ? '' : ' · falta a placa')
+        : 'Modelo, cor, placa e câmbio, pro Drink achar ele';
+      q('#rp-carro-placa-mini').innerHTML = carroPronto(u.carro) ? CARROS.placa.html(u.carro.placa) : '';
       const locais = u.locais || {};
       const item = (tipo, icone, titulo) => {
         const l = locais[tipo];
@@ -979,9 +1004,13 @@
       if (id === 'rp-chat') { if (corrida) corrida.novaMsg = false; q('#rp-nova-msg').hidden = true; desenharChat(); }
       if (id === 'rp-carro') {
         const c = eu().carro || {};
-        q('#rp-carro-modelo').value = c.modelo || '';
-        q('#rp-carro-cor').value = c.cor || '';
-        q('#rp-carro-placa').value = c.placa || '';
+        const modelo = q('#rp-carro-modelo');
+        modelo.value = c.modelo || '';
+        modelo.dataset.marca = c.marca || '';
+        q('#rp-carro-sug').hidden = true;
+        q('#rp-carro-cores').innerHTML = CARROS.CORES.map(([nome, hex]) => `<button type="button" role="radio" aria-checked="${nome === c.cor}" data-cor="${nome}" style="--cor:${hex}"><i aria-hidden="true"></i><span>${nome}</span></button>`).join('');
+        q('#rp-carro-placa').value = c.placa ? CARROS.placa.formatar(CARROS.placa.limpar(c.placa)) : '';
+        mostrarPlaca();
         $$('#rp-carro [data-cambio]', raiz).forEach((b) => b.setAttribute('aria-checked', String(b.dataset.cambio === (c.cambio || 'automático'))));
         q('#rp-carro-erro').hidden = true;
       }
@@ -1020,6 +1049,16 @@
       }
       if (ds.gorjeta) { corrida.gorjeta = Number(ds.gorjeta); desenharAvaliacao(); salvarCorrida(); return; }
       if (ds.cambio) { $$('#rp-carro [data-cambio]', raiz).forEach((x) => x.setAttribute('aria-checked', String(x === b))); return; }
+      if (ds.cor) { $$('#rp-carro [data-cor]', raiz).forEach((x) => x.setAttribute('aria-checked', String(x === b))); q('#rp-carro-erro').hidden = true; return; }
+      if (ds.carroSug !== undefined) {
+        const c = sugestoes[Number(ds.carroSug)];
+        if (!c) return;
+        const modelo = q('#rp-carro-modelo');
+        modelo.value = c.modelo;
+        modelo.dataset.marca = c.marca;
+        q('#rp-carro-sug').hidden = true;
+        return;
+      }
       if (ds.rapida) { mandarMsg(ds.rapida); return; }
       if (ds.volta) {
         const v = eu().voltas[Number(ds.volta)];
@@ -1049,7 +1088,6 @@
         'confirmar-no-mapa': () => { if (meioLugar) escolherLugar(meioLugar); },
         cancelar,
         tentar: () => ir('opcoes'),
-        simular: () => pedir(true),
         compartilhar: () => { if (corrida) abrirCompartilhar(); },
         'compartilhar-outro': () => {
           if (!corrida) return;
@@ -1078,8 +1116,8 @@
           q('#rp-op-chega').textContent = veic === 'qualquer' ? 'bike ou patinete' : (veic === 'bike' ? 'bike elétrica' : 'patinete elétrico');
           break;
         }
-        case 'rp-op-pag': op.avisar('Você paga com Pix direto pro motorista, quando chegar. Cartão ainda não.'); break;
-        case 'rp-pedir': pedir(false); break;
+        case 'rp-op-pag': op.avisar('Você paga com Pix direto pro motorista, pelo app do seu banco, quando chegar em casa.'); break;
+        case 'rp-pedir': pedir(); break;
         case 'rp-pagar': irPagar(); break;
         default:
       }
@@ -1092,21 +1130,49 @@
       mandarMsg(campo.value);
       campo.value = '';
     });
+    // o modelo: sugestões da lista de carros enquanto digita
+    let sugestoes = [];
+    q('#rp-carro-modelo').addEventListener('input', () => {
+      const campo = q('#rp-carro-modelo');
+      campo.dataset.marca = '';
+      sugestoes = CARROS.buscar(campo.value);
+      const lista = q('#rp-carro-sug');
+      lista.hidden = !sugestoes.length || Boolean(CARROS.achar(campo.value) && sugestoes.length === 1);
+      lista.innerHTML = sugestoes.map((c, i) => `<li><button type="button" data-carro-sug="${i}"><b>${esc(c.modelo)}</b><small>${esc(c.marca)}</small></button></li>`).join('');
+      q('#rp-carro-erro').hidden = true;
+    });
+    // a placa aparece desenhada enquanto digita
+    function mostrarPlaca() {
+      const p = CARROS.placa.limpar(q('#rp-carro-placa').value);
+      q('#rp-carro-placa-ver').innerHTML = CARROS.placa.previa(p);
+    }
+    q('#rp-carro-placa').addEventListener('input', () => {
+      const campo = q('#rp-carro-placa');
+      const p = CARROS.placa.limpar(campo.value);
+      campo.value = p.length === 7 ? CARROS.placa.formatar(p) : p;
+      mostrarPlaca();
+      q('#rp-carro-erro').hidden = true;
+    });
     q('#rp-carro-form').addEventListener('submit', (e) => {
       e.preventDefault();
-      const modelo = q('#rp-carro-modelo').value.trim();
-      const cor = q('#rp-carro-cor').value.trim().toLowerCase();
-      const placa = q('#rp-carro-placa').value.trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
-      const cambio = ($('#rp-carro [aria-checked="true"]', raiz) || {}).dataset?.cambio || 'automático';
+      const campo = q('#rp-carro-modelo');
+      const texto = campo.value.trim().replace(/\s+/g, ' ');
+      const achado = CARROS.achar(texto);
+      const marca = campo.dataset.marca || (achado && achado.marca) || '';
+      const modelo = achado ? achado.modelo : texto;
+      const cor = (($('#rp-carro [data-cor][aria-checked="true"]', raiz) || {}).dataset || {}).cor || '';
+      const conferida = CARROS.placa.conferir(q('#rp-carro-placa').value);
+      const cambio = (($('#rp-carro [data-cambio][aria-checked="true"]', raiz) || {}).dataset || {}).cambio || 'automático';
       const erro = q('#rp-carro-erro');
-      if (modelo.length < 2) { erro.hidden = false; erro.textContent = 'Qual é o modelo? Onix, HB20, Corolla…'; return; }
-      if (cor.length < 3) { erro.hidden = false; erro.textContent = 'E a cor do carro?'; return; }
-      if (placa && !/^[A-Z]{3}\d[A-Z0-9]\d{2}$/.test(placa)) { erro.hidden = false; erro.textContent = 'A placa parece incompleta. Pode deixar em branco.'; return; }
-      eu().carro = { modelo: modelo[0].toUpperCase() + modelo.slice(1), cor, placa, cambio };
+      const falha = (txt, foco) => { erro.hidden = false; erro.textContent = txt; if (foco) foco.focus(); };
+      if (modelo.length < 2) { falha('Qual é o modelo do carro? Onix, HB20, Corolla…', campo); return; }
+      if (!cor) { falha('Escolhe a cor do carro.'); return; }
+      if (conferida.erro) { falha(conferida.erro, q('#rp-carro-placa')); return; }
+      eu().carro = { marca, modelo: modelo[0].toUpperCase() + modelo.slice(1), cor, placa: conferida.placa, cambio };
       op.salvar();
       fecharFolha();
-      op.avisar('Carro salvo.');
-      if (atual === 'opcoes') q('#rp-op-carro').textContent = `${eu().carro.modelo} ${cor} · ${cambio}`;
+      op.avisar(`Carro salvo: ${nomeCarro(eu().carro)}, placa ${CARROS.placa.formatar(conferida.placa)}.`);
+      if (atual === 'opcoes') mostrarOpcoes();
       if (atual === 'perfil') desenharPerfil();
     });
     q('#rp-contato-form').addEventListener('submit', (e) => {
@@ -1135,7 +1201,6 @@
         if (c.simulada || Date.now() - c.t0 > 6 * 3600000) { delete u.corrida; op.salvar(); }
         else {
           corrida = c;
-          canal = R.canal;
           destino = c.destino;
           embarque = c.embarque;
           assinarCorrida();

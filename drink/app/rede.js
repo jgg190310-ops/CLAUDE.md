@@ -1,7 +1,7 @@
 /* Drink — a rede entre os celulares. Pedidos e mensagens passam pelo ntfy (serviço aberto de mensagens);
    o pedido público só diz o bairro e o valor. Tudo da corrida (endereço exato, nome, chat, posição, código)
    vai cifrado de ponta a ponta: passageiro e motorista combinam uma chave (ECDH P-256 + AES-GCM) que o
-   servidor nunca vê. Na simulação, as mensagens ficam na memória do próprio aparelho. */
+   servidor nunca vê. */
 (function () {
   'use strict';
 
@@ -133,27 +133,6 @@
     };
   }
 
-  /* ---------- memória (simulação no próprio aparelho) ---------- */
-  function memoria() {
-    const subs = new Set();
-    let seq = 0;
-    return {
-      real: false,
-      async publicar(topico, obj) {
-        const m = { id: `sim${(seq += 1)}`, topic: topico, time: Math.floor(Date.now() / 1000) };
-        const copia = JSON.stringify(obj);
-        setTimeout(() => subs.forEach((s) => { if (s.topicos.includes(topico)) s.f(JSON.parse(copia), m); }), 40);
-        return m;
-      },
-      assinar(topicos, f) {
-        const s = { topicos, f };
-        subs.add(s);
-        return { fechar() { subs.delete(s); }, ultimo: () => null };
-      },
-      async ler() { return []; },
-    };
-  }
-
   const canal = ntfy(cfg.ntfy);
   const topico = {
     pedidos: () => `${cfg.sala}-pedidos`,
@@ -167,7 +146,7 @@
   };
 
   window.Drink.rede = {
-    canal, memoria, topico, idAleatorio, cifraPronta,
+    canal, topico, idAleatorio, cifraPronta,
     novoPar, importarPrivada, chaveComum, novaChave, cifrar, decifrar, resumo,
   };
 }());
