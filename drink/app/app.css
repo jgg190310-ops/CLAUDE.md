@@ -952,6 +952,13 @@ body {
 .rm-simular { margin-top: .8em; font-size: .86em; }
 .rm-vi-pular { align-self: center; margin: 0 0 .7em; font-size: .86em; }
 
+/* ---------- letras mínimas ---------- */
+/* de noite, depois de beber, letra miúda some: o que diz o que é o código, "ver a conta" e as abas não ficam
+   abaixo de uns 10px, mesmo no celular pequeno (em tela maior, fica o tamanho de sempre) */
+.app .d-codigo small { font-size: max(.5em, 9.5px); letter-spacing: .1em; }
+.app .rt-ver-conta { font-size: max(.62em, 10px); }
+.app .d-abas button { font-size: max(.68em, 10.5px); }
+
 /* ---------- seus dados ---------- */
 .en-dados-form { display: grid; gap: .7em; }
 .en-dados-nota { margin: -.3em 0 0; font-size: .76em; color: var(--a-texto-2); }
