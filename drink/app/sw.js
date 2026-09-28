@@ -1,13 +1,13 @@
 /* Drink — o service worker do app. Guarda o app no aparelho para abrir sem internet e mostra os avisos
    (pedido novo, motorista chegou, mensagem…) que chegam pelo ntfy mesmo com o app fechado.
    Com internet, tudo vem da rede primeiro: o celular sempre usa a versão mais nova do app. */
-const VERSAO = 'drink-app-3';
+const VERSAO = 'drink-app-4';
 const FONTES = 'drink-fontes-1';
-const V = '?v=3';
+const V = '?v=4';
 const ARQUIVOS = [
   './', 'manifest.webmanifest',
-  ...['app.css', 'app.js', 'servicos.js', 'rede.js', 'mapa.js', 'pix.js', 'robo.js', 'avisos.js', 'sms.js',
-    'passageiro.js', 'motorista.js', 'vendor/leaflet.js', 'vendor/leaflet.css', 'vendor/qrcode.js',
+  ...['app.css', 'app.js', 'servicos.js', 'rede.js', 'mapa-estilo.js', 'mapa.js', 'carros.js', 'cadastro-motorista.js', 'pix.js', 'avisos.js', 'sms.js',
+    'passageiro.js', 'motorista.js', 'vendor/maplibre-gl.js', 'vendor/maplibre-gl.css', 'vendor/leaflet.js', 'vendor/leaflet.css', 'vendor/qrcode.js',
     '../app-telas.css', '../app-nucleo.js'].map((a) => a + V),
   '../icon.svg', '../icon-180.png', '../icon-192.png', '../icon-512.png',
   'icone-maskable-192.png', 'icone-maskable-512.png',
@@ -78,7 +78,11 @@ async function mostrarAviso(dados) {
   } else if (dados && dados.message) {
     let corpo = null;
     try { corpo = JSON.parse(dados.message.message); } catch (e) { corpo = null; }
-    if (corpo && corpo.tipo === 'pedido') {
+    if (corpo && corpo.tipo === 'codigo' && /^\d{4,6}$/.test(String(corpo.codigo))) {
+      titulo = 'Drink';
+      texto = `Seu código é ${corpo.codigo}. Não passe para ninguém.`;
+      tag = 'drink-codigo';
+    } else if (corpo && corpo.tipo === 'pedido') {
       titulo = 'Pedido novo no Drink';
       texto = `${bairro(corpo.de)} → ${bairro(corpo.para)} · ${reais(corpo.valor)}`;
       tag = 'drink-pedido';

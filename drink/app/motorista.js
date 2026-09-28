@@ -1,7 +1,6 @@
 /* Drink — o app do motorista, de verdade: fica online com o GPS, recebe os pedidos dos passageiros,
    aceita, vai até o embarque com o Google Maps ou o Waze, confere o código no celular do passageiro,
-   fotografa o carro com a câmera, dobra a bike, leva o passageiro e recebe pelo Pix na própria chave.
-   Sem ninguém pedindo, dá para testar com um passageiro simulado. */
+   fotografa o carro com a câmera, dobra a bike, leva o passageiro e recebe pelo Pix na própria chave. */
 (function () {
   'use strict';
 
@@ -9,6 +8,7 @@
   const S = window.Drink.servicos;
   const R = window.Drink.rede;
   const Mapa = window.Drink.mapa;
+  const CARROS = window.Drink.carros;
 
   const GUIA = [
     'Abre o porta-malas e estende a capa protetora.',
@@ -55,7 +55,7 @@
     let corrida = null;
     let assCorrida = null;
     let fila = Promise.resolve();
-    let canalCorrida = R.canal;
+    const canalCorrida = R.canal;
     let presencaTimer = 0;
     let limpezaTimer = 0;
     let posTimer = 0;
@@ -65,7 +65,6 @@
     let passo = 0;
     let fotos = [];
     let timers = [];
-    let robo = null;
     let vistosNoMapa = '';
 
     const agendar = (fn, ms) => { timers.push(setTimeout(fn, ms)); };
@@ -143,9 +142,10 @@
         q('#rm-cod').classList.remove('erro', 'certo');
         q('#rm-cod-erro').hidden = true;
         desenharCodigo();
-        const dica = q('#rm-cod-dica');
-        dica.hidden = !(corrida && corrida.teste && corrida.dicaCodigo);
-        if (!dica.hidden) $('span', dica).textContent = `Pedido de teste: o código da passageira simulada é ${corrida.dicaCodigo}.`;
+        const carro = (corrida && corrida.carro) || {};
+        q('#rm-co-carro').innerHTML = carro.modelo
+          ? `<span>Antes de pegar a chave, confere o carro: <b>${esc([carro.marca, carro.modelo, carro.cor].filter(Boolean).join(' '))}</b></span>${CARROS.placa.valida(carro.placa || '') ? CARROS.placa.html(carro.placa) : ''}`
+          : '';
         q('#rm-co-t').textContent = `Pede o código ${corrida ? `pra ${primeiroNome(corrida.passageiro.nome)}` : ''}`.trim();
         setTimeout(() => campo.focus({ preventScroll: true }), 60);
       },
@@ -210,8 +210,8 @@
     }
     function ouvirPedidos() {
       if (assPedidos) return;
-      pedidos = new Map([...pedidos].filter(([, p]) => p.teste));
-      assPedidos = R.canal.assinar([R.topico.pedidos(), R.topico.fechados()], (msg) => receberPedido(msg, R.canal), { desde: '4m' });
+      pedidos = new Map();
+      assPedidos = R.canal.assinar([R.topico.pedidos(), R.topico.fechados()], (msg) => receberPedido(msg), { desde: '4m' });
     }
     function pararPedidos() {
       if (assPedidos) { assPedidos.fechar(); assPedidos = null; }
@@ -249,14 +249,14 @@
       }
       if (atual === 'online') desenharPedidos();
     }
-    function receberPedido(recebido, canal) {
+    function receberPedido(recebido) {
       if (!recebido || recebido.v !== 1) return;
       if (recebido.tipo === 'fechado') { if (typeof recebido.id === 'string') fecharPedido(recebido); return; }
       const msg = recebido.tipo === 'pedido' ? limparPedido(recebido) : null;
       if (!msg || Date.now() > msg.expira || pedidos.has(msg.id)) return;
       const u = eu();
       if (msg.veic !== 'qualquer' && msg.veic !== (u.veiculo || 'bike')) return;
-      pedidos.set(msg.id, { ...msg, canal, chegou: Date.now() });
+      pedidos.set(msg.id, { ...msg, chegou: Date.now() });
       if (!corrida && !aceito) {
         tocar();
         op.notificar('Pedido novo no Drink', `${msg.de.bairro} → ${msg.para.bairro} · ${brl(msg.valor)}`, 'drink-pedido');
@@ -272,15 +272,15 @@
       q('#rm-pedidos').innerHTML = lista.map((p) => {
         const perto = pos ? S.textoKm((S.distancia(pos, p.de) * 1.3) / 1000) : '';
         const seg = Math.max(0, Math.round((p.expira - agora) / 1000));
-        return `<li class="rm-pedido${p.teste ? ' teste' : ''}">
+        return `<li class="rm-pedido">
           <div class="rm-ped-topo"><b>${esc(p.de.bairro)} → ${esc(p.para.bairro)}</b><em>${esc(brl(p.valor))}</em></div>
-          <p>${perto ? `${perto} de você · ` : ''}viagem de ${esc(S.textoKm(p.km))} · câmbio ${esc(p.cambio || 'automático')}${p.teste ? ' · <b>teste</b>' : ''}</p>
+          <p>${perto ? `${perto} de você · ` : ''}viagem de ${esc(S.textoKm(p.km))} · câmbio ${esc(p.cambio || 'automático')}</p>
           <p class="rm-ped-prazo">${seg > 60 ? `aberto por mais ${Math.ceil(seg / 60)} min` : 'fechando'}</p>
           <button type="button" class="t-botao" data-aceitar="${esc(p.id)}">Aceitar</button>
         </li>`;
       }).join('');
       if (mapa && atual === 'online') {
-        mapa.online(lista.map((p) => p.de));
+        mapa.pedidos(lista.map((p) => ({ lat: p.de.lat, lon: p.de.lon, id: p.id })));
         // pedido novo: o mapa abre para mostrar de onde ele veio
         const ids = lista.map((p) => p.id).join();
         if (ids && ids !== vistosNoMapa && pos) mapa.enquadrar([pos, ...lista.map((p) => p.de)], { maxZoom: 15 });
@@ -297,19 +297,16 @@
       const par = await R.novoPar();
       const chave = await R.chaveComum(par.privada, p.pub);
       aceito = { id, pedido: p, priv: par.priv, pub: par.pub, chave, t: Date.now() };
-      canalCorrida = p.canal || R.canal;
       assinarCorrida(id, String(Math.floor(Date.now() / 1000) - 5));
       ir('aguardando');
       q('#rm-ag-sub').textContent = `Você aceitou ${p.de.bairro} → ${p.para.bairro}. Assim que o passageiro confirmar, aparece o endereço.`;
       await enviar({
         tipo: 'aceite',
-        motorista: { nome: nomeCurto(u), nota: nota(u), corridas: u.totalCorridas || 0, veiculo: u.veiculo || 'bike' },
+        motorista: { nome: nomeCurto(u), nota: nota(u), corridas: u.totalCorridas || 0, veiculo: u.veiculo || 'bike', foto: Boolean(u.selfieEnvio) },
         pos: pos ? { lat: pos.lat, lon: pos.lon } : null,
       });
-      if (!p.teste) {
-        avisos().mandar(R.topico.aviso(id, 'p'), 'aceite');
-        avisos().definir('motorista', [R.topico.aviso(id, 'm')]);
-      }
+      avisos().mandar(R.topico.aviso(id, 'p'), 'aceite');
+      avisos().definir('motorista', [R.topico.aviso(id, 'm')]);
       agendar(() => {
         if (aceito && aceito.id === id && !corrida) { desistir(); op.avisar('O passageiro não confirmou. Voltando pros pedidos.'); }
       }, 60000);
@@ -327,7 +324,7 @@
     const avisos = () => window.Drink.avisos;
     // aviso curto no celular do passageiro (só em corrida de verdade)
     function avisarPassageiro(tipo) {
-      if (corrida && !corrida.teste) avisos().mandar(R.topico.aviso(corrida.id, 'p'), tipo);
+      if (corrida) avisos().mandar(R.topico.aviso(corrida.id, 'p'), tipo);
     }
     function assinarCorrida(id, desde) {
       if (assCorrida) assCorrida.fechar();
@@ -349,7 +346,7 @@
     }
     function salvarCorrida() {
       const u = eu();
-      if (corrida && !corrida.teste) u.corridaMotorista = corrida;
+      if (corrida) u.corridaMotorista = corrida;
       else delete u.corridaMotorista;
       op.salvar();
     }
@@ -369,13 +366,16 @@
           if (!aceito || corrida || !ponto(msg.embarque) || !ponto(msg.destino)) return;
           const p = aceito.pedido;
           corrida = {
-            id: aceito.id, pub: aceito.pub, priv: aceito.priv, chave: aceito.chave, teste: Boolean(p.teste), t0: Date.now(),
+            id: aceito.id, pub: aceito.pub, priv: aceito.priv, chave: aceito.chave, t0: Date.now(),
             etapa: 'buscar', passageiro: { nome: String((msg.passageiro && msg.passageiro.nome) || 'Passageiro').slice(0, 40) },
             embarque: { lat: msg.embarque.lat, lon: msg.embarque.lon, nome: texto(msg.embarque.nome, 80) || 'Embarque', bairro: texto(msg.embarque.bairro) },
             destino: { lat: msg.destino.lat, lon: msg.destino.lon, nome: texto(msg.destino.nome, 80) || 'Destino', bairro: texto(msg.destino.bairro) },
-            carro: msg.carro && typeof msg.carro === 'object' ? { modelo: texto(msg.carro.modelo, 30), cor: texto(msg.carro.cor, 20), placa: texto(msg.carro.placa, 8), cambio: texto(msg.carro.cambio, 12) } : {},
+            carro: msg.carro && typeof msg.carro === 'object' ? {
+              marca: texto(msg.carro.marca, 20), modelo: texto(msg.carro.modelo, 40), cor: texto(msg.carro.cor, 20),
+              placa: CARROS.placa.limpar(texto(msg.carro.placa, 8)), cambio: texto(msg.carro.cambio, 12),
+            } : {},
             valor: numero(msg.valor) && msg.valor > 0 ? msg.valor : p.valor, km: numero(msg.km) && msg.km > 0 ? msg.km : p.km,
-            dicaCodigo: p.teste ? texto(String(msg.dicaCodigo || ''), 4) : null, msgs: [], fotos: 0, avaliacao: null, paguei: false, ultimo: null,
+            msgs: [], fotos: 0, avaliacao: null, paguei: false, ultimo: null,
           };
           aceito = null;
           limparTimers();
@@ -383,6 +383,7 @@
           salvarCorrida();
           tocar();
           op.notificar('Corrida confirmada', `Vá até ${corrida.embarque.nome}.`);
+          mandarFoto();
           ir('buscar');
           enviarPosicao(true);
           clearInterval(posTimer);
@@ -434,6 +435,19 @@
         default:
       }
     }
+    // o rosto do motorista vai para o passageiro confirmado, cifrado, em pedaços (cada mensagem do ntfy tem limite)
+    async function mandarFoto() {
+      const foto = eu().selfieEnvio;
+      const c = corrida;
+      if (!foto || !c || !/^data:image\/jpeg;base64,/.test(foto)) return;
+      const dados = foto.slice(foto.indexOf(',') + 1);
+      const PEDACO = 2400;
+      const n = Math.ceil(dados.length / PEDACO);
+      if (n > 12) return;
+      for (let i = 0; i < n && corrida === c; i += 1) {
+        await enviar({ tipo: 'foto', i, n, parte: dados.slice(i * PEDACO, (i + 1) * PEDACO) });
+      }
+    }
     function enviarPosicao(forcar) {
       if (!corrida || corrida.etapa !== 'buscar' || !pos) return;
       if (!forcar && ultimaPosEnviada && (S.distancia(pos, ultimaPosEnviada) < 80 || Date.now() - ultimaPosEnviada.t < 20000)) return;
@@ -442,15 +456,13 @@
       if (atual === 'buscar' && mapa) mapa.ponto('eu', pos, Mapa.ICONE.motorista(eu().veiculo));
     }
     function encerrar() {
-      if (corrida && !corrida.teste) avisos().definir('motorista', online ? [R.topico.pedidos()] : []);
+      if (corrida) avisos().definir('motorista', online ? [R.topico.pedidos()] : []);
       clearInterval(posTimer);
       limparTimers();
       if (assCorrida) { assCorrida.fechar(); assCorrida = null; }
-      if (robo) { robo.parar(); robo = null; }
       corrida = null;
       aceito = null;
       fotos = [];
-      canalCorrida = R.canal;
       salvarCorrida();
     }
 
@@ -466,12 +478,13 @@
       const c = corrida;
       if (!c) return;
       const nome = primeiroNome(c.passageiro.nome);
-      q('#rm-bu-t').textContent = `Vá buscar ${c.teste ? 'a passageira de teste' : nome}`;
+      q('#rm-bu-t').textContent = `Vá buscar ${nome}`;
       q('#rm-bu-end').textContent = [c.embarque.nome, c.embarque.bairro].filter(Boolean).join(' · ');
       q('#rm-pa-av').textContent = iniciais(c.passageiro.nome);
       q('#rm-pa-nome').textContent = c.passageiro.nome;
       const carro = c.carro || {};
-      q('#rm-pa-carro').textContent = [carro.modelo, carro.cor, carro.placa, carro.cambio].filter(Boolean).join(' · ') || 'Carro do passageiro';
+      q('#rm-pa-carro').textContent = [[carro.modelo, carro.cor].filter(Boolean).join(' '), carro.cambio ? `câmbio ${carro.cambio}` : ''].filter(Boolean).join(' · ') || 'Carro do passageiro';
+      q('#rm-pa-placa').innerHTML = CARROS.placa.valida(carro.placa || '') ? CARROS.placa.html(carro.placa) : '';
       q('#rm-chat-t').textContent = c.passageiro.nome;
       q('#rm-chat-av').textContent = iniciais(c.passageiro.nome);
       const l = links(c.embarque, 'bicycling');
@@ -535,7 +548,7 @@
       });
     }
     function guardarFotos() {
-      if (!corrida || corrida.teste) return;
+      if (!corrida) return;
       try {
         const chave = `drink-vistoria-${corrida.id}`;
         localStorage.setItem(chave, JSON.stringify({ t: Date.now(), fotos }));
@@ -554,7 +567,7 @@
       const bt = q('#rm-vi-bt');
       bt.disabled = n < 5;
       bt.textContent = n < 5 ? `${n} de 5 fotos` : `Guardar ${eu().veiculo === 'patinete' ? 'o patinete' : 'a bike'}`;
-      q('#rm-vi-sub').textContent = n < 5 ? 'Tira as 5 fotos antes de dirigir. O passageiro acompanha no celular dele.' : 'Vistoria feita. O seguro da viagem começa a valer agora.';
+      q('#rm-vi-sub').textContent = n < 5 ? 'Tira as 5 fotos antes de dirigir. O passageiro acompanha no celular dele.' : 'Vistoria feita. As fotos ficam guardadas e mostram como o carro estava antes de sair.';
     }
     async function fotoTirada(input) {
       const i = Number(input.dataset.foto);
@@ -596,7 +609,7 @@
     async function mostrarViagem() {
       const c = corrida;
       if (!c) return;
-      q('#rm-vg-t').textContent = `Levando ${c.teste ? 'a passageira de teste' : primeiroNome(c.passageiro.nome)}`;
+      q('#rm-vg-t').textContent = `Levando ${primeiroNome(c.passageiro.nome)}`;
       q('#rm-vg-dest').textContent = [c.destino.nome, c.destino.bairro].filter(Boolean).join(' · ');
       const l = links(c.destino, 'driving');
       q('#rm-nav-g2').href = l.g;
@@ -624,7 +637,7 @@
     function cheguei() {
       const c = corrida;
       if (!c) return;
-      if (pos && S.distancia(pos, c.destino) > 1500 && !c.teste && !c.confirmouLonge) {
+      if (pos && S.distancia(pos, c.destino) > 1500 && !c.confirmouLonge) {
         c.confirmouLonge = true;
         op.avisar('O GPS diz que o destino ainda está longe. Toca de novo se chegou mesmo.');
         return;
@@ -633,9 +646,7 @@
       c.etapa = 'receber';
       enviar({ tipo: 'etapa', etapa: 'chegada', valor: c.valor });
       avisarPassageiro('chegada');
-      enviar(c.teste
-        ? { tipo: 'cobranca', simulado: true }
-        : { tipo: 'cobranca', pix: { chave: u.pix.chave, nome: [u.nome, u.sobrenome].filter(Boolean).join(' '), cidade: 'BELO HORIZONTE' } });
+      enviar({ tipo: 'cobranca', pix: { chave: u.pix.chave, nome: [u.nome, u.sobrenome].filter(Boolean).join(' '), cidade: 'BELO HORIZONTE' } });
       salvarCorrida();
       ir('receber');
     }
@@ -648,9 +659,7 @@
       const gorjeta = c.avaliacao ? c.avaliacao.gorjeta : 0;
       const total = redondo(c.valor + gorjeta);
       q('#rm-re-t').textContent = `Receber ${brl(total)}`;
-      q('#rm-re-sub').textContent = c.teste
-        ? 'Pedido de teste: nenhum dinheiro de verdade.'
-        : `${nome} paga pelo Pix direto na sua chave ${window.Drink.pix.mascarar(eu().pix.chave)}.`;
+      q('#rm-re-sub').textContent = `${nome} paga pelo Pix direto na sua chave ${window.Drink.pix.mascarar(eu().pix.chave)}.`;
       q('#rm-recibo').innerHTML = `<p><span>Corrida · ${esc(S.virgula(c.km))} km</span><b>${esc(brl(c.valor))}</b></p>${gorjeta ? `<p><span>Gorjeta</span><b>${esc(brl(gorjeta))}</b></p>` : ''}<p class="t-total"><span>Total</span><b>${esc(brl(total))}</b></p>`;
       const checks = $$('#rm-re-checks li', raiz);
       checks[0].classList.toggle('ok', Boolean(c.avaliacao));
@@ -667,19 +676,16 @@
       const gorjeta = c.avaliacao ? c.avaliacao.gorjeta : 0;
       const total = redondo(c.valor + gorjeta);
       enviar({ tipo: 'recebido' });
-      if (!c.teste) {
-        if (u.dia !== hoje()) { u.dia = hoje(); u.ganhos = 0; u.viagens = 0; }
-        u.ganhos = redondo((u.ganhos || 0) + total);
-        u.viagens = (u.viagens || 0) + 1;
-        u.totalCorridas = (u.totalCorridas || 0) + 1;
-        if (c.avaliacao && c.avaliacao.nota) u.avaliacoes = [...(u.avaliacoes || []), c.avaliacao.nota].slice(-100);
-        u.corridasFeitas = [{ id: c.id, data: new Date().toISOString(), rota: `${c.embarque.bairro || c.embarque.nome} → ${c.destino.bairro || c.destino.nome}`, total, km: c.km }, ...(u.corridasFeitas || [])].slice(0, 100);
-      }
-      const teste = c.teste;
+      if (u.dia !== hoje()) { u.dia = hoje(); u.ganhos = 0; u.viagens = 0; }
+      u.ganhos = redondo((u.ganhos || 0) + total);
+      u.viagens = (u.viagens || 0) + 1;
+      u.totalCorridas = (u.totalCorridas || 0) + 1;
+      if (c.avaliacao && c.avaliacao.nota) u.avaliacoes = [...(u.avaliacoes || []), c.avaliacao.nota].slice(-100);
+      u.corridasFeitas = [{ id: c.id, data: new Date().toISOString(), rota: `${c.embarque.bairro || c.embarque.nome} → ${c.destino.bairro || c.destino.nome}`, total, km: c.km }, ...(u.corridasFeitas || [])].slice(0, 100);
       encerrar();
       op.salvar();
       q('#rm-fim-t').textContent = `+ ${brl(total)}`;
-      q('#rm-fim-sub').textContent = teste ? 'Corrida de teste concluída. Não entra nos seus ganhos.' : 'Corrida concluída. O Pix foi direto pra sua conta.';
+      q('#rm-fim-sub').textContent = 'Corrida concluída. O Pix foi direto pra sua conta.';
       desenharGanhos();
       ir('fim');
     }
@@ -728,17 +734,6 @@
       folha = null;
     }
 
-    /* ---------- pedido de teste ---------- */
-    async function pedidoDeTeste() {
-      if (!pos) { op.avisar('Ainda não achei você no mapa.'); return; }
-      const canal = R.memoria();
-      const r = await window.Drink.robo.passageiro(canal, { perto: pos });
-      robo = r;
-      receberPedido(r.pedido, canal);
-      pedidos.get(r.pedido.id).teste = true;
-      desenharPedidos();
-    }
-
     /* ---------- toques ---------- */
     raiz.addEventListener('click', (e) => {
       if (e.target === veu) { fecharFolha(); return; }
@@ -753,7 +748,6 @@
         online: () => { if (online) { ouvirPedidos(); ir('online'); } else ficarOnline(); },
         offline: ficarOffline,
         centralizar: () => { if (pos) mapa.centrar(pos, 16); else op.avisar('Ainda não achei você no mapa.'); },
-        teste: pedidoDeTeste,
         desistir,
         cheguei: () => {
           if (!corrida) return;
@@ -812,7 +806,6 @@
         if (Date.now() - c.t0 > 6 * 3600000) { delete u.corridaMotorista; op.salvar(); }
         else {
           corrida = c;
-          canalCorrida = R.canal;
           ligarGps();
           avisos().definir('motorista', [R.topico.aviso(c.id, 'm')]);
           assinarCorrida(c.id, c.ultimo || String(Math.floor(c.t0 / 1000) - 5));
@@ -834,7 +827,7 @@
       return true;
     }
     function sair() {
-      if (corrida && !corrida.teste) enviar({ tipo: 'cancelado', motivo: 'motorista' });
+      if (corrida) enviar({ tipo: 'cancelado', motivo: 'motorista' });
       encerrar();
       ficarOffline();
       desligarGps();
