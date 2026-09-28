@@ -45,10 +45,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&display=swap">
-  <link rel="stylesheet" href="../app-telas.css?v=5">
-  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=5">
-  <link rel="stylesheet" href="vendor/leaflet.css?v=5">
-  <link rel="stylesheet" href="app.css?v=5">
+  <link rel="stylesheet" href="../app-telas.css?v=6">
+  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=6">
+  <link rel="stylesheet" href="vendor/leaflet.css?v=6">
+  <link rel="stylesheet" href="app.css?v=6">
 </head>
 <body>
 <svg class="sprite" aria-hidden="true" focusable="false">
@@ -415,11 +415,11 @@
           <div class="t-folha rt-folha">
             <h3 class="d-titulo" id="rp-op-t" tabindex="-1">Destino</h3>
             <p class="rt-rota" id="rp-op-rota">Calculando a rota…</p>
-            <div class="t-opcao">
+            <button type="button" class="t-opcao rt-opcao" data-rp-folha="rp-preco" aria-label="Ver como o preço é calculado">
               <svg class="t-opcao-ic" aria-hidden="true"><use href="#i-bike"/></svg>
               <div><b>Drink</b><span id="rp-op-chega">bike ou patinete</span></div>
-              <b class="t-preco"><span id="rp-op-preco">R$ 0,00</span><small id="rp-op-band" hidden>bandeira 2</small></b>
-            </div>
+              <b class="t-preco"><span id="rp-op-preco">R$ 0,00</span><small id="rp-op-band" hidden>bandeira 2</small><small class="rt-ver-conta">ver a conta</small></b>
+            </button>
             <ul class="d-linhas">
               <li><span>Embarque</span><button type="button" id="rp-op-emb" data-rp="trocar-embarque">Sua localização</button></li>
               <li><span>Chega de</span><button type="button" id="rp-op-veic">Tanto faz</button></li>
@@ -683,6 +683,20 @@
           </form>
         </section>
 
+        <section class="d-sobre" id="rp-preco" aria-labelledby="rp-preco-t" hidden>
+          <div class="d-sobre-cab">
+            <span class="d-sobre-ic" aria-hidden="true"><svg><use href="#i-carteira"/></svg></span>
+            <div><h4 id="rp-preco-t" tabindex="-1">Como o preço é feito</h4><small>Igual taxímetro, só que você vê antes de pedir</small></div>
+            <button type="button" class="d-fechar" data-rp-fechar aria-label="Fechar"><svg aria-hidden="true"><use href="#i-fechar"/></svg></button>
+          </div>
+          <div class="t-recibo" id="rp-preco-det"></div>
+          <ul class="rt-regras">
+            <li>Bike ou patinete custam o mesmo.</li>
+            <li id="rp-preco-espera">Espera: 10 min grátis depois que o Drink chega.</li>
+            <li>O Pix vai direto para o motorista, pelo app do seu banco. Gorjeta só se você quiser.</li>
+          </ul>
+        </section>
+
         <section class="d-sobre" id="rp-contato" aria-labelledby="rp-contato-t" hidden>
           <div class="d-sobre-cab">
             <span class="d-sobre-ic" aria-hidden="true"><svg><use href="#i-pessoas"/></svg></span>
@@ -780,6 +794,7 @@
             <h3 class="en-t" id="rm-co-t" tabindex="-1">Pede o código</h3>
             <p class="en-sub" id="rm-co-sub">O passageiro fala 4 números. Digita aqui: o celular dele confere se você é o Drink certo.</p>
             <p class="rm-co-carro" id="rm-co-carro"></p>
+            <p class="rm-espera" id="rm-espera" aria-live="polite"></p>
             <div class="en-cod" id="rm-cod">
               <input id="rm-cod-in" type="text" inputmode="numeric" autocomplete="off" maxlength="4" aria-label="Código de 4 números" aria-describedby="rm-co-sub rm-cod-erro">
               <span class="en-cod-caixa"></span><span class="en-cod-caixa"></span><span class="en-cod-caixa"></span><span class="en-cod-caixa"></span>
@@ -1050,21 +1065,21 @@
   </div>
 </div>
 
-<script src="vendor/maplibre-gl.js?v=5"></script>
-<script src="vendor/leaflet.js?v=5"></script>
-<script src="vendor/qrcode.js?v=5"></script>
-<script src="../app-nucleo.js?v=5"></script>
-<script src="servicos.js?v=5"></script>
-<script src="rede.js?v=5"></script>
-<script src="mapa-estilo.js?v=5"></script>
-<script src="mapa.js?v=5"></script>
-<script src="carros.js?v=5"></script>
-<script src="cadastro-motorista.js?v=5"></script>
-<script src="pix.js?v=5"></script>
-<script src="avisos.js?v=5"></script>
-<script src="sms.js?v=5"></script>
-<script src="passageiro.js?v=5"></script>
-<script src="motorista.js?v=5"></script>
-<script src="app.js?v=5"></script>
+<script src="vendor/maplibre-gl.js?v=6"></script>
+<script src="vendor/leaflet.js?v=6"></script>
+<script src="vendor/qrcode.js?v=6"></script>
+<script src="../app-nucleo.js?v=6"></script>
+<script src="servicos.js?v=6"></script>
+<script src="rede.js?v=6"></script>
+<script src="mapa-estilo.js?v=6"></script>
+<script src="mapa.js?v=6"></script>
+<script src="carros.js?v=6"></script>
+<script src="cadastro-motorista.js?v=6"></script>
+<script src="pix.js?v=6"></script>
+<script src="avisos.js?v=6"></script>
+<script src="sms.js?v=6"></script>
+<script src="passageiro.js?v=6"></script>
+<script src="motorista.js?v=6"></script>
+<script src="app.js?v=6"></script>
 </body>
 </html>

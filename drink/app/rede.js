@@ -74,12 +74,19 @@
         let ultimo = desde || null;
         let espera = 1000;
         let timer = 0;
+        let sinal = Date.now();
+        let escondidoEm = 0;
         const vistos = new Set();
+        const vivo = () => { sinal = Date.now(); };
         function abrir() {
           if (fechado) return;
           const q = ultimo ? `?since=${encodeURIComponent(ultimo)}` : '';
           fonte = new EventSource(`${raiz}/${topicos.join(',')}/sse${q}`);
+          vivo();
+          fonte.onopen = vivo;
+          fonte.addEventListener('keepalive', vivo);
           fonte.onmessage = (ev) => {
+            vivo();
             let m;
             try { m = JSON.parse(ev.data); } catch (e) { return; }
             if (m.event && m.event !== 'message') return;
@@ -100,20 +107,40 @@
             espera = Math.min(espera * 2, 15000);
           };
         }
-        // volta do segundo plano: reconecta na hora
+        // começa de novo de onde parou (o que chegou nesse meio-tempo vem junto)
+        function reabrir() {
+          if (fechado) return;
+          clearTimeout(timer);
+          if (fonte) fonte.close();
+          espera = 1000;
+          abrir();
+        }
+        // no iPhone, com a tela bloqueada ou o app em segundo plano, a conexão fica parada sem avisar:
+        // na volta, reconecta na hora
         const acordar = () => {
-          if (document.visibilityState === 'visible' && fonte && fonte.readyState === 2 && !fechado) { clearTimeout(timer); abrir(); }
+          if (fechado) return;
+          if (document.visibilityState === 'hidden') { escondidoEm = Date.now(); return; }
+          const longe = escondidoEm && Date.now() - escondidoEm > 8000;
+          escondidoEm = 0;
+          if (!fonte || fonte.readyState !== 1 || longe) reabrir();
         };
+        // o ntfy manda um sinal de vida a cada 45 s: sem nada por muito tempo, a conexão morreu
+        const vigia = setInterval(() => {
+          if (!fechado && document.visibilityState === 'visible' && Date.now() - sinal > 100000) reabrir();
+        }, 20000);
         document.addEventListener('visibilitychange', acordar);
-        window.addEventListener('online', acordar);
+        window.addEventListener('pageshow', acordar);
+        window.addEventListener('online', reabrir);
         abrir();
         return {
           fechar() {
             fechado = true;
             clearTimeout(timer);
+            clearInterval(vigia);
             if (fonte) fonte.close();
             document.removeEventListener('visibilitychange', acordar);
-            window.removeEventListener('online', acordar);
+            window.removeEventListener('pageshow', acordar);
+            window.removeEventListener('online', reabrir);
           },
           ultimo: () => ultimo,
         };
