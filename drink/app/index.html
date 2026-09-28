@@ -45,10 +45,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&display=swap">
-  <link rel="stylesheet" href="../app-telas.css?v=15">
-  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=15">
-  <link rel="stylesheet" href="vendor/leaflet.css?v=15">
-  <link rel="stylesheet" href="app.css?v=15">
+  <link rel="stylesheet" href="../app-telas.css?v=16">
+  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=16">
+  <link rel="stylesheet" href="vendor/leaflet.css?v=16">
+  <link rel="stylesheet" href="app.css?v=16">
 </head>
 <body>
 <svg class="sprite" aria-hidden="true" focusable="false">
@@ -162,6 +162,7 @@
     <symbol id="i-sair" viewBox="0 0 24 24"><path d="M14 4.5h4.5v15H14M10.5 8L6.5 12l4 4M6.5 12h9"/></symbol>
     <symbol id="i-trocar" viewBox="0 0 24 24"><path d="M5 8.5h13.5L15 5M19 15.5H5.5L9 19"/></symbol>
     <symbol id="i-ok" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.3l2.8 2.8L16.3 9.5"/></symbol>
+    <symbol id="i-email" viewBox="0 0 24 24"><rect x="3.5" y="5.5" width="17" height="13" rx="2"/><path d="M4 6.5l8 6.5 8-6.5"/></symbol>
 
     <!-- carro de lado, para a tela de boas-vindas -->
     <linearGradient id="farol-luz" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="#D2FF3C" stop-opacity=".75"/><stop offset="1" stop-color="#D2FF3C" stop-opacity="0"/></linearGradient>
@@ -608,6 +609,7 @@
             <li><button type="button" data-app="avisos"><svg aria-hidden="true"><use href="#i-sino"/></svg><span><b>Avisos no celular</b><small data-avisos>Toca para ligar</small></span></button></li>
             <li><button type="button" data-app="virar-motorista"><svg aria-hidden="true"><use href="#i-bike"/></svg><span><b>Quero dirigir com o Drink</b><small>Ganhe à noite com a sua bike ou patinete</small></span></button></li>
             <li data-instalar hidden><button type="button" data-app="instalar"><svg aria-hidden="true"><use href="#i-celular"/></svg><span><b>Instalar o app</b><small>Na tela de início, sem passar pela loja</small></span></button></li>
+            <li><button type="button" data-app="dados"><svg aria-hidden="true"><use href="#i-perfil"/></svg><span><b>Seus dados</b><small>Nome e e-mail dos recibos</small></span></button></li>
             <li><button type="button" data-app="termos"><svg aria-hidden="true"><use href="#i-escudo"/></svg><span><b>Termos e privacidade</b><small>As regras e o que o Drink faz com os seus dados</small></span></button></li>
             <li><button type="button" class="en-sair" data-app="sair"><svg aria-hidden="true"><use href="#i-sair"/></svg><span><b>Sair da conta</b><small>A conta continua salva neste aparelho</small></span></button></li>
             <li><button type="button" class="en-apagar" data-app="apagar"><svg aria-hidden="true"><use href="#i-lixo"/></svg><span><b>Apagar minha conta</b><small>Apaga a conta e tudo dela neste aparelho</small></span></button></li>
@@ -727,7 +729,8 @@
           <div class="t-recibo d-recibo-det" id="rp-rec-det"></div>
           <ul class="d-linhas rp-rec-info" id="rp-rec-info"></ul>
           <div class="rp-rec-bts" id="rp-rec-bts">
-            <button type="button" class="t-bt" data-rp="recibo-compartilhar"><svg aria-hidden="true"><use href="#i-compartilhar"/></svg>Compartilhar recibo</button>
+            <a class="t-bt" id="rp-rec-email" href="mailto:"><svg aria-hidden="true"><use href="#i-email"/></svg><span>Mandar por e-mail</span></a>
+            <button type="button" class="t-bt" data-rp="recibo-compartilhar"><svg aria-hidden="true"><use href="#i-compartilhar"/></svg>Compartilhar</button>
             <button type="button" class="t-botao" data-rp="recibo-de-novo">Ir para lá de novo</button>
           </div>
         </section>
@@ -997,6 +1000,7 @@
           <li><button type="button" data-app="avisos"><svg aria-hidden="true"><use href="#i-sino"/></svg><span><b>Avisos no celular</b><small data-avisos>Toca para ligar</small></span></button></li>
           <li><button type="button" data-app="virar-passageiro"><svg aria-hidden="true"><use href="#i-carro"/></svg><span><b>Pedir um Drink</b><small>Usar o app como passageiro</small></span></button></li>
           <li data-instalar hidden><button type="button" data-app="instalar"><svg aria-hidden="true"><use href="#i-celular"/></svg><span><b>Instalar o app</b><small>Na tela de início, sem passar pela loja</small></span></button></li>
+          <li><button type="button" data-app="dados"><svg aria-hidden="true"><use href="#i-perfil"/></svg><span><b>Seus dados</b><small>Nome e e-mail dos recibos</small></span></button></li>
           <li><button type="button" data-app="termos"><svg aria-hidden="true"><use href="#i-escudo"/></svg><span><b>Termos e privacidade</b><small>As regras e o que o Drink faz com os seus dados</small></span></button></li>
           <li><button type="button" class="en-sair" data-app="sair"><svg aria-hidden="true"><use href="#i-sair"/></svg><span><b>Sair da conta</b><small>A conta continua salva neste aparelho</small></span></button></li>
           <li><button type="button" class="en-apagar" data-app="apagar"><svg aria-hidden="true"><use href="#i-lixo"/></svg><span><b>Apagar minha conta</b><small>Apaga a conta e tudo dela neste aparelho</small></span></button></li>
@@ -1056,6 +1060,26 @@
           <h5>Seus direitos</h5>
           <p>Você vê e corrige os seus dados no próprio app. Em "Apagar minha conta", o app apaga a conta e tudo o que ela guardou neste aparelho. O que passou pelo ntfy estava cifrado e some sozinho em poucas horas.</p>
         </div>
+      </section>
+
+      <section class="d-sobre" id="en-dados" aria-labelledby="en-dados-t" hidden>
+        <div class="d-sobre-cab">
+          <span class="d-sobre-ic" aria-hidden="true"><svg><use href="#i-perfil"/></svg></span>
+          <div><h4 id="en-dados-t" tabindex="-1">Seus dados</h4><small>O que aparece para quem corre com você</small></div>
+          <button type="button" class="d-fechar" data-app="fechar" aria-label="Fechar"><svg aria-hidden="true"><use href="#i-fechar"/></svg></button>
+        </div>
+        <form class="en-dados-form" id="en-dados-form" novalidate>
+          <div class="en-duplo">
+            <label class="en-campo en-rot"><span>Nome</span><input id="en-dados-nome" autocomplete="given-name" autocapitalize="words" maxlength="30" aria-describedby="en-dados-erro"></label>
+            <label class="en-campo en-rot"><span>Sobrenome</span><input id="en-dados-sobrenome" autocomplete="family-name" autocapitalize="words" maxlength="40"></label>
+          </div>
+          <p class="en-dados-nota" id="en-dados-trava" hidden>Quem dirige usa o nome da CNH: é ele que o passageiro vê junto com o seu rosto.</p>
+          <label class="en-campo en-rot"><span>E-mail · para os recibos</span><input id="en-dados-email" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" maxlength="80" placeholder="voce@email.com" aria-describedby="en-dados-erro"></label>
+          <label class="en-campo en-rot"><span>Celular</span><input id="en-dados-cel" readonly aria-describedby="en-dados-cel-nota"></label>
+          <p class="en-dados-nota" id="en-dados-cel-nota">O celular é a sua conta. Para usar outro número, crie uma conta com ele.</p>
+          <p class="en-erro" id="en-dados-erro" role="alert" hidden></p>
+          <button type="submit" class="t-botao">Salvar</button>
+        </form>
       </section>
 
       <section class="d-sobre" id="en-apagar" aria-labelledby="en-apagar-t" hidden>
@@ -1171,21 +1195,21 @@
   </div>
 </div>
 
-<script src="vendor/maplibre-gl.js?v=15"></script>
-<script src="vendor/leaflet.js?v=15"></script>
-<script src="vendor/qrcode.js?v=15"></script>
-<script src="../app-nucleo.js?v=15"></script>
-<script src="servicos.js?v=15"></script>
-<script src="rede.js?v=15"></script>
-<script src="mapa-estilo.js?v=15"></script>
-<script src="mapa.js?v=15"></script>
-<script src="carros.js?v=15"></script>
-<script src="cadastro-motorista.js?v=15"></script>
-<script src="pix.js?v=15"></script>
-<script src="avisos.js?v=15"></script>
-<script src="sms.js?v=15"></script>
-<script src="passageiro.js?v=15"></script>
-<script src="motorista.js?v=15"></script>
-<script src="app.js?v=15"></script>
+<script src="vendor/maplibre-gl.js?v=16"></script>
+<script src="vendor/leaflet.js?v=16"></script>
+<script src="vendor/qrcode.js?v=16"></script>
+<script src="../app-nucleo.js?v=16"></script>
+<script src="servicos.js?v=16"></script>
+<script src="rede.js?v=16"></script>
+<script src="mapa-estilo.js?v=16"></script>
+<script src="mapa.js?v=16"></script>
+<script src="carros.js?v=16"></script>
+<script src="cadastro-motorista.js?v=16"></script>
+<script src="pix.js?v=16"></script>
+<script src="avisos.js?v=16"></script>
+<script src="sms.js?v=16"></script>
+<script src="passageiro.js?v=16"></script>
+<script src="motorista.js?v=16"></script>
+<script src="app.js?v=16"></script>
 </body>
 </html>

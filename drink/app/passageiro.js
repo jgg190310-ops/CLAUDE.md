@@ -980,6 +980,15 @@
       }
       copiar(texto, 'Recibo copiado. É só colar onde quiser.');
     }
+    // abre o app de e-mail do celular com o recibo pronto, já para o e-mail da conta (se tiver um)
+    function emailRecibo(v) {
+      const para = eu().email || '';
+      const assunto = `Recibo Drink · ${v.rota} · ${new Date(v.data).toLocaleDateString('pt-BR')}`;
+      const corpo = textoRecibo(v).replace(/\n/g, '\r\n');
+      const a = q('#rp-rec-email');
+      a.href = `mailto:${encodeURIComponent(para).replace(/%40/g, '@')}?subject=${encodeURIComponent(assunto)}&body=${encodeURIComponent(corpo)}`;
+      a.setAttribute('aria-label', para ? `Mandar o recibo para ${para}` : 'Mandar o recibo por e-mail');
+    }
     function totalAtual() { return redondo(corrida.valor + (corrida.espera || 0) + (corrida.gorjeta || 0)); }
     function mostrarChegada() {
       const c = corrida;
@@ -1243,6 +1252,7 @@
         q('#rp-rec-sub').textContent = `${v.rota} · ${new Date(v.data).toLocaleString('pt-BR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}`;
         q('#rp-rec-det').innerHTML = htmlRecibo(v);
         q('#rp-rec-info').innerHTML = infoRecibo(v);
+        emailRecibo(v);
         q('#rp-rec-bts [data-rp="recibo-de-novo"]').hidden = !(v.destino && ponto(v.destino));
         abrirFolha('rp-recibo-folha');
         return;
