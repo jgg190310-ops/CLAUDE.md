@@ -65,6 +65,7 @@
     mapa.touchZoomRotate.disableRotation();
     mapa.keyboard.disableRotation();
     el.classList.add('mapa-gl');
+    el.mapaGL = mapa;
     const creditos = document.createElement('p');
     creditos.className = 'mapa-creditos';
     creditos.innerHTML = CREDITOS;

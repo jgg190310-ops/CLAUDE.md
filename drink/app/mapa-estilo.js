@@ -26,12 +26,27 @@
     numero: '#5A6294',
     bar: '#D2FF3C',
     nomeBar: '#D9F58E',
+    // referências da cidade: praças e parques, hospitais, metrô e o resto (shopping, faculdade, estádio)
+    parque: '#58B27A',
+    nomeParque: '#8FD3A6',
+    hospital: '#FF6F8E',
+    nomeHospital: '#FFA3B8',
+    metro: '#7C98FF',
+    nomeMetro: '#AFC1FF',
+    lugar: '#A99BF0',
+    nomeLugar: '#C6BCF7',
   };
   const NOME = ['coalesce', ['get', 'name:pt'], ['get', 'name']];
   const FONTE = ['Noto Sans Regular'];
   const FONTE_B = ['Noto Sans Bold'];
   const FONTE_I = ['Noto Sans Italic'];
   const classe = (lista) => ['in', ['get', 'class'], ['literal', lista]];
+  // os lugares que ajudam a se achar à noite (nada de loja, restaurante ou ponto de ônibus, que poluem)
+  const REFERENCIA = ['any',
+    classe(['park', 'hospital', 'college', 'stadium', 'attraction', 'town_hall']),
+    ['all', classe(['railway']), ['in', ['get', 'subclass'], ['literal', ['station', 'subway', 'halt']]]],
+    ['all', classe(['shop']), ['==', ['get', 'subclass'], 'mall']]];
+  const corDoLugar = (parque, hospital, metro, outro) => ['match', ['get', 'class'], 'park', parque, 'hospital', hospital, 'railway', metro, outro];
   // largura das ruas: cresce com o zoom (valores em pixels, zoom do MapLibre)
   const largura = (pares) => ['interpolate', ['exponential', 1.5], ['zoom'], ...pares];
 
@@ -92,6 +107,40 @@
           id: 'numeros', type: 'symbol', source: 'omt', 'source-layer': 'housenumber', minzoom: 17.2,
           layout: { 'text-field': ['get', 'housenumber'], 'text-font': FONTE, 'text-size': 10, 'text-padding': 2 },
           paint: { 'text-color': COR.numero, 'text-halo-color': COR.chao, 'text-halo-width': 1 },
+        },
+        // referências: ponto pequeno colorido e o nome, abaixo dos bares (que têm a prioridade)
+        {
+          id: 'nome-parques', type: 'symbol', source: 'omt', 'source-layer': 'park', minzoom: 14,
+          filter: ['has', 'name'],
+          layout: {
+            'text-field': NOME, 'text-font': FONTE_I, 'text-size': ['interpolate', ['linear'], ['zoom'], 14, 10.5, 17, 12.5], 'text-max-width': 8, 'text-padding': 10,
+            'symbol-sort-key': ['coalesce', ['get', 'rank'], 99],
+          },
+          paint: { 'text-color': COR.nomeParque, 'text-halo-color': COR.chao, 'text-halo-width': 1.4 },
+        },
+        {
+          id: 'lugares', type: 'circle', source: 'omt', 'source-layer': 'poi', minzoom: 14.5, filter: REFERENCIA,
+          paint: {
+            'circle-color': corDoLugar(COR.parque, COR.hospital, COR.metro, COR.lugar), 'circle-radius': ['interpolate', ['linear'], ['zoom'], 14.5, 2, 18, 4],
+            'circle-stroke-color': COR.chao, 'circle-stroke-width': 1.2, 'circle-opacity': ['interpolate', ['linear'], ['zoom'], 14.5, 0, 15, 1], 'circle-stroke-opacity': ['interpolate', ['linear'], ['zoom'], 14.5, 0, 15, 1],
+          },
+        },
+        {
+          id: 'nome-lugares', type: 'symbol', source: 'omt', 'source-layer': 'poi', minzoom: 15, filter: ['all', REFERENCIA, ['has', 'name'], ['!=', ['get', 'class'], 'hospital']],
+          layout: {
+            'text-field': NOME, 'text-font': FONTE, 'text-size': ['interpolate', ['linear'], ['zoom'], 15, 10, 18, 12], 'text-anchor': 'left', 'text-offset': [0.7, 0],
+            'text-max-width': 9, 'text-optional': true, 'text-padding': 5, 'symbol-sort-key': ['coalesce', ['get', 'rank'], 99],
+          },
+          paint: { 'text-color': corDoLugar(COR.nomeParque, COR.nomeHospital, COR.nomeMetro, COR.nomeLugar), 'text-halo-color': COR.chao, 'text-halo-width': 1.4 },
+        },
+        // hospital numa camada própria, acima dos outros lugares: à noite, é o que mais importa achar
+        {
+          id: 'nome-hospitais', type: 'symbol', source: 'omt', 'source-layer': 'poi', minzoom: 14.5, filter: ['all', classe(['hospital']), ['has', 'name']],
+          layout: {
+            'text-field': NOME, 'text-font': FONTE_B, 'text-size': ['interpolate', ['linear'], ['zoom'], 15, 10, 18, 12], 'text-anchor': 'left', 'text-offset': [0.7, 0],
+            'text-max-width': 9, 'text-optional': true, 'text-padding': 4,
+          },
+          paint: { 'text-color': COR.nomeHospital, 'text-halo-color': COR.chao, 'text-halo-width': 1.4 },
         },
         // os bares: ponto limão e o nome (o Drink é para quem sai para beber)
         {
