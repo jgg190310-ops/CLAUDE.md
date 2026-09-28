@@ -1126,24 +1126,6 @@
       if (app) app.classList.toggle('simulando', sim);
       q('#rp-sim').hidden = !sim;
     }
-    // n pontos ao longo de uma linha [[lat, lon], ...], com a mesma distância entre eles; o último é o fim da linha
-    function aoLongo(linha, n) {
-      const pts = linha.map(([lat, lon]) => ({ lat, lon }));
-      if (pts.length < 2) return pts.slice(0, 1);
-      const acum = [0];
-      for (let i = 1; i < pts.length; i += 1) acum.push(acum[i - 1] + S.distancia(pts[i - 1], pts[i]));
-      const total = acum[acum.length - 1];
-      const saida = [];
-      let j = 1;
-      for (let k = 1; k <= n; k += 1) {
-        const alvo = (total * k) / n;
-        while (j < pts.length - 1 && acum[j] < alvo) j += 1;
-        const trecho = acum[j] - acum[j - 1];
-        const f = trecho > 0 ? Math.min(1, Math.max(0, (alvo - acum[j - 1]) / trecho)) : 1;
-        saida.push({ lat: pts[j - 1].lat + (pts[j].lat - pts[j - 1].lat) * f, lon: pts[j - 1].lon + (pts[j].lon - pts[j - 1].lon) * f });
-      }
-      return saida;
-    }
     // o que o motorista simulado "manda" chega como chegaria o de um motorista de verdade
     function simManda(msg) {
       if (!corrida || !corrida.simulada) return;
@@ -1189,7 +1171,7 @@
       else if (obj.tipo === 'msg') simAgendar(() => { if (corrida === c) simManda({ tipo: 'msg', txt: 'Recebi! Aqui é uma simulação: numa corrida de verdade, o motorista responde por aqui.' }); }, 1800);
     }
     function simIrAteEmbarque(c) {
-      const passos = aoLongo(c.simLinha, 24);
+      const passos = S.pontosNaLinha(c.simLinha, 24);
       // no mapa, o caminho do motorista é a rota dele, que encurta conforme ele anda
       aproximacao = { id: c.id, linha: c.simLinha };
       let perto = false;
@@ -1220,7 +1202,7 @@
     }
     // a viagem pela rota do embarque até o destino (o GPS de verdade fica de fora enquanto isso)
     function simViagem(c) {
-      const passos = aoLongo(c.linha, 30);
+      const passos = S.pontosNaLinha(c.linha, 30);
       passos.forEach((p, i) => simAgendar(() => { if (corrida === c && c.etapa === 'viagem') andarNaViagem(p); }, 1000 * (i + 1)));
       simAgendar(() => { if (corrida === c && c.etapa === 'viagem') simManda({ tipo: 'etapa', etapa: 'chegada', valor: c.valor, espera: 0 }); }, 1000 * (passos.length + 2));
     }

@@ -45,10 +45,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&display=swap">
-  <link rel="stylesheet" href="../app-telas.css?v=18">
-  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=18">
-  <link rel="stylesheet" href="vendor/leaflet.css?v=18">
-  <link rel="stylesheet" href="app.css?v=18">
+  <link rel="stylesheet" href="../app-telas.css?v=19">
+  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=19">
+  <link rel="stylesheet" href="vendor/leaflet.css?v=19">
+  <link rel="stylesheet" href="app.css?v=19">
 </head>
 <body>
 <svg class="sprite" aria-hidden="true" focusable="false">
@@ -747,6 +747,7 @@
       <!-- app do motorista: mapa de verdade por baixo e as telas por cima -->
       <div class="modo modo-real" id="motorista" aria-label="App do motorista" hidden>
         <div class="mapa" id="mapa-m"></div>
+        <div class="rp-sim" id="rm-sim" role="status" hidden><p><b>Simulação</b> · nenhum passageiro de verdade</p><button type="button" data-rm="sair-sim">Encerrar</button></div>
 
         <!-- offline -->
         <section class="rt rt-cheia" data-rt="off" aria-labelledby="rm-off-t">
@@ -761,6 +762,7 @@
             <h3 class="d-titulo" id="rm-off-t" tabindex="-1">Você está offline</h3>
             <small id="rm-off-sub">Fica online pra receber pedidos de verdade perto de você. Deixa o app aberto e a tela ligada.</small>
             <p class="rt-alerta" id="rm-alerta" role="status" hidden></p>
+            <button type="button" class="en-link rm-simular" data-rm="simular">Simular uma corrida para treinar</button>
           </div>
           <button type="button" class="t-botao d-baixo" data-rm="online">Ficar online</button>
         </section>
@@ -854,6 +856,7 @@
             <li><label><input type="file" accept="image/*" capture="environment" data-foto="4"><span class="rm-foto-ic"><svg aria-hidden="true"><use href="#i-camera"/></svg></span><b>Painel (km e tanque)</b></label></li>
           </ul>
           <div class="d-progresso" aria-hidden="true"><span id="rm-vi-barra"></span></div>
+          <button type="button" class="en-link rm-vi-pular" id="rm-vi-pular" data-rm="pular-fotos" hidden>Na simulação, pode pular as fotos</button>
           <button type="button" class="t-botao d-baixo" id="rm-vi-bt" data-rm="dobrar" disabled>0 de 5 fotos</button>
         </section>
 
@@ -1218,21 +1221,21 @@
   </div>
 </div>
 
-<script src="vendor/maplibre-gl.js?v=18"></script>
-<script src="vendor/leaflet.js?v=18"></script>
-<script src="vendor/qrcode.js?v=18"></script>
-<script src="../app-nucleo.js?v=18"></script>
-<script src="servicos.js?v=18"></script>
-<script src="rede.js?v=18"></script>
-<script src="mapa-estilo.js?v=18"></script>
-<script src="mapa.js?v=18"></script>
-<script src="carros.js?v=18"></script>
-<script src="cadastro-motorista.js?v=18"></script>
-<script src="pix.js?v=18"></script>
-<script src="avisos.js?v=18"></script>
-<script src="sms.js?v=18"></script>
-<script src="passageiro.js?v=18"></script>
-<script src="motorista.js?v=18"></script>
-<script src="app.js?v=18"></script>
+<script src="vendor/maplibre-gl.js?v=19"></script>
+<script src="vendor/leaflet.js?v=19"></script>
+<script src="vendor/qrcode.js?v=19"></script>
+<script src="../app-nucleo.js?v=19"></script>
+<script src="servicos.js?v=19"></script>
+<script src="rede.js?v=19"></script>
+<script src="mapa-estilo.js?v=19"></script>
+<script src="mapa.js?v=19"></script>
+<script src="carros.js?v=19"></script>
+<script src="cadastro-motorista.js?v=19"></script>
+<script src="pix.js?v=19"></script>
+<script src="avisos.js?v=19"></script>
+<script src="sms.js?v=19"></script>
+<script src="passageiro.js?v=19"></script>
+<script src="motorista.js?v=19"></script>
+<script src="app.js?v=19"></script>
 </body>
 </html>
