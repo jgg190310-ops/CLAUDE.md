@@ -89,7 +89,8 @@
 
   // aviso curto para o outro celular da corrida: só o tipo do acontecimento, nada pessoal
   function mandar(topico, tipo) {
-    return window.Drink.rede.canal.publicar(topico, { v: 1, tipo }).catch(() => {});
+    // pela fila, mas só vale por 5 min: aviso atrasado demais só atrapalha
+    window.Drink.rede.fila.mandar(topico, { v: 1, tipo }, { validade: 5 * 60000 });
   }
 
   // o código do cadastro, mandado como notificação para este aparelho (enquanto o SMS não está ligado)

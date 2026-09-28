@@ -438,12 +438,9 @@
       const chave = para ? para.chave : corrida.chave;
       const pub = para ? para.pub : corrida.motorista.pub;
       const topico = R.topico.corrida(corrida.id);
-      const rede = canal;
       const env = { v: 1, de: 'p', para: pub.slice(0, 16), ...(await R.cifrar(chave, obj)) };
-      try { await rede.publicar(topico, env); } catch (e) {
-        op.avisar('Sem conexão agora. Tentando de novo…');
-        setTimeout(() => rede.publicar(topico, env).catch(() => {}), 3000);
-      }
+      // pela fila: com o sinal fraco, a mensagem espera e sai assim que der, na ordem
+      R.fila.mandar(topico, env);
     }
 
     async function pedir() {
@@ -516,7 +513,7 @@
     }
     function publicarFechado() {
       if (!corrida) return;
-      R.canal.publicar(R.topico.fechados(), { v: 1, tipo: 'fechado', id: corrida.id, segredo: corrida.segredo }).catch(() => {});
+      R.fila.mandar(R.topico.fechados(), { v: 1, tipo: 'fechado', id: corrida.id, segredo: corrida.segredo }, { validade: 10 * 60000 });
     }
     function encerrar() {
       if (corrida) avisos().definir('passageiro', []);

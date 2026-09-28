@@ -45,10 +45,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&display=swap">
-  <link rel="stylesheet" href="../app-telas.css?v=6">
-  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=6">
-  <link rel="stylesheet" href="vendor/leaflet.css?v=6">
-  <link rel="stylesheet" href="app.css?v=6">
+  <link rel="stylesheet" href="../app-telas.css?v=7">
+  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=7">
+  <link rel="stylesheet" href="vendor/leaflet.css?v=7">
+  <link rel="stylesheet" href="app.css?v=7">
 </head>
 <body>
 <svg class="sprite" aria-hidden="true" focusable="false">
@@ -732,7 +732,7 @@
             <div><b>Olá, <span data-en-primeiro>motorista</span></b><small><span id="rm-veic-txt">Bike elétrica dobrável</span> · <span id="rm-nota">novo no Drink</span></small></div>
             <button type="button" class="en-menu-bt" data-app="menu" aria-label="Abrir o menu da conta"><svg aria-hidden="true"><use href="#i-menu"/></svg></button>
           </div>
-          <div class="ma-ganhos"><small>Ganhos de hoje</small><b id="rm-hoje">R$ 0,00</b><span id="rm-viagens">0 viagens</span></div>
+          <button type="button" class="ma-ganhos rm-ganhos-bt" data-rm-folha="rm-ganhos"><small>Ganhos de hoje</small><b id="rm-hoje">R$ 0,00</b><span id="rm-viagens">0 viagens</span><em class="rm-ganhos-ver">Ver a semana <svg aria-hidden="true"><use href="#i-seta"/></svg></em></button>
           <div class="ma-meio">
             <span class="ma-status" aria-hidden="true"><svg><use id="rm-status-ic" href="#i-bike"/></svg></span>
             <h3 class="d-titulo" id="rm-off-t" tabindex="-1">Você está offline</h3>
@@ -927,6 +927,20 @@
 
         <!-- folhas por cima -->
         <div class="d-veu" id="rm-veu" hidden></div>
+        <section class="d-sobre rm-ganhos" id="rm-ganhos" aria-labelledby="rm-ganhos-t" hidden>
+          <div class="d-sobre-cab">
+            <span class="d-sobre-ic" aria-hidden="true"><svg><use href="#i-carteira"/></svg></span>
+            <div><h4 id="rm-ganhos-t" tabindex="-1">Seus ganhos</h4><small>O Pix de cada corrida cai direto na sua chave</small></div>
+            <button type="button" class="d-fechar" data-rm-fechar aria-label="Fechar"><svg aria-hidden="true"><use href="#i-fechar"/></svg></button>
+          </div>
+          <div class="rm-semana">
+            <p class="rm-semana-total"><small>Últimos 7 dias</small><b id="rm-semana-valor">R$ 0,00</b><span id="rm-semana-txt">0 corridas nos últimos 7 dias</span></p>
+            <div class="rm-barras" id="rm-barras"></div>
+          </div>
+          <div class="rm-feitas-cab"><p class="d-sec" id="rm-feitas-t">Corridas</p><button type="button" class="en-link" id="rm-feitas-todas" data-rm-todas hidden>Ver todas</button></div>
+          <ul class="rm-feitas" id="rm-feitas"></ul>
+          <p class="rm-ganhos-nota">O dia do Drink vira às 6h da manhã: a noite de sexta conta inteira na sexta.</p>
+        </section>
         <section class="d-sobre" id="rm-chat" aria-labelledby="rm-chat-t" hidden>
           <div class="d-sobre-cab">
             <span class="t-av d-av-cliente" id="rm-chat-av">PA</span>
@@ -1060,26 +1074,27 @@
         </ol>
       </section>
 
+      <p class="app-rede" id="app-rede" role="status" aria-live="polite" hidden><span class="app-rede-ic" aria-hidden="true"></span><span id="app-rede-txt">Conexão fraca · tentando de novo</span></p>
       <p class="d-toast en-aviso" id="en-aviso" role="status" aria-live="polite" hidden><span class="d-toast-ic" aria-hidden="true"><svg><use href="#i-limao"/></svg></span><span class="d-toast-txt" id="en-aviso-txt"></span></p>
     </div>
   </div>
 </div>
 
-<script src="vendor/maplibre-gl.js?v=6"></script>
-<script src="vendor/leaflet.js?v=6"></script>
-<script src="vendor/qrcode.js?v=6"></script>
-<script src="../app-nucleo.js?v=6"></script>
-<script src="servicos.js?v=6"></script>
-<script src="rede.js?v=6"></script>
-<script src="mapa-estilo.js?v=6"></script>
-<script src="mapa.js?v=6"></script>
-<script src="carros.js?v=6"></script>
-<script src="cadastro-motorista.js?v=6"></script>
-<script src="pix.js?v=6"></script>
-<script src="avisos.js?v=6"></script>
-<script src="sms.js?v=6"></script>
-<script src="passageiro.js?v=6"></script>
-<script src="motorista.js?v=6"></script>
-<script src="app.js?v=6"></script>
+<script src="vendor/maplibre-gl.js?v=7"></script>
+<script src="vendor/leaflet.js?v=7"></script>
+<script src="vendor/qrcode.js?v=7"></script>
+<script src="../app-nucleo.js?v=7"></script>
+<script src="servicos.js?v=7"></script>
+<script src="rede.js?v=7"></script>
+<script src="mapa-estilo.js?v=7"></script>
+<script src="mapa.js?v=7"></script>
+<script src="carros.js?v=7"></script>
+<script src="cadastro-motorista.js?v=7"></script>
+<script src="pix.js?v=7"></script>
+<script src="avisos.js?v=7"></script>
+<script src="sms.js?v=7"></script>
+<script src="passageiro.js?v=7"></script>
+<script src="motorista.js?v=7"></script>
+<script src="app.js?v=7"></script>
 </body>
 </html>

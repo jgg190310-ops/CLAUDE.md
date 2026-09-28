@@ -28,10 +28,7 @@
     try { localStorage.setItem(CHAVE, JSON.stringify(banco)); } catch (e) { /* idem */ }
   }
   const eu = () => (banco.atual && banco.usuarios[banco.atual]) || null;
-  function hoje() {
-    const d = new Date();
-    return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
-  }
+  const hoje = () => window.Drink.servicos.diaDoDrink();
   const primeiro = (u) => String((u && u.nome) || '').trim().split(' ')[0];
   const iniciais = (nome) => nome.split(' ').filter(Boolean).map((p) => p[0]).join('').slice(0, 2).toUpperCase();
   const MINUSCULAS = ['da', 'de', 'do', 'das', 'dos', 'e'];
@@ -66,6 +63,33 @@
     timerAviso = setTimeout(() => { aviso.hidden = true; }, 3400);
   }
   function cor(c) { if (meta) meta.setAttribute('content', c); }
+
+  /* ---------- faixa da conexão ---------- */
+  // só aparece se a conexão ficar caída uns segundos (reconectar rápido não pisca nada) e some sozinha quando volta
+  (function faixaDaConexao() {
+    const faixa = $('#app-rede');
+    const txt = $('#app-rede-txt');
+    let timer = 0;
+    let visivel = false;
+    function esconder() { visivel = false; faixa.hidden = true; faixa.classList.remove('ok'); app.classList.remove('sem-rede'); }
+    function mostrar(texto, ok) {
+      visivel = true;
+      txt.textContent = texto;
+      faixa.classList.toggle('ok', ok);
+      faixa.hidden = false;
+      app.classList.add('sem-rede');
+    }
+    R.conexao.ouvir((estado) => {
+      clearTimeout(timer);
+      if (estado === 'ok') {
+        if (visivel) { mostrar('Conectado de novo', true); timer = setTimeout(esconder, 1800); }
+        return;
+      }
+      const texto = estado === 'sem-internet' ? 'Sem internet · o que você mandar sai quando voltar' : 'Conexão fraca · tentando de novo';
+      if (visivel) { mostrar(texto, false); return; }
+      timer = setTimeout(() => mostrar(texto, false), estado === 'sem-internet' ? 1500 : 5000);
+    });
+  }());
 
   // timers da tela atual da entrada: somem quando a tela muda
   let timers = [];
@@ -626,7 +650,8 @@
       el.classList.toggle('com-foto', Boolean(u.selfie));
     });
     $$('[data-en-fone]').forEach((el) => { el.textContent = `+55 ${formatarCel(u.celular)}`; });
-    if (u.dia !== hoje()) { u.dia = hoje(); u.ganhos = 0; u.viagens = 0; salvar(); }
+    const g = window.Drink.servicos.ganhosDoDia(u.corridasFeitas);
+    if (u.dia !== hoje() || u.ganhos !== g.total || u.viagens !== g.n) { u.dia = hoje(); u.ganhos = g.total; u.viagens = g.n; salvar(); }
     $$('[data-en-ganhos]').forEach((el) => { el.textContent = brl(u.ganhos || 0); });
     $$('[data-en-viagens]').forEach((el) => { el.textContent = `${u.viagens || 0} ${u.viagens === 1 ? 'viagem' : 'viagens'}`; });
     const patinete = u.veiculo === 'patinete';

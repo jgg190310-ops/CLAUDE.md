@@ -28,6 +28,15 @@ body {
 .app input { -webkit-user-select: text; user-select: text; }
 .app button { touch-action: manipulation; }
 .app :is(.d-tela, .d-abas, .d-sobre, .en-tela, .ab) { font-size: var(--app-fs); }
+/* conexão caída: uma faixa lá em cima, e o resto do app desce para dar lugar a ela */
+.app.sem-rede { --topo: calc(env(safe-area-inset-top, 0px) + 30px); }
+.app-rede {
+  position: absolute; z-index: 45; left: 0; right: 0; top: env(safe-area-inset-top, 0px); height: 30px; margin: 0; padding: 0 12px;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  background: var(--a-card-2); color: var(--luz); font: 700 12.5px/1.1 var(--f-texto); text-align: center; pointer-events: none;
+}
+.app-rede-ic { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--laranja); box-shadow: 0 0 0 3px rgba(255, 107, 44, .28); }
+.app-rede.ok .app-rede-ic { background: var(--lima); box-shadow: 0 0 0 3px rgba(210, 255, 60, .25); }
 /* o aviso só informa: o toque passa por ele (não pode tampar o botão de voltar lá em cima) */
 .app .d-toast { font-size: calc(var(--app-fs) * .9); top: calc(var(--topo) + .8em); z-index: 40; pointer-events: none; }
 .modo { position: absolute; inset: 0; }
@@ -819,3 +828,40 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .en-docs li.vendo::before { transition: none; }
 }
+
+/* ---------- seus ganhos (motorista) ---------- */
+.app button.rm-ganhos-bt { width: auto; border: 0; font: inherit; text-align: left; cursor: pointer; }
+.rm-ganhos-ver { position: absolute; z-index: 1; right: 1.1em; bottom: 1em; display: inline-flex; align-items: center; gap: .3em; font-style: normal; font-size: .74em; font-weight: 800; color: var(--lima); }
+.rm-ganhos-ver svg { width: 1.2em; height: 1.2em; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.rm-semana { display: grid; gap: .9em; padding: 1em 1.05em .85em; border-radius: 1.2em; background: var(--a-card); border: 1px solid var(--a-linha); }
+.rm-semana-total { display: grid; gap: .15em; margin: 0; }
+.rm-semana-total small { font-size: .66em; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--a-texto-2); }
+.rm-semana-total b { font-family: var(--f-display); font-weight: 800; font-stretch: 75%; font-size: 2.2em; line-height: 1; color: var(--lima); }
+.rm-semana-total span { font-size: .8em; color: var(--a-texto-2); }
+.rm-barras { display: grid; grid-template-columns: repeat(7, 1fr); gap: .35em; }
+.app button.rm-barra {
+  display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: .3em; min-width: 0; height: 7.6em; padding: 0;
+  border: 0; background: none; color: var(--a-texto-2); font: inherit; cursor: pointer;
+}
+.rm-barra small { font-size: .62em; font-weight: 800; white-space: nowrap; color: var(--luz); }
+.rm-barra i { display: block; flex: none; width: 100%; max-width: 2.2em; border-radius: .45em .45em .2em .2em; background: #45425A; }
+.rm-barra span { margin-top: .15em; font-size: .72em; font-weight: 700; }
+.rm-barra.hoje span { color: var(--luz); }
+.rm-barra.hoje i { background: var(--lima); }
+/* um dia escolhido: ele fica em limão e os outros apagam */
+.rm-barras.escolheu .rm-barra:not(.on) { opacity: .45; }
+.rm-barras.escolheu .rm-barra.on i { background: var(--lima); }
+.rm-barra.on span { color: var(--lima); }
+.rm-barra:focus-visible { outline: 2px solid var(--lima); outline-offset: 2px; border-radius: .4em; }
+.rm-feitas-cab { display: flex; align-items: baseline; justify-content: space-between; gap: 1em; }
+.rm-feitas-cab .d-sec { margin: 0; }
+.rm-feitas { display: grid; gap: 0; margin: -.3em 0 0; padding: 0; list-style: none; }
+.rm-feitas-dia { display: flex; justify-content: space-between; gap: 1em; padding: .8em 0 .3em; font-size: .78em; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: var(--a-texto-2); }
+.rm-feitas-dia b { color: var(--luz); letter-spacing: 0; }
+.rm-feita { display: flex; align-items: center; justify-content: space-between; gap: .9em; padding: .6em 0; border-bottom: 1px solid var(--a-linha); }
+.rm-feita div { display: grid; gap: .15em; min-width: 0; }
+.rm-feita b { font-size: .92em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rm-feita small { font-size: .76em; color: var(--a-texto-2); }
+.rm-feita strong { flex: none; font-family: var(--f-display); font-weight: 800; font-stretch: 75%; font-size: 1.15em; }
+.rm-feitas-vazio { padding: .8em 0; font-size: .86em; color: var(--a-texto-2); }
+.rm-ganhos-nota { margin: 0; font-size: .76em; color: var(--a-texto-2); }

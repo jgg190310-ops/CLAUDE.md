@@ -57,6 +57,30 @@
     return JSON.parse(new TextDecoder().decode(pt));
   }
 
+  /* ---------- como está a conexão ---------- */
+  // cada assinatura diz se está ligada e a fila diz se tem mensagem esperando; a tela junta tudo num aviso só
+  const conexao = (() => {
+    const fontes = new Map();
+    const ouvintes = new Set();
+    let pendentes = 0;
+    let atual = 'ok';
+    function avisar() {
+      const caiu = [...fontes.values()].some((ok) => !ok);
+      const estado = navigator.onLine === false ? 'sem-internet' : (caiu || pendentes > 0 ? 'tentando' : 'ok');
+      if (estado === atual) return;
+      atual = estado;
+      ouvintes.forEach((fn) => { try { fn(estado); } catch (e) { /* segue */ } });
+    }
+    window.addEventListener('online', avisar);
+    window.addEventListener('offline', avisar);
+    return {
+      fonte(id, ok) { if (ok === null) fontes.delete(id); else fontes.set(id, ok); avisar(); },
+      fila(n) { pendentes = n; avisar(); },
+      ouvir(fn) { ouvintes.add(fn); if (atual !== 'ok') fn(atual); return () => ouvintes.delete(fn); },
+      agora: () => atual,
+    };
+  })();
+
   /* ---------- ntfy ---------- */
   function ntfy(base) {
     const raiz = base.replace(/\/$/, '');
@@ -64,7 +88,7 @@
       real: true,
       async publicar(topico, obj) {
         const r = await fetch(`${raiz}/${topico}`, { method: 'POST', body: JSON.stringify(obj) });
-        if (!r.ok) throw new Error(`publicar ${r.status}`);
+        if (!r.ok) { const e = new Error(`publicar ${r.status}`); e.status = r.status; throw e; }
         return r.json().catch(() => ({}));
       },
       // assina um ou mais canais; reconecta sozinho e continua de onde parou
@@ -77,13 +101,15 @@
         let sinal = Date.now();
         let escondidoEm = 0;
         const vistos = new Set();
+        const ivs = new Set();
+        const id = idAleatorio(6);
         const vivo = () => { sinal = Date.now(); };
         function abrir() {
           if (fechado) return;
           const q = ultimo ? `?since=${encodeURIComponent(ultimo)}` : '';
           fonte = new EventSource(`${raiz}/${topicos.join(',')}/sse${q}`);
           vivo();
-          fonte.onopen = vivo;
+          fonte.onopen = () => { vivo(); conexao.fonte(id, true); };
           fonte.addEventListener('keepalive', vivo);
           fonte.onmessage = (ev) => {
             vivo();
@@ -97,11 +123,18 @@
             if (vistos.size > 500) vistos.delete(vistos.values().next().value);
             let corpo;
             try { corpo = JSON.parse(m.message); } catch (e) { return; }
+            // o mesmo envelope duas vezes (a resposta do envio se perdeu e a fila mandou de novo): vale uma vez só
+            if (corpo && typeof corpo.iv === 'string') {
+              if (ivs.has(corpo.iv)) return;
+              ivs.add(corpo.iv);
+              if (ivs.size > 500) ivs.delete(ivs.values().next().value);
+            }
             aoReceber(corpo, m);
           };
           fonte.onerror = () => {
             fonte.close();
             if (fechado) return;
+            conexao.fonte(id, false);
             clearTimeout(timer);
             timer = setTimeout(abrir, espera);
             espera = Math.min(espera * 2, 15000);
@@ -131,12 +164,14 @@
         document.addEventListener('visibilitychange', acordar);
         window.addEventListener('pageshow', acordar);
         window.addEventListener('online', reabrir);
+        conexao.fonte(id, false);
         abrir();
         return {
           fechar() {
             fechado = true;
             clearTimeout(timer);
             clearInterval(vigia);
+            conexao.fonte(id, null);
             if (fonte) fonte.close();
             document.removeEventListener('visibilitychange', acordar);
             window.removeEventListener('pageshow', acordar);
@@ -161,6 +196,67 @@
   }
 
   const canal = ntfy(cfg.ntfy);
+
+  /* ---------- fila de envio ---------- */
+  // no bar, no elevador ou na garagem o sinal cai: as mensagens esperam na fila, saem na ordem, uma de cada vez,
+  // e o app insiste até irem. A fila fica guardada no aparelho: se o app fechar, ela continua quando abrir.
+  const fila = (() => {
+    const CHAVE = 'drink-fila';
+    let itens = [];
+    try {
+      const guardados = JSON.parse(localStorage.getItem(CHAVE) || '[]');
+      itens = Array.isArray(guardados) ? guardados.filter((x) => x && x.topico && x.obj && Date.now() < x.ate) : [];
+    } catch (e) { itens = []; }
+    let rodando = false;
+    let falhas = 0;
+    let acordar = null;
+    function guardar() {
+      try { if (itens.length) localStorage.setItem(CHAVE, JSON.stringify(itens)); else localStorage.removeItem(CHAVE); } catch (e) { /* cheio: fica só na memória */ }
+      conexao.fila(itens.length);
+    }
+    const dormir = (ms) => new Promise((ok) => {
+      const t = setTimeout(() => { acordar = null; ok(); }, ms);
+      acordar = () => { clearTimeout(t); acordar = null; ok(); };
+    });
+    async function rodar() {
+      if (rodando) return;
+      rodando = true;
+      while (itens.length) {
+        const item = itens[0];
+        if (Date.now() > item.ate) { itens = itens.filter((x) => x !== item); guardar(); continue; }
+        try {
+          await canal.publicar(item.topico, item.obj);
+          itens = itens.filter((x) => x !== item);
+          falhas = 0;
+          guardar();
+        } catch (e) {
+          // recusada pelo servidor (fora o limite de envios): insistir não adianta
+          if (e && e.status >= 400 && e.status < 500 && ![408, 429].includes(e.status)) { itens = itens.filter((x) => x !== item); guardar(); continue; }
+          falhas += 1;
+          conexao.fila(itens.length);
+          const base = e && e.status === 429 ? 10000 : 1500;
+          await dormir(Math.min(base * 2 ** Math.min(falhas - 1, 5), 60000));
+        }
+      }
+      rodando = false;
+    }
+    // a internet voltou ou o app voltou para a frente: tenta agora, sem esperar a vez
+    const cutucar = () => { falhas = 0; if (acordar) acordar(); };
+    window.addEventListener('online', cutucar);
+    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') cutucar(); });
+    if (itens.length) { conexao.fila(itens.length); setTimeout(rodar, 0); }
+    return {
+      // troca: uma mensagem que torna a anterior inútil (a posição nova vale mais que a velha)
+      mandar(topicoEnvio, obj, { validade = 30 * 60000, troca = '' } = {}) {
+        if (troca) itens = itens.filter((x) => x.troca !== troca);
+        itens.push({ topico: topicoEnvio, obj, ate: Date.now() + validade, troca });
+        guardar();
+        rodar();
+      },
+      pendentes: () => itens.length,
+    };
+  })();
+
   const topico = {
     pedidos: () => `${cfg.sala}-pedidos`,
     // pedidos fechados ficam num canal à parte: no canal de pedidos, cada mensagem vira um aviso no celular
@@ -173,7 +269,7 @@
   };
 
   window.Drink.rede = {
-    canal, topico, idAleatorio, cifraPronta,
+    canal, fila, conexao, topico, idAleatorio, cifraPronta,
     novoPar, importarPrivada, chaveComum, novaChave, cifrar, decifrar, resumo,
   };
 }());
