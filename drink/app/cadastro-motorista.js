@@ -113,6 +113,19 @@
     });
     db.close();
   }
+  // apagar a conta: a foto da CNH e a certidão saem do aparelho junto
+  async function apagarArquivos(celular) {
+    const db = await base();
+    await new Promise((ok, falha) => {
+      const t = db.transaction('arquivos', 'readwrite');
+      const loja = t.objectStore('arquivos');
+      loja.delete(`${celular}:cnh`);
+      loja.delete(`${celular}:antecedentes`);
+      t.oncomplete = ok;
+      t.onerror = () => falha(t.error);
+    });
+    db.close();
+  }
 
   /* ---------- treino ---------- */
   const LICOES = [
@@ -379,7 +392,7 @@
       else if (nome === 'treino') abrirTreino(origem);
     }
 
-    return { desenhar, completo, faltando, situacao, abrirDoc };
+    return { desenhar, completo, faltando, situacao, abrirDoc, apagarArquivos };
   }
 
   window.Drink.cadastroMotorista = { criar, cpfValido, cnhValida };

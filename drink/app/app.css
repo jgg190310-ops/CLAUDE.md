@@ -873,3 +873,25 @@ body {
 .rp-rec-bts button[hidden] { display: none; }
 .rp-rec-bts button:only-child, .rp-rec-bts:has(button[hidden]) button:not([hidden]) { grid-column: 1 / -1; }
 .rp-rec-bts svg { width: 1.2em; height: 1.2em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+/* ---------- termos e privacidade ---------- */
+/* fora da caixa de aceite: tocar no texto marca a caixa, o link fica à parte, alinhado ao texto */
+.en-termos-link { justify-self: start; margin: -.35em 0 0 calc(1.6em * .84 / .8 + .75em * .84 / .8); padding: .2em 0; border: 0; background: none; color: var(--lima); font: inherit; font-size: .8em; font-weight: 800; text-align: left; text-decoration: underline; text-underline-offset: .15em; cursor: pointer; }
+.en-termos-abas { display: grid; grid-template-columns: 1fr 1fr; gap: .3em; padding: .25em; border-radius: 999px; background: var(--a-card); }
+.en-termos-abas button { padding: .6em .6em; border: 0; border-radius: 999px; background: none; color: var(--a-texto-2); font: inherit; font-size: .86em; font-weight: 800; cursor: pointer; }
+.en-termos-abas button[aria-selected="true"] { background: var(--lima); color: var(--tinta); }
+.en-termos-txt { display: grid; gap: .55em; font-size: .9em; line-height: 1.5; color: var(--a-texto-2); }
+.en-termos-txt[hidden] { display: none; }
+.en-termos-txt h5 { margin: .7em 0 0; font-size: 1.02em; font-weight: 800; color: var(--luz); }
+.en-termos-txt h5:first-child { margin-top: .2em; }
+.en-termos-txt p { margin: 0; }
+.en-termos-txt ul { display: grid; gap: .45em; margin: 0; padding-left: 1.1em; list-style: disc; }
+.en-termos-txt li::marker { color: var(--lima); }
+.en-termos-txt b { color: var(--luz); }
+
+/* ---------- apagar a conta ---------- */
+.en-conta .en-apagar svg { stroke: var(--vermelho); }
+.en-conta .en-apagar b { color: #FF6B5E; }
+.en-apagar-txt { margin: 0; font-size: .92em; line-height: 1.5; color: var(--a-texto-2); }
+.en-apagar-bts { display: grid; gap: .6em; justify-items: center; }
+.app .t-botao.en-apagar-bt { width: 100%; background: var(--vermelho); color: #fff; }

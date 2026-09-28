@@ -45,10 +45,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&display=swap">
-  <link rel="stylesheet" href="../app-telas.css?v=8">
-  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=8">
-  <link rel="stylesheet" href="vendor/leaflet.css?v=8">
-  <link rel="stylesheet" href="app.css?v=8">
+  <link rel="stylesheet" href="../app-telas.css?v=9">
+  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=9">
+  <link rel="stylesheet" href="vendor/leaflet.css?v=9">
+  <link rel="stylesheet" href="app.css?v=9">
 </head>
 <body>
 <svg class="sprite" aria-hidden="true" focusable="false">
@@ -296,6 +296,7 @@
           </div>
           <label class="en-campo en-rot"><span>E-mail · para os recibos</span><input id="en-email" name="email" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" maxlength="80" placeholder="voce@email.com" aria-describedby="en-nome-erro"></label>
           <label class="en-check"><input type="checkbox" id="en-18" aria-describedby="en-nome-erro"><span class="en-caixa" aria-hidden="true"></span><span>Tenho 18 anos ou mais e aceito os Termos de Uso e a Política de Privacidade do Drink.</span></label>
+          <button type="button" class="en-termos-link" data-app="termos">Ler os termos e a privacidade</button>
           <p class="en-erro" id="en-nome-erro" role="alert" hidden></p>
           <button type="submit" class="t-botao" id="en-nome-bt">Criar minha conta</button>
         </form>
@@ -603,7 +604,9 @@
             <li><button type="button" data-app="avisos"><svg aria-hidden="true"><use href="#i-sino"/></svg><span><b>Avisos no celular</b><small data-avisos>Toca para ligar</small></span></button></li>
             <li><button type="button" data-app="virar-motorista"><svg aria-hidden="true"><use href="#i-bike"/></svg><span><b>Quero dirigir com o Drink</b><small>Ganhe à noite com a sua bike ou patinete</small></span></button></li>
             <li data-instalar hidden><button type="button" data-app="instalar"><svg aria-hidden="true"><use href="#i-celular"/></svg><span><b>Instalar o app</b><small>Na tela de início, sem passar pela loja</small></span></button></li>
+            <li><button type="button" data-app="termos"><svg aria-hidden="true"><use href="#i-escudo"/></svg><span><b>Termos e privacidade</b><small>As regras e o que o Drink faz com os seus dados</small></span></button></li>
             <li><button type="button" class="en-sair" data-app="sair"><svg aria-hidden="true"><use href="#i-sair"/></svg><span><b>Sair da conta</b><small>A conta continua salva neste aparelho</small></span></button></li>
+            <li><button type="button" class="en-apagar" data-app="apagar"><svg aria-hidden="true"><use href="#i-lixo"/></svg><span><b>Apagar minha conta</b><small>Apaga a conta e tudo dela neste aparelho</small></span></button></li>
           </ul>
         </section>
 
@@ -981,8 +984,77 @@
           <li><button type="button" data-app="avisos"><svg aria-hidden="true"><use href="#i-sino"/></svg><span><b>Avisos no celular</b><small data-avisos>Toca para ligar</small></span></button></li>
           <li><button type="button" data-app="virar-passageiro"><svg aria-hidden="true"><use href="#i-carro"/></svg><span><b>Pedir um Drink</b><small>Usar o app como passageiro</small></span></button></li>
           <li data-instalar hidden><button type="button" data-app="instalar"><svg aria-hidden="true"><use href="#i-celular"/></svg><span><b>Instalar o app</b><small>Na tela de início, sem passar pela loja</small></span></button></li>
+          <li><button type="button" data-app="termos"><svg aria-hidden="true"><use href="#i-escudo"/></svg><span><b>Termos e privacidade</b><small>As regras e o que o Drink faz com os seus dados</small></span></button></li>
           <li><button type="button" class="en-sair" data-app="sair"><svg aria-hidden="true"><use href="#i-sair"/></svg><span><b>Sair da conta</b><small>A conta continua salva neste aparelho</small></span></button></li>
+          <li><button type="button" class="en-apagar" data-app="apagar"><svg aria-hidden="true"><use href="#i-lixo"/></svg><span><b>Apagar minha conta</b><small>Apaga a conta e tudo dela neste aparelho</small></span></button></li>
         </ul>
+      </section>
+
+      <section class="d-sobre en-termos" id="en-termos" aria-labelledby="en-termos-t" hidden>
+        <div class="d-sobre-cab">
+          <span class="d-sobre-ic" aria-hidden="true"><svg><use href="#i-escudo"/></svg></span>
+          <div><h4 id="en-termos-t" tabindex="-1">Termos e privacidade</h4><small>Versão de 28 de setembro de 2026</small></div>
+          <button type="button" class="d-fechar" data-app="fechar" aria-label="Fechar"><svg aria-hidden="true"><use href="#i-fechar"/></svg></button>
+        </div>
+        <div class="en-termos-abas" role="tablist" aria-label="Termos e privacidade">
+          <button type="button" role="tab" id="en-termos-aba-uso" aria-controls="en-termos-uso" aria-selected="true" data-termos="uso">Termos de uso</button>
+          <button type="button" role="tab" id="en-termos-aba-privacidade" aria-controls="en-termos-privacidade" aria-selected="false" data-termos="privacidade">Privacidade</button>
+        </div>
+        <div class="en-termos-txt" id="en-termos-uso" role="tabpanel" aria-labelledby="en-termos-aba-uso">
+          <h5>O que é o Drink</h5>
+          <p>O Drink liga quem bebeu e quer voltar para casa no próprio carro a um motorista que chega de bike ou patinete elétrico dobrável, guarda o veículo no porta-malas e leva você e o seu carro até o destino, na Grande BH.</p>
+          <h5>Quem pode usar</h5>
+          <ul>
+            <li>Para pedir: ter 18 anos ou mais e um carro com a documentação em dia.</li>
+            <li>Para dirigir: 21 anos ou mais; CNH categoria B ou acima, válida, com EAR (exerce atividade remunerada) e pelo menos 2 anos de habilitação; certidão de antecedentes criminais e o treino do app feito.</li>
+          </ul>
+          <h5>Preço</h5>
+          <p id="en-termos-preco">Você vê o valor antes de pedir.</p>
+          <h5>Pagamento</h5>
+          <p>Você paga pelo Pix direto na chave do motorista, pelo app do seu banco, na chegada. O Drink não recebe nem guarda esse dinheiro. Confira o nome do motorista antes de pagar.</p>
+          <h5>Segurança</h5>
+          <ul>
+            <li>Só entregue a chave depois que o seu celular confirmar o código de 4 números que o motorista digitar.</li>
+            <li>Antes de sair, o motorista fotografa o carro pelo app (frente, traseira, os dois lados e o painel). As fotos ficam no celular dele, com data e hora.</li>
+            <li>O motorista segue as leis de trânsito, usa cinto e não mexe no celular dirigindo.</li>
+            <li>Em perigo, ligue 190. Você pode compartilhar a viagem ao vivo com quem quiser.</li>
+          </ul>
+          <h5>Cancelamento</h5>
+          <p>Passageiro e motorista podem cancelar antes da viagem começar, sem cobrança. Se o motorista já chegou e está esperando, vale a regra da espera.</p>
+          <h5>Avaliações</h5>
+          <p>No fim, passageiro e motorista dão uma nota de 1 a 5 um para o outro. A média aparece nos próximos pedidos.</p>
+        </div>
+        <div class="en-termos-txt" id="en-termos-privacidade" role="tabpanel" aria-labelledby="en-termos-aba-privacidade" hidden>
+          <h5>Seus dados ficam no seu celular</h5>
+          <p>O Drink não tem um servidor que guarda o seu cadastro. Nome, celular, carro e placa, lugares salvos, contatos de confiança e o histórico de voltas ficam só neste aparelho. Para quem dirige, também CPF, CNH, foto da CNH, certidão, selfie, fotos da vistoria e ganhos.</p>
+          <h5>O que sai do celular, e para onde</h5>
+          <ul>
+            <li><b>O pedido</b> vai para os motoristas online sem o endereço exato: o bairro e um ponto aproximado do embarque (uns 500 m), o bairro do destino, a distância, o valor, o câmbio do carro e a sua nota.</li>
+            <li><b>Depois que você escolhe o motorista</b>, tudo da corrida vai cifrado de ponta a ponta: endereços, nomes, carro e placa, mensagens, posição, código, o rosto do motorista e a chave Pix dele. O serviço que leva as mensagens (ntfy.sh) só vê dados embaralhados e os guarda por poucas horas.</li>
+            <li><b>Motorista online</b> aparece para os passageiros num ponto aproximado (uns 500 m), com um apelido aleatório e se está de bike ou patinete.</li>
+            <li><b>O link da viagem</b> que você compartilha leva a chave no próprio link: só quem recebe consegue ver.</li>
+            <li><b>Mapa, busca e rotas</b> usam serviços abertos: OpenFreeMap para o mapa (dados do OpenStreetMap), Photon para a busca (o texto que você digita e, para achar onde você está, a sua posição) e OSRM para as rotas (os pontos de saída e de chegada).</li>
+            <li><b>Avisos no celular</b> passam pelo ntfy e pelo serviço de notificações do seu celular (Apple ou Google) e dizem só o tipo do aviso, como "o motorista chegou".</li>
+            <li><b>O código por SMS</b>, quando está ligado, manda o seu número ao Firebase (Google) só para enviar a mensagem.</li>
+          </ul>
+          <h5>Documentos de quem dirige</h5>
+          <p>O app confere o formato do CPF e da CNH, a idade, a categoria, a validade e o tempo de habilitação. Os documentos e a certidão não saem do celular do motorista. O passageiro recebe só o nome, o rosto e a nota.</p>
+          <h5>Seus direitos</h5>
+          <p>Você vê e corrige os seus dados no próprio app. Em "Apagar minha conta", o app apaga a conta e tudo o que ela guardou neste aparelho. O que passou pelo ntfy estava cifrado e some sozinho em poucas horas.</p>
+        </div>
+      </section>
+
+      <section class="d-sobre" id="en-apagar" aria-labelledby="en-apagar-t" hidden>
+        <div class="d-sobre-cab">
+          <span class="d-sobre-ic d-sobre-ic-alerta" aria-hidden="true"><svg><use href="#i-lixo"/></svg></span>
+          <div><h4 id="en-apagar-t" tabindex="-1">Apagar a sua conta?</h4><small>Não dá para desfazer</small></div>
+          <button type="button" class="d-fechar" data-app="fechar" aria-label="Fechar"><svg aria-hidden="true"><use href="#i-fechar"/></svg></button>
+        </div>
+        <p class="en-apagar-txt" id="en-apagar-txt">Somem deste aparelho o seu cadastro, o carro e a placa, os lugares salvos, os contatos de confiança e o histórico de voltas.</p>
+        <div class="en-apagar-bts">
+          <button type="button" class="t-botao en-apagar-bt" data-app="apagar-sim">Apagar para sempre</button>
+          <button type="button" class="en-link" data-app="fechar">Cancelar</button>
+        </div>
       </section>
 
       <section class="d-sobre" id="en-pix-folha" aria-labelledby="en-pf-t" hidden>
@@ -1085,21 +1157,21 @@
   </div>
 </div>
 
-<script src="vendor/maplibre-gl.js?v=8"></script>
-<script src="vendor/leaflet.js?v=8"></script>
-<script src="vendor/qrcode.js?v=8"></script>
-<script src="../app-nucleo.js?v=8"></script>
-<script src="servicos.js?v=8"></script>
-<script src="rede.js?v=8"></script>
-<script src="mapa-estilo.js?v=8"></script>
-<script src="mapa.js?v=8"></script>
-<script src="carros.js?v=8"></script>
-<script src="cadastro-motorista.js?v=8"></script>
-<script src="pix.js?v=8"></script>
-<script src="avisos.js?v=8"></script>
-<script src="sms.js?v=8"></script>
-<script src="passageiro.js?v=8"></script>
-<script src="motorista.js?v=8"></script>
-<script src="app.js?v=8"></script>
+<script src="vendor/maplibre-gl.js?v=9"></script>
+<script src="vendor/leaflet.js?v=9"></script>
+<script src="vendor/qrcode.js?v=9"></script>
+<script src="../app-nucleo.js?v=9"></script>
+<script src="servicos.js?v=9"></script>
+<script src="rede.js?v=9"></script>
+<script src="mapa-estilo.js?v=9"></script>
+<script src="mapa.js?v=9"></script>
+<script src="carros.js?v=9"></script>
+<script src="cadastro-motorista.js?v=9"></script>
+<script src="pix.js?v=9"></script>
+<script src="avisos.js?v=9"></script>
+<script src="sms.js?v=9"></script>
+<script src="passageiro.js?v=9"></script>
+<script src="motorista.js?v=9"></script>
+<script src="app.js?v=9"></script>
 </body>
 </html>
