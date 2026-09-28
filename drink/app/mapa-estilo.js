@@ -121,7 +121,7 @@
           paint: { 'text-color': COR.nomeBairro, 'text-halo-color': COR.chao, 'text-halo-width': 1.4 },
         },
         {
-          id: 'nome-cidades', type: 'symbol', source: 'omt', 'source-layer': 'place', maxzoom: 13,
+          id: 'nome-cidades', type: 'symbol', source: 'omt', 'source-layer': 'place', maxzoom: 11.5,
           filter: classe(['city', 'town']),
           layout: { 'text-field': NOME, 'text-font': FONTE_B, 'text-size': ['interpolate', ['linear'], ['zoom'], 6, 12, 12, 19], 'text-max-width': 8 },
           paint: { 'text-color': COR.nomeCidade, 'text-halo-color': COR.chao, 'text-halo-width': 1.6 },

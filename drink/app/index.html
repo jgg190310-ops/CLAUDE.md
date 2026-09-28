@@ -45,10 +45,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&display=swap">
-  <link rel="stylesheet" href="../app-telas.css?v=4">
-  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=4">
-  <link rel="stylesheet" href="vendor/leaflet.css?v=4">
-  <link rel="stylesheet" href="app.css?v=4">
+  <link rel="stylesheet" href="../app-telas.css?v=5">
+  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=5">
+  <link rel="stylesheet" href="vendor/leaflet.css?v=5">
+  <link rel="stylesheet" href="app.css?v=5">
 </head>
 <body>
 <svg class="sprite" aria-hidden="true" focusable="false">
@@ -586,7 +586,7 @@
         <section class="rt rt-cheia com-abas" data-rt="perfil" data-aba="perfil" aria-labelledby="rp-pe-t" hidden>
           <div class="d-perfil-cab">
             <span class="t-av d-av-cliente" data-en-iniciais>JA</span>
-            <div><h3 class="d-titulo" id="rp-pe-t" tabindex="-1" data-en-nome>Nome</h3><small data-en-fone></small></div>
+            <div><h3 class="d-titulo" id="rp-pe-t" tabindex="-1" data-en-nome>Nome</h3><small data-en-fone></small><small class="rp-nota" id="rp-minha-nota" hidden></small></div>
           </div>
           <p class="d-sec">Seu carro</p>
           <button type="button" class="d-carro rt-carro" data-rp-folha="rp-carro">
@@ -886,6 +886,10 @@
             <li><svg aria-hidden="true"><use href="#i-check"/></svg><span id="rm-re-aval">Esperando a avaliação</span></li>
             <li><svg aria-hidden="true"><use href="#i-check"/></svg><span id="rm-re-pago">Esperando o pagamento</span></li>
           </ul>
+          <div class="d-avaliar rm-avaliar">
+            <p id="rm-aval-t">Como foi com o passageiro?</p>
+            <div class="d-estrelas" id="rm-estrelas" role="radiogroup" aria-labelledby="rm-aval-t"><button type="button" role="radio" aria-checked="false" data-nota-p="1" aria-label="1 estrela"><svg aria-hidden="true"><use href="#i-estrela"/></svg></button><button type="button" role="radio" aria-checked="false" data-nota-p="2" aria-label="2 estrelas"><svg aria-hidden="true"><use href="#i-estrela"/></svg></button><button type="button" role="radio" aria-checked="false" data-nota-p="3" aria-label="3 estrelas"><svg aria-hidden="true"><use href="#i-estrela"/></svg></button><button type="button" role="radio" aria-checked="false" data-nota-p="4" aria-label="4 estrelas"><svg aria-hidden="true"><use href="#i-estrela"/></svg></button><button type="button" role="radio" aria-checked="false" data-nota-p="5" aria-label="5 estrelas"><svg aria-hidden="true"><use href="#i-estrela"/></svg></button></div>
+          </div>
           <div class="rt-bts rt-bts-baixo">
             <button type="button" class="t-botao" data-rm="recebi">Recebi o Pix</button>
             <button type="button" class="en-link" data-rm="nao-caiu">Ainda não caiu</button>
@@ -1046,21 +1050,21 @@
   </div>
 </div>
 
-<script src="vendor/maplibre-gl.js?v=4"></script>
-<script src="vendor/leaflet.js?v=4"></script>
-<script src="vendor/qrcode.js?v=4"></script>
-<script src="../app-nucleo.js?v=4"></script>
-<script src="servicos.js?v=4"></script>
-<script src="rede.js?v=4"></script>
-<script src="mapa-estilo.js?v=4"></script>
-<script src="mapa.js?v=4"></script>
-<script src="carros.js?v=4"></script>
-<script src="cadastro-motorista.js?v=4"></script>
-<script src="pix.js?v=4"></script>
-<script src="avisos.js?v=4"></script>
-<script src="sms.js?v=4"></script>
-<script src="passageiro.js?v=4"></script>
-<script src="motorista.js?v=4"></script>
-<script src="app.js?v=4"></script>
+<script src="vendor/maplibre-gl.js?v=5"></script>
+<script src="vendor/leaflet.js?v=5"></script>
+<script src="vendor/qrcode.js?v=5"></script>
+<script src="../app-nucleo.js?v=5"></script>
+<script src="servicos.js?v=5"></script>
+<script src="rede.js?v=5"></script>
+<script src="mapa-estilo.js?v=5"></script>
+<script src="mapa.js?v=5"></script>
+<script src="carros.js?v=5"></script>
+<script src="cadastro-motorista.js?v=5"></script>
+<script src="pix.js?v=5"></script>
+<script src="avisos.js?v=5"></script>
+<script src="sms.js?v=5"></script>
+<script src="passageiro.js?v=5"></script>
+<script src="motorista.js?v=5"></script>
+<script src="app.js?v=5"></script>
 </body>
 </html>

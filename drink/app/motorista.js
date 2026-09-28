@@ -32,6 +32,7 @@
       fecho: typeof m.fecho === 'string' ? m.fecho.slice(0, 64) : null,
       de: { bairro: texto(m.de.bairro) || 'BH', lat: m.de.lat, lon: m.de.lon }, para: { bairro: texto(m.para.bairro) || 'o destino' },
       km: m.km, min: numero(m.min) ? m.min : 0, valor: Math.round(m.valor * 100) / 100,
+      nota: numero(m.nota) && m.nota >= 1 && m.nota <= 5 ? Math.round(m.nota * 10) / 10 : 0,
       veic: ['bike', 'patinete'].includes(m.veic) ? m.veic : 'qualquer', cambio: m.cambio === 'manual' ? 'manual' : 'automático',
     };
   }
@@ -274,7 +275,7 @@
         const seg = Math.max(0, Math.round((p.expira - agora) / 1000));
         return `<li class="rm-pedido">
           <div class="rm-ped-topo"><b>${esc(p.de.bairro)} → ${esc(p.para.bairro)}</b><em>${esc(brl(p.valor))}</em></div>
-          <p>${perto ? `${perto} de você · ` : ''}viagem de ${esc(S.textoKm(p.km))} · câmbio ${esc(p.cambio || 'automático')}</p>
+          <p>${perto ? `${perto} de você · ` : ''}viagem de ${esc(S.textoKm(p.km))} · câmbio ${esc(p.cambio || 'automático')} · ${p.nota ? `passageiro nota ${esc(S.virgula(p.nota))}` : 'passageiro novo no Drink'}</p>
           <p class="rm-ped-prazo">${seg > 60 ? `aberto por mais ${Math.ceil(seg / 60)} min` : 'fechando'}</p>
           <button type="button" class="t-botao" data-aceitar="${esc(p.id)}">Aceitar</button>
         </li>`;
@@ -367,7 +368,7 @@
           const p = aceito.pedido;
           corrida = {
             id: aceito.id, pub: aceito.pub, priv: aceito.priv, chave: aceito.chave, t0: Date.now(),
-            etapa: 'buscar', passageiro: { nome: String((msg.passageiro && msg.passageiro.nome) || 'Passageiro').slice(0, 40) },
+            etapa: 'buscar', passageiro: { nome: String((msg.passageiro && msg.passageiro.nome) || 'Passageiro').slice(0, 40), nota: p.nota || 0 },
             embarque: { lat: msg.embarque.lat, lon: msg.embarque.lon, nome: texto(msg.embarque.nome, 80) || 'Embarque', bairro: texto(msg.embarque.bairro) },
             destino: { lat: msg.destino.lat, lon: msg.destino.lon, nome: texto(msg.destino.nome, 80) || 'Destino', bairro: texto(msg.destino.bairro) },
             carro: msg.carro && typeof msg.carro === 'object' ? {
@@ -481,7 +482,7 @@
       q('#rm-bu-t').textContent = `Vá buscar ${nome}`;
       q('#rm-bu-end').textContent = [c.embarque.nome, c.embarque.bairro].filter(Boolean).join(' · ');
       q('#rm-pa-av').textContent = iniciais(c.passageiro.nome);
-      q('#rm-pa-nome').textContent = c.passageiro.nome;
+      q('#rm-pa-nome').textContent = c.passageiro.nota ? `${c.passageiro.nome} · nota ${S.virgula(c.passageiro.nota)}` : c.passageiro.nome;
       const carro = c.carro || {};
       q('#rm-pa-carro').textContent = [[carro.modelo, carro.cor].filter(Boolean).join(' '), carro.cambio ? `câmbio ${carro.cambio}` : ''].filter(Boolean).join(' · ') || 'Carro do passageiro';
       q('#rm-pa-placa').innerHTML = CARROS.placa.valida(carro.placa || '') ? CARROS.placa.html(carro.placa) : '';
@@ -668,6 +669,18 @@
         : `Esperando ${nome} avaliar`;
       checks[1].classList.toggle('ok', c.paguei);
       q('#rm-re-pago').textContent = c.paguei ? `${nome} disse que pagou. Confere no seu banco.` : 'Esperando o pagamento';
+      desenharNotaPassageiro();
+    }
+    // o motorista também avalia o passageiro; a nota vai junto com o "recebi"
+    function desenharNotaPassageiro() {
+      const c = corrida;
+      if (!c) return;
+      q('#rm-aval-t').textContent = `Como foi com ${primeiroNome(c.passageiro.nome)}?`;
+      $$('#rm-estrelas [data-nota-p]', raiz).forEach((b) => {
+        const n = Number(b.dataset.notaP);
+        b.classList.toggle('on', n <= (c.notaPassageiro || 0));
+        b.setAttribute('aria-checked', String(n === c.notaPassageiro));
+      });
     }
     function recebi() {
       const c = corrida;
@@ -675,7 +688,7 @@
       const u = eu();
       const gorjeta = c.avaliacao ? c.avaliacao.gorjeta : 0;
       const total = redondo(c.valor + gorjeta);
-      enviar({ tipo: 'recebido' });
+      enviar({ tipo: 'recebido', nota: c.notaPassageiro || 0 });
       if (u.dia !== hoje()) { u.dia = hoje(); u.ganhos = 0; u.viagens = 0; }
       u.ganhos = redondo((u.ganhos || 0) + total);
       u.viagens = (u.viagens || 0) + 1;
@@ -743,6 +756,7 @@
       if (ds.rmFechar !== undefined) { fecharFolha(); return; }
       if (ds.rmFolha) { abrirFolha(ds.rmFolha); return; }
       if (ds.aceitar) { aceitar(ds.aceitar); return; }
+      if (ds.notaP) { if (corrida) { corrida.notaPassageiro = Number(ds.notaP); desenharNotaPassageiro(); salvarCorrida(); } return; }
       if (ds.rapida) { mandarMsg(ds.rapida); return; }
       const acoes = {
         online: () => { if (online) { ouvirPedidos(); ir('online'); } else ficarOnline(); },

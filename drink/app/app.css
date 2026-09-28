@@ -378,6 +378,11 @@ body {
 .en-tr-porque:empty { display: none; }
 .en-tr-porque.certo { color: var(--lima); }
 .en-tr-porque.errado { color: var(--laranja-2); }
+.rp-nota { display: block; margin-top: .1em; color: var(--ouro); }
+.app .rm-avaliar { margin-top: .9em; }
+/* a alça das folhas: é por ela (e pelo cabeçalho) que o dedo arrasta a folha para baixo */
+.d-alca { position: absolute; top: 0; left: 0; right: 0; height: 1.9em; touch-action: none; }
+.app .d-sobre-cab { touch-action: none; }
 /* avatar com foto */
 .app .t-av.com-foto { background-size: cover; background-position: center; color: transparent; }
 .app .en-rodape .t-botao { height: 3.35em; font-size: 1.02em; }

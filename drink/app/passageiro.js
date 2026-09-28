@@ -32,6 +32,11 @@
   // o carro com placa de verdade; sem placa (conta antiga), o app pede antes da primeira corrida
   const carroPronto = (c) => Boolean(c && c.modelo && c.cor && CARROS.placa.valida(CARROS.placa.limpar(c.placa)));
   const nomeCarro = (c) => `${c.modelo} ${c.cor}`;
+  // a nota que os motoristas deram (média das últimas), como nos apps de corrida
+  function minhaNota(u) {
+    const l = ((u && u.notasRecebidas) || []).filter((n) => n >= 1 && n <= 5);
+    return l.length ? redondo(l.reduce((s, n) => s + n, 0) / l.length, 1) : 0;
+  }
   // o que chega pela rede só vale se tiver a forma certa
   const ponto = (p) => Boolean(p) && Number.isFinite(p.lat) && Number.isFinite(p.lon) && Math.abs(p.lat) <= 90 && Math.abs(p.lon) <= 180;
 
@@ -460,7 +465,7 @@
         v: 1, tipo: 'pedido', id: corrida.id, t: agora, expira: agora + PRAZO_BUSCA, pub: par.pub,
         de: { bairro: embarque.bairro || 'BH', ...S.aproximar(embarque) },
         para: { bairro: destino.bairro || destino.nome },
-        km: corrida.km, min: corrida.min, valor: corrida.valor, veic, cambio: u.carro.cambio,
+        km: corrida.km, min: corrida.min, valor: corrida.valor, veic, cambio: u.carro.cambio, nota: minhaNota(u),
         fecho: await R.resumo(corrida.segredo),
       };
       ir('buscando');
@@ -625,10 +630,14 @@
           rosto(q('#rp-chat-av'), c.motorista);
           break;
         }
-        case 'recebido':
+        case 'recebido': {
+          // a nota que o motorista deu para o passageiro vem junto
+          const nota = Number(msg.nota);
+          if (Number.isInteger(nota) && nota >= 1 && nota <= 5) c.notaRecebida = nota;
           if (c.etapa === 'pagando' || c.paguei) concluir();
           else { c.recebido = true; }
           break;
+        }
         case 'msg':
           adicionarMsg('ele', String(msg.txt || '').slice(0, 300));
           break;
@@ -902,6 +911,7 @@
         nota: c.nota, destino: { nome: c.destino.nome, bairro: c.destino.bairro, detalhe: c.destino.detalhe, lat: c.destino.lat, lon: c.destino.lon },
       };
       u.voltas = [v, ...(u.voltas || [])].slice(0, 100);
+      if (c.notaRecebida) u.notasRecebidas = [...(u.notasRecebidas || []), c.notaRecebida].slice(-100);
       op.salvar();
       embarqueManual = false;
       destino = null;
@@ -979,6 +989,9 @@
     }
     function desenharPerfil() {
       const u = eu();
+      const nota = minhaNota(u);
+      q('#rp-minha-nota').hidden = !nota;
+      q('#rp-minha-nota').textContent = nota ? `Sua nota com os motoristas: ${S.virgula(nota)}` : '';
       q('#rp-carro-t').textContent = u.carro ? nomeCarro(u.carro) : 'Cadastra o seu carro';
       q('#rp-carro-sub').textContent = u.carro
         ? [u.carro.marca, `câmbio ${u.carro.cambio}`].filter(Boolean).join(' · ') + (carroPronto(u.carro) ? '' : ' · falta a placa')
