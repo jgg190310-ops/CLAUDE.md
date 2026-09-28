@@ -824,9 +824,26 @@ body {
   .app .rt-mira:hover { background: var(--creme); }
 }
 
+/* ---------- celular deitado: o app é em pé, então um aviso pede para virar (o app segue rodando por baixo) ---------- */
+.vira { display: none; }
+html.deitado .vira {
+  position: fixed; inset: 0; z-index: 1000;
+  display: grid; place-content: center; justify-items: center; gap: 10px;
+  padding: max(16px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left));
+  background: var(--a-bg); color: var(--luz); font-family: var(--f-texto); text-align: center;
+}
+.vira-ic { width: 72px; height: 72px; margin-bottom: 4px; fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.vira-seta { stroke: var(--lima); }
+/* o celular do desenho chega deitado, como o de quem está vendo, e fica em pé uma vez só */
+.vira-fone { stroke: var(--luz); transform-box: fill-box; transform-origin: center; animation: vira-gira .7s cubic-bezier(.3, .1, .2, 1) .35s both; }
+@keyframes vira-gira { from { transform: rotate(-90deg); } to { transform: none; } }
+.vira-t { margin: 0; font-family: var(--f-display); font-weight: 800; font-stretch: 88%; font-size: 24px; line-height: 1.05; letter-spacing: -.02em; }
+.vira-txt { margin: 0; max-width: 36ch; font-size: 15px; line-height: 1.4; color: var(--luz-2); }
+
 /* ---------- movimento reduzido: tudo aparece de uma vez ---------- */
 @media (prefers-reduced-motion: reduce) {
   .en-docs li.vendo::before { transition: none; }
+  .vira-fone { animation: none; }
 }
 
 /* ---------- seus ganhos (motorista) ---------- */

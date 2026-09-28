@@ -589,7 +589,7 @@
       mapa.limpar();
       mapa.ponto('embarque', c.embarque, Mapa.ICONE.embarque());
       if (pos) mapa.ponto('eu', pos, Mapa.ICONE.motorista(eu().veiculo));
-      mapa.enquadrar([pos, c.embarque].filter(Boolean), { maxZoom: 17 });
+      mapa.enquadrar(() => [pos, c.embarque], { maxZoom: 17 });
       if (pos) {
         const r = await S.rota(pos, c.embarque);
         if (corrida !== c || atual !== 'buscar') return;
@@ -758,7 +758,7 @@
         c.linha = r.linha;
       }
       mapa.rota(c.linha);
-      mapa.enquadrar([pos || c.embarque, c.destino]);
+      mapa.enquadrar(() => [(c.simulada && c.simAqui) || pos || c.embarque, c.destino]);
       atualizarViagem();
       if (c.simulada) simViagem(c);
     }

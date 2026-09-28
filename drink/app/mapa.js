@@ -45,6 +45,27 @@
     return { lat: p.lat + a * 0.004, lon: p.lon + b * 0.004, veic: p.veic };
   }
 
+  // a última vista que o app pediu (enquadrar ou centrar), para refazer quando o mapa muda de formato: o celular
+  // deitou e voltou em pé, a janela mudou muito. Sem isso, o motorista e o destino ficam fora da tela. Se a
+  // pessoa mexeu no mapa com o dedo, a vista passa a ser dela e fica como está.
+  function memoriaDaVista(el) {
+    let refazer = null;
+    let formato = null;
+    let espera = 0;
+    const medir = () => ({ w: el.clientWidth, h: el.clientHeight });
+    const mudou = (a, b) => !a.w || !a.h || (a.w > a.h) !== (b.w > b.h) || Math.abs(a.w - b.w) > a.w / 4 || Math.abs(a.h - b.h) > a.h / 4;
+    return {
+      guardar(fazer) { refazer = fazer; formato = medir(); },
+      esquecer() { refazer = null; clearTimeout(espera); },
+      conferir() {
+        const agora = medir();
+        if (!refazer || !agora.w || !agora.h || !mudou(formato, agora)) return;
+        clearTimeout(espera);
+        espera = setTimeout(() => { if (refazer) { formato = medir(); refazer(); } }, 250);
+      },
+    };
+  }
+
   function criar(el, opcoes = {}) {
     if (temWebGL()) {
       try { return criarGL(el, opcoes); } catch (e) { el.innerHTML = ''; }
@@ -97,6 +118,10 @@
     });
     setTimeout(() => { if (!carregou && fonte === 'omt') trocarEstilo(); }, 12000);
     mapa.on('style.load', () => { estiloPronto = true; aplicarRota(); });
+    const memoria = memoriaDaVista(el);
+    mapa.on('resize', () => memoria.conferir());
+    mapa.on('dragstart', () => memoria.esquecer());
+    mapa.on('zoomstart', (e) => { if (e && e.originalEvent) memoria.esquecer(); });
 
     const pontos = {};
     const tweens = {};
@@ -150,6 +175,10 @@
       mapa.addLayer({ id: 'rota-luz', type: 'line', source: 'rota', layout: jeito, paint: { 'line-color': '#D2FF3C', 'line-width': ['interpolate', ['linear'], ['zoom'], 10, 3, 16, 5.5] } }, antes);
     }
 
+    function centrarAgora(p, z) {
+      mapa.easeTo({ center: [p.lon, p.lat], zoom: zGL(z), offset: [0, -folga() / 2], duration: duracao() });
+    }
+
     const api = {
       mapa,
       // quanto a folha de baixo cobre do mapa: um número ou uma função que mede na hora
@@ -178,22 +207,29 @@
         grupos[nome].forEach((m) => m.remove());
         grupos[nome] = (lista || []).map((p) => { const q = espalhar(p); return marcador(q, desenho(q)); });
       },
-      // mostra todos os pontos dados, deixando livre o espaço da folha de baixo
+      // mostra todos os pontos dados, deixando livre o espaço da folha de baixo. A lista pode ser uma função:
+      // quando a vista é refeita, os pontos são os de agora (o motorista andou)
       enquadrar(lista, { maxZoom = 16 } = {}) {
-        const pts = lista.filter(Boolean);
-        if (!pts.length) return;
-        if (pts.length === 1) { api.centrar(pts[0], maxZoom); return; }
-        const alto = el.clientHeight || 600;
-        const baixo = Math.min(folga() + 40, Math.max(40, alto - 200));
-        const topo = Math.min(96, Math.max(20, alto - baixo - 120));
-        const caixa = new gl.LngLatBounds();
-        pts.forEach((p) => caixa.extend([p.lon, p.lat]));
-        mapa.fitBounds(caixa, { padding: { top: topo, bottom: baixo, left: 44, right: 44 }, maxZoom: zGL(maxZoom), duration: duracao() });
+        const pegar = typeof lista === 'function' ? lista : () => lista;
+        const fazer = () => {
+          const pts = (pegar() || []).filter(Boolean);
+          if (pts.length === 1) { centrarAgora(pts[0], maxZoom); return; }
+          if (!pts.length) return;
+          const alto = el.clientHeight || 600;
+          const baixo = Math.min(folga() + 40, Math.max(40, alto - 200));
+          const topo = Math.min(96, Math.max(20, alto - baixo - 120));
+          const caixa = new gl.LngLatBounds();
+          pts.forEach((p) => caixa.extend([p.lon, p.lat]));
+          mapa.fitBounds(caixa, { padding: { top: topo, bottom: baixo, left: 44, right: 44 }, maxZoom: zGL(maxZoom), duration: duracao() });
+        };
+        memoria.guardar(fazer);
+        fazer();
       },
       centrar(p, zoom) {
         if (!p) return;
         const z = zoom || Math.max(mapa.getZoom() + 1, 15);
-        mapa.easeTo({ center: [p.lon, p.lat], zoom: zGL(z), offset: [0, -folga() / 2], duration: duracao() });
+        memoria.guardar(() => centrarAgora(p, z));
+        centrarAgora(p, z);
       },
       // o ponto que está no meio da área livre (o alfinete de "escolher no mapa")
       meio() {
@@ -207,6 +243,7 @@
         api.semRota();
         api.online([]);
         api.pedidos([]);
+        memoria.esquecer();
       },
     };
     return api;
@@ -266,10 +303,23 @@
       };
       tweens[nome] = requestAnimationFrame(passo);
     }
+    const memoria = memoriaDaVista(el);
+    mapa.on('resize', () => memoria.conferir());
+    // o dedo mexeu no mapa (arrastar, pinça, dois toques, rodinha): a vista é da pessoa
+    mapa.on('dragstart dblclick', () => memoria.esquecer());
+    el.addEventListener('touchstart', (e) => { if (e.touches.length > 1) memoria.esquecer(); }, { passive: true });
+    el.addEventListener('wheel', () => memoria.esquecer(), { passive: true });
     // ponto na tela, descontando a folha de baixo que cobre o mapa
     function alvo(p, z) {
       const pt = mapa.project([p.lat, p.lon], z).add([0, folga() / 2]);
       return mapa.unproject(pt, z);
+    }
+
+    function centrarAgora(p, zoom) {
+      vista(() => {
+        const z = zoom || Math.max(mapa.getZoom(), 15);
+        mapa.setView(alvo(p, z), z, { animate: !reduzirMovimento() });
+      });
     }
 
     const api = {
@@ -302,19 +352,22 @@
         grupos[nome] = (lista || []).map((p) => { const q = espalhar(p); return L.marker([q.lat, q.lon], { icon: icone(desenho(q)), interactive: false, keyboard: false }).addTo(mapa); });
       },
       enquadrar(lista, { maxZoom = 16 } = {}) {
-        const pts = lista.filter(Boolean).map((p) => [p.lat, p.lon]);
-        if (!pts.length) return;
-        if (pts.length === 1) { api.centrar({ lat: pts[0][0], lon: pts[0][1] }, maxZoom); return; }
-        vista(() => mapa.fitBounds(L.latLngBounds(pts), {
-          paddingTopLeft: [40, 90], paddingBottomRight: [40, folga() + 40], maxZoom, animate: !reduzirMovimento(),
-        }));
+        const pegar = typeof lista === 'function' ? lista : () => lista;
+        const fazer = () => {
+          const pts = (pegar() || []).filter(Boolean).map((p) => [p.lat, p.lon]);
+          if (pts.length === 1) { centrarAgora({ lat: pts[0][0], lon: pts[0][1] }, maxZoom); return; }
+          if (!pts.length) return;
+          vista(() => mapa.fitBounds(L.latLngBounds(pts), {
+            paddingTopLeft: [40, 90], paddingBottomRight: [40, folga() + 40], maxZoom, animate: !reduzirMovimento(),
+          }));
+        };
+        memoria.guardar(fazer);
+        fazer();
       },
       centrar(p, zoom) {
         if (!p) return;
-        vista(() => {
-          const z = zoom || Math.max(mapa.getZoom(), 15);
-          mapa.setView(alvo(p, z), z, { animate: !reduzirMovimento() });
-        });
+        memoria.guardar(() => centrarAgora(p, zoom));
+        centrarAgora(p, zoom);
       },
       meio() {
         const tam = mapa.getSize();
@@ -328,6 +381,7 @@
         api.semRota();
         api.online([]);
         api.pedidos([]);
+        memoria.esquecer();
       },
     };
     return api;
