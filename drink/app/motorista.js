@@ -1055,11 +1055,13 @@
     }
 
     /* ---------- folhas ---------- */
+    let soltarFolha = null;
     function abrirFolha(id) {
-      fecharFolha();
+      fecharFolha(false);
       folha = id;
       veu.hidden = false;
       q(`#${id}`).hidden = false;
+      soltarFolha = S.prenderFoco(q(`#${id}`));
       if (id === 'rm-ganhos') { diaEscolhido = null; desenharSemana(); }
       if (id === 'rm-chat' && corrida) {
         corrida.novaMsg = false;
@@ -1070,11 +1072,12 @@
       const t = $('h4', q(`#${id}`));
       if (t) t.focus({ preventScroll: true });
     }
-    function fecharFolha() {
+    function fecharFolha(foco = true) {
       if (!folha) return;
       q(`#${folha}`).hidden = true;
       veu.hidden = true;
       folha = null;
+      if (soltarFolha) { soltarFolha(foco); soltarFolha = null; }
     }
 
     /* ---------- toques ---------- */

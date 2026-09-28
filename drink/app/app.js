@@ -873,12 +873,14 @@
   const veu = $('#en-veu');
   let folha = null;
   let origemFolha = null;
+  let soltarFolha = null;
   function abrirFolha(id, origem) {
     fecharFolha(false);
     folha = $(`#${id}`);
     origemFolha = origem || null;
     veu.hidden = false;
     folha.hidden = false;
+    soltarFolha = window.Drink.servicos.prenderFoco(folha);
     $('h4', folha).focus({ preventScroll: true });
   }
   function fecharFolha(foco = true) {
@@ -886,6 +888,7 @@
     folha.hidden = true;
     veu.hidden = true;
     folha = null;
+    if (soltarFolha) { soltarFolha(foco && !origemFolha); soltarFolha = null; }
     if (foco && origemFolha && !origemFolha.closest('[hidden]')) origemFolha.focus({ preventScroll: true });
     origemFolha = null;
   }
