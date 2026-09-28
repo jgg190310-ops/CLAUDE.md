@@ -883,6 +883,63 @@
     window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
   }
 
+  /* ---------- folhas: arrastar para baixo fecha, como nos apps do iPhone ---------- */
+  function arrastarParaFechar(folha) {
+    // a alça lá em cima (e o cabeçalho) seguram o dedo sem rolar a folha
+    const alca = document.createElement('div');
+    alca.className = 'd-alca';
+    alca.setAttribute('aria-hidden', 'true');
+    folha.prepend(alca);
+    let ativo = false;
+    let id = null;
+    let y0 = 0;
+    let t0 = 0;
+    let dy = 0;
+    folha.addEventListener('pointerdown', (e) => {
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      if (folha.scrollTop > 0 || e.clientY - folha.getBoundingClientRect().top > 76) return;
+      if (e.target.closest('button, a, input, select, textarea')) return;
+      ativo = true;
+      id = e.pointerId;
+      y0 = e.clientY;
+      t0 = performance.now();
+      dy = 0;
+    });
+    folha.addEventListener('pointermove', (e) => {
+      if (!ativo || e.pointerId !== id) return;
+      dy = Math.max(0, e.clientY - y0);
+      if (dy > 3) { folha.style.transition = 'none'; folha.style.transform = `translateY(${dy}px)`; }
+    });
+    const soltar = (e) => {
+      if (!ativo || e.pointerId !== id) return;
+      ativo = false;
+      const rapido = dy / Math.max(1, performance.now() - t0) > 0.6;
+      folha.style.transition = reduzirMovimento() ? 'none' : 'transform .2s ease-out';
+      if (dy > 90 || (dy > 28 && rapido)) {
+        folha.style.transform = 'translateY(105%)';
+        setTimeout(() => {
+          const bt = $('[data-rp-fechar], [data-rm-fechar], [data-app="fechar"]', folha);
+          if (bt) bt.click();
+          folha.style.transition = '';
+          folha.style.transform = '';
+        }, reduzirMovimento() ? 0 : 190);
+      } else {
+        folha.style.transform = '';
+        setTimeout(() => { folha.style.transition = ''; }, 220);
+      }
+    };
+    folha.addEventListener('pointerup', soltar);
+    folha.addEventListener('pointercancel', soltar);
+  }
+  $$('.d-sobre').forEach(arrastarParaFechar);
+
+  /* ---------- teclado do iPhone: ao fechar, a tela volta para o lugar (senão os toques saem deslocados) ---------- */
+  const campo = (el) => Boolean(el && el.matches && el.matches('input, textarea, select'));
+  document.addEventListener('focusout', (e) => {
+    if (!campo(e.target)) return;
+    setTimeout(() => { if (!campo(document.activeElement) && (window.scrollY || document.documentElement.scrollTop)) window.scrollTo(0, 0); }, 80);
+  });
+
   /* ---------- erro inesperado: avisa na tela em vez de o app parecer travado ---------- */
   let ultimaFalha = 0;
   function avisarFalha(motivo) {
