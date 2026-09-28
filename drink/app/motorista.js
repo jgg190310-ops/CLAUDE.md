@@ -553,7 +553,24 @@
 
     /* ---------- vistoria com a câmera ---------- */
     const NOMES_FOTOS = ['Frente', 'Traseira', 'Lado esquerdo', 'Lado direito', 'Painel'];
-    function reduzirFoto(arquivo) {
+    // a foto sai com o carimbo da data, da hora e do lado do carro, como nas vistorias de locadora
+    function carimbar(g, largura, altura, rotulo) {
+      const agora = new Date();
+      const txt = `${agora.toLocaleDateString('pt-BR')} ${hhmm(agora)} · ${rotulo} · Drink`;
+      const fonte = Math.max(11, Math.round(Math.min(largura, altura) / 24));
+      g.font = `700 ${fonte}px system-ui, -apple-system, "Segoe UI", sans-serif`;
+      const folga = Math.round(fonte * 0.55);
+      const w = Math.min(largura - folga * 2, g.measureText(txt).width + folga * 2);
+      const h = Math.round(fonte * 1.7);
+      const x = largura - w - folga;
+      const y = altura - h - folga;
+      g.fillStyle = 'rgba(0, 0, 0, .62)';
+      g.fillRect(x, y, w, h);
+      g.fillStyle = '#FFF3E2';
+      g.textBaseline = 'middle';
+      g.fillText(txt, x + folga, y + h / 2, w - folga * 2);
+    }
+    function reduzirFoto(arquivo, rotulo) {
       return new Promise((ok) => {
         const url = URL.createObjectURL(arquivo);
         const img = new Image();
@@ -562,7 +579,9 @@
           const tela = document.createElement('canvas');
           tela.width = Math.round(img.width * escala);
           tela.height = Math.round(img.height * escala);
-          tela.getContext('2d').drawImage(img, 0, 0, tela.width, tela.height);
+          const g = tela.getContext('2d');
+          g.drawImage(img, 0, 0, tela.width, tela.height);
+          carimbar(g, tela.width, tela.height, rotulo);
           URL.revokeObjectURL(url);
           ok(tela.toDataURL('image/jpeg', 0.6));
         };
@@ -597,14 +616,14 @@
       const arquivo = input.files && input.files[0];
       input.value = '';
       if (!arquivo || !corrida) return;
-      const reduzida = await reduzirFoto(arquivo);
+      const reduzida = await reduzirFoto(arquivo, NOMES_FOTOS[i]);
       if (!reduzida) { op.avisar('Não deu pra ler essa foto. Tira de novo.'); return; }
       fotos[i] = reduzida;
       corrida.fotos = fotos.filter(Boolean).length;
       desenharFotos();
       guardarFotos();
       enviar({ tipo: 'etapa', etapa: 'vistoria', fotos: corrida.fotos });
-      if (i === 4) op.avisar(`Painel registrado (${NOMES_FOTOS[i]}).`);
+      if (i === 4) op.avisar('Painel registrado. Confere se dá para ler o km e o combustível na foto.');
     }
 
     /* ---------- dobra guiada ---------- */
