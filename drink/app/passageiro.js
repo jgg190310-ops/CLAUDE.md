@@ -578,6 +578,14 @@
           c.pos = { lat: msg.lat, lon: msg.lon, t: Date.now() };
           if (atual === 'caminho') atualizarChegando();
           break;
+        case 'perto':
+          if (c.etapa === 'a-caminho' && !c.avisouPerto) {
+            c.avisouPerto = true;
+            op.notificar(`${nome} está chegando`, 'Uns 2 minutos. Vai saindo para encontrar o Drink.');
+            if (!document.hidden) op.avisar(`${nome} está chegando: uns 2 minutos.`);
+            if (atual === 'caminho') mostrarCaminho();
+          }
+          break;
         case 'etapa':
           if (msg.etapa === 'chegou' && ['a-caminho'].includes(c.etapa)) {
             c.etapa = 'chegou';
@@ -695,7 +703,7 @@
       if (!c || !c.motorista) return;
       const m = c.motorista;
       const nome = primeiroNome(m.nome);
-      q('#rp-cam-t').textContent = c.etapa === 'chegou' ? `${nome} chegou` : `${nome} está a caminho`;
+      q('#rp-cam-t').textContent = c.etapa === 'chegou' ? `${nome} chegou` : (c.avisouPerto ? `${nome} está chegando` : `${nome} está a caminho`);
       rosto(q('#rp-mot-av'), m);
       q('#rp-mot-nome').textContent = m.nome;
       q('#rp-mot-info').textContent = `${m.nota ? S.virgula(m.nota) : 'novo no Drink'} · ${veiculoTxt(m.veiculo)}`;
