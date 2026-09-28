@@ -103,28 +103,44 @@
       r.onerror = () => falha(r.error);
     });
   }
+  // guarda os bytes e o tipo, não o Blob: o Safari em aba privada não guarda Blob no IndexedDB (e falha calado)
+  const bytesDe = (blob) => (blob.arrayBuffer ? blob.arrayBuffer() : new Promise((ok, falha) => {
+    const r = new FileReader();
+    r.onload = () => ok(r.result);
+    r.onerror = () => falha(r.error);
+    r.readAsArrayBuffer(blob);
+  }));
   async function guardarArquivo(chave, blob) {
+    const registro = { tipo: blob.type || '', tamanho: blob.size, dados: await bytesDe(blob) };
     const db = await base();
-    await new Promise((ok, falha) => {
-      const t = db.transaction('arquivos', 'readwrite');
-      t.objectStore('arquivos').put(blob, chave);
-      t.oncomplete = ok;
-      t.onerror = () => falha(t.error);
-    });
-    db.close();
+    try {
+      await new Promise((ok, falha) => {
+        const t = db.transaction('arquivos', 'readwrite');
+        t.objectStore('arquivos').put(registro, chave);
+        t.oncomplete = ok;
+        t.onerror = () => falha(t.error || new Error('não guardou'));
+        t.onabort = () => falha(t.error || new Error('não guardou'));
+      });
+    } finally {
+      db.close();
+    }
   }
   // apagar a conta: a foto da CNH e a certidão saem do aparelho junto
   async function apagarArquivos(celular) {
     const db = await base();
-    await new Promise((ok, falha) => {
-      const t = db.transaction('arquivos', 'readwrite');
-      const loja = t.objectStore('arquivos');
-      loja.delete(`${celular}:cnh`);
-      loja.delete(`${celular}:antecedentes`);
-      t.oncomplete = ok;
-      t.onerror = () => falha(t.error);
-    });
-    db.close();
+    try {
+      await new Promise((ok, falha) => {
+        const t = db.transaction('arquivos', 'readwrite');
+        const loja = t.objectStore('arquivos');
+        loja.delete(`${celular}:cnh`);
+        loja.delete(`${celular}:antecedentes`);
+        t.oncomplete = ok;
+        t.onerror = () => falha(t.error || new Error('não apagou'));
+        t.onabort = () => falha(t.error || new Error('não apagou'));
+      });
+    } finally {
+      db.close();
+    }
   }
 
   /* ---------- treino ---------- */
