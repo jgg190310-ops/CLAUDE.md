@@ -4,12 +4,13 @@
 (function () {
   'use strict';
 
-  const { $, $$, brl, hhmm, esc, reduzirMovimento, taxaEspera, PRECO } = window.Drink.util;
+  const { $, $$, brl, brl0, hhmm, esc, reduzirMovimento, taxaEspera, PRECO } = window.Drink.util;
   const S = window.Drink.servicos;
   const R = window.Drink.rede;
   const Mapa = window.Drink.mapa;
   const PIX = window.Drink.pix;
   const CARROS = window.Drink.carros;
+  const EV = window.Drink.Eventos;
 
   const PRAZO_BUSCA = 3 * 60 * 1000;
   const VEICULOS = { qualquer: 'Tanto faz', bike: 'Bike', patinete: 'Patinete' };
@@ -76,6 +77,14 @@
     const agendar = (fn, ms) => { timers.push(setTimeout(fn, ms)); };
     const limparTimers = () => { timers.forEach(clearTimeout); timers = []; };
 
+    // a aba Eventos, de quem organiza (a busca do lugar do evento usa a mesma tela de endereço)
+    const painel = EV.criar({
+      raiz, eu, salvar: op.salvar, avisar: op.avisar, copiar: (t, ok) => copiar(t, ok),
+      ir: (nome) => ir(nome), atual: () => atual, abrirFolha: (id) => abrirFolha(id), fecharFolha: () => fecharFolha(),
+      buscarLugar: () => { voltarPara = 'evento-novo'; modoBusca = 'evento'; ir('destino'); },
+    });
+    const TELAS_EVENTO = ['eventos', 'evento', 'evento-novo'];
+
     /* ---------- mapa e GPS ---------- */
     function garantirMapa() {
       if (mapa) return mapa;
@@ -133,6 +142,72 @@
         if (!embarqueManual && !ultimoEndereco) q('#rp-local').textContent = 'Você está aqui no mapa';
       }
     }
+    /* ---------- convidado de um evento (veio pelo QR do convite) ---------- */
+    let conviteAplicado = '';
+    function desenharConvite() {
+      const e = EV.convite();
+      const box = q('#rp-evento');
+      box.hidden = !e;
+      if (!e) return;
+      const sit = EV.situacao(e);
+      q('#rp-evento-t').textContent = e.nome;
+      q('#rp-evento-sub').textContent = sit === 'antes'
+        ? `Começa ${EV.quandoTxt(e)}. ${e.paga === 'evento' ? 'A volta por conta do evento' : 'O Drink saindo de lá'} vale a partir daí.`
+        : (e.paga === 'evento'
+          ? `A volta é por conta do evento, até ${brl0(e.teto)}. O Drink busca você em ${e.lugar.nome}.`
+          : `O Drink busca você em ${e.lugar.nome}. Você paga pelo Pix, direto para o motorista.`);
+      // o embarque vai para o lugar do evento uma vez; se a pessoa trocar, vale a escolha dela
+      if (sit !== 'antes' && !corrida && conviteAplicado !== e.id) {
+        conviteAplicado = e.id;
+        embarque = { nome: e.lugar.nome, bairro: e.lugar.bairro, lat: e.lugar.lat, lon: e.lugar.lon };
+        embarqueManual = true;
+        mostrarEmbarque();
+      }
+    }
+    function sairDoConvite() {
+      const e = EV.convite();
+      EV.esquecerConvite();
+      q('#rp-evento').hidden = true;
+      if (e && embarqueManual && embarque && S.distancia(embarque, e.lugar) < 30) {
+        embarqueManual = false;
+        embarque = null;
+        atualizarEmbarque();
+        mostrarEmbarque();
+      }
+      conviteAplicado = '';
+      op.avisar('Pronto, você saiu do convite do evento.');
+    }
+    // quantas voltas o evento já pagou (e se quem organiza encerrou): lido no canal do evento, no máximo a cada minuto
+    let usoEvento = null;
+    const voltasAcabaram = (e) => Boolean(usoEvento && usoEvento.id === e.id && (usoEvento.encerrado || usoEvento.n >= e.voltas));
+    function conferirVoltas(e) {
+      if (usoEvento && usoEvento.id === e.id && Date.now() - usoEvento.t < 60000) return;
+      usoEvento = { id: e.id, t: Date.now(), n: 0, encerrado: false };
+      EV.voltasUsadas(e).then((uso) => {
+        usoEvento = { id: e.id, t: Date.now(), ...uso };
+        if (atual === 'opcoes' && rota && !corrida) desenharParteEvento(S.preco(rota.km).total);
+      }).catch(() => { usoEvento = null; });
+    }
+    // a volta de agora sai do evento? e o evento paga?
+    function eventoDaVolta() {
+      const e = EV.convite();
+      if (!e || !embarque) return null;
+      if (S.distancia(embarque, e.lugar) > EV.PERTO_DO_EVENTO) {
+        return { e, daqui: false, cobre: false, fora: e.paga === 'evento' ? 'O evento só paga a volta que sai de lá. Esse embarque é em outro lugar.' : '' };
+      }
+      if (e.paga === 'evento' && EV.situacao(e) === 'antes') return { e, daqui: true, cobre: false, fora: `A volta por conta do evento vale a partir de ${e.inicio}.` };
+      if (EV.cobre(e, embarque) && voltasAcabaram(e)) {
+        return { e, daqui: true, cobre: false, fora: usoEvento.encerrado ? 'Quem organiza encerrou as voltas pagas: essa você paga pelo Pix.' : 'As voltas pagas pelo evento acabaram: essa você paga pelo Pix.' };
+      }
+      return { e, daqui: true, cobre: EV.cobre(e, embarque), fora: '' };
+    }
+    // a parte da volta que o evento paga: a corrida e a espera, até o teto (a gorjeta é de quem dá)
+    function parteEvento(c) {
+      if (!c || !c.evento || !(c.evento.teto > 0)) return 0;
+      return redondo(Math.min(c.valor + (c.espera || 0), c.evento.teto));
+    }
+    const reciboEvento = (c) => (parteEvento(c) ? { nome: c.evento.nome, valor: parteEvento(c) } : null);
+
     function centrarEmMim() {
       garantirMapa();
       mapa.centrar(pos || S.BH, 15.5);
@@ -225,7 +300,7 @@
     }
 
     /* ---------- telas ---------- */
-    const COM_ABAS = ['inicio', 'viagens', 'carteira', 'perfil'];
+    const COM_ABAS = ['inicio', 'viagens', 'eventos', 'carteira', 'perfil'];
     function ir(nome, { foco = true } = {}) {
       fecharFolha(false);
       const tela = telas.find((t) => t.dataset.rt === nome);
@@ -242,6 +317,7 @@
         mapa.ajustar();
         medirFolha(tela);
       }
+      painel.mostrar(TELAS_EVENTO.includes(nome));
       if (ENTRAR[nome]) ENTRAR[nome](tela);
       if (foco) {
         const t = $('.d-titulo, .en-t', tela);
@@ -260,16 +336,17 @@
         desenharAtalhos();
         q('#rp-gps').hidden = !gpsNegado;
         if (!ultimoEndereco && pos) atualizarEmbarque();
+        desenharConvite();
       },
       destino() {
         const campo = q('#rp-busca');
         campo.value = '';
-        const titulos = { destino: 'Para onde?', embarque: 'Onde o Drink te busca?', casa: 'Onde é a sua casa?', trabalho: 'Onde você trabalha?' };
+        const titulos = { destino: 'Para onde?', embarque: 'Onde o Drink te busca?', casa: 'Onde é a sua casa?', trabalho: 'Onde você trabalha?', evento: 'Onde vai ser o evento?' };
         q('#rp-dest-t').textContent = titulos[modoBusca];
         q('#rp-de-linha').hidden = modoBusca !== 'destino';
-        q('.rt-campos').classList.toggle('so-embarque', modoBusca === 'embarque');
+        q('.rt-campos').classList.toggle('so-embarque', modoBusca === 'embarque' || modoBusca === 'evento');
         q('#rp-de').textContent = (embarque && embarque.nome) || 'Sua localização';
-        campo.placeholder = modoBusca === 'embarque' ? 'Rua e número, bar, praça…' : 'Endereço, bar, bairro…';
+        campo.placeholder = { embarque: 'Rua e número, bar, praça…', evento: 'Salão, bar, casa de show ou endereço…' }[modoBusca] || 'Endereço, bar, bairro…';
         mostrarSalvos();
         setTimeout(() => campo.focus({ preventScroll: true }), 50);
       },
@@ -289,6 +366,9 @@
       viagens() { desenharHistorico(); },
       carteira() { desenharCarteira(); },
       perfil() { desenharPerfil(); },
+      eventos() { painel.lista(); },
+      'evento-novo'() { painel.desenharForm(); },
+      evento() { painel.pagina(); },
     };
 
     /* ---------- atalhos: casa e trabalho ---------- */
@@ -315,7 +395,7 @@
       const u = eu();
       const locais = (u && u.locais) || {};
       const lista = [];
-      if (modoBusca === 'embarque' && pos) {
+      if ((modoBusca === 'embarque' || modoBusca === 'evento') && pos) {
         lista.push({ nome: 'Onde estou agora', detalhe: ultimoEndereco ? juntar(ultimoEndereco.lugar) : 'pelo GPS do celular', lat: pos.lat, lon: pos.lon, icone: 'i-mira', gps: true });
       }
       if (modoBusca === 'destino' || modoBusca === 'embarque') {
@@ -358,6 +438,13 @@
       const lugar = { nome: l.detalhe && ['Casa', 'Trabalho'].includes(l.nome) ? l.detalhe : l.nome, detalhe: l.detalhe || '', bairro: l.bairro || '', lat: l.lat, lon: l.lon };
       const modo = modoBusca;
       modoBusca = 'destino';
+      if (modo === 'evento') {
+        // "onde estou agora": o endereço do GPS, com o ponto exato
+        const aqui = l.gps && pos ? { ...(ultimoEndereco ? ultimoEndereco.lugar : { nome: 'Local do evento', bairro: '' }), lat: pos.lat, lon: pos.lon } : lugar;
+        painel.lugarEscolhido(aqui);
+        ir('evento-novo');
+        return;
+      }
       if (modo === 'embarque') {
         if (l.gps) {
           embarqueManual = false;
@@ -420,6 +507,10 @@
       bt.disabled = true;
       bt.textContent = 'Pedir Drink';
       q('#rp-simular').disabled = true;
+      q('#rp-op-ev').hidden = true;
+      q('#rp-op-pag').textContent = 'Pix na chegada';
+      // a cada preço novo, confere de novo se o evento ainda paga (quem organiza pode ter encerrado)
+      usoEvento = null;
       mapa.limpar();
       if (!embarque && pos) embarque = { nome: 'Sua localização', bairro: '', lat: pos.lat, lon: pos.lon };
       q('#rp-op-emb').textContent = embarque ? embarque.nome : 'Escolher';
@@ -448,6 +539,23 @@
       bt.disabled = false;
       bt.textContent = `Pedir Drink · ${brl(p.total)}`;
       q('#rp-simular').disabled = false;
+      desenharParteEvento(p.total);
+    }
+    function desenharParteEvento(total) {
+      const linha = q('#rp-op-ev');
+      const v = eventoDaVolta();
+      if (v && v.cobre) conferirVoltas(v.e);
+      q('#rp-op-pag').textContent = 'Pix na chegada';
+      if (!q('#rp-pedir').disabled) q('#rp-pedir').textContent = `Pedir Drink · ${brl(total)}`;
+      if (!v || (!v.cobre && !v.fora)) { linha.hidden = true; return; }
+      linha.hidden = false;
+      linha.classList.toggle('fora', !v.cobre);
+      if (!v.cobre) { linha.textContent = v.fora; return; }
+      const parte = Math.min(total, v.e.teto);
+      const resto = redondo(total - parte);
+      linha.textContent = resto > 0 ? `${v.e.nome} paga ${brl(parte)}. Você paga ${brl(resto)} pelo Pix.` : `Por conta de ${v.e.nome}: você não paga nada.`;
+      q('#rp-op-pag').textContent = resto > 0 ? 'Evento + Pix' : 'Por conta do evento';
+      q('#rp-pedir').textContent = resto > 0 ? `Pedir Drink · ${brl(resto)}` : 'Pedir Drink · por conta do evento';
     }
 
     // a conta do preço, antes de pedir
@@ -503,7 +611,13 @@
       R.fila.mandar(topico, env);
     }
 
+    let pedindo = false;
     async function pedir() {
+      if (pedindo) return;
+      pedindo = true;
+      try { await pedirAgora(); } finally { pedindo = false; }
+    }
+    async function pedirAgora() {
       const u = eu();
       if (esperaAtiva()) pararEspera();
       op.pedirNotificacao();
@@ -515,6 +629,22 @@
         return;
       }
       if (!rota || !embarque || !destino) { op.avisar('Espera a rota aparecer no mapa e toca de novo.'); return; }
+      // saindo de um evento: a volta leva o evento junto (o motorista manda a conta para ele, se ele paga)
+      const v = eventoDaVolta();
+      let evento = null;
+      if (v && v.daqui) {
+        evento = { id: v.e.id, chave: v.e.chave, nome: v.e.nome, teto: v.cobre ? v.e.teto : 0 };
+        if (v.cobre) {
+          // antes de pedir, confere se as voltas pagas não acabaram (ou se quem organiza encerrou)
+          const uso = await Promise.race([EV.voltasUsadas(v.e).catch(() => null), new Promise((ok) => { setTimeout(() => ok(null), 4000); })]);
+          if (uso) usoEvento = { id: v.e.id, t: Date.now(), ...uso };
+          if (uso && (uso.encerrado || uso.n >= v.e.voltas)) {
+            evento.teto = 0;
+            op.avisar(uso.encerrado ? 'Quem organiza encerrou as voltas pagas. Essa você paga pelo Pix.' : 'As voltas pagas pelo evento acabaram. Essa você paga pelo Pix.');
+          }
+        }
+      }
+      if (corrida) return;
       const par = await R.novoPar();
       const agora = Date.now();
       const p = S.preco(rota.km);
@@ -526,7 +656,7 @@
         codigo: String(1000 + Math.floor(Math.random() * 9000)),
         priv: par.priv, pub: par.pub, rastreio: R.novaChave(), segredo: R.idAleatorio(),
         motorista: null, chave: null, ultimo: null, msgs: [], fotos: 0, malas: false,
-        nota: 0, tags: [], gorjeta: 0, cobranca: null, paguei: false, compartilhada: false,
+        nota: 0, tags: [], gorjeta: 0, cobranca: null, paguei: false, compartilhada: false, evento,
       };
       privada = par.privada;
       salvarCorrida();
@@ -537,6 +667,8 @@
         para: { bairro: destino.bairro || destino.nome },
         km: corrida.km, min: corrida.min, valor: corrida.valor, veic, cambio: u.carro.cambio, nota: minhaNota(u),
         fecho: await R.resumo(corrida.segredo),
+        // o pedido aberto só diz que é de um evento e até quanto ele paga (o nome vai cifrado, depois do aceite)
+        ev: evento ? { teto: evento.teto } : undefined,
       };
       ir('buscando');
       q('#rp-bu-sub').textContent = `O pedido foi para os Drinks online perto ${embarque.bairro ? `de ${embarque.bairro}` : 'de você'}.`;
@@ -629,6 +761,7 @@
             embarque: { lat: c.embarque.lat, lon: c.embarque.lon, nome: c.embarque.nome, bairro: c.embarque.bairro },
             destino: { lat: c.destino.lat, lon: c.destino.lon, nome: c.destino.nome, bairro: c.destino.bairro },
             carro: c.carro, valor: c.valor, km: c.km,
+            evento: c.evento || undefined,
           });
           avisarMotorista('confirmado');
           publicarFechado();
@@ -676,7 +809,7 @@
             c.espera = Math.min(Math.max(0, Number(msg.espera) || 0), c.esperaMax || 0);
             clearInterval(rastreioTimer);
             publicarRastreio(true);
-            notificar('Chegou!', 'Avalia a corrida e paga com Pix.');
+            notificar('Chegou!', totalAtual() > 0 ? 'Avalia a corrida e paga com Pix.' : 'Avalia a corrida. A volta é por conta do evento.');
             ir('chegou');
           }
           break;
@@ -960,7 +1093,8 @@
       if (v.adicional) h += linhaRecibo('Bandeira 2 (+20%)', brl(v.adicional));
       if (v.espera) h += linhaRecibo('Espera', brl(v.espera));
       if (v.gorjeta) h += linhaRecibo('Gorjeta', brl(v.gorjeta));
-      h += linhaRecibo(`Total · ${v.pag || 'Pix'}`, brl(v.total), 't-total');
+      if (v.evento && v.evento.valor) h += linhaRecibo(`Por conta de ${v.evento.nome}`, `− ${brl(v.evento.valor)}`);
+      h += linhaRecibo(`Total · ${v.pag || (v.evento && v.total <= 0 ? 'Evento' : 'Pix')}`, brl(v.total), 't-total');
       return h;
     }
     // o recibo de uma volta: quem dirigiu, de onde, para onde e quando; para mandar para quem reembolsa
@@ -970,7 +1104,8 @@
     function infoRecibo(v) {
       const linha = (a, b) => (b ? `<li><span>${esc(a)}</span><b>${esc(b)}</b></li>` : '');
       return linha('Motorista', v.motorista) + linha('Saiu de', lugarTxt(v.embarque)) + linha('Chegou em', lugarTxt(v.destino))
-        + linha('Início', v.inicio ? quandoTxt(v.inicio) : '') + linha('Chegada', quandoTxt(v.data)) + linha('Pagamento', `${v.pag || 'Pix'} direto para o motorista`);
+        + linha('Início', v.inicio ? quandoTxt(v.inicio) : '') + linha('Chegada', quandoTxt(v.data))
+        + linha('Pagamento', v.evento ? (v.total > 0 ? `${v.evento.nome} e Pix direto para o motorista` : `Por conta de ${v.evento.nome}`) : `${v.pag || 'Pix'} direto para o motorista`);
     }
     function textoRecibo(v) {
       const d = new Date(v.data);
@@ -982,6 +1117,7 @@
       if (v.adicional) conta.push(`Bandeira 2 (+20%): ${brl(v.adicional)}`);
       if (v.espera) conta.push(`Espera: ${brl(v.espera)}`);
       if (v.gorjeta) conta.push(`Gorjeta: ${brl(v.gorjeta)}`);
+      if (v.evento && v.evento.valor) conta.push(`Por conta de ${v.evento.nome}: − ${brl(v.evento.valor)}`);
       conta.push(`Total (${v.pag || 'Pix'}): ${brl(v.total)}`);
       return `${cab.join('\n')}\n\n${conta.join('\n')}`;
     }
@@ -1001,7 +1137,7 @@
       a.href = `mailto:${encodeURIComponent(para).replace(/%40/g, '@')}?subject=${encodeURIComponent(assunto)}&body=${encodeURIComponent(corpo)}`;
       a.setAttribute('aria-label', para ? `Mandar o recibo para ${para}` : 'Mandar o recibo por e-mail');
     }
-    function totalAtual() { return redondo(corrida.valor + (corrida.espera || 0) + (corrida.gorjeta || 0)); }
+    function totalAtual() { return redondo(corrida.valor + (corrida.espera || 0) + (corrida.gorjeta || 0) - parteEvento(corrida)); }
     function mostrarChegada() {
       const c = corrida;
       if (!c) return;
@@ -1012,7 +1148,7 @@
     }
     function desenharAvaliacao() {
       const c = corrida;
-      q('#rp-recibo').innerHTML = htmlRecibo({ ...c, total: totalAtual() });
+      q('#rp-recibo').innerHTML = htmlRecibo({ ...c, total: totalAtual(), evento: reciboEvento(c) });
       $$('#rp-estrelas [data-nota]', raiz).forEach((b) => {
         const n = Number(b.dataset.nota);
         b.classList.toggle('on', n <= c.nota);
@@ -1026,13 +1162,20 @@
         tags.classList.toggle('ruins', tipo === 'ruins');
         tags.innerHTML = TAGS[tipo].map((t) => `<button type="button" data-tag="${esc(t)}" aria-pressed="${c.tags.includes(t)}">${esc(t)}</button>`).join('');
       }
-      q('#rp-pagar').textContent = `Pagar ${brl(totalAtual())} com Pix`;
+      q('#rp-pagar').textContent = totalAtual() > 0 ? `Pagar ${brl(totalAtual())} com Pix` : 'Concluir a volta';
     }
     function irPagar() {
       const c = corrida;
       c.etapa = 'pagando';
       enviar({ tipo: 'avaliacao', nota: c.nota, tags: c.tags, gorjeta: c.gorjeta, total: totalAtual() });
       salvarCorrida();
+      // por conta do evento e sem gorjeta: não tem nada para pagar
+      if (!c.simulada && totalAtual() <= 0) {
+        c.paguei = true;
+        enviar({ tipo: 'paguei', total: 0 });
+        concluir();
+        return;
+      }
       ir('pix');
     }
     function mostrarPix() {
@@ -1100,7 +1243,9 @@
       const v = {
         id: c.id, rota: `${c.embarque.bairro || c.embarque.nome} → ${c.destino.bairro || c.destino.nome}`,
         data: new Date(c.chegada || Date.now()).toISOString(), km: c.km, motorista: c.motorista ? c.motorista.nome : 'Drink',
-        pag: 'Pix', saida: c.saida, rodado: c.rodado, adicional: c.adicional, espera: c.espera || 0, gorjeta: c.gorjeta, total: totalAtual(),
+        pag: parteEvento(c) ? (totalAtual() > 0 ? 'Evento + Pix' : 'Evento') : 'Pix',
+        saida: c.saida, rodado: c.rodado, adicional: c.adicional, espera: c.espera || 0, gorjeta: c.gorjeta, total: totalAtual(),
+        evento: reciboEvento(c) || undefined,
         nota: c.nota, destino: { nome: c.destino.nome, bairro: c.destino.bairro, detalhe: c.destino.detalhe, lat: c.destino.lat, lon: c.destino.lon },
         embarque: { nome: c.embarque.nome, bairro: c.embarque.bairro }, inicio: c.inicioViagem ? new Date(c.inicioViagem).toISOString() : null,
       };
@@ -1110,7 +1255,7 @@
       embarqueManual = false;
       destino = null;
       encerrar();
-      op.avisar('Pago! O recibo ficou salvo em Viagens.');
+      op.avisar(v.evento && v.total <= 0 ? 'Volta concluída, por conta do evento. O recibo ficou salvo em Viagens.' : 'Pago! O recibo ficou salvo em Viagens.');
       ir('viagens');
     }
 
@@ -1445,6 +1590,7 @@
         },
         'copiar-pix': () => { if (corrida && corrida.pixCodigo) copiar(corrida.pixCodigo, 'Código Pix copiado. Agora cola no app do seu banco.'); },
         paguei,
+        'sair-evento': sairDoConvite,
       };
       if (ds.rp && acoes[ds.rp]) { acoes[ds.rp](); return; }
       switch (b.id) {
@@ -1455,7 +1601,13 @@
           q('#rp-op-chega').textContent = veic === 'qualquer' ? 'bike ou patinete' : (veic === 'bike' ? 'bike elétrica' : 'patinete elétrico');
           break;
         }
-        case 'rp-op-pag': op.avisar('Você paga com Pix direto pro motorista, pelo app do seu banco, quando chegar em casa.'); break;
+        case 'rp-op-pag': {
+          const v = eventoDaVolta();
+          op.avisar(v && v.cobre
+            ? `O ${v.e.nome} paga até ${brl0(v.e.teto)} da volta. Se passar disso, você paga a diferença pelo Pix, direto pro motorista.`
+            : 'Você paga com Pix direto pro motorista, pelo app do seu banco, quando chegar em casa.');
+          break;
+        }
         case 'rp-pedir': pedir(); break;
         case 'rp-pagar': irPagar(); break;
         default:
@@ -1560,13 +1712,14 @@
     }
     function fechar() {
       vigiarOnline(false);
+      painel.mostrar(false);
       fecharFolha();
       if (soltarGps && !corrida) { soltarGps(); soltarGps = null; }
     }
     // voltar do aparelho: devolve true se tratou
     function voltar() {
       if (folha) { fecharFolha(); return true; }
-      const mapaVolta = { destino: modoBusca === 'destino' ? 'inicio' : (voltarPara || 'perfil'), 'no-mapa': 'destino', opcoes: 'destino', ninguem: 'opcoes', viagens: 'inicio', carteira: 'inicio', perfil: 'inicio', pix: 'chegou' };
+      const mapaVolta = { destino: modoBusca === 'destino' ? 'inicio' : (voltarPara || 'perfil'), 'no-mapa': 'destino', opcoes: 'destino', ninguem: 'opcoes', viagens: 'inicio', carteira: 'inicio', perfil: 'inicio', pix: 'chegou', eventos: 'inicio', 'evento-novo': 'eventos', evento: 'eventos' };
       if (atual === 'buscando' || atual === 'caminho') { op.avisar('Pra desistir, toca em Cancelar.'); return true; }
       if (mapaVolta[atual]) { if (atual === 'destino') modoBusca = 'destino'; ir(mapaVolta[atual]); return true; }
       if (atual === 'inicio') return false;

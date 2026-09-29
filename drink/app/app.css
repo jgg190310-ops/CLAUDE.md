@@ -982,3 +982,203 @@ html.deitado .vira {
 .en-dados-form { display: grid; gap: .7em; }
 .en-dados-nota { margin: -.3em 0 0; font-size: .76em; color: var(--a-texto-2); }
 .en-dados-form input[readonly] { color: var(--a-texto-2); }
+
+/* ---------- eventos, para quem organiza ---------- */
+.ev-lede { flex: none; margin: -.2em 1.4em .2em; font-size: .86em; color: var(--a-texto-2); text-wrap: pretty; }
+.ev-lista { flex: none; display: grid; gap: .5em; margin: 0 1.1em; }
+.ev-lista[hidden] { display: none; }
+.app button.ev-cartao {
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: .75em;
+  width: 100%; padding: .75em .8em; border: 1px solid var(--a-linha); border-radius: 1.1em;
+  background: var(--a-card); color: inherit; font: inherit; text-align: left; cursor: pointer;
+}
+.app button.ev-cartao:hover { background: var(--a-card-2); }
+.ev-cartao-ic { display: grid; place-items: center; width: 2.5em; height: 2.5em; border-radius: 50%; background: var(--a-card-2); }
+.ev-cartao-ic svg, .rp-evento > svg { width: 1.4em; height: 1.4em; fill: none; stroke: var(--lima); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.ev-cartao-txt { display: grid; gap: .12em; min-width: 0; }
+.ev-cartao-txt b { font-size: .92em; font-weight: 800; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.ev-cartao-txt small { font-size: .72em; color: var(--a-texto-2); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.ev-sit {
+  flex: none; padding: .32em .65em; border-radius: 999px; background: var(--a-card-2); color: var(--luz);
+  font-style: normal; font-size: .66em; font-weight: 800; white-space: nowrap;
+}
+.ev-sit-agora { background: var(--lima); color: var(--tinta); }
+.ev-sit-saindo { background: rgba(210, 255, 60, .14); color: var(--lima); }
+.ev-sit-acabou { color: var(--a-texto-2); }
+.app .rt .ev-novo { flex: none; width: auto; margin: .9em 1.2em .2em; }
+.ev-como { flex: none; display: grid; gap: .7em; margin: 0 1.3em 1em; padding: 0; list-style: none; counter-reset: ev; }
+.ev-como li { display: grid; grid-template-columns: 1.9em minmax(0, 1fr); column-gap: .7em; counter-increment: ev; }
+.ev-como li::before {
+  content: counter(ev); grid-row: span 2; display: grid; place-items: center; width: 1.9em; height: 1.9em; border-radius: 50%;
+  background: var(--a-card-2); color: var(--lima); font-size: .8em; font-weight: 800;
+}
+.ev-como b { font-size: .86em; font-weight: 800; }
+.ev-como span { font-size: .76em; color: var(--a-texto-2); text-wrap: pretty; }
+
+/* o formulário do evento novo */
+.ev-form {
+  flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none;
+  display: grid; align-content: start; gap: .7em; padding: .5em 1.3em calc(1.5em + var(--base));
+}
+.ev-form::-webkit-scrollbar { display: none; }
+.app .ev-form .t-botao { height: 3.3em; margin-top: .4em; }
+.ev-chips { display: flex; flex-wrap: wrap; gap: .4em; }
+.app .ev-chips button {
+  padding: .55em .85em; border: 1px solid var(--a-linha); border-radius: 999px; background: var(--a-card);
+  color: var(--luz); font: inherit; font-size: .8em; font-weight: 700; cursor: pointer;
+}
+.app .ev-chips button[aria-checked="true"] { border-color: var(--lima); background: var(--lima); color: var(--tinta); }
+.ev-quando { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: .45em; }
+/* o dia numa linha; o começo e o fim lado a lado, com espaço para a hora inteira */
+.ev-quando > :first-child { grid-column: 1 / -1; }
+.ev-quando .en-rot { min-width: 0; padding: .5em .7em; }
+.ev-quando input { width: 100%; min-height: 1.4em; -webkit-appearance: none; appearance: none; text-align: left; color-scheme: dark; }
+.ev-quando input::-webkit-date-and-time-value { text-align: left; }
+.app button.ev-onde {
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: .7em; width: 100%;
+  min-height: 3.7em; padding: .6em 1em; border: 1.5px dashed var(--a-linha); border-radius: 1.1em;
+  background: none; color: inherit; font: inherit; text-align: left; cursor: pointer;
+}
+.app button.ev-onde.ok { border-style: solid; background: var(--a-card); }
+.ev-onde svg { width: 1.4em; height: 1.4em; fill: none; stroke: var(--lima); stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+.ev-onde span { display: grid; gap: .1em; min-width: 0; }
+.ev-onde b { font-size: .92em; font-weight: 800; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.ev-onde small { font-size: .72em; color: var(--a-texto-2); }
+.ev-onde em { font-style: normal; font-size: .76em; font-weight: 800; color: var(--lima); text-decoration: underline; }
+.ev-onde:not(.ok) em { display: none; }
+.ev-faixa { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: .35em .6em; margin-top: .3em; }
+.ev-faixa label { font-size: .68em; font-weight: 800; letter-spacing: .09em; text-transform: uppercase; color: var(--a-texto-2); }
+.ev-faixa output { font-family: var(--f-display); font-weight: 800; font-stretch: 88%; font-size: 1.4em; line-height: 1; font-variant-numeric: tabular-nums; }
+.ev-faixa input { grid-column: 1 / -1; width: 100%; accent-color: var(--lima); }
+.ev-estima { display: grid; grid-template-columns: auto 1fr; align-items: baseline; column-gap: .4em; padding: .7em .9em; border-radius: 1em; background: rgba(210, 255, 60, .08); border: 1px solid rgba(210, 255, 60, .25); }
+.ev-estima b { font-family: var(--f-display); font-weight: 800; font-stretch: 80%; font-size: 1.9em; line-height: 1; color: var(--lima); }
+.ev-estima span { font-weight: 800; font-size: .92em; }
+.ev-estima small { grid-column: 1 / -1; font-size: .72em; color: var(--a-texto-2); }
+.ev-paga { display: grid; gap: .45em; }
+.app .ev-paga button {
+  display: grid; gap: .12em; padding: .75em .95em; border: 1.5px solid var(--a-linha); border-radius: 1em;
+  background: var(--a-card); color: inherit; font: inherit; text-align: left; cursor: pointer;
+}
+.app .ev-paga button[aria-checked="true"] { border-color: var(--lima); background: rgba(210, 255, 60, .07); }
+.ev-paga b { font-size: .9em; font-weight: 800; }
+.ev-paga small { font-size: .74em; color: var(--a-texto-2); }
+.ev-teto { display: grid; gap: .6em; }
+.ev-teto[hidden] { display: none; }
+.ev-voltas { display: flex; align-items: center; gap: .6em; }
+.ev-voltas > span { flex: 1; font-size: .84em; font-weight: 700; }
+.app .ev-voltas button {
+  display: grid; place-items: center; width: 2.5em; height: 2.5em; padding: 0; border: 1px solid var(--a-linha); border-radius: 50%;
+  background: var(--a-card); color: var(--luz); cursor: pointer;
+}
+.ev-voltas button svg { width: 1.1em; height: 1.1em; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; }
+.ev-voltas output { min-width: 2.2em; text-align: center; font-weight: 800; font-size: 1.1em; font-variant-numeric: tabular-nums; }
+.ev-max { font-size: .74em; color: var(--a-texto-2); text-wrap: pretty; }
+
+/* a página do evento */
+.ev-pagina {
+  flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none;
+  display: flex; flex-direction: column; padding: 0 0 calc(1.5em + var(--base));
+}
+.ev-pagina::-webkit-scrollbar { display: none; }
+.ev-pagina > * { flex: none; }
+.ev-quando-txt { display: flex; flex-wrap: wrap; align-items: center; gap: .4em .6em; margin: -.3em 1.4em .8em; font-size: .8em; color: var(--a-texto-2); }
+.ev-cartao-qr {
+  display: grid; justify-items: center; gap: .5em; margin: 0 1.2em; padding: 1.1em 1em 1.2em; border-radius: 1.4em;
+  background: var(--creme); color: var(--tinta); text-align: center;
+}
+.ev-cq-nome { font-size: .72em; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--tinta-2); }
+.ev-qr { width: min(58cqw, 13em); aspect-ratio: 1; }
+.ev-qr svg { display: block; width: 100%; height: 100%; }
+.ev-cq-t { font-family: var(--f-display); font-weight: 800; font-stretch: 88%; font-size: 1.45em; line-height: 1.05; }
+.ev-cq-t b { color: var(--cobalto); }
+.ev-cq-sub { max-width: 24em; font-size: .78em; color: var(--tinta-2); text-wrap: pretty; }
+.ev-bts { display: grid; grid-template-columns: 1fr 1fr; gap: .5em; margin: .8em 1.2em 0; }
+.ev-bts .t-bt { height: 2.9em; }
+.ev-bts .t-bt:first-child { grid-column: 1 / -1; }
+.ev-bts svg { stroke: var(--lima); }
+.ev-regra { margin: 0 1.4em; font-size: .8em; color: var(--luz-2); text-wrap: pretty; }
+.ev-chamar { display: grid; gap: .4em; margin: 1em 1.2em 0; }
+.ev-chamar[hidden] { display: none; }
+.app .ev-chamar .t-botao { height: 3.1em; }
+.app .ev-chamar .t-botao:disabled { opacity: .5; cursor: default; }
+.ev-chamar small { font-size: .74em; color: var(--a-texto-2); text-align: center; text-wrap: balance; }
+.ev-resumo { margin: 0 1.4em .4em; font-size: .82em; color: var(--luz-2); }
+.ev-voltas-lista, .ev-acerto { display: grid; gap: .4em; margin: 0 1.2em; padding: 0; list-style: none; }
+.ev-voltas-lista:empty { display: none; }
+.ev-acerto[hidden] { display: none; }
+.ev-voltas-lista li, .ev-acerto li {
+  display: flex; align-items: center; justify-content: space-between; gap: .7em;
+  padding: .65em .85em; border-radius: 1em; background: var(--a-card); font-size: .84em;
+}
+.ev-voltas-lista li > span, .ev-acerto li > span { display: grid; gap: .1em; min-width: 0; }
+.ev-voltas-lista small, .ev-acerto small { font-size: .84em; color: var(--a-texto-2); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.ev-voltas-lista em { flex: none; font-style: normal; font-weight: 800; font-variant-numeric: tabular-nums; }
+.app .ev-acerto .ev-pagar { flex: none; width: auto; height: 2.5em; padding: 0 1em; font-size: .86em; }
+.ev-pago { flex: none; display: inline-flex; align-items: center; gap: .3em; font-style: normal; font-weight: 800; color: var(--lima); }
+.ev-pago svg { width: 1.1em; height: 1.1em; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.ev-encerrado { margin: .7em 1.4em 0; font-size: .78em; font-weight: 700; color: var(--laranja-2); }
+.ev-fim-bts { display: grid; justify-items: center; gap: .5em; margin-top: 1.2em; }
+.ev-fim-bts .en-link { font-size: .84em; }
+.ev-fim-bts .en-link[hidden] { display: none; }
+.app .ev-apagar { color: #FF6B5E; }
+
+/* pagar um Drink */
+.ev-pg-valor { margin: .2em 0 .6em; text-align: center; font-family: var(--f-display); font-weight: 800; font-stretch: 75%; font-size: 2.5em; line-height: 1; color: var(--lima); }
+.ev-pg-qr { justify-self: center; margin: 0 auto; width: min(52cqw, 12em); }
+.ev-pg-para { margin: .7em 0 .8em; text-align: center; font-size: .82em; color: var(--a-texto-2); }
+.ev-pg-para b { color: var(--luz); }
+
+/* o convite na tela do convidado */
+.rp-evento {
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: .7em;
+  padding: .65em .5em .65em .85em; border-radius: 1em; border: 1px solid rgba(210, 255, 60, .35); background: rgba(210, 255, 60, .08);
+}
+.rp-evento[hidden] { display: none; }
+.rp-evento p { display: grid; gap: .1em; min-width: 0; margin: 0; }
+.rp-evento b { font-size: .9em; font-weight: 800; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.rp-evento small { font-size: .74em; color: var(--luz-2); text-wrap: pretty; }
+.rp-evento .d-fechar { width: 2.4em; height: 2.4em; }
+.rp-op-ev { margin: -.2em 0 .1em; padding: .55em .8em; border-radius: .9em; background: rgba(210, 255, 60, .08); color: var(--lima); font-size: .8em; font-weight: 700; text-wrap: pretty; }
+.rp-op-ev.fora { background: var(--a-card); color: var(--a-texto-2); }
+
+/* imprimir o QR do convite: só o cartão, grande, no meio da folha */
+@media print {
+  body.imprimindo-convite * { visibility: hidden !important; }
+  body.imprimindo-convite .ev-cartao-qr, body.imprimindo-convite .ev-cartao-qr * { visibility: visible !important; }
+  body.imprimindo-convite .ev-cartao-qr {
+    position: fixed; left: 50%; top: 8%; transform: translateX(-50%); width: 14cm; margin: 0; padding: 1cm;
+    border: 2px solid #0E0D12; border-radius: 12px; background: #fff; color: #0E0D12; font-size: 18pt;
+  }
+  body.imprimindo-convite .ev-qr { width: 9cm; }
+}
+
+/* eventos no app do motorista */
+.rm-ped-ev { margin-top: -.1em; }
+.rm-pedido .rm-ped-ev b { color: var(--lima); }
+.rm-chamado { border-color: var(--rosa); background: rgba(255, 111, 177, .09); }
+.rm-chamado .rm-ped-topo em { font-family: var(--f-texto); font-stretch: 100%; font-size: .9em; color: var(--rosa); }
+.rm-chamado .rm-ped-prazo { color: var(--luz-2); font-weight: 600; }
+.app .rm-ch-ir { margin-top: .45em; height: 2.7em; text-decoration: none; }
+.rm-ch-ir svg { stroke: var(--rosa); }
+.rm-ev-receber { margin: 0 0 .4em; }
+.rm-ev-receber[hidden] { display: none; }
+.rm-ev-lista { display: grid; gap: .45em; margin: 0; padding: 0; list-style: none; }
+.rm-ev-lista li { display: grid; gap: .5em; padding: .75em .85em; border-radius: 1em; border: 1px solid rgba(210, 255, 60, .3); background: rgba(210, 255, 60, .06); }
+.rm-ev-lista li > span:first-child { display: grid; gap: .1em; }
+.rm-ev-lista b { font-size: .9em; font-weight: 800; }
+.rm-ev-lista small { font-size: .74em; color: var(--a-texto-2); }
+.rm-ev-bts { display: flex; align-items: center; justify-content: space-between; gap: .6em; }
+.app .rm-ev-bts .t-bt { height: 2.5em; padding: 0 .9em; font-size: .8em; }
+.rm-ev-bts .en-link { font-size: .8em; }
+
+/* cinco abas no app do passageiro (Início, Viagens, Eventos, Carteira, Perfil) */
+.app #rp-abas { grid-template-columns: repeat(5, minmax(0, 1fr)); padding-left: .25em; padding-right: .25em; }
+/* na página do evento, com voltas, elas vêm primeiro (é o que importa durante e depois da festa) */
+.ev-bloco { display: flex; flex-direction: column; }
+.ev-bloco > * { flex: none; }
+.ev-bloco-convite { order: 1; }
+.ev-bloco-conta { order: 2; }
+.ev-bloco-voltas { order: 3; }
+.ev-fim-bts { order: 4; }
+.ev-pagina.com-voltas .ev-bloco-voltas { order: 0; margin-bottom: .6em; }
+.ev-pagina.com-voltas .ev-bloco-voltas > .d-sec:first-child { margin-top: .2em; }

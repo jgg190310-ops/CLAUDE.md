@@ -518,6 +518,15 @@
     banco.usuarios[u.celular] = u;
     banco.atual = u.celular;
     salvar();
+    // quem chegou pelo QR de um evento vai direto pedir a volta
+    const convite = window.Drink.Eventos.convite();
+    if (convite) {
+      u.papel = 'passageiro';
+      salvar();
+      entrarNoApp(u, 'entra');
+      avisar(`Tudo pronto, ${primeiro(u)}! Na hora de ir embora do ${convite.nome}, pede o seu Drink aqui.`);
+      return;
+    }
     $('#en-ok-txt').textContent = 'Conta criada';
     irEn('papel');
   });
@@ -1084,7 +1093,20 @@
     abrirAcompanhar(busca.get('acompanhar'), location.hash.slice(1));
     return;
   }
+  // o convite de um evento (o QR da mesa): fica guardado e o app abre no passageiro, com o embarque no evento
+  let avisoConvite = '';
+  let convite = null;
+  if (busca.get('evento')) {
+    const Ev = window.Drink.Eventos;
+    convite = Ev.lerConvite(busca.get('evento'), location.hash.slice(1));
+    if (!convite) avisoConvite = 'Esse convite veio pela metade. Pede o QR de novo para quem organiza.';
+    else if (Ev.situacao(convite) === 'acabou') { avisoConvite = `O ${convite.nome} já acabou.`; convite = null; }
+    else { Ev.guardarConvite(convite); avisoConvite = `Convite do ${convite.nome} guardado. Na hora de ir embora, é só pedir.`; }
+    try { history.replaceState(null, '', location.pathname); } catch (e) { /* ok */ }
+  }
   const u = eu();
+  if (u && convite && u.papel !== 'passageiro' && !u.corridaMotorista) { u.papel = 'passageiro'; salvar(); }
+  if (avisoConvite) setTimeout(() => avisar(u || !convite ? avisoConvite : `Convite do ${convite.nome} guardado. Entra com o seu celular para pedir a volta.`), 2600);
   // voltas de teste de versões antigas do app não contam mais
   if (u && Array.isArray(u.voltas) && u.voltas.some((v) => v.simulada)) { u.voltas = u.voltas.filter((v) => !v.simulada); salvar(); }
   const pedidoPapel = busca.get('papel');

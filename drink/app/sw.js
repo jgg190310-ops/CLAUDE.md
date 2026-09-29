@@ -1,13 +1,13 @@
 /* Drink — o service worker do app. Guarda o app no aparelho para abrir sem internet e mostra os avisos
    (pedido novo, motorista chegou, mensagem…) que chegam pelo ntfy mesmo com o app fechado.
    Com internet, tudo vem da rede primeiro: o celular sempre usa a versão mais nova do app. */
-const VERSAO = 'drink-app-25';
+const VERSAO = 'drink-app-26';
 const FONTES = 'drink-fontes-1';
-const V = '?v=25';
+const V = '?v=26';
 const ARQUIVOS = [
   './', 'manifest.webmanifest',
   ...['app.css', 'app.js', 'servicos.js', 'rede.js', 'mapa-estilo.js', 'mapa.js', 'carros.js', 'cadastro-motorista.js', 'pix.js', 'avisos.js', 'sms.js',
-    'passageiro.js', 'motorista.js', 'vendor/maplibre-gl.js', 'vendor/maplibre-gl.css', 'vendor/leaflet.js', 'vendor/leaflet.css', 'vendor/qrcode.js',
+    'eventos.js', 'passageiro.js', 'motorista.js', 'vendor/maplibre-gl.js', 'vendor/maplibre-gl.css', 'vendor/leaflet.js', 'vendor/leaflet.css', 'vendor/qrcode.js',
     '../app-telas.css', '../app-nucleo.js'].map((a) => a + V),
   '../icon.svg', '../icon-180.png', '../icon-192.png', '../icon-512.png',
   'icone-maskable-192.png', 'icone-maskable-512.png',
@@ -87,6 +87,10 @@ async function mostrarAviso(dados) {
       titulo = 'Tem Drink online perto de você';
       texto = 'Abre o app e pede o seu. O motorista chega de bike ou patinete.';
       tag = 'drink-online';
+    } else if (corpo && corpo.tipo === 'chamado') {
+      titulo = 'Evento chamando Drinks';
+      texto = `${String(corpo.evento || 'Evento').slice(0, 30)} · ${bairro(corpo.de)}${/^\d{2}:\d{2}$/.test(String(corpo.fim)) ? ` · até ${corpo.fim}` : ''}`;
+      tag = 'drink-chamado';
     } else if (corpo && corpo.tipo === 'pedido') {
       titulo = 'Pedido novo no Drink';
       texto = `${bairro(corpo.de)} → ${bairro(corpo.para)} · ${reais(corpo.valor)}`;

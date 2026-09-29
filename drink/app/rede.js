@@ -285,6 +285,8 @@
     rastreio: (id) => `drk-${id}-r`,
     // avisos curtos da corrida: p para o passageiro, m para o motorista
     aviso: (id, quem) => `drk-${id}-a${quem}`,
+    // as contas das voltas de um evento, cifradas com a chave que só existe no convite
+    evento: (id) => `drk-ev-${id}`,
   };
 
   window.Drink.rede = {
