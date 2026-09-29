@@ -65,10 +65,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&display=swap">
-  <link rel="stylesheet" href="../app-telas.css?v=25">
-  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=25">
-  <link rel="stylesheet" href="vendor/leaflet.css?v=25">
-  <link rel="stylesheet" href="app.css?v=25">
+  <link rel="stylesheet" href="../app-telas.css?v=26">
+  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=26">
+  <link rel="stylesheet" href="vendor/leaflet.css?v=26">
+  <link rel="stylesheet" href="app.css?v=26">
 </head>
 <body>
 <svg class="sprite" aria-hidden="true" focusable="false">
@@ -96,6 +96,7 @@
     <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
     <symbol id="i-fechar" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
     <symbol id="i-mais" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-menos" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
     <symbol id="i-mensagem" viewBox="0 0 24 24"><path d="M4.5 5h15v10.5H10l-5.5 4z"/></symbol>
     <symbol id="i-lua" viewBox="0 0 24 24"><path d="M19.5 14.5A7.5 7.5 0 019.5 4.5a7.5 7.5 0 1010 10z"/></symbol>
     <symbol id="i-qr" viewBox="0 0 24 24"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h2v2h-2zM18 14h2v2h-2zM14 18h2v2h-2zM18 18h2v2h-2z"/></symbol>
@@ -183,6 +184,7 @@
     <symbol id="i-trocar" viewBox="0 0 24 24"><path d="M5 8.5h13.5L15 5M19 15.5H5.5L9 19"/></symbol>
     <symbol id="i-ok" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.3l2.8 2.8L16.3 9.5"/></symbol>
     <symbol id="i-email" viewBox="0 0 24 24"><rect x="3.5" y="5.5" width="17" height="13" rx="2"/><path d="M4 6.5l8 6.5 8-6.5"/></symbol>
+    <symbol id="i-festa" viewBox="0 0 24 24"><path d="M3.8 20.2l4.9-12.4 7.5 7.5z"/><path d="M6.2 14.1l3.7 3.7M7.6 10.6l5.8 5.8"/><path d="M13 3.2l.4 2.2M18.6 5.4l-2 1.4M20.8 11l-2.2-.3M15.6 2.6l-.1.6M21.3 7.2l-.6.2"/></symbol>
 
     <!-- carro de lado, para a tela de boas-vindas -->
     <linearGradient id="farol-luz" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="#D2FF3C" stop-opacity=".75"/><stop offset="1" stop-color="#D2FF3C" stop-opacity="0"/></linearGradient>
@@ -402,6 +404,11 @@
             <h3 class="d-titulo d-ola" id="rp-ola" tabindex="-1"><span class="rp-saudacao">Boa noite</span>, <span data-en-primeiro>você</span></h3>
             <p class="d-local"><svg aria-hidden="true"><use href="#i-pin"/></svg><span id="rp-local">Procurando você no mapa…</span></p>
             <button type="button" class="d-busca" data-rp-ir="destino"><svg aria-hidden="true"><use href="#i-busca"/></svg>Para onde?</button>
+            <div class="rp-evento" id="rp-evento" hidden>
+              <svg aria-hidden="true"><use href="#i-festa"/></svg>
+              <p><b id="rp-evento-t">Evento</b><small id="rp-evento-sub"></small></p>
+              <button type="button" class="d-fechar" data-rp="sair-evento" aria-label="Sair do convite do evento"><svg aria-hidden="true"><use href="#i-fechar"/></svg></button>
+            </div>
             <div class="d-atalhos" id="rp-atalhos"></div>
             <button type="button" class="rp-avise" id="rp-avise" data-rp="avise" aria-pressed="false" hidden>
               <svg aria-hidden="true"><use href="#i-sino"/></svg>
@@ -449,6 +456,7 @@
               <div><b>Drink</b><span id="rp-op-chega">bike ou patinete</span></div>
               <b class="t-preco"><span id="rp-op-preco">R$ 0,00</span><small id="rp-op-band" hidden>bandeira 2</small><small class="rt-ver-conta">ver a conta</small></b>
             </button>
+            <p class="rp-op-ev" id="rp-op-ev" hidden></p>
             <ul class="d-linhas">
               <li><span>Embarque</span><button type="button" id="rp-op-emb" data-rp="trocar-embarque">Sua localização</button></li>
               <li><span>Chega de</span><button type="button" id="rp-op-veic">Tanto faz</button></li>
@@ -644,9 +652,125 @@
           </ul>
         </section>
 
+        <!-- eventos: para quem organiza -->
+        <section class="rt rt-cheia com-abas" data-rt="eventos" data-aba="eventos" aria-labelledby="rp-ev-t" hidden>
+          <div class="d-cab d-cab-aba"><h3 class="d-titulo" id="rp-ev-t" tabindex="-1">Eventos</h3></div>
+          <p class="ev-lede">Casamento, formatura, festa da empresa, bar ou casa de show: quem bebeu volta de Drink, no próprio carro.</p>
+          <p class="d-sec" id="rp-ev-seus" hidden>Seus eventos</p>
+          <ul class="ev-lista" id="rp-ev-lista" hidden></ul>
+          <button type="button" class="t-botao ev-novo" id="rp-ev-novo" data-ev="novo">Criar um evento</button>
+          <p class="d-sec">Como funciona</p>
+          <ol class="ev-como">
+            <li><b>Você cria o evento</b><span>Dia, horário, lugar e quantos convidados. O app diz quantos Drinks o evento precisa.</span></li>
+            <li><b>Os convidados recebem o QR</b><span>Na mesa, no convite ou no telão. Escaneou, o Drink já busca no lugar do evento.</span></li>
+            <li><b>Cada um volta no próprio carro</b><span>O Drink chega de bike, leva o convidado e o carro até em casa e volta para buscar o próximo.</span></li>
+            <li><b>Você acerta com os Drinks</b><span>Se o evento paga, você escolhe o teto de cada volta e paga cada Drink pelo Pix, aqui mesmo.</span></li>
+          </ol>
+        </section>
+
+        <!-- evento novo -->
+        <section class="rt rt-cheia" data-rt="evento-novo" aria-labelledby="rp-evn-t" hidden>
+          <div class="d-cab rt-cab">
+            <button type="button" class="d-voltar" data-ev="lista" aria-label="Voltar para os eventos"><svg aria-hidden="true"><use href="#i-voltar"/></svg></button>
+            <h3 class="d-titulo" id="rp-evn-t" tabindex="-1">Novo evento</h3>
+          </div>
+          <form class="ev-form" id="rp-evn-form" novalidate>
+            <label class="en-campo en-rot"><span>Nome do evento</span><input id="rp-evn-nome" type="text" maxlength="60" autocomplete="off" placeholder="Casamento da Ana e do Léo"></label>
+            <p class="rt-rot" id="rp-evn-tipo-t">Tipo</p>
+            <div class="ev-chips" role="radiogroup" aria-labelledby="rp-evn-tipo-t">
+              <button type="button" role="radio" aria-checked="true" data-ev-tipo="casamento">Casamento</button>
+              <button type="button" role="radio" aria-checked="false" data-ev-tipo="formatura">Formatura</button>
+              <button type="button" role="radio" aria-checked="false" data-ev-tipo="empresa">Festa de empresa</button>
+              <button type="button" role="radio" aria-checked="false" data-ev-tipo="bar">Bar ou restaurante</button>
+              <button type="button" role="radio" aria-checked="false" data-ev-tipo="show">Casa de show</button>
+            </div>
+            <div class="ev-quando">
+              <label class="en-campo en-rot"><span>Dia</span><input id="rp-evn-data" type="date"></label>
+              <label class="en-campo en-rot"><span>Começa</span><input id="rp-evn-ini" type="time" value="20:00"></label>
+              <label class="en-campo en-rot"><span>Termina</span><input id="rp-evn-fim" type="time" value="02:00"></label>
+            </div>
+            <p class="rt-rot">Onde</p>
+            <button type="button" class="ev-onde" id="rp-evn-onde" data-ev="onde"><svg aria-hidden="true"><use href="#i-pin"/></svg><span><b>Escolher o lugar</b><small>Endereço, salão, bar ou casa de show</small></span><em>trocar</em></button>
+            <div class="ev-faixa">
+              <label for="rp-evn-conv">Convidados</label>
+              <output id="rp-evn-conv-out" for="rp-evn-conv">150</output>
+              <input type="range" id="rp-evn-conv" min="20" max="1000" step="10" value="150">
+            </div>
+            <p class="ev-estima" id="rp-evn-estima" aria-live="polite"></p>
+            <p class="rt-rot" id="rp-evn-paga-t">Quem paga a volta</p>
+            <div class="ev-paga" role="radiogroup" aria-labelledby="rp-evn-paga-t">
+              <button type="button" role="radio" aria-checked="true" data-ev-paga="evento"><b>O evento paga</b><small>O convidado não paga nada, até o teto de cada volta</small></button>
+              <button type="button" role="radio" aria-checked="false" data-ev-paga="convidado"><b>Cada um paga a sua</b><small>O QR só facilita: o Drink já busca no lugar certo</small></button>
+            </div>
+            <div class="ev-teto" id="rp-evn-teto-box">
+              <p class="rt-rot" id="rp-evn-teto-t">Até quanto por volta</p>
+              <div class="ev-chips" role="radiogroup" aria-labelledby="rp-evn-teto-t">
+                <button type="button" role="radio" aria-checked="false" data-ev-teto="60">R$ 60</button>
+                <button type="button" role="radio" aria-checked="true" data-ev-teto="80">R$ 80</button>
+                <button type="button" role="radio" aria-checked="false" data-ev-teto="100">R$ 100</button>
+                <button type="button" role="radio" aria-checked="false" data-ev-teto="150">R$ 150</button>
+              </div>
+              <div class="ev-voltas">
+                <span id="rp-evn-voltas-t">Voltas pagas pelo evento</span>
+                <button type="button" data-ev="menos" aria-label="Uma volta a menos"><svg aria-hidden="true"><use href="#i-menos"/></svg></button>
+                <output id="rp-evn-voltas" aria-labelledby="rp-evn-voltas-t" aria-live="polite">0</output>
+                <button type="button" data-ev="mais" aria-label="Uma volta a mais"><svg aria-hidden="true"><use href="#i-mais"/></svg></button>
+              </div>
+              <p class="ev-max" id="rp-evn-max"></p>
+            </div>
+            <p class="en-erro" id="rp-evn-erro" role="alert" hidden></p>
+            <button type="submit" class="t-botao">Criar o evento</button>
+          </form>
+        </section>
+
+        <!-- a página do evento -->
+        <section class="rt rt-cheia" data-rt="evento" aria-labelledby="rp-evp-t" hidden>
+          <div class="d-cab rt-cab">
+            <button type="button" class="d-voltar" data-ev="lista" aria-label="Voltar para os eventos"><svg aria-hidden="true"><use href="#i-voltar"/></svg></button>
+            <h3 class="d-titulo" id="rp-evp-t" tabindex="-1">Evento</h3>
+          </div>
+          <div class="ev-pagina" id="rp-evp">
+            <p class="ev-quando-txt"><span id="rp-evp-quando"></span> <em class="ev-sit" id="rp-evp-sit"></em></p>
+            <div class="ev-bloco ev-bloco-convite">
+            <div class="ev-cartao-qr" id="rp-evp-cartao">
+              <p class="ev-cq-nome" id="rp-evp-cartao-nome">Evento</p>
+              <div class="ev-qr" id="rp-evp-qr"></div>
+              <p class="ev-cq-t">Bebeu? Volta de <b>Drink</b>.</p>
+              <p class="ev-cq-sub" id="rp-evp-qr-sub"></p>
+            </div>
+            <div class="ev-bts">
+              <button type="button" class="t-bt" data-ev="compartilhar"><svg aria-hidden="true"><use href="#i-compartilhar"/></svg>Mandar o convite</button>
+              <button type="button" class="t-bt" data-ev="copiar"><svg aria-hidden="true"><use href="#i-copiar"/></svg>Copiar o link</button>
+              <button type="button" class="t-bt" data-ev="imprimir"><svg aria-hidden="true"><use href="#i-qr"/></svg>Imprimir o QR</button>
+            </div>
+            </div>
+            <div class="ev-bloco ev-bloco-conta">
+            <p class="d-sec">Como fica a conta</p>
+            <p class="ev-regra" id="rp-evp-regra"></p>
+            </div>
+            <div class="ev-bloco ev-bloco-voltas">
+            <div class="ev-chamar" id="rp-evp-chamar">
+              <button type="button" class="t-botao" data-ev="chamar">Chamar Drinks agora</button>
+              <small id="rp-evp-chamar-txt"></small>
+            </div>
+            <p class="d-sec">Voltas</p>
+            <p class="ev-resumo" id="rp-evp-resumo"></p>
+            <ul class="ev-voltas-lista" id="rp-evp-voltas"></ul>
+            <p class="d-sec" id="rp-evp-acerto-t" hidden>Acerto com os Drinks</p>
+            <ul class="ev-acerto" id="rp-evp-acerto" hidden></ul>
+            <p class="ev-encerrado" id="rp-evp-encerrado" hidden>Voltas pagas encerradas: quem pedir agora paga a própria volta.</p>
+            </div>
+            <div class="ev-fim-bts">
+              <button type="button" class="en-link" data-ev="encerrar">Encerrar as voltas pagas</button>
+              <button type="button" class="en-link ev-apagar" data-ev="apagar">Apagar o evento</button>
+            </div>
+          </div>
+        </section>
+
         <nav class="d-abas" id="rp-abas" aria-label="Menu do app">
           <button type="button" data-rp-aba="inicio" aria-current="page"><svg aria-hidden="true"><use href="#i-mapa"/></svg><span>Início</span></button>
           <button type="button" data-rp-aba="viagens"><svg aria-hidden="true"><use href="#i-relogio"/></svg><span>Viagens</span></button>
+          <button type="button" data-rp-aba="eventos"><svg aria-hidden="true"><use href="#i-festa"/></svg><span>Eventos</span></button>
           <button type="button" data-rp-aba="carteira"><svg aria-hidden="true"><use href="#i-carteira"/></svg><span>Carteira</span></button>
           <button type="button" data-rp-aba="perfil"><svg aria-hidden="true"><use href="#i-perfil"/></svg><span>Perfil</span></button>
         </nav>
@@ -761,6 +885,20 @@
             <a class="t-bt" id="rp-rec-email" href="mailto:"><svg aria-hidden="true"><use href="#i-email"/></svg><span>Mandar por e-mail</span></a>
             <button type="button" class="t-bt" data-rp="recibo-compartilhar"><svg aria-hidden="true"><use href="#i-compartilhar"/></svg>Compartilhar</button>
             <button type="button" class="t-botao" data-rp="recibo-de-novo">Ir para lá de novo</button>
+          </div>
+        </section>
+        <section class="d-sobre" id="rp-ev-pagar" aria-labelledby="rp-evpg-t" hidden>
+          <div class="d-sobre-cab">
+            <span class="d-sobre-ic" aria-hidden="true"><svg><use href="#i-pix"/></svg></span>
+            <div><h4 id="rp-evpg-t" tabindex="-1">Pagar o Drink</h4><small id="rp-evpg-sub">Voltas do evento</small></div>
+            <button type="button" class="d-fechar" data-rp-fechar aria-label="Fechar"><svg aria-hidden="true"><use href="#i-fechar"/></svg></button>
+          </div>
+          <p class="ev-pg-valor" id="rp-evpg-valor">R$ 0,00</p>
+          <div class="rt-qr ev-pg-qr" id="rp-evpg-qr"></div>
+          <p class="ev-pg-para" id="rp-evpg-para"></p>
+          <div class="rt-bts">
+            <button type="button" class="t-bt rt-copiar" data-ev="copiar-pix"><svg aria-hidden="true"><use href="#i-copiar"/></svg>Copiar o código Pix</button>
+            <button type="button" class="t-botao" data-ev="paguei">Já paguei</button>
           </div>
         </section>
       </div>
@@ -995,6 +1133,10 @@
           <div class="rm-semana">
             <p class="rm-semana-total"><small>Últimos 7 dias</small><b id="rm-semana-valor">R$ 0,00</b><span id="rm-semana-txt">0 corridas nos últimos 7 dias</span></p>
             <div class="rm-barras" id="rm-barras"></div>
+          </div>
+          <div class="rm-ev-receber" id="rm-ev-receber" hidden>
+            <p class="d-sec">A receber de eventos</p>
+            <ul class="rm-ev-lista" id="rm-ev-lista"></ul>
           </div>
           <div class="rm-feitas-cab"><p class="d-sec" id="rm-feitas-t">Corridas</p><button type="button" class="en-link" id="rm-feitas-todas" data-rm-todas hidden>Ver todas</button></div>
           <ul class="rm-feitas" id="rm-feitas"></ul>
@@ -1252,21 +1394,22 @@
   <p class="vira-txt" id="vira-txt">O Drink é feito para usar na vertical. Nada se perde: se tiver corrida, ela continua rolando.</p>
 </div>
 
-<script src="vendor/maplibre-gl.js?v=25"></script>
-<script src="vendor/leaflet.js?v=25"></script>
-<script src="vendor/qrcode.js?v=25"></script>
-<script src="../app-nucleo.js?v=25"></script>
-<script src="servicos.js?v=25"></script>
-<script src="rede.js?v=25"></script>
-<script src="mapa-estilo.js?v=25"></script>
-<script src="mapa.js?v=25"></script>
-<script src="carros.js?v=25"></script>
-<script src="cadastro-motorista.js?v=25"></script>
-<script src="pix.js?v=25"></script>
-<script src="avisos.js?v=25"></script>
-<script src="sms.js?v=25"></script>
-<script src="passageiro.js?v=25"></script>
-<script src="motorista.js?v=25"></script>
-<script src="app.js?v=25"></script>
+<script src="vendor/maplibre-gl.js?v=26"></script>
+<script src="vendor/leaflet.js?v=26"></script>
+<script src="vendor/qrcode.js?v=26"></script>
+<script src="../app-nucleo.js?v=26"></script>
+<script src="servicos.js?v=26"></script>
+<script src="rede.js?v=26"></script>
+<script src="mapa-estilo.js?v=26"></script>
+<script src="mapa.js?v=26"></script>
+<script src="carros.js?v=26"></script>
+<script src="cadastro-motorista.js?v=26"></script>
+<script src="pix.js?v=26"></script>
+<script src="avisos.js?v=26"></script>
+<script src="sms.js?v=26"></script>
+<script src="eventos.js?v=26"></script>
+<script src="passageiro.js?v=26"></script>
+<script src="motorista.js?v=26"></script>
+<script src="app.js?v=26"></script>
 </body>
 </html>

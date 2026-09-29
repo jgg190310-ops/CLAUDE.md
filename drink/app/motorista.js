@@ -9,6 +9,7 @@
   const R = window.Drink.rede;
   const Mapa = window.Drink.mapa;
   const CARROS = window.Drink.carros;
+  const EV = window.Drink.Eventos;
 
   const GUIA = [
     'Abre o porta-malas e estende a capa protetora.',
@@ -34,7 +35,27 @@
       km: m.km, min: numero(m.min) ? m.min : 0, valor: Math.round(m.valor * 100) / 100,
       nota: numero(m.nota) && m.nota >= 1 && m.nota <= 5 ? Math.round(m.nota * 10) / 10 : 0,
       veic: ['bike', 'patinete'].includes(m.veic) ? m.veic : 'qualquer', cambio: m.cambio === 'manual' ? 'manual' : 'automático',
+      // pedido saindo de um evento: até quanto o evento paga (0 = o convidado paga tudo)
+      ev: m.ev && typeof m.ev === 'object' ? { teto: numero(m.ev.teto) && m.ev.teto > 0 && m.ev.teto <= 1000 ? Math.round(m.ev.teto) : 0 } : null,
     };
+  }
+  // evento chamando Drinks: aviso aberto, só com o tipo do evento, o bairro e um ponto aproximado
+  function limparChamado(m) {
+    if (typeof m.id !== 'string' || !/^[\w-]{16}$/.test(m.id) || !m.de || !ponto(m.de) || !numero(m.t) || !numero(m.expira)) return null;
+    return {
+      id: m.id, t: m.t, expira: Math.min(m.expira, Date.now() + 60 * 60000),
+      de: { bairro: texto(m.de.bairro) || 'BH', lat: m.de.lat, lon: m.de.lon },
+      evento: texto(m.evento, 30) || 'Evento', fim: typeof m.fim === 'string' && /^\d{2}:\d{2}$/.test(m.fim) ? m.fim : '',
+      drinks: numero(m.drinks) ? Math.min(Math.max(Math.round(m.drinks), 1), 300) : 0,
+      teto: numero(m.teto) && m.teto > 0 && m.teto <= 1000 ? Math.round(m.teto) : 0,
+    };
+  }
+  // o evento que veio cifrado junto com o endereço: só vale se o pedido aberto dizia que era de um evento
+  function limparEvento(ev, doPedido) {
+    if (!ev || typeof ev !== 'object' || !doPedido) return null;
+    if (typeof ev.id !== 'string' || !/^[\w-]{16}$/.test(ev.id) || typeof ev.chave !== 'string' || !/^[\w-]{43}$/.test(ev.chave)) return null;
+    const teto = numero(ev.teto) && ev.teto > 0 ? Math.min(Math.round(ev.teto), doPedido.teto) : 0;
+    return { id: ev.id, chave: ev.chave, nome: texto(ev.nome, 60) || 'Evento', teto };
   }
 
   function criar(op) {
@@ -52,6 +73,7 @@
     let soltarGps = null;
     let assPedidos = null;
     let pedidos = new Map();
+    let chamados = new Map();
     let aceito = null;
     let corrida = null;
     let assCorrida = null;
@@ -301,6 +323,7 @@
     function receberPedido(recebido) {
       if (!recebido || recebido.v !== 1) return;
       if (recebido.tipo === 'fechado') { if (typeof recebido.id === 'string') fecharPedido(recebido); return; }
+      if (recebido.tipo === 'chamado') { receberChamado(recebido); return; }
       const msg = recebido.tipo === 'pedido' ? limparPedido(recebido) : null;
       if (!msg || Date.now() > msg.expira || pedidos.has(msg.id)) return;
       const u = eu();
@@ -312,9 +335,32 @@
       }
       if (atual === 'online') desenharPedidos();
     }
+    function receberChamado(recebido) {
+      const c = limparChamado(recebido);
+      if (!c || Date.now() > c.expira) return;
+      const novo = !chamados.has(c.id) || chamados.get(c.id).t !== c.t;
+      chamados.set(c.id, c);
+      if (novo && !corrida && !aceito && dentro(c)) {
+        tocar();
+        notificar('Evento chamando Drinks', `${c.evento} · ${c.de.bairro}${c.fim ? ` · até ${c.fim}` : ''}`, 'drink-chamado');
+      }
+      if (atual === 'online') desenharPedidos();
+    }
+    function htmlChamado(c) {
+      const perto = pos ? `${S.textoKm((S.distancia(pos, c.de) * 1.3) / 1000)} de você · ` : '';
+      const det = [c.drinks ? `precisa de ${c.drinks} ${c.drinks === 1 ? 'Drink' : 'Drinks'}` : '', c.teto ? `o evento paga até ${brl0(c.teto)} por volta` : 'cada convidado paga a sua'].filter(Boolean).join(' · ');
+      return `<li class="rm-pedido rm-chamado">
+          <div class="rm-ped-topo"><b>${esc(c.evento)} chamando Drinks</b>${c.fim ? `<em>até ${esc(c.fim)}</em>` : ''}</div>
+          <p>${esc(perto)}${esc(c.de.bairro)} · ${esc(det)}</p>
+          <p class="rm-ped-prazo">Os pedidos dos convidados saem de perto desse ponto.</p>
+          <a class="t-bt rm-ch-ir" href="https://www.google.com/maps/dir/?api=1&amp;destination=${c.de.lat},${c.de.lon}" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#i-navegar"/></svg>Ver no mapa</a>
+        </li>`;
+    }
     function desenharPedidos() {
       const agora = Date.now();
       [...pedidos.keys()].forEach((id) => { if (agora > pedidos.get(id).expira) pedidos.delete(id); });
+      [...chamados.keys()].forEach((id) => { if (agora > chamados.get(id).expira) chamados.delete(id); });
+      const chamando = [...chamados.values()].filter(dentro);
       const todos = [...pedidos.values()];
       // do mais perto para o mais longe (sem GPS ainda, do mais novo para o mais antigo)
       const lista = todos.filter(dentro).sort((a, b) => (pos ? S.distancia(pos, a.de) - S.distancia(pos, b.de) : b.t - a.t));
@@ -326,14 +372,15 @@
         const maior = RAIOS.find((r) => r > km);
         q('#rm-longe').innerHTML = `${longe === 1 ? 'Mais 1 pedido' : `Mais ${longe} pedidos`} além de ${km} km.${maior ? ` <button type="button" class="en-link" data-raio="${maior}">Ver até ${maior} km</button>` : ''}`;
       }
-      q('#rm-vazio').hidden = lista.length > 0;
+      q('#rm-vazio').hidden = lista.length > 0 || chamando.length > 0;
       q('#rm-on-chip').textContent = simPedido ? 'Simulação · 1 pedido'
         : (lista.length ? `Online · ${lista.length} ${lista.length === 1 ? 'pedido' : 'pedidos'}` : 'Online · procurando pedidos');
-      q('#rm-pedidos').innerHTML = lista.map((p) => {
+      q('#rm-pedidos').innerHTML = chamando.map(htmlChamado).join('') + lista.map((p) => {
         const perto = pos ? S.textoKm((S.distancia(pos, p.de) * 1.3) / 1000) : '';
         const seg = Math.max(0, Math.round((p.expira - agora) / 1000));
+        const ev = p.ev ? `<p class="rm-ped-ev"><b>Evento</b> · ${p.ev.teto ? (p.valor <= p.ev.teto ? 'o evento paga a volta toda' : `o evento paga ${esc(brl0(p.ev.teto))} e o passageiro o resto`) : 'o passageiro paga pelo Pix'}</p>` : '';
         return `<li class="rm-pedido">
-          <div class="rm-ped-topo"><b>${esc(p.de.bairro)} → ${esc(p.para.bairro)}</b><em>${esc(brl(p.valor))}</em></div>
+          <div class="rm-ped-topo"><b>${esc(p.de.bairro)} → ${esc(p.para.bairro)}</b><em>${esc(brl(p.valor))}</em></div>${ev}
           <p>${perto ? `${perto} de você · ` : ''}viagem de ${esc(S.textoKm(p.km))} · câmbio ${esc(p.cambio || 'automático')} · ${p.nota ? `passageiro nota ${esc(S.virgula(p.nota))}` : 'passageiro novo no Drink'}</p>
           <p class="rm-ped-prazo">${seg > 60 ? `aberto por mais ${Math.ceil(seg / 60)} min` : 'fechando'}</p>
           <button type="button" class="t-botao" data-aceitar="${esc(p.id)}">Aceitar</button>
@@ -453,6 +500,7 @@
             } : {},
             valor: numero(msg.valor) && msg.valor > 0 ? msg.valor : p.valor, km: numero(msg.km) && msg.km > 0 ? msg.km : p.km,
             msgs: [], fotos: 0, avaliacao: null, paguei: false, ultimo: null,
+            evento: limparEvento(msg.evento, p.ev),
           };
           if (aceito.simulada) Object.assign(corrida, { simulada: true, simCodigo: p.codigo, linha: p.linha || null });
           aceito = null;
@@ -786,8 +834,25 @@
       avisarPassageiro('chegada');
       // na simulação não tem Pix (e dá para treinar antes de cadastrar a chave)
       if (!c.simulada) enviar({ tipo: 'cobranca', pix: { chave: u.pix.chave, nome: [u.nome, u.sobrenome].filter(Boolean).join(' '), cidade: 'BELO HORIZONTE' } });
+      // volta de um evento que paga: a parte dele (corrida e espera, até o teto) vai como conta para quem organiza
+      c.eventoParte = !c.simulada && c.evento && c.evento.teto > 0 ? redondo(Math.min(c.valor + (c.espera || 0), c.evento.teto)) : 0;
+      if (c.eventoParte) mandarConta(c);
       salvarCorrida();
       ir('receber');
+    }
+    function contaDoEvento(c) {
+      const u = eu();
+      return {
+        tipo: 'conta', corrida: c.id, t: Date.now(),
+        motorista: { id: u.idMotorista || R.idAleatorio(9), nome: nomeCurto(u), veiculo: u.veiculo || 'bike', pix: { chave: u.pix.chave, nome: [u.nome, u.sobrenome].filter(Boolean).join(' ') } },
+        convidado: primeiroNome(c.passageiro.nome), de: c.embarque.bairro || c.embarque.nome, para: c.destino.bairro || c.destino.nome,
+        km: c.km, valor: c.eventoParte,
+      };
+    }
+    function mandarConta(c) {
+      const u = eu();
+      if (!u.idMotorista) { u.idMotorista = R.idAleatorio(9); op.salvar(); }
+      EV.mandar(c.evento, contaDoEvento(c)).catch(() => {});
     }
 
     /* ---------- receber pelo Pix ---------- */
@@ -798,18 +863,28 @@
       const gorjeta = c.avaliacao ? c.avaliacao.gorjeta : 0;
       const espera = c.espera || 0;
       const total = redondo(c.valor + espera + gorjeta);
+      const doEvento = c.eventoParte || 0;
+      const doPassageiro = redondo(total - doEvento);
+      const chave = c.simulada ? '' : window.Drink.pix.mascarar(eu().pix.chave);
       q('#rm-re-t').textContent = `Receber ${brl(total)}`;
       q('#rm-re-sub').textContent = c.simulada
         ? 'Na simulação não tem Pix. Numa corrida de verdade, o passageiro paga direto na sua chave Pix.'
-        : `${nome} paga pelo Pix direto na sua chave ${window.Drink.pix.mascarar(eu().pix.chave)}.`;
-      q('#rm-recibo').innerHTML = `<p><span>Corrida · ${esc(S.virgula(c.km))} km</span><b>${esc(brl(c.valor))}</b></p>${espera ? `<p><span>Espera</span><b>${esc(brl(espera))}</b></p>` : ''}${gorjeta ? `<p><span>Gorjeta</span><b>${esc(brl(gorjeta))}</b></p>` : ''}<p class="t-total"><span>Total</span><b>${esc(brl(total))}</b></p>`;
+        : (doEvento
+          ? `${brl(doEvento)} vêm do ${c.evento.nome}: quem organiza paga na sua chave ${chave}.${doPassageiro > 0 ? ` ${nome} paga ${brl(doPassageiro)} pelo Pix.` : ` ${nome} não paga nada.`}`
+          : `${nome} paga pelo Pix direto na sua chave ${chave}.`);
+      q('#rm-recibo').innerHTML = `<p><span>Corrida · ${esc(S.virgula(c.km))} km</span><b>${esc(brl(c.valor))}</b></p>${espera ? `<p><span>Espera</span><b>${esc(brl(espera))}</b></p>` : ''}${gorjeta ? `<p><span>Gorjeta</span><b>${esc(brl(gorjeta))}</b></p>` : ''}${doEvento ? `<p><span>Do evento, no fim da noite</span><b>${esc(brl(doEvento))}</b></p><p><span>Do passageiro, pelo Pix</span><b>${esc(brl(doPassageiro))}</b></p>` : ''}<p class="t-total"><span>Total</span><b>${esc(brl(total))}</b></p>`;
       const checks = $$('#rm-re-checks li', raiz);
       checks[0].classList.toggle('ok', Boolean(c.avaliacao));
       q('#rm-re-aval').textContent = c.avaliacao
         ? (c.avaliacao.nota ? `${nome} deu ${c.avaliacao.nota} ${c.avaliacao.nota === 1 ? 'estrela' : 'estrelas'}${gorjeta ? ` e ${brl(gorjeta)} de gorjeta` : ''}` : `${nome} não deu nota${gorjeta ? `, mas deu ${brl(gorjeta)} de gorjeta` : ''}`)
         : `Esperando ${c.simulada ? 'o passageiro' : nome} avaliar`;
-      checks[1].classList.toggle('ok', c.paguei);
-      q('#rm-re-pago').textContent = c.paguei ? `${nome} disse que pagou. Confere no seu banco.` : 'Esperando o pagamento';
+      const nadaDoPassageiro = doEvento && doPassageiro <= 0;
+      checks[1].classList.toggle('ok', c.paguei || nadaDoPassageiro);
+      q('#rm-re-pago').textContent = nadaDoPassageiro
+        ? `A conta foi para o ${c.evento.nome}`
+        : (c.paguei ? `${nome} disse que pagou. Confere no seu banco.` : 'Esperando o pagamento');
+      q('[data-rm="recebi"]').textContent = nadaDoPassageiro ? 'Concluir a corrida' : 'Recebi o Pix';
+      q('[data-rm="nao-caiu"]').hidden = Boolean(nadaDoPassageiro);
       desenharNotaPassageiro();
     }
     // o motorista também avalia o passageiro; a nota vai junto com o "recebi"
@@ -837,13 +912,18 @@
       u.corridasFeitas = [{
         id: c.id, data: new Date().toISOString(), rota: `${c.embarque.bairro || c.embarque.nome} → ${c.destino.bairro || c.destino.nome}`,
         total, km: c.km, valor: c.valor, espera: c.espera || 0, gorjeta, nota: c.avaliacao ? c.avaliacao.nota || 0 : 0,
+        // a parte do evento fica "a receber" até quem organiza avisar que pagou
+        ...(c.eventoParte ? { evento: { id: c.evento.id, chave: c.evento.chave, nome: c.evento.nome, valor: c.eventoParte, pago: false, conta: contaDoEvento(c) } } : {}),
       }, ...(u.corridasFeitas || [])].slice(0, 100);
       contarDia(u);
       encerrar();
       op.salvar();
       q('#rm-fim-t').textContent = `+ ${brl(total)}`;
-      q('#rm-fim-sub').textContent = 'Corrida concluída. O Pix foi direto pra sua conta.';
+      q('#rm-fim-sub').textContent = c.eventoParte
+        ? `Corrida concluída. ${brl(c.eventoParte)} vêm do ${c.evento.nome}: você recebe um aviso quando quem organiza pagar.`
+        : 'Corrida concluída. O Pix foi direto pra sua conta.';
       desenharGanhos();
+      ouvirEventos();
       ir('fim');
     }
 
@@ -905,10 +985,69 @@
       q('#rm-feitas-todas').hidden = !diaEscolhido;
       q('#rm-feitas').innerHTML = mostrar.length
         ? mostrar.map((d) => `${diaEscolhido ? '' : `<li class="rm-feitas-dia"><span>${esc(nomeDia(d))}</span><b>${esc(brl(d.total))}</b></li>`}${d.lista.map((c) => {
-          const det = [hhmm(new Date(c.data)), c.km ? `${S.virgula(Number(c.km))} km` : '', c.espera ? `espera ${brl(c.espera)}` : '', c.gorjeta ? `gorjeta ${brl(c.gorjeta)}` : ''].filter(Boolean).join(' · ');
+          const det = [hhmm(new Date(c.data)), c.km ? `${S.virgula(Number(c.km))} km` : '', c.espera ? `espera ${brl(c.espera)}` : '', c.gorjeta ? `gorjeta ${brl(c.gorjeta)}` : '', c.evento ? `${brl(c.evento.valor)} do evento${c.evento.pago ? ', pago' : ', a receber'}` : ''].filter(Boolean).join(' · ');
           return `<li class="rm-feita"><div><b>${esc(c.rota || 'Corrida')}</b><small>${esc(det)}</small></div><strong>${esc(brl(Number(c.total) || 0))}</strong></li>`;
         }).join('')}`).join('')
         : `<li class="rm-feitas-vazio">${diaEscolhido ? 'Nenhuma corrida nesse dia.' : 'Quando você fizer corridas, elas aparecem aqui com o valor, a espera e a gorjeta.'}</li>`;
+    }
+
+    /* ---------- a receber de eventos ---------- */
+    // quem organiza paga no fim da noite e avisa pelo canal do evento; com o app aberto, o aviso chega na hora
+    let ouvindoEventos = null;
+    let ouvindoIds = '';
+    function aReceber() {
+      const grupos = new Map();
+      (eu().corridasFeitas || []).forEach((c) => {
+        if (!c.evento || c.evento.pago || Date.now() - new Date(c.data).getTime() > 30 * 86400000) return;
+        if (!grupos.has(c.evento.id)) grupos.set(c.evento.id, { id: c.evento.id, chave: c.evento.chave, nome: c.evento.nome, total: 0, corridas: [] });
+        const g = grupos.get(c.evento.id);
+        g.total = redondo(g.total + c.evento.valor);
+        g.corridas.push(c);
+      });
+      return [...grupos.values()];
+    }
+    function ouvirEventos() {
+      const lista = aReceber();
+      const ids = lista.map((g) => g.id).sort().join();
+      if (ids === ouvindoIds) return;
+      if (ouvindoEventos) { ouvindoEventos.fechar(); ouvindoEventos = null; }
+      ouvindoIds = ids;
+      if (ids) ouvindoEventos = EV.ouvir(lista, receberDoEvento);
+    }
+    function receberDoEvento(e, m) {
+      const u = eu();
+      if (m.tipo !== 'pago' || m.motorista !== u.idMotorista || !Array.isArray(m.corridas)) return;
+      let soma = 0;
+      (u.corridasFeitas || []).forEach((c) => {
+        if (c.evento && c.evento.id === e.id && !c.evento.pago && m.corridas.includes(c.id)) { c.evento.pago = true; soma = redondo(soma + c.evento.valor); }
+      });
+      if (!soma) return;
+      op.salvar();
+      tocar();
+      notificar(`${e.nome} pagou`, `${brl(soma)} das voltas do evento. Confere no app do seu banco.`, 'drink-evento');
+      op.avisar(`${e.nome} pagou ${brl(soma)}. Confere no app do seu banco.`);
+      desenharReceber();
+      ouvirEventos();
+    }
+    function desenharReceber() {
+      const lista = aReceber();
+      const box = q('#rm-ev-receber');
+      box.hidden = !lista.length;
+      q('#rm-ev-lista').innerHTML = lista.map((g) => `<li><span><b>${esc(g.nome)}</b><small>${g.corridas.length} ${g.corridas.length === 1 ? 'volta' : 'voltas'} · ${esc(brl(g.total))}</small></span>
+        <span class="rm-ev-bts"><button type="button" class="t-bt" data-ev-cobrar="${esc(g.id)}">Mandar a conta de novo</button><button type="button" class="en-link" data-ev-caiu="${esc(g.id)}">Já caiu</button></span></li>`).join('');
+    }
+    function cobrarDeNovo(id) {
+      const g = aReceber().find((x) => x.id === id);
+      if (!g) return;
+      g.corridas.forEach((c) => { if (c.evento.conta) EV.mandar({ id: g.id, chave: g.chave }, { ...c.evento.conta, t: Date.now() }).catch(() => {}); });
+      op.avisar(`A conta foi de novo para o ${g.nome}.`);
+    }
+    function jaCaiu(id) {
+      const u = eu();
+      (u.corridasFeitas || []).forEach((c) => { if (c.evento && c.evento.id === id) c.evento.pago = true; });
+      op.salvar();
+      desenharReceber();
+      ouvirEventos();
     }
 
     /* ---------- simulação: treino, sem passageiro de verdade ---------- */
@@ -1062,7 +1201,7 @@
       veu.hidden = false;
       q(`#${id}`).hidden = false;
       soltarFolha = S.prenderFoco(q(`#${id}`));
-      if (id === 'rm-ganhos') { diaEscolhido = null; desenharSemana(); }
+      if (id === 'rm-ganhos') { diaEscolhido = null; desenharSemana(); desenharReceber(); }
       if (id === 'rm-chat' && corrida) {
         corrida.novaMsg = false;
         q('#rm-nova-msg').hidden = true;
@@ -1091,6 +1230,8 @@
       if (ds.dia) { diaEscolhido = diaEscolhido === ds.dia ? null : ds.dia; desenharSemana(); return; }
       if (ds.rmTodas !== undefined) { diaEscolhido = null; desenharSemana(); return; }
       if (ds.aceitar) { aceitar(ds.aceitar); return; }
+      if (ds.evCobrar) { cobrarDeNovo(ds.evCobrar); return; }
+      if (ds.evCaiu) { jaCaiu(ds.evCaiu); return; }
       if (ds.raio) { mudarRaio(Number(ds.raio)); return; }
       if (ds.notaP) { if (corrida) { corrida.notaPassageiro = Number(ds.notaP); desenharNotaPassageiro(); salvarCorrida(); } return; }
       if (ds.rapida) { mandarMsg(ds.rapida); return; }
@@ -1165,6 +1306,7 @@
     /* ---------- abrir, voltar e sair ---------- */
     function abrir() {
       const u = eu();
+      ouvirEventos();
       if (u && u.corridaMotorista && !corrida) {
         const c = u.corridaMotorista;
         // uma simulação não volta ao abrir o app de novo

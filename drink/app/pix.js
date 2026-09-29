@@ -100,7 +100,7 @@
   }
 
   /* ---------- QR code em SVG ---------- */
-  function qrSvg(texto) {
+  function qrSvg(texto, rotulo = 'QR code do Pix') {
     const q = qrcode(0, 'M');
     q.addData(texto);
     q.make();
@@ -116,7 +116,7 @@
         } else x += 1;
       }
     }
-    return `<svg viewBox="-4 -4 ${n + 8} ${n + 8}" role="img" aria-label="QR code do Pix" shape-rendering="crispEdges"><rect x="-4" y="-4" width="${n + 8}" height="${n + 8}" fill="#FFFFFF"/><path d="${d}" fill="#0E0D12"/></svg>`;
+    return `<svg viewBox="-4 -4 ${n + 8} ${n + 8}" role="img" aria-label="${rotulo.replace(/[&<>"]/g, '')}" shape-rendering="crispEdges"><rect x="-4" y="-4" width="${n + 8}" height="${n + 8}" fill="#FFFFFF"/><path d="${d}" fill="#0E0D12"/></svg>`;
   }
 
   window.Drink.pix = { TIPOS, normalizarChave, mascarar, copiaECola, crc16, qrSvg, cpfValido };
