@@ -1,0 +1,2388 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Em Dia</title>
+<meta name="description" content="Rotina, dinheiro e saúde do dia em um só lugar.">
+<meta name="theme-color" content="#EFF1F4" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0D0F13" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Em Dia">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+</head>
+<body>
+<!-- ARTIFACT:INICIO · daqui até ARTIFACT:FIM é o mesmo conteúdo publicado como Artifact no claude.ai -->
+<title>Em Dia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Mono:wght@400..700&family=Atkinson+Hyperlegible+Next:wght@400..800&family=Big+Shoulders+Display:wght@700..900&display=swap">
+<style>
+/* Em Dia · uma folhinha de parede abre o dia; abaixo, fichas de rotina, dinheiro e saúde numa coluna só, com as abas ao alcance do polegar. */
+:root {
+  --bg: #EFF1F4;          /* mesa */
+  --surface: #FFFFFF;     /* ficha */
+  --surface-2: #F5F6F8;
+  --seg-sel: #FFFFFF;
+  --ink: #15171C;         /* tinta de impressão */
+  --ink-2: #444955;
+  --muted: #5F6471;
+  --line: #E0E3E9;
+  --line-2: #C6CAD3;
+  --accent: #1F45C7;      /* azul de caneta e de carimbo */
+  --accent-2: #9DB0EE;
+  --accent-soft: #E6EBFB;
+  --on-accent: #FFFFFF;
+  --red: #C8202A;         /* domingo e feriado na folhinha; atraso */
+  --red-soft: #FBE8E9;
+  --on-red: #FFFFFF;
+  --green: #147A40;
+  --green-soft: #E1F2E7;
+  --amber: #9A5800;
+  --amber-soft: #FAEED8;
+  --amber-mark: #E39A1B;
+  --paper: #FFFFFF;
+  --binding: #1A1C22;
+  --on-binding: #F4F5F7;
+  --toast-bg: #1A1C22;
+  --toast-fg: #F4F5F7;
+  --toast-acao: #AFC0FF;
+  --stamp-blend: multiply;
+  --shadow: 0 1px 2px rgba(20, 24, 40, .06), 0 10px 26px -14px rgba(20, 24, 40, .3);
+  --shadow-sm: 0 1px 2px rgba(20, 24, 40, .1);
+  --veu: rgba(12, 14, 20, .44);
+
+  --f-display: "Big Shoulders Display", "Arial Narrow", "Roboto Condensed", Impact, system-ui, sans-serif;
+  --f-body: "Atkinson Hyperlegible Next", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --f-mono: "Atkinson Hyperlegible Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  --fs-xs: .75rem;
+  --fs-sm: .875rem;
+  --fs-md: 1rem;
+  --fs-lg: 1.1875rem;
+  --fs-xl: 2.125rem;
+  --fs-hero: 3rem;
+
+  --r-card: 12px;
+  --r-field: 10px;
+  --abas-h: 64px;
+  --col: 600px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0D0F13; --surface: #171A20; --surface-2: #1E222A; --seg-sel: #2C313C;
+    --ink: #ECEEF2; --ink-2: #BAC0CB; --muted: #8E94A2; --line: #282C35; --line-2: #3B404B;
+    --accent: #8FA6FF; --accent-2: #4A5DA8; --accent-soft: #1C2546; --on-accent: #0D0F13;
+    --red: #FF6B70; --red-soft: #3A1B1E; --on-red: #1A0809;
+    --green: #4CD38A; --green-soft: #11301E; --amber: #F2AE4B; --amber-soft: #3A2A12; --amber-mark: #E9A23B;
+    --paper: #1B1E25; --binding: #2A2E38; --on-binding: #ECEEF2;
+    --toast-bg: #ECEEF2; --toast-fg: #15171C; --toast-acao: #1F45C7; --stamp-blend: normal;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .5), 0 12px 30px -16px rgba(0, 0, 0, .8); --shadow-sm: 0 1px 2px rgba(0, 0, 0, .5);
+    --veu: rgba(0, 0, 0, .6);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0D0F13; --surface: #171A20; --surface-2: #1E222A; --seg-sel: #2C313C;
+  --ink: #ECEEF2; --ink-2: #BAC0CB; --muted: #8E94A2; --line: #282C35; --line-2: #3B404B;
+  --accent: #8FA6FF; --accent-2: #4A5DA8; --accent-soft: #1C2546; --on-accent: #0D0F13;
+  --red: #FF6B70; --red-soft: #3A1B1E; --on-red: #1A0809;
+  --green: #4CD38A; --green-soft: #11301E; --amber: #F2AE4B; --amber-soft: #3A2A12; --amber-mark: #E9A23B;
+  --paper: #1B1E25; --binding: #2A2E38; --on-binding: #ECEEF2;
+  --toast-bg: #ECEEF2; --toast-fg: #15171C; --toast-acao: #1F45C7; --stamp-blend: normal;
+  --shadow: 0 1px 2px rgba(0, 0, 0, .5), 0 12px 30px -16px rgba(0, 0, 0, .8); --shadow-sm: 0 1px 2px rgba(0, 0, 0, .5);
+  --veu: rgba(0, 0, 0, .6);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+:root { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: var(--fs-md); line-height: 1.45; -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; }
+html.com-folha, html.com-folha body { overflow: hidden; }
+[hidden] { display: none !important; }
+button, input, textarea, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+button:disabled { cursor: default; opacity: .4; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+h1, h2, h3 { margin: 0; text-wrap: balance; }
+p { margin: 0; }
+.sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.ic { width: 1.25em; height: 1.25em; flex: none; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; vertical-align: -.25em; }
+.mono, .valor { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+
+/* estrutura */
+.app { max-width: var(--col); margin: 0 auto; padding-inline: 16px; padding-block: 0 calc(var(--abas-h) + 104px); }
+.topo { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-inline: -16px; padding: 8px 12px 8px 18px; background: var(--bg); }
+.marca-carimbo { display: inline-block; font-family: var(--f-display); font-weight: 900; font-size: 1.0625rem; line-height: 1.2; letter-spacing: .16em; text-transform: uppercase; color: var(--accent); border: 2px solid currentColor; border-radius: 6px; padding: 1px 6px 0 9px; box-shadow: inset 0 0 0 1.5px var(--bg), inset 0 0 0 3px currentColor; transform: rotate(-4deg); }
+.topo-dir { display: flex; align-items: center; gap: 4px; }
+.sync { font-size: var(--fs-xs); color: var(--muted); }
+.btn-icone { width: 44px; height: 44px; display: inline-grid; place-items: center; flex: none; border: 0; border-radius: 50%; background: transparent; color: var(--ink-2); padding: 0; }
+.btn-icone:hover { background: var(--surface-2); color: var(--ink); }
+.btn-icone .ic { width: 24px; height: 24px; }
+main { display: block; outline: none; }
+.pilha { display: grid; gap: 12px; }
+.tela-cab { display: flex; align-items: center; justify-content: space-between; gap: 8px 12px; flex-wrap: wrap; margin-block: 6px 16px; }
+.tela-titulo { font-family: var(--f-display); font-weight: 800; font-size: var(--fs-xl); line-height: 1; letter-spacing: .01em; }
+.secao-tit { margin: 22px 2px 10px; }
+
+.abas { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; background: var(--surface); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom, 0px); }
+.abas-in { max-width: var(--col); margin: 0 auto; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); height: var(--abas-h); }
+.aba { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; border: 0; background: none; color: var(--muted); font-size: .75rem; font-weight: 700; padding: 0; }
+.aba .ic { width: 24px; height: 24px; }
+.aba[aria-current="page"] { color: var(--accent); }
+.aba[aria-current="page"]::before { content: ""; position: absolute; top: -1px; left: 30%; right: 30%; height: 3px; border-radius: 0 0 3px 3px; background: currentColor; }
+.fab { position: fixed; z-index: 31; right: max(16px, calc((100% - var(--col)) / 2 + 16px)); bottom: calc(var(--abas-h) + 16px + env(safe-area-inset-bottom, 0px)); width: 58px; height: 58px; border-radius: 50%; border: 0; background: var(--accent); color: var(--on-accent); display: grid; place-items: center; padding: 0; box-shadow: 0 10px 22px -10px rgba(31, 69, 199, .8), var(--shadow-sm); }
+.fab .ic { width: 28px; height: 28px; stroke-width: 2.3; }
+.fab:active { transform: scale(.95); }
+
+/* folhinha */
+.saudacao { font-size: var(--fs-lg); font-weight: 600; color: var(--ink-2); margin: 2px 2px 10px; }
+.folhinha { position: relative; background: var(--paper); border-radius: 6px; box-shadow: var(--shadow); }
+.folhinha-topo { position: relative; display: flex; justify-content: space-between; align-items: baseline; padding: 9px 16px 13px; border-radius: 6px 6px 0 0; background: var(--binding); color: var(--on-binding); font-family: var(--f-display); font-weight: 800; font-size: 1.25rem; line-height: 1.1; letter-spacing: .16em; text-transform: uppercase; }
+.folhinha-topo::after { content: ""; position: absolute; left: 3px; right: 3px; bottom: -4px; height: 8px; background: radial-gradient(circle, var(--paper) 2.6px, transparent 3.1px) 0 50% / 11px 8px repeat-x; }
+.folhinha-folha { position: relative; display: grid; grid-template-columns: 48px minmax(0, 1fr) 48px; align-items: center; padding: 18px 4px 0; text-align: center; }
+.folhinha-centro { display: grid; justify-items: center; min-width: 0; }
+.folhinha-num { font-family: var(--f-display); font-weight: 900; font-size: clamp(7.5rem, 38vw, 10.5rem); line-height: .8; letter-spacing: -.02em; color: var(--ink); padding-top: .04em; }
+.folhinha-semana { margin-top: 12px; font-family: var(--f-display); font-weight: 800; font-size: 1.5rem; line-height: 1.1; letter-spacing: .12em; text-transform: uppercase; color: var(--ink); }
+.folhinha .vermelho { color: var(--red); }
+.folhinha-feriado { margin-top: 4px; font-weight: 700; font-size: var(--fs-sm); color: var(--red); }
+.folhinha-feriado.facultativo { color: var(--ink-2); }
+.folhinha-nav { width: 44px; height: 44px; border-radius: 50%; border: 0; background: transparent; color: var(--muted); display: grid; place-items: center; padding: 0; }
+.folhinha-nav:hover { background: var(--surface-2); color: var(--ink); }
+.folhinha-nav .ic { width: 26px; height: 26px; }
+.folhinha-rodape { display: flex; justify-content: space-between; align-items: center; gap: 6px 12px; flex-wrap: wrap; margin: 14px 16px 0; padding: 10px 0; border-top: 1px dashed var(--line-2); font-size: var(--fs-sm); color: var(--ink-2); }
+.folhinha-prox { margin: 0 16px; padding-bottom: 12px; font-size: var(--fs-xs); color: var(--muted); }
+.folhinha-prox strong { color: var(--ink-2); }
+.lua-rot { display: inline-flex; align-items: center; gap: 6px; }
+.lua { flex: none; }
+.lua-sombra { fill: var(--line); }
+.lua-luz { fill: var(--ink-2); }
+.carimbo { position: absolute; top: 20px; right: 10px; z-index: 2; font-family: var(--f-display); font-weight: 900; font-size: 1.625rem; line-height: 1; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); padding: 7px 9px 4px 13px; border: 3px solid currentColor; border-radius: 8px; box-shadow: inset 0 0 0 2px var(--paper), inset 0 0 0 4px currentColor; transform: rotate(-11deg); opacity: .9; mix-blend-mode: var(--stamp-blend); filter: url(#tinta); pointer-events: none; }
+.carimbo.oculto { display: none; }
+.carimbo.anim { animation: carimbar .45s cubic-bezier(.2, .9, .25, 1) both; }
+.folhinha.baque { animation: baque .2s .26s; }
+.virada-frente .folhinha-centro { animation: virar-frente .22s ease-out; }
+.virada-tras .folhinha-centro { animation: virar-tras .22s ease-out; }
+.chip-hoje { display: flex; align-items: center; gap: 6px; margin: 12px auto 0; min-height: 38px; padding: 6px 14px; border-radius: 999px; border: 1px solid var(--accent); background: var(--accent-soft); color: var(--accent); font-weight: 700; font-size: var(--fs-sm); }
+
+.semana { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; margin-top: 12px; }
+.semana-dia { display: grid; justify-items: center; gap: 1px; min-width: 0; padding: 7px 0 5px; border-radius: 10px; border: 1px solid transparent; background: transparent; }
+.semana-dia:hover { background: var(--surface-2); }
+.semana-ini { font-size: .6875rem; font-weight: 800; letter-spacing: .06em; color: var(--muted); }
+.semana-num { font-family: var(--f-display); font-weight: 800; font-size: 1.375rem; line-height: 1.05; }
+.semana-dia.hoje .semana-num { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 3px; }
+.semana-dia.vermelho .semana-ini, .semana-dia.vermelho .semana-num { color: var(--red); }
+.semana-dia[aria-pressed="true"] { background: var(--surface); border-color: var(--line-2); box-shadow: var(--shadow-sm); }
+.semana-marca { height: 14px; display: grid; place-items: center; color: var(--accent); }
+.semana-marca .ic { width: 14px; height: 14px; stroke-width: 3; }
+.semana-marca.parcial::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: var(--line-2); }
+
+/* fichas e listas */
+.secao { margin-top: 28px; }
+.secao-cab { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 0 2px 10px; }
+.eyebrow { font-family: var(--f-body); font-size: var(--fs-xs); font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
+.contagem { font-size: var(--fs-sm); font-weight: 700; color: var(--ink-2); }
+.ficha { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-card); }
+.ficha + .ficha { margin-top: 12px; }
+.ficha-corpo { padding: 14px 16px 16px; display: grid; gap: 10px; min-width: 0; }
+.ficha-cab { display: flex; align-items: center; justify-content: space-between; gap: 8px 12px; flex-wrap: wrap; padding: 14px 16px 4px; }
+.linha-cab { display: flex; align-items: center; justify-content: space-between; gap: 8px 12px; flex-wrap: wrap; }
+.divisor { height: 1px; background: var(--line); }
+.sub { font-size: var(--fs-sm); color: var(--muted); }
+.sub strong { color: var(--ink); }
+.link { display: inline-flex; align-items: center; gap: 6px; border: 0; background: none; padding: 6px 2px; color: var(--accent); font-weight: 700; font-size: var(--fs-sm); }
+.link .ic { width: 16px; height: 16px; }
+
+.linha { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 56px; padding: 10px 14px; text-align: left; }
+.linha + .linha { border-top: 1px solid var(--line); }
+.linha-btn { background: none; border: 0; margin: 0; padding: 0; color: inherit; text-align: left; }
+button.linha.linha-btn { padding: 10px 14px; }
+.linha-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.linha-titulo { font-weight: 600; overflow-wrap: anywhere; }
+.linha-sub { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 8px; font-size: var(--fs-sm); color: var(--muted); }
+.feita .linha-titulo { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--line-2); }
+.hora { flex: none; font-family: var(--f-mono); font-size: var(--fs-sm); color: var(--ink-2); }
+.grupo-rot { padding: 12px 14px 2px; font-size: var(--fs-xs); font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.grupo-rot:not(:first-child) { border-top: 1px solid var(--line); margin-top: 2px; }
+.grupo-rot.vermelho { color: var(--red); }
+.vazio-linha { padding: 8px 14px 12px; color: var(--muted); font-size: var(--fs-sm); }
+.ficha-atraso { margin-top: 12px; border-color: color-mix(in srgb, var(--red) 35%, var(--line)); }
+.sugestoes { display: grid; gap: 10px; padding: 14px; }
+
+.check { position: relative; flex: none; width: 30px; height: 30px; display: grid; place-items: center; padding: 0; border-radius: 50%; border: 2px solid var(--line-2); background: var(--surface); color: transparent; transition: background-color .15s, border-color .15s, transform .15s; }
+.check::after { content: ""; position: absolute; inset: -8px; }
+.check .ic { width: 18px; height: 18px; stroke-width: 2.6; }
+.check.tarefa { border-radius: 8px; }
+.check[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.check:active { transform: scale(.9); }
+
+.nova-tarefa { display: flex; align-items: center; gap: 8px; padding: 8px 10px 10px 14px; border-top: 1px solid var(--line); }
+.nova-tarefa .btn-icone { background: var(--accent); color: var(--on-accent); }
+.nova-tarefa .btn-icone:hover { background: var(--accent); color: var(--on-accent); filter: brightness(1.08); }
+
+.medidor { position: relative; display: flex; gap: 2px; height: 8px; border-radius: 4px; background: var(--accent-soft); overflow: hidden; }
+.medidor > span { display: block; height: 100%; flex: none; background: var(--accent); border-radius: 0 4px 4px 0; }
+.medidor > span.pend { background: var(--accent-2); }
+.medidor.ok { background: var(--green-soft); }
+.medidor.ok > span:first-child { background: var(--green); }
+.medidor.aviso { background: var(--amber-soft); }
+.medidor.aviso > span:first-child { background: var(--amber-mark); }
+.medidor.estouro { background: var(--red-soft); }
+.medidor.estouro > span:first-child { background: var(--red); }
+.medidor > i.alvo { position: absolute; top: 0; bottom: 0; width: 2px; margin-left: -1px; background: var(--ink); }
+.medidor-dia { height: 6px; margin: 0 2px 10px; }
+.medidor-rot { display: flex; justify-content: space-between; gap: 4px 10px; flex-wrap: wrap; font-size: var(--fs-sm); color: var(--ink-2); }
+
+/* botões, chips, campos */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; padding: 9px 18px; border-radius: 999px; border: 1px solid var(--line-2); background: var(--surface); color: var(--ink); font-weight: 700; font-size: .9375rem; white-space: nowrap; }
+.btn:hover { border-color: var(--ink-2); }
+.btn .ic { width: 18px; height: 18px; }
+.btn-pri { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.btn-pri:hover { border-color: var(--accent); filter: brightness(1.08); }
+.btn-sm { min-height: 36px; padding: 6px 14px; font-size: var(--fs-sm); }
+.btn-largo { width: 100%; margin-top: 12px; }
+.btn-perigo { background: var(--red); border-color: var(--red); color: var(--on-red); }
+.btn-perigo-txt { border-color: transparent; background: transparent; color: var(--red); padding-inline: 8px; }
+.btn-perigo-txt:hover { border-color: transparent; background: var(--red-soft); }
+
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { display: inline-flex; align-items: center; gap: 4px; min-height: 38px; padding: 7px 14px; border-radius: 999px; border: 1px solid var(--line-2); background: var(--surface); color: var(--ink); font-size: var(--fs-sm); font-weight: 600; }
+.chip .ic { width: 16px; height: 16px; color: var(--accent); }
+.chip[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+.chip-r { position: relative; display: inline-flex; }
+.chip-r input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.chip-r span { display: inline-flex; align-items: center; min-height: 38px; padding: 7px 14px; border-radius: 999px; border: 1px solid var(--line-2); background: var(--surface); font-size: var(--fs-sm); font-weight: 600; }
+.chip-r input:checked + span { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+.chip-r input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.entrada { display: block; width: 100%; min-height: 48px; padding: 10px 14px; border: 1px solid var(--line-2); border-radius: var(--r-field); background: var(--surface); color: var(--ink); font-size: 1rem; }
+.entrada::placeholder { color: var(--muted); opacity: 1; }
+.entrada:focus { outline: 2px solid var(--accent); outline-offset: -1px; border-color: var(--accent); }
+.entrada-linha { min-height: 44px; border-color: transparent; background: var(--surface-2); }
+.nota { resize: vertical; min-height: 66px; line-height: 1.4; }
+.valor-entrada { display: flex; align-items: center; gap: 8px; min-height: 56px; padding: 4px 14px; border: 1px solid var(--line-2); border-radius: var(--r-field); background: var(--surface); }
+.valor-entrada:focus-within { outline: 2px solid var(--accent); outline-offset: -1px; border-color: var(--accent); }
+.valor-entrada > span { font-weight: 800; font-size: 1.25rem; color: var(--ink-2); }
+.valor-entrada input { flex: 1; min-width: 0; border: 0; background: transparent; outline: none; padding: 4px 0; font-family: var(--f-body); font-size: 1.75rem; font-weight: 800; color: var(--ink); }
+.valor-entrada input::placeholder { color: var(--line-2); opacity: 1; }
+.linha-campos { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.linha-campos > .entrada, .linha-campos > .valor-entrada { flex: 1 1 180px; }
+
+.selo { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px; font-size: .75rem; font-weight: 800; white-space: nowrap; background: var(--surface-2); color: var(--ink-2); }
+.selo-atrasada, .selo-ruim { background: var(--red-soft); color: var(--red); }
+.selo-hoje, .selo-logo, .selo-meio { background: var(--amber-soft); color: var(--amber); }
+.selo-ok, .selo-paga { background: var(--green-soft); color: var(--green); }
+
+.faixa-exemplo { display: flex; align-items: center; justify-content: space-between; gap: 10px 14px; flex-wrap: wrap; margin: 4px 0 14px; padding: 12px 14px; border-radius: var(--r-card); background: var(--amber-soft); color: var(--ink); font-size: var(--fs-sm); }
+.faixa-exemplo p { flex: 1 1 220px; }
+.aviso-armazem { margin: 4px 0 14px; padding: 10px 14px; border-radius: var(--r-card); background: var(--accent-soft); color: var(--ink); font-size: var(--fs-sm); }
+.carregando { margin-top: 28px; color: var(--muted); text-align: center; }
+.vazio { display: grid; gap: 10px; justify-items: start; padding: 20px 16px; background: var(--surface); border: 1px dashed var(--line-2); border-radius: var(--r-card); }
+.vazio-titulo { font-weight: 800; font-size: var(--fs-lg); }
+
+/* dinheiro de hoje */
+.hero-valor { font-family: var(--f-body); font-weight: 700; font-size: var(--fs-hero); line-height: 1.02; letter-spacing: -.02em; overflow-wrap: anywhere; }
+.hero-valor.ruim { color: var(--red); }
+.conta .valor { font-size: var(--fs-sm); }
+.valor { flex: none; font-size: .9375rem; font-weight: 600; }
+.valor.pos { color: var(--green); }
+.carimbo-pago { flex: none; font-family: var(--f-display); font-weight: 900; font-size: .9375rem; line-height: 1.2; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); border: 2px solid currentColor; border-radius: 5px; padding: 1px 5px 0 8px; transform: rotate(-8deg); opacity: .9; mix-blend-mode: var(--stamp-blend); filter: url(#tinta); }
+.carimbo-pago.anim { animation: carimbar-p .4s cubic-bezier(.2, .9, .25, 1) both; }
+
+/* saúde */
+.rotulo-ic { display: inline-flex; align-items: center; gap: 6px; font-weight: 700; }
+.rotulo-ic .ic { color: var(--accent); }
+.copos { display: flex; flex-wrap: wrap; gap: 1px; }
+.copo { width: 34px; height: 42px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 8px; background: none; color: var(--line-2); }
+.copo:hover { background: var(--surface-2); }
+.copo-ic { width: 28px; height: 28px; }
+.copo-borda { fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linejoin: round; }
+.copo-agua { fill: transparent; }
+.copo.cheio { color: var(--accent); }
+.copo.cheio .copo-agua { fill: var(--accent); }
+.copo.mais { color: var(--accent); border: 1px dashed var(--line-2); margin-left: 3px; }
+.copo.mais .ic { width: 20px; height: 20px; }
+.dupla { display: grid; grid-template-columns: minmax(0, 1fr); }
+.dupla > * + * { border-top: 1px solid var(--line); }
+.passo { display: flex; align-items: center; gap: 10px; }
+.passo .btn-icone { width: 42px; height: 42px; border: 1px solid var(--line-2); color: var(--ink); font-size: 1.375rem; font-weight: 700; line-height: 1; }
+.passo-valor { min-width: 4.6ch; text-align: center; font-weight: 800; font-size: 1.375rem; }
+.humores { display: flex; flex-wrap: wrap; gap: 6px; }
+.humor { width: 44px; height: 44px; display: grid; place-items: center; padding: 0; border-radius: 50%; border: 1px solid var(--line-2); background: var(--surface); color: var(--ink-2); }
+.humor[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.face { width: 28px; height: 28px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; }
+.face .olho { fill: currentColor; stroke: none; }
+.nota-fonte { font-size: var(--fs-xs); color: var(--muted); }
+.dia-nav, .mes-nav { display: flex; align-items: center; gap: 2px; }
+.dia-nav-rot, .mes-nome { min-width: 8.5em; text-align: center; font-weight: 700; }
+.mes-nome::first-letter { text-transform: uppercase; }
+
+/* rotina */
+.segmentos { display: flex; gap: 4px; padding: 4px; margin-bottom: 16px; overflow-x: auto; scrollbar-width: none; background: var(--surface-2); border: 1px solid var(--line); border-radius: 12px; }
+.segmentos::-webkit-scrollbar { display: none; }
+.segmento { flex: 1 0 auto; min-height: 38px; padding: 6px 12px; border: 0; border-radius: 9px; background: transparent; color: var(--ink-2); font-weight: 700; font-size: var(--fs-sm); white-space: nowrap; }
+.segmento[aria-selected="true"] { background: var(--seg-sel); color: var(--ink); box-shadow: var(--shadow-sm); }
+.habito { align-items: flex-start; }
+.habito .check { margin-top: 2px; }
+.habito .linha-txt { gap: 4px; }
+.pontos { display: flex; gap: 7px; margin-top: 4px; }
+.ponto { display: grid; justify-items: center; gap: 3px; font-size: .625rem; font-weight: 800; color: var(--muted); }
+.ponto::after { content: ""; width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--line-2); }
+.ponto.feito::after { background: var(--accent); border-color: var(--accent); }
+.ponto.hoje::after { border-color: var(--accent); }
+.ponto.fora::after { width: 8px; height: 2px; border: 0; margin-block: 5px; background: var(--line-2); }
+.grade-mes { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; text-align: center; }
+.gm-sem { padding-bottom: 2px; font-size: .6875rem; font-weight: 800; color: var(--muted); }
+.gm-sem.vermelho, .gm-dia.vermelho { color: var(--red); }
+.gm-dia { display: grid; place-items: center; aspect-ratio: 1; max-width: 100%; border-radius: 50%; font-family: var(--f-display); font-weight: 800; font-size: 1.0625rem; }
+.gm-dia.feito { background: var(--accent); color: var(--on-accent); }
+.gm-dia.falhou { box-shadow: inset 0 0 0 1.5px var(--line-2); }
+.gm-dia.hoje { box-shadow: inset 0 0 0 2px var(--accent); }
+.gm-dia.fora, .gm-dia.futuro { color: var(--muted); }
+.gm-dia.fora { opacity: .5; }
+.gm-cab { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.stat { display: grid; gap: 2px; padding: 10px; border-radius: 10px; background: var(--surface-2); min-width: 0; }
+.stat b { font-size: 1.375rem; font-weight: 800; line-height: 1.1; }
+.stat span { font-size: var(--fs-xs); font-weight: 700; color: var(--muted); }
+
+/* dinheiro */
+.hero { display: grid; gap: 6px; padding: 18px 16px 8px; }
+.tiles { display: grid; margin-top: 8px; border-top: 1px solid var(--line); }
+.tile { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 0 10px; padding: 10px 0; }
+.tile + .tile { border-top: 1px solid var(--line); }
+.tile-rot { display: inline-flex; align-items: center; gap: 6px; font-weight: 700; color: var(--ink-2); font-size: var(--fs-sm); }
+.tile-rot .ic { width: 18px; height: 18px; }
+.tile-val { font-family: var(--f-mono); font-weight: 600; }
+.tile-nota { width: 100%; text-align: right; font-size: var(--fs-xs); color: var(--muted); }
+.checklist { list-style: none; margin: 0; padding: 2px 0 6px; }
+.ck { display: flex; align-items: flex-start; gap: 12px; padding: 10px 16px; }
+.ck + .ck { border-top: 1px solid var(--line); }
+.ck-ic { flex: none; width: 22px; height: 22px; margin-top: 1px; }
+.ck-ic svg { display: block; width: 22px; height: 22px; }
+.ck-ok .ck-ic { color: var(--green); }
+.ck-meio .ck-ic { color: var(--amber-mark); }
+.ck-ruim .ck-ic { color: var(--red); }
+.ck-neutro .ck-ic { color: var(--muted); }
+.ck-txt { display: grid; gap: 1px; min-width: 0; }
+.ck-tit { font-weight: 700; }
+.ck-det { font-size: var(--fs-sm); color: var(--muted); }
+.st-fundo { fill: currentColor; }
+.st-traco { fill: none; stroke: var(--surface); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.st-borda { fill: none; stroke: currentColor; stroke-width: 2; }
+.st-meio { fill: currentColor; }
+.st-x { fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; }
+.plano { display: grid; gap: 16px; padding: 8px 16px 16px; }
+.plano-linha { display: grid; gap: 6px; }
+.plano-linha .sub { font-size: var(--fs-xs); }
+.legenda { display: flex; flex-wrap: wrap; gap: 14px; font-size: var(--fs-xs); color: var(--muted); }
+.leg { display: inline-flex; align-items: center; gap: 6px; }
+.leg::before { content: ""; width: 12px; height: 8px; border-radius: 2px; background: var(--accent); }
+.leg.pend::before { background: var(--accent-2); }
+.leg.alvo::before { width: 2px; height: 12px; border-radius: 0; background: var(--ink); }
+.cats { display: grid; gap: 12px; padding: 8px 16px 16px; }
+.cat-linha { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: baseline; gap: 4px 12px; }
+.cat-nome { font-weight: 600; overflow-wrap: anywhere; }
+.cat-val { font-family: var(--f-mono); font-size: var(--fs-sm); }
+.cat-pct { color: var(--muted); }
+.cat-barra { grid-column: 1 / -1; height: 6px; border-radius: 0 3px 3px 0; background: var(--accent); }
+.filtros { margin-bottom: 14px; }
+.extrato-dia + .extrato-dia { margin-top: 18px; }
+.extrato-cab { display: flex; justify-content: space-between; gap: 8px; margin: 0 4px 8px; font-size: var(--fs-sm); font-weight: 700; color: var(--ink-2); }
+.extrato-cab span:first-child::first-letter { text-transform: uppercase; }
+.lanc-ic { flex: none; width: 34px; height: 34px; display: grid; place-items: center; border-radius: 50%; background: var(--surface-2); color: var(--ink-2); }
+.lanc-ic .ic { width: 18px; height: 18px; }
+.lanc-ic.ent { background: var(--green-soft); color: var(--green); }
+.resumo-contas { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 6px 12px; margin: 0 4px 10px; font-size: var(--fs-sm); color: var(--ink-2); }
+.cartao-renda, .cartao-reserva { display: grid; gap: 8px; padding: 16px; margin-bottom: 12px; }
+.cartao-tit { font-weight: 800; font-size: var(--fs-lg); }
+.caixinha { display: grid; gap: 8px; padding: 14px 16px 16px; }
+.caixinha-cab { display: flex; align-items: center; gap: 8px; width: 100%; }
+.caixinha-nome { flex: 1; min-width: 0; font-weight: 800; font-size: var(--fs-lg); overflow-wrap: anywhere; }
+.caixinha-cab .ic { color: var(--muted); }
+.caixinha-saldo { font-weight: 700; font-size: 2rem; line-height: 1.1; letter-spacing: -.01em; }
+.caixinha-acoes { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+
+/* gráficos */
+.grafico { margin: 0; padding: 12px 12px 10px; }
+.graf-cab { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 0 4px 6px; }
+.graf-tit { font-weight: 800; font-size: var(--fs-sm); }
+.graf-sub { padding: 0 4px 8px; font-size: var(--fs-xs); color: var(--muted); }
+.graf { display: block; width: 100%; height: auto; overflow: visible; font-family: var(--f-body); }
+.graf-base { stroke: var(--line-2); stroke-width: 1; }
+.graf-meta { stroke: var(--ink-2); stroke-width: 1.25; stroke-dasharray: 4 4; }
+.graf-meta-txt { fill: var(--ink-2); font-size: 11px; font-weight: 700; }
+.graf-barra { fill: var(--accent-2); }
+.graf-barra.sel { fill: var(--accent); }
+.graf-pos { fill: var(--green); }
+.graf-neg { fill: var(--red); }
+.graf-pos.parcial, .graf-neg.parcial { fill-opacity: .45; }
+.graf-valor, .graf-meta-txt { paint-order: stroke; stroke: var(--surface); stroke-width: 4px; stroke-linejoin: round; }
+.graf-valor { fill: var(--ink); font-size: 12px; font-weight: 800; }
+.graf-eixo { fill: var(--muted); font-size: 11px; font-weight: 600; }
+.graf-eixo.sel { fill: var(--ink); font-weight: 800; }
+.graf-alvo { fill: transparent; outline: none; }
+.graf-alvo:hover { fill: var(--ink); fill-opacity: .04; }
+.graf-alvo:focus-visible { fill: var(--accent); fill-opacity: .12; }
+.tabela-rolagem { overflow-x: auto; }
+.tabela { width: 100%; border-collapse: collapse; font-size: var(--fs-sm); }
+.tabela th, .tabela td { padding: 7px 4px; text-align: left; border-bottom: 1px solid var(--line); }
+.tabela th { font-size: var(--fs-xs); font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.tabela .num { text-align: right; font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+.vazio-graf { padding: 18px 4px; color: var(--muted); font-size: var(--fs-sm); }
+.humor-semana { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; padding: 4px 0 2px; }
+.hs-dia { display: grid; justify-items: center; gap: 4px; }
+.hs-face { width: 34px; height: 34px; display: grid; place-items: center; color: var(--accent); }
+.hs-face .face { width: 30px; height: 30px; }
+.hs-vazio { color: var(--line-2); font-weight: 800; font-size: 1.25rem; }
+.hs-rot { font-size: .6875rem; font-weight: 700; color: var(--muted); }
+.hs-dia.sel .hs-rot { color: var(--ink); font-weight: 800; }
+
+/* folhas (formulários) */
+#folha-raiz { position: fixed; inset: 0; z-index: 50; }
+.veu { position: absolute; inset: 0; background: var(--veu); animation: aparecer .18s ease-out; }
+.folha { position: absolute; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; overflow: hidden; max-width: var(--col); max-height: 92vh; max-height: calc(100dvh - 16px - env(safe-area-inset-top, 0px)); margin-inline: auto; padding-top: 6px; background: var(--surface); border-radius: 18px 18px 0 0; box-shadow: 0 -12px 40px -12px rgba(0, 0, 0, .35); animation: subir .26s cubic-bezier(.2, .9, .25, 1); }
+@media (min-width: 640px) { .folha { bottom: 24px; border-radius: 18px; max-height: calc(100dvh - 48px); } }
+.folha-alca { flex: none; width: 40px; height: 4px; margin: 2px auto 6px; border-radius: 2px; background: var(--line-2); }
+.folha-cab { flex: none; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0 8px 6px 16px; }
+.folha-cab h2 { font-family: var(--f-display); font-weight: 800; font-size: 1.75rem; line-height: 1.05; letter-spacing: .01em; overflow-wrap: anywhere; }
+#folha-form { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; margin: 0; }
+.folha-corpo { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; display: grid; align-content: start; gap: 18px; padding: 6px 16px 18px; }
+.folha-corpo:last-child { padding-bottom: calc(22px + env(safe-area-inset-bottom, 0px)); }
+.folha-acoes { flex: none; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 16px calc(12px + env(safe-area-inset-bottom, 0px)); border-top: 1px solid var(--line); background: var(--surface); }
+.folha-acoes .btn-pri { min-width: 9rem; }
+.campo { display: grid; gap: 6px; min-width: 0; margin: 0; padding: 0; border: 0; }
+.campo > label, .campo > legend { padding: 0; margin-bottom: 6px; font-size: var(--fs-sm); font-weight: 800; color: var(--ink-2); }
+.opcional { font-weight: 500; color: var(--muted); }
+.dois { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.tres { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.mini { display: grid; gap: 4px; min-width: 0; font-size: var(--fs-xs); font-weight: 700; color: var(--ink-2); }
+.mini-in { display: flex; align-items: center; gap: 6px; }
+.mini-in .entrada { min-height: 44px; padding: 8px 10px; }
+.dias-semana { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
+.dia-sem { position: relative; display: grid; }
+.dia-sem input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.dia-sem span[aria-hidden] { display: grid; place-items: center; aspect-ratio: 1; border-radius: 50%; border: 1px solid var(--line-2); font-weight: 800; }
+.dia-sem input:checked + span { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.dia-sem input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
+.grade-add { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.add-op { display: flex; align-items: center; gap: 10px; min-height: 64px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface-2); font-weight: 700; text-align: left; }
+.add-op .ic { width: 26px; height: 26px; color: var(--accent); }
+.aviso-pago { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; padding: 10px 12px; border-radius: 10px; background: var(--green-soft); color: var(--green); font-weight: 700; font-size: var(--fs-sm); }
+.aviso-pago .btn { color: var(--ink); }
+.dados { display: grid; gap: 10px; padding-top: 16px; border-top: 1px solid var(--line); }
+.acoes-dados { display: flex; flex-wrap: wrap; gap: 8px; }
+.texto-backup { min-height: 160px; font-family: var(--f-mono); font-size: .75rem; }
+.erro-campo { color: var(--red); font-size: var(--fs-sm); font-weight: 700; }
+
+.toast-raiz { position: fixed; z-index: 60; left: 0; right: 0; bottom: calc(var(--abas-h) + 88px + env(safe-area-inset-bottom, 0px)); display: flex; justify-content: center; padding-inline: 16px; pointer-events: none; }
+.toast { pointer-events: auto; display: flex; align-items: center; gap: 14px; max-width: 520px; padding: 10px 10px 10px 16px; border-radius: 12px; background: var(--toast-bg); color: var(--toast-fg); font-weight: 600; font-size: var(--fs-sm); box-shadow: 0 10px 30px -10px rgba(0, 0, 0, .5); animation: subir .2s ease-out; }
+.toast button { min-height: 36px; padding: 6px 8px; border: 0; background: none; color: var(--toast-acao); font-weight: 800; }
+.dica { position: fixed; z-index: 70; max-width: 240px; padding: 7px 10px; border-radius: 8px; background: var(--toast-bg); color: var(--toast-fg); font-size: var(--fs-xs); line-height: 1.35; pointer-events: none; box-shadow: 0 6px 20px -6px rgba(0, 0, 0, .4); }
+.dica strong { display: block; font-size: var(--fs-sm); font-weight: 800; }
+
+@media (min-width: 520px) {
+  .dupla { grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); }
+  .dupla > * + * { border-top: 0; border-left: 1px solid var(--line); }
+}
+@media (max-width: 360px) {
+  .dois { grid-template-columns: minmax(0, 1fr); }
+  .tres { grid-template-columns: minmax(0, 1fr); }
+  .stats { grid-template-columns: minmax(0, 1fr); }
+}
+
+@keyframes carimbar { 0% { opacity: 0; transform: rotate(-11deg) scale(2.1); } 55% { opacity: .95; transform: rotate(-11deg) scale(.93); } 100% { opacity: .9; transform: rotate(-11deg) scale(1); } }
+@keyframes carimbar-p { 0% { opacity: 0; transform: rotate(-8deg) scale(2); } 60% { opacity: 1; transform: rotate(-8deg) scale(.94); } 100% { opacity: .9; transform: rotate(-8deg) scale(1); } }
+@keyframes baque { 50% { transform: translateY(2px); } }
+@keyframes virar-frente { from { opacity: .25; transform: translateY(10px); } }
+@keyframes virar-tras { from { opacity: .25; transform: translateY(-10px); } }
+@keyframes aparecer { from { opacity: 0; } }
+@keyframes subir { from { opacity: 0; transform: translateY(24px); } }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <filter id="tinta" x="-5%" y="-5%" width="110%" height="110%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="1.1" numOctaves="2" seed="4" result="ruido"/>
+      <feColorMatrix in="ruido" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -4 0 0 0 3" result="mascara"/>
+      <feComposite in="SourceGraphic" in2="mascara" operator="in" result="falhado"/>
+      <feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="1" seed="9" result="onda"/>
+      <feDisplacementMap in="falhado" in2="onda" scale="2" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+    <symbol id="i-chev-l" viewBox="0 0 24 24"><path d="M14.5 5.5L8 12l6.5 6.5"/></symbol>
+    <symbol id="i-chev-r" viewBox="0 0 24 24"><path d="M9.5 5.5L16 12l-6.5 6.5"/></symbol>
+    <symbol id="i-lixo" viewBox="0 0 24 24"><path d="M4.5 7h15M9.5 7V4.5h5V7M6.5 7l.9 12.2a1.5 1.5 0 0 0 1.5 1.3h6.2a1.5 1.5 0 0 0 1.5-1.3L17.5 7M10 11v6M14 11v6"/></symbol>
+    <symbol id="i-ajustes" viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2.2"/><circle cx="9" cy="17" r="2.2"/></symbol>
+    <symbol id="i-hoje" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15.5" rx="2"/><path d="M4 9.5h16M8.5 3v4M15.5 3v4M9.5 15l2 2 3.5-4"/></symbol>
+    <symbol id="i-rotina" viewBox="0 0 24 24"><path d="M4 6.5l1.6 1.6L8.6 5M4 12.5l1.6 1.6 3-3.1M4 18.5l1.6 1.6 3-3.1M12 7h8M12 13h8M12 19h8"/></symbol>
+    <symbol id="i-dinheiro" viewBox="0 0 24 24"><rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="2.7"/><path d="M6 9.5v5M18 9.5v5"/></symbol>
+    <symbol id="i-saude" viewBox="0 0 24 24"><path d="M12 20s-7.5-4.4-7.5-10.1A4.2 4.2 0 0 1 12 7.6a4.2 4.2 0 0 1 7.5 2.3C19.5 15.6 12 20 12 20z"/><path d="M7.5 12.5h2.5l1.2-2.2 1.8 4 1.2-1.8h2.3"/></symbol>
+    <symbol id="i-gota" viewBox="0 0 24 24"><path d="M12 3.5s6 6.3 6 10.6a6 6 0 0 1-12 0C6 9.8 12 3.5 12 3.5z"/></symbol>
+    <symbol id="i-lua" viewBox="0 0 24 24"><path d="M19.5 14.6A7.6 7.6 0 0 1 9.4 4.5a7.6 7.6 0 1 0 10.1 10.1z"/></symbol>
+    <symbol id="i-pulso" viewBox="0 0 24 24"><path d="M3 12h4l2.4-5.5 4.6 11 2.4-5.5H21"/></symbol>
+    <symbol id="i-seta-cima" viewBox="0 0 24 24"><path d="M12 19V5M6.5 10.5L12 5l5.5 5.5"/></symbol>
+    <symbol id="i-seta-baixo" viewBox="0 0 24 24"><path d="M12 5v14M6.5 13.5L12 19l5.5-5.5"/></symbol>
+    <symbol id="i-boleto" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 9v6M9.5 9v6M11.5 9v6M14.5 9v6M17 9v6"/></symbol>
+    <symbol id="i-caixa" viewBox="0 0 24 24"><path d="M4 8.2L12 4l8 4.2v7.6L12 20l-8-4.2z"/><path d="M4 8.2l8 4.2 8-4.2M12 12.4V20"/></symbol>
+    <symbol id="i-repetir" viewBox="0 0 24 24"><path d="M17 3.5l3 3-3 3"/><path d="M20 6.5H9a5 5 0 0 0-5 5v.5"/><path d="M7 20.5l-3-3 3-3"/><path d="M4 17.5h11a5 5 0 0 0 5-5V12"/></symbol>
+    <symbol id="i-desfazer" viewBox="0 0 24 24"><path d="M8.5 6L4 10.5 8.5 15"/><path d="M4.5 10.5h10a5 5 0 0 1 0 10H11"/></symbol>
+    <symbol id="i-copiar" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5.5A1.5 1.5 0 0 0 14.5 4h-9A1.5 1.5 0 0 0 4 5.5v9A1.5 1.5 0 0 0 5.5 16H8"/></symbol>
+    <symbol id="i-lapis" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/></symbol>
+    <symbol id="i-tabela" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="14" rx="1.5"/><path d="M4 10h16M4 14.5h16M10 5v14"/></symbol>
+    <symbol id="i-grafico" viewBox="0 0 24 24"><path d="M3 20h18M6.5 20v-7M11 20V7M15.5 20v-5M20 20V9"/></symbol>
+  </defs>
+</svg>
+
+<div class="app">
+  <header class="topo">
+    <span class="marca"><span class="marca-carimbo">Em dia</span></span>
+    <span class="topo-dir">
+      <span id="sync" class="sync" aria-live="polite"></span>
+      <button type="button" class="btn-icone" data-act="ajustes" aria-label="Ajustes"><svg class="ic" aria-hidden="true"><use href="#i-ajustes"/></svg></button>
+    </span>
+  </header>
+  <main id="main" tabindex="-1">
+    <p class="carregando">Abrindo o seu dia…</p>
+    <noscript><p class="carregando">O Em Dia precisa de JavaScript ligado para funcionar.</p></noscript>
+  </main>
+</div>
+<button type="button" class="fab" data-act="adicionar" aria-label="Adicionar"><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg></button>
+<nav class="abas" aria-label="Seções">
+  <div class="abas-in">
+    <button type="button" class="aba" data-act="aba" data-aba="hoje" aria-current="page"><svg class="ic" aria-hidden="true"><use href="#i-hoje"/></svg><span>Hoje</span></button>
+    <button type="button" class="aba" data-act="aba" data-aba="rotina"><svg class="ic" aria-hidden="true"><use href="#i-rotina"/></svg><span>Rotina</span></button>
+    <button type="button" class="aba" data-act="aba" data-aba="dinheiro"><svg class="ic" aria-hidden="true"><use href="#i-dinheiro"/></svg><span>Dinheiro</span></button>
+    <button type="button" class="aba" data-act="aba" data-aba="saude"><svg class="ic" aria-hidden="true"><use href="#i-saude"/></svg><span>Saúde</span></button>
+  </div>
+</nav>
+<div id="folha-raiz" hidden></div>
+<div id="toast-raiz" class="toast-raiz" aria-live="polite"></div>
+<div id="dica" class="dica" role="tooltip" hidden></div>
+
+<script>
+(() => {
+  'use strict';
+
+  /* ═══════════ utilidades ═══════════ */
+  const $ = (s, el = document) => el.querySelector(s);
+  const $$ = (s, el = document) => Array.from(el.querySelectorAll(s));
+  const pad = (n) => String(n).padStart(2, '0');
+  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+  const novoId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+  const num = (v, d = 0) => { const n = Number(v); return Number.isFinite(n) ? n : d; };
+  const espera = (ms) => new Promise((r) => setTimeout(r, ms));
+  const ID_OK = /^[A-Za-z0-9_\-.~:@+]{1,200}$/;
+  const agoraISO = () => new Date().toISOString();
+  const ic = (n) => `<svg class="ic" aria-hidden="true"><use href="#i-${n}"/></svg>`;
+
+  /* ═══════════ datas (chaves AAAA-MM-DD no fuso do aparelho) ═══════════ */
+  const chave = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  const dataDe = (k) => { const [y, m, d] = String(k).split('-').map(Number); return new Date(y, m - 1, d, 12); };
+  const hoje = () => chave(new Date());
+  const somaDias = (k, n) => { const d = dataDe(k); d.setDate(d.getDate() + n); return chave(d); };
+  const difDias = (a, b) => Math.round((dataDe(b) - dataDe(a)) / 864e5);
+  const diaSemana = (k) => dataDe(k).getDay();
+  const diasNoMes = (y, m) => new Date(y, m, 0).getDate();
+  const mesDe = (k) => k.slice(0, 7);
+  const somaMeses = (mk, n) => { const [y, m] = mk.split('-').map(Number); const d = new Date(y, m - 1 + n, 1, 12); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}`; };
+  const fimDoMes = (k) => { const [y, m] = k.split('-').map(Number); return `${y}-${pad(m)}-${pad(diasNoMes(y, m))}`; };
+  const chaveValida = (k) => typeof k === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(k) && !isNaN(dataDe(k).getTime());
+  const mesValido = (k) => typeof k === 'string' && /^\d{4}-\d{2}$/.test(k);
+  const bissexto = (y) => (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0;
+
+  const SEMANA = ['domingo', 'segunda-feira', 'terça-feira', 'quarta-feira', 'quinta-feira', 'sexta-feira', 'sábado'];
+  const SEM_CURTA = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
+  const SEM_INI = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
+  const MESES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+  const MES_CURTO = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+  const ddmm = (k) => `${k.slice(8, 10)}/${k.slice(5, 7)}`;
+  const diaCurto = (k) => `${SEM_CURTA[diaSemana(k)]}, ${ddmm(k)}`;
+  const diaLongo = (k) => { const d = dataDe(k); return `${SEMANA[d.getDay()]}, ${d.getDate()} de ${MESES[d.getMonth()]}`; };
+  const nomeMes = (mk) => { const [y, m] = mk.split('-').map(Number); return `${MESES[m - 1]} de ${y}`; };
+  const mesCurto = (mk) => { const [y, m] = mk.split('-').map(Number); return `${MES_CURTO[m - 1]}/${String(y).slice(2)}`; };
+
+  /* ═══════════ números e dinheiro (sempre em centavos) ═══════════ */
+  const F_BRL = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+  const F_N2 = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const F_N1 = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  const F_N0 = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 0 });
+  const F_L = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 2 });
+  const F_CMP = new Intl.NumberFormat('pt-BR', { notation: 'compact', maximumFractionDigits: 1 });
+  const brl = (c) => F_BRL.format(Math.abs(Math.round(num(c))) / 100);
+  const brlNeg = (c) => (num(c) < 0 ? '−' : '') + brl(c);
+  const brlSinal = (c) => (num(c) > 0 ? '+' : num(c) < 0 ? '−' : '') + brl(c);
+  const brlCurto = (c) => { const v = Math.abs(num(c)) / 100; return (num(c) < 0 ? '−' : '') + 'R$ ' + (v >= 1000 ? F_CMP.format(v) : F_N0.format(v)); };
+  const n2 = (c) => F_N2.format(Math.round(num(c)) / 100);
+  const pct = (v) => `${F_N0.format(num(v))}%`;
+  const fmtMl = (ml) => (num(ml) >= 1000 ? `${F_L.format(num(ml) / 1000)} L` : `${F_N0.format(num(ml))} ml`);
+  const fmtHoras = (h) => { const v = num(h); const hh = Math.floor(v); const mm = Math.round((v - hh) * 60); return mm ? `${hh}h${pad(mm)}` : `${hh}h`; };
+  const fmtMin = (m) => `${F_N0.format(num(m))} min`;
+
+  /* ═══════════ calendário brasileiro ═══════════ */
+  function pascoa(y) {
+    const a = y % 19, b = Math.floor(y / 100), c = y % 100, d = Math.floor(b / 4), e = b % 4;
+    const f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3);
+    const h = (19 * a + b - d - g + 15) % 30, i = Math.floor(c / 4), k = c % 4;
+    const l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451);
+    const mes = Math.floor((h + l - 7 * m + 114) / 31), dia = ((h + l - 7 * m + 114) % 31) + 1;
+    return `${y}-${pad(mes)}-${pad(dia)}`;
+  }
+  const cacheFeriados = new Map();
+  function feriadosDoAno(y) {
+    if (cacheFeriados.has(y)) return cacheFeriados.get(y);
+    const f = new Map();
+    const fixos = [['01-01', 'Confraternização Universal'], ['04-21', 'Tiradentes'], ['05-01', 'Dia do Trabalho'], ['09-07', 'Independência do Brasil'], ['10-12', 'Nossa Senhora Aparecida'], ['11-02', 'Finados'], ['11-15', 'Proclamação da República'], ['11-20', 'Dia da Consciência Negra'], ['12-25', 'Natal']];
+    for (const [md, nome] of fixos) f.set(`${y}-${md}`, { nome, nacional: true, bancario: true });
+    const p = pascoa(y);
+    f.set(somaDias(p, -48), { nome: 'Carnaval', nacional: false, bancario: true });
+    f.set(somaDias(p, -47), { nome: 'Carnaval', nacional: false, bancario: true });
+    f.set(somaDias(p, -2), { nome: 'Sexta-feira Santa', nacional: true, bancario: true });
+    f.set(p, { nome: 'Páscoa', nacional: false, bancario: false });
+    f.set(somaDias(p, 60), { nome: 'Corpus Christi', nacional: false, bancario: false });
+    cacheFeriados.set(y, f);
+    return f;
+  }
+  const feriado = (k) => feriadosDoAno(Number(k.slice(0, 4))).get(k) || null;
+  const vermelho = (k) => diaSemana(k) === 0 || !!(feriado(k) && feriado(k).nacional);
+  const diaUtil = (k) => { const w = diaSemana(k); const f = feriado(k); return w !== 0 && w !== 6 && !(f && f.bancario); };
+  const proximoDiaUtil = (k) => { let d = k; for (let i = 0; i < 12 && !diaUtil(d); i++) d = somaDias(d, 1); return d; };
+  function proximoFeriado(k) {
+    for (let i = 1; i <= 400; i++) {
+      const d = somaDias(k, i); const f = feriado(d);
+      if (f && f.nome !== 'Páscoa' && !(f.nome === 'Carnaval' && feriado(somaDias(d, -1)) && feriado(somaDias(d, -1)).nome === 'Carnaval')) return { dia: d, nome: f.nome, nacional: f.nacional, em: i };
+    }
+    return null;
+  }
+  /* Fase da lua pela idade média (ciclo sinódico). No Brasil se diz que a fase dura até a próxima: nova, crescente, cheia, minguante. */
+  function lua(k) {
+    const ref = Date.UTC(2000, 0, 6, 18, 14);
+    const ciclo = 29.530588853;
+    const idade = ((((dataDe(k).getTime() - ref) / 864e5) % ciclo) + ciclo) % ciclo;
+    const nome = idade < 7.38 ? 'Lua nova' : idade < 14.77 ? 'Lua crescente' : idade < 22.15 ? 'Lua cheia' : 'Lua minguante';
+    return { f: idade / ciclo, nome };
+  }
+  /* Desenhada como se vê no hemisfério sul: a crescente acende do lado esquerdo, em forma de C. */
+  function svgLua(f) {
+    const r = 8, cx = 10, cy = 10;
+    const t = Math.cos(2 * Math.PI * f);
+    const rx = (Math.abs(t) * r).toFixed(2);
+    const esquerda = f < 0.5;
+    const fina = t > 0;
+    const s1 = esquerda ? 0 : 1;
+    const s2 = esquerda ? (fina ? 1 : 0) : (fina ? 0 : 1);
+    const d = `M${cx} ${cy - r}A${r} ${r} 0 0 ${s1} ${cx} ${cy + r}A${rx} ${r} 0 0 ${s2} ${cx} ${cy - r}Z`;
+    return `<svg class="lua" viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><circle class="lua-sombra" cx="${cx}" cy="${cy}" r="${r}"/><path class="lua-luz" d="${d}"/></svg>`;
+  }
+
+  /* ═══════════ categorias e textos fixos ═══════════ */
+  const CATS = [
+    { id: 'moradia', nome: 'Moradia', g: 'nec' },
+    { id: 'casa', nome: 'Contas da casa', g: 'nec' },
+    { id: 'mercado', nome: 'Mercado', g: 'nec' },
+    { id: 'transporte', nome: 'Transporte', g: 'nec' },
+    { id: 'saude', nome: 'Saúde', g: 'nec' },
+    { id: 'educacao', nome: 'Educação', g: 'nec' },
+    { id: 'comer', nome: 'Comer fora', g: 'des' },
+    { id: 'lazer', nome: 'Lazer', g: 'des' },
+    { id: 'compras', nome: 'Compras', g: 'des' },
+    { id: 'assinaturas', nome: 'Assinaturas', g: 'des' },
+    { id: 'cuidados', nome: 'Cuidados pessoais', g: 'des' },
+    { id: 'outros', nome: 'Outros gastos', g: 'des' },
+    { id: 'guardar', nome: 'Guardar e investir', g: 'fut' },
+    { id: 'dividas', nome: 'Dívidas', g: 'fut' },
+    { id: 'salario', nome: 'Salário', g: 'ent' },
+    { id: 'extra', nome: 'Renda extra', g: 'ent' },
+    { id: 'resgate', nome: 'Resgate de caixinha', g: 'ent' },
+    { id: 'outrasent', nome: 'Outras entradas', g: 'ent' },
+  ];
+  const CAT = Object.fromEntries(CATS.map((c) => [c.id, c]));
+  const catDe = (id, tipo) => CAT[id] || (tipo === 'entrada' ? CAT.outrasent : CAT.outros);
+  const FORMAS = [['pix', 'Pix'], ['debito', 'Débito'], ['credito', 'Crédito'], ['dinheiro', 'Dinheiro'], ['boleto', 'Boleto']];
+  const nomeForma = (v) => { const f = FORMAS.find(([x]) => x === v); return f ? f[1] : ''; };
+  const HUMORES = [[1, 'Péssimo'], [2, 'Ruim'], [3, 'Normal'], [4, 'Bem'], [5, 'Ótimo']];
+  const SUGESTOES_HABITOS = ['Ler 20 minutos', 'Caminhar 30 minutos', 'Anotar os gastos do dia', 'Dormir antes das 23h', 'Alongar 10 minutos', 'Meditar 5 minutos'];
+  const SUGESTOES_CONTAS = [['Aluguel', 'moradia', 10], ['Condomínio', 'moradia', 10], ['Luz', 'casa', 15], ['Água', 'casa', 15], ['Internet', 'casa', 15], ['Celular', 'casa', 15], ['Plano de saúde', 'saude', 10], ['Streaming', 'assinaturas', 15]];
+
+  const BOCAS = { 1: 'M8 16.6q4-3.6 8 0', 2: 'M8.6 16q3.4-2 6.8 0', 3: 'M8.6 15.4h6.8', 4: 'M8.4 14.6q3.6 2.4 7.2 0', 5: 'M8 14q4 4.4 8 0' };
+  const icHumor = (v) => `<svg class="face" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle class="olho" cx="9" cy="10" r="1.1"/><circle class="olho" cx="15" cy="10" r="1.1"/><path d="${BOCAS[v] || BOCAS[3]}"/></svg>`;
+  const icCopo = () => '<svg class="copo-ic" viewBox="0 0 24 24" aria-hidden="true"><path class="copo-agua" d="M7.7 9.5h8.6l-.9 9.4a1.4 1.4 0 0 1-1.4 1.3H10a1.4 1.4 0 0 1-1.4-1.3z"/><path class="copo-borda" d="M5.6 4h12.8l-1.5 15.1a1.9 1.9 0 0 1-1.9 1.7H9a1.9 1.9 0 0 1-1.9-1.7z"/></svg>';
+  function icStatus(s) {
+    if (s === 'ok') return '<svg viewBox="0 0 22 22"><circle class="st-fundo" cx="11" cy="11" r="10"/><path class="st-traco" d="M6.6 11.3l2.9 2.9 5.9-6.2"/></svg>';
+    if (s === 'meio') return '<svg viewBox="0 0 22 22"><circle class="st-borda" cx="11" cy="11" r="9"/><path class="st-meio" d="M11 2a9 9 0 0 1 0 18z"/></svg>';
+    if (s === 'ruim') return '<svg viewBox="0 0 22 22"><circle class="st-borda" cx="11" cy="11" r="9"/><path class="st-x" d="M7.8 7.8l6.4 6.4M14.2 7.8l-6.4 6.4"/></svg>';
+    return '<svg viewBox="0 0 22 22"><circle class="st-borda" cx="11" cy="11" r="9"/><path class="st-x" d="M7.5 11h7"/></svg>';
+  }
+
+  /* ═══════════ dados ═══════════ */
+  const COLECOES = ['habitos', 'tarefas', 'lancamentos', 'contas', 'caixinhas', 'dias'];
+  const S = { perfil: null, habitos: {}, tarefas: {}, lancamentos: {}, contas: {}, caixinhas: {}, dias: {} };
+  const PERFIL_PADRAO = { nome: '', rendaMensal: 0, divisao: { nec: 50, des: 30, fut: 20 }, aguaMeta: 2000, copoMl: 250, sonoMeta: 8, exercicioMeta: 150 };
+  function perfil() {
+    const p = S.perfil && typeof S.perfil === 'object' ? S.perfil : {};
+    const d = { ...PERFIL_PADRAO.divisao, ...(p.divisao && typeof p.divisao === 'object' ? p.divisao : {}) };
+    return {
+      nome: typeof p.nome === 'string' ? p.nome : '',
+      rendaMensal: Math.max(0, Math.round(num(p.rendaMensal))),
+      divisao: { nec: clamp(num(d.nec, 50), 0, 100), des: clamp(num(d.des, 30), 0, 100), fut: clamp(num(d.fut, 20), 0, 100) },
+      aguaMeta: clamp(num(p.aguaMeta, 2000), 250, 6000),
+      copoMl: clamp(num(p.copoMl, 250), 50, 1000),
+      sonoMeta: clamp(num(p.sonoMeta, 8), 4, 12),
+      exercicioMeta: clamp(num(p.exercicioMeta, 150), 0, 1500),
+      exemplo: !!p.exemplo,
+    };
+  }
+  const armazem = { modo: 'carregando', pronto: false, aviso: '', salvando: 0 };
+  function marcarSync(d) {
+    armazem.salvando = Math.max(0, armazem.salvando + d);
+    const el = $('#sync');
+    if (el) el.textContent = armazem.salvando ? 'salvando…' : '';
+  }
+
+  /* — só neste navegador (fora do claude.ai, ou sem conta) — */
+  const CHAVE_LOCAL = 'emdia:v1';
+  const local = {
+    timer: 0,
+    carregar() {
+      try {
+        const raw = localStorage.getItem(CHAVE_LOCAL);
+        if (raw) aplicarDump(JSON.parse(raw));
+      } catch (e) { /* sem armazenamento: o app funciona até fechar */ }
+    },
+    salvar() { clearTimeout(this.timer); this.timer = setTimeout(() => this.gravar(), 250); },
+    gravar() {
+      clearTimeout(this.timer);
+      try { localStorage.setItem(CHAVE_LOCAL, JSON.stringify(dump())); }
+      catch (e) { toast('Este navegador não deixou salvar. Copie um backup em Ajustes.'); }
+    },
+  };
+  function dump() {
+    const o = { app: 'emdia', versao: 1, exportadoEm: agoraISO(), perfil: S.perfil };
+    for (const c of COLECOES) o[c] = S[c];
+    return o;
+  }
+  function aplicarDump(d) {
+    if (!d || typeof d !== 'object') return;
+    S.perfil = d.perfil && typeof d.perfil === 'object' ? d.perfil : null;
+    for (const c of COLECOES) S[c] = d[c] && typeof d[c] === 'object' ? d[c] : {};
+  }
+
+  /* — na conta Claude: cada pessoa tem seu canto privado em data/users/<id>/emdia — */
+  const nuvem = {
+    db: null, raiz: null, iniciais: 0,
+    servidor: { perfil: null, habitos: {}, tarefas: {}, lancamentos: {}, contas: {}, caixinhas: {}, dias: {} },
+    pendentes: new Map(),
+    emVoo: 0, fila: [],
+    ref(col, id) { return col === 'perfil' ? this.raiz : this.raiz.collection(col).doc(id); },
+    assinar() {
+      const total = COLECOES.length + 1;
+      const chegou = () => { this.iniciais += 1; if (this.iniciais >= total) ficouPronto(); };
+      let primeiro = true;
+      this.raiz.onSnapshot((snap) => {
+        this.servidor.perfil = snap.exists ? snap.data() : null;
+        this.recompor('perfil');
+        if (primeiro) { primeiro = false; chegou(); }
+      }, erroAssinatura);
+      const hj = hoje();
+      for (const col of COLECOES) {
+        let q = this.raiz.collection(col);
+        if (col === 'lancamentos') q = q.where('data', '>=', `${somaMeses(mesDe(hj), -13)}-01`);
+        if (col === 'dias') q = q.where('data', '>=', somaDias(hj, -150));
+        let prim = true;
+        q.onSnapshot((snap) => {
+          const m = {};
+          for (const d of snap.docs) m[d.id] = d.data();
+          this.servidor[col] = m;
+          this.recompor(col);
+          if (prim) { prim = false; chegou(); }
+        }, erroAssinatura);
+      }
+    },
+    recompor(col) {
+      if (col === 'perfil') {
+        const p = this.pendentes.get('perfil/_');
+        S.perfil = p ? (p.op === 'del' ? null : p.doc) : this.servidor.perfil;
+      } else {
+        const m = { ...this.servidor[col] };
+        for (const [k, p] of this.pendentes) {
+          const i = k.indexOf('/');
+          if (k.slice(0, i) !== col) continue;
+          const id = k.slice(i + 1);
+          if (p.op === 'del') delete m[id]; else m[id] = p.doc;
+        }
+        S[col] = m;
+      }
+      agendarRender();
+    },
+    escrever(col, id, op, doc) {
+      const k = `${col}/${id}`;
+      let p = this.pendentes.get(k);
+      if (!p) { p = { ocupado: false, timer: 0, sujo: false }; this.pendentes.set(k, p); }
+      p.op = op; p.doc = doc; p.sujo = true;
+      clearTimeout(p.timer);
+      p.timer = setTimeout(() => this.descarregar(k), op === 'del' ? 0 : 400);
+    },
+    vaga() {
+      if (this.emVoo < 4) { this.emVoo += 1; return Promise.resolve(); }
+      return new Promise((r) => this.fila.push(r));
+    },
+    liberar() { const r = this.fila.shift(); if (r) r(); else this.emVoo -= 1; },
+    async descarregar(k) {
+      const p = this.pendentes.get(k);
+      if (!p || p.ocupado || !p.sujo) return;
+      clearTimeout(p.timer);
+      p.ocupado = true; p.sujo = false;
+      const i = k.indexOf('/');
+      const col = k.slice(0, i), id = k.slice(i + 1);
+      const op = p.op, doc = p.doc;
+      marcarSync(1);
+      await this.vaga();
+      try {
+        await this.tentar(() => (op === 'del' ? this.ref(col, id).delete() : this.ref(col, id).set(doc)));
+      } catch (e) {
+        erroEscrita(e);
+      } finally {
+        this.liberar();
+        marcarSync(-1);
+      }
+      p.ocupado = false;
+      if (p.sujo) this.descarregar(k);
+      else this.pendentes.delete(k);
+    },
+    async tentar(fn) {
+      for (let t = 0; ; t++) {
+        try { return await fn(); }
+        catch (e) {
+          const c = e && e.code;
+          if (t < 3 && (c === 'unavailable' || c === 'resource_exhausted')) { await espera(700 * (t + 1) + Math.random() * 600); continue; }
+          throw e;
+        }
+      }
+    },
+    descarregarTudo() { for (const k of Array.from(this.pendentes.keys())) this.descarregar(k); },
+  };
+  function erroEscrita(e) {
+    const c = e && e.code;
+    if (c === 'quota_exceeded') toast('Acabou o espaço para novos registros. Apague registros antigos e tente de novo.');
+    else if (c === 'revoked' || c === 'not_granted' || c === 'capability_disabled' || c === 'capability_removed') toast('O acesso aos seus dados foi encerrado. Recarregue a página.');
+    else if (c === 'invalid_argument') toast('Não deu para salvar: este acesso não permite gravar.');
+    else toast('Não deu para salvar agora. Confira a conexão e tente de novo.');
+  }
+  function erroAssinatura(e) {
+    if (e && e.code === 'revoked') toast('O acesso aos seus dados foi encerrado. Recarregue a página.');
+    else toast('A conexão com seus dados caiu. Recarregue a página para continuar.');
+    ficouPronto();
+  }
+
+  function put(col, id, doc, opts) {
+    const silencioso = !!(opts && opts.silencioso);
+    if (col === 'perfil') S.perfil = doc;
+    else S[col] = { ...S[col], [id]: doc };
+    if (armazem.modo === 'nuvem') nuvem.escrever(col, col === 'perfil' ? '_' : id, 'set', doc);
+    else if (armazem.modo === 'local') local.salvar();
+    if (!silencioso) agendarRender();
+  }
+  function del(col, id) {
+    if (col === 'perfil') S.perfil = null;
+    else if (S[col][id] !== undefined) { const m = { ...S[col] }; delete m[id]; S[col] = m; }
+    if (armazem.modo === 'nuvem') nuvem.escrever(col, col === 'perfil' ? '_' : id, 'del');
+    else if (armazem.modo === 'local') local.salvar();
+    agendarRender();
+  }
+  const lista = (col) => Object.entries(S[col] || {}).filter(([, v]) => v && typeof v === 'object').map(([id, v]) => ({ id, ...v }));
+  function temExemplos() {
+    if (S.perfil && S.perfil.exemplo) return true;
+    return COLECOES.some((c) => Object.values(S[c]).some((d) => d && d.exemplo));
+  }
+
+  /* ═══════════ rotina: hábitos e tarefas ═══════════ */
+  const habitosAtivos = () => lista('habitos').filter((h) => !h.arquivado && h.nome).sort((a, b) => (num(a.ordem) - num(b.ordem)) || String(a.criadoEm || '').localeCompare(String(b.criadoEm || '')));
+  const devido = (h, k) => (!h.desde || h.desde <= k) && (!Array.isArray(h.dias) || h.dias.length === 0 || h.dias.includes(diaSemana(k)));
+  const feito = (h, k) => !!(h.feitos && h.feitos[k]);
+  const todoDia = (h) => !Array.isArray(h.dias) || h.dias.length === 0 || h.dias.length === 7;
+  function freqTexto(h) {
+    if (todoDia(h)) return 'Todo dia';
+    const d = [...h.dias].sort((a, b) => a - b).join(',');
+    if (d === '1,2,3,4,5') return 'Dias úteis';
+    if (d === '0,6') return 'Fins de semana';
+    return [...h.dias].sort((a, b) => a - b).map((i) => SEM_CURTA[i]).join(', ');
+  }
+  function sequencia(h, ate) {
+    let d = ate, n = 0;
+    if (!feito(h, d)) d = somaDias(d, -1);
+    for (let i = 0; i < 1500; i++) {
+      if (h.desde && d < h.desde) break;
+      if (devido(h, d)) { if (feito(h, d)) n += 1; else break; }
+      d = somaDias(d, -1);
+    }
+    return n;
+  }
+  function melhorSequencia(h, ate) {
+    const ks = Object.keys(h.feitos || {}).filter(chaveValida).sort();
+    let d = h.desde && chaveValida(h.desde) ? h.desde : ks[0];
+    if (!d) return 0;
+    if (ks[0] && ks[0] < d) d = ks[0];
+    let melhor = 0, atual = 0;
+    for (let i = 0; i < 4000 && d <= ate; i++) {
+      const dev = !Array.isArray(h.dias) || h.dias.length === 0 || h.dias.includes(diaSemana(d));
+      if (dev) { if (feito(h, d)) { atual += 1; melhor = Math.max(melhor, atual); } else if (d !== ate) atual = 0; }
+      d = somaDias(d, 1);
+    }
+    return melhor;
+  }
+  const ordTarefa = (a, b) => (Number(!!a.feita) - Number(!!b.feita)) || String(a.hora || '99').localeCompare(String(b.hora || '99')) || String(a.criadoEm || '').localeCompare(String(b.criadoEm || ''));
+  const tarefasDoDia = (k) => lista('tarefas').filter((t) => t.data === k && t.titulo).sort(ordTarefa);
+  const atrasadas = (k) => lista('tarefas').filter((t) => t.titulo && t.data && t.data < k && !t.feita).sort((a, b) => a.data.localeCompare(b.data));
+  function infoDia(k) {
+    const habs = habitosAtivos().filter((h) => devido(h, k));
+    const tars = tarefasDoDia(k);
+    const total = habs.length + tars.length;
+    const feitos = habs.filter((h) => feito(h, k)).length + tars.filter((t) => t.feita).length;
+    return { habs, tars, total, feitos, emDia: total > 0 && feitos === total };
+  }
+
+  /* ═══════════ dinheiro ═══════════ */
+  const lancsDoMes = (mk) => lista('lancamentos').filter((l) => typeof l.data === 'string' && l.data.startsWith(mk));
+  const contasAtivas = () => lista('contas').filter((c) => c.nome && !c.arquivada).sort((a, b) => (num(a.dia) - num(b.dia)) || String(a.nome).localeCompare(String(b.nome)));
+  const contasDoMes = (mk) => contasAtivas().filter((c) => !c.desde || c.desde <= mk);
+  function pagamento(contaId, mk) {
+    for (const [id, l] of Object.entries(S.lancamentos)) if (l && l.contaId === contaId && l.ref === mk && l.tipo === 'saida') return { id, ...l };
+    return null;
+  }
+  function vencimento(c, mk) {
+    const [y, m] = mk.split('-').map(Number);
+    return `${mk}-${pad(Math.min(clamp(Math.round(num(c.dia, 10)), 1, 31), diasNoMes(y, m)))}`;
+  }
+  function statusConta(c, mk, hj) {
+    const venc = vencimento(c, mk);
+    const util = proximoDiaUtil(venc);
+    const pg = pagamento(c.id, mk);
+    const base = { venc, util, pg };
+    if (pg) return { ...base, tipo: 'paga', texto: `Paga em ${ddmm(pg.data)}` };
+    const atual = mesDe(hj);
+    if (mk < atual) return { ...base, tipo: 'atrasada', texto: 'Não foi paga' };
+    if (mk > atual) return { ...base, tipo: 'futura', texto: `Vence ${diaCurto(venc)}` };
+    if (hj > util) { const n = difDias(venc, hj); return { ...base, tipo: 'atrasada', texto: `Atrasada há ${n} ${n === 1 ? 'dia' : 'dias'}` }; }
+    if (hj === venc) return { ...base, tipo: 'hoje', texto: 'Vence hoje' };
+    if (hj > venc) return { ...base, tipo: 'hoje', texto: `Pague até ${hj === util ? 'hoje' : diaCurto(util)}` };
+    const n = difDias(hj, venc);
+    return { ...base, tipo: n <= 3 ? 'logo' : n <= 7 ? 'semana' : 'depois', texto: n === 1 ? 'Vence amanhã' : n <= 7 ? `Vence em ${n} dias` : `Vence dia ${Number(venc.slice(8))}` };
+  }
+  function resumoMes(mk, hj) {
+    const p = perfil();
+    const r = { entradas: 0, saidas: 0, porGrupo: { nec: 0, des: 0, fut: 0 }, pendGrupo: { nec: 0, des: 0, fut: 0 }, porCat: {}, guardado: 0, variavel: 0, varAntes: 0, varHoje: 0, fixasNF: 0, futTotal: 0 };
+    for (const l of lancsDoMes(mk)) {
+      const v = Math.max(0, Math.round(num(l.valor)));
+      if (l.tipo === 'entrada') { r.entradas += v; continue; }
+      if (l.tipo !== 'saida') continue;
+      r.saidas += v;
+      const c = catDe(l.categoria, 'saida');
+      r.porGrupo[c.g] += v;
+      r.porCat[c.id] = (r.porCat[c.id] || 0) + v;
+      if (c.id === 'guardar') r.guardado += v;
+      if (c.g === 'fut') r.futTotal += v;
+      else if (l.contaId) r.fixasNF += v;
+      else { r.variavel += v; if (l.data < hj) r.varAntes += v; else if (l.data === hj) r.varHoje += v; }
+    }
+    for (const c of contasDoMes(mk)) {
+      if (pagamento(c.id, mk)) continue;
+      const v = Math.max(0, Math.round(num(c.valor)));
+      const g = catDe(c.categoria, 'saida').g;
+      r.pendGrupo[g] += v;
+      if (g === 'fut') r.futTotal += v; else r.fixasNF += v;
+    }
+    r.renda = Math.max(p.rendaMensal, r.entradas);
+    r.metaFut = Math.round(r.renda * p.divisao.fut / 100);
+    const reservado = Math.max(r.futTotal, r.metaFut);
+    r.livre = r.renda - r.fixasNF - reservado - r.variavel;
+    if (mk === mesDe(hj)) {
+      const [y, m] = mk.split('-').map(Number);
+      r.restam = diasNoMes(y, m) - Number(hj.slice(8)) + 1;
+      r.diaria = Math.floor((r.renda - r.fixasNF - reservado - r.varAntes) / r.restam);
+      r.podeHoje = r.diaria - r.varHoje;
+    }
+    return r;
+  }
+  function custoEssencial(hj) {
+    const mk = mesDe(hj);
+    const meses = [];
+    for (let i = 1; i <= 3; i++) {
+      const m = somaMeses(mk, -i);
+      const ls = lancsDoMes(m);
+      if (!ls.some((l) => l.tipo === 'saida')) continue;
+      meses.push(ls.filter((l) => l.tipo === 'saida' && catDe(l.categoria, 'saida').g === 'nec').reduce((a, l) => a + Math.max(0, num(l.valor)), 0));
+    }
+    if (meses.length) return Math.round(meses.reduce((a, b) => a + b, 0) / meses.length);
+    const r = resumoMes(mk, hj);
+    const atual = r.porGrupo.nec + r.pendGrupo.nec;
+    if (atual > 0) return atual;
+    return Math.round(perfil().rendaMensal * perfil().divisao.nec / 100);
+  }
+  const reserva = () => lista('caixinhas').find((c) => c.reserva) || null;
+  function termometro(mk, hj, r) {
+    const p = perfil();
+    const atual = mk === mesDe(hj);
+    const itens = [];
+    if (r.renda > 0) itens.push(r.livre >= 0 ? { s: 'ok', t: 'Gastando menos do que ganha', d: `${atual ? 'Sobra prevista' : 'Sobrou'}: ${brl(r.livre)}` } : { s: 'ruim', t: 'Os gastos passam da renda', d: `Faltam ${brl(-r.livre)} neste mês` });
+    else itens.push({ s: 'neutro', t: 'Informe sua renda', d: 'Sem ela não dá para comparar com os gastos.' });
+    const cs = contasDoMes(mk);
+    if (cs.length) {
+      const sts = cs.map((c) => ({ c, st: statusConta(c, mk, hj) }));
+      const atr = sts.filter((x) => x.st.tipo === 'atrasada');
+      const pagas = sts.filter((x) => x.st.tipo === 'paga').length;
+      itens.push(atr.length ? { s: 'ruim', t: atr.length === 1 ? '1 conta atrasada' : `${atr.length} contas atrasadas`, d: atr.map((x) => x.c.nome).join(', ') } : { s: 'ok', t: 'Contas em dia', d: `${pagas} de ${cs.length} pagas neste mês` });
+    } else itens.push({ s: 'neutro', t: 'Cadastre suas contas fixas', d: 'Aluguel, luz, internet: o app avisa antes de vencer.' });
+    if (r.renda > 0) {
+      const g = r.porGrupo.fut;
+      itens.push(g >= r.metaFut ? { s: 'ok', t: `Guardou ${p.divisao.fut}% da renda`, d: `${brl(g)} para o futuro neste mês` } : { s: atual ? 'meio' : 'ruim', t: `Guardar ${p.divisao.fut}% da renda`, d: `${brl(g)} de ${brl(r.metaFut)}` });
+    }
+    const res = reserva();
+    if (res) {
+      const custo = custoEssencial(hj);
+      const meses = custo ? num(res.saldo) / custo : 0;
+      const txt = `${F_N1.format(meses)} ${meses >= 0.95 && meses < 1.05 ? 'mês' : 'meses'}`;
+      itens.push(meses >= 6 ? { s: 'ok', t: `Reserva cobre ${txt}`, d: 'Acima dos 6 meses recomendados.' } : { s: meses >= 3 ? 'meio' : 'ruim', t: `Reserva cobre ${txt}`, d: 'O ideal são 6 meses de gastos essenciais.' });
+    } else itens.push({ s: 'neutro', t: 'Crie sua reserva de emergência', d: 'Dinheiro para imprevistos, longe do dia a dia.' });
+    if (r.renda > 0) {
+      const e = r.porGrupo.nec + r.pendGrupo.nec;
+      const lim = Math.round(r.renda * p.divisao.nec / 100);
+      itens.push(e <= lim ? { s: 'ok', t: `Essenciais dentro de ${p.divisao.nec}%`, d: `${pct(e / r.renda * 100)} da renda` } : { s: 'meio', t: `Essenciais acima de ${p.divisao.nec}%`, d: `${pct(e / r.renda * 100)} da renda` });
+    }
+    const validos = itens.filter((i) => i.s !== 'neutro');
+    const oks = validos.filter((i) => i.s === 'ok').length;
+    const rotulo = !validos.length ? '' : oks === validos.length ? 'em dia' : oks / validos.length >= 0.6 ? 'quase lá' : 'atenção';
+    const classe = !validos.length ? '' : oks === validos.length ? 'ok' : oks / validos.length >= 0.6 ? 'meio' : 'ruim';
+    return { itens, oks, total: validos.length, rotulo, classe };
+  }
+  function ajustarCaixinha(id, delta) {
+    const c = S.caixinhas[id];
+    if (!c) return;
+    put('caixinhas', id, { ...c, saldo: Math.round(num(c.saldo) + delta) });
+  }
+
+  /* ═══════════ estado da tela ═══════════ */
+  const ABAS = ['hoje', 'rotina', 'dinheiro', 'saude'];
+  const estado = {
+    aba: 'hoje', dia: hoje(), mes: mesDe(hoje()), hojeRef: hoje(),
+    subRotina: 'habitos', subDinheiro: 'resumo', filtroExtrato: 'tudo',
+    tabelas: {}, carimbar: false, carimboConta: '', virada: '',
+  };
+  const rascunhos = {};
+  const CHAVE_UI = 'emdia:ui';
+  function lerUI() {
+    try {
+      const u = JSON.parse(localStorage.getItem(CHAVE_UI) || '{}');
+      if (ABAS.includes(u.aba)) estado.aba = u.aba;
+      if (['habitos', 'tarefas'].includes(u.subRotina)) estado.subRotina = u.subRotina;
+      if (['resumo', 'extrato', 'contas', 'caixinhas'].includes(u.subDinheiro)) estado.subDinheiro = u.subDinheiro;
+    } catch (e) { /* sem preferências guardadas */ }
+    const h = (location.hash || '').slice(1);
+    if (ABAS.includes(h)) estado.aba = h;
+  }
+  function salvarUI() {
+    try { localStorage.setItem(CHAVE_UI, JSON.stringify({ aba: estado.aba, subRotina: estado.subRotina, subDinheiro: estado.subDinheiro })); } catch (e) { /* ok */ }
+  }
+
+  /* ═══════════ desenho das telas ═══════════ */
+  let renderAgendado = false;
+  function agendarRender() {
+    if (renderAgendado) return;
+    renderAgendado = true;
+    requestAnimationFrame(() => { renderAgendado = false; render(); });
+  }
+  function render() {
+    const main = $('#main');
+    const ativo = document.activeElement;
+    let foco = null;
+    if (ativo && ativo !== main && main.contains(ativo) && ativo.id) {
+      foco = { id: ativo.id, sel: null };
+      try { if (typeof ativo.selectionStart === 'number') foco.sel = [ativo.selectionStart, ativo.selectionEnd]; } catch (e) { /* campo sem seleção */ }
+    }
+    esconderDica();
+    let html = '';
+    if (estado.aba === 'rotina') html = vRotina();
+    else if (estado.aba === 'dinheiro') html = vDinheiro();
+    else if (estado.aba === 'saude') html = vSaude();
+    else html = vHoje();
+    main.innerHTML = faixaExemplo() + html;
+    for (const b of $$('.aba')) { if (b.dataset.aba === estado.aba) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); }
+    if (foco) {
+      const el = document.getElementById(foco.id);
+      if (el) { try { el.focus({ preventScroll: true }); if (foco.sel && el.setSelectionRange) el.setSelectionRange(foco.sel[0], foco.sel[1]); } catch (e) { /* ok */ } }
+    }
+    estado.carimbar = false; estado.carimboConta = ''; estado.virada = '';
+  }
+  const carregando = () => '<p class="carregando">Abrindo seus dados…</p>';
+  function faixaExemplo() {
+    if (!armazem.pronto || !temExemplos() || estado.aba === 'saude') return '';
+    return `<div class="faixa-exemplo" role="note"><p><strong>Estes são dados de exemplo.</strong> Mexa à vontade. Quando quiser começar com os seus, apague os exemplos.</p><button type="button" class="btn btn-sm" data-act="apagar-exemplos">Apagar exemplos</button></div>`;
+  }
+  function saudacao() {
+    const h = new Date().getHours();
+    const s = h < 5 ? 'Boa noite' : h < 12 ? 'Bom dia' : h < 18 ? 'Boa tarde' : 'Boa noite';
+    const n = (perfil().nome || '').trim().split(/\s+/)[0];
+    return n ? `${s}, ${esc(n)}` : s;
+  }
+  function segmentos(nome, opcoes, atual) {
+    return `<div class="segmentos" role="tablist">${opcoes.map(([v, t]) => `<button type="button" class="segmento" role="tab" aria-selected="${v === atual}" data-act="sub" data-nome="${nome}" data-v="${v}">${t}</button>`).join('')}</div>`;
+  }
+
+  /* — Hoje — */
+  function vHoje() {
+    const k = estado.dia, hj = hoje();
+    const info = infoDia(k);
+    let h = `<h1 class="sr">Hoje</h1><p class="saudacao">${saudacao()}</p>${vFolhinha(k, info)}`;
+    h += k !== hj ? '<button type="button" class="chip-hoje" data-act="ir-hoje">' + ic('hoje') + 'Voltar para hoje</button>' : '';
+    h += vSemana(k);
+    if (!armazem.pronto) return h + carregando();
+    if (armazem.aviso) h += `<p class="aviso-armazem" role="note">${esc(armazem.aviso)}</p>`;
+    return h + vParaHoje(k, info, hj) + vDinheiroHoje(k, hj) + vSaudeCompacta(k) + vNota(k);
+  }
+  function vFolhinha(k, info) {
+    const d = dataDe(k), y = d.getFullYear();
+    const fer = feriado(k);
+    const red = vermelho(k);
+    const lu = lua(k);
+    const doy = difDias(`${y}-01-01`, k) + 1;
+    const resto = (bissexto(y) ? 366 : 365) - doy;
+    const prox = proximoFeriado(k);
+    const ferTxt = fer ? `${esc(fer.nome)}${fer.nacional ? ' · feriado nacional' : fer.nome === 'Páscoa' ? '' : ' · ponto facultativo'}` : '';
+    return `<section class="folhinha${estado.carimbar ? ' baque' : ''}" aria-label="${esc(diaLongo(k))} de ${y}${info.emDia ? ', dia em dia' : ''}">
+      <div class="folhinha-topo" aria-hidden="true"><span>${MESES[d.getMonth()]}</span><span>${y}</span></div>
+      <div class="folhinha-folha${estado.virada ? ` virada-${estado.virada}` : ''}">
+        <button type="button" class="folhinha-nav" data-act="dia" data-n="-1" aria-label="Dia anterior">${ic('chev-l')}</button>
+        <div class="folhinha-centro" aria-hidden="true">
+          <div class="folhinha-num${red ? ' vermelho' : ''}">${d.getDate()}</div>
+          <div class="folhinha-semana${red ? ' vermelho' : ''}">${SEMANA[d.getDay()]}</div>
+          ${fer ? `<div class="folhinha-feriado${fer.nacional ? '' : ' facultativo'}">${ferTxt}</div>` : ''}
+        </div>
+        <button type="button" class="folhinha-nav" data-act="dia" data-n="1" aria-label="Próximo dia">${ic('chev-r')}</button>
+        <div class="carimbo${info.emDia ? '' : ' oculto'}${info.emDia && estado.carimbar ? ' anim' : ''}" aria-hidden="true">Em dia</div>
+      </div>
+      <div class="folhinha-rodape"><span class="lua-rot">${svgLua(lu.f)}${lu.nome}</span><span>${doy}º dia do ano · faltam ${resto}</span></div>
+      ${prox ? `<p class="folhinha-prox">Próximo feriado: <strong>${esc(diaCurto(prox.dia))}</strong>, ${esc(prox.nome)} (${prox.em === 1 ? 'amanhã' : `em ${prox.em} dias`})</p>` : ''}
+    </section>`;
+  }
+  function vSemana(k) {
+    const ini = somaDias(k, -diaSemana(k));
+    const hj = hoje();
+    let h = '<div class="semana" role="group" aria-label="Dias da semana">';
+    for (let i = 0; i < 7; i++) {
+      const d = somaDias(ini, i);
+      const inf = armazem.pronto && d <= hj ? infoDia(d) : null;
+      let marca = '<span class="semana-marca"></span>';
+      if (inf && inf.total) marca = inf.emDia ? `<span class="semana-marca">${ic('check')}</span>` : inf.feitos ? '<span class="semana-marca parcial"></span>' : marca;
+      h += `<button type="button" class="semana-dia${vermelho(d) ? ' vermelho' : ''}${d === hj ? ' hoje' : ''}" data-act="ir-dia" data-dia="${d}" aria-pressed="${d === k}" aria-label="${esc(diaLongo(d))}${d === hj ? ', hoje' : ''}${inf && inf.emDia ? ', em dia' : ''}"><span class="semana-ini">${SEM_INI[i]}</span><span class="semana-num">${Number(d.slice(8))}</span>${marca}</button>`;
+    }
+    return h + '</div>';
+  }
+  function linhaHabito(h, k, hj) {
+    const f = feito(h, k);
+    const seq = sequencia(h, k <= hj ? k : hj);
+    const sub = seq >= 2 ? `${seq} ${todoDia(h) ? 'dias seguidos' : 'vezes seguidas'}` : freqTexto(h);
+    return `<div class="linha">
+      <button type="button" class="check" data-act="habito" data-id="${esc(h.id)}" data-dia="${k}" aria-pressed="${f}" aria-label="${esc(h.nome)}">${ic('check')}</button>
+      <button type="button" class="linha-txt linha-btn" data-act="ver-habito" data-id="${esc(h.id)}"><span class="linha-titulo">${esc(h.nome)}</span><span class="linha-sub">${esc(sub)}</span></button>
+    </div>`;
+  }
+  function linhaTarefa(t, atrasada) {
+    const sub = [];
+    if (atrasada) sub.push(`desde ${diaCurto(t.data)}`);
+    else if (estado.aba === 'rotina' && t.data && t.data !== hoje()) sub.push(diaCurto(t.data));
+    return `<div class="linha${t.feita ? ' feita' : ''}">
+      <button type="button" class="check tarefa" data-act="tarefa" data-id="${esc(t.id)}" aria-pressed="${!!t.feita}" aria-label="${esc(t.titulo)}">${ic('check')}</button>
+      <button type="button" class="linha-txt linha-btn" data-act="editar-tarefa" data-id="${esc(t.id)}"><span class="linha-titulo">${esc(t.titulo)}</span>${sub.length ? `<span class="linha-sub">${esc(sub.join(' · '))}</span>` : ''}</button>
+      ${t.hora ? `<span class="hora">${esc(t.hora)}</span>` : ''}
+      ${atrasada ? `<button type="button" class="btn btn-sm" data-act="tarefa-hoje" data-id="${esc(t.id)}">Para hoje</button>` : ''}
+    </div>`;
+  }
+  function formNovaTarefa(k) {
+    return `<form class="nova-tarefa" data-form="nova-tarefa" data-dia="${k}">
+      <label class="sr" for="nova-tarefa">Nova tarefa</label>
+      <input id="nova-tarefa" class="entrada entrada-linha" name="titulo" maxlength="120" autocomplete="off" enterkeyhint="done" placeholder="Nova tarefa (ex.: Dentista 14h)" value="${esc(rascunhos['nova-tarefa'] || '')}">
+      <button class="btn-icone" aria-label="Adicionar tarefa">${ic('plus')}</button>
+    </form>`;
+  }
+  function vParaHoje(k, info, hj) {
+    const titulo = k === hj ? 'Para hoje' : k < hj ? 'Neste dia' : 'Planejado para o dia';
+    let corpo = '';
+    if (!habitosAtivos().length) {
+      corpo += `<div class="sugestoes"><p class="sub">Escolha um hábito para acompanhar. Dá para criar o seu depois.</p><div class="chips">${SUGESTOES_HABITOS.map((n) => `<button type="button" class="chip" data-act="sugestao-habito" data-nome="${esc(n)}">${ic('plus')}${esc(n)}</button>`).join('')}</div></div>`;
+    } else {
+      corpo += '<p class="grupo-rot">Hábitos</p>';
+      corpo += info.habs.length ? info.habs.map((h) => linhaHabito(h, k, hj)).join('') : `<p class="vazio-linha">Nenhum hábito marcado para ${SEMANA[diaSemana(k)]}.</p>`;
+    }
+    corpo += '<p class="grupo-rot">Tarefas</p>';
+    corpo += info.tars.length ? info.tars.map((t) => linhaTarefa(t, false)).join('') : `<p class="vazio-linha">${k === hj ? 'Nada marcado para hoje.' : 'Nada marcado neste dia.'}</p>`;
+    corpo += formNovaTarefa(k);
+    const atr = k === hj ? atrasadas(hj) : [];
+    const prog = info.total ? `<span class="contagem">${info.feitos} de ${info.total}${info.emDia ? ' · tudo feito' : ''}</span>` : '';
+    return `<section class="secao" aria-labelledby="t-dia">
+      <div class="secao-cab"><h2 class="eyebrow" id="t-dia">${titulo}</h2>${prog}</div>
+      ${info.total ? `<div class="medidor medidor-dia${info.emDia ? ' ok' : ''}" role="progressbar" aria-label="Progresso do dia" aria-valuemin="0" aria-valuemax="${info.total}" aria-valuenow="${info.feitos}"><span style="width:${(info.feitos / info.total) * 100}%"></span></div>` : ''}
+      <div class="ficha">${corpo}</div>
+      ${atr.length ? `<div class="ficha ficha-atraso"><p class="grupo-rot vermelho">Ficou para trás</p>${atr.map((t) => linhaTarefa(t, true)).join('')}</div>` : ''}
+    </section>`;
+  }
+  function contasProximas(hj) {
+    const mk = mesDe(hj);
+    return contasDoMes(mk).map((c) => ({ c, st: statusConta(c, mk, hj) })).filter((x) => ['atrasada', 'hoje', 'logo', 'semana'].includes(x.st.tipo)).sort((a, b) => a.st.venc.localeCompare(b.st.venc));
+  }
+  function linhaConta(c, mk, hj) {
+    const st = statusConta(c, mk, hj);
+    const valor = st.pg ? num(st.pg.valor) : num(c.valor);
+    let sub;
+    if (st.tipo === 'paga') sub = `<span>${esc(st.texto)}${st.pg.forma ? ` · ${esc(nomeForma(st.pg.forma))}` : ''}</span>`;
+    else {
+      const extra = st.util !== st.venc && st.tipo !== 'atrasada' ? ` · 1º dia útil ${diaCurto(st.util)}` : '';
+      sub = `<span class="selo selo-${st.tipo}">${esc(st.texto)}</span><span>${esc(diaCurto(st.venc) + extra)}</span>`;
+    }
+    const acao = st.tipo === 'paga'
+      ? `<span class="carimbo-pago${estado.carimboConta === c.id ? ' anim' : ''}" role="img" aria-label="Paga">Pago</span>`
+      : `<button type="button" class="btn btn-sm${st.tipo === 'atrasada' || st.tipo === 'hoje' ? ' btn-pri' : ''}" data-act="pagar" data-id="${esc(c.id)}" data-mes="${mk}">Pagar</button>`;
+    return `<div class="linha conta">
+      <button type="button" class="linha-txt linha-btn" data-act="editar-conta" data-id="${esc(c.id)}"><span class="linha-titulo">${esc(c.nome)}</span><span class="linha-sub">${sub}</span></button>
+      <span class="valor">${brl(valor)}</span>
+      ${acao}
+    </div>`;
+  }
+  function vDinheiroHoje(k, hj) {
+    let topo;
+    if (k === hj) {
+      const r = resumoMes(mesDe(hj), hj);
+      if (!r.renda) {
+        topo = `<div class="ficha-corpo"><p class="eyebrow">Pode gastar hoje</p><p>Diga quanto você recebe por mês e o app calcula quanto dá para gastar por dia, já separando contas e o que guardar.</p><div><button type="button" class="btn btn-pri" data-act="ajustes" data-foco="renda">Informar renda</button></div></div>`;
+      } else if (r.diaria <= 0) {
+        topo = `<div class="ficha-corpo"><div class="linha-cab"><p class="eyebrow">Sem folga este mês</p><button type="button" class="btn btn-sm btn-pri" data-act="novo-lanc" data-tipo="saida">${ic('plus')}Gasto</button></div><p class="hero-valor ruim">${brlNeg(r.livre)}</p><p class="sub">Contas, gastos e a meta de guardar já passam do que entra. Segure o que não for essencial até o fim do mês.</p></div>`;
+      } else {
+        const neg = r.podeHoje < 0;
+        const usado = clamp(r.varHoje / r.diaria, 0, 1);
+        topo = `<div class="ficha-corpo">
+          <div class="linha-cab"><p class="eyebrow">${neg ? 'Passou do limite de hoje' : 'Pode gastar hoje'}</p><button type="button" class="btn btn-sm btn-pri" data-act="novo-lanc" data-tipo="saida">${ic('plus')}Gasto</button></div>
+          <p class="hero-valor${neg ? ' ruim' : ''}">${brl(Math.abs(r.podeHoje))}</p>
+          <p class="sub">Limite de <strong>${brl(r.diaria)}</strong> por dia até ${ddmm(fimDoMes(hj))}. Gasto hoje: <strong>${brl(r.varHoje)}</strong>.</p>
+          <div class="medidor${neg ? ' estouro' : usado > 0.8 ? ' aviso' : ''}" role="progressbar" aria-label="Gasto de hoje" aria-valuemin="0" aria-valuemax="${r.diaria}" aria-valuenow="${Math.min(r.varHoje, r.diaria)}"><span style="width:${usado * 100}%"></span></div>
+        </div>`;
+      }
+    } else {
+      const ls = lista('lancamentos').filter((l) => l.data === k).sort((a, b) => String(a.criadoEm || '').localeCompare(String(b.criadoEm || '')));
+      topo = `<div class="ficha-corpo"><div class="linha-cab"><p class="eyebrow">Movimentos do dia</p><button type="button" class="btn btn-sm" data-act="novo-lanc" data-tipo="saida" data-dia="${k}">${ic('plus')}Gasto</button></div>${ls.length ? '' : '<p class="sub">Nenhum gasto ou entrada registrado neste dia.</p>'}</div>${ls.length ? `<div>${ls.map(linhaLanc).join('')}</div>` : ''}`;
+    }
+    const prox = k === hj ? contasProximas(hj) : [];
+    const contas = prox.length ? `<div class="divisor"></div><p class="grupo-rot">Contas para os próximos dias</p>${prox.map((x) => linhaConta(x.c, mesDe(hj), hj)).join('')}` : '';
+    return `<section class="secao" aria-labelledby="t-din"><div class="secao-cab"><h2 class="eyebrow" id="t-din">Dinheiro</h2><button type="button" class="link" data-act="aba" data-aba="dinheiro">Ver o mês ${ic('chev-r')}</button></div><div class="ficha">${topo}${contas}</div></section>`;
+  }
+  function blocoAgua(k, d, p) {
+    const copo = p.copoMl;
+    const meta = Math.max(copo, p.aguaMeta);
+    const n = Math.min(16, Math.ceil(meta / copo));
+    const ml = num(d.agua);
+    const cheios = Math.floor(ml / copo);
+    let copos = '';
+    for (let i = 1; i <= n; i++) copos += `<button type="button" class="copo${i <= cheios ? ' cheio' : ''}" data-act="copo" data-dia="${k}" data-i="${i}" aria-pressed="${i <= cheios}" aria-label="${i} ${i === 1 ? 'copo' : 'copos'}">${icCopo()}</button>`;
+    return `<div class="ficha-corpo">
+      <div class="linha-cab"><span class="rotulo-ic">${ic('gota')}Água</span><span class="sub"><strong>${fmtMl(ml)}</strong> de ${fmtMl(meta)}</span></div>
+      <div class="copos" role="group" aria-label="Copos de ${copo} ml">${copos}<button type="button" class="copo mais" data-act="copo-mais" data-dia="${k}" aria-label="Mais um copo">${ic('plus')}</button></div>
+    </div>`;
+  }
+  function blocoSono(k, d, p) {
+    const v = d.sono;
+    const tem = v != null && v !== '';
+    return `<div class="ficha-corpo">
+      <span class="rotulo-ic">${ic('lua')}Sono</span>
+      <div class="passo" role="group" aria-label="Horas dormidas">
+        <button type="button" class="btn-icone" data-act="sono" data-dia="${k}" data-n="-0.5" aria-label="Menos meia hora">−</button>
+        <output class="passo-valor" aria-live="polite">${tem ? fmtHoras(v) : '—'}</output>
+        <button type="button" class="btn-icone" data-act="sono" data-dia="${k}" data-n="0.5" aria-label="Mais meia hora">+</button>
+      </div>
+      <span class="sub">${tem ? `meta de ${fmtHoras(p.sonoMeta)}` : 'Toque em + ou − para registrar'}</span>
+    </div>`;
+  }
+  function blocoHumor(k, d) {
+    const h = num(d.humor);
+    return `<div class="ficha-corpo">
+      <span class="rotulo-ic">Humor</span>
+      <div class="humores" role="group" aria-label="Como você está">${HUMORES.map(([v, n]) => `<button type="button" class="humor" data-act="humor" data-dia="${k}" data-v="${v}" aria-pressed="${h === v}" aria-label="${n}" title="${n}">${icHumor(v)}</button>`).join('')}</div>
+      <span class="sub">${h ? HUMORES[h - 1][1] : 'Toque no rosto que mais combina'}</span>
+    </div>`;
+  }
+  function vSaudeCompacta(k) {
+    const d = S.dias[k] || {};
+    const p = perfil();
+    return `<section class="secao" aria-labelledby="t-sau"><div class="secao-cab"><h2 class="eyebrow" id="t-sau">Saúde</h2><button type="button" class="link" data-act="aba" data-aba="saude">Ver a semana ${ic('chev-r')}</button></div>
+      <div class="ficha">${blocoAgua(k, d, p)}<div class="divisor"></div><div class="dupla">${blocoSono(k, d, p)}${blocoHumor(k, d)}</div></div></section>`;
+  }
+  function vNota(k) {
+    const d = S.dias[k] || {};
+    return `<section class="secao"><div class="secao-cab"><h2 class="eyebrow"><label for="nota-dia">Como foi o dia?</label></h2></div>
+      <textarea id="nota-dia" class="entrada nota" data-dia="${k}" rows="2" maxlength="500" placeholder="Uma linha sobre ${k === hoje() ? 'hoje' : 'esse dia'}…">${esc(d.nota || '')}</textarea></section>`;
+  }
+
+  /* — Rotina — */
+  function vRotina() {
+    let h = `<header class="tela-cab"><h1 class="tela-titulo">Rotina</h1></header>${segmentos('subRotina', [['habitos', 'Hábitos'], ['tarefas', 'Tarefas']], estado.subRotina)}`;
+    if (!armazem.pronto) return h + carregando();
+    return h + (estado.subRotina === 'tarefas' ? vTarefas() : vHabitos());
+  }
+  function vHabitos() {
+    const hs = habitosAtivos();
+    const hj = hoje();
+    if (!hs.length) return `<div class="vazio"><p class="vazio-titulo">Nenhum hábito ainda</p><p>Hábito é o que você quer fazer com frequência. Comece por um destes ou crie o seu.</p><div class="chips">${SUGESTOES_HABITOS.map((n) => `<button type="button" class="chip" data-act="sugestao-habito" data-nome="${esc(n)}">${ic('plus')}${esc(n)}</button>`).join('')}</div><button type="button" class="btn btn-pri" data-act="novo-habito">${ic('plus')}Criar hábito</button></div>`;
+    const ini = somaDias(hj, -6);
+    const linhas = hs.map((h) => {
+      const seq = sequencia(h, hj);
+      let pontos = '';
+      for (let i = 0; i < 7; i++) {
+        const d = somaDias(ini, i);
+        const dev = devido(h, d), f = feito(h, d);
+        const cls = !dev ? ' fora' : f ? ' feito' : d === hj ? ' hoje' : '';
+        pontos += `<span class="ponto${cls}" title="${esc(diaCurto(d))}: ${!dev ? 'não se aplica' : f ? 'feito' : 'não feito'}">${SEM_INI[diaSemana(d)]}</span>`;
+      }
+      const feitosSemana = Array.from({ length: 7 }, (_, i) => somaDias(ini, i)).filter((d) => devido(h, d) && feito(h, d)).length;
+      return `<div class="linha habito">
+        <button type="button" class="check" data-act="habito" data-id="${esc(h.id)}" data-dia="${hj}" aria-pressed="${feito(h, hj)}" aria-label="${esc(h.nome)}, hoje"${devido(h, hj) ? '' : ' disabled'}>${ic('check')}</button>
+        <button type="button" class="linha-txt linha-btn" data-act="ver-habito" data-id="${esc(h.id)}">
+          <span class="linha-titulo">${esc(h.nome)}</span>
+          <span class="linha-sub">${esc(freqTexto(h))}${seq >= 2 ? ` · ${seq} ${todoDia(h) ? 'dias seguidos' : 'vezes seguidas'}` : ''}</span>
+          <span class="pontos" aria-label="Últimos 7 dias: ${feitosSemana} feitos">${pontos}</span>
+        </button>
+      </div>`;
+    }).join('');
+    return `<div class="ficha">${linhas}</div><button type="button" class="btn btn-largo" data-act="novo-habito">${ic('plus')}Novo hábito</button>`;
+  }
+  function vTarefas() {
+    const hj = hoje(), am = somaDias(hj, 1), semana = somaDias(hj, -7);
+    const ts = lista('tarefas').filter((t) => t.titulo);
+    const grupos = [
+      ['Ficou para trás', ts.filter((t) => t.data && t.data < hj && !t.feita).sort((a, b) => a.data.localeCompare(b.data)), true],
+      ['Hoje', ts.filter((t) => t.data === hj).sort(ordTarefa)],
+      ['Amanhã', ts.filter((t) => t.data === am).sort(ordTarefa)],
+      ['Próximos dias', ts.filter((t) => t.data && t.data > am).sort((a, b) => a.data.localeCompare(b.data) || ordTarefa(a, b))],
+      ['Sem data', ts.filter((t) => !t.data && !t.feita).sort(ordTarefa)],
+      ['Feitas na última semana', ts.filter((t) => t.feita && (!t.data || t.data < hj) && (t.feitaEm || t.data || '') >= semana).sort((a, b) => String(b.feitaEm || b.data || '').localeCompare(String(a.feitaEm || a.data || '')))],
+    ].filter((g) => g[1].length);
+    let h = `<div class="linha-campos" style="margin-bottom:14px"><button type="button" class="btn btn-pri" data-act="nova-tarefa" data-dia="${hj}">${ic('plus')}Nova tarefa</button></div>`;
+    if (!grupos.length) return h + '<div class="vazio"><p class="vazio-titulo">Nenhuma tarefa</p><p>Anote o que precisa fazer, com ou sem data. As de hoje aparecem também na folhinha.</p></div>';
+    for (const [nome, itens, atraso] of grupos) h += `<div class="ficha"><p class="grupo-rot${atraso ? ' vermelho' : ''}">${nome}</p>${itens.map((t) => linhaTarefa(t, !!atraso)).join('')}</div>`;
+    const velhas = ts.filter((t) => t.feita && (t.feitaEm || t.data || '') < somaDias(hj, -30)).length;
+    if (velhas) h += `<button type="button" class="btn btn-largo" data-act="limpar-feitas">${ic('lixo')}Apagar ${velhas} ${velhas === 1 ? 'tarefa feita' : 'tarefas feitas'} há mais de 30 dias</button>`;
+    return h;
+  }
+
+  /* — Dinheiro — */
+  function vDinheiro() {
+    const mk = estado.mes, hj = hoje();
+    let h = `<header class="tela-cab"><h1 class="tela-titulo">Dinheiro</h1><div class="mes-nav"><button type="button" class="btn-icone" data-act="mes" data-n="-1" aria-label="Mês anterior">${ic('chev-l')}</button><span class="mes-nome" aria-live="polite">${nomeMes(mk)}</span><button type="button" class="btn-icone" data-act="mes" data-n="1" aria-label="Próximo mês">${ic('chev-r')}</button></div></header>`;
+    h += segmentos('subDinheiro', [['resumo', 'Resumo'], ['extrato', 'Extrato'], ['contas', 'Contas'], ['caixinhas', 'Caixinhas']], estado.subDinheiro);
+    if (!armazem.pronto) return h + carregando();
+    const s = estado.subDinheiro;
+    return h + (s === 'extrato' ? vExtrato(mk) : s === 'contas' ? vContas(mk, hj) : s === 'caixinhas' ? vCaixinhas(hj) : vResumo(mk, hj));
+  }
+  function cartaoRenda() {
+    return `<form class="ficha cartao-renda" data-form="renda">
+      <p class="eyebrow">Para começar</p>
+      <label class="cartao-tit" for="renda-inline">Quanto você recebe por mês?</label>
+      <p class="sub">O valor que cai na conta: salário, pró-labore, bicos. Ele é a base do plano do mês.</p>
+      <div class="linha-campos"><div class="valor-entrada"><span>R$</span><input id="renda-inline" name="renda" data-dinheiro inputmode="numeric" autocomplete="off" placeholder="0,00" value="${esc(rascunhos['renda-inline'] || '')}" data-centavos="${esc(rascunhos['renda-inline:c'] || '0')}"></div><button class="btn btn-pri">Salvar renda</button></div>
+    </form>`;
+  }
+  function vResumo(mk, hj) {
+    const p = perfil();
+    const r = resumoMes(mk, hj);
+    const atual = mk === mesDe(hj), passado = mk < mesDe(hj);
+    let h = p.rendaMensal ? '' : cartaoRenda();
+    if (!r.renda && !r.saidas) return h + '<div class="vazio"><p class="vazio-titulo">Nada neste mês ainda</p><p>Registre gastos e entradas pelo botão +. O resumo, o plano e a saúde financeira aparecem aqui.</p></div>';
+    const rot = passado ? (r.livre >= 0 ? 'Sobrou no mês' : 'Faltou no mês') : (r.livre >= 0 ? 'Livre no mês' : 'Falta no mês');
+    let sub = '';
+    if (atual && r.renda) sub = r.diaria > 0 ? `Dá ${brl(r.diaria)} por dia até ${ddmm(fimDoMes(hj))}, já descontando contas fixas e o que guardar.` : 'Sem folga para gastos do dia a dia até o fim do mês.';
+    else if (!passado) sub = 'Previsão com base na renda e nas contas fixas.';
+    const previsto = (atual || !passado) && p.rendaMensal > r.entradas;
+    h += `<section class="ficha hero" aria-label="Resumo do mês">
+      <p class="eyebrow">${rot}</p>
+      <p class="hero-valor${r.livre < 0 ? ' ruim' : ''}">${brlNeg(r.livre)}</p>
+      ${sub ? `<p class="sub">${sub}</p>` : ''}
+      <div class="tiles">
+        <div class="tile"><span class="tile-rot">${ic('seta-cima')}Entrou</span><span class="tile-val">${brl(r.entradas)}</span>${previsto ? `<span class="tile-nota">previsto ${brl(p.rendaMensal)}</span>` : ''}</div>
+        <div class="tile"><span class="tile-rot">${ic('seta-baixo')}Gastou</span><span class="tile-val">${brl(r.saidas - r.guardado)}</span><span class="tile-nota">gastos, contas pagas e dívidas</span></div>
+        <div class="tile"><span class="tile-rot">${ic('caixa')}Guardou</span><span class="tile-val">${brl(r.guardado)}</span>${r.metaFut ? `<span class="tile-nota">meta do mês ${brl(r.metaFut)}</span>` : ''}</div>
+      </div>
+    </section>`;
+    h += vTermometro(mk, hj, r) + vPlano(r, p) + vCategorias(r) + graficoSobra(mk);
+    return h;
+  }
+  function vTermometro(mk, hj, r) {
+    const t = termometro(mk, hj, r);
+    const rot = { ok: 'Ok', meio: 'Em andamento', ruim: 'Precisa de atenção', neutro: 'Falta informação' };
+    return `<section class="ficha" aria-labelledby="t-term">
+      <div class="ficha-cab"><h2 class="eyebrow" id="t-term">Saúde financeira</h2>${t.total ? `<span class="selo selo-${t.classe}">${t.oks} de ${t.total} · ${t.rotulo}</span>` : ''}</div>
+      <ul class="checklist">${t.itens.map((i) => `<li class="ck ck-${i.s}"><span class="ck-ic" aria-hidden="true">${icStatus(i.s)}</span><span class="ck-txt"><span class="ck-tit">${esc(i.t)}</span><span class="ck-det">${esc(i.d)}</span></span><span class="sr">${rot[i.s]}</span></li>`).join('')}</ul>
+    </section>`;
+  }
+  function vPlano(r, p) {
+    if (!r.renda) return '';
+    const grupos = [['nec', 'Essenciais', 'Moradia, contas da casa, mercado, transporte, saúde e educação'], ['des', 'Estilo de vida', 'Comer fora, lazer, compras, assinaturas e cuidados'], ['fut', 'Futuro', 'Guardar, investir e quitar dívidas']];
+    const linhas = grupos.map(([g, nome, desc]) => {
+      const alvo = Math.round(r.renda * p.divisao[g] / 100);
+      const pago = r.porGrupo[g], pend = r.pendGrupo[g], tot = pago + pend;
+      const base = Math.max(alvo, tot) || 1;
+      let cls = '', st;
+      if (g === 'fut') { cls = tot >= alvo && alvo > 0 ? 'ok' : ''; st = tot >= alvo ? 'Meta do mês cumprida.' : `Faltam ${brl(alvo - tot)} para a meta.`; }
+      else { cls = tot > alvo ? 'estouro' : tot > alvo * 0.9 ? 'aviso' : ''; st = tot > alvo ? `Passou ${brl(tot - alvo)} do planejado.` : `Ainda cabem ${brl(alvo - tot)}.`; }
+      const marca = tot > alvo ? `<i class="alvo" style="left:${(alvo / base) * 100}%"></i>` : '';
+      return `<div class="plano-linha">
+        <div class="medidor-rot"><span><strong>${nome}</strong> · ${p.divisao[g]}%</span><span class="mono">${brl(tot)} de ${brl(alvo)}</span></div>
+        <div class="medidor ${cls}" role="img" aria-label="${nome}: ${brl(pago)} pagos e ${brl(pend)} a pagar, de ${brl(alvo)} planejados">${pago ? `<span style="width:${(pago / base) * 100}%"></span>` : ''}${pend ? `<span class="pend" style="width:${(pend / base) * 100}%"></span>` : ''}${marca}</div>
+        <p class="sub">${esc(desc)}. ${st}</p>
+      </div>`;
+    }).join('');
+    return `<section class="ficha" aria-labelledby="t-plano">
+      <div class="ficha-cab"><h2 class="eyebrow" id="t-plano">Plano do mês · ${p.divisao.nec}/${p.divisao.des}/${p.divisao.fut}</h2><button type="button" class="link" data-act="ajustes" data-foco="divisao">Mudar divisão</button></div>
+      <div class="plano">${linhas}<div class="legenda"><span class="leg">pago</span><span class="leg pend">contas a pagar</span><span class="leg alvo">limite planejado</span></div></div>
+    </section>`;
+  }
+  function vCategorias(r) {
+    const itens = Object.entries(r.porCat).filter(([c, v]) => catDe(c, 'saida').g !== 'fut' && v > 0).sort((a, b) => b[1] - a[1]);
+    if (!itens.length) return '';
+    const total = itens.reduce((a, [, v]) => a + v, 0);
+    const top = itens.slice(0, 7);
+    const resto = itens.slice(7).reduce((a, [, v]) => a + v, 0);
+    if (resto) top.push(['_resto', resto]);
+    const max = Math.max(...top.map(([, v]) => v));
+    return `<section class="ficha" aria-labelledby="t-cats">
+      <div class="ficha-cab"><h2 class="eyebrow" id="t-cats">Para onde foi o dinheiro</h2><span class="sub">${brl(total)} em gastos</span></div>
+      <div class="cats">${top.map(([c, v]) => `<div class="cat-linha"><span class="cat-nome">${c === '_resto' ? 'Demais categorias' : esc(catDe(c, 'saida').nome)}</span><span class="cat-val">${brl(v)} <span class="cat-pct">· ${pct(v / total * 100)}</span></span><span class="cat-barra" style="width:${Math.max(2, (v / max) * 100)}%"></span></div>`).join('')}</div>
+    </section>`;
+  }
+  function barraCima(x, y, w, h) {
+    if (h <= 0) return '';
+    const r = Math.min(4, h, w / 2);
+    return `M${x.toFixed(1)} ${(y + h).toFixed(1)}V${(y + r).toFixed(1)}Q${x.toFixed(1)} ${y.toFixed(1)} ${(x + r).toFixed(1)} ${y.toFixed(1)}H${(x + w - r).toFixed(1)}Q${(x + w).toFixed(1)} ${y.toFixed(1)} ${(x + w).toFixed(1)} ${(y + r).toFixed(1)}V${(y + h).toFixed(1)}Z`;
+  }
+  function barraBaixo(x, y, w, h) {
+    if (h <= 0) return '';
+    const r = Math.min(4, h, w / 2);
+    return `M${x.toFixed(1)} ${y.toFixed(1)}V${(y + h - r).toFixed(1)}Q${x.toFixed(1)} ${(y + h).toFixed(1)} ${(x + r).toFixed(1)} ${(y + h).toFixed(1)}H${(x + w - r).toFixed(1)}Q${(x + w).toFixed(1)} ${(y + h).toFixed(1)} ${(x + w).toFixed(1)} ${(y + h - r).toFixed(1)}V${y.toFixed(1)}Z`;
+  }
+  function cabGrafico(id, titulo, temTabela) {
+    const t = !!estado.tabelas[id];
+    return `<figcaption class="graf-cab"><span class="graf-tit">${esc(titulo)}</span>${temTabela ? `<button type="button" class="link" data-act="tabela" data-id="${id}" aria-pressed="${t}">${ic(t ? 'grafico' : 'tabela')}${t ? 'Ver gráfico' : 'Ver tabela'}</button>` : ''}</figcaption>`;
+  }
+  function graficoSobra(mkFim) {
+    const meses = [];
+    for (let i = 5; i >= 0; i--) meses.push(somaMeses(mkFim, -i));
+    const dados = meses.map((m) => {
+      let e = 0, s = 0, n = 0;
+      for (const l of lancsDoMes(m)) {
+        const v = Math.max(0, num(l.valor)); n += 1;
+        if (l.tipo === 'entrada' && l.categoria !== 'resgate') e += v;
+        else if (l.tipo === 'saida' && l.categoria !== 'guardar') s += v;
+      }
+      return { m, e, s, sobra: e - s, tem: n > 0 };
+    });
+    const id = 'sobra';
+    const titulo = 'Sobra de cada mês';
+    const mesAtual = mesDe(hoje());
+    const nota = `<p class="graf-sub">Entradas menos gastos. O que foi para as caixinhas conta como sobra.${meses.includes(mesAtual) ? ' O mês atual aparece mais claro porque ainda não fechou.' : ''}</p>`;
+    if (dados.filter((d) => d.tem).length < 1) return '';
+    if (estado.tabelas[id]) {
+      return `<figure class="ficha grafico">${cabGrafico(id, titulo, true)}${nota}<div class="tabela-rolagem"><table class="tabela"><thead><tr><th scope="col">Mês</th><th scope="col" class="num">Entrou</th><th scope="col" class="num">Gastou</th><th scope="col" class="num">Sobra</th></tr></thead><tbody>${dados.map((d) => `<tr><td>${mesCurto(d.m)}</td><td class="num">${d.tem ? brl(d.e) : '—'}</td><td class="num">${d.tem ? brl(d.s) : '—'}</td><td class="num">${d.tem ? brlSinal(d.sobra) : '—'}</td></tr>`).join('')}</tbody></table></div></figure>`;
+    }
+    const W = 320, H = 168, pl = 4, pr = 4, pt = 22, pb = 26;
+    const maxPos = Math.max(0, ...dados.map((d) => (d.tem ? d.sobra : 0)));
+    const maxNeg = Math.max(0, ...dados.map((d) => (d.tem ? -d.sobra : 0)));
+    const total = (maxPos + maxNeg) || 1;
+    const altura = H - pt - pb;
+    const y0 = pt + altura * (maxPos / total);
+    const bw = (W - pl - pr) / dados.length, bar = Math.min(24, bw * 0.5);
+    let s = `<line class="graf-base" x1="${pl}" x2="${W - pr}" y1="${y0.toFixed(1)}" y2="${y0.toFixed(1)}"/>`;
+    dados.forEach((d, i) => {
+      const cx = pl + bw * i + bw / 2;
+      const sel = d.m === mkFim;
+      if (d.tem && d.sobra !== 0) {
+        const h = Math.max(2, (Math.abs(d.sobra) / total) * altura);
+        const parcial = d.m === mesAtual ? ' parcial' : '';
+        if (d.sobra > 0) s += `<path class="graf-pos${parcial}" d="${barraCima(cx - bar / 2, y0 - h, bar, h)}"/>`;
+        else s += `<path class="graf-neg${parcial}" d="${barraBaixo(cx - bar / 2, y0, bar, h)}"/>`;
+        if (sel) {
+          const yv = d.sobra > 0 ? y0 - h - 6 : Math.min(H - pb + 2, y0 + h + 14);
+          s += `<text class="graf-valor" x="${cx.toFixed(1)}" y="${yv.toFixed(1)}" text-anchor="${i === dados.length - 1 ? 'end' : 'middle'}" dx="${i === dados.length - 1 ? bar / 2 + 2 : 0}">${esc(brlCurto(d.sobra).replace(/^R\$ /, d.sobra > 0 ? '+R$ ' : 'R$ '))}${d.m === mesAtual ? ' até agora' : ''}</text>`;
+        }
+      }
+      s += `<text class="graf-eixo${sel ? ' sel' : ''}" x="${cx.toFixed(1)}" y="${H - 6}" text-anchor="middle">${MES_CURTO[Number(d.m.slice(5)) - 1]}</text>`;
+      const tip = d.tem ? `<strong>${esc(brlSinal(d.sobra))}${d.m === mesAtual ? ' até agora' : ''}</strong>${esc(nomeMes(d.m))} · entrou ${esc(brl(d.e))}, gastou ${esc(brl(d.s))}` : `<strong>Sem registros</strong>${esc(nomeMes(d.m))}`;
+      s += `<rect class="graf-alvo" x="${(pl + bw * i).toFixed(1)}" y="0" width="${bw.toFixed(1)}" height="${H - 18}" tabindex="0" data-tip="${esc(tip)}" aria-label="${esc(nomeMes(d.m))}: ${d.tem ? esc(brlSinal(d.sobra)) : 'sem registros'}"/>`;
+    });
+    return `<figure class="ficha grafico">${cabGrafico(id, titulo, true)}${nota}<svg class="graf" viewBox="0 0 ${W} ${H}" role="img" aria-label="${titulo} nos últimos 6 meses">${s}</svg></figure>`;
+  }
+  function linhaLanc(l) {
+    const c = catDe(l.categoria, l.tipo);
+    const sub = [c.nome, nomeForma(l.forma), l.contaId ? 'conta fixa' : '', l.caixinhaId ? 'caixinha' : ''].filter(Boolean).join(' · ');
+    const ent = l.tipo === 'entrada';
+    return `<button type="button" class="linha linha-btn lanc" data-act="editar-lanc" data-id="${esc(l.id)}">
+      <span class="lanc-ic${ent ? ' ent' : ''}">${ic(ent ? 'seta-cima' : 'seta-baixo')}</span>
+      <span class="linha-txt"><span class="linha-titulo">${esc(l.descricao || c.nome)}</span><span class="linha-sub">${esc(sub)}</span></span>
+      <span class="valor${ent ? ' pos' : ''}">${ent ? '+' : '−'}${brl(l.valor)}</span>
+    </button>`;
+  }
+  function vExtrato(mk) {
+    const f = estado.filtroExtrato;
+    const ls = lancsDoMes(mk).filter((l) => f === 'tudo' || (f === 'saidas' ? l.tipo === 'saida' : l.tipo === 'entrada')).sort((a, b) => b.data.localeCompare(a.data) || String(b.criadoEm || '').localeCompare(String(a.criadoEm || '')));
+    let h = `<div class="chips filtros" role="group" aria-label="Filtrar extrato">${[['tudo', 'Tudo'], ['saidas', 'Saídas'], ['entradas', 'Entradas']].map(([v, n]) => `<button type="button" class="chip" data-act="filtro" data-v="${v}" aria-pressed="${f === v}">${n}</button>`).join('')}</div>`;
+    if (!ls.length) return h + `<div class="vazio"><p class="vazio-titulo">Nada registrado em ${MESES[Number(mk.slice(5)) - 1]}</p><p>Toque em + para registrar um gasto ou uma entrada.</p><button type="button" class="btn btn-pri" data-act="novo-lanc" data-tipo="saida">${ic('plus')}Registrar gasto</button></div>`;
+    const grupos = new Map();
+    for (const l of ls) { if (!grupos.has(l.data)) grupos.set(l.data, []); grupos.get(l.data).push(l); }
+    for (const [d, itens] of grupos) {
+      const tot = itens.reduce((a, l) => a + (l.tipo === 'saida' ? -num(l.valor) : num(l.valor)), 0);
+      h += `<section class="extrato-dia"><h3 class="extrato-cab"><span>${esc(diaLongo(d))}</span><span class="mono">${brlSinal(tot)}</span></h3><div class="ficha">${itens.map(linhaLanc).join('')}</div></section>`;
+    }
+    return h;
+  }
+  function vContas(mk, hj) {
+    const cs = contasDoMes(mk);
+    if (!cs.length) return `<div class="vazio"><p class="vazio-titulo">Nenhuma conta fixa</p><p>Cadastre o que vence todo mês. O Em Dia avisa antes do vencimento e já separa esse dinheiro no plano do mês.</p><div class="chips">${SUGESTOES_CONTAS.map(([n, c, d]) => `<button type="button" class="chip" data-act="nova-conta" data-nome="${esc(n)}" data-cat="${c}" data-diav="${d}">${ic('plus')}${esc(n)}</button>`).join('')}</div><button type="button" class="btn btn-pri" data-act="nova-conta">${ic('plus')}Nova conta fixa</button></div>`;
+    const ordem = { atrasada: 0, hoje: 1, logo: 2, semana: 3, depois: 4, futura: 5, paga: 6 };
+    const sts = cs.map((c) => ({ c, st: statusConta(c, mk, hj) })).sort((a, b) => (ordem[a.st.tipo] - ordem[b.st.tipo]) || a.st.venc.localeCompare(b.st.venc));
+    const pagas = sts.filter((x) => x.st.tipo === 'paga').length;
+    const falta = sts.filter((x) => x.st.tipo !== 'paga').reduce((a, x) => a + Math.max(0, num(x.c.valor)), 0);
+    return `<div class="resumo-contas"><span><strong>${pagas} de ${cs.length}</strong> pagas em ${MESES[Number(mk.slice(5)) - 1]}</span><span>${falta ? `Falta pagar <strong class="mono">${brl(falta)}</strong>` : 'Tudo pago neste mês'}</span></div>
+      <div class="ficha">${sts.map(({ c }) => linhaConta(c, mk, hj)).join('')}</div>
+      <button type="button" class="btn btn-largo" data-act="nova-conta">${ic('plus')}Nova conta fixa</button>`;
+  }
+  function mesesEntre(a, b) { const [y1, m1] = a.split('-').map(Number); const [y2, m2] = b.split('-').map(Number); return (y2 - y1) * 12 + (m2 - m1); }
+  function cartaoCaixinha(c, custo, hj) {
+    const saldo = num(c.saldo);
+    const meta = c.reserva ? (num(c.meta) || custo * 6) : num(c.meta);
+    const prog = meta ? clamp(saldo / meta, 0, 1) : 0;
+    let det = '';
+    if (c.reserva) {
+      const meses = custo ? saldo / custo : 0;
+      det = custo ? `Cobre <strong>${F_N1.format(meses)} ${meses >= 0.95 && meses < 1.05 ? 'mês' : 'meses'}</strong> dos seus gastos essenciais (${brl(custo)} por mês). O ideal são 6.` : 'Registre os gastos do mês para ver quantos meses ela cobre.';
+    } else if (meta && saldo < meta && mesValido(c.prazo) && c.prazo >= mesDe(hj)) {
+      const n = mesesEntre(mesDe(hj), c.prazo) + 1;
+      det = `Para chegar lá até ${mesCurto(c.prazo)}, guarde <strong>${brl(Math.ceil((meta - saldo) / n))}</strong> por mês.`;
+    } else if (meta && saldo >= meta) det = 'Meta alcançada.';
+    return `<section class="ficha caixinha">
+      <button type="button" class="caixinha-cab linha-btn" data-act="editar-caixinha" data-id="${esc(c.id)}" aria-label="Editar ${esc(c.nome)}"><span class="caixinha-nome">${esc(c.nome)}</span>${c.reserva ? '<span class="selo">reserva</span>' : ''}${ic('lapis')}</button>
+      <p class="caixinha-saldo">${brlNeg(saldo)}</p>
+      ${meta ? `<div class="medidor-rot"><span>${pct(prog * 100)} da meta</span><span class="mono">meta ${brl(meta)}</span></div><div class="medidor${prog >= 1 ? ' ok' : ''}" role="progressbar" aria-label="Progresso de ${esc(c.nome)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(prog * 100)}"><span style="width:${prog * 100}%"></span></div>` : ''}
+      ${det ? `<p class="sub">${det}</p>` : ''}
+      <div class="caixinha-acoes"><button type="button" class="btn btn-sm btn-pri" data-act="guardar" data-id="${esc(c.id)}">${ic('seta-baixo')}Guardar</button><button type="button" class="btn btn-sm" data-act="tirar" data-id="${esc(c.id)}">${ic('seta-cima')}Tirar</button></div>
+    </section>`;
+  }
+  function vCaixinhas(hj) {
+    const cs = lista('caixinhas').filter((c) => c.nome).sort((a, b) => (Number(!!b.reserva) - Number(!!a.reserva)) || String(a.criadoEm || '').localeCompare(String(b.criadoEm || '')));
+    const custo = custoEssencial(hj);
+    let h = '';
+    if (!cs.some((c) => c.reserva)) h += `<div class="ficha cartao-reserva"><p class="eyebrow">Comece por aqui</p><p class="cartao-tit">Reserva de emergência</p><p class="sub">Dinheiro para imprevistos: perder o emprego, ficar doente, o carro quebrar. O ideal é juntar 6 meses dos seus gastos essenciais${custo ? `, uns ${brl(custo * 6)}` : ''}, num lugar seguro e fácil de resgatar.</p><div><button type="button" class="btn btn-pri" data-act="nova-caixinha" data-reserva="1">${ic('plus')}Criar reserva</button></div></div>`;
+    h += cs.map((c) => cartaoCaixinha(c, custo, hj)).join('');
+    h += `<button type="button" class="btn btn-largo" data-act="nova-caixinha">${ic('plus')}${cs.length ? 'Nova caixinha' : 'Outra caixinha (viagem, notebook…)'}</button>`;
+    return h;
+  }
+
+  /* — Saúde — */
+  function navDia(k) {
+    return `<div class="dia-nav"><button type="button" class="btn-icone" data-act="dia" data-n="-1" aria-label="Dia anterior">${ic('chev-l')}</button><span class="dia-nav-rot" aria-live="polite">${k === hoje() ? 'Hoje' : esc(diaCurto(k))}</span><button type="button" class="btn-icone" data-act="dia" data-n="1" aria-label="Próximo dia">${ic('chev-r')}</button></div>`;
+  }
+  function blocoExercicio(k, d, p) {
+    const min = num(d.exercicio);
+    const ini = somaDias(k, -diaSemana(k));
+    let sem = 0;
+    for (let i = 0; i < 7; i++) sem += num((S.dias[somaDias(ini, i)] || {}).exercicio);
+    const meta = p.exercicioMeta;
+    const prog = meta ? clamp(sem / meta, 0, 1) : 0;
+    return `<div class="ficha-corpo">
+      <div class="linha-cab"><span class="rotulo-ic">${ic('pulso')}Exercício</span><span class="sub"><strong>${fmtMin(min)}</strong> neste dia</span></div>
+      <div class="chips"><button type="button" class="chip" data-act="exercicio" data-dia="${k}" data-n="-10" aria-label="Tirar 10 minutos">−10</button><button type="button" class="chip" data-act="exercicio" data-dia="${k}" data-n="10">${ic('plus')}10 min</button><button type="button" class="chip" data-act="exercicio" data-dia="${k}" data-n="30">${ic('plus')}30 min</button></div>
+      ${meta ? `<div class="medidor-rot"><span>Semana (dom a sáb): <strong>${fmtMin(sem)}</strong> de ${fmtMin(meta)}</span><span>${pct(prog * 100)}</span></div><div class="medidor${sem >= meta ? ' ok' : ''}" role="progressbar" aria-label="Exercício na semana" aria-valuemin="0" aria-valuemax="${meta}" aria-valuenow="${Math.min(sem, meta)}"><span style="width:${prog * 100}%"></span></div>` : ''}
+      <p class="nota-fonte">A OMS recomenda pelo menos 150 minutos de atividade moderada por semana.</p>
+    </div>`;
+  }
+  function grafico7(id, titulo, k, campo, meta, fmt) {
+    const dias = [];
+    for (let i = 6; i >= 0; i--) dias.push(somaDias(k, -i));
+    const vals = dias.map((d) => { const v = (S.dias[d] || {})[campo]; return v == null || v === '' ? null : num(v); });
+    if (!vals.some((v) => v)) return `<figure class="ficha grafico">${cabGrafico(id, titulo, false)}<p class="vazio-graf">Sem registros nestes 7 dias. Use os campos acima para começar.</p></figure>`;
+    if (estado.tabelas[id]) {
+      return `<figure class="ficha grafico">${cabGrafico(id, titulo, true)}<table class="tabela"><thead><tr><th scope="col">Dia</th><th scope="col" class="num">Registro</th></tr></thead><tbody>${dias.map((d, i) => `<tr><td>${esc(diaCurto(d))}</td><td class="num">${vals[i] == null ? '—' : esc(fmt(vals[i]))}</td></tr>`).join('')}</tbody></table><p class="graf-sub" style="padding-top:8px">Meta: ${esc(fmt(meta))}</p></figure>`;
+    }
+    const W = 320, H = 156, pl = 4, pr = 4, pt = 24, pb = 24;
+    const max = Math.max(meta || 0, ...vals.map((v) => v || 0)) * 1.12 || 1;
+    const bw = (W - pl - pr) / 7, bar = Math.min(24, bw * 0.56);
+    const y = (v) => pt + (H - pt - pb) * (1 - v / max);
+    const y0 = H - pb;
+    let s = '';
+    if (meta) { const ym = y(meta); s += `<line class="graf-meta" x1="${pl}" x2="${W - pr}" y1="${ym.toFixed(1)}" y2="${ym.toFixed(1)}"/><text class="graf-meta-txt" x="${pl + 2}" y="${(ym - 5).toFixed(1)}">meta ${esc(fmt(meta))}</text>`; }
+    s += `<line class="graf-base" x1="${pl}" x2="${W - pr}" y1="${y0}" y2="${y0}"/>`;
+    dias.forEach((d, i) => {
+      const v = vals[i];
+      const cx = pl + bw * i + bw / 2;
+      const sel = d === k;
+      if (v) {
+        const yt = y(v);
+        s += `<path class="graf-barra${sel ? ' sel' : ''}" d="${barraCima(cx - bar / 2, yt, bar, y0 - yt)}"/>`;
+        if (sel) s += `<text class="graf-valor" x="${(cx + bar / 2 + 2).toFixed(1)}" y="${(yt - 6).toFixed(1)}" text-anchor="end">${esc(fmt(v))}</text>`;
+      }
+      s += `<text class="graf-eixo${sel ? ' sel' : ''}" x="${cx.toFixed(1)}" y="${H - 6}" text-anchor="middle">${SEM_CURTA[diaSemana(d)]}</text>`;
+      const tip = `<strong>${v == null ? 'Sem registro' : esc(fmt(v))}</strong>${esc(diaCurto(d))}`;
+      s += `<rect class="graf-alvo" x="${(pl + bw * i).toFixed(1)}" y="0" width="${bw.toFixed(1)}" height="${H - 16}" tabindex="0" data-tip="${esc(tip)}" aria-label="${esc(diaCurto(d))}: ${v == null ? 'sem registro' : esc(fmt(v))}"/>`;
+    });
+    return `<figure class="ficha grafico">${cabGrafico(id, titulo, true)}<svg class="graf" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(titulo)} nos últimos 7 dias">${s}</svg></figure>`;
+  }
+  function vHumorSemana(k) {
+    const dias = [];
+    for (let i = 6; i >= 0; i--) dias.push(somaDias(k, -i));
+    if (!dias.some((d) => num((S.dias[d] || {}).humor))) return '';
+    return `<figure class="ficha grafico">${cabGrafico('humor', 'Humor', false)}<div class="humor-semana">${dias.map((d) => {
+      const h = clamp(Math.round(num((S.dias[d] || {}).humor)), 0, 5);
+      return `<div class="hs-dia${d === k ? ' sel' : ''}"><span class="hs-face" title="${h ? HUMORES[h - 1][1] : 'sem registro'}">${h ? icHumor(h) : '<span class="hs-vazio" aria-hidden="true">·</span>'}</span><span class="hs-rot">${SEM_CURTA[diaSemana(d)]}</span><span class="sr">${esc(diaCurto(d))}: ${h ? HUMORES[h - 1][1] : 'sem registro'}</span></div>`;
+    }).join('')}</div></figure>`;
+  }
+  function vSaude() {
+    const k = estado.dia;
+    const d = S.dias[k] || {};
+    const p = perfil();
+    let h = `<header class="tela-cab"><h1 class="tela-titulo">Saúde</h1>${navDia(k)}</header>`;
+    if (!armazem.pronto) return h + carregando();
+    h += `<div class="ficha">${blocoAgua(k, d, p)}</div>`;
+    h += `<div class="ficha dupla">${blocoSono(k, d, p)}${blocoHumor(k, d)}</div>`;
+    h += `<div class="ficha">${blocoExercicio(k, d, p)}</div>`;
+    h += `<h2 class="eyebrow secao-tit">Últimos 7 dias</h2><div class="pilha">`;
+    h += grafico7('agua', 'Água', k, 'agua', p.aguaMeta, fmtMl);
+    h += grafico7('sono', 'Sono', k, 'sono', p.sonoMeta, fmtHoras);
+    h += vHumorSemana(k);
+    return h + '</div>';
+  }
+
+  /* ═══════════ folhas (formulários que sobem de baixo) ═══════════ */
+  let folha = null;
+  const radioChip = (nome, v, rot, marcado) => `<label class="chip-r"><input type="radio" name="${nome}" value="${esc(v)}"${marcado ? ' checked' : ''}><span>${esc(rot)}</span></label>`;
+  const campoDinheiro = (id, nome, c, extra) => `<div class="valor-entrada"><span>R$</span><input id="${id}" name="${nome}" data-dinheiro inputmode="numeric" autocomplete="off" placeholder="0,00" data-centavos="${Math.round(num(c))}" value="${c ? n2(c) : ''}"${extra || ''}></div>`;
+  function abrirFolha(titulo, corpo, opts) {
+    const o = opts || {};
+    const raiz = $('#folha-raiz');
+    const voltarFoco = folha ? folha.voltarFoco : document.activeElement;
+    raiz.innerHTML = `<div class="veu" data-act="fechar"></div>
+      <div class="folha" role="dialog" aria-modal="true" aria-labelledby="folha-titulo">
+        <div class="folha-alca" aria-hidden="true"></div>
+        <div class="folha-cab"><h2 id="folha-titulo" tabindex="-1">${titulo}</h2><button type="button" class="btn-icone" data-act="fechar" aria-label="Fechar">${ic('x')}</button></div>
+        <form id="folha-form" novalidate autocomplete="off"><div class="folha-corpo">${corpo}</div>${o.acoes ? `<div class="folha-acoes">${o.acoes}</div>` : ''}</form>
+      </div>`;
+    raiz.hidden = false;
+    document.documentElement.classList.add('com-folha');
+    for (const el of [$('.app'), $('.abas'), $('.fab')]) if (el) el.inert = true;
+    folha = { onSubmit: o.onSubmit || null, onAcao: o.onAcao || null, voltarFoco };
+    const f = $('#folha-form');
+    f.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (!folha || !folha.onSubmit) return;
+      if (!armazem.pronto) { toast('Ainda abrindo seus dados. Tente de novo em instantes.'); return; }
+      folha.onSubmit(new FormData(f), f);
+    });
+    if (o.aoAbrir) o.aoAbrir(f);
+    const alvo = f.querySelector('[data-foco-inicial]') || $('#folha-titulo');
+    try { alvo.focus({ preventScroll: true }); } catch (e) { /* ok */ }
+  }
+  function fecharFolha() {
+    if (!folha) return;
+    const vf = folha.voltarFoco;
+    folha = null;
+    const raiz = $('#folha-raiz');
+    raiz.innerHTML = '';
+    raiz.hidden = true;
+    document.documentElement.classList.remove('com-folha');
+    for (const el of [$('.app'), $('.abas'), $('.fab')]) if (el) el.inert = false;
+    if (vf && document.contains(vf)) { try { vf.focus({ preventScroll: true }); } catch (e) { /* ok */ } }
+  }
+  function erroCampo(f, sel, msg) {
+    const el = f.querySelector(sel);
+    const antigo = f.querySelector('.erro-campo');
+    if (antigo) antigo.remove();
+    const p = document.createElement('p');
+    p.className = 'erro-campo';
+    p.setAttribute('role', 'alert');
+    p.textContent = msg;
+    const campo = el ? el.closest('.campo') : null;
+    if (campo) campo.appendChild(p); else f.querySelector('.folha-corpo').appendChild(p);
+    if (el) { try { el.focus(); } catch (e) { /* ok */ } }
+  }
+  const centavosDe = (el) => Math.max(0, parseInt((el && el.dataset.centavos) || '0', 10) || 0);
+  function formatarDinheiro(el) {
+    const dig = el.value.replace(/\D/g, '').replace(/^0+(?=\d)/, '').slice(0, 11);
+    const c = dig ? parseInt(dig, 10) : 0;
+    el.dataset.centavos = String(c);
+    el.value = c ? n2(c) : '';
+    try { const L = el.value.length; el.setSelectionRange(L, L); } catch (e) { /* ok */ }
+  }
+
+  function folhaAdicionar() {
+    const ops = [['novo-lanc', 'saida', 'Gasto', 'seta-baixo'], ['novo-lanc', 'entrada', 'Entrada', 'seta-cima'], ['nova-tarefa', '', 'Tarefa', 'check'], ['novo-habito', '', 'Hábito', 'repetir'], ['nova-conta', '', 'Conta fixa', 'boleto'], ['guardar-menu', '', 'Guardar dinheiro', 'caixa']];
+    abrirFolha('Adicionar', `<div class="grade-add">${ops.map(([a, t, n, i]) => `<button type="button" class="add-op" data-act="${a}"${t ? ` data-tipo="${t}"` : ''}${a === 'nova-tarefa' ? ` data-dia="${estado.aba === 'hoje' ? estado.dia : hoje()}"` : ''}>${ic(i)}<span>${n}</span></button>`).join('')}</div>`);
+  }
+
+  function folhaLancamento(o) {
+    const id = o.id || null;
+    const l = id ? S.lancamentos[id] : null;
+    if (id && !l) return;
+    const vinculo = !!(l && (l.contaId || l.caixinhaId));
+    const tipo = l ? l.tipo : (o.tipo === 'entrada' ? 'entrada' : 'saida');
+    const dia = l ? l.data : (o.dia && chaveValida(o.dia) ? o.dia : (estado.aba === 'hoje' ? estado.dia : hoje()));
+    const chipsCats = (tp, atual) => CATS.filter((c) => (tp === 'entrada' ? c.g === 'ent' && (c.id !== 'resgate' || atual === 'resgate') : c.g !== 'ent')).map((c) => radioChip('categoria', c.id, c.nome, c.id === atual)).join('');
+    const catAtual = l ? l.categoria : (tipo === 'entrada' ? 'salario' : 'mercado');
+    const corpo = `
+      ${vinculo ? '' : `<div class="segmentos" role="radiogroup" aria-label="Tipo" style="margin:0">${[['saida', 'Gasto'], ['entrada', 'Entrada']].map(([v, n]) => `<label class="chip-r" style="flex:1"><input type="radio" name="tipo" value="${v}"${v === tipo ? ' checked' : ''}><span style="width:100%;justify-content:center">${n}</span></label>`).join('')}</div>`}
+      <div class="campo"><label for="f-valor">Valor</label>${campoDinheiro('f-valor', 'valor', l ? l.valor : 0, l ? '' : ' data-foco-inicial')}</div>
+      <div class="campo"><label for="f-desc">Descrição <span class="opcional">(opcional)</span></label><input id="f-desc" class="entrada" name="descricao" maxlength="80" placeholder="${tipo === 'entrada' ? 'Ex.: Salário de outubro' : 'Ex.: Mercado da semana'}" value="${esc(l ? l.descricao || '' : '')}"></div>
+      <fieldset class="campo"><legend>Categoria</legend><div class="chips" id="f-cats">${chipsCats(tipo, catAtual)}</div></fieldset>
+      <div class="campo"><label for="f-data">Data</label><input id="f-data" class="entrada" type="date" name="data" required value="${dia}"></div>
+      <fieldset class="campo" id="f-formas"${tipo === 'entrada' ? ' hidden' : ''}><legend>Como pagou</legend><div class="chips">${FORMAS.map(([v, n]) => radioChip('forma', v, n, (l && l.forma ? l.forma : 'pix') === v)).join('')}</div></fieldset>
+      ${vinculo ? `<p class="sub">Este lançamento está ligado ${l.contaId ? 'a uma conta fixa' : 'a uma caixinha'}. Se excluir, ${l.contaId ? 'a conta volta a aparecer como não paga' : 'o saldo da caixinha é corrigido'}.</p>` : ''}`;
+    const acoes = `${l ? `<button type="button" class="btn btn-perigo-txt" data-act="folha-acao" data-acao="excluir">${ic('lixo')}Excluir</button>` : '<span></span>'}<button class="btn btn-pri">${l ? 'Salvar' : tipo === 'entrada' ? 'Registrar entrada' : 'Registrar gasto'}</button>`;
+    abrirFolha(l ? 'Editar lançamento' : tipo === 'entrada' ? 'Nova entrada' : 'Novo gasto', corpo, {
+      acoes,
+      aoAbrir: (f) => {
+        f.addEventListener('change', (e) => {
+          if (e.target.name !== 'tipo') return;
+          const tp = e.target.value;
+          $('#f-cats', f).innerHTML = chipsCats(tp, tp === 'entrada' ? 'salario' : 'mercado');
+          $('#f-formas', f).hidden = tp === 'entrada';
+          $('#folha-titulo').textContent = tp === 'entrada' ? 'Nova entrada' : 'Novo gasto';
+          const b = f.querySelector('.folha-acoes .btn-pri');
+          if (b && !l) b.textContent = tp === 'entrada' ? 'Registrar entrada' : 'Registrar gasto';
+          $('#f-desc', f).placeholder = tp === 'entrada' ? 'Ex.: Salário de outubro' : 'Ex.: Mercado da semana';
+        });
+      },
+      onSubmit: (fd, f) => {
+        const valor = centavosDe($('#f-valor', f));
+        if (!valor) return erroCampo(f, '#f-valor', 'Digite o valor.');
+        const data = String(fd.get('data') || '');
+        if (!chaveValida(data)) return erroCampo(f, '#f-data', 'Escolha a data.');
+        const tp = vinculo ? l.tipo : (fd.get('tipo') === 'entrada' ? 'entrada' : 'saida');
+        const cat = String(fd.get('categoria') || (tp === 'entrada' ? 'outrasent' : 'outros'));
+        const doc = { ...(l || {}), tipo: tp, valor, descricao: String(fd.get('descricao') || '').trim().slice(0, 80), categoria: CAT[cat] ? cat : (tp === 'entrada' ? 'outrasent' : 'outros'), data, forma: tp === 'saida' ? String(fd.get('forma') || 'pix') : null, criadoEm: (l && l.criadoEm) || agoraISO() };
+        delete doc.exemplo;
+        if (l && l.caixinhaId && l.valor !== valor) ajustarCaixinha(l.caixinhaId, l.tipo === 'saida' ? valor - num(l.valor) : num(l.valor) - valor);
+        put('lancamentos', id || novoId(), doc);
+        fecharFolha();
+        toast(l ? 'Lançamento salvo' : tp === 'entrada' ? `Entrada de ${brl(valor)} registrada` : `Gasto de ${brl(valor)} registrado`);
+      },
+      onAcao: (a) => {
+        if (a !== 'excluir') return;
+        const antigo = { ...l };
+        if (antigo.caixinhaId) ajustarCaixinha(antigo.caixinhaId, antigo.tipo === 'saida' ? -num(antigo.valor) : num(antigo.valor));
+        del('lancamentos', id);
+        fecharFolha();
+        toast('Lançamento excluído', { acao: 'Desfazer', fn: () => { if (antigo.caixinhaId) ajustarCaixinha(antigo.caixinhaId, antigo.tipo === 'saida' ? num(antigo.valor) : -num(antigo.valor)); put('lancamentos', id, antigo); } });
+      },
+    });
+  }
+
+  function folhaTarefa(o) {
+    const id = o.id || null;
+    const t = id ? S.tarefas[id] : null;
+    if (id && !t) return;
+    const dia = t ? (t.data || '') : (o.dia && chaveValida(o.dia) ? o.dia : hoje());
+    const corpo = `
+      <div class="campo"><label for="t-titulo">O que fazer</label><input id="t-titulo" class="entrada" name="titulo" maxlength="120" placeholder="Ex.: Levar o carro na revisão" value="${esc(t ? t.titulo : '')}"${t ? '' : ' data-foco-inicial'}></div>
+      <div class="campo"><label for="t-data">Dia</label><input id="t-data" class="entrada" type="date" name="data" value="${dia}">
+        <div class="chips" style="margin-top:6px"><button type="button" class="chip" data-act="folha-acao" data-acao="dia" data-v="${hoje()}">Hoje</button><button type="button" class="chip" data-act="folha-acao" data-acao="dia" data-v="${somaDias(hoje(), 1)}">Amanhã</button><button type="button" class="chip" data-act="folha-acao" data-acao="dia" data-v="">Sem data</button></div></div>
+      <div class="campo"><label for="t-hora">Horário <span class="opcional">(opcional)</span></label><input id="t-hora" class="entrada" type="time" name="hora" value="${esc(t ? t.hora || '' : '')}"></div>`;
+    const acoes = `${t ? `<button type="button" class="btn btn-perigo-txt" data-act="folha-acao" data-acao="excluir">${ic('lixo')}Excluir</button>` : '<span></span>'}<button class="btn btn-pri">${t ? 'Salvar' : 'Criar tarefa'}</button>`;
+    abrirFolha(t ? 'Editar tarefa' : 'Nova tarefa', corpo, {
+      acoes,
+      onSubmit: (fd, f) => {
+        const titulo = String(fd.get('titulo') || '').trim().slice(0, 120);
+        if (!titulo) return erroCampo(f, '#t-titulo', 'Escreva o que precisa fazer.');
+        const data = String(fd.get('data') || '');
+        const hora = String(fd.get('hora') || '');
+        const doc = { ...(t || {}), titulo, data: chaveValida(data) ? data : '', hora: /^\d{2}:\d{2}$/.test(hora) ? hora : '', feita: t ? !!t.feita : false, criadoEm: (t && t.criadoEm) || agoraISO() };
+        delete doc.exemplo;
+        put('tarefas', id || novoId(), doc);
+        fecharFolha();
+        toast(t ? 'Tarefa salva' : 'Tarefa criada');
+      },
+      onAcao: (a, el) => {
+        if (a === 'dia') { $('#t-data').value = el.dataset.v; return; }
+        if (a !== 'excluir') return;
+        const antigo = { ...t };
+        del('tarefas', id);
+        fecharFolha();
+        toast('Tarefa excluída', { acao: 'Desfazer', fn: () => put('tarefas', id, antigo) });
+      },
+    });
+  }
+
+  function folhaHabito(o) {
+    const id = o.id || null;
+    const h = id ? S.habitos[id] : null;
+    if (id && !h) return;
+    const dias = h && Array.isArray(h.dias) && h.dias.length ? h.dias : [0, 1, 2, 3, 4, 5, 6];
+    const corpo = `
+      <div class="campo"><label for="h-nome">Hábito</label><input id="h-nome" class="entrada" name="nome" maxlength="60" placeholder="Ex.: Ler 20 minutos" value="${esc(h ? h.nome : '')}"${h ? '' : ' data-foco-inicial'}></div>
+      <fieldset class="campo"><legend>Em quais dias da semana</legend><div class="dias-semana">${[0, 1, 2, 3, 4, 5, 6].map((i) => `<label class="dia-sem"><input type="checkbox" name="dias" value="${i}"${dias.includes(i) ? ' checked' : ''}><span aria-hidden="true">${SEM_INI[i]}</span><span class="sr">${SEMANA[i]}</span></label>`).join('')}</div><p class="sub">Todos marcados: todo dia.</p></fieldset>`;
+    const acoes = `${h ? `<button type="button" class="btn btn-perigo-txt" data-act="folha-acao" data-acao="excluir">${ic('lixo')}Excluir</button>` : '<span></span>'}<button class="btn btn-pri">${h ? 'Salvar' : 'Criar hábito'}</button>`;
+    abrirFolha(h ? 'Editar hábito' : 'Novo hábito', corpo, {
+      acoes,
+      onSubmit: (fd, f) => {
+        const nome = String(fd.get('nome') || '').trim().slice(0, 60);
+        if (!nome) return erroCampo(f, '#h-nome', 'Dê um nome ao hábito.');
+        const ds = fd.getAll('dias').map(Number).filter((n) => n >= 0 && n <= 6);
+        if (!ds.length) return erroCampo(f, '.dias-semana input', 'Marque pelo menos um dia.');
+        const doc = { ...(h || {}), nome, dias: ds.length === 7 ? [] : ds.sort((a, b) => a - b) };
+        if (!h) Object.assign(doc, { desde: hoje(), feitos: {}, ordem: habitosAtivos().reduce((m, x) => Math.max(m, num(x.ordem)), 0) + 1, criadoEm: agoraISO() });
+        delete doc.exemplo;
+        put('habitos', id || novoId(), doc);
+        fecharFolha();
+        toast(h ? 'Hábito salvo' : 'Hábito criado');
+      },
+      onAcao: (a) => {
+        if (a !== 'excluir') return;
+        const antigo = { ...h };
+        del('habitos', id);
+        fecharFolha();
+        toast('Hábito excluído', { acao: 'Desfazer', fn: () => put('habitos', id, antigo) });
+      },
+    });
+  }
+  function corpoVerHabito(id, mk) {
+    const h = { id, ...S.habitos[id] };
+    const hj = hoje();
+    const [y, m] = mk.split('-').map(Number);
+    const n = diasNoMes(y, m);
+    const ini = new Date(y, m - 1, 1, 12).getDay();
+    let cel = SEM_INI.map((s, i) => `<span class="gm-sem${i === 0 ? ' vermelho' : ''}" aria-hidden="true">${s}</span>`).join('');
+    for (let i = 0; i < ini; i++) cel += '<span aria-hidden="true"></span>';
+    let devidos = 0, feitos = 0;
+    for (let d = 1; d <= n; d++) {
+      const k = `${mk}-${pad(d)}`;
+      const dev = devido(h, k), f = feito(h, k);
+      if (dev && k <= hj) { devidos += 1; if (f) feitos += 1; }
+      const cls = f ? 'feito' : !dev ? 'fora' : k > hj ? 'futuro' : k === hj ? 'hoje' : 'falhou';
+      cel += `<span class="gm-dia ${cls}${vermelho(k) && !f ? ' vermelho' : ''}" title="${esc(diaCurto(k))}${f ? ': feito' : ''}">${d}</span>`;
+    }
+    const taxa = devidos ? Math.round(feitos / devidos * 100) : 0;
+    return `<div id="ver-habito" class="pilha">
+      <p class="sub">${esc(freqTexto(h))}</p>
+      <div class="stats"><div class="stat"><b>${feitos}<small style="font-size:.9rem;color:var(--muted)">/${devidos}</small></b><span>no mês (${taxa}%)</span></div><div class="stat"><b>${sequencia(h, hj)}</b><span>sequência atual</span></div><div class="stat"><b>${melhorSequencia(h, hj)}</b><span>melhor sequência</span></div></div>
+      <div class="gm-cab"><button type="button" class="btn-icone" data-act="folha-acao" data-acao="mes" data-n="-1" data-mes0="${mk}" aria-label="Mês anterior">${ic('chev-l')}</button><strong class="mes-nome">${nomeMes(mk)}</strong><button type="button" class="btn-icone" data-act="folha-acao" data-acao="mes" data-n="1" data-mes0="${mk}" aria-label="Próximo mês">${ic('chev-r')}</button></div>
+      <div class="grade-mes" role="img" aria-label="${esc(nomeMes(mk))}: feito em ${feitos} de ${devidos} dias">${cel}</div>
+    </div>`;
+  }
+  function folhaVerHabito(id) {
+    if (!S.habitos[id]) return;
+    abrirFolha(esc(S.habitos[id].nome), corpoVerHabito(id, mesDe(hoje())), {
+      acoes: `<button type="button" class="btn" data-act="folha-acao" data-acao="editar">${ic('lapis')}Editar</button><button type="button" class="btn btn-pri" data-act="fechar">Fechar</button>`,
+      onAcao: (a, el) => {
+        if (a === 'editar') { folhaHabito({ id }); return; }
+        if (a === 'mes' && S.habitos[id]) {
+          const novo = somaMeses(el.dataset.mes0, Number(el.dataset.n));
+          $('#ver-habito').outerHTML = corpoVerHabito(id, novo);
+        }
+      },
+    });
+  }
+
+  function folhaConta(o) {
+    const id = o.id || null;
+    const c = id ? S.contas[id] : null;
+    if (id && !c) return;
+    const mk = estado.aba === 'dinheiro' ? estado.mes : mesDe(hoje());
+    const pg = c ? pagamento(id, mk) : null;
+    const catAtual = c ? c.categoria : (o.categoria && CAT[o.categoria] ? o.categoria : 'casa');
+    const corpo = `
+      <div class="campo"><label for="c-nome">Nome</label><input id="c-nome" class="entrada" name="nome" maxlength="60" placeholder="Ex.: Aluguel" value="${esc(c ? c.nome : o.nome || '')}"${!c && !o.nome ? ' data-foco-inicial' : ''}></div>
+      <div class="dois">
+        <div class="campo"><label for="c-valor">Valor por mês</label>${campoDinheiro('c-valor', 'valor', c ? c.valor : 0, !c && o.nome ? ' data-foco-inicial' : '')}</div>
+        <div class="campo"><label for="c-dia">Vence todo dia</label><input id="c-dia" class="entrada" type="number" name="dia" inputmode="numeric" min="1" max="31" value="${c ? clamp(Math.round(num(c.dia, 10)), 1, 31) : clamp(Math.round(num(o.dia, 10)), 1, 31)}"></div>
+      </div>
+      <fieldset class="campo"><legend>Categoria</legend><div class="chips">${CATS.filter((x) => x.g !== 'ent').map((x) => radioChip('categoria', x.id, x.nome, x.id === catAtual)).join('')}</div></fieldset>
+      ${pg ? `<div class="aviso-pago"><span>Paga em ${ddmm(pg.data)}, referente a ${MESES[Number(mk.slice(5)) - 1]}</span><button type="button" class="btn btn-sm" data-act="folha-acao" data-acao="desfazer">${ic('desfazer')}Desfazer pagamento</button></div>` : ''}
+      <p class="sub">Se o vencimento cair em fim de semana ou feriado, o app mostra o próximo dia útil. É até quando o banco aceita boleto sem multa.</p>`;
+    const acoes = `${c ? `<button type="button" class="btn btn-perigo-txt" data-act="folha-acao" data-acao="excluir">${ic('lixo')}Excluir</button>` : '<span></span>'}<button class="btn btn-pri">${c ? 'Salvar' : 'Criar conta'}</button>`;
+    abrirFolha(c ? 'Editar conta fixa' : 'Nova conta fixa', corpo, {
+      acoes,
+      onSubmit: (fd, f) => {
+        const nome = String(fd.get('nome') || '').trim().slice(0, 60);
+        if (!nome) return erroCampo(f, '#c-nome', 'Dê um nome para a conta.');
+        const valor = centavosDe($('#c-valor', f));
+        if (!valor) return erroCampo(f, '#c-valor', 'Digite o valor de cada mês.');
+        const dia = Math.round(num(fd.get('dia'), 0));
+        if (dia < 1 || dia > 31) return erroCampo(f, '#c-dia', 'O dia precisa ser de 1 a 31.');
+        const cat = String(fd.get('categoria') || 'casa');
+        const doc = { ...(c || {}), nome, valor, dia, categoria: CAT[cat] ? cat : 'casa', desde: (c && c.desde) || mesDe(hoje()), criadoEm: (c && c.criadoEm) || agoraISO() };
+        delete doc.exemplo;
+        put('contas', id || novoId(), doc);
+        fecharFolha();
+        toast(c ? 'Conta salva' : 'Conta criada');
+      },
+      onAcao: (a) => {
+        if (a === 'desfazer' && pg) {
+          const antigo = { ...pg }; delete antigo.id;
+          del('lancamentos', pg.id);
+          fecharFolha();
+          toast('Pagamento desfeito', { acao: 'Desfazer', fn: () => put('lancamentos', pg.id, antigo) });
+          return;
+        }
+        if (a !== 'excluir') return;
+        const antigo = { ...c };
+        del('contas', id);
+        fecharFolha();
+        toast('Conta excluída. Os pagamentos continuam no extrato.', { acao: 'Desfazer', fn: () => put('contas', id, antigo) });
+      },
+    });
+  }
+  function folhaPagar(contaId, mk) {
+    const c = S.contas[contaId];
+    if (!c || !mesValido(mk)) return;
+    const hj = hoje();
+    const venc = vencimento({ ...c }, mk);
+    const dia = mk === mesDe(hj) || mk > mesDe(hj) ? hj : venc;
+    const corpo = `
+      <div class="campo"><label for="p-valor">Valor pago</label>${campoDinheiro('p-valor', 'valor', c.valor, '')}</div>
+      <div class="campo"><label for="p-data">Data do pagamento</label><input id="p-data" class="entrada" type="date" name="data" value="${dia}"></div>
+      <fieldset class="campo"><legend>Como pagou</legend><div class="chips">${FORMAS.map(([v, n]) => radioChip('forma', v, n, v === (c.forma || 'pix'))).join('')}</div></fieldset>
+      <p class="sub">Vencimento: ${esc(diaLongo(venc))}. Referente a ${esc(nomeMes(mk))}.</p>`;
+    abrirFolha(`Pagar ${esc(c.nome)}`, corpo, {
+      acoes: '<span></span><button class="btn btn-pri">Marcar como paga</button>',
+      onSubmit: (fd, f) => {
+        const valor = centavosDe($('#p-valor', f));
+        if (!valor) return erroCampo(f, '#p-valor', 'Digite quanto foi pago.');
+        const data = String(fd.get('data') || '');
+        if (!chaveValida(data)) return erroCampo(f, '#p-data', 'Escolha a data do pagamento.');
+        if (pagamento(contaId, mk)) { fecharFolha(); toast('Essa conta já estava paga.'); return; }
+        put('lancamentos', novoId(), { tipo: 'saida', valor, descricao: c.nome, categoria: CAT[c.categoria] ? c.categoria : 'casa', data, forma: String(fd.get('forma') || 'pix'), contaId, ref: mk, criadoEm: agoraISO() });
+        estado.carimboConta = contaId;
+        fecharFolha();
+        toast(`${c.nome}: paga`);
+      },
+    });
+  }
+  function folhaCaixinha(o) {
+    const id = o.id || null;
+    const c = id ? S.caixinhas[id] : null;
+    if (id && !c) return;
+    const res = c ? !!c.reserva : !!o.reserva;
+    const custo = custoEssencial(hoje());
+    const corpo = `
+      <div class="campo"><label for="x-nome">Nome</label><input id="x-nome" class="entrada" name="nome" maxlength="50" placeholder="Ex.: Viagem de fim de ano" value="${esc(c ? c.nome : res ? 'Reserva de emergência' : '')}"${c || res ? '' : ' data-foco-inicial'}></div>
+      <div class="campo"><label for="x-saldo">${c ? 'Saldo atual' : 'Quanto já tem guardado'}</label>${campoDinheiro('x-saldo', 'saldo', c ? c.saldo : 0, res && !c ? ' data-foco-inicial' : '')}${c ? '<p class="sub">Corrija aqui quando render juros ou quando o valor no banco for diferente.</p>' : ''}</div>
+      <div class="campo"><label for="x-meta">Meta <span class="opcional">(opcional)</span></label>${campoDinheiro('x-meta', 'meta', c ? c.meta : 0, '')}${res && custo ? `<p class="sub">Sem meta, o app usa 6 meses dos seus gastos essenciais: ${brl(custo * 6)}.</p>` : ''}</div>
+      ${res ? '' : `<div class="campo"><label for="x-prazo">Até quando <span class="opcional">(opcional)</span></label><input id="x-prazo" class="entrada" type="month" name="prazo" value="${esc(c && mesValido(c.prazo) ? c.prazo : '')}"></div>`}`;
+    const acoes = `${c ? `<button type="button" class="btn btn-perigo-txt" data-act="folha-acao" data-acao="excluir">${ic('lixo')}Excluir</button>` : '<span></span>'}<button class="btn btn-pri">${c ? 'Salvar' : 'Criar caixinha'}</button>`;
+    abrirFolha(c ? 'Editar caixinha' : res ? 'Reserva de emergência' : 'Nova caixinha', corpo, {
+      acoes,
+      onSubmit: (fd, f) => {
+        const nome = String(fd.get('nome') || '').trim().slice(0, 50);
+        if (!nome) return erroCampo(f, '#x-nome', 'Dê um nome para a caixinha.');
+        const prazo = String(fd.get('prazo') || '');
+        const doc = { ...(c || {}), nome, saldo: centavosDe($('#x-saldo', f)), meta: centavosDe($('#x-meta', f)), reserva: res, prazo: mesValido(prazo) ? prazo : '', criadoEm: (c && c.criadoEm) || agoraISO() };
+        delete doc.exemplo;
+        put('caixinhas', id || novoId(), doc);
+        fecharFolha();
+        toast(c ? 'Caixinha salva' : 'Caixinha criada');
+      },
+      onAcao: (a) => {
+        if (a !== 'excluir') return;
+        const antigo = { ...c };
+        del('caixinhas', id);
+        fecharFolha();
+        toast('Caixinha excluída. Os lançamentos continuam no extrato.', { acao: 'Desfazer', fn: () => put('caixinhas', id, antigo) });
+      },
+    });
+  }
+  function folhaMover(id, dir) {
+    const c = S.caixinhas[id];
+    if (!c) return;
+    const guardar = dir === 'guardar';
+    const corpo = `
+      <p class="sub">Saldo agora: <strong>${brl(c.saldo)}</strong></p>
+      <div class="campo"><label for="m-valor">${guardar ? 'Quanto guardar' : 'Quanto tirar'}</label>${campoDinheiro('m-valor', 'valor', 0, ' data-foco-inicial')}</div>
+      <div class="campo"><label for="m-data">Data</label><input id="m-data" class="entrada" type="date" name="data" value="${hoje()}"></div>
+      <p class="sub">${guardar ? 'Entra no extrato como saída para guardar e conta na meta do mês.' : 'Entra no extrato como entrada de resgate.'}</p>`;
+    abrirFolha(`${guardar ? 'Guardar em' : 'Tirar de'} ${esc(c.nome)}`, corpo, {
+      acoes: `<span></span><button class="btn btn-pri">${guardar ? 'Guardar' : 'Tirar'}</button>`,
+      onSubmit: (fd, f) => {
+        const valor = centavosDe($('#m-valor', f));
+        if (!valor) return erroCampo(f, '#m-valor', 'Digite o valor.');
+        if (!guardar && valor > num(c.saldo)) return erroCampo(f, '#m-valor', `A caixinha tem ${brl(c.saldo)}.`);
+        const data = String(fd.get('data') || '');
+        if (!chaveValida(data)) return erroCampo(f, '#m-data', 'Escolha a data.');
+        put('lancamentos', novoId(), { tipo: guardar ? 'saida' : 'entrada', valor, descricao: guardar ? `Guardado em ${c.nome}` : `Resgate de ${c.nome}`, categoria: guardar ? 'guardar' : 'resgate', data, forma: guardar ? 'pix' : null, caixinhaId: id, criadoEm: agoraISO() });
+        ajustarCaixinha(id, guardar ? valor : -valor);
+        fecharFolha();
+        toast(guardar ? `${brl(valor)} guardados em ${c.nome}` : `${brl(valor)} tirados de ${c.nome}`);
+      },
+    });
+  }
+  function folhaEscolherCaixinha() {
+    const cs = lista('caixinhas').filter((c) => c.nome);
+    if (!cs.length) { folhaCaixinha({ reserva: true }); return; }
+    if (cs.length === 1) { folhaMover(cs[0].id, 'guardar'); return; }
+    abrirFolha('Guardar em qual caixinha?', `<div class="ficha">${cs.map((c) => `<button type="button" class="linha linha-btn" data-act="guardar" data-id="${esc(c.id)}"><span class="lanc-ic">${ic('caixa')}</span><span class="linha-txt"><span class="linha-titulo">${esc(c.nome)}</span><span class="linha-sub">${brl(c.saldo)}</span></span>${ic('chev-r')}</button>`).join('')}</div>`);
+  }
+  function textoArmazem() {
+    if (armazem.modo === 'nuvem') return 'Ficam guardados na sua conta Claude. Só você vê, no celular e no computador.';
+    return 'Ficam guardados só neste navegador. Se os dados do navegador forem apagados, eles somem. Copie um backup de vez em quando.';
+  }
+  function folhaAjustes(foco) {
+    const p = perfil();
+    const mini = (nome, rot, v, un, min, max, passo) => `<label class="mini"><span>${rot}</span><span class="mini-in"><input class="entrada" type="number" inputmode="decimal" name="${nome}" min="${min}" max="${max}" step="${passo}" value="${v}"${foco === 'divisao' && nome === 'nec' ? ' data-foco-inicial' : ''}><span>${un}</span></span></label>`;
+    const corpo = `
+      <div class="campo"><label for="a-nome">Seu nome <span class="opcional">(opcional)</span></label><input id="a-nome" class="entrada" name="nome" maxlength="40" autocomplete="given-name" value="${esc(p.nome)}"></div>
+      <div class="campo"><label for="a-renda">Renda por mês</label>${campoDinheiro('a-renda', 'renda', p.rendaMensal, foco === 'renda' ? ' data-foco-inicial' : '')}<p class="sub">O valor líquido, que cai na conta.</p></div>
+      <fieldset class="campo"><legend>Divisão da renda</legend><div class="tres">${mini('nec', 'Essenciais', p.divisao.nec, '%', 0, 100, 1)}${mini('des', 'Estilo de vida', p.divisao.des, '%', 0, 100, 1)}${mini('fut', 'Futuro', p.divisao.fut, '%', 0, 100, 1)}</div><p class="sub">A regra 50/30/20 é um bom ponto de partida. A soma precisa dar 100%.</p></fieldset>
+      <fieldset class="campo"><legend>Metas de saúde</legend><div class="dois">${mini('agua', 'Água por dia', p.aguaMeta, 'ml', 250, 6000, 50)}${mini('copo', 'Tamanho do copo', p.copoMl, 'ml', 50, 1000, 10)}${mini('sono', 'Sono por noite', p.sonoMeta, 'h', 4, 12, 0.5)}${mini('exercicio', 'Exercício na semana', p.exercicioMeta, 'min', 0, 1500, 10)}</div></fieldset>
+      <section class="dados" aria-labelledby="t-dados"><h3 class="eyebrow" id="t-dados">Seus dados</h3><p class="sub">${textoArmazem()}</p>
+        <div class="acoes-dados">
+          <button type="button" class="btn btn-sm" data-act="folha-acao" data-acao="copiar">${ic('copiar')}Copiar backup</button>
+          <button type="button" class="btn btn-sm" data-act="folha-acao" data-acao="restaurar">${ic('desfazer')}Restaurar backup</button>
+          ${temExemplos() ? '<button type="button" class="btn btn-sm" data-act="folha-acao" data-acao="exemplos">Apagar exemplos</button>' : ''}
+          <button type="button" class="btn btn-sm btn-perigo-txt" data-act="folha-acao" data-acao="tudo">${ic('lixo')}Apagar tudo</button>
+        </div></section>`;
+    abrirFolha('Ajustes', corpo, {
+      acoes: '<span></span><button class="btn btn-pri">Salvar ajustes</button>',
+      onSubmit: (fd, f) => {
+        const nec = Math.round(num(fd.get('nec'), -1)), des = Math.round(num(fd.get('des'), -1)), fut = Math.round(num(fd.get('fut'), -1));
+        if ([nec, des, fut].some((v) => v < 0 || v > 100) || nec + des + fut !== 100) return erroCampo(f, 'input[name="nec"]', `A divisão soma ${nec + des + fut}%. Ajuste para dar 100%.`);
+        const doc = {
+          nome: String(fd.get('nome') || '').trim().slice(0, 40),
+          rendaMensal: centavosDe($('#a-renda', f)),
+          divisao: { nec, des, fut },
+          aguaMeta: clamp(Math.round(num(fd.get('agua'), 2000)), 250, 6000),
+          copoMl: clamp(Math.round(num(fd.get('copo'), 250)), 50, 1000),
+          sonoMeta: clamp(Math.round(num(fd.get('sono'), 8) * 2) / 2, 4, 12),
+          exercicioMeta: clamp(Math.round(num(fd.get('exercicio'), 150)), 0, 1500),
+        };
+        put('perfil', '_', doc);
+        fecharFolha();
+        toast('Ajustes salvos');
+      },
+      onAcao: (a) => {
+        if (a === 'copiar') copiarBackup();
+        else if (a === 'restaurar') folhaRestaurar();
+        else if (a === 'exemplos') confirmarApagarExemplos();
+        else if (a === 'tudo') folhaConfirmar('Apagar tudo?', 'Isso apaga hábitos, tarefas, lançamentos, contas, caixinhas e registros de saúde. Não dá para desfazer. Se quiser, copie um backup antes.', 'Apagar tudo', apagarTudo);
+      },
+    });
+  }
+  function folhaConfirmar(titulo, texto, botao, fn) {
+    abrirFolha(esc(titulo), `<p>${esc(texto)}</p>`, {
+      acoes: `<button type="button" class="btn" data-act="fechar">Cancelar</button><button type="button" class="btn btn-perigo" data-act="folha-acao" data-acao="sim">${esc(botao)}</button>`,
+      onAcao: (a) => { if (a === 'sim') fn(); },
+    });
+  }
+  function copiarBackup() {
+    const txt = JSON.stringify(dump());
+    const mostrar = () => abrirFolha('Backup', `<p class="sub">Selecione e copie o texto abaixo. Guarde num lugar seguro, como suas notas ou seu e-mail.</p><textarea id="b-texto" class="entrada texto-backup" readonly rows="8">${esc(txt)}</textarea>`, { aoAbrir: (f) => { const t = $('#b-texto', f); t.focus(); t.select(); } });
+    try {
+      navigator.clipboard.writeText(txt).then(() => toast('Backup copiado. Cole num lugar seguro, como suas notas.'), mostrar);
+    } catch (e) { mostrar(); }
+  }
+  function folhaRestaurar() {
+    abrirFolha('Restaurar backup', `<div class="campo"><label for="r-texto">Cole aqui o texto do backup</label><textarea id="r-texto" class="entrada texto-backup" name="texto" rows="8" data-foco-inicial></textarea></div><p class="sub">Os registros do backup voltam para o app. O que você tem hoje e não está no backup continua aqui.</p>`, {
+      acoes: '<span></span><button class="btn btn-pri">Restaurar</button>',
+      onSubmit: (fd, f) => {
+        let d = null;
+        try { d = JSON.parse(String(fd.get('texto') || '')); } catch (e) { d = null; }
+        if (!d || d.app !== 'emdia') return erroCampo(f, '#r-texto', 'Esse texto não é um backup do Em Dia.');
+        let n = 0;
+        if (d.perfil && typeof d.perfil === 'object') { put('perfil', '_', d.perfil, { silencioso: true }); n += 1; }
+        for (const c of COLECOES) {
+          const m = d[c];
+          if (!m || typeof m !== 'object') continue;
+          for (const [id, doc] of Object.entries(m)) {
+            if (!ID_OK.test(id) || !doc || typeof doc !== 'object' || Array.isArray(doc)) continue;
+            put(c, id, doc, { silencioso: true });
+            n += 1;
+          }
+        }
+        agendarRender();
+        fecharFolha();
+        toast(`${n} ${n === 1 ? 'registro restaurado' : 'registros restaurados'}`);
+      },
+    });
+  }
+  function confirmarApagarExemplos() {
+    folhaConfirmar('Apagar os exemplos?', 'Saem os hábitos, tarefas, lançamentos, contas, caixinhas e registros de exemplo. O que você criou ou editou continua.', 'Apagar exemplos', () => {
+      let n = 0;
+      if (S.perfil && S.perfil.exemplo) { del('perfil', '_'); n += 1; }
+      for (const c of COLECOES) for (const [id, d] of Object.entries(S[c])) if (d && d.exemplo) { del(c, id); n += 1; }
+      fecharFolha();
+      toast(n ? 'Exemplos apagados. Agora o app é seu.' : 'Não havia exemplos.');
+    });
+  }
+  async function apagarTudo() {
+    fecharFolha();
+    const alvos = new Set();
+    for (const c of COLECOES) for (const id of Object.keys(S[c])) alvos.add(`${c}/${id}`);
+    if (armazem.modo === 'nuvem') {
+      for (const c of ['lancamentos', 'dias', 'tarefas']) {
+        try { const snap = await nuvem.raiz.collection(c).get(); for (const d of snap.docs) alvos.add(`${c}/${d.id}`); } catch (e) { /* segue com o que está na tela */ }
+      }
+    }
+    del('perfil', '_');
+    for (const k of alvos) { const i = k.indexOf('/'); del(k.slice(0, i), k.slice(i + 1)); }
+    estado.dia = hoje(); estado.mes = mesDe(hoje());
+    toast('Tudo apagado.');
+  }
+
+  /* ═══════════ ações ═══════════ */
+  function toast(msg, opt) {
+    const o = opt || {};
+    const raiz = $('#toast-raiz');
+    clearTimeout(toast.t);
+    raiz.innerHTML = `<div class="toast" role="status"><span>${esc(msg)}</span>${o.acao ? `<button type="button" data-act="toast-acao">${esc(o.acao)}</button>` : ''}</div>`;
+    toast.fn = o.fn || null;
+    toast.t = setTimeout(() => { raiz.innerHTML = ''; toast.fn = null; }, o.acao ? 6500 : 3400);
+  }
+  function irAba(aba) {
+    if (!ABAS.includes(aba)) return;
+    if (aba !== estado.aba) {
+      estado.aba = aba;
+      salvarUI();
+      try { history.replaceState(null, '', `#${aba}`); } catch (e) { /* ok */ }
+    }
+    render();
+    window.scrollTo(0, 0);
+  }
+  function mudarDia(k) {
+    if (!chaveValida(k) || k === estado.dia) return;
+    estado.virada = k > estado.dia ? 'frente' : 'tras';
+    estado.dia = k;
+    agendarRender();
+  }
+  function alternarHabito(id, k) {
+    const h = S.habitos[id];
+    if (!h || !chaveValida(k)) return;
+    const antes = infoDia(k).emDia;
+    const feitos = { ...(h.feitos || {}) };
+    if (feitos[k]) delete feitos[k]; else feitos[k] = true;
+    put('habitos', id, { ...h, feitos });
+    if (!antes && infoDia(k).emDia && k === estado.dia && estado.aba === 'hoje') estado.carimbar = true;
+  }
+  function alternarTarefa(id) {
+    const t = S.tarefas[id];
+    if (!t) return;
+    const k = t.data;
+    const antes = k ? infoDia(k).emDia : false;
+    const feita = !t.feita;
+    put('tarefas', id, { ...t, feita, feitaEm: feita ? hoje() : '' });
+    if (k && !antes && k === estado.dia && estado.aba === 'hoje' && infoDia(k).emDia) estado.carimbar = true;
+  }
+  function criarTarefaRapida(texto, k) {
+    const bruto = String(texto || '').trim();
+    if (!bruto) return false;
+    let titulo = bruto, hora = '';
+    const m = bruto.match(/\s(?:às\s+|as\s+)?(\d{1,2})(?:h(\d{2})?|:(\d{2}))\s*$/i);
+    if (m) {
+      const hh = Number(m[1]), mm = Number(m[2] || m[3] || 0);
+      if (hh <= 23 && mm <= 59) { hora = `${pad(hh)}:${pad(mm)}`; titulo = bruto.slice(0, m.index).trim() || bruto; }
+    }
+    put('tarefas', novoId(), { titulo: titulo.slice(0, 120), data: chaveValida(k) ? k : hoje(), hora, feita: false, criadoEm: agoraISO() });
+    return true;
+  }
+  function salvarDia(k, campos, opts) {
+    if (!chaveValida(k)) return;
+    const d = S.dias[k] || {};
+    const novo = { ...d, ...campos, data: k };
+    delete novo.exemplo;
+    put('dias', k, novo, opts);
+  }
+  function criarHabito(nome) {
+    const n = String(nome || '').trim().slice(0, 60);
+    if (!n) return;
+    put('habitos', novoId(), { nome: n, dias: [], desde: hoje(), feitos: {}, ordem: habitosAtivos().reduce((m, x) => Math.max(m, num(x.ordem)), 0) + 1, criadoEm: agoraISO() });
+    toast(`Hábito criado: ${n}`);
+  }
+  function limparFeitas() {
+    const lim = somaDias(hoje(), -30);
+    const alvos = lista('tarefas').filter((t) => t.feita && (t.feitaEm || t.data || '') < lim);
+    for (const t of alvos) del('tarefas', t.id);
+    toast(`${alvos.length} ${alvos.length === 1 ? 'tarefa apagada' : 'tarefas apagadas'}`);
+  }
+
+  const ESCRITA = new Set(['habito', 'tarefa', 'tarefa-hoje', 'sugestao-habito', 'copo', 'copo-mais', 'sono', 'humor', 'exercicio', 'apagar-exemplos', 'limpar-feitas']);
+  const ACOES = {
+    aba: (el) => irAba(el.dataset.aba),
+    dia: (el) => mudarDia(somaDias(estado.dia, Number(el.dataset.n) || 0)),
+    'ir-dia': (el) => mudarDia(el.dataset.dia),
+    'ir-hoje': () => mudarDia(hoje()),
+    mes: (el) => { estado.mes = somaMeses(estado.mes, Number(el.dataset.n) || 0); render(); },
+    sub: (el) => { if (el.dataset.nome === 'subRotina' || el.dataset.nome === 'subDinheiro') { estado[el.dataset.nome] = el.dataset.v; salvarUI(); render(); } },
+    filtro: (el) => { estado.filtroExtrato = el.dataset.v; render(); },
+    tabela: (el) => { estado.tabelas[el.dataset.id] = !estado.tabelas[el.dataset.id]; render(); },
+    habito: (el) => alternarHabito(el.dataset.id, el.dataset.dia),
+    tarefa: (el) => alternarTarefa(el.dataset.id),
+    'tarefa-hoje': (el) => { const t = S.tarefas[el.dataset.id]; if (t) { put('tarefas', el.dataset.id, { ...t, data: hoje() }); toast('Tarefa passada para hoje'); } },
+    'editar-tarefa': (el) => folhaTarefa({ id: el.dataset.id }),
+    'nova-tarefa': (el) => folhaTarefa({ dia: el.dataset.dia }),
+    'novo-habito': () => folhaHabito({}),
+    'sugestao-habito': (el) => criarHabito(el.dataset.nome),
+    'ver-habito': (el) => folhaVerHabito(el.dataset.id),
+    'novo-lanc': (el) => folhaLancamento({ tipo: el.dataset.tipo, dia: el.dataset.dia }),
+    'editar-lanc': (el) => folhaLancamento({ id: el.dataset.id }),
+    'nova-conta': (el) => folhaConta({ nome: el.dataset.nome, categoria: el.dataset.cat, dia: el.dataset.diav }),
+    'editar-conta': (el) => folhaConta({ id: el.dataset.id }),
+    pagar: (el) => folhaPagar(el.dataset.id, el.dataset.mes),
+    'nova-caixinha': (el) => folhaCaixinha({ reserva: el.dataset.reserva === '1' && !reserva() }),
+    'editar-caixinha': (el) => folhaCaixinha({ id: el.dataset.id }),
+    guardar: (el) => folhaMover(el.dataset.id, 'guardar'),
+    tirar: (el) => folhaMover(el.dataset.id, 'tirar'),
+    'guardar-menu': () => folhaEscolherCaixinha(),
+    copo: (el) => {
+      const k = el.dataset.dia, i = Number(el.dataset.i), copo = perfil().copoMl;
+      const cheios = Math.floor(num((S.dias[k] || {}).agua) / copo);
+      salvarDia(k, { agua: (cheios === i ? i - 1 : i) * copo });
+    },
+    'copo-mais': (el) => { const k = el.dataset.dia; salvarDia(k, { agua: Math.min(10000, num((S.dias[k] || {}).agua) + perfil().copoMl) }); },
+    sono: (el) => {
+      const k = el.dataset.dia, n = Number(el.dataset.n), v = (S.dias[k] || {}).sono;
+      const base = v == null || v === '' ? perfil().sonoMeta + (n < 0 ? 0.5 : -0.5) : num(v);
+      salvarDia(k, { sono: clamp(base + n, 0, 16) });
+    },
+    humor: (el) => { const k = el.dataset.dia, v = Number(el.dataset.v); salvarDia(k, { humor: num((S.dias[k] || {}).humor) === v ? null : v }); },
+    exercicio: (el) => { const k = el.dataset.dia; salvarDia(k, { exercicio: clamp(num((S.dias[k] || {}).exercicio) + Number(el.dataset.n), 0, 900) }); },
+    adicionar: () => folhaAdicionar(),
+    ajustes: (el) => folhaAjustes(el.dataset.foco),
+    fechar: () => fecharFolha(),
+    'folha-acao': (el) => { if (folha && folha.onAcao) folha.onAcao(el.dataset.acao, el); },
+    'toast-acao': () => { const fn = toast.fn; clearTimeout(toast.t); $('#toast-raiz').innerHTML = ''; toast.fn = null; if (fn) fn(); },
+    'apagar-exemplos': () => confirmarApagarExemplos(),
+    'limpar-feitas': () => limparFeitas(),
+  };
+  document.addEventListener('click', (e) => {
+    const el = e.target.closest('[data-act]');
+    if (!el || el.disabled) return;
+    const fn = ACOES[el.dataset.act];
+    if (!fn) return;
+    e.preventDefault();
+    if (ESCRITA.has(el.dataset.act) && !armazem.pronto) { toast('Ainda abrindo seus dados. Tente de novo em instantes.'); return; }
+    fn(el, e);
+  });
+  document.addEventListener('submit', (e) => {
+    const f = e.target;
+    if (!f.dataset || !f.dataset.form) return;
+    e.preventDefault();
+    if (!armazem.pronto) { toast('Ainda abrindo seus dados. Tente de novo em instantes.'); return; }
+    if (f.dataset.form === 'nova-tarefa') {
+      const inp = f.querySelector('input[name="titulo"]');
+      if (criarTarefaRapida(inp.value, f.dataset.dia)) { rascunhos['nova-tarefa'] = ''; inp.value = ''; }
+    } else if (f.dataset.form === 'renda') {
+      const c = centavosDe(f.querySelector('input[name="renda"]'));
+      if (!c) { toast('Digite quanto você recebe por mês.'); return; }
+      const p = S.perfil && typeof S.perfil === 'object' ? { ...S.perfil } : {};
+      delete p.exemplo;
+      put('perfil', '_', { ...PERFIL_PADRAO, ...p, rendaMensal: c });
+      rascunhos['renda-inline'] = ''; rascunhos['renda-inline:c'] = '';
+      toast('Renda salva. O plano do mês foi calculado.');
+    }
+  });
+  let timerNota = 0;
+  document.addEventListener('input', (e) => {
+    const t = e.target;
+    if (t.matches && t.matches('[data-dinheiro]')) formatarDinheiro(t);
+    if (t.id === 'nota-dia') {
+      const k = t.dataset.dia;
+      const valor = t.value.slice(0, 500);
+      clearTimeout(timerNota);
+      timerNota = setTimeout(() => salvarDia(k, { nota: valor }, { silencioso: true }), 500);
+    } else if (t.id === 'nova-tarefa') rascunhos['nova-tarefa'] = t.value;
+    else if (t.id === 'renda-inline') { rascunhos['renda-inline'] = t.value; rascunhos['renda-inline:c'] = t.dataset.centavos || '0'; }
+  });
+  document.addEventListener('keydown', (e) => {
+    if (!folha) return;
+    if (e.key === 'Escape') { e.preventDefault(); fecharFolha(); return; }
+    if (e.key !== 'Tab') return;
+    const alvos = $$('#folha-raiz button, #folha-raiz input, #folha-raiz textarea, #folha-raiz select, #folha-raiz [tabindex]:not([tabindex="-1"])').filter((x) => !x.disabled && x.getClientRects().length);
+    if (!alvos.length) return;
+    const pri = alvos[0], ult = alvos[alvos.length - 1];
+    if (e.shiftKey && (document.activeElement === pri || !$('#folha-raiz').contains(document.activeElement))) { e.preventDefault(); ult.focus(); }
+    else if (!e.shiftKey && document.activeElement === ult) { e.preventDefault(); pri.focus(); }
+  });
+
+  /* dica dos gráficos: passar o mouse, tocar ou focar com o teclado */
+  function mostrarDica(alvo) {
+    const html = alvo.getAttribute('data-tip');
+    if (!html) return;
+    const d = $('#dica');
+    d.innerHTML = html;
+    d.hidden = false;
+    const r = alvo.getBoundingClientRect();
+    const w = d.offsetWidth, h = d.offsetHeight;
+    const x = clamp(r.left + r.width / 2 - w / 2, 8, window.innerWidth - w - 8);
+    let y = r.top - h - 8;
+    if (y < 8) y = r.bottom + 8;
+    d.style.left = `${x}px`;
+    d.style.top = `${y}px`;
+  }
+  function esconderDica() { const d = $('#dica'); if (d) d.hidden = true; }
+  const alvoDica = (e) => (e.target && e.target.closest ? e.target.closest('[data-tip]') : null);
+  document.addEventListener('pointerover', (e) => { if (e.pointerType !== 'touch') { const a = alvoDica(e); if (a) mostrarDica(a); } });
+  document.addEventListener('pointerout', (e) => { if (e.pointerType !== 'touch') { const a = alvoDica(e); if (a && !(e.relatedTarget && a.contains(e.relatedTarget))) esconderDica(); } });
+  document.addEventListener('pointerdown', (e) => { const a = alvoDica(e); if (a && e.pointerType === 'touch') mostrarDica(a); else if (!a) esconderDica(); });
+  document.addEventListener('focusin', (e) => { const a = alvoDica(e); if (a) mostrarDica(a); });
+  document.addEventListener('focusout', (e) => { if (alvoDica(e)) esconderDica(); });
+  window.addEventListener('scroll', esconderDica, { passive: true });
+
+  /* virada do dia com o app aberto */
+  function verificarVirada() {
+    const hj = hoje();
+    if (hj === estado.hojeRef) return;
+    if (estado.dia === estado.hojeRef) estado.dia = hj;
+    if (estado.mes === mesDe(estado.hojeRef)) estado.mes = mesDe(hj);
+    estado.hojeRef = hj;
+    agendarRender();
+  }
+  setInterval(verificarVirada, 60000);
+  function descarregar() {
+    if (armazem.modo === 'nuvem') nuvem.descarregarTudo();
+    else if (armazem.modo === 'local') local.gravar();
+  }
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') descarregar(); else verificarVirada(); });
+  window.addEventListener('pagehide', descarregar);
+  window.addEventListener('storage', (e) => { if (armazem.modo === 'local' && e.key === CHAVE_LOCAL) { local.carregar(); agendarRender(); } });
+
+  /* ═══════════ início ═══════════ */
+  function ficouPronto() {
+    if (armazem.pronto) return;
+    armazem.pronto = true;
+    agendarRender();
+  }
+  function usarLocal(aviso) {
+    armazem.modo = 'local';
+    armazem.aviso = aviso || '';
+    local.carregar();
+    ficouPronto();
+  }
+  async function iniciar() {
+    lerUI();
+    render();
+    const c = window.claude;
+    if (!c || typeof c.use !== 'function') { usarLocal(''); return; }
+    let db = null, user = null, uid = null, pode = null;
+    try { [db, user] = await Promise.all([c.use('db'), c.use('user')]); } catch (e) { db = null; }
+    try { uid = user ? await user.id() : null; } catch (e) { uid = null; }
+    if (!db || !uid || !ID_OK.test(uid)) { usarLocal('Para guardar seus dados na sua conta, entre no claude.ai. Por enquanto, eles ficam só neste navegador.'); return; }
+    try { pode = await user.can('data.write'); } catch (e) { pode = null; }
+    if (pode === false) { usarLocal('Você só pode ver este app. Seus registros ficam só neste navegador.'); return; }
+    nuvem.db = db;
+    nuvem.raiz = db.doc(`data/users/${uid}/emdia`);
+    armazem.modo = 'nuvem';
+    nuvem.assinar();
+    setTimeout(ficouPronto, 7000);
+  }
+  iniciar();
+})();
+</script>
+<!-- ARTIFACT:FIM -->
+</body>
+</html>
