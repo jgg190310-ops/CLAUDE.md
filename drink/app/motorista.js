@@ -93,6 +93,9 @@
     let simPedido = null;
     let simComecando = false;
     let simTimers = [];
+    // treino: quem ainda não tem o cadastro completo só simula (quantas vezes quiser); ficar online pede o cadastro
+    let treino = false;
+    let treinosFeitos = 0;
 
     const agendar = (fn, ms) => { timers.push(setTimeout(fn, ms)); };
     const limparTimers = () => { timers.forEach(clearTimeout); timers = []; };
@@ -220,6 +223,7 @@
     async function ficarOnline() {
       const u = eu();
       q('#rm-alerta').hidden = true;
+      if (treino) { op.irCadastro(); return; }
       if (!u.pix || !u.pix.chave) { op.editarPix('Antes de ficar online, cadastra a chave Pix onde você recebe.'); return; }
       op.pedirNotificacao();
       if (!R.cifraPronta) { alerta('Esse navegador não tem a proteção que o Drink usa. Usa o Chrome ou o Safari atualizados.'); return; }
@@ -902,7 +906,7 @@
       const c = corrida;
       if (!c) return;
       // o treino acaba aqui: nada entra nos ganhos, nas notas nem nas corridas feitas
-      if (c.simulada) { fimSimulacao('Simulação concluída. Numa corrida de verdade, o Pix cai direto na sua conta e a corrida entra nos seus ganhos.'); return; }
+      if (c.simulada) { fimSimulacao('Simulação concluída. Numa corrida de verdade, o Pix cai direto na sua conta e a corrida entra nos seus ganhos.', true); return; }
       const u = eu();
       const gorjeta = c.avaliacao ? c.avaliacao.gorjeta : 0;
       const total = redondo(c.valor + (c.espera || 0) + gorjeta);
@@ -1152,8 +1156,13 @@
       desenharFotos();
       enviar({ tipo: 'etapa', etapa: 'vistoria', fotos: 5 });
     }
-    function fimSimulacao(msg) {
+    function fimSimulacao(msg, concluida) {
       pararSim();
+      if (treino && concluida) {
+        treinosFeitos += 1;
+        msg = 'Treino concluído! Quando quiser dirigir de verdade, é só fazer o cadastro.';
+      }
+      desenharTreino();
       [...pedidos.keys()].forEach((id) => { if (pedidos.get(id).simulada) pedidos.delete(id); });
       simPedido = null;
       if ((corrida && corrida.simulada) || (aceito && aceito.simulada)) encerrar();
@@ -1161,6 +1170,33 @@
       if (!online && !corrida) desligarGps();
       if (msg) op.avisar(msg);
       ir(online ? 'online' : 'off');
+    }
+
+    /* ---------- treino sem cadastro ---------- */
+    // Quem ainda não mandou a selfie, a CNH, a certidão e a chave Pix entra no app do motorista só para treinar: a
+    // tela de offline vira a do treino, com o que dá para praticar, e no lugar de "Ficar online" vem simular.
+    const OFF = { t: 'Você está offline', sub: 'Fica online pra receber pedidos de verdade perto de você. Deixa o app aberto e a tela ligada.' };
+    function desenharTreino() {
+      raiz.classList.toggle('treino', treino);
+      raiz.querySelectorAll('[data-treino]').forEach((el) => { el.hidden = (el.dataset.treino === 'sim') !== treino; });
+      let t = OFF.t;
+      let sub = OFF.sub;
+      if (treino && !treinosFeitos) {
+        t = 'Treine antes de dirigir';
+        sub = 'Um pedido simulado aparece perto de você e você faz a corrida inteira, sem sair do lugar. Ninguém de verdade recebe nada, e não precisa de CNH nem de cadastro.';
+      } else if (treino) {
+        t = treinosFeitos > 1 ? `${treinosFeitos} treinos feitos` : 'Treino feito!';
+        sub = 'Para receber pedidos de verdade, falta o cadastro: a selfie, a CNH, a certidão de antecedentes e a chave Pix. Leva uns 10 minutos.';
+      }
+      q('#rm-off-t').textContent = t;
+      q('#rm-off-sub').textContent = sub;
+      q('#rm-treino-bt').textContent = treinosFeitos ? 'Treinar de novo' : 'Simular uma corrida';
+    }
+    function definirTreino(sim) {
+      if (treino !== Boolean(sim)) treinosFeitos = 0;
+      treino = Boolean(sim);
+      if (treino && online) ficarOffline();
+      desenharTreino();
     }
 
     /* ---------- ajuda de emergência ---------- */
@@ -1260,6 +1296,8 @@
         },
         simular,
         'sair-sim': () => fimSimulacao('Simulação encerrada.'),
+        cadastro: () => op.irCadastro(),
+        'sair-treino': () => op.sairTreino(),
         'pular-fotos': pularFotos,
         cancelar: () => {
           if (!corrida) return;
@@ -1327,7 +1365,7 @@
     }
     function voltar() {
       if (folha) { fecharFolha(); return true; }
-      if (atual === 'off') return false;
+      if (atual === 'off') { if (treino) { op.sairTreino(); return true; } return false; }
       if (atual === 'online') { op.avisar('Pra parar de receber pedidos, toca em Ficar offline.'); return true; }
       if (atual === 'aguardando') { desistir(); return true; }
       if (atual === 'fim') { ir(online ? 'online' : 'off'); return true; }
@@ -1343,7 +1381,10 @@
     }
     function preencher() { desenharGanhos(); }
 
-    return { abrir, voltar, sair, preencher, ficarOffline, telaAtual: () => atual, online: () => online, corridaAtiva: () => Boolean(corrida) };
+    return {
+      abrir, voltar, sair, preencher, ficarOffline, simular, definirTreino,
+      telaAtual: () => atual, online: () => online, corridaAtiva: () => Boolean(corrida),
+    };
   }
 
   window.Drink.Motorista = { criar };

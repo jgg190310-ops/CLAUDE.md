@@ -65,10 +65,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&display=swap">
-  <link rel="stylesheet" href="../app-telas.css?v=26">
-  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=26">
-  <link rel="stylesheet" href="vendor/leaflet.css?v=26">
-  <link rel="stylesheet" href="app.css?v=26">
+  <link rel="stylesheet" href="../app-telas.css?v=27">
+  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=27">
+  <link rel="stylesheet" href="vendor/leaflet.css?v=27">
+  <link rel="stylesheet" href="app.css?v=27">
 </head>
 <body>
 <svg class="sprite" aria-hidden="true" focusable="false">
@@ -346,6 +346,7 @@
               <svg class="en-papel-seta" aria-hidden="true"><use href="#i-seta"/></svg>
             </button>
           </div>
+          <button type="button" class="en-treino-link" data-app="treinar"><svg aria-hidden="true"><use href="#i-capacete"/></svg><span>Quer ver como é dirigir antes? <b>Treine uma corrida simulada</b>, sem CNH e sem cadastro.</span></button>
         </div>
       </section>
 
@@ -357,6 +358,11 @@
           </div>
           <h2 class="en-t" id="motcad-t" tabindex="-1">Bora dirigir com o Drink</h2>
           <p class="en-sub">Como nos apps grandes: o seu rosto, os documentos e um treino rápido. Os arquivos ficam guardados neste celular.</p>
+          <button type="button" class="en-treino" data-app="treinar">
+            <span class="en-doc-ic" aria-hidden="true"><svg><use href="#i-capacete"/></svg></span>
+            <span><b>Antes, treine sem cadastro</b><small>Uma corrida simulada inteira, do aceite ao Pix. Não pede CNH nem documento.</small></span>
+            <svg class="en-treino-seta" aria-hidden="true"><use href="#i-seta"/></svg>
+          </button>
           <p class="en-sec">1 · Com o que você chega no cliente</p>
           <div class="en-veics" role="radiogroup" aria-label="Seu veículo dobrável">
             <button type="button" role="radio" aria-checked="true" data-veiculo="bike"><svg aria-hidden="true"><use href="#i-bike"/></svg><b>Bike elétrica</b><small>dobrável · até 18 kg</small></button>
@@ -915,15 +921,24 @@
             <div><b>Olá, <span data-en-primeiro>motorista</span></b><small><span id="rm-veic-txt">Bike elétrica dobrável</span> · <span id="rm-nota">novo no Drink</span></small></div>
             <button type="button" class="en-menu-bt" data-app="menu" aria-label="Abrir o menu da conta"><svg aria-hidden="true"><use href="#i-menu"/></svg></button>
           </div>
-          <button type="button" class="ma-ganhos rm-ganhos-bt" data-rm-folha="rm-ganhos"><small>Ganhos de hoje</small><b id="rm-hoje">R$ 0,00</b><span id="rm-viagens">0 viagens</span><em class="rm-ganhos-ver">Ver a semana <svg aria-hidden="true"><use href="#i-seta"/></svg></em></button>
+          <button type="button" class="ma-ganhos rm-ganhos-bt" data-rm-folha="rm-ganhos" data-treino="nao"><small>Ganhos de hoje</small><b id="rm-hoje">R$ 0,00</b><span id="rm-viagens">0 viagens</span><em class="rm-ganhos-ver">Ver a semana <svg aria-hidden="true"><use href="#i-seta"/></svg></em></button>
           <div class="ma-meio">
             <span class="ma-status" aria-hidden="true"><svg><use id="rm-status-ic" href="#i-bike"/></svg></span>
+            <p class="rm-treino-selo" data-treino="sim" hidden><svg aria-hidden="true"><use href="#i-capacete"/></svg>Modo treino · sem cadastro</p>
             <h3 class="d-titulo" id="rm-off-t" tabindex="-1">Você está offline</h3>
             <small id="rm-off-sub">Fica online pra receber pedidos de verdade perto de você. Deixa o app aberto e a tela ligada.</small>
+            <ol class="rm-treino-passos" id="rm-treino-passos" data-treino="sim" aria-label="O que você treina" hidden>
+              <li>Aceitar o pedido</li><li>Conferir o código</li><li>Vistoria do carro</li><li>Dobrar a bike</li><li>Dirigir até a casa</li><li>Receber pelo Pix</li>
+            </ol>
             <p class="rt-alerta" id="rm-alerta" role="status" hidden></p>
-            <button type="button" class="en-link rm-simular" data-rm="simular">Simular uma corrida para treinar</button>
+            <button type="button" class="en-link rm-simular" data-rm="simular" data-treino="nao">Simular uma corrida para treinar</button>
+            <button type="button" class="en-link rm-simular" data-rm="cadastro" data-treino="sim" hidden>Fazer o cadastro para dirigir de verdade</button>
           </div>
-          <button type="button" class="t-botao d-baixo" data-rm="online">Ficar online</button>
+          <button type="button" class="t-botao d-baixo" data-rm="online" data-treino="nao">Ficar online</button>
+          <div class="d-baixo rm-treino-bts" data-treino="sim" hidden>
+            <button type="button" class="t-botao" data-rm="simular" id="rm-treino-bt">Simular uma corrida</button>
+            <button type="button" class="t-bt" data-rm="sair-treino">Voltar</button>
+          </div>
         </section>
 
         <!-- online: pedidos chegando -->
@@ -1394,22 +1409,22 @@
   <p class="vira-txt" id="vira-txt">O Drink é feito para usar na vertical. Nada se perde: se tiver corrida, ela continua rolando.</p>
 </div>
 
-<script src="vendor/maplibre-gl.js?v=26"></script>
-<script src="vendor/leaflet.js?v=26"></script>
-<script src="vendor/qrcode.js?v=26"></script>
-<script src="../app-nucleo.js?v=26"></script>
-<script src="servicos.js?v=26"></script>
-<script src="rede.js?v=26"></script>
-<script src="mapa-estilo.js?v=26"></script>
-<script src="mapa.js?v=26"></script>
-<script src="carros.js?v=26"></script>
-<script src="cadastro-motorista.js?v=26"></script>
-<script src="pix.js?v=26"></script>
-<script src="avisos.js?v=26"></script>
-<script src="sms.js?v=26"></script>
-<script src="eventos.js?v=26"></script>
-<script src="passageiro.js?v=26"></script>
-<script src="motorista.js?v=26"></script>
-<script src="app.js?v=26"></script>
+<script src="vendor/maplibre-gl.js?v=27"></script>
+<script src="vendor/leaflet.js?v=27"></script>
+<script src="vendor/qrcode.js?v=27"></script>
+<script src="../app-nucleo.js?v=27"></script>
+<script src="servicos.js?v=27"></script>
+<script src="rede.js?v=27"></script>
+<script src="mapa-estilo.js?v=27"></script>
+<script src="mapa.js?v=27"></script>
+<script src="carros.js?v=27"></script>
+<script src="cadastro-motorista.js?v=27"></script>
+<script src="pix.js?v=27"></script>
+<script src="avisos.js?v=27"></script>
+<script src="sms.js?v=27"></script>
+<script src="eventos.js?v=27"></script>
+<script src="passageiro.js?v=27"></script>
+<script src="motorista.js?v=27"></script>
+<script src="app.js?v=27"></script>
 </body>
 </html>

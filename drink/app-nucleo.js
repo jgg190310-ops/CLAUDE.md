@@ -82,7 +82,7 @@
   };
   const HISTORICO = [
     { rota: 'Lourdes → Sion', data: 'Sáb, 13 set', km: 5, motorista: 'Camila R.', pag: 'Pix', gorjeta: 5 },
-    { rota: 'Funcionários → Buritis', data: 'Sex, 5 set', km: 8, motorista: 'Diego M.', pag: 'Cartão •••• 4821', gorjeta: 0 },
+    { rota: 'Funcionários → Buritis', data: 'Sex, 5 set', km: 8, motorista: 'Diego M.', pag: 'Pix', gorjeta: 0 },
     { rota: 'Savassi → Buritis', data: 'Sex, 29 ago', km: 9, motorista: 'Rafael S.', pag: 'Pix', gorjeta: 0 },
   ].map((v) => {
     const p = precoDaViagem(v.km, '22:00');
@@ -538,7 +538,7 @@
         }
         return;
       }
-      if (ds.pagamento) { conta.pag = ds.pagamento; mudou(); desenharCarteira(); aviso(`Pagamento padrão: ${ds.pagamento.replace('Cartão', 'crédito')}.`); return; }
+      if (ds.pagamento) { conta.pag = ds.pagamento; mudou(); desenharCarteira(); aviso(`Pagamento padrão: ${ds.pagamento}.`); return; }
       if (ds.viagem) {
         const v = conta.historico[Number(ds.viagem)];
         $('#d-rec-sub').textContent = `${v.rota} · ${v.data}`;
@@ -552,7 +552,6 @@
         local: () => aviso(compartilhados().length ? `Localização enviada para ${listaNomes(compartilhados())}.` : 'Escolha alguém em Compartilhar para enviar a localização.'),
         policia: () => aviso('Demonstração: nenhuma ligação é feita. No app de verdade, isso liga para o 190.'),
         baixar: () => aviso('Recibo em PDF salvo (demonstração).'),
-        cartao: () => aviso('Cadastro de cartão fica para a versão de verdade.'),
       };
       Object.assign(acoes, op.acoes || {});
       if (ds.acao && acoes[ds.acao]) { acoes[ds.acao](); return; }
@@ -564,7 +563,7 @@
           break;
         }
         case 'd-cambio': est.cambio = est.cambio === 'Automático' ? 'Manual' : 'Automático'; atualizarOpcoes(); break;
-        case 'd-pag': conta.pag = conta.pag === 'Pix' ? 'Cartão •••• 4821' : 'Pix'; mudou(); atualizarOpcoes(); break;
+        case 'd-pag': aviso('No Drink, a volta é paga pelo Pix, direto para o motorista.'); break;
         case 'd-cupom': est.cupom = !est.cupom; atualizarOpcoes(); break;
         case 'd-pedir': ir('buscando'); break;
         case 'd-concluir': {
