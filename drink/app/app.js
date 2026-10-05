@@ -543,6 +543,11 @@
   /* ---------- papel: passageiro ou motorista ---------- */
   let origemCadastro = 'papel';
   let veiculoCadastro = 'bike';
+  // treino de motorista: de onde veio (para voltar) e se veio do site pedindo o treino antes de ter conta
+  let origemTreino = 'papel';
+  let querTreino = false;
+  // o site leva quem organiza um evento direto para a aba Eventos (?aba=eventos)
+  let querEventos = false;
 
   // o cadastro de motorista completo e conferido; quem se cadastrou antes completa o que falta
   const podeDirigir = (u) => Boolean(u && u.motoristaOk && cadastro.completo(u));
@@ -552,6 +557,17 @@
     if (u.motoristaOk) avisar('O cadastro de motorista agora pede o seu rosto e os documentos. Completa o que falta para voltar a dirigir.');
   }
   function entrarNoApp(u, anim) {
+    // o link do treino não passa por cima de uma volta em andamento do passageiro
+    if (querTreino) {
+      querTreino = false;
+      if (!(u.corrida && !u.corrida.simulada)) { treinarMotorista(); return; }
+    }
+    if (querEventos && !u.corridaMotorista) {
+      querEventos = false;
+      if (u.papel !== 'passageiro') { u.papel = 'passageiro'; salvar(); }
+      abrirPassageiro(anim || 'entra', 'eventos');
+      return;
+    }
     if (!u.papel) { $('#en-ok-txt').textContent = `Oi, ${primeiro(u)}`; irEn('papel', { anim }); return; }
     if (u.papel === 'motorista' && !podeDirigir(u)) { pedirCadastro(u, anim); return; }
     if (u.papel === 'motorista') abrirMotorista(anim); else abrirPassageiro(anim);
@@ -591,6 +607,36 @@
     salvar();
     abrirMotorista('entra');
     avisar(`Cadastro completo, ${primeiro(u)}! Fica online quando quiser.`);
+  }
+
+  /* ---------- treino de motorista: uma corrida simulada, sem cadastro ---------- */
+  // Para quem quer ver como é dirigir antes de mandar a CNH e os documentos. Não muda o papel da conta: ao sair do
+  // treino, volta para onde estava; para dirigir de verdade, o cadastro continua pedindo tudo.
+  function treinarMotorista() {
+    const u = eu();
+    if (!u) {
+      querTreino = true;
+      irEn('boas');
+      avisar('Cria a sua conta, é rapidinho. O treino começa logo depois, sem pedir CNH.');
+      return;
+    }
+    if (passageiro && passageiro.corridaAtiva()) { avisar('Termina a sua volta antes de treinar.'); return; }
+    const en = vista && vista.dataset.en;
+    if (en === 'mot-cad') origemTreino = 'mot-cad';
+    else if (vista === modos.passageiro || (!en && u.papel === 'passageiro')) origemTreino = 'passageiro';
+    else origemTreino = 'papel';
+    abrirMotorista('entra');
+    // com o cadastro completo não tem tela de treino: a simulação começa direto
+    if (podeDirigir(u)) motorista.simular();
+  }
+  function sairTreino() {
+    if (origemTreino === 'mot-cad') irEn('mot-cad', { anim: 'volta' });
+    else if (origemTreino === 'passageiro') abrirPassageiro('volta');
+    else irEn('papel', { anim: 'volta' });
+  }
+  function cadastroDepoisDoTreino() {
+    origemCadastro = origemTreino === 'passageiro' ? 'passageiro' : 'papel';
+    irEn('mot-cad');
   }
 
   /* ---------- os dois apps ---------- */
@@ -643,7 +689,11 @@
     return passageiro;
   }
   function garantirMotorista() {
-    if (!motorista) motorista = window.Drink.Motorista.criar({ raiz: modos.motorista, ...opcoes(), editarPix: (msg) => editarPix(msg) });
+    if (!motorista) {
+      motorista = window.Drink.Motorista.criar({
+        raiz: modos.motorista, ...opcoes(), editarPix: (msg) => editarPix(msg), irCadastro: cadastroDepoisDoTreino, sairTreino,
+      });
+    }
     return motorista;
   }
 
@@ -688,6 +738,8 @@
     if (!u) { irEn('boas'); return; }
     fecharFolha(false);
     garantirMotorista();
+    // sem o cadastro completo, o app do motorista abre só para treinar
+    motorista.definirTreino(!podeDirigir(u));
     preencherConta();
     mostrar(modos.motorista, anim);
     cor(COR.noite);
@@ -950,6 +1002,7 @@
     doc: (b) => cadastro.abrirDoc(b.dataset.doc, b),
     dirigir: comecarADirigir,
     'virar-motorista': virarMotorista,
+    treinar: treinarMotorista,
     'virar-passageiro': virarPassageiro,
     'trocar-veiculo': trocarVeiculo,
     'editar-pix': (b) => editarPix('', b),
@@ -1114,7 +1167,10 @@
     u.papel = pedidoPapel;
     salvar();
   }
-  if (pedidoPapel) { try { history.replaceState(null, '', location.pathname); } catch (e) { /* ok */ } }
+  // o site manda quem quer dirigir direto para o treino (?treino=motorista), com ou sem conta
+  if (busca.get('treino') === 'motorista') querTreino = true;
+  if (busca.get('aba') === 'eventos') querEventos = true;
+  if (pedidoPapel || busca.has('treino') || busca.has('aba')) { try { history.replaceState(null, '', location.pathname); } catch (e) { /* ok */ } }
   mostrarInstalar();
   window.Drink.avisos.sincronizar();
   try {
@@ -1122,6 +1178,8 @@
     else {
       mostrar(tela('boas'), null);
       tela('boas').classList.add('voando');
+      if (querTreino) setTimeout(() => avisar('Para treinar como motorista, cria a sua conta. O treino começa logo depois, sem pedir CNH.'), 2600);
+      else if (querEventos) setTimeout(() => avisar('Para criar o seu evento, cria a sua conta. A aba Eventos abre logo depois.'), 2600);
     }
   } catch (e) {
     // se abrir a conta falhar, a abertura sai do mesmo jeito e o erro aparece

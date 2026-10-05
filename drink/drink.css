@@ -882,6 +882,23 @@ input[type="range"]:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 2px var(
 .mot-texto .btn { margin-top: 6px; }
 .calc-mot { grid-area: calc; }
 .mini { margin-top: 6px; font-size: 1.6rem; }
+/* o caminho até dirigir: treinar no app (sem cadastro), mandar os documentos e ficar online */
+.mot-caminho { display: grid; width: 100%; counter-reset: cam; border-top: 2px solid var(--tinta); }
+.mot-caminho li {
+  counter-increment: cam; display: grid; grid-template-columns: 44px minmax(0, 1fr); column-gap: 10px; row-gap: 2px;
+  padding: 12px 0; border-bottom: 2px solid var(--tinta);
+}
+.mot-caminho li::before {
+  content: counter(cam); grid-row: span 2; display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%;
+  background: var(--tinta); color: var(--laranja); font-family: var(--f-display); font-weight: 800; font-stretch: 75%; font-size: 1.25rem;
+}
+.mot-caminho li:first-child::before { background: var(--lima); color: var(--tinta); }
+.mot-caminho b { font-weight: 800; font-size: 1.05rem; }
+.mot-caminho span { font-size: .95rem; line-height: 1.4; color: var(--ink-2); }
+.mot-bts { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 6px; }
+.mot-texto .mot-bts .btn { margin-top: 0; }
+@media (max-width: 480px) { .mot-bts, .mot-bts .btn { width: 100%; } }
+.pergunta p a { color: inherit; font-weight: 800; text-decoration: underline; text-underline-offset: .18em; }
 /* hodômetro de rodinhas */
 .painel-odo { display: grid; justify-items: center; gap: 8px; padding: 22px 16px 16px; border-radius: 20px; background: var(--preto-2); color: var(--luz); }
 .odometro { font-family: var(--f-display); font-weight: 800; font-stretch: 75%; font-size: clamp(2.6rem, 4vw, 3.3rem); line-height: 1.18; letter-spacing: 0; color: var(--luz); font-variant-numeric: tabular-nums; }

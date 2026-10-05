@@ -969,6 +969,43 @@ html.deitado .vira {
 .rp-simular { justify-self: center; font-size: .84em; }
 .rp-ver-sim { justify-self: center; margin-top: -.1em; font-size: .8em; text-align: center; }
 .rm-simular { margin-top: .8em; font-size: .86em; }
+
+/* ---------- treino de motorista, sem cadastro ---------- */
+/* quem ainda não mandou a CNH e os documentos treina uma corrida simulada inteira; ficar online pede o cadastro */
+.app [data-treino][hidden] { display: none; }
+.en-treino-link {
+  display: flex; align-items: flex-start; gap: .6em; width: 100%; margin-top: .3em; padding: .9em 1em;
+  border: 1px dashed rgba(210, 255, 60, .45); border-radius: 1.1em; background: transparent;
+  color: var(--a-texto-2); font: inherit; font-size: .86em; line-height: 1.35; text-align: left; cursor: pointer;
+}
+.en-treino-link b { color: var(--lima); font-weight: 800; text-decoration: underline; text-underline-offset: .18em; }
+.en-treino-link svg, .rm-treino-selo svg { flex: none; width: 1.35em; height: 1.35em; fill: none; stroke: var(--lima); stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+.en-treino {
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: .75em; width: 100%;
+  padding: .8em .9em; border: 1.5px solid rgba(210, 255, 60, .5); border-radius: 1.1em; background: rgba(210, 255, 60, .08);
+  color: var(--luz); font: inherit; text-align: left; cursor: pointer; transition: transform .15s;
+}
+.en-treino:active { transform: scale(.98); }
+.en-treino b { display: block; font-size: .92em; font-weight: 800; color: var(--lima); }
+.en-treino small { display: block; font-size: .74em; line-height: 1.3; color: var(--a-texto-2); }
+.en-treino-seta { width: 1.2em; height: 1.2em; fill: none; stroke: var(--lima); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.rm-treino-selo {
+  display: inline-flex; align-items: center; gap: .45em; margin: 0 0 .2em; padding: .35em .85em; border-radius: 999px;
+  background: rgba(210, 255, 60, .14); color: var(--lima); font-size: .74em; font-weight: 800; letter-spacing: .06em; text-transform: uppercase;
+}
+.rm-treino-selo svg { width: 1.15em; height: 1.15em; }
+.rm-treino-passos {
+  display: flex; flex-wrap: wrap; justify-content: center; gap: .35em; max-width: 21em; margin: .5em 0 0; padding: 0;
+  list-style: none; counter-reset: passo;
+}
+.rm-treino-passos li {
+  counter-increment: passo; padding: .3em .7em; border-radius: 999px; border: 1px solid var(--a-linha); background: var(--a-card);
+  font-size: .72em; font-weight: 700; color: var(--luz);
+}
+.rm-treino-passos li::before { content: counter(passo) " · "; color: var(--lima); font-weight: 900; }
+.app .rm-treino-bts { display: grid; gap: .55em; margin-left: 1.3em; margin-right: 1.3em; }
+.app .rm-treino-bts .t-bt { height: 2.9em; font-size: .9em; }
+.app .rm-treino-bts .t-botao { width: 100%; border: 0; }
 .rm-vi-pular { align-self: center; margin: 0 0 .7em; font-size: .86em; }
 
 /* ---------- letras mínimas ---------- */

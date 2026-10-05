@@ -557,10 +557,8 @@
               </div>
               <p class="d-sec">Forma de pagamento</p>
               <div class="d-pags" role="radiogroup" aria-label="Forma de pagamento">
-                <button type="button" role="radio" aria-checked="true" data-pagamento="Pix"><svg aria-hidden="true"><use href="#i-carteira"/></svg><span><b>Pix</b><small>Pago na hora, sem taxa</small></span></button>
-                <button type="button" role="radio" aria-checked="false" data-pagamento="Cartão •••• 4821"><svg aria-hidden="true"><use href="#i-cartao"/></svg><span><b>Crédito •••• 4821</b><small>Vence em 08/29</small></span></button>
+                <button type="button" role="radio" aria-checked="true" data-pagamento="Pix"><svg aria-hidden="true"><use href="#i-carteira"/></svg><span><b>Pix</b><small>Direto para o motorista, pelo app do seu banco</small></span></button>
               </div>
-              <button type="button" class="d-add" data-acao="cartao"><svg aria-hidden="true"><use href="#i-mais"/></svg>Adicionar cartão</button>
             </div>
 
             <!-- perfil -->
@@ -709,11 +707,11 @@
           </div></div>
         </article>
         <article class="rec" data-lado="pede">
-          <div class="rec-txt"><h3>Pague pelo app</h3><p>Pix ou cartão, com o valor fechado antes de pedir. Nada de dinheiro na mão no fim da noite.</p></div>
+          <div class="rec-txt"><h3>Pague pelo Pix</h3><p>Com o valor fechado antes de pedir e o QR Code pronto na chegada. Nada de dinheiro na mão no fim da noite.</p></div>
           <div class="rec-fone" aria-hidden="true"><div class="rec-tela">
             <p class="mu-cab">Pagamento</p>
             <div class="mu-pago"><span class="mu-selo"><svg><use href="#i-check"/></svg></span><b>R$ 56,50</b><small>Pago com Pix às 00:08</small></div>
-            <ul class="mu-formas"><li class="on"><svg><use href="#i-carteira"/></svg>Pix</li><li><svg><use href="#i-cartao"/></svg>Cartão •••• 4821</li></ul>
+            <ul class="mu-formas"><li class="on"><svg><use href="#i-qr"/></svg>QR Code Pix</li><li><svg><use href="#i-carteira"/></svg>Copia e cola</li></ul>
           </div></div>
         </article>
         <article class="rec" data-lado="pede">
@@ -1112,7 +1110,7 @@
       <article class="tile tile-dirige" aria-labelledby="dirige-titulo">
         <h3 id="dirige-titulo">Para quem dirige</h3>
         <ul class="dirige-lista">
-          <li><svg class="i" aria-hidden="true"><use href="#i-cnh"/></svg><div><b>Cliente verificado</b><span>CPF e cartão cadastrados. O cliente também recebe nota.</span></div></li>
+          <li><svg class="i" aria-hidden="true"><use href="#i-cnh"/></svg><div><b>Cliente verificado</b><span>Celular confirmado por código no cadastro. O cliente também recebe nota.</span></div></li>
           <li><svg class="i" aria-hidden="true"><use href="#i-rota"/></svg><div><b>Volta segura</b><span>O app encadeia o próximo pedido perto dali, ou paga um carro de volta em áreas de risco.</span></div></li>
           <li><svg class="i" aria-hidden="true"><use href="#i-capacete"/></svg><div><b>Capacete e colete refletivo</b><span>Todo Drink pedala com equipamento de segurança.</span></div></li>
         </ul>
@@ -1131,10 +1129,10 @@
         </div>
         <p class="lede">Casamento, formatura, bar, casa de show. Os motoristas ficam de plantão com as bikes, e a galera volta pra casa no próprio carro.</p>
         <ol class="ev-passos">
-          <li><b>Você fecha o pacote</b><span>Data, local, número de convidados e horário de fim. O preço sai fechado.</span></li>
-          <li><b>Os Drinks chegam antes do fim</b><span>Eles estacionam as bikes perto da saída e ficam num ponto de atendimento.</span></li>
-          <li><b>QR code na mesa ou no convite</b><span>O convidado escaneia, informa o endereço e entra na fila de saída.</span></li>
-          <li><b>Todo mundo volta de carro</b><span>Cada Drink leva um convidado, volta de bike e atende o próximo.</span></li>
+          <li><b>Você cria o evento no app</b><span>Na aba Eventos: tipo, dia, horário, lugar e convidados. O app já diz quantos Drinks ele precisa.</span></li>
+          <li><b>Escolhe quem paga a volta</b><span>O evento paga cada volta até o teto que você definir, ou cada convidado paga a sua.</span></li>
+          <li><b>QR code na mesa ou no convite</b><span>O convidado escaneia e o app abre com o embarque no lugar do evento e a parte que o evento paga.</span></li>
+          <li><b>Todo mundo volta de carro</b><span>Na hora de ir embora, “Chamar Drinks agora” avisa os motoristas perto. Cada volta paga pelo evento chega como conta, e você paga pelo Pix.</span></li>
         </ol>
       </div>
 
@@ -1154,13 +1152,13 @@
         <p class="ev-num" aria-live="polite"><span class="ev-num-n" id="ev-num">11</span><span id="ev-num-txt">Drinks de plantão</span></p>
         <ul class="conta" id="ev-conta"></ul>
         <p class="nota">Estimativa: parte dos convidados vai de carro, cerca de 2 pessoas por carro, e cada Drink faz 3 viagens por noite.</p>
-        <button class="btn btn-sodio btn-cheio" type="button" data-abrir="dlg-evento">Quero o Drink no meu evento</button>
+        <a class="btn btn-sodio btn-cheio" href="app/?aba=eventos">Criar o meu evento no app</a>
       </div>
     </div>
     <ul class="wrap ev-pontos">
       <li><svg class="i" aria-hidden="true"><use href="#i-pessoas"/></svg><b>Para quem organiza</b><span>Um diferencial no convite: tem Drink de plantão. Ninguém precisa escolher entre beber e voltar dirigindo.</span></li>
       <li><svg class="i" aria-hidden="true"><use href="#i-copo"/></svg><b>Para bares e restaurantes</b><span>O cliente fica mais quando sabe que tem como voltar. O bar pode chamar o Drink pelo balcão.</span></li>
-      <li><svg class="i" aria-hidden="true"><use href="#i-carteira"/></svg><b>Preço fechado</b><span>O evento paga um valor combinado antes, e os convidados não pagam nada na hora.</span></li>
+      <li><svg class="i" aria-hidden="true"><use href="#i-carteira"/></svg><b>Teto por volta</b><span>O evento paga cada volta até o valor que você escolher, pelo Pix. O convidado só completa o que passar do teto.</span></li>
     </ul>
   </section>
 
@@ -1178,9 +1176,18 @@
           <li>Antecedentes criminais sem pendências</li>
           <li>Bike elétrica ou patinete dobrável, ou alugar um com o Drink</li>
           <li>Dirigir carro manual e automático</li>
-          <li>Passar pelo treinamento e pela entrevista</li>
+          <li>Fazer o treino de segurança no app, em 5 minutos</li>
         </ul>
-        <button class="btn btn-sodio" type="button" data-abrir="dlg-motorista">Quero me cadastrar<svg class="i" aria-hidden="true"><use href="#i-seta"/></svg></button>
+        <h3 class="mini">Como começar</h3>
+        <ol class="mot-caminho">
+          <li><b>Treine no app</b><span>Uma corrida simulada inteira, do aceite ao Pix. Não pede CNH nem cadastro.</span></li>
+          <li><b>Mande os documentos</b><span>Selfie, CNH com EAR, certidão de antecedentes e a sua chave Pix.</span></li>
+          <li><b>Fique online</b><span>Nas noites que quiser, recebendo pedidos só no raio que você escolher.</span></li>
+        </ol>
+        <div class="mot-bts">
+          <a class="btn btn-sodio" href="app/?treino=motorista"><svg class="i" aria-hidden="true"><use href="#i-capacete"/></svg>Treinar sem cadastro</a>
+          <button class="btn btn-vidro" type="button" data-abrir="dlg-motorista">Quero me cadastrar<svg class="i" aria-hidden="true"><use href="#i-seta"/></svg></button>
+        </div>
       </div>
 
       <div class="mot-app">
@@ -1449,7 +1456,8 @@
         <details class="pergunta"><summary><span>Meu carro é manual. Tem problema?</span><svg class="i" aria-hidden="true"><use href="#i-mais"/></svg></summary><p>Problema nenhum. Todo Drink dirige carro manual e automático.</p></details>
         <details class="pergunta"><summary><span>Posso agendar a volta?</span><svg class="i" aria-hidden="true"><use href="#i-mais"/></svg></summary><p>Pode! Marca o horário e o Drink chega na hora. Você recebe um aviso 10 minutos antes.</p></details>
         <details class="pergunta"><summary><span>Quanto tempo o Drink demora pra chegar?</span><svg class="i" aria-hidden="true"><use href="#i-mais"/></svg></summary><p>A meta é chegar em até 15 minutos nos bairros atendidos. Sexta e sábado a noite ferve, então agendar garante o horário.</p></details>
-        <details class="pergunta"><summary><span>Como eu pago?</span><svg class="i" aria-hidden="true"><use href="#i-mais"/></svg></summary><p>Cartão ou Pix pelo app. A gorjeta é opcional e vai toda para o motorista.</p></details>
+        <details class="pergunta"><summary><span>Quero ser Drink. Dá pra testar antes?</span><svg class="i" aria-hidden="true"><use href="#i-mais"/></svg></summary><p>Dá! No app, toca em <b>Quero dirigir</b> e depois em <b>Treine uma corrida simulada</b>. Você faz uma corrida inteira, do aceite ao Pix, sem mandar CNH nem documento. <a href="app/?treino=motorista">Treinar agora</a></p></details>
+        <details class="pergunta"><summary><span>Como eu pago?</span><svg class="i" aria-hidden="true"><use href="#i-mais"/></svg></summary><p>Pelo Pix, direto para o motorista: na chegada, o app mostra o QR Code e o copia e cola com o valor certo, e você paga pelo app do seu banco. A gorjeta é opcional e vai toda para o motorista.</p></details>
         </div>
         <p class="conversa-pe" aria-hidden="true">toca numa pergunta pra ver a resposta</p>
       </div>
@@ -1506,32 +1514,17 @@
   <form method="dialog" class="dlg-in">
     <p class="rotulo">Pelo app</p>
     <h2 id="dlg-mot-t">Cadastro de motoristas</h2>
-    <p>O cadastro é no app, em poucos minutos. Lá você vai:</p>
+    <p>O cadastro é no app, em uns 10 minutos. Lá você vai:</p>
     <ul class="lista-sim">
-      <li>Enviar CNH, antecedentes e uma foto</li>
-      <li>Dizer se já tem bike elétrica ou patinete, ou se quer alugar um</li>
-      <li>Agendar o treinamento e a entrevista</li>
+      <li>Tirar uma selfie: é a foto que o passageiro vê</li>
+      <li>Mandar o CPF, a foto da CNH com EAR e a certidão de antecedentes da Polícia Federal (de graça)</li>
+      <li>Fazer o treino de segurança e cadastrar a chave Pix onde você recebe</li>
     </ul>
+    <p>Quer ver como é antes? Dá para treinar uma corrida simulada inteira, sem mandar nenhum documento.</p>
     <div class="acoes">
-      <a class="btn btn-sodio" href="app/">Cadastrar no app</a>
-      <button class="btn btn-vidro" value="ok">Agora não</button>
+      <a class="btn btn-sodio" href="app/?papel=motorista">Fazer o cadastro</a>
+      <a class="btn btn-vidro" href="app/?treino=motorista">Treinar antes</a>
     </div>
-    <button class="dlg-x" value="fechar" aria-label="Fechar"><svg class="i" aria-hidden="true"><use href="#i-fechar"/></svg></button>
-  </form>
-</dialog>
-
-<dialog class="dlg" id="dlg-evento" aria-labelledby="dlg-ev-t">
-  <form method="dialog" class="dlg-in">
-    <p class="rotulo">Em breve</p>
-    <h2 id="dlg-ev-t">Drink no seu evento</h2>
-    <p>O cadastro de eventos ainda não abriu. Para montar o pacote, o Drink vai pedir:</p>
-    <ul class="lista-sim">
-      <li>Data, local e horário de fim</li>
-      <li>Número de convidados</li>
-      <li>Tipo de evento</li>
-    </ul>
-    <p>O preço sai fechado antes do evento, e os convidados não pagam nada na hora.</p>
-    <button class="btn btn-sodio" value="ok">Entendi</button>
     <button class="dlg-x" value="fechar" aria-label="Fechar"><svg class="i" aria-hidden="true"><use href="#i-fechar"/></svg></button>
   </form>
 </dialog>
