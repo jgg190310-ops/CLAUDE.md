@@ -128,7 +128,7 @@
       if (online && !simPedido) {
         const p = S.gps.ultima();
         if (S.gps.negado()) txt = 'A localização está bloqueada: sem ela os pedidos perto de você não aparecem. Libera nas configurações do navegador.';
-        else if (!p || Date.now() - p.t > 60000) txt = 'Sem sinal do GPS agora. Os pedidos usam a última posição que o app achou.';
+        else if (!p || (S.gps.erro() && S.gps.erro().code === 2)) txt = 'Sem sinal do GPS agora. Os pedidos usam a última posição que o app achou.';
         else if (p.precisao > 150) txt = `GPS fraco: margem de uns ${S.textoKm(Math.round(p.precisao / 50) * 50 / 1000)}. Num lugar aberto ele acerta melhor.`;
       }
       a.textContent = txt;

@@ -60,8 +60,8 @@
   // - a primeira posição vem rápida, pela rede e pelo wi-fi, enquanto o GPS fino esquenta e toma o lugar dela;
   // - uma leitura bem pior que a de agora, e de agora há pouco, não passa por cima; o tremido de quem está parado,
   //   dentro da margem de erro, é suavizado;
-  // - prazo estourado com uma posição recente na mão não é erro; sem posição, tenta de novo, trocando entre o GPS
-  //   fino e o da rede, com espera crescente;
+  // - prazo estourado com uma posição na mão não é erro (parado, o celular fica sem leitura nova); sem posição,
+  //   tenta de novo, trocando entre o GPS fino e o da rede, com espera crescente;
   // - o vigia recomeça ao voltar para o app e quando a pessoa libera a localização nas configurações.
   const gps = (() => {
     const tem = 'geolocation' in navigator;
@@ -111,7 +111,12 @@
         avisar();
         return;
       }
-      if (ultima && Date.now() - ultima.t < 60000) return;
+      // já com uma posição: parado, o celular pode passar minutos sem leitura nova (o prazo estoura e não é
+      // erro); "sem sinal" só avisa e o mesmo vigia continua
+      if (ultima) {
+        if (e && e.code === 2) { erro = e; avisar(); }
+        return;
+      }
       erro = e || { code: 2, message: 'sem posição' };
       avisar();
       tentativas += 1;
