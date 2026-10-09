@@ -111,6 +111,7 @@
     function ligarGps() {
       if (soltarGps) return;
       soltarGps = S.gps.assinar((p) => {
+        avisoGps();
         if (!p) return;
         pos = p;
         if (mapa) mapa.ponto('eu', p, Mapa.ICONE.motorista((eu() || {}).veiculo));
@@ -119,6 +120,19 @@
         if (corrida && corrida.etapa === 'buscar') { enviarPosicao(); avisarSePerto(); }
         if (corrida && corrida.etapa === 'viagem') atualizarViagem();
       });
+    }
+    // online com o GPS bloqueado, sem sinal ou fraco: o motorista fica sabendo (os pedidos dependem de onde ele está)
+    function avisoGps() {
+      const a = q('#rm-gps');
+      let txt = '';
+      if (online && !simPedido) {
+        const p = S.gps.ultima();
+        if (S.gps.negado()) txt = 'A localização está bloqueada: sem ela os pedidos perto de você não aparecem. Libera nas configurações do navegador.';
+        else if (!p || (S.gps.erro() && S.gps.erro().code === 2)) txt = 'Sem sinal do GPS agora. Os pedidos usam a última posição que o app achou.';
+        else if (p.precisao > 150) txt = `GPS fraco: margem de uns ${S.textoKm(Math.round(p.precisao / 50) * 50 / 1000)}. Num lugar aberto ele acerta melhor.`;
+      }
+      a.textContent = txt;
+      a.hidden = !txt;
     }
     function desligarGps() { if (soltarGps) { soltarGps(); soltarGps = null; } }
     async function travarTela() {
@@ -377,6 +391,7 @@
         q('#rm-longe').innerHTML = `${longe === 1 ? 'Mais 1 pedido' : `Mais ${longe} pedidos`} além de ${km} km.${maior ? ` <button type="button" class="en-link" data-raio="${maior}">Ver até ${maior} km</button>` : ''}`;
       }
       q('#rm-vazio').hidden = lista.length > 0 || chamando.length > 0;
+      avisoGps();
       q('#rm-on-chip').textContent = simPedido ? 'Simulação · 1 pedido'
         : (lista.length ? `Online · ${lista.length} ${lista.length === 1 ? 'pedido' : 'pedidos'}` : 'Online · procurando pedidos');
       q('#rm-pedidos').innerHTML = chamando.map(htmlChamado).join('') + lista.map((p) => {
@@ -1274,7 +1289,11 @@
       const acoes = {
         online: () => { if (online) { ouvirPedidos(); ir('online'); } else ficarOnline(); },
         offline: ficarOffline,
-        centralizar: () => { if (pos) mapa.centrar(pos, 16); else op.avisar('Ainda não achei você no mapa.'); },
+        centralizar: () => {
+          if (pos) { mapa.centrar(pos, 16); return; }
+          S.gps.tentar();
+          op.avisar(S.gps.negado() ? 'A localização está bloqueada. Libera nas configurações do navegador e toca de novo.' : 'Procurando você no mapa…');
+        },
         desistir,
         cheguei: () => {
           if (!corrida) return;

@@ -8,7 +8,7 @@
   <meta name="theme-color" content="#2E3CF2">
   <script>
     // quem já tem conta (ou abriu um link de acompanhar) cai no app escuro: a barra do celular já começa escura
-    try { if (/acompanhar=/.test(location.search) || (JSON.parse(localStorage.getItem('drink-app') || '{}') || {}).atual) document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0F0E15'); } catch (e) { /* sem armazenamento */ }
+    try { if (/acompanhar=/.test(location.search) || (JSON.parse(localStorage.getItem('drink-app') || '{}') || {}).atual) document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0A0B0F'); } catch (e) { /* sem armazenamento */ }
     // no iPhone, com o app instalado, a altura da tela às vezes vem sem a barra de status e sobra uma faixa preta
     // embaixo: como o app ocupa a tela inteira, a altura dele passa a ser a da tela
     (function () {
@@ -62,13 +62,15 @@
   <meta property="og:url" content="https://jgg190310-ops.github.io/CLAUDE.md/drink/app/">
   <meta property="og:image" content="https://jgg190310-ops.github.io/CLAUDE.md/drink/og.png">
   <meta name="twitter:card" content="summary_large_image">
+  <link rel="preload" href="fontes/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&display=swap">
-  <link rel="stylesheet" href="../app-telas.css?v=27">
-  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=27">
-  <link rel="stylesheet" href="vendor/leaflet.css?v=27">
-  <link rel="stylesheet" href="app.css?v=27">
+  <link rel="stylesheet" href="../app-telas.css?v=28">
+  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=28">
+  <link rel="stylesheet" href="vendor/leaflet.css?v=28">
+  <link rel="stylesheet" href="app.css?v=28">
+  <link rel="stylesheet" href="visual.css?v=28">
 </head>
 <body>
 <svg class="sprite" aria-hidden="true" focusable="false">
@@ -463,6 +465,7 @@
               <b class="t-preco"><span id="rp-op-preco">R$ 0,00</span><small id="rp-op-band" hidden>bandeira 2</small><small class="rt-ver-conta">ver a conta</small></b>
             </button>
             <p class="rp-op-ev" id="rp-op-ev" hidden></p>
+            <p class="rp-op-ev fora" id="rp-op-gps" role="status" hidden></p>
             <ul class="d-linhas">
               <li><span>Embarque</span><button type="button" id="rp-op-emb" data-rp="trocar-embarque">Sua localização</button></li>
               <li><span>Chega de</span><button type="button" id="rp-op-veic">Tanto faz</button></li>
@@ -948,6 +951,7 @@
           <div class="t-folha rt-folha rm-folha-lista">
             <div class="ma-linha"><small>Ganhos de hoje</small><b id="rm-hoje-2">R$ 0,00</b></div>
             <h3 class="d-titulo" id="rm-on-t" tabindex="-1">Pedidos perto de você</h3>
+            <p class="rt-alerta" id="rm-gps" role="status" hidden></p>
             <div class="rm-on-cab">
               <span id="rm-raio-t">Receber pedidos até</span>
               <div class="rm-raio" id="rm-raio" role="radiogroup" aria-labelledby="rm-raio-t">
@@ -1409,22 +1413,22 @@
   <p class="vira-txt" id="vira-txt">O Drink é feito para usar na vertical. Nada se perde: se tiver corrida, ela continua rolando.</p>
 </div>
 
-<script src="vendor/maplibre-gl.js?v=27"></script>
-<script src="vendor/leaflet.js?v=27"></script>
-<script src="vendor/qrcode.js?v=27"></script>
-<script src="../app-nucleo.js?v=27"></script>
-<script src="servicos.js?v=27"></script>
-<script src="rede.js?v=27"></script>
-<script src="mapa-estilo.js?v=27"></script>
-<script src="mapa.js?v=27"></script>
-<script src="carros.js?v=27"></script>
-<script src="cadastro-motorista.js?v=27"></script>
-<script src="pix.js?v=27"></script>
-<script src="avisos.js?v=27"></script>
-<script src="sms.js?v=27"></script>
-<script src="eventos.js?v=27"></script>
-<script src="passageiro.js?v=27"></script>
-<script src="motorista.js?v=27"></script>
-<script src="app.js?v=27"></script>
+<script src="vendor/maplibre-gl.js?v=28"></script>
+<script src="vendor/leaflet.js?v=28"></script>
+<script src="vendor/qrcode.js?v=28"></script>
+<script src="../app-nucleo.js?v=28"></script>
+<script src="servicos.js?v=28"></script>
+<script src="rede.js?v=28"></script>
+<script src="mapa-estilo.js?v=28"></script>
+<script src="mapa.js?v=28"></script>
+<script src="carros.js?v=28"></script>
+<script src="cadastro-motorista.js?v=28"></script>
+<script src="pix.js?v=28"></script>
+<script src="avisos.js?v=28"></script>
+<script src="sms.js?v=28"></script>
+<script src="eventos.js?v=28"></script>
+<script src="passageiro.js?v=28"></script>
+<script src="motorista.js?v=28"></script>
+<script src="app.js?v=28"></script>
 </body>
 </html>
