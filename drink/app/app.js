@@ -11,7 +11,7 @@
   const app = $('#app');
   const abertura = $('#abertura');
   const meta = $('meta[name="theme-color"]');
-  const COR = { azul: '#2E3CF2', noite: '#0F0E15' };
+  const COR = { azul: '#2E3CF2', noite: '#0A0B0F' };
   const CHAVE = 'drink-app';
   const ms = (t) => (reduzirMovimento() ? Math.min(t, 60) : t);
 

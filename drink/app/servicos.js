@@ -54,48 +54,155 @@
   const naGrandeBH = (p) => p.lon > CAIXA[0] && p.lon < CAIXA[2] && p.lat > CAIXA[1] && p.lat < CAIXA[3];
 
   /* ---------- GPS: um só vigia, vários interessados ---------- */
+  // O que deixava o GPS falho: só o GPS fino (que demora ou nem pega em lugar fechado), qualquer leitura valia (uma
+  // leitura de 2 km pela antena passava por cima de uma de 10 m), um prazo estourado virava "não achei você" e,
+  // depois de um erro ou da volta do segundo plano, o vigia não voltava mais. Agora:
+  // - a primeira posição vem rápida, pela rede e pelo wi-fi, enquanto o GPS fino esquenta e toma o lugar dela;
+  // - uma leitura bem pior que a de agora, e de agora há pouco, não passa por cima; o tremido de quem está parado,
+  //   dentro da margem de erro, é suavizado;
+  // - prazo estourado com uma posição recente na mão não é erro; sem posição, tenta de novo, trocando entre o GPS
+  //   fino e o da rede, com espera crescente;
+  // - o vigia recomeça ao voltar para o app e quando a pessoa libera a localização nas configurações.
   const gps = (() => {
+    const tem = 'geolocation' in navigator;
     const ouvintes = new Set();
     let id = null;
+    let fino = true;
+    let desde = 0;
     let ultima = null;
     let erro = null;
-    function comecar() {
-      if (id !== null || !('geolocation' in navigator)) return;
-      id = navigator.geolocation.watchPosition((p) => {
-        ultima = { lat: p.coords.latitude, lon: p.coords.longitude, precisao: p.coords.accuracy, t: Date.now() };
-        erro = null;
-        ouvintes.forEach((f) => f(ultima, null));
-      }, (e) => {
+    let espera = 0;
+    let tentativas = 0;
+    let pendente = false;
+    let liberado = '';
+
+    const num = (x) => (Number.isFinite(x) ? x : null);
+    const ler = (p) => ({
+      lat: p.coords.latitude, lon: p.coords.longitude, precisao: Math.max(1, Math.round(num(p.coords.accuracy) || 5000)),
+      rumo: num(p.coords.heading), vel: num(p.coords.speed), t: Date.now(),
+    });
+    function avisar() {
+      ouvintes.forEach((f) => { try { f(ultima, erro); } catch (e) { setTimeout(() => { throw e; }, 0); } });
+    }
+    function receber(nova) {
+      if (ultima) {
+        const idade = nova.t - ultima.t;
+        const d = distancia(ultima, nova);
+        // bem pior que a de agora, que ainda vale, e no mesmo lugar: fica a de agora
+        if (nova.precisao > Math.max(60, ultima.precisao * 2.5) && idade < 30000 && d < nova.precisao) return;
+        // parado: o ponto não fica tremendo dentro da margem de erro (a leitura mais precisa pesa mais)
+        if (d < 25 && d < Math.max(nova.precisao, ultima.precisao) * 0.5 && idade < 15000 && !(nova.vel > 1.5)) {
+          const k = ultima.precisao / (ultima.precisao + nova.precisao);
+          nova = { ...nova, lat: ultima.lat + (nova.lat - ultima.lat) * k, lon: ultima.lon + (nova.lon - ultima.lon) * k,
+            precisao: Math.min(nova.precisao, ultima.precisao), rumo: nova.rumo === null ? ultima.rumo : nova.rumo };
+        }
+      }
+      ultima = nova;
+      erro = null;
+      tentativas = 0;
+      avisar();
+      // está no GPS da rede há um tempo e veio posição: tenta o fino de novo
+      if (!fino && Date.now() - desde > 30000) reiniciar(0, true);
+    }
+    function falhou(e) {
+      if (e && e.code === 1) {             // negou: espera a pessoa liberar
+        parar();
         erro = e;
-        ouvintes.forEach((f) => f(ultima, e));
-      }, { enableHighAccuracy: true, maximumAge: 5000, timeout: 30000 });
+        avisar();
+        return;
+      }
+      if (ultima && Date.now() - ultima.t < 60000) return;
+      erro = e || { code: 2, message: 'sem posição' };
+      avisar();
+      tentativas += 1;
+      reiniciar(Math.min(20000, 1500 * tentativas), !fino);
+    }
+    function vigiar() {
+      pendente = false;
+      if (!tem || id !== null || !ouvintes.size) return;
+      desde = Date.now();
+      id = navigator.geolocation.watchPosition((p) => receber(ler(p)), falhou,
+        fino ? { enableHighAccuracy: true, maximumAge: 3000, timeout: 20000 } : { enableHighAccuracy: false, maximumAge: 30000, timeout: 25000 });
+      // a primeira posição, rápida: a da rede e do wi-fi (o GPS fino pode levar meio minuto pra pegar)
+      if (fino && !ultima) {
+        navigator.geolocation.getCurrentPosition((p) => receber(ler(p)), () => {}, { enableHighAccuracy: false, maximumAge: 120000, timeout: 8000 });
+      }
     }
     function parar() {
+      clearTimeout(espera);
+      pendente = false;
       if (id !== null) navigator.geolocation.clearWatch(id);
       id = null;
     }
-    return {
-      disponivel: 'geolocation' in navigator,
+    function reiniciar(ms = 0, comFino = true) {
+      parar();
+      fino = comFino;
+      pendente = true;
+      espera = setTimeout(vigiar, ms);
+    }
+    function comecar() {
+      if (id !== null || pendente) return;      // vigiando, ou esperando a próxima tentativa
+      if (erro && erro.code === 1) erro = null;   // nova tentativa: o navegador diz de novo se continua negado
+      fino = true;
+      vigiar();
+    }
+    // a pessoa liberou a localização nas configurações: volta na hora
+    if (tem && navigator.permissions && navigator.permissions.query) {
+      navigator.permissions.query({ name: 'geolocation' }).then((st) => {
+        liberado = st.state;
+        st.addEventListener('change', () => {
+          liberado = st.state;
+          if (st.state !== 'denied' && ouvintes.size) { erro = null; tentativas = 0; reiniciar(0, true); }
+        });
+      }).catch(() => {});
+    }
+    // de volta ao app: o celular pode ter parado o vigia no segundo plano
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState !== 'visible' || !ouvintes.size) return;
+      if (!ultima || Date.now() - ultima.t > 15000 || id === null) { tentativas = 0; reiniciar(0, true); }
+    });
+    window.addEventListener('online', () => { if (ouvintes.size && !ultima) reiniciar(0, true); });
+
+    const api = {
+      disponivel: tem,
       ultima: () => ultima,
       erro: () => erro,
+      negado: () => Boolean((erro && erro.code === 1) || liberado === 'denied'),
       assinar(f) {
         ouvintes.add(f);
         comecar();
-        if (ultima || erro) setTimeout(() => f(ultima, erro), 0);
+        if (ultima || erro) setTimeout(() => { if (ouvintes.has(f)) f(ultima, erro); }, 0);
         return () => { ouvintes.delete(f); if (!ouvintes.size) parar(); };
       },
-      // uma leitura só, com prazo
+      // tenta de novo agora (o botão de achar você no mapa)
+      tentar() { if (!tem) return; erro = null; tentativas = 0; reiniciar(0, true); },
+      // uma posição recente, com prazo: usa o mesmo vigia (e a leitura rápida da rede, se o fino não vier)
       agora(prazo = 15000) {
         return new Promise((ok, falha) => {
           if (ultima && Date.now() - ultima.t < 15000) { ok(ultima); return; }
-          if (!('geolocation' in navigator)) { falha(new Error('sem GPS')); return; }
-          navigator.geolocation.getCurrentPosition((p) => {
-            ultima = { lat: p.coords.latitude, lon: p.coords.longitude, precisao: p.coords.accuracy, t: Date.now() };
-            ok(ultima);
-          }, falha, { enableHighAccuracy: true, maximumAge: 10000, timeout: prazo });
+          if (!tem) { falha(Object.assign(new Error('sem GPS'), { code: 2 })); return; }
+          let feito = false;
+          let soltar = null;
+          const fim = (fn, x) => {
+            if (feito) return;
+            feito = true;
+            clearTimeout(t);
+            if (soltar) soltar();
+            fn(x);
+          };
+          const t = setTimeout(() => {
+            if (ultima && Date.now() - ultima.t < 120000) fim(ok, ultima);
+            else fim(falha, erro || Object.assign(new Error('o GPS não respondeu a tempo'), { code: 3 }));
+          }, prazo);
+          soltar = api.assinar((p, e) => {
+            if (p && Date.now() - p.t < 15000) fim(ok, p);
+            else if (e && e.code === 1) fim(falha, e);
+          });
+          if (feito) soltar();
         });
       },
     };
+    return api;
   })();
 
   /* ---------- busca de endereços (Photon) ---------- */

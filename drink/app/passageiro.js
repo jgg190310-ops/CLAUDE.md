@@ -110,6 +110,7 @@
         q('#rp-gps').hidden = true;
         const primeira = !pos;
         pos = p;
+        if (atual === 'opcoes') avisoPrecisao();
         if (mapa && !(corrida && corrida.etapa === 'viagem')) mapa.ponto('voce', p, Mapa.ICONE.voce());
         if (primeira && atual === 'inicio') { centrarEmMim(); desenharAtalhos(); }
         if (!corrida) atualizarEmbarque();
@@ -118,8 +119,18 @@
     }
     // o embarque é onde você está (o nome da rua vem do endereço mais perto), ou o lugar que você escolheu
     const juntar = (l) => [l.nome, l.bairro && l.bairro !== l.nome ? l.bairro : ''].filter(Boolean).join(' · ');
+    // o GPS ainda está aproximado (só a rede e o wi-fi, ou lugar fechado): melhor a pessoa conferir o embarque
+    const PRECISAO_RUIM = 150;
+    const aproximado = () => Boolean(!embarqueManual && pos && pos.precisao > PRECISAO_RUIM);
+    const margem = () => S.textoKm(Math.round(pos.precisao / 50) * 50 / 1000);
+    function avisoPrecisao() {
+      const a = q('#rp-op-gps');
+      a.hidden = !aproximado();
+      if (!a.hidden) a.textContent = `Sua localização está aproximada (margem de uns ${margem()}). Confere o embarque antes de pedir.`;
+    }
     function mostrarEmbarque() {
       if (embarqueManual && embarque) q('#rp-local').textContent = `Embarque em ${juntar(embarque)}`;
+      else if (ultimoEndereco && aproximado()) q('#rp-local').textContent = `Perto de ${juntar(ultimoEndereco.lugar)} · margem de uns ${margem()}`;
       else if (ultimoEndereco) q('#rp-local').textContent = `Você está em ${juntar(ultimoEndereco.lugar)}`;
       q('#rp-de').textContent = (embarque && embarque.nome) || 'Sua localização';
     }
@@ -508,6 +519,7 @@
       bt.textContent = 'Pedir Drink';
       q('#rp-simular').disabled = true;
       q('#rp-op-ev').hidden = true;
+      avisoPrecisao();
       q('#rp-op-pag').textContent = 'Pix na chegada';
       // a cada preço novo, confere de novo se o evento ainda paga (quem organiza pode ter encerrado)
       usoEvento = null;
@@ -1542,7 +1554,12 @@
       const acoes = {
         avise: pedirAviso,
         centralizar: () => {
-          if (!pos) { op.avisar('Ainda não achei você no mapa.'); centrarEmMim(); return; }
+          if (!pos) {
+            S.gps.tentar();
+            op.avisar(S.gps.negado() ? 'A localização está bloqueada. Libera nas configurações do navegador e toca de novo.' : 'Procurando você no mapa…');
+            centrarEmMim();
+            return;
+          }
           if (embarqueManual) { embarqueManual = false; op.avisar('Embarque de volta onde você está.'); atualizarEmbarque(); }
           centrarEmMim();
         },

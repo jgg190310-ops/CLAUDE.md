@@ -1,0 +1,406 @@
+/* Drink — o acabamento do app (vem depois de ../app-telas.css e de app.css, e só vale aqui no app; o protótipo do
+   site segue com o desenho dele). Uma letra de interface (Inter, guardada no próprio app para abrir sem internet),
+   cores neutras com o limão só onde importa, cantos e espaços iguais em todas as telas, botões por cima do mapa
+   em vidro escuro e folhas com a mesma alça e sombra. */
+
+/* ---------- a letra ---------- */
+/* a mesma fonte em três faixas de peso: o que vier mais pesado que 660 (os 700 e 800 de antes) sai em 660,
+   um negrito de interface, e não um preto de cartaz */
+@font-face { font-family: "Drink UI"; src: url("fontes/inter-latin.woff2") format("woff2"); font-weight: 100 450; font-style: normal; font-display: swap; }
+@font-face { font-family: "Drink UI"; src: url("fontes/inter-latin.woff2") format("woff2"); font-weight: 451 600; font-style: normal; font-display: swap; }
+@font-face { font-family: "Drink UI"; src: url("fontes/inter-latin.woff2") format("woff2"); font-weight: 601 660; font-style: normal; font-display: swap; }
+
+:root {
+  --f-texto: "Drink UI", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --f-display: var(--f-texto);
+  /* a marca (o nome Drink, o "Bebeu?" das boas-vindas, a placa e o código) continua na letra do Drink */
+  --f-marca: "Bricolage Grotesque", "Arial Narrow", system-ui, sans-serif;
+
+  /* fundos em camadas: o app, a folha, o cartão e o cartão por cima */
+  --a-bg: #0A0B0F;
+  --a-folha: #121319;
+  --a-card: #1A1B22;
+  --a-card-2: #252630;
+  --a-linha: #2A2B35;
+  --a-texto-2: #A0A1AD;
+  --a-texto-3: #8A8B97;
+  --luz: #F4F4F7;
+  --luz-2: rgba(244, 244, 247, .8);
+  --luz-3: rgba(244, 244, 247, .62);
+  --creme: #F1F1F4;
+  --papel: #FBFBFC;
+
+  /* vidro escuro dos botões por cima do mapa */
+  --vidro: rgba(20, 21, 28, .88);
+  --vidro-borda: rgba(255, 255, 255, .09);
+  --sombra-flut: 0 .5em 1.4em -.5em rgba(0, 0, 0, .7), 0 0 0 1px var(--vidro-borda);
+  --sombra-folha: 0 -.75em 2.5em -.6em rgba(0, 0, 0, .7);
+
+  /* cantos */
+  --r-p: .6em;
+  --r-m: .9em;
+  --r-g: 1.15em;
+  --r-folha: 1.5em;
+}
+
+body { font-family: var(--f-texto); font-feature-settings: "cv11", "ss01"; letter-spacing: -.003em; }
+.app { font-family: var(--f-texto); }
+.app :is(button, input, select, textarea, output) { font-family: inherit; }
+/* a largura condensada era da letra do cartaz: na letra de interface tudo fica na largura normal */
+.app :is(.d-titulo, .t-titulo, .t-grande, .t-medio, .en-t, .boas-t, .en-tr-t, .en-papel-txt b, .d-sobre-cab h4, .d-hist-vazio b,
+  .d-saldo b, .ma-ganhos b, .ma-linha b, .ma-valor b, .ma-ganhou, .rm-ped-topo em, .rt-pix-valor b, .rt-qr-sim b, .rm-semana-total b,
+  .rm-feita strong, .en-menu-ganhos b, .ev-faixa output, .ev-estima b, .ev-cq-t, .ev-pg-valor, .t-recibo .t-total b, .en-cod-caixa, .vira-t) {
+  font-stretch: 100%;
+}
+/* números de dinheiro e de tempo alinhados */
+.app :is(.t-preco, .t-grande, .t-medio, .ma-valor b, .rm-ped-topo em, .d-saldo b, .ma-ganhos b, .rt-pix-valor b, .rm-semana-total b, .rm-feita strong, .ev-pg-valor) {
+  font-variant-numeric: tabular-nums; letter-spacing: -.02em;
+}
+/* a marca */
+.app :is(.ab-nome, .boas-marca, .boas-bebeu, .d-splash-nome, .placa, .d-codigo b), .mesa-marca, .mesa-t { font-family: var(--f-marca); }
+
+/* ---------- títulos ---------- */
+.app :is(.d-titulo, .t-titulo, .en-t, .boas-t, .en-tr-t, .d-sobre-cab h4, .d-hist-vazio b) {
+  font-weight: 660; letter-spacing: -.024em; line-height: 1.14;
+}
+.app .d-titulo { font-size: 1.42em; }
+.app .d-ola { font-size: 1.6em; }
+.app .d-cab .d-titulo { font-size: 1.55em; }
+.app .d-centro .d-titulo { font-size: 1.6em; }
+.app .ma-meio .d-titulo { font-size: 1.55em; }
+.app .en-t { font-size: 1.85em; line-height: 1.1; letter-spacing: -.03em; }
+.app .boas-t { font-size: 1.85em; line-height: 1.1; letter-spacing: -.03em; }
+.app .boas-t em { color: var(--lima); }
+.app .d-sobre-cab h4 { font-size: 1.25em; }
+.app :is(.en-sub, .boas-txt) { line-height: 1.5; }
+
+/* rótulos de seção: pequenos, sem gritar */
+.app :is(.d-sec, .en-sec, .t-rot, .rt-rot, .ev-faixa label, .en-rot > span, .rt-pix-valor small, .rm-semana-total small, .ma-linha small, .ma-prev-cab small) {
+  font-size: .7em; font-weight: 600; letter-spacing: .06em; color: var(--a-texto-3);
+}
+.app .d-sec { margin: 1.35em 1.45em .55em; }
+.app .en-rot > span { color: var(--a-texto-2); }
+
+/* ---------- botões ---------- */
+.app .t-botao {
+  height: 3.4em; border-radius: var(--r-m); font-weight: 620; font-size: 1em; letter-spacing: -.01em;
+  box-shadow: inset 0 -1px 0 rgba(0, 0, 0, .14);
+  transition: background-color .18s, color .18s, transform .12s, opacity .18s;
+}
+.app .t-botao:active:not(:disabled) { transform: scale(.985); }
+.app .t-botao:disabled { background: var(--a-card-2); color: var(--a-texto-3); box-shadow: none; }
+.app :is(.boas-bts, .en-form, .en-rodape, .ev-form) .t-botao { height: 3.4em; font-size: 1em; }
+.app .t-bt {
+  height: 3em; border-radius: var(--r-m); border: 1px solid var(--a-linha); background: var(--a-card);
+  font-size: .9em; font-weight: 600; color: var(--luz); transition: background-color .18s, border-color .18s;
+}
+.app .t-bt svg { width: 1.2em; height: 1.2em; }
+.app-fone .t-bt:hover { background: var(--a-card-2); }
+.app .en-bt-2 { height: 3.4em; border-radius: var(--r-m); border: 1px solid rgba(255, 255, 255, .22); font-size: 1em; font-weight: 600; }
+/* links em forma de botão: limão, sem sublinhado (o sublinhado volta no foco e no mouse) */
+.app .en-link { padding: .35em .2em; font-weight: 600; text-decoration: none; }
+.app .en-link:focus-visible, .app .en-link:hover { text-decoration: underline; text-underline-offset: .22em; }
+.app .en-instalar-link { font-weight: 600; }
+.app .rt-cancelar { font-weight: 600; }
+.app :is(.rp-simular, .rp-ver-sim, .rm-simular) { color: var(--a-texto-2); font-weight: 600; }
+.app :is(.rp-simular, .rp-ver-sim, .rm-simular)::after { content: "\00a0›"; color: var(--lima); }
+/* foco de teclado igual em tudo */
+.app :is(button, a, select):focus-visible { outline: 2px solid var(--lima); outline-offset: 2px; }
+
+/* ---------- folhas em cima do mapa ---------- */
+.app .t-folha {
+  gap: .85em; padding: 1.75em 1.25em calc(1.4em + var(--base));
+  border-radius: var(--r-folha) var(--r-folha) 0 0; background: var(--a-folha);
+  box-shadow: var(--sombra-folha), inset 0 1px 0 rgba(255, 255, 255, .05);
+}
+.app :is(.t-folha, .d-sobre)::before { top: .6em; width: 2.6em; height: .27em; background: rgba(255, 255, 255, .2); }
+.app .rt[data-rt="inicio"] > .rt-folha { padding-bottom: calc(6.2em + var(--base)); }
+.app .d-sobre {
+  gap: .95em; padding: 1.9em 1.25em calc(1.5em + var(--base));
+  border-radius: var(--r-folha) var(--r-folha) 0 0; background: var(--a-folha);
+  box-shadow: var(--sombra-folha), inset 0 1px 0 rgba(255, 255, 255, .05);
+}
+.app .d-veu { background: rgba(4, 5, 8, .62); }
+.app .d-sobre-ic { width: 2.5em; height: 2.5em; background: var(--a-card-2); }
+.app .d-fechar { width: 2.3em; height: 2.3em; border: 0; background: var(--a-card-2); }
+.app .d-fechar:hover { background: #30313C; }
+
+/* ---------- por cima do mapa: vidro escuro ---------- */
+.app :is(.rt-mira, .d-voltar-flut, .rt-sos) {
+  background: var(--vidro); color: var(--luz); box-shadow: var(--sombra-flut);
+  -webkit-backdrop-filter: blur(14px) saturate(140%); backdrop-filter: blur(14px) saturate(140%);
+}
+.app .rt-mira { width: 3.05em; height: 3.05em; }
+.app .rt-mira svg { width: 1.35em; height: 1.35em; stroke-width: 2.1; }
+.app .rt .rt-voltar { width: 2.9em; height: 2.9em; }
+.app .rt-sos { font-weight: 620; color: var(--luz); }
+.app .rt-sos svg { stroke: #FF6B5E; }
+@media (hover: hover) { .app :is(.rt-mira, .d-voltar-flut):hover { background: rgba(32, 33, 42, .94); } }
+@media (hover: none) { .app .rt-mira:hover { background: var(--vidro); } }
+.app .t-chip.rt-chip {
+  gap: .55em; padding: .55em 1em; border-radius: 999px;
+  background: var(--vidro); color: var(--luz); box-shadow: var(--sombra-flut);
+  font-size: .8em; font-weight: 600;
+  -webkit-backdrop-filter: blur(14px) saturate(140%); backdrop-filter: blur(14px) saturate(140%);
+}
+.app .t-chip .t-ponto { background: var(--lima); box-shadow: 0 0 0 .22em rgba(210, 255, 60, .22); }
+.app .t-chip b { color: var(--lima); font-weight: 660; }
+.app #rp-online.vazio .t-ponto { background: #8C8D99; box-shadow: none; }
+.app .rt-chip .ma-on { box-shadow: 0 0 0 .22em rgba(210, 255, 60, .22); }
+.app .mapa::after { height: calc(var(--topo) + 4.2em); background: linear-gradient(rgba(6, 7, 11, .72), rgba(6, 7, 11, 0)); }
+.app .mapa-creditos { background: rgba(10, 11, 15, .6); color: rgba(244, 244, 247, .5); }
+
+/* aviso no topo */
+.app .d-toast {
+  padding: .75em 1em; border-radius: var(--r-m); background: #F4F4F7; color: #0A0B0F;
+  font-weight: 560; box-shadow: 0 1em 2.2em -.8em rgba(0, 0, 0, .75);
+}
+.app .d-toast-ic { background: #0A0B0F; }
+
+/* ---------- início do passageiro ---------- */
+.app .d-ola { margin-top: .1em; }
+.app .d-local { gap: .5em; margin-top: -.45em; font-size: .84em; color: var(--a-texto-2); }
+.app .d-local svg { stroke: var(--lima); width: 1.05em; height: 1.05em; }
+.app .d-busca {
+  height: 3.5em; padding: 0 1.1em; border-radius: var(--r-m);
+  background: var(--a-card-2); color: var(--luz); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .05);
+  font-weight: 600; font-size: 1.04em;
+}
+.app .d-busca svg { stroke: var(--lima); width: 1.15em; height: 1.15em; stroke-width: 2.4; }
+.app .d-busca:hover { background: #2C2D38; }
+@media (hover: none) { .app .d-busca:hover { background: var(--a-card-2); } }
+.app .d-atalhos { gap: .6em; }
+.app .d-atalhos button { gap: .65em; padding: .7em .75em; border: 0; border-radius: var(--r-m); background: var(--a-card); }
+.app .d-atalhos button:hover { background: var(--a-card-2); }
+.app :is(.d-atalhos, .d-lista) svg { width: 2.25em; height: 2.25em; padding: .5em; background: var(--a-card-2); stroke: var(--luz); stroke-width: 1.9; }
+.app :is(.d-atalhos, .d-lista) b { font-size: .92em; font-weight: 600; }
+.app :is(.d-atalhos, .d-lista) small { font-size: .76em; color: var(--a-texto-2); }
+.app button.rp-avise { padding: .8em .9em; border: 0; border-radius: var(--r-m); background: var(--a-card); }
+.app button.rp-avise[aria-pressed="true"] { background: rgba(210, 255, 60, .07); box-shadow: inset 0 0 0 1px rgba(210, 255, 60, .4); }
+.app .rp-avise svg { width: 1.35em; height: 1.35em; }
+.app .rp-avise b { font-weight: 600; }
+.app .rp-avise small { line-height: 1.4; }
+.app .rp-evento { border-radius: var(--r-m); }
+
+/* alertas: o GPS, a conexão, o que precisa de atenção */
+.app .rt-alerta {
+  display: flex; gap: .6em; padding: .75em .9em; border: 0; border-radius: var(--r-m);
+  background: rgba(255, 138, 76, .12); color: #FFB48C; font-size: .82em; font-weight: 540; line-height: 1.45;
+}
+.app .rt-alerta::before {
+  content: "!"; flex: none; display: grid; place-items: center; width: 1.45em; height: 1.45em; margin-top: .02em; border-radius: 50%;
+  background: #FF8A4C; color: #1A0E06; font-size: .85em; font-weight: 660;
+}
+.app .rp-op-ev { padding: .65em .85em; border-radius: var(--r-m); font-weight: 540; line-height: 1.45; }
+.app .rp-op-ev.fora { background: var(--a-card); color: var(--a-texto-2); }
+.app #rp-op-gps { background: rgba(255, 138, 76, .12); color: #FFB48C; }
+
+/* ---------- busca de endereço ---------- */
+.app .rt-cab { padding: 1em 1.2em .8em; }
+.app .d-voltar { width: 2.6em; height: 2.6em; border: 0; background: var(--a-card); }
+.app .d-voltar:hover { background: var(--a-card-2); }
+.app .rt-campos { margin: 0 1.2em; padding: 0 1em; border: 1px solid var(--a-linha); border-radius: var(--r-g); background: var(--a-card); }
+.app .rt-campos:focus-within { border-color: rgba(210, 255, 60, .7); box-shadow: 0 0 0 .2em rgba(210, 255, 60, .1); }
+.app .rt-campo { min-height: 3.3em; font-weight: 560; }
+.app .rt-campo-de { font-weight: 560; color: var(--a-texto-2); }
+.app .rt-campo-de em { font-weight: 600; }
+.app .rt-campo-ativo input { font-weight: 560; }
+.app .rt-campo-ativo input::placeholder { color: var(--a-texto-3); font-weight: 450; }
+.app .t-bol { width: .62em; height: .62em; border-width: .16em; }
+.app .d-lista { margin: 0 .75em; }
+.app .d-lista button { gap: .85em; padding: .65em .7em; border-radius: var(--r-m); }
+.app .d-lista button:hover { background: var(--a-card); }
+.app .d-lista em { font-weight: 500; color: var(--a-texto-3); }
+.app .rt-linha-bt {
+  height: 3.2em; border: 0; border-radius: var(--r-m); background: var(--a-card);
+  font-size: .94em; font-weight: 600;
+}
+.app .rt-linha-bt:hover { background: var(--a-card-2); }
+
+/* ---------- rota e preço ---------- */
+.app .rt-rota { font-size: .86em; color: var(--a-texto-2); }
+.app .t-opcao {
+  gap: .85em; padding: .85em 1em; border-radius: var(--r-g);
+  border: 1.5px solid rgba(210, 255, 60, .75); background: rgba(210, 255, 60, .045);
+}
+.app .t-opcao-ic { width: 2.5em; height: 2.5em; padding: .55em; }
+.app .t-opcao b { font-weight: 640; }
+.app .t-opcao span { font-size: .8em; }
+.app .t-preco { font-size: 1.12em; font-weight: 660; }
+.app .t-opcao .t-preco > span { font-size: 1em; color: var(--luz); }
+.app .t-preco small#rp-op-band, .app .t-preco small:not(.rt-ver-conta) {
+  margin-top: .3em; padding: .2em .55em; border-radius: 999px; background: rgba(255, 138, 76, .16); color: #FFB48C;
+  font-size: .56em; font-weight: 600; letter-spacing: .02em; text-transform: none;
+}
+.app .t-preco small.rt-ver-conta {
+  margin-top: .25em; padding: 0; border-radius: 0; background: none; color: var(--a-texto-2);
+  font-size: max(.6em, 10.5px); font-weight: 560; letter-spacing: 0; text-transform: none; text-decoration: none;
+}
+.app .t-preco small.rt-ver-conta::after { content: " ›"; color: var(--lima); }
+.app .d-linhas { border-top: 0; }
+.app .d-linhas li { padding: .35em 0; border-bottom: 1px solid rgba(255, 255, 255, .06); font-size: .88em; }
+.app .d-linhas li:last-child { border-bottom: 0; }
+.app .d-linhas button { padding: .45em .5em; font-weight: 600; }
+.app .d-linhas button::after { content: " ›"; color: var(--a-texto-3); }
+.app .rt-regras li::marker { color: var(--a-texto-3); }
+
+/* procurando, chegou, telas do meio */
+.app .rt[data-rt="chegou"] > .t-fim { margin: auto 0; padding-top: 1.5em; }
+.app .t-fim-ic { box-shadow: 0 0 0 .55em rgba(210, 255, 60, .1); }
+.app .d-radar span { border-width: 1.5px; border-color: rgba(210, 255, 60, .8); }
+.app .d-radar svg { box-shadow: 0 0 0 .7em rgba(210, 255, 60, .12); }
+.app .t-sub { font-size: .86em; line-height: 1.5; }
+.app .t-av { font-weight: 640; }
+.app .t-mot > div > b { font-weight: 620; }
+.app .t-veic { background: var(--a-card-2); }
+
+/* ---------- as abas de baixo ---------- */
+.app .d-abas {
+  padding: .45em .4em max(1em, calc(.4em + var(--base)));
+  background: rgba(10, 11, 15, .94); border-top: 1px solid rgba(255, 255, 255, .06);
+  -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
+}
+.app .d-abas button { gap: .25em; padding: .3em 0 .2em; font-weight: 560; color: var(--a-texto-3); }
+.app .d-abas svg { box-sizing: content-box; width: 1.55em; height: 1.55em; padding: .22em .9em; border-radius: 999px; stroke-width: 1.9; transition: background-color .2s; }
+.app .d-abas [aria-current="page"] { color: var(--luz); }
+.app .d-abas [aria-current="page"] svg { background: rgba(210, 255, 60, .16); stroke: var(--lima); }
+.app .d-abas [aria-current="page"]::before { display: none; }
+
+/* ---------- cartões, listas e formulários ---------- */
+.app :is(.d-hist button, .d-pags button, .d-carro, .en-conta button, .d-opcoes-ajuda button, .d-opcoes-ajuda a, .rt-contato, .rt-pag,
+  .ma-trajeto, .ma-previsao, .ma-linha-fim, .rm-co-carro, .rm-semana, .en-docs button, .en-selfie, .en-anexo, button.ev-cartao, .ev-paga button) {
+  border-radius: var(--r-m);
+}
+.app :is(.d-hist button, .d-pags button, .d-carro, .en-conta button, .d-opcoes-ajuda button, .d-opcoes-ajuda a:not(.d-perigo), .rt-contato, .rt-pag,
+  .ma-trajeto, .ma-previsao, .ma-linha-fim, .rm-co-carro, .rm-semana, .en-docs button, .en-selfie, .en-anexo) {
+  border-color: rgba(255, 255, 255, .06);
+}
+.app :is(.d-hist, .d-pags, .en-conta, .d-opcoes-ajuda, .en-docs, .ev-lista) b { font-weight: 600; }
+.app :is(.en-conta, .d-opcoes-ajuda, .d-hist-ic, .d-pags) svg { stroke-width: 1.8; }
+.app .en-conta svg { stroke: var(--luz-2); }
+.app .en-conta .en-sair svg, .app .en-conta .en-apagar svg { stroke: #FF7D6E; }
+.app .d-hist-vazio { border: 0; background: var(--a-card); }
+.app .d-hist .d-hist-vazio button { border-radius: var(--r-m); font-weight: 620; }
+.app .d-add { border: 1px solid var(--a-linha); border-radius: var(--r-m); font-weight: 600; }
+.app .en-docs em { font-weight: 600; }
+.app .en-doc-ic svg, .app .en-anexo-ver svg { stroke: var(--luz); }
+.app .en-selfie-foto { border: 1.5px solid var(--a-linha); }
+
+.app .en-campo { min-height: 3.6em; border: 1px solid var(--a-linha); border-radius: var(--r-m); }
+.app .en-campo:focus-within { border-color: rgba(210, 255, 60, .75); box-shadow: 0 0 0 .2em rgba(210, 255, 60, .1); }
+.app .en-campo input { font-weight: 560; }
+.app .en-campo input::placeholder { color: var(--a-texto-3); font-weight: 450; }
+.app .en-ddi { font-weight: 600; }
+.app .en-cod-caixa { border-radius: var(--r-m); border: 1px solid var(--a-linha); font-weight: 600; }
+.app .en-nota { border-radius: var(--r-m); line-height: 1.45; }
+.app .en-erro { font-weight: 560; }
+.app .en-check { line-height: 1.45; }
+.app .en-caixa { border-radius: .4em; border-width: 1px; }
+.app .en-passos li { height: .3em; }
+.app .en-ok { font-weight: 600; }
+.app .en-rodape { border-top-color: rgba(255, 255, 255, .06); }
+.app .en-menu-bt { border: 0; background: var(--a-card); }
+
+/* listas da conta (perfil, menu do motorista, lugares e contatos): um grupo só, com divisórias, como nos ajustes do celular */
+.app .en-conta { gap: 0; border-radius: var(--r-g); background: var(--a-card); overflow: hidden; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .05); }
+.app .en-conta > li + li { border-top: 1px solid rgba(255, 255, 255, .06); }
+.app .en-conta button { padding: .85em 1em; border: 0; border-radius: 0; background: transparent; }
+.app .en-conta button:hover { background: var(--a-card-2); }
+.app .en-conta button:focus-visible { outline-offset: -2px; }
+.app .en-conta .rt-item { gap: 0; }
+.app .en-conta .rt-tirar { border-left: 1px solid rgba(255, 255, 255, .06); }
+.app .d-carro { border: 0; background: var(--a-card); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .05); border-radius: var(--r-g); }
+.app .d-carro em { background: rgba(210, 255, 60, .14); color: var(--lima); font-weight: 600; }
+.app .d-perfil-cab { padding: 1.2em 1.3em .4em; }
+
+/* passageiro ou motorista: dois cartões escuros, a cor só no ícone */
+.app .en-papel-bt {
+  min-height: 7.4em; padding: 1.05em 1em; border-radius: var(--r-g);
+  background: var(--a-card); color: var(--luz); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .06);
+}
+.app .en-papel-bt::after { display: none; }
+.app .en-papel-bt:hover { background: var(--a-card-2); }
+.app .en-papel-ic { width: 3.2em; height: 3.2em; }
+.app .en-pp .en-papel-ic { background: rgba(255, 111, 177, .15); }
+.app .en-pm .en-papel-ic { background: rgba(255, 107, 44, .15); }
+.app .en-papel-txt small { font-size: .66em; font-weight: 600; letter-spacing: .08em; color: var(--a-texto-3); }
+.app .en-papel-txt b { font-size: 1.28em; font-weight: 660; letter-spacing: -.02em; }
+.app .en-papel-txt > span { color: var(--a-texto-2); }
+.app .en-papel-seta { stroke: var(--a-texto-3); }
+.app .en-treino-link { border: 0; background: var(--a-card); border-radius: var(--r-m); }
+.app .en-treino-link b { text-decoration: none; font-weight: 600; }
+.app .en-treino { border: 1px solid rgba(210, 255, 60, .35); border-radius: var(--r-m); background: rgba(210, 255, 60, .05); }
+.app .en-treino b { font-weight: 620; }
+
+/* boas-vindas: o céu e o carro ficam (é a cara do Drink), a folha de baixo fica mais limpa */
+.app .boas-folha { gap: .9em; padding: 1.7em 1.35em calc(1.1em + var(--base)); border-radius: var(--r-folha) var(--r-folha) 0 0; }
+.app .boas-txt { font-size: .92em; }
+.app .boas-leve { color: var(--a-texto-3); }
+
+/* ---------- dinheiro: créditos e ganhos ---------- */
+.app :is(.d-saldo, .ma-ganhos) {
+  padding: 1.1em 1.2em; border-radius: var(--r-g);
+  background: radial-gradient(120% 140% at 100% 0%, rgba(120, 132, 255, .45), transparent 55%), linear-gradient(140deg, #2433D9, #1A23A8);
+  box-shadow: 0 1em 2em -1.2em rgba(0, 0, 0, .8), inset 0 1px 0 rgba(255, 255, 255, .12);
+}
+.app :is(.d-saldo, .ma-ganhos)::after { display: none; }
+.app :is(.d-saldo, .ma-ganhos) small { font-size: .7em; font-weight: 600; letter-spacing: .05em; color: rgba(244, 244, 247, .75); }
+.app :is(.d-saldo, .ma-ganhos) b { font-size: 2.3em; font-weight: 660; color: #fff; }
+.app :is(.d-saldo, .ma-ganhos) span { color: rgba(244, 244, 247, .8); }
+.app .rm-ganhos-ver { font-weight: 600; }
+.app .en-menu-ganhos { border-radius: var(--r-m); background: linear-gradient(140deg, #2433D9, #1A23A8); }
+.app .en-menu-ganhos b { color: #fff; font-weight: 660; }
+.app .rt-pix-valor b, .app .ma-valor b, .app .ev-pg-valor { font-weight: 660; }
+.app .rm-semana-total b { font-weight: 660; }
+
+/* ---------- motorista ---------- */
+.app .ma-topo { gap: .75em; padding: .8em 1.25em .5em; }
+.app .ma-topo b { font-weight: 620; }
+.app .ma-status { width: 4.6em; height: 4.6em; border: 0; background: var(--a-card); box-shadow: 0 0 0 .5em rgba(255, 255, 255, .025); }
+.app .ma-status svg { stroke: var(--a-texto-2); }
+.app .ma-meio small { font-size: .86em; line-height: 1.5; }
+.app .rm-pedido {
+  gap: .3em; padding: .95em 1em 1em; border-radius: var(--r-g); border: 1px solid rgba(255, 255, 255, .07); background: var(--a-card);
+}
+.app .rm-pedido.teste { border: 1px solid rgba(120, 132, 255, .45); background: rgba(72, 85, 255, .1); }
+.app .rm-ped-topo b { font-weight: 620; }
+.app .rm-ped-topo em { font-size: 1.35em; font-weight: 660; }
+.app .rm-pedido p { font-size: .8em; line-height: 1.45; }
+.app .rm-pedido .rm-ped-prazo { font-weight: 560; color: #FF9CCB; }
+.app .rm-chamado { border-color: rgba(255, 111, 177, .45); background: rgba(255, 111, 177, .07); }
+.app .rm-raio { background: var(--a-card); }
+.app .rm-raio button { font-weight: 600; }
+.app .rm-treino-selo { font-weight: 600; letter-spacing: .04em; }
+.app .rm-treino-passos li { border: 0; background: var(--a-card); font-weight: 560; }
+.app .ma-anel span { font-weight: 620; }
+.app .d-codigo > span { border-radius: .5em; }
+.app .rm-fotos label { border: 1px solid var(--a-linha); border-radius: var(--r-m); }
+.app .rm-fotos .ok label { border-color: rgba(210, 255, 60, .7); }
+
+/* ---------- eventos ---------- */
+.app .ev-como li::before { background: var(--a-card); color: var(--luz); font-weight: 620; }
+.app .ev-como b { font-weight: 600; }
+.app .ev-como span { font-size: .8em; line-height: 1.45; }
+.app button.ev-cartao { border-color: rgba(255, 255, 255, .06); }
+.app button.ev-onde { border: 1px solid var(--a-linha); border-radius: var(--r-m); }
+.app .ev-chips button { font-weight: 560; }
+.app .ev-cartao-qr { border-radius: var(--r-g); }
+.app .ev-sit { font-weight: 600; }
+
+/* ---------- segmentos, chips e escolhas ---------- */
+.app :is(.d-seg, .rm-raio, .en-termos-abas) [aria-checked="true"], .app .en-termos-abas [aria-selected="true"] { box-shadow: 0 1px 2px rgba(0, 0, 0, .3); }
+.app :is(.d-tags, .d-rapidas) button { font-weight: 560; }
+.app .en-veics button { border: 1px solid var(--a-linha); border-radius: var(--r-g); }
+.app .en-veics [aria-checked="true"] { border-color: rgba(210, 255, 60, .75); }
+.app .en-veics b { font-weight: 620; }
+.app .en-tr-ops button { border: 1px solid var(--a-linha); border-radius: var(--r-m); font-weight: 560; }
+
+/* ---------- simulação, conexão ---------- */
+.app .rp-sim { font-weight: 600; }
+.app .rp-sim b { font-weight: 660; }
+.app .app-rede { font-weight: 600; }
+
+/* ---------- no computador: o celular em cima da mesa ---------- */
+@media (min-width: 780px) and (min-height: 600px) {
+  .mesa-txt, .mesa-qr p { font-family: var(--f-texto); }
+}

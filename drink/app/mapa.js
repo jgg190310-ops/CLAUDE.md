@@ -26,6 +26,20 @@
   };
   const CREDITOS = '<a href="https://openfreemap.org" target="_blank" rel="noopener">OpenFreeMap</a> · © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>';
 
+  // você (passageiro) e eu (motorista) ganham o círculo da margem de erro do GPS, quando ela passa de uns 20 m
+  const ANEL = ['voce', 'eu'];
+  const comAnel = (p) => (p && p.precisao > 20 ? { lat: p.lat, lon: p.lon, precisao: Math.min(p.precisao, 3000) } : null);
+  function circulo(p, metros) {
+    const dLat = metros / 111320;
+    const dLon = metros / (111320 * Math.cos((p.lat * Math.PI) / 180));
+    const anel = [];
+    for (let i = 0; i <= 48; i += 1) {
+      const a = (i / 48) * 2 * Math.PI;
+      anel.push([p.lon + dLon * Math.cos(a), p.lat + dLat * Math.sin(a)]);
+    }
+    return { type: 'Feature', properties: {}, geometry: { type: 'Polygon', coordinates: [anel] } };
+  }
+
   function temWebGL() {
     if (!window.maplibregl) return false;
     try {
@@ -117,7 +131,7 @@
       if (falhas >= 3) trocarEstilo();
     });
     setTimeout(() => { if (!carregou && fonte === 'omt') trocarEstilo(); }, 12000);
-    mapa.on('style.load', () => { estiloPronto = true; aplicarRota(); });
+    mapa.on('style.load', () => { estiloPronto = true; aplicarPrecisao(); aplicarRota(); });
     const memoria = memoriaDaVista(el);
     mapa.on('resize', () => memoria.conferir());
     mapa.on('dragstart', () => memoria.esquecer());
@@ -126,6 +140,7 @@
     const pontos = {};
     const tweens = {};
     let linhaRota = null;
+    let anel = null;
     const grupos = { online: [], pedidos: [] };
     let medirFolga = () => 0;
     let seguir = null;
@@ -175,6 +190,19 @@
       mapa.addLayer({ id: 'rota-luz', type: 'line', source: 'rota', layout: jeito, paint: { 'line-color': '#D2FF3C', 'line-width': ['interpolate', ['linear'], ['zoom'], 10, 3, 16, 5.5] } }, antes);
     }
 
+    // a margem de erro do GPS: um círculo azul claro em volta de você
+    function aplicarPrecisao() {
+      if (!estiloPronto) return;
+      const f = mapa.getSource('precisao');
+      const dados = anel ? circulo(anel, anel.precisao) : { type: 'FeatureCollection', features: [] };
+      if (f) { f.setData(dados); return; }
+      if (!anel) return;
+      mapa.addSource('precisao', { type: 'geojson', data: dados });
+      const antes = mapa.getLayer('rota-borda') ? 'rota-borda' : (mapa.getLayer('bares') ? 'bares' : undefined);
+      mapa.addLayer({ id: 'precisao-fundo', type: 'fill', source: 'precisao', paint: { 'fill-color': '#5B67FF', 'fill-opacity': 0.13 } }, antes);
+      mapa.addLayer({ id: 'precisao-borda', type: 'line', source: 'precisao', paint: { 'line-color': '#8D97FF', 'line-opacity': 0.5, 'line-width': 1 } }, antes);
+    }
+
     function centrarAgora(p, z) {
       mapa.easeTo({ center: [p.lon, p.lat], zoom: zGL(z), offset: [0, -folga() / 2], duration: duracao() });
     }
@@ -186,11 +214,13 @@
       aoMover(fn) { mapa.on('moveend', fn); },
       ponto(nome, p, icone) {
         if (!p) { api.tirar(nome); return; }
+        if (ANEL.includes(nome)) { anel = comAnel(p); aplicarPrecisao(); }
         if (pontos[nome]) { mover(nome, p); if (icone) pintar(pontos[nome].getElement(), icone); return; }
         pontos[nome] = marcador(p, icone || ICONE.voce());
         if (seguir === nome) api.centrar(p);
       },
       tirar(nome) {
+        if (ANEL.includes(nome)) { anel = null; aplicarPrecisao(); }
         if (tweens[nome]) cancelAnimationFrame(tweens[nome]);
         if (pontos[nome]) { pontos[nome].remove(); delete pontos[nome]; }
       },
@@ -274,6 +304,7 @@
     const pontos = {};
     const tweens = {};
     let rota = null;
+    let anel = null;
     const grupos = { online: [], pedidos: [] };
     let medirFolga = () => 0;
     let seguir = null;
@@ -328,11 +359,18 @@
       aoMover(fn) { mapa.on('moveend', fn); },
       ponto(nome, p, ic) {
         if (!p) { api.tirar(nome); return; }
+        if (ANEL.includes(nome)) {
+          const a = comAnel(p);
+          if (!a) { if (anel) { anel.remove(); anel = null; } } else if (anel) { anel.setLatLng([a.lat, a.lon]); anel.setRadius(a.precisao); } else {
+            anel = L.circle([a.lat, a.lon], { radius: a.precisao, color: '#8D97FF', weight: 1, opacity: 0.5, fillColor: '#5B67FF', fillOpacity: 0.13, interactive: false }).addTo(mapa);
+          }
+        }
         if (pontos[nome]) { mover(nome, p); if (ic) pontos[nome].setIcon(icone(ic)); return; }
         pontos[nome] = L.marker([p.lat, p.lon], { icon: icone(ic || ICONE.voce()), keyboard: false, interactive: false }).addTo(mapa);
         if (seguir === nome) api.centrar(p);
       },
       tirar(nome) {
+        if (ANEL.includes(nome) && anel) { anel.remove(); anel = null; }
         if (pontos[nome]) { pontos[nome].remove(); delete pontos[nome]; }
       },
       tem: (nome) => Boolean(pontos[nome]),
