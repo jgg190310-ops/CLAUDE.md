@@ -291,8 +291,9 @@
     logo.animate(curva(r2.left - r1.left, r2.top - r1.top, (r2.left - r1.left) * .05, (r2.top - r1.top) * .95, (t) => `scale(${1 + (s - 1) * t})`), voo);
     $('.ab-pingo', abertura).animate([{ transform: 'none' }, { transform: 'rotate(360deg)' }], voo);
     $('.ab-sub', abertura).animate([{ opacity: 1 }, { opacity: 0 }], { duration: 220, fill: 'forwards' });
-    abertura.animate([{ backgroundColor: 'rgba(10, 11, 15, 1)' }, { backgroundColor: 'rgba(10, 11, 15, 0)' }],
-      { duration: 420, delay: 120, easing: 'ease-out', fill: 'forwards' });
+    const some = { duration: 420, delay: 120, easing: 'ease-out', fill: 'forwards' };
+    abertura.animate([{ backgroundColor: 'rgba(10, 11, 15, 1)' }, { backgroundColor: 'rgba(10, 11, 15, 0)' }], some);
+    $('.ab-fundo', abertura).animate([{ opacity: 1 }, { opacity: 0 }], some);
     setTimeout(pousar, voo.duration);
   }
 
