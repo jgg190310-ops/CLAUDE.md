@@ -174,7 +174,9 @@
     try { const c = JSON.parse(localStorage.getItem(CACHE) || '{}'); return c && c.bares && typeof c.bares === 'object' ? c.bares : {}; } catch (x) { return {}; }
   }
   function gravarCache(bares) { try { localStorage.setItem(CACHE, JSON.stringify({ v: 1, bares })); } catch (x) { /* sem espaço: fica só na memória */ } }
-  // ouve a vitrine ao vivo; cada bar traz se está aberto agora (até a hora de fechar que ele mesmo deu)
+  // a vitrine; cada bar traz se está aberto agora (até a hora de fechar que ele mesmo deu). Ao vivo (uma conexão
+  // aberta) só enquanto a tela mostra os bares: ligar(true/false). Fora disso, ler() busca uma vez, sem ficar ouvindo,
+  // e receber() aceita as mensagens de uma conexão que já está aberta para outra coisa (os pedidos do motorista).
   function ouvirVitrine(aoMudar) {
     const bares = {};
     const agora0 = Date.now();
@@ -222,7 +224,9 @@
     }
     const fotoEmDia = (b) => !b.foto || (b.fotoDados && b.fotoId === b.foto);
     Object.values(bares).forEach((b) => { if (!fotoEmDia(b)) buscarFoto(b.id, b.foto); });
-    const sub = R.canal.assinar([R.topico.bares()], (env) => {
+    let ultimo = null;
+    function receber(env, m) {
+      if (m && m.id) ultimo = m.id;
       const x = limparVitrine(env);
       if (!x) return;
       const atual = bares[x.id];
@@ -232,10 +236,27 @@
       bares[x.id] = { ...(atual || {}), ...x, visto: Date.now() };
       if (!fotoEmDia(bares[x.id])) buscarFoto(x.id, x.foto);
       mudou();
-    }, { desde: '12h' });
+    }
+    let sub = null;
+    let lendo = null;
+    function ler() {
+      if (fim || sub) return Promise.resolve();
+      if (!lendo) {
+        lendo = R.canal.ler(R.topico.bares(), '12h')
+          .then((lidas) => { if (!fim) lidas.forEach(({ corpo, m }) => receber(corpo, m)); }, () => { /* sem rede: fica o que já tinha */ })
+          .then(() => { lendo = null; });
+      }
+      return lendo;
+    }
+    // ao vivo, continuando de onde a última leitura parou
+    function ligar(sim) {
+      if (fim) return;
+      if (sim && !sub) sub = R.canal.assinar([R.topico.bares()], receber, { desde: ultimo || '12h' });
+      if (!sim && sub) { sub.fechar(); sub = null; }
+    }
     const relogio = setInterval(() => { if (!fim) aoMudar(lista()); }, 60000);
     setTimeout(() => { if (!fim) aoMudar(lista()); }, 0);
-    return { fechar() { fim = true; clearInterval(relogio); if (sub) sub.fechar(); }, agora: lista };
+    return { fechar() { ligar(false); fim = true; clearInterval(relogio); }, agora: lista, ligar, ler, receber: (env, m) => { if (!fim) receber(env, m); } };
   }
   // a foto do bar: recortada em 3 × 2, pequena o bastante para ir em pedaços pelo ntfy
   async function reduzirFoto(arquivo) {

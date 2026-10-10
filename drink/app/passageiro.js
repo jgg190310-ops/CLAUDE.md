@@ -239,9 +239,12 @@
     /* ---------- os bares parceiros (a vitrine aberta) ---------- */
     let vitrine = null;
     let bares = [];
+    // ao vivo só nas telas que mostram os bares (o início com o mapa, a aba Bares e a página do bar);
+    // nas outras, a lista guardada basta (a busca de destino usa ela)
+    const TELAS_COM_BARES = ['inicio', 'bares', 'bar-ver'];
     function ouvirBares() {
-      if (vitrine) return;
-      vitrine = BAR.ouvirVitrine((lista) => { bares = lista; abaBar.receber(lista); desenharBares(); });
+      if (!vitrine) vitrine = BAR.ouvirVitrine((lista) => { bares = lista; abaBar.receber(lista); desenharBares(); });
+      vitrine.ligar(TELAS_COM_BARES.includes(atual));
     }
     function abertosPerto() {
       const ref = pos || embarque || S.BH;
@@ -470,6 +473,7 @@
       painel.mostrar(TELAS_EVENTO.includes(nome));
       painelBar.mostrar(TELAS_BAR.includes(nome));
       abaBar.mostrar(nome);
+      if (vitrine) vitrine.ligar(TELAS_COM_BARES.includes(nome));
       if (ENTRAR[nome]) ENTRAR[nome](tela);
       if (foco) {
         const t = $('.d-titulo, .en-t', tela);
