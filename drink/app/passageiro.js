@@ -226,7 +226,7 @@
     // a folha de baixo cobre parte do mapa: o mapa precisa saber quanto
     function medirFolha(tela) {
       const f = $('.rt-folha', tela);
-      if (mapa) mapa.folga(f ? () => f.getBoundingClientRect().height : 0);
+      if (mapa) mapa.folga(f || 0);
     }
 
     /* ---------- Drinks online por perto ---------- */
@@ -392,7 +392,7 @@
           const dist = pos ? ` · ${S.textoKm(S.distancia(pos, l) / 1000)}` : '';
           return `<button type="button" data-rp-local="${tipo}"><svg aria-hidden="true"><use href="#${icone}"/></svg><span><b>${titulo}</b><small>${esc(l.bairro || l.nome)}${dist}</small></span></button>`;
         }
-        return `<button type="button" data-rp-salvar="${tipo}"><svg aria-hidden="true"><use href="#${icone}"/></svg><span><b>${titulo}</b><small>Salvar endereço</small></span></button>`;
+        return `<button type="button" data-rp-salvar="${tipo}"><svg aria-hidden="true"><use href="#${icone}"/></svg><span><b>${titulo}</b><small>Adicionar</small></span></button>`;
       };
       q('#rp-atalhos').innerHTML = item('casa', 'i-casa', 'Casa') + item('trabalho', 'i-maleta', 'Trabalho');
     }
@@ -421,13 +421,15 @@
         });
       }
       achados = lista;
-      q('#rp-res-t').textContent = lista.length ? 'Salvos e recentes' : 'Digita um endereço, um bar ou um bairro';
+      q('#rp-res-t').textContent = lista.length ? 'Salvos e recentes' : 'Dá para buscar por';
+      q('#rp-dicas').hidden = lista.length > 0;
       q('#rp-resultados').innerHTML = lista.map((l, i) => linhaLugar(l, i, l.icone)).join('');
     }
     function buscarAgora() {
       const texto = q('#rp-busca').value.trim();
       clearTimeout(buscaTimer);
       if (texto.length < 3) { mostrarSalvos(); return; }
+      q('#rp-dicas').hidden = true;
       buscaTimer = setTimeout(async () => {
         if (buscaCtl) buscaCtl.abort();
         buscaCtl = new AbortController();
@@ -1422,6 +1424,7 @@
       const km = voltas.reduce((s, v) => s + (v.km || 0), 0);
       q('#rp-resumo').textContent = n ? `${n} ${n === 1 ? 'volta' : 'voltas'} · ${S.virgula(km)} km · nenhum carro esquecido` : 'Nenhuma volta ainda';
       const lista = q('#rp-hist');
+      $$('[data-sem-voltas]', raiz).forEach((el) => { el.hidden = n > 0; });
       if (!n) {
         lista.innerHTML = '<li class="d-hist-vazio"><svg aria-hidden="true"><use href="#i-limao"/></svg><b>Suas voltas aparecem aqui</b><span>Pediu um Drink, o recibo fica salvo nesta aba.</span><button type="button" data-rp-aba="inicio">Pedir o primeiro Drink</button></li>';
         return;
@@ -1440,6 +1443,27 @@
       const doMes = ((u && u.voltas) || []).filter((v) => { const d = new Date(v.data); return !v.simulada && d.getMonth() === agora.getMonth() && d.getFullYear() === agora.getFullYear(); });
       q('#rp-mes').textContent = brl(doMes.reduce((s, v) => s + v.total, 0));
       q('#rp-mes-txt').textContent = doMes.length ? `em ${doMes.length} ${doMes.length === 1 ? 'volta' : 'voltas'}` : 'em nenhuma volta';
+      // os números do mês
+      const km = doMes.reduce((s, v) => s + (v.km || 0), 0);
+      q('#rp-n-voltas').textContent = String(doMes.length);
+      q('#rp-n-km').textContent = `${S.virgula(km, km < 10 ? 1 : 0)} km`;
+      q('#rp-n-media').textContent = doMes.length ? brl(doMes.reduce((s, v) => s + v.total, 0) / doMes.length) : '—';
+      // a tabela do preço, tirada das mesmas regras que calculam cada volta, e a bandeira de agora pelo relógio
+      q('#rp-t-saida').textContent = brl(PRECO.saida);
+      q('#rp-t-km').textContent = brl(PRECO.km);
+      q('#rp-t-mad').textContent = `+${Math.round(PRECO.madrugada * 100)}%`;
+      q('#rp-t-espera').textContent = `${PRECO.esperaGratis} min grátis, depois ${brl0(PRECO.espera)} a cada ${PRECO.esperaBloco} min`;
+      const h = agora.getHours();
+      const madrugada = h < 5;
+      q('#rp-tarifa-agora').classList.toggle('b2', madrugada);
+      q('#rp-tarifa-agora-txt').textContent = madrugada ? `Agora: bandeira 2, até as 5h` : `Agora: bandeira 1 · a 2 começa à meia-noite`;
+      // um exemplo com a casa salva (se tiver) ou com 8 km, no preço de agora
+      const casa = u && u.locais && u.locais.casa;
+      const kmEx = casa && pos ? Math.max(1, Math.round(S.distancia(pos, casa) / 100) / 10 * 1.3) : 8;
+      const ex = S.preco(kmEx, agora);
+      q('#rp-tarifa-ex').textContent = casa && pos
+        ? `Até a sua casa, uns ${S.virgula(Math.round(kmEx), 0)} km de rua: por volta de ${brl(ex.total)} agora.`
+        : `Uma volta de ${S.virgula(kmEx, 0)} km agora sai por ${brl(ex.total)}.`;
     }
     function desenharPerfil() {
       const u = eu();
@@ -1760,7 +1784,7 @@
   function acompanhar(raiz, id, chave) {
     const q = (s) => $(s, raiz);
     const mapa = Mapa.criar(q('#mapa-a'), { centro: S.BH, zoom: 13 });
-    mapa.folga(() => q('.rt-folha').getBoundingClientRect().height);
+    mapa.folga(q('.rt-folha'));
     setTimeout(() => mapa.ajustar(), 50);
     let primeira = true;
     let ultima = 0;

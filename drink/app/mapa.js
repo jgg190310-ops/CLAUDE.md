@@ -64,6 +64,19 @@
     return { lat: p.lat + a * 0.004, lon: p.lon + b * 0.004, veic: p.veic };
   }
 
+  // quanto do mapa fica escondido embaixo: um número, uma função ou a própria folha
+  function cobre(el, x) {
+    if (typeof x === 'function') return x;
+    if (x && x.getBoundingClientRect) {
+      return () => {
+        const f = x.getBoundingClientRect();
+        if (!f.height) return 0;
+        return Math.max(0, el.getBoundingClientRect().bottom - f.top);
+      };
+    }
+    return () => x;
+  }
+
   // a última vista que o app pediu (enquadrar ou centrar), para refazer quando o mapa muda de formato: o celular
   // deitou e voltou em pé, a janela mudou muito. Sem isso, o motorista e o destino ficam fora da tela. Se a
   // pessoa mexeu no mapa com o dedo, a vista passa a ser dela e fica como está.
@@ -82,7 +95,27 @@
         clearTimeout(espera);
         espera = setTimeout(() => { if (refazer) { formato = medir(); refazer(); } }, 250);
       },
+      // a folha de baixo mudou de altura (o preço e a rota chegaram depois): refaz a vista no espaço novo
+      folhaMudou() {
+        if (!refazer) return;
+        clearTimeout(espera);
+        espera = setTimeout(() => { if (refazer) refazer(); }, 180);
+      },
     };
+  }
+
+  // acompanha a altura da folha: quando ela cresce ou encolhe de verdade, a vista é refeita (a rota não fica embaixo dela)
+  function vigiarFolha(x, medida, memoria, antigo) {
+    if (antigo) antigo.disconnect();
+    if (!x || !x.getBoundingClientRect || typeof ResizeObserver === 'undefined') return null;
+    let ultima = null;
+    const ob = new ResizeObserver(() => {
+      const agora = medida();
+      if (ultima !== null && Math.abs(agora - ultima) > 12) memoria.folhaMudou();
+      ultima = agora;
+    });
+    ob.observe(x);
+    return ob;
   }
 
   function criar(el, opcoes = {}) {
@@ -145,6 +178,7 @@
       mapa.setStyle(fonte === 'omt' ? ESTILO.vetorial(cfg, temaAtual()) : ESTILO.imagens(urlImagens, temaAtual()), { diff: false });
     });
     const memoria = memoriaDaVista(el);
+    let vigia = null;
     mapa.on('resize', () => memoria.conferir());
     mapa.on('dragstart', () => memoria.esquecer());
     mapa.on('zoomstart', (e) => { if (e && e.originalEvent) memoria.esquecer(); });
@@ -217,7 +251,12 @@
       mapa.addLayer({ id: 'precisao-borda', type: 'line', source: 'precisao', paint: { 'line-color': '#8D97FF', 'line-opacity': 0.5, 'line-width': 1 } }, antes);
     }
 
-    const pitch = () => (inclinar ? INCLINACAO : 0);
+    // inclinado em 3D; mas se sobra pouco mapa acima da folha (celular baixo), fica mais deitado para a rota caber
+    const pitch = () => {
+      if (!inclinar) return 0;
+      const livre = (el.clientHeight || 600) - folga();
+      return livre < 260 ? 18 : livre < 360 ? 32 : INCLINACAO;
+    };
     function centrarAgora(p, z) {
       mapa.easeTo({ center: [p.lon, p.lat], zoom: zGL(z), pitch: pitch(), offset: [0, -folga() / 2], duration: duracao() });
     }
@@ -225,7 +264,8 @@
     const api = {
       mapa,
       // quanto a folha de baixo cobre do mapa: um número ou uma função que mede na hora
-      folga(x) { medirFolga = typeof x === 'function' ? x : () => x; },
+      // (uma folha: mede do topo dela até o pé do mapa, e assim conta também a margem da folha solta e a barra de abas)
+      folga(x) { medirFolga = cobre(el, x); vigia = vigiarFolha(x, folga, memoria, vigia); },
       aoMover(fn) { mapa.on('moveend', fn); },
       ponto(nome, p, icone) {
         if (!p) { api.tirar(nome); return; }
@@ -260,9 +300,12 @@
           const pts = (pegar() || []).filter(Boolean);
           if (pts.length === 1) { centrarAgora(pts[0], maxZoom); return; }
           if (!pts.length) return;
+          // a caixa da rota fica no pedaço de mapa que sobra acima da folha: com pouco espaço (celular baixo), o
+          // respiro de cima encolhe antes, para a rota não ficar embaixo da folha
           const alto = el.clientHeight || 600;
-          const baixo = Math.min(folga() + 40, Math.max(40, alto - 200));
-          const topo = Math.min(96, Math.max(20, alto - baixo - 120));
+          const livre = alto - folga();
+          const topo = Math.round(Math.min(96, Math.max(20, livre * 0.25)));
+          const baixo = Math.max(40, Math.min(folga() + 36, alto - topo - 90));
           const caixa = new gl.LngLatBounds();
           pts.forEach((p) => caixa.extend([p.lon, p.lat]));
           mapa.fitBounds(caixa, { padding: { top: topo, bottom: baixo, left: 44, right: 44 }, maxZoom: zGL(maxZoom), pitch: pitch(), duration: duracao() });
@@ -350,6 +393,7 @@
       tweens[nome] = requestAnimationFrame(passo);
     }
     const memoria = memoriaDaVista(el);
+    let vigia = null;
     mapa.on('resize', () => memoria.conferir());
     // o dedo mexeu no mapa (arrastar, pinça, dois toques, rodinha): a vista é da pessoa
     mapa.on('dragstart dblclick', () => memoria.esquecer());
@@ -370,7 +414,8 @@
 
     const api = {
       mapa,
-      folga(x) { medirFolga = typeof x === 'function' ? x : () => x; },
+      // (uma folha: mede do topo dela até o pé do mapa, e assim conta também a margem da folha solta e a barra de abas)
+      folga(x) { medirFolga = cobre(el, x); vigia = vigiarFolha(x, folga, memoria, vigia); },
       aoMover(fn) { mapa.on('moveend', fn); },
       ponto(nome, p, ic) {
         if (!p) { api.tirar(nome); return; }

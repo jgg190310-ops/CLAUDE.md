@@ -112,6 +112,7 @@
       if (soltarGps) return;
       soltarGps = S.gps.assinar((p) => {
         avisoGps();
+        if (atual === 'off') desenharPronto();
         if (!p) return;
         pos = p;
         if (mapa) mapa.ponto('eu', p, Mapa.ICONE.motorista((eu() || {}).veiculo));
@@ -135,6 +136,51 @@
       a.hidden = !txt;
     }
     function desligarGps() { if (soltarGps) { soltarGps(); soltarGps = null; } }
+
+    /* ---------- antes de ficar online: o GPS, os avisos, o raio e a bateria, como estão agora ---------- */
+    let permGps = '';
+    let bateria = null;
+    try {
+      if (navigator.permissions) {
+        navigator.permissions.query({ name: 'geolocation' }).then((st) => {
+          permGps = st.state;
+          st.addEventListener('change', () => { permGps = st.state; desenharPronto(); });
+          desenharPronto();
+        }).catch(() => {});
+      }
+    } catch (e) { /* sem a consulta */ }
+    if (navigator.getBattery) {
+      navigator.getBattery().then((b) => {
+        bateria = b;
+        b.addEventListener('levelchange', desenharPronto);
+        b.addEventListener('chargingchange', desenharPronto);
+        desenharPronto();
+      }).catch(() => {});
+    }
+    function desenharPronto() {
+      const caixa = q('#rm-pronto');
+      if (!caixa) return;
+      const li = (n) => $(`[data-pronto="${n}"]`, caixa);
+      const p = S.gps.ultima();
+      let gps = permGps === 'granted' ? 'liberado' : 'pede ao ficar online';
+      let ok = permGps === 'granted' ? 'sim' : '';
+      if (S.gps.negado() || permGps === 'denied') { gps = 'bloqueado'; ok = 'nao'; }
+      else if (p && Date.now() - p.t < 120000) {
+        const fraco = p.precisao > 150;
+        gps = fraco ? `fraco, ${S.textoKm(Math.round(p.precisao / 50) * 50 / 1000)}` : `±${Math.round(p.precisao)} m`;
+        ok = fraco ? 'nao' : 'sim';
+      }
+      q('#rm-pronto-gps').textContent = gps;
+      li('gps').dataset.ok = ok;
+      q('#rm-pronto-raio').textContent = `${raio()} km`;
+      li('raio').dataset.ok = 'sim';
+      if (bateria) {
+        const pct = Math.round(bateria.level * 100);
+        q('#rm-pronto-bat').textContent = `${pct}%${bateria.charging ? ' · na tomada' : ''}`;
+        li('bateria').hidden = false;
+        li('bateria').dataset.ok = pct < 20 && !bateria.charging ? 'nao' : 'sim';
+      }
+    }
     async function travarTela() {
       try { if ('wakeLock' in navigator && !trava) { trava = await navigator.wakeLock.request('screen'); trava.addEventListener('release', () => { trava = null; }); } } catch (e) { /* sem trava */ }
     }
@@ -159,7 +205,7 @@
     }
     function medirFolha(tela) {
       const f = $('.rt-folha', tela);
-      if (mapa) mapa.folga(f ? () => f.getBoundingClientRect().height : 0);
+      if (mapa) mapa.folga(f || 0);
     }
 
     /* ---------- telas ---------- */
@@ -178,6 +224,7 @@
     const ENTRAR = {
       off() {
         desenharGanhos();
+        desenharPronto();
         // offline, o mapa fica ao fundo onde o motorista estava (o GPS só liga quando ele fica online ou simula)
         const p = pos || S.gps.ultima();
         mapa.limpar();
@@ -325,6 +372,7 @@
       if (!RAIOS.includes(km)) return;
       eu().raio = km;
       op.salvar();
+      desenharPronto();
       desenharPedidos();
       assinarRegioes();
     }
