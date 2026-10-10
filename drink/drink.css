@@ -684,7 +684,7 @@ input[type="range"]:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 2px var(
   display: inline-flex; align-items: center; gap: 6px; padding: 5px 11px; border-radius: 999px;
   border: 1.5px solid rgba(210, 255, 60, .22);
   font-size: .68rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase;
-  color: rgba(210, 255, 60, .45);
+  color: rgba(210, 255, 60, .56);
   transition: color .3s, border-color .3s, background-color .3s;
 }
 .tx-b .i { width: 12px; height: 12px; }
@@ -733,6 +733,7 @@ input[type="range"]:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 2px var(
 .tile-ic-ok, .tile-vivo .tile-ic { background: var(--lima); color: var(--tinta); }
 .tile-vistoria { grid-column: span 2; grid-row: span 2; --fundo: var(--branco); }
 .tile-seguro { grid-row: span 2; }
+.tile-seguro .nota { color: var(--luz); }
 .tile-dirige { grid-column: 1 / -1; }
 .tile-cab { display: grid; gap: 14px; }
 .tile-cab p:not(.tile-ic) { color: var(--ink-2); max-width: 52ch; }
@@ -818,7 +819,7 @@ input[type="range"]:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 2px var(
 .ajuda-anel + .ajuda-anel { width: 116px; height: 116px; border: 2px solid var(--tinta); }
 .ajuda-bt {
   position: relative; display: grid; place-items: center; width: 84px; height: 84px; border-radius: 50%;
-  background: var(--vermelho); color: #fff; font-weight: 800; font-size: .98rem; letter-spacing: .04em; text-transform: uppercase;
+  background: #CC2A1E; color: #fff; font-weight: 800; font-size: .98rem; letter-spacing: .04em; text-transform: uppercase;
   box-shadow: 0 14px 28px -12px rgba(160, 30, 20, .8);
 }
 .dirige-lista { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; margin-top: 4px; }
@@ -1049,6 +1050,7 @@ input[type="range"]:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 2px var(
     margin-inline: calc(var(--gutter) * -1); padding: 4px var(--gutter) 16px; scroll-padding-inline: var(--gutter);
   }
   .rec-grade::-webkit-scrollbar { display: none; }
+  .rec-grade:focus-visible { outline: 2px solid var(--enfase); outline-offset: 2px; }
   .rec { flex: 0 0 min(300px, 82%); scroll-snap-align: start; min-height: 430px; }
 
   .dobra-grade, .preco-grade, .eventos-grade, .mot-grade, .faq-grade { grid-template-columns: minmax(0, 1fr); }
