@@ -277,7 +277,11 @@
       const n = u.viagens || 0;
       ['#rm-hoje', '#rm-hoje-2', '#rm-hoje-3'].forEach((s) => { q(s).textContent = g; });
       ['#rm-viagens', '#rm-viagens-3'].forEach((s) => { q(s).textContent = `${n} ${n === 1 ? 'viagem' : 'viagens'}`; });
-      q('#rm-veic-txt').textContent = u.veiculo === 'patinete' ? 'Patinete elétrico dobrável' : 'Bike elétrica dobrável';
+      // a bike ou o patinete de hoje, com a marca e a cor se o motorista contou
+      const det = (u.veiculos || {})[u.veiculo === 'patinete' ? 'patinete' : 'bike'];
+      q('#rm-veic-txt').textContent = det && (det.modelo || det.cor)
+        ? window.Drink.perfil.descrever({ tipo: u.veiculo, ...det })
+        : (u.veiculo === 'patinete' ? 'Patinete elétrico dobrável' : 'Bike elétrica dobrável');
       q('#rm-status-ic').setAttribute('href', u.veiculo === 'patinete' ? '#i-patinete' : '#i-bike');
       q('#rm-nota').textContent = notaTxt(u);
     }
@@ -495,7 +499,7 @@
       q('#rm-ag-sub').textContent = `Você aceitou ${p.de.bairro} → ${p.para.bairro}. Assim que o passageiro confirmar, aparece o endereço.`;
       await enviar({
         tipo: 'aceite',
-        motorista: { nome: nomeCurto(u), nota: nota(u), corridas: u.totalCorridas || 0, veiculo: u.veiculo || 'bike', foto: Boolean(u.selfieEnvio) },
+        motorista: { nome: nomeCurto(u), nota: nota(u), corridas: u.totalCorridas || 0, veiculo: u.veiculo || 'bike', foto: Boolean(u.selfieEnvio), ...window.Drink.perfil.doMotorista(u) },
         pos: pos ? { lat: pos.lat, lon: pos.lon } : null,
       });
       avisos().mandar(R.topico.aviso(id, 'p'), 'aceite');
@@ -983,6 +987,7 @@
       enviar({ tipo: 'recebido', nota: c.notaPassageiro || 0 });
       u.totalCorridas = (u.totalCorridas || 0) + 1;
       if (c.avaliacao && c.avaliacao.nota) u.avaliacoes = [...(u.avaliacoes || []), c.avaliacao.nota].slice(-100);
+      if (c.avaliacao) window.Drink.perfil.somarElogios(u, c.avaliacao.nota, c.avaliacao.tags);
       u.corridasFeitas = [{
         id: c.id, data: new Date().toISOString(), rota: `${c.embarque.bairro || c.embarque.nome} → ${c.destino.bairro || c.destino.nome}`,
         total, km: c.km, valor: c.valor, espera: c.espera || 0, gorjeta, nota: c.avaliacao ? c.avaliacao.nota || 0 : 0,

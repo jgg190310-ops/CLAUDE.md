@@ -6,6 +6,7 @@
 
   const { $, $$, brl, brl0, hhmm, esc, reduzirMovimento, taxaEspera, PRECO } = window.Drink.util;
   const S = window.Drink.servicos;
+  const PF = window.Drink.perfil;
   const R = window.Drink.rede;
   const Mapa = window.Drink.mapa;
   const PIX = window.Drink.pix;
@@ -15,7 +16,7 @@
   const PRAZO_BUSCA = 3 * 60 * 1000;
   const VEICULOS = { qualquer: 'Tanto faz', bike: 'Bike', patinete: 'Patinete' };
   const TAGS = {
-    boas: ['Pontual', 'Cuidou do carro', 'Dirigiu com calma', 'Gente boa'],
+    boas: window.Drink.perfil.ELOGIOS,
     ruins: ['Atrasou', 'Dirigiu rápido', 'Pouco cuidado com o carro', 'Outro motivo'],
   };
   const FOTOS = ['Frente', 'Traseira', 'Esquerda', 'Direita', 'Painel'];
@@ -369,6 +370,7 @@
         lerMeio();
       },
       opcoes() { mostrarOpcoes(); },
+      buscando() { resumoBusca(); },
       caminho() { mostrarCaminho(); },
       preparo() { mostrarPreparo(); },
       viagem() { mostrarViagem(); },
@@ -763,6 +765,7 @@
           c.motorista = {
             pub: k, nome: String(m.nome || 'Motorista').slice(0, 40), nota: Number(m.nota) || 0,
             corridas: Number(m.corridas) || 0, veiculo: m.veiculo === 'patinete' ? 'patinete' : 'bike',
+            ...PF.limpar(m),
           };
           c.chave = chave;
           c.pos = ponto(msg.pos) ? { lat: msg.pos.lat, lon: msg.pos.lon } : null;
@@ -916,8 +919,8 @@
       q('#rp-cam-t').textContent = c.etapa === 'chegou' ? `${nome} chegou` : (c.avisouPerto ? `${nome} está chegando` : `${nome} está a caminho`);
       rosto(q('#rp-mot-av'), m);
       q('#rp-mot-nome').textContent = m.nome;
-      q('#rp-mot-info').textContent = `${c.simulada ? 'simulação' : (m.nota ? S.virgula(m.nota) : 'novo no Drink')} · ${veiculoTxt(m.veiculo)}`;
-      q('#rp-mot-veic').setAttribute('href', m.veiculo === 'patinete' ? '#i-patinete' : '#i-bike');
+      q('#rp-mot-info').textContent = c.simulada ? 'simulação' : notaCorridas(m);
+      desenharVeiculo(m);
       q('#rp-codigo').textContent = c.codigo.split('').join(' ');
       q('#rp-codigo-txt').textContent = c.etapa === 'chegou'
         ? `Fala esse código pro ${nome}. Quando ele digitar no app, o seu celular confere e aí você entrega a chave.`
@@ -930,6 +933,72 @@
       mapa.ponto('embarque', c.embarque, Mapa.ICONE.embarque());
       if (pos) mapa.ponto('voce', pos, Mapa.ICONE.voce());
       atualizarChegando(true);
+    }
+    // a nota e as corridas, como nos apps de corrida ("4,9 · 23 corridas"), ou "novo no Drink"
+    function notaCorridas(m) {
+      const corridas = m.corridas ? `${m.corridas} ${m.corridas === 1 ? 'corrida' : 'corridas'}` : '';
+      if (m.nota) return [S.virgula(m.nota), corridas].filter(Boolean).join(' · ');
+      return corridas ? `${corridas} · ainda sem nota` : 'novo no Drink';
+    }
+    // a bike ou o patinete do motorista, com a cor que ele cadastrou
+    function desenharVeiculo(m) {
+      const v = { ...(m.veic || {}), tipo: m.veiculo };
+      const c = PF.cor(v.cor);
+      const caixa = q('#rp-mot-veic-box');
+      caixa.style.setProperty('--veic', c ? c.hex : '');
+      caixa.classList.toggle('com-cor', Boolean(c));
+      q('#rp-mot-veic').setAttribute('href', v.tipo === 'patinete' ? '#i-patinete' : '#i-bike');
+      q('#rp-mot-veic-nome').textContent = v.modelo || PF.curto(v.tipo);
+      q('#rp-mot-veic-sub').textContent = [PF.corTxt(v.cor, v.tipo), 'dobrável'].filter(Boolean).join(' · ');
+    }
+    // o perfil de quem dirige, ao tocar na foto
+    function desenharPerfilMotorista() {
+      const c = corrida;
+      if (!c || !c.motorista) return;
+      const m = c.motorista;
+      const nome = primeiroNome(m.nome);
+      rosto(q('#rp-mot-foto'), m);
+      q('#rp-mot-t').textContent = m.nome;
+      const desde = PF.desdeTxt(m.desde);
+      q('#rp-mot-desde').textContent = c.simulada ? 'Motorista da simulação: ninguém de verdade vai até você.' : (desde ? `Dirige com o Drink desde ${desde}` : 'Começou a dirigir com o Drink agora');
+      q('#rp-mot-nota').textContent = m.nota ? S.virgula(m.nota) : '—';
+      q('#rp-mot-corridas').textContent = String(m.corridas || 0);
+      const meses = m.desde ? Math.floor((Date.now() - m.desde) / (30.4 * 864e5)) : 0;
+      q('#rp-mot-tempo').textContent = !m.desde || meses < 1 ? 'novo' : (meses < 12 ? `${meses} ${meses === 1 ? 'mês' : 'meses'}` : `${Math.floor(meses / 12)} ${meses < 24 ? 'ano' : 'anos'}`);
+      // o veículo
+      const v = { ...(m.veic || {}), tipo: m.veiculo };
+      const cor = PF.cor(v.cor);
+      q('#rp-mot-amostra').style.setProperty('--veic', cor ? cor.hex : '');
+      q('#rp-mot-amostra').classList.toggle('com-cor', Boolean(cor));
+      q('#rp-mot-amostra-ic').setAttribute('href', v.tipo === 'patinete' ? '#i-patinete' : '#i-bike');
+      q('#rp-mot-veic-t').textContent = v.modelo ? `${v.modelo}${cor ? ` ${PF.corTxt(v.cor, v.tipo)}` : ''}` : `${PF.curto(v.tipo)}${cor ? ` ${PF.corTxt(v.cor, v.tipo)}` : ''}`;
+      q('#rp-mot-veic-s').textContent = `${PF.texto(v.tipo)}: ${nome} chega com ${v.tipo === 'patinete' ? 'ele' : 'ela'}, dirige o seu carro e leva ${v.tipo === 'patinete' ? 'o patinete' : 'a bike'} no porta-malas.`;
+      // os elogios
+      const el = m.elogios || [];
+      q('#rp-mot-elogios-t').hidden = !el.length;
+      q('#rp-mot-elogios').hidden = !el.length;
+      q('#rp-mot-elogios').innerHTML = el.map((e) => `<li><b>${esc(e.t)}</b><span>${e.n}×</span></li>`).join('');
+      // o que o cadastro pediu: só aparece o que o motorista mandou
+      const d = m.docs || {};
+      const itens = [
+        [d.selfie, 'i-camera', 'Rosto', 'A selfie do cadastro é esta foto'],
+        [d.cnh, 'i-cnh', 'CNH com EAR', 'A carteira de motorista com atividade remunerada'],
+        [d.antecedentes, 'i-escudo', 'Antecedentes criminais', 'A certidão da Polícia Federal'],
+        [d.treino, 'i-capacete', 'Treino de segurança', 'Código, vistoria, dobra e direção'],
+      ].filter(([ok]) => ok || !c.simulada);
+      q('#rp-mot-docs').innerHTML = c.simulada
+        ? '<li class="pendente"><svg aria-hidden="true"><use href="#i-capacete"/></svg><span><b>Simulação</b><small>Na corrida de verdade, aqui aparece o que o motorista mandou no cadastro.</small></span></li>'
+        : itens.map(([ok, ic, t, sub]) => `<li class="${ok ? 'ok' : 'pendente'}"><svg aria-hidden="true"><use href="#${ic}"/></svg><span><b>${t}</b><small>${ok ? sub : 'Não veio no aceite'}</small></span><em>${ok ? 'enviado' : '—'}</em></li>`).join('');
+    }
+    // o pedido que está procurando Drink: de onde, para onde, o carro e o valor
+    function resumoBusca() {
+      const c = corrida;
+      if (!c) return;
+      const lugar = (l) => [l.nome, l.bairro].filter(Boolean).join(' · ');
+      q('#rp-bu-de').textContent = lugar(c.embarque) || 'Onde você está';
+      q('#rp-bu-para').textContent = lugar(c.destino) || '—';
+      q('#rp-bu-carro').textContent = c.carro && c.carro.modelo ? `${nomeCarro(c.carro)}${c.carro.placa ? ` · ${CARROS.placa.formatar(CARROS.placa.limpar(c.carro.placa))}` : ''}` : '—';
+      q('#rp-bu-valor').textContent = `${brl(c.valor)} · ${S.virgula(c.km)} km${c.adicional ? ' · bandeira 2' : ''}`;
     }
     /* ---------- o caminho do Drink até o embarque ---------- */
     // a rota de verdade do ponto onde o motorista está até o embarque: encurta conforme ele anda e é refeita
@@ -1157,7 +1226,9 @@
       if (!c) return;
       const nome = primeiroNome(c.motorista && c.motorista.nome);
       q('#rp-fim-sub').textContent = `Chegada às ${hhmm(new Date(c.chegada || Date.now()))} · ${c.destino.bairro || c.destino.nome}`;
-      q('#rp-aval-t').textContent = `Como foi com o ${nome}?`;
+      q('#rp-aval-t').textContent = `Como foi a volta com ${nome}?`;
+      if (c.motorista) rosto(q('#rp-aval-av'), c.motorista);
+      q('#rp-gorjeta-t').textContent = `Gorjeta, se quiser · vai inteira para ${nome}`;
       desenharAvaliacao();
     }
     function desenharAvaliacao() {
@@ -1508,6 +1579,7 @@
         q('#rp-carro-erro').hidden = true;
       }
       if (id === 'rp-preco') desenharPreco();
+      if (id === 'rp-mot') desenharPerfilMotorista();
       if (id === 'rp-contato') { q('#rp-contato-nome').value = ''; q('#rp-contato-cel').value = ''; q('#rp-contato-erro').hidden = true; }
       const t = $('h4', q(`#${id}`));
       if (t) t.focus({ preventScroll: true });
