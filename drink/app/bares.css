@@ -32,7 +32,9 @@
 .app .en-rot select option { color: #0E0D12; }
 .app .bar-carro { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: var(--e2); }
 
-.app .bar-pagina { display: grid; gap: var(--e3); }
+/* coluna flex como a do evento: dentro da página que rola, nada encolhe abaixo do próprio conteúdo */
+.app .bar-pagina { gap: var(--e3); }
+.app .bar-pagina > .ev-bloco-convite { order: 0; }
 .app .bar-estado { display: grid; gap: var(--e2); padding: var(--e4); border-radius: var(--r-g); background: var(--a-card); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .05); }
 .app .bar-estado p { margin: 0; font-size: max(13.5px, .88em); line-height: 1.45; color: var(--a-texto-2); }
 .app .bar-numeros {
@@ -86,7 +88,8 @@
 .app .t-bt.bar-ir svg { width: 1.2em; height: 1.2em; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 
 /* o bar no mapa: um copo que dá para tocar (para o motorista, com as voltas da noite) */
-.mk-bar { display: grid; place-items: center; }
+/* em bloco: com altura definida, os 100% do botão valem o tamanho do marcador */
+.mk-bar { display: block; }
 .mk-bar button {
   position: relative; display: grid; place-items: center; width: 100%; height: 100%; padding: 0; border: 2px solid #0E0D12; border-radius: 50%;
   background: #D2FF3C; color: #0E0D12; box-shadow: 0 0 0 4px rgba(210, 255, 60, .22), 0 4px 10px rgba(0, 0, 0, .5); cursor: pointer; pointer-events: auto;

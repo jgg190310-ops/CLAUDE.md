@@ -297,7 +297,12 @@
       // os bares ficam no ponto exato (é um lugar aberto, com fachada)
       bares(lista, desenho) {
         grupos.bares.forEach((m) => m.remove());
-        grupos.bares = (lista || []).map((p) => marcador(p, desenho(p)));
+        // o toque é o botão de dentro: o marcador em volta não pode ser outro botão (leitor de tela e teclado)
+        grupos.bares = (lista || []).map((p) => {
+          const mk = marcador(p, desenho(p));
+          ['role', 'tabindex', 'aria-label'].forEach((a) => mk.getElement().removeAttribute(a));
+          return mk;
+        });
       },
       // mostra todos os pontos dados, deixando livre o espaço da folha de baixo. A lista pode ser uma função:
       // quando a vista é refeita, os pontos são os de agora (o motorista andou)

@@ -124,7 +124,8 @@
         if (mapa && !(corrida && corrida.etapa === 'viagem')) mapa.ponto('voce', p, Mapa.ICONE.voce());
         if (primeira && atual === 'inicio') { centrarEmMim(); desenharAtalhos(); }
         if (!corrida) atualizarEmbarque();
-        if (corrida && corrida.etapa === 'viagem' && !corrida.simulada) andarNaViagem(p);
+        // pedido pelo bar: este celular ficou no bar; quem diz onde o carro está é o motorista
+        if (corrida && corrida.etapa === 'viagem' && !corrida.simulada && !corrida.peloBar) andarNaViagem(p);
       });
     }
     // o embarque é onde você está (o nome da rua vem do endereço mais perto), ou o lugar que você escolheu
@@ -1013,6 +1014,7 @@
           if (!ponto(msg)) return;
           c.pos = { lat: msg.lat, lon: msg.lon, t: Date.now() };
           if (atual === 'caminho') atualizarChegando();
+          if (c.peloBar && c.etapa === 'viagem') andarNaViagem(c.pos);
           break;
         case 'perto':
           if (c.etapa === 'a-caminho' && !c.avisouPerto) {
@@ -1326,7 +1328,7 @@
       mapa.limpar();
       mapa.rota(c.linha);
       mapa.ponto('destino', c.destino, Mapa.ICONE.destino());
-      const aqui = pos || c.pos;
+      const aqui = c.peloBar ? c.pos : (pos || c.pos);
       mapa.enquadrar(() => [c.aqui || aqui || c.embarque, c.destino]);
       andarNaViagem(aqui || c.embarque);
       if (c.compartilhada) ligarRastreio();
@@ -1668,8 +1670,8 @@
         bar: c.bar ? { nome: c.bar.nome, beneficio: BAR.beneficioTxt(c.bar.beneficio), cupom: c.bar.cupom } : undefined,
         peloBar: c.peloBar || undefined,
       };
-      if (c.peloBar) v.pag = 'Pix do cliente';
-      u.voltas = [v, ...(u.voltas || [])].slice(0, 100);
+      // a volta que o bar chamou para um cliente fica na lista do bar, não nas viagens de quem tem a conta
+      if (!c.peloBar) u.voltas = [v, ...(u.voltas || [])].slice(0, 100);
       if (c.notaRecebida) u.notasRecebidas = [...(u.notasRecebidas || []), c.notaRecebida].slice(-100);
       op.salvar();
       embarqueManual = false;
@@ -1678,7 +1680,7 @@
       if (c.peloBar) {
         const volta = TELAS_BAR.includes(voltarDoBar) ? voltarDoBar : 'bar';
         sairPeloBar();
-        op.avisar(c.liberado ? `Pronto. ${primeiroNome(c.peloBar.cliente)} segue com o Drink, e o celular do bar está livre.` : `${primeiroNome(c.peloBar.cliente)} chegou. A volta ficou salva em Viagens.`);
+        op.avisar(c.liberado ? `Pronto. ${primeiroNome(c.peloBar.cliente)} segue com o Drink, e o celular do bar está livre.` : `${primeiroNome(c.peloBar.cliente)} chegou em casa. A volta está na lista do bar.`);
         ir(painelBar.meu() ? volta : 'viagens');
         return;
       }
