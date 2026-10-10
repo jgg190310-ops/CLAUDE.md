@@ -70,6 +70,9 @@
     <symbol id="i-cupom" viewBox="0 0 24 24"><path d="M4 7.5A1.5 1.5 0 015.5 6h13A1.5 1.5 0 0120 7.5V10a2 2 0 000 4v2.5a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 014 16.5V14a2 2 0 000-4z"/><path d="M14.5 6.5v11" style="stroke-dasharray:2 2.2"/></symbol>
     <symbol id="i-carro" viewBox="0 0 24 24"><path d="M3.5 15.5v-3l2-4.6a2 2 0 011.8-1.2h9.4a2 2 0 011.8 1.2l2 4.6v3a1 1 0 01-1 1h-1"/><path d="M8.3 16.5h7.4M5.5 12h13"/><circle cx="6.5" cy="16.5" r="1.8"/><circle cx="17.5" cy="16.5" r="1.8"/></symbol>
     <symbol id="i-limao" viewBox="0 0 32 32"><circle cx="16" cy="16" r="15.2" style="fill:var(--limao-casca, #8CD62A);stroke:none"/><circle cx="16" cy="16" r="12.9" style="fill:var(--limao-miolo, #F3FFC4);stroke:none"/><path style="fill:var(--limao-polpa, #D2FF3C);stroke:none" d="M16.14 14.11L16.83 4.63A11.4 11.4 0 0 1 23.45 7.37L17.24 14.56ZM17.44 14.76L24.63 8.55A11.4 11.4 0 0 1 27.37 15.17L17.89 15.86ZM17.89 16.14L27.37 16.83A11.4 11.4 0 0 1 24.63 23.45L17.44 17.24ZM17.24 17.44L23.45 24.63A11.4 11.4 0 0 1 16.83 27.37L16.14 17.89ZM15.86 17.89L15.17 27.37A11.4 11.4 0 0 1 8.55 24.63L14.76 17.44ZM14.56 17.24L7.37 23.45A11.4 11.4 0 0 1 4.63 16.83L14.11 16.14ZM14.11 15.86L4.63 15.17A11.4 11.4 0 0 1 7.37 8.55L14.56 14.76ZM14.76 14.56L8.55 7.37A11.4 11.4 0 0 1 15.17 4.63L15.86 14.11Z"/></symbol>
+    <!-- a marca: "drink" na letra do Drink, com a rodela de limão no lugar do pingo do i. As letras seguem a cor do texto (o tema) -->
+    <path id="marca-letras" style="fill:currentColor;stroke:none" d="M190 13Q139 13 100 -19Q61 -51 40 -113Q18 -176 18 -267Q18 -360 39 -420Q60 -481 97 -511Q134 -540 182 -540Q222 -540 251 -520Q279 -500 298 -460Q316 -420 324 -358H334Q328 -392 323 -425Q319 -457 316 -487Q313 -517 313 -543V-690H471V-216V0H335V-157H327Q319 -97 301 -59Q283 -22 255 -4Q228 13 190 13ZM243 -110Q258 -110 271 -119Q284 -129 293 -147Q303 -166 309 -191Q314 -216 314 -247V-260Q314 -288 310 -312Q306 -335 299 -353Q292 -370 283 -382Q274 -394 264 -400Q253 -406 242 -406Q221 -406 207 -388Q193 -369 186 -336Q179 -302 179 -257Q179 -214 186 -180Q193 -147 207 -128Q222 -110 243 -110ZM507 0V-292V-528H647V-322H655Q658 -405 674 -451Q691 -498 717 -516Q743 -535 774 -535Q785 -535 797 -533Q809 -530 820 -524L813 -348Q799 -355 785 -359Q770 -363 756 -363Q727 -363 707 -348Q687 -332 676 -301Q666 -270 666 -222V0ZM838 0V-528H996V0ZM1032 0V-311V-528H1166V-327H1174Q1178 -403 1195 -450Q1212 -497 1244 -519Q1275 -541 1322 -541Q1397 -541 1433 -487Q1469 -433 1469 -322V0H1310V-291Q1310 -346 1299 -372Q1288 -398 1260 -398Q1236 -398 1221 -377Q1205 -356 1197 -315Q1190 -275 1190 -214V0ZM1502 0V-691H1657V-319Q1683 -341 1701 -365Q1719 -390 1731 -417Q1743 -445 1750 -473Q1757 -501 1761 -528H1939Q1932 -493 1916 -455Q1900 -418 1875 -383Q1850 -348 1815 -321Q1780 -293 1736 -277V-269Q1784 -274 1817 -268Q1850 -262 1870 -245Q1891 -228 1903 -201Q1915 -173 1921 -135L1941 0H1774L1764 -95Q1761 -132 1754 -158Q1748 -184 1732 -199Q1716 -213 1683 -213H1657V0Z"/>
+    <symbol id="i-marca" viewBox="18 -862 1924 876"><use href="#marca-letras"/><use href="#i-limao" x="767" y="-862" width="300" height="300"/></symbol>
     <symbol id="i-copo" viewBox="0 0 32 32"><path d="M4 5h24L16 18z" style="fill:var(--copo, #D2FF3C);stroke:none"/><path d="M16 18v9M10 28h12" style="stroke-width:2.4"/><circle cx="21" cy="9" r="3.6" style="stroke-width:2"/><path d="M21 5.4v7.2M17.4 9h7.2" style="stroke-width:1.4"/></symbol>
 
     <!-- riscos de caneta: setas das anotações, círculo e sublinhado nos títulos -->
@@ -138,8 +141,7 @@
 <header class="topo" id="topo">
   <div class="topo-in">
     <a class="marca" href="#inicio" aria-label="Drink, início">
-      <svg class="marca-limao" aria-hidden="true"><use href="#i-limao"/></svg>
-      <span>drink</span>
+      <svg class="marca-logo" viewBox="0 0 1924 876" aria-hidden="true"><use href="#i-marca"/></svg>
     </a>
     <nav class="nav" aria-label="Seções">
       <a href="#app" data-aba="app">O app</a>
@@ -267,8 +269,7 @@
             <button type="button" class="d-sair" id="demo-sair" aria-label="Fechar o app e voltar ao site"><svg class="i" aria-hidden="true"><use href="#i-fechar"/></svg></button>
 
             <div class="d-splash" id="d-splash" aria-hidden="true" hidden>
-              <svg class="d-splash-copo"><use href="#i-limao"/></svg>
-              <span class="d-splash-nome">drink</span>
+              <svg class="d-splash-logo" viewBox="18 -862 1924 876"><use class="d-splash-letras" href="#marca-letras"/><g class="d-splash-pingo"><use href="#i-limao" x="767" y="-862" width="300" height="300"/></g></svg>
               <span class="d-splash-sub">O motorista da vez</span>
             </div>
 
@@ -683,7 +684,7 @@
     </div>
 
     <div class="wrap">
-      <div class="rec-grade" id="rec-grade" data-lado="pede">
+      <div class="rec-grade" id="rec-grade" data-lado="pede" role="region" aria-label="O que o app faz" tabindex="0">
         <!-- para quem pede -->
         <article class="rec" data-lado="pede">
           <div class="rec-txt"><h3>Agende a volta</h3><p>Vai pra longe? Marque uma janela de 1 hora, até 12 horas antes. Um Drink reserva a sua volta e vai até você na hora.</p></div>
@@ -1456,7 +1457,7 @@
         <details class="pergunta"><summary><span>A bike ou o patinete sujam o porta-malas?</span><svg class="i" aria-hidden="true"><use href="#i-mais"/></svg></summary><p>Nada disso. O Drink leva uma capa protetora e forra o porta-malas antes de guardar.</p></details>
         <details class="pergunta"><summary><span>Meu carro é manual. Tem problema?</span><svg class="i" aria-hidden="true"><use href="#i-mais"/></svg></summary><p>Problema nenhum. Todo Drink dirige carro manual e automático.</p></details>
         <details class="pergunta"><summary><span>Posso agendar a volta?</span><svg class="i" aria-hidden="true"><use href="#i-mais"/></svg></summary><p>Pode, de 1 hora até 12 horas antes. Você escolhe uma janela de 1 hora, um Drink reserva a sua volta e, na hora, vai até você. É o jeito certo para lugar longe, tipo o Jardim Canadá. Cancelar é de graça até 2 horas antes; depois disso, a taxa é de R$ 15 (ou R$ 25 se o motorista chegar e você não aparecer), paga pelo Pix direto para ele. <a href="app/">Agendar no app</a></p></details>
-        <details class="pergunta"><summary><span>Tenho um bar. Como vira parceiro?</span><svg class="i" aria-hidden="true"><use href="#i-mais"/></svg></summary><p>No app, na aba Eventos, toca em <b>Tem um bar?</b>: você cadastra o endereço e ganha um QR para o balcão e as mesas. Quem lê o QR pede a volta com o Drink já buscando na porta do bar. Quando o bar abre, ele aparece no mapa de quem pede e de quem dirige. Na hora de fechar, o garçom chama o Drink pelo cliente, do celular do bar. E você vê quantas voltas saíram daí, com o código do benefício que você dá para quem volta de Drink. <a href="app/?aba=eventos">Cadastrar o meu bar</a></p></details>
+        <details class="pergunta"><summary><span>Tenho um bar. Como vira parceiro?</span><svg class="i" aria-hidden="true"><use href="#i-mais"/></svg></summary><p>No app, na aba <b>Bares</b>, toca em <b>Tem um bar?</b>: você põe a foto do bar, o endereço (se a busca não achar, é só marcar a porta no mapa) e ganha um QR para as mesas. O bar aparece na aba Bares de todo mundo, com a foto, e quem aponta a câmera para o QR da mesa acha o bar na hora e pede o Drink, que busca na porta. Na hora de fechar, o garçom também pode chamar o Drink pelo cliente, do celular do bar. E você vê quantas voltas saíram daí, com o código do benefício que você dá para quem volta de Drink. <a href="app/?aba=bares">Cadastrar o meu bar</a></p></details>
         <details class="pergunta"><summary><span>Quanto tempo o Drink demora pra chegar?</span><svg class="i" aria-hidden="true"><use href="#i-mais"/></svg></summary><p>A meta é chegar em até 15 minutos nos bairros atendidos. Sexta e sábado a noite ferve, então agendar garante o horário.</p></details>
         <details class="pergunta"><summary><span>Quero ser Drink. Dá pra testar antes?</span><svg class="i" aria-hidden="true"><use href="#i-mais"/></svg></summary><p>Dá! No app, toca em <b>Quero dirigir</b> e depois em <b>Treine uma corrida simulada</b>. Você faz uma corrida inteira, do aceite ao Pix, sem mandar CNH nem documento. <a href="app/?treino=motorista">Treinar agora</a></p></details>
         <details class="pergunta"><summary><span>Como eu pago?</span><svg class="i" aria-hidden="true"><use href="#i-mais"/></svg></summary><p>Pelo Pix, direto para o motorista: na chegada, o app mostra o QR Code e o copia e cola com o valor certo, e você paga pelo app do seu banco. A gorjeta é opcional e vai toda para o motorista.</p></details>
@@ -1490,7 +1491,7 @@
 <footer class="rodape">
   <div class="wrap rodape-in">
     <div class="rodape-marca">
-      <a class="marca" href="#inicio" aria-label="Drink, início"><svg class="marca-limao" aria-hidden="true"><use href="#i-limao"/></svg><span>drink</span></a>
+      <a class="marca" href="#inicio" aria-label="Drink, início"><svg class="marca-logo" viewBox="0 0 1924 876" aria-hidden="true"><use href="#i-marca"/></svg></a>
       <p>O motorista da vez.</p>
     </div>
     <nav class="rodape-nav" aria-label="Rodapé">
@@ -1509,7 +1510,7 @@
       <p>Protótipo. Preços e prazos são exemplos. O app já funciona pelo navegador do celular; nas lojas, em breve.</p>
     </div>
   </div>
-  <p class="rodape-gigante" aria-hidden="true"><span>drink</span><svg><use href="#i-limao"/></svg></p>
+  <p class="rodape-gigante" aria-hidden="true"><svg viewBox="18 -862 1924 876"><use href="#marca-letras"/><g class="rodape-pingo"><use href="#i-limao" x="767" y="-862" width="300" height="300"/></g></svg></p>
 </footer>
 
 <dialog class="dlg" id="dlg-motorista" aria-labelledby="dlg-mot-t">

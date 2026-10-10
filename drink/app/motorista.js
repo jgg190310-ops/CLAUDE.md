@@ -232,10 +232,17 @@
     // os bares parceiros abertos: onde tem volta saindo hoje (a vitrine é aberta: nome, ponto e as voltas da noite)
     let vitrine = null;
     let bares = [];
+    // sem conexão só para os bares: online, a vitrine vem junto na conexão dos pedidos; offline, nenhuma conexão
+    // fica aberta (uma leitura ao entrar e de novo a cada 3 min com a tela à vista)
+    let baresLidos = 0;
     function ouvirBares() {
-      if (vitrine) return;
-      vitrine = BAR.ouvirVitrine((lista) => { bares = lista; desenharBares(); });
+      // no mapa de quem dirige, só os bares abertos agora
+      if (!vitrine) vitrine = BAR.ouvirVitrine((lista) => { bares = lista.filter((b) => b.aberto); desenharBares(); });
+      if (Date.now() - baresLidos > 20000) { baresLidos = Date.now(); vitrine.ler(); }
     }
+    setInterval(() => {
+      if (vitrine && !assPedidos && atual === 'off' && document.visibilityState === 'visible' && Date.now() - baresLidos > 180000) { baresLidos = Date.now(); vitrine.ler(); }
+    }, 30000);
     function desenharBares() {
       if (!['off', 'online'].includes(atual) || !mapa) return;
       const ref = pos || S.gps.ultima() || S.BH;
@@ -371,7 +378,12 @@
     function ouvirPedidos() {
       if (assPedidos) return;
       pedidos = new Map();
-      assPedidos = R.canal.assinar([R.topico.pedidos(), R.topico.fechados()], (msg) => receberPedido(msg), { desde: '4m' });
+      // a mesma conexão traz a vitrine dos bares (separada pelo canal, não pelo tipo da mensagem)
+      const canalBares = R.topico.bares();
+      assPedidos = R.canal.assinar([R.topico.pedidos(), R.topico.fechados(), canalBares], (msg, m) => {
+        if (m && m.topic === canalBares) { if (vitrine) vitrine.receber(msg, m); return; }
+        receberPedido(msg);
+      }, { desde: '4m' });
     }
     function pararPedidos() {
       if (assPedidos) { assPedidos.fechar(); assPedidos = null; }

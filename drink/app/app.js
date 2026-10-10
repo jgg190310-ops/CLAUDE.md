@@ -227,11 +227,8 @@
     }
     abertura.addEventListener('click', sair);
     cor();
-    // espera a fonte do nome (no máximo 0,7 s) para o nome não trocar de letra no meio da animação
-    let comecou = false;
-    const uma = () => { if (!comecou) { comecou = true; comecar(); } };
-    if (document.fonts && document.fonts.ready) document.fonts.ready.then(uma);
-    setTimeout(uma, 700);
+    // a marca é desenho (não depende de fonte): começa no próximo quadro
+    requestAnimationFrame(comecar);
   }
 
   function fimAbertura() {
@@ -270,7 +267,7 @@
     return quadros;
   }
 
-  // conta nova: o limão voa e vira a lua das boas-vindas, o nome vira a marca lá em cima
+  // conta nova: a marca voa da abertura para o canto das boas-vindas, com o limão dando uma volta no pingo do i
   function voarParaBoas() {
     const boas = tela('boas');
     boas.classList.remove('entrou', 'pousou', 'sem-voo');
@@ -284,24 +281,15 @@
     };
     if (reduzirMovimento() || !abertura.animate) { pousar(); return; }
     abertura.style.pointerEvents = 'none';
-    const roda = $('.ab-roda-caixa', abertura);
-    const nome = $('.ab-nome', abertura);
-    const lua = $('.boas-lua', boas);
+    const logo = $('.ab-logo', abertura);
     const marca = $('.boas-marca', boas);
-    const r1 = roda.getBoundingClientRect();
-    const r2 = lua.getBoundingClientRect();
-    const n1 = nome.getBoundingClientRect();
-    const n2 = marca.getBoundingClientRect();
+    const r1 = logo.getBoundingClientRect();
+    const r2 = marca.getBoundingClientRect();
     const voo = { duration: 800, easing: 'cubic-bezier(.6, 0, .2, 1)', fill: 'forwards' };
-    const dx = r2.left + r2.width / 2 - (r1.left + r1.width / 2);
-    const dy = r2.top + r2.height / 2 - (r1.top + r1.height / 2);
+    // a marca sobe primeiro e depois vai para a esquerda, diminuindo até o tamanho do canto (a origem dela é o canto de cima)
     const s = r2.width / r1.width;
-    // o limão faz uma curva para a direita e sobe; o nome sobe e depois vai para a esquerda: os dois não se cruzam
-    roda.animate(curva(dx, dy, dx * .95, dy * .05, (t) => `rotate(${135 * t}deg) scale(${1 + (s - 1) * t})`), voo);
-    const escala = parseFloat(getComputedStyle(marca).fontSize) / parseFloat(getComputedStyle(nome).fontSize);
-    const nx = n2.left - n1.left;
-    const ny = n2.top + n2.height / 2 - (n1.top + n1.height / 2);
-    nome.animate(curva(nx, ny, nx * .05, ny * .95, (t) => `scale(${1 + (escala - 1) * t})`), voo);
+    logo.animate(curva(r2.left - r1.left, r2.top - r1.top, (r2.left - r1.left) * .05, (r2.top - r1.top) * .95, (t) => `scale(${1 + (s - 1) * t})`), voo);
+    $('.ab-pingo', abertura).animate([{ transform: 'none' }, { transform: 'rotate(360deg)' }], voo);
     $('.ab-sub', abertura).animate([{ opacity: 1 }, { opacity: 0 }], { duration: 220, fill: 'forwards' });
     abertura.animate([{ backgroundColor: 'rgba(10, 11, 15, 1)' }, { backgroundColor: 'rgba(10, 11, 15, 0)' }],
       { duration: 420, delay: 120, easing: 'ease-out', fill: 'forwards' });
@@ -601,8 +589,8 @@
   // treino de motorista: de onde veio (para voltar) e se veio do site pedindo o treino antes de ter conta
   let origemTreino = 'papel';
   let querTreino = false;
-  // o site leva quem organiza um evento direto para a aba Eventos (?aba=eventos)
-  let querEventos = false;
+  // o site leva quem organiza um evento (ou tem um bar) direto para a aba Eventos ou Bares (?aba=eventos, ?aba=bares)
+  let querAba = '';
 
   // o cadastro de motorista completo e conferido; quem se cadastrou antes completa o que falta
   const podeDirigir = (u) => Boolean(u && u.motoristaOk && cadastro.completo(u));
@@ -617,10 +605,11 @@
       querTreino = false;
       if (!(u.corrida && !u.corrida.simulada)) { treinarMotorista(); return; }
     }
-    if (querEventos && !u.corridaMotorista) {
-      querEventos = false;
+    if (querAba && !u.corridaMotorista) {
+      const aba = querAba;
+      querAba = '';
       if (u.papel !== 'passageiro') { u.papel = 'passageiro'; salvar(); }
-      abrirPassageiro(anim || 'entra', 'eventos');
+      abrirPassageiro(anim || 'entra', aba);
       return;
     }
     if (!u.papel) { $('#en-ok-txt').textContent = `Oi, ${primeiro(u)}`; irEn('papel', { anim }); return; }
@@ -1309,7 +1298,8 @@
     const B = window.Drink.bares;
     barLido = B.lerLink(busca.get('bar'), location.hash.slice(1));
     if (!barLido) avisoConvite = 'Esse QR veio pela metade. Pede para o bar mostrar o QR de novo.';
-    else { B.guardarAqui(barLido); avisoConvite = `Você está no ${barLido.nome}. Na hora de ir embora, é só pedir: o Drink busca você na porta.`; }
+    // novo: o app abre direto na página do bar, com o "Solicite o seu Drink"
+    else { B.guardarAqui(barLido, true); avisoConvite = `Você está no ${barLido.nome}. O Drink busca você na porta.`; }
     try { history.replaceState(null, '', location.pathname); } catch (e) { /* ok */ }
   }
   const u = eu();
@@ -1324,7 +1314,7 @@
   }
   // o site manda quem quer dirigir direto para o treino (?treino=motorista), com ou sem conta
   if (busca.get('treino') === 'motorista') querTreino = true;
-  if (busca.get('aba') === 'eventos') querEventos = true;
+  if (['eventos', 'bares'].includes(busca.get('aba'))) querAba = busca.get('aba');
   if (pedidoPapel || busca.has('treino') || busca.has('aba')) { try { history.replaceState(null, '', location.pathname); } catch (e) { /* ok */ } }
   mostrarInstalar();
   window.Drink.avisos.sincronizar();
@@ -1334,7 +1324,7 @@
       mostrar(tela('boas'), null);
       tela('boas').classList.add('voando');
       if (querTreino) setTimeout(() => avisar('Para treinar como motorista, cria a sua conta. O treino começa logo depois, sem pedir CNH.'), 2600);
-      else if (querEventos) setTimeout(() => avisar('Para criar o seu evento, cria a sua conta. A aba Eventos abre logo depois.'), 2600);
+      else if (querAba) setTimeout(() => avisar(`Para ${querAba === 'bares' ? 'cadastrar o seu bar' : 'criar o seu evento'}, cria a sua conta. A aba ${querAba === 'bares' ? 'Bares' : 'Eventos'} abre logo depois.`), 2600);
     }
   } catch (e) {
     // se abrir a conta falhar, a abertura sai do mesmo jeito e o erro aparece

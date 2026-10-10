@@ -293,6 +293,8 @@
     bar: (id) => `drk-bar-${id}`,
     // a vitrine aberta dos bares parceiros: nome, bairro, ponto, benefício e até que horas abre hoje
     bares: () => `${cfg.sala}-bares`,
+    // a foto de cada bar, num canal só dela: quem pede só baixa a foto que ainda não tem
+    barFoto: (id) => `${cfg.sala}-barf-${id}`,
   };
 
   window.Drink.rede = {

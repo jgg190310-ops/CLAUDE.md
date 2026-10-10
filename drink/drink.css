@@ -142,13 +142,9 @@ h3 { font-family: var(--f-display); font-weight: 800; font-stretch: 85%; font-si
   max-width: var(--largura); margin-inline: auto; padding-inline: var(--gutter);
   height: var(--topo-h); display: flex; align-items: center; gap: 20px;
 }
-/* marca: rodela de limão e o nome */
-.marca {
-  display: inline-flex; align-items: center; gap: 9px; color: var(--luz); text-decoration: none;
-  font-family: var(--f-display); font-weight: 800; font-stretch: 88%; font-size: 2rem; line-height: 1; letter-spacing: -.04em;
-}
-.marca span { margin-top: -.08em; }
-.marca-limao { width: 34px; height: 34px; flex: none; }
+/* marca: "drink" com a rodela de limão no pingo do i (as letras na cor do texto) */
+.marca { display: inline-flex; align-items: center; color: var(--luz); text-decoration: none; }
+.marca-logo { display: block; flex: none; width: auto; height: 40px; aspect-ratio: 1924 / 876; overflow: visible; }
 .nav { display: flex; gap: 2px; margin-left: auto; }
 .nav a {
   padding: 9px 14px; border-radius: 999px; text-decoration: none; white-space: nowrap;
@@ -688,7 +684,7 @@ input[type="range"]:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 2px var(
   display: inline-flex; align-items: center; gap: 6px; padding: 5px 11px; border-radius: 999px;
   border: 1.5px solid rgba(210, 255, 60, .22);
   font-size: .68rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase;
-  color: rgba(210, 255, 60, .45);
+  color: rgba(210, 255, 60, .56);
   transition: color .3s, border-color .3s, background-color .3s;
 }
 .tx-b .i { width: 12px; height: 12px; }
@@ -737,6 +733,7 @@ input[type="range"]:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 2px var(
 .tile-ic-ok, .tile-vivo .tile-ic { background: var(--lima); color: var(--tinta); }
 .tile-vistoria { grid-column: span 2; grid-row: span 2; --fundo: var(--branco); }
 .tile-seguro { grid-row: span 2; }
+.tile-seguro .nota { color: var(--luz); }
 .tile-dirige { grid-column: 1 / -1; }
 .tile-cab { display: grid; gap: 14px; }
 .tile-cab p:not(.tile-ic) { color: var(--ink-2); max-width: 52ch; }
@@ -822,7 +819,7 @@ input[type="range"]:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 2px var(
 .ajuda-anel + .ajuda-anel { width: 116px; height: 116px; border: 2px solid var(--tinta); }
 .ajuda-bt {
   position: relative; display: grid; place-items: center; width: 84px; height: 84px; border-radius: 50%;
-  background: var(--vermelho); color: #fff; font-weight: 800; font-size: .98rem; letter-spacing: .04em; text-transform: uppercase;
+  background: #CC2A1E; color: #fff; font-weight: 800; font-size: .98rem; letter-spacing: .04em; text-transform: uppercase;
   box-shadow: 0 14px 28px -12px rgba(160, 30, 20, .8);
 }
 .dirige-lista { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; margin-top: 4px; }
@@ -975,12 +972,12 @@ input[type="range"]:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 2px var(
 .rodape-nav a:hover { color: var(--lima); }
 .rodape-legal { display: grid; gap: 10px; align-content: start; font-size: .88rem; color: var(--luz-3); }
 .rodape-gigante {
-  display: flex; align-items: center; gap: .04em; max-width: var(--largura); margin: clamp(48px, 7vw, 96px) auto 0; padding-inline: var(--gutter);
-  font-family: var(--f-display); font-weight: 800; font-stretch: 88%; font-size: clamp(5.5rem, 24vw, 22rem); line-height: .8; letter-spacing: -.025em;
-  color: var(--lima); user-select: none;
+  max-width: var(--largura); margin: clamp(48px, 7vw, 96px) auto 0; padding-inline: var(--gutter);
+  color: var(--luz); user-select: none;
 }
-.rodape-gigante span { margin-top: -.12em; }
-.rodape-gigante svg { flex: none; width: .74em; height: .74em; margin-left: .06em; }
+.rodape-gigante svg { display: block; width: min(100%, 980px); height: auto; aspect-ratio: 1924 / 876; overflow: visible; }
+/* o limão do pingo gira com a rolagem, no lugar dele */
+.rodape-pingo { transform-box: fill-box; transform-origin: center; }
 .rodape-legal p:first-child { font-family: var(--f-display); font-weight: 800; font-stretch: 75%; font-size: 2.3rem; line-height: .95; text-transform: uppercase; color: var(--lima); }
 
 /* ---------- diálogos ---------- */
@@ -1053,6 +1050,7 @@ input[type="range"]:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 2px var(
     margin-inline: calc(var(--gutter) * -1); padding: 4px var(--gutter) 16px; scroll-padding-inline: var(--gutter);
   }
   .rec-grade::-webkit-scrollbar { display: none; }
+  .rec-grade:focus-visible { outline: 2px solid var(--enfase); outline-offset: 2px; }
   .rec { flex: 0 0 min(300px, 82%); scroll-snap-align: start; min-height: 430px; }
 
   .dobra-grade, .preco-grade, .eventos-grade, .mot-grade, .faq-grade { grid-template-columns: minmax(0, 1fr); }

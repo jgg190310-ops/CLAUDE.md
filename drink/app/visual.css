@@ -57,7 +57,7 @@ body { font-family: var(--f-texto); font-feature-settings: "cv11", "ss01"; lette
   font-variant-numeric: tabular-nums; letter-spacing: -.02em;
 }
 /* a marca */
-.app :is(.ab-nome, .boas-marca, .boas-bebeu, .d-splash-nome, .placa, .d-codigo b), .mesa-marca, .mesa-t { font-family: var(--f-marca); }
+.app :is(.boas-bebeu, .placa, .d-codigo b), .mesa-t { font-family: var(--f-marca); }
 
 /* ---------- títulos ---------- */
 .app :is(.d-titulo, .t-titulo, .en-t, .boas-t, .en-tr-t, .d-sobre-cab h4, .d-hist-vazio b) {
@@ -432,13 +432,8 @@ body { font-family: var(--f-texto); font-feature-settings: "cv11", "ss01"; lette
 .boas-anda use, .boas-parado use { fill: none; stroke: var(--lima-tx); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
 .boas-parado { display: none; }
 @media (prefers-reduced-motion: reduce) { .boas-anda { display: none; } .boas-parado { display: inline; } }
-/* a marca lá em cima, à esquerda: o limão (que voa da abertura até aqui) e o nome */
-.app .boas-lua {
-  top: calc(var(--topo) + 1.15em); left: 1.3em; right: auto; width: 2.1em; height: 2.1em; max-width: none; aspect-ratio: auto;
-}
-.app .boas-lua::before, .app .boas-lua::after { display: none; }
-.app .boas-lua svg { filter: none; }
-.app .boas-marca { top: calc(var(--topo) + 1.02em); left: 2.4em; font-size: 1.62em; }
+/* a marca lá em cima, à esquerda (ela voa da abertura até aqui) */
+.app .boas-marca { top: calc(var(--topo) + .9em); left: 1.3em; height: 2.6em; }
 /* o texto continua o mapa, sem folha por cima */
 .app .boas-folha { margin-top: -4.2em; padding-top: 0; background: transparent; border-radius: 0; gap: .95em; }
 .app .boas-t { font-size: 2.15em; line-height: 1.06; letter-spacing: -.035em; }
@@ -512,3 +507,8 @@ body { font-family: var(--f-texto); font-feature-settings: "cv11", "ss01"; lette
 /* ---------- início do passageiro: a busca com a lupa num círculo limão ---------- */
 .app .d-busca { gap: .8em; padding-left: .55em; }
 .app .d-busca svg { box-sizing: content-box; width: 1.05em; height: 1.05em; padding: .55em; border-radius: 50%; background: var(--lima); stroke: #0A0B0F; stroke-width: 2.6; }
+
+/* v37: a marca no fim do perfil e do menu do motorista, na cor do texto (escura no tema claro) */
+.en-assina { display: grid; justify-items: center; gap: .55em; margin: 1.4em 0 .6em; color: var(--luz); }
+.en-assina svg { display: block; width: auto; height: 2.3em; aspect-ratio: 1924 / 876; overflow: visible; }
+.en-assina span { font-size: .72em; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--a-texto-2); }

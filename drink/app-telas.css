@@ -430,11 +430,13 @@ button { -webkit-tap-highlight-color: transparent; }
   font-size: min(4.4cqw, 14px); color: var(--luz);
   background: radial-gradient(90% 60% at 50% 42%, var(--cobalto-2), var(--cobalto) 70%);
 }
-.d-splash-copo { width: 6em; height: 6em; margin-bottom: .6em; animation: splash-copo .8s cubic-bezier(.2, .7, .1, 1) both; }
-.d-splash-nome { font-family: var(--f-display); font-weight: 800; font-stretch: 88%; font-size: 5.2em; line-height: .9; letter-spacing: -.05em; animation: splash-sobe .6s .15s cubic-bezier(.2, .7, .1, 1) both; }
+/* a marca: as letras sobem e a rodela de limão cai no pingo do i */
+.d-splash-logo { display: block; width: 14em; height: auto; aspect-ratio: 1924 / 876; margin-bottom: .5em; overflow: visible; }
+.d-splash-letras { animation: splash-sobe .6s .1s cubic-bezier(.2, .7, .1, 1) both; }
+.d-splash-pingo { transform-box: fill-box; transform-origin: center; animation: splash-pingo .7s .35s cubic-bezier(.5, 0, .6, 1.5) both; }
 .d-splash-sub { font-size: .76em; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--lima-tx); animation: splash-sobe .6s .3s ease-out both; }
 .d-splash.saindo { animation: splash-sai .35s ease-in forwards; }
-@keyframes splash-copo { from { opacity: 0; transform: scale(.6) rotate(-90deg); } to { opacity: 1; transform: none; } }
+@keyframes splash-pingo { from { opacity: 0; transform: translateY(-260%) rotate(-200deg); } 30% { opacity: 1; } to { opacity: 1; transform: none; } }
 @keyframes splash-sobe { from { opacity: 0; transform: translateY(.6em); } to { opacity: 1; transform: none; } }
 @keyframes splash-sai { to { opacity: 0; transform: scale(1.04); } }
 
