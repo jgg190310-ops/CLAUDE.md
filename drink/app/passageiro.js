@@ -630,7 +630,8 @@
       const modo = modoBusca;
       modoBusca = 'destino';
       if (modo === 'bar') {
-        const aqui = l.gps && pos ? { ...(ultimoEndereco ? ultimoEndereco.lugar : { nome: l.nome, bairro: '' }), lat: pos.lat, lon: pos.lon } : lugar;
+        // "onde estou agora": o endereço do GPS (que não é o nome do bar)
+        const aqui = l.gps && pos ? { ...(ultimoEndereco ? ultimoEndereco.lugar : { nome: 'Endereço do bar', bairro: '' }), lat: pos.lat, lon: pos.lon, gps: true } : lugar;
         painelBar.lugarEscolhido(aqui);
         ir('bar-novo');
         return;

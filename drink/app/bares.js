@@ -277,7 +277,8 @@
     function lugarEscolhido(l) {
       if (!rascunho) return;
       rascunho.lugar = { nome: texto(l.nome, 80) || 'Bar', bairro: texto(l.bairro, 40), lat: l.lat, lon: l.lon };
-      if (!q('#rp-barn-nome').value.trim() && l.nome) q('#rp-barn-nome').value = texto(l.nome, 60);
+      // um lugar com nome (da busca) já preenche o nome do bar; o endereço do GPS, não
+      if (!l.gps && !q('#rp-barn-nome').value.trim() && l.nome) q('#rp-barn-nome').value = texto(l.nome, 60);
       q('#rp-barn-erro').hidden = true;
     }
     function desenharForm() {
