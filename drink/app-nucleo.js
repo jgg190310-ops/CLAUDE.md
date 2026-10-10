@@ -369,7 +369,7 @@
       },
       agendado() {
         preencherMotorista();
-        $('#d-agendado-txt').textContent = `${est.motorista.nome} chega às ${est.hora}, de ${nomeVeiculo()}. Você recebe um aviso 10 minutos antes.`;
+        $('#d-agendado-txt').textContent = `${est.motorista.nome} reservou a sua volta das ${est.hora}. Na hora, ele vai até você de ${nomeVeiculo()}.`;
       },
       caminho() {
         preencherMotorista();

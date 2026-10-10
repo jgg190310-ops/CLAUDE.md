@@ -104,6 +104,9 @@
       q('#rp-ag-valor').textContent = `${brl(p.total)}${p.adicional ? ' · bandeira 2' : ''}`;
       q('#rp-ag-rota').textContent = `${lugar(base.embarque)} → ${lugar(base.destino)} · ${S.textoKm(base.rota.km)}`;
       q('#rp-ag-gratis').textContent = hhmm(new Date(escolhido - REGRAS.gratisAteMin * MIN));
+      q('#rp-ag-taxa').textContent = `R$ ${S.virgula(REGRAS.taxaTarde, Number.isInteger(REGRAS.taxaTarde) ? 0 : 2)}`;
+      q('#rp-ag-naoveio').textContent = `R$ ${S.virgula(REGRAS.taxaNaoVeio, Number.isInteger(REGRAS.taxaNaoVeio) ? 0 : 2)}`;
+      q('#rp-ag-espera').textContent = String(REGRAS.esperaNaoVeioMin);
       q('#rp-ag-ok').textContent = `Agendar · ${brl(p.total)}`;
     }
     function escolher(t) { escolhido = Number(t); desenharEscolha(); }
@@ -252,7 +255,7 @@
       if (ag.motorista) {
         await mandar(ag, { tipo: 'cancelado', taxa });
         ctx.avisos().mandar(R.topico.aviso(ag.id, 'm'), 'ag-cancelada');
-        if (taxa > 0) criarPendencia({ id: ag.id, valor: taxa, motivo: 'Cancelou a volta agendada a menos de 2 h', nome: ag.motorista.nome, pix: ag.motorista.pix, chave: ag.chave, pub: ag.motorista.pub, rota: `${ag.embarque.bairro || ag.embarque.nome} → ${ag.destino.bairro || ag.destino.nome}` });
+        if (taxa > 0) criarPendencia({ id: ag.id, valor: taxa, motivo: 'Cancelou a volta agendada a menos de 2\u00a0h', nome: ag.motorista.nome, pix: ag.motorista.pix, chave: ag.chave, pub: ag.motorista.pub, rota: `${ag.embarque.bairro || ag.embarque.nome} → ${ag.destino.bairro || ag.destino.nome}` });
       } else {
         fechar(ag);
       }
@@ -277,6 +280,7 @@
     function desenharPendencia() {
       const p = pendente();
       if (!p) return;
+      q('#rp-pend-t').textContent = /não apareceu/.test(p.motivo) ? 'Taxa por não aparecer' : 'Taxa de cancelamento';
       q('#rp-pend-sub').textContent = `${p.motivo}${p.rota ? ` · ${p.rota}` : ''}`;
       q('#rp-pend-valor').textContent = brl(p.valor);
       q('#rp-pend-para').textContent = `Para ${p.pix && p.pix.nome ? p.pix.nome : p.nome}, direto pelo Pix`;
@@ -528,7 +532,7 @@
           if (!['reservada', 'confirmada'].includes(r.estado)) return;
           const taxa = Math.max(0, Math.min(REGRAS.taxaNaoVeio, Number(msg.taxa) || 0));
           tirar(r.id);
-          if (taxa > 0) aReceber({ id: r.id, chave: r.chave, pub: r.pub, priv: r.priv, valor: taxa, nome: r.passageiro ? r.passageiro.nome : 'Passageiro', rota: rotaTxt(r), motivo: 'cancelou a menos de 2 h' });
+          if (taxa > 0) aReceber({ id: r.id, chave: r.chave, pub: r.pub, priv: r.priv, valor: taxa, nome: r.passageiro ? r.passageiro.nome : 'Passageiro', rota: rotaTxt(r), motivo: 'cancelou a menos de 2\u00a0h' });
           ctx.tocar();
           ctx.notificar('Volta agendada cancelada', taxa ? `${nome} cancelou: a taxa de ${brl(taxa)} vai por Pix para você.` : `${nome} cancelou com antecedência, sem taxa.`);
           ctx.avisar(taxa ? `${nome} cancelou a volta de ${janelaTxt(r.janela)}. A taxa de ${brl(taxa)} vem por Pix.` : `${nome} cancelou a volta de ${janelaTxt(r.janela)}, com antecedência.`);
@@ -648,7 +652,7 @@
       lista.innerHTML = abertas.length ? abertas.map((a) => {
         const longe = pos ? S.textoKm(S.distancia(pos, a.de) / 1000) : '';
         return `<li class="rm-agd-item aberta"><div class="rm-agd-hora"><b>${hhmm(new Date(a.janela.de))}</b><small>${esc(dia(a.janela.de, agora))}</small></div>`
-          + `<div class="rm-agd-txt"><b>${esc(a.de.bairro)} → ${esc(a.para.bairro)}</b><small>${S.virgula(a.km)} km de carro${a.cambio ? ` · câmbio ${esc(a.cambio)}` : ''}</small><small>${longe ? `O embarque está a uns ${longe} de você agora` : 'Embarque aproximado'}</small></div>`
+          + `<div class="rm-agd-txt"><b>${esc(a.de.bairro)} → ${esc(a.para.bairro)}</b><small>${S.virgula(a.km)} km de carro${a.cambio ? ` · câmbio ${esc(a.cambio)}` : ''}</small><small>${longe ? `Embarque a uns ${longe} de você` : 'Embarque aproximado'}</small></div>`
           + `<em>${brl(a.valor)}</em><div class="rm-agd-bts"><button type="button" class="t-bt" data-agd-reservar="${esc(a.id)}">Reservar</button></div></li>`;
       }).join('') : '<li class="rm-agd-vazio">Nenhuma volta agendada aberta agora. Quando alguém agendar perto, o celular avisa.</li>';
     }

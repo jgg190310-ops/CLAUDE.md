@@ -1,12 +1,12 @@
 /* Drink — o service worker do app. Guarda o app no aparelho para abrir sem internet e mostra os avisos
    (pedido novo, motorista chegou, mensagem…) que chegam pelo ntfy mesmo com o app fechado.
    Com internet, tudo vem da rede primeiro: o celular sempre usa a versão mais nova do app. */
-const VERSAO = 'drink-app-33';
+const VERSAO = 'drink-app-34';
 const FONTES = 'drink-fontes-1';
-const V = '?v=33';
+const V = '?v=34';
 const ARQUIVOS = [
   './', 'manifest.webmanifest',
-  ...['app.css', 'visual.css', 'tema.css', 'ritmo.css', 'perfil.css', 'jornada.css', 'app.js', 'servicos.js', 'rede.js', 'mapa-estilo.js', 'mapa.js', 'carros.js', 'cadastro-motorista.js', 'perfil.js', 'pix.js', 'avisos.js', 'sms.js',
+  ...['app.css', 'visual.css', 'tema.css', 'ritmo.css', 'perfil.css', 'jornada.css', 'agenda.css', 'app.js', 'servicos.js', 'rede.js', 'mapa-estilo.js', 'mapa.js', 'carros.js', 'cadastro-motorista.js', 'perfil.js', 'agenda.js', 'pix.js', 'avisos.js', 'sms.js',
     'eventos.js', 'passageiro.js', 'motorista.js', 'vendor/maplibre-gl.js', 'vendor/maplibre-gl.css', 'vendor/leaflet.js', 'vendor/leaflet.css', 'vendor/qrcode.js',
     '../app-telas.css', '../app-nucleo.js'].map((a) => a + V),
   'fontes/inter-latin.woff2',
@@ -66,6 +66,14 @@ const AVISOS = {
   cancelado: ['Corrida cancelada', 'Abre o Drink para ver o que aconteceu.'],
   confirmado: ['Corrida confirmada', 'Vai buscar o passageiro. O endereço está no app.'],
   paguei: ['O passageiro pagou', 'Confere no app do seu banco se o Pix caiu.'],
+  'ag-reservada': ['Sua volta agendada tem motorista', 'Abre o Drink para ver quem vai te buscar.'],
+  'ag-confirmada': ['Volta agendada confirmada', 'A pessoa confirmou a sua reserva. O horário está no app.'],
+  'ag-cancelada': ['Volta agendada cancelada', 'Abre o Drink para ver se tem taxa para você.'],
+  'ag-desistiu': ['O motorista desistiu', 'A sua volta voltou para a lista. Abre o Drink.'],
+  'ag-pronto': ['A pessoa está pronta', 'Hora de ir buscar. Abre o Drink.'],
+  'ag-indo': ['O Drink está indo te buscar', 'A sua volta agendada começou.'],
+  'ag-taxa': ['Taxa paga', 'Confere no app do seu banco se o Pix caiu.'],
+  'ag-nao-veio': ['Taxa por não aparecer', 'O motorista esperou e você não apareceu. Abre o Drink.'],
 };
 const reais = (v) => `R$ ${Number(v || 0).toFixed(2).replace('.', ',')}`;
 const bairro = (p) => String((p && p.bairro) || '').slice(0, 30) || 'BH';
@@ -92,6 +100,11 @@ async function mostrarAviso(dados) {
       titulo = 'Evento chamando Drinks';
       texto = `${String(corpo.evento || 'Evento').slice(0, 30)} · ${bairro(corpo.de)}${/^\d{2}:\d{2}$/.test(String(corpo.fim)) ? ` · até ${corpo.fim}` : ''}`;
       tag = 'drink-chamado';
+    } else if (corpo && corpo.tipo === 'agendada' && corpo.janela) {
+      const h = new Date(Number(corpo.janela.de)).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Sao_Paulo' });
+      titulo = 'Volta agendada perto de você';
+      texto = `${bairro(corpo.de)} → ${bairro(corpo.para)} · às ${h} · ${reais(corpo.valor)}`;
+      tag = 'drink-agendada';
     } else if (corpo && corpo.tipo === 'pedido') {
       titulo = 'Pedido novo no Drink';
       texto = `${bairro(corpo.de)} → ${bairro(corpo.para)} · ${reais(corpo.valor)}`;

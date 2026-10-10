@@ -678,7 +678,7 @@ body {
   border-radius: 1em; border: 1px solid var(--a-linha); background: var(--a-card); font-size: .8em; line-height: 1.35; color: var(--a-texto-2);
 }
 .rm-co-carro:empty { display: none; }
-.rm-co-carro b { color: var(--luz); }
+.rm-co-carro b:not(.placa *) { color: var(--luz); }
 .rm-co-carro .placa { flex: none; font-size: 1.15em; }
 
 /* conversa */
