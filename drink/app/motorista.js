@@ -234,7 +234,8 @@
     let bares = [];
     function ouvirBares() {
       if (vitrine) return;
-      vitrine = BAR.ouvirVitrine((lista) => { bares = lista; desenharBares(); });
+      // no mapa de quem dirige, só os bares abertos agora
+      vitrine = BAR.ouvirVitrine((lista) => { bares = lista.filter((b) => b.aberto); desenharBares(); });
     }
     function desenharBares() {
       if (!['off', 'online'].includes(atual) || !mapa) return;

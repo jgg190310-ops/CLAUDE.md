@@ -93,7 +93,11 @@
       buscarLugar: () => { voltarPara = 'bar-novo'; modoBusca = 'bar'; ir('destino'); },
       chamarPeloBar: (d) => chamarPeloBar(d),
     });
-    const TELAS_BAR = ['eventos', 'bar', 'bar-novo', 'bar-chamar'];
+    const TELAS_BAR = ['bares', 'bar', 'bar-novo', 'bar-chamar'];
+    const abaBar = BAR.criarAba({
+      raiz, ir: (nome) => ir(nome), atual: () => atual, pos: () => pos, avisar: op.avisar,
+      solicitar: (b) => solicitarNoBar(b), evento: (r) => conviteDoQr(r),
+    });
 
     /* ---------- mapa e GPS ---------- */
     function garantirMapa() {
@@ -232,20 +236,19 @@
       op.avisar('Pronto: o embarque volta a ser onde você está.');
     }
 
-    /* ---------- os bares parceiros abertos (a vitrine aberta) ---------- */
+    /* ---------- os bares parceiros (a vitrine aberta) ---------- */
     let vitrine = null;
     let bares = [];
-    let barVisto = null;
     function ouvirBares() {
       if (vitrine) return;
-      vitrine = BAR.ouvirVitrine((lista) => { bares = lista; desenharBares(); });
+      vitrine = BAR.ouvirVitrine((lista) => { bares = lista; abaBar.receber(lista); desenharBares(); });
     }
-    function baresPerto() {
+    function abertosPerto() {
       const ref = pos || embarque || S.BH;
-      return bares.map((b) => ({ ...b, m: S.distancia(ref, b) })).filter((b) => b.m <= 30000).sort((a, b) => a.m - b.m).slice(0, 30);
+      return bares.filter((b) => b.aberto).map((b) => ({ ...b, m: S.distancia(ref, b) })).filter((b) => b.m <= 30000).sort((a, b) => a.m - b.m).slice(0, 30);
     }
     function desenharBares() {
-      const perto = baresPerto();
+      const perto = abertosPerto();
       // no mapa só no início: nas outras telas o mapa é da rota
       if (mapa && atual === 'inicio') mapa.bares(perto, (b) => Mapa.ICONE.bar(b.id, b.nome, 'rp'));
       const linha = q('#rp-bares-linha');
@@ -254,40 +257,28 @@
         q('#rp-bares-linha-t').textContent = perto.length === 1 ? '1 bar parceiro aberto agora' : `${perto.length} bares parceiros abertos agora`;
         q('#rp-bares-linha-sub').textContent = perto.slice(0, 2).map((b) => b.nome).join(' · ') + (perto.length > 2 ? ` e mais ${perto.length - 2}` : '');
       }
-      if (folha === 'rp-bares') desenharListaBares();
     }
-    function desenharListaBares() {
-      const perto = baresPerto();
-      q('#rp-bares-lista').innerHTML = perto.length
-        ? perto.map((b) => `<li><button type="button" data-rp-bar="${esc(b.id)}"><span class="bar-li-ic" aria-hidden="true"><svg><use href="#i-copo"/></svg></span><span><b>${esc(b.nome)}</b><small>${esc([b.bairro, S.textoKm(b.m / 1000), BAR.ateTxt(b)].filter(Boolean).join(' · '))}</small><small>${esc(BAR.voltasTxt(b.voltas))}${BAR.beneficioTxt(b.beneficio) ? ` · ${esc(minuscula(BAR.beneficioTxt(b.beneficio)))}` : ''}</small></span></button></li>`).join('')
-        : '<li class="bar-li-vazio">Nenhum bar parceiro aberto perto agora.</li>';
-    }
-    function abrirBar(id) {
-      barVisto = bares.find((b) => b.id === id) || null;
-      if (!barVisto) return;
-      abrirFolha('rp-bar-info');
-    }
-    function desenharBarInfo() {
-      const b = barVisto;
-      if (!b) return;
-      const ref = pos || embarque;
-      q('#rp-bari-t').textContent = b.nome;
-      q('#rp-bari-sub').textContent = [b.bairro, ref ? `a ${S.textoKm(S.distancia(ref, b) / 1000)} de você` : ''].filter(Boolean).join(' · ');
-      q('#rp-bari-ate').textContent = BAR.ateTxt(b).replace(/^a/, 'A');
-      q('#rp-bari-voltas').textContent = BAR.voltasTxt(b.voltas).replace(/^n/, 'N');
-      q('#rp-bari-ben').textContent = BAR.beneficioTxt(b.beneficio) || 'Sem benefício';
-      q('#rp-bari-ir').href = BAR.comoChegar(b);
-    }
-    // estou no bar (sem o QR): o embarque vai para a porta dele
-    function barDaqui() {
-      const b = barVisto;
-      if (!b || corrida) return;
-      fecharFolha(false);
+    // "Solicite o seu Drink" na página do bar: o embarque vai para a porta dele e falta só o destino
+    function solicitarNoBar(b) {
+      if (corrida) { op.avisar('Você já está numa corrida.'); return; }
       embarque = { nome: b.nome, bairro: b.bairro, lat: b.lat, lon: b.lon };
       embarqueManual = true;
-      mostrarEmbarque();
+      barAplicado = b.id;
+      destino = null;
       modoBusca = 'destino';
+      voltarPara = 'bar-ver';
+      mostrarEmbarque();
       ir('destino');
+    }
+    // o QR de um convite de evento lido pela câmera do app
+    function conviteDoQr(r) {
+      const e = EV.lerConvite(r.id, r.hash);
+      if (!e) { ir('bares'); op.avisar('Esse convite veio pela metade. Pede o QR de novo para quem organiza.'); return; }
+      if (EV.situacao(e) === 'acabou') { ir('bares'); op.avisar(`O ${e.nome} já acabou.`); return; }
+      EV.guardarConvite(e);
+      conviteAplicado = '';
+      ir('inicio');
+      op.avisar(`Convite do ${e.nome} guardado. Na hora de ir embora, é só pedir.`);
     }
 
     /* ---------- o bar chama o Drink pelo cliente ---------- */
@@ -459,7 +450,7 @@
     }
 
     /* ---------- telas ---------- */
-    const COM_ABAS = ['inicio', 'viagens', 'eventos', 'carteira', 'perfil'];
+    const COM_ABAS = ['inicio', 'viagens', 'bares', 'eventos', 'carteira', 'perfil'];
     function ir(nome, { foco = true } = {}) {
       fecharFolha(false);
       const tela = telas.find((t) => t.dataset.rt === nome);
@@ -478,6 +469,7 @@
       }
       painel.mostrar(TELAS_EVENTO.includes(nome));
       painelBar.mostrar(TELAS_BAR.includes(nome));
+      abaBar.mostrar(nome);
       if (ENTRAR[nome]) ENTRAR[nome](tela);
       if (foco) {
         const t = $('.d-titulo, .en-t', tela);
@@ -510,6 +502,10 @@
         desenharBarAqui();
         ouvirBares();
         desenharBares();
+        painelBar.manter();
+        // abriu pelo QR da mesa (com a câmera do celular): vai direto para a página do bar
+        const doQr = BAR.novoDoQr();
+        if (doQr && !corrida) setTimeout(() => abaBar.abrirDoLink(doQr), 0);
       },
       destino() {
         const campo = q('#rp-busca');
@@ -540,7 +536,9 @@
       viagens() { desenharHistorico(); },
       carteira() { desenharCarteira(); },
       perfil() { desenharPerfil(); },
-      eventos() { painel.lista(); painelBar.cartao(); },
+      eventos() { painel.lista(); },
+      bares() { ouvirBares(); abaBar.desenhar(); painelBar.cartao(); },
+      'bar-ver'() { abaBar.pagina(); },
       'bar-novo'() { painelBar.desenharForm(); },
       bar() { painelBar.pagina(); },
       'bar-chamar'() { painelBar.desenharChamada(); },
@@ -612,16 +610,21 @@
         if (buscaCtl) buscaCtl.abort();
         buscaCtl = new AbortController();
         q('#rp-res-t').textContent = 'Buscando…';
+        // os bares do Drink que batem com o texto: achados na hora, mesmo que não estejam no mapa
+        const parceiros = (modoBusca === 'destino' || modoBusca === 'embarque')
+          ? abaBar.buscar(texto).map((b) => ({ nome: b.nome, detalhe: ['Bar do Drink', b.endereco || b.bairro].filter(Boolean).join(' · '), bairro: b.bairro, lat: b.lat, lon: b.lon, icone: 'i-copo' }))
+          : [];
         try {
-          const lista = await S.buscar(texto, pos, buscaCtl.signal);
+          const doMapa = await S.buscar(texto, pos, buscaCtl.signal);
+          const lista = [...parceiros, ...doMapa.filter((l) => !parceiros.some((b) => S.distancia(b, l) < 60))];
           achados = lista;
-          q('#rp-res-t').textContent = lista.length ? 'Resultados' : 'Não achei esse lugar. Tenta outro nome ou escolhe no mapa.';
-          q('#rp-resultados').innerHTML = lista.map((l, i) => linhaLugar(l, i)).join('');
+          q('#rp-res-t').textContent = lista.length ? 'Resultados' : (modoBusca === 'bar' ? 'Não achei. Toca em "Escolher no mapa" e marca a porta do bar.' : 'Não achei esse lugar. Tenta outro nome ou escolhe no mapa.');
+          q('#rp-resultados').innerHTML = lista.map((l, i) => linhaLugar(l, i, l.icone)).join('');
         } catch (e) {
           if (e.name === 'AbortError') return;
-          achados = [];
-          q('#rp-res-t').textContent = 'A busca não respondeu. Confere a internet, ou escolhe no mapa.';
-          q('#rp-resultados').innerHTML = '';
+          achados = parceiros;
+          q('#rp-res-t').textContent = parceiros.length ? 'Bares do Drink' : 'A busca não respondeu. Confere a internet, ou escolhe no mapa.';
+          q('#rp-resultados').innerHTML = parceiros.map((l, i) => linhaLugar(l, i, l.icone)).join('');
         }
       }, 380);
     }
@@ -631,7 +634,7 @@
       modoBusca = 'destino';
       if (modo === 'bar') {
         // "onde estou agora": o endereço do GPS (que não é o nome do bar)
-        const aqui = l.gps && pos ? { ...(ultimoEndereco ? ultimoEndereco.lugar : { nome: 'Endereço do bar', bairro: '' }), lat: pos.lat, lon: pos.lon, gps: true } : lugar;
+        const aqui = l.gps && pos ? { ...(ultimoEndereco ? ultimoEndereco.lugar : { nome: 'Endereço do bar', bairro: '' }), lat: pos.lat, lon: pos.lon, gps: true } : { ...lugar, noMapa: Boolean(l.noMapa) };
         painelBar.lugarEscolhido(aqui);
         ir('bar-novo');
         return;
@@ -683,10 +686,10 @@
       q('#rp-nm-txt').textContent = 'Procurando o endereço…';
       meioTimer = setTimeout(async () => {
         const p = mapa.meio();
-        meioLugar = { nome: 'Ponto no mapa', detalhe: '', bairro: '', lat: p.lat, lon: p.lon };
+        meioLugar = { nome: 'Ponto no mapa', detalhe: '', bairro: '', lat: p.lat, lon: p.lon, noMapa: true };
         try {
           const l = await S.endereco(p);
-          meioLugar = { ...l, lat: p.lat, lon: p.lon };
+          meioLugar = { ...l, lat: p.lat, lon: p.lon, noMapa: true };
           q('#rp-nm-txt').textContent = [l.nome, l.bairro].filter(Boolean).join(' · ');
         } catch (e) {
           q('#rp-nm-txt').textContent = `Ponto escolhido no mapa (${S.virgula(p.lat, 4)}, ${S.virgula(p.lon, 4)})`;
@@ -1945,8 +1948,6 @@
       if (id === 'rp-agendar') AG.desenharAgendar({ embarque, destino, rota, veic });
       if (id === 'rp-agenda') AG.desenharFolha();
       if (id === 'rp-pend') AG.desenharPendencia();
-      if (id === 'rp-bares') desenharListaBares();
-      if (id === 'rp-bar-info') desenharBarInfo();
       if (id === 'rp-contato') { q('#rp-contato-nome').value = ''; q('#rp-contato-cel').value = ''; q('#rp-contato-erro').hidden = true; }
       const t = $('h4', q(`#${id}`));
       if (t) t.focus({ preventScroll: true });
@@ -1974,7 +1975,7 @@
       if (ds.agHora) { AG.escolher(ds.agHora); return; }
       if (ds.rpAba) { ir(ds.rpAba); return; }
       if (ds.rpIr) { ir(ds.rpIr); return; }
-      if (ds.rpBar) { abrirBar(ds.rpBar); return; }
+      if (ds.rpBar) { abaBar.abrirId(ds.rpBar); return; }
       if (ds.rpLocal) { const l = eu().locais[ds.rpLocal]; if (l) { modoBusca = 'destino'; destino = { ...l }; ir('opcoes'); } return; }
       if (ds.rpSalvar) { voltarPara = atual; modoBusca = ds.rpSalvar; ir('destino'); return; }
       if (ds.rpTirar) { const u = eu(); if (u.locais) delete u.locais[ds.rpTirar]; op.salvar(); desenharPerfil(); return; }
@@ -2105,7 +2106,6 @@
         paguei,
         'sair-evento': sairDoConvite,
         'sair-bar': sairDoBar,
-        'bar-daqui': barDaqui,
         liberar: liberarCelularDoBar,
       };
       if (ds.rp && acoes[ds.rp]) { acoes[ds.rp](); return; }
@@ -2235,7 +2235,7 @@
     // voltar do aparelho: devolve true se tratou
     function voltar() {
       if (folha) { fecharFolha(); return true; }
-      const mapaVolta = { destino: modoBusca === 'destino' ? 'inicio' : (voltarPara || 'perfil'), 'no-mapa': 'destino', opcoes: 'destino', ninguem: 'opcoes', viagens: 'inicio', carteira: 'inicio', perfil: 'inicio', pix: 'chegou', eventos: 'inicio', 'evento-novo': 'eventos', evento: 'eventos', 'bar-novo': 'eventos', bar: 'eventos', 'bar-chamar': 'bar' };
+      const mapaVolta = { destino: modoBusca === 'destino' ? 'inicio' : (voltarPara || 'perfil'), 'no-mapa': 'destino', opcoes: 'destino', ninguem: 'opcoes', viagens: 'inicio', carteira: 'inicio', perfil: 'inicio', pix: 'chegou', eventos: 'inicio', 'evento-novo': 'eventos', evento: 'eventos', bares: 'inicio', 'bar-ver': 'bares', 'bar-camera': 'bares', 'bar-novo': 'bares', bar: 'bares', 'bar-chamar': 'bar' };
       if (atual === 'buscando' || atual === 'caminho') { op.avisar('Pra desistir, toca em Cancelar.'); return true; }
       if (mapaVolta[atual]) { if (atual === 'destino') modoBusca = 'destino'; ir(mapaVolta[atual]); return true; }
       if (atual === 'inicio') return false;

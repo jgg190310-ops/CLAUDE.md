@@ -20,8 +20,13 @@
   const VALE_AQUI = 8 * HORA;
   // a volta conta para o bar se o embarque for na porta dele
   const PERTO_DO_BAR = 250;
-  // o ntfy guarda 12 h: a vitrine de um bar aberto é publicada de novo de tempos em tempos
+  // o ntfy guarda 12 h: o cartão do bar é publicado de novo de tempos em tempos (e quem já viu guarda por 30 dias)
   const REPUBLICAR = 30 * 60000;
+  const CACHE = 'drink-bares';
+  const VALE_CACHE = 30 * DIA;
+  // a foto vai em pedaços (cada mensagem do ntfy tem limite)
+  const FOTO_PARTE = 3000;
+  const FOTO_MAX = 60000;
   const BENEFICIOS = [
     ['agua', 'Uma água de cortesia'],
     ['desconto', '10% na próxima conta'],
@@ -90,13 +95,29 @@
     };
   }
   // quem leu o QR: o bar fica guardado no aparelho a noite toda
-  function guardarAqui(b) { try { localStorage.setItem(GUARDADO, JSON.stringify({ ...b, ate: Date.now() + VALE_AQUI })); } catch (x) { /* sem espaço */ } }
+  // novo: veio agora do QR (o app abre direto na página do bar)
+  function guardarAqui(b, novo = false) { try { localStorage.setItem(GUARDADO, JSON.stringify({ ...b, novo, ate: Date.now() + VALE_AQUI })); } catch (x) { /* sem espaço */ } }
+  function novoDoQr() {
+    const b = aqui();
+    if (!b || !b.novo) return null;
+    guardarAqui({ ...b, novo: undefined }, false);
+    return b;
+  }
   function esquecerAqui() { try { localStorage.removeItem(GUARDADO); } catch (x) { /* ok */ } }
   function aqui() {
     let b = null;
     try { b = JSON.parse(localStorage.getItem(GUARDADO) || 'null'); } catch (x) { b = null; }
     if (!b || !b.id || !b.lugar || !(b.ate > Date.now())) { if (b) esquecerAqui(); return null; }
     return b;
+  }
+  function lerQrTexto(txt) {
+    let u;
+    try { u = new URL(String(txt || '').trim()); } catch (x) { return null; }
+    const id = u.searchParams.get('bar');
+    if (id) { const b = lerLink(id, u.hash.slice(1)); return b ? { bar: b } : { invalido: true }; }
+    const ev = u.searchParams.get('evento');
+    if (ev) return { evento: { id: ev, hash: u.hash.slice(1) } };
+    return null;
   }
   const saiDoBar = (b, embarque) => Boolean(b && embarque && S.distancia(embarque, b.lugar) <= PERTO_DO_BAR);
   // o código do benefício, no recibo: o bar confere na lista dele
@@ -124,53 +145,116 @@
     };
   }
 
-  /* ---------- a vitrine: os bares abertos agora ---------- */
+  /* ---------- a vitrine: os bares do Drink (abertos ou não), com a foto ---------- */
+  // o cartão é o que o bar já mostra na fachada: nome, endereço, ponto, benefício, até que horas abre hoje e a foto
   function limparVitrine(m) {
     if (!m || m.v !== 1 || m.tipo !== 'bar' || typeof m.id !== 'string' || !ID.test(m.id)) return null;
     const t = numero(m.t) ? m.t : 0;
+    if (m.removido === true) return { id: m.id, t, removido: true };
     if (m.fechado === true) return { id: m.id, t, fechado: true };
-    if (!numero(m.lat) || !numero(m.lon) || !S.naGrandeBH(m) || !numero(m.ate)) return null;
+    if (!numero(m.lat) || !numero(m.lon) || !S.naGrandeBH(m)) return null;
     return {
-      id: m.id, t, nome: texto(m.nome, 60) || 'Bar', bairro: texto(m.bairro, 40), lat: m.lat, lon: m.lon,
-      beneficio: BENEFICIOS.some((b) => b[0] === m.beneficio) ? m.beneficio : 'nenhum',
-      ate: Math.min(m.ate, t + 14 * HORA), voltas: numero(m.voltas) && m.voltas > 0 ? Math.min(Math.round(m.voltas), 999) : 0,
+      id: m.id, t, nome: texto(m.nome, 60) || 'Bar', endereco: texto(m.endereco, 80), bairro: texto(m.bairro, 40), lat: m.lat, lon: m.lon,
+      beneficio: BENEFICIOS.some((b) => b[0] === m.beneficio) ? m.beneficio : 'nenhum', fecha: /^\d{2}:\d{2}$/.test(String(m.fecha)) ? m.fecha : '',
+      ate: numero(m.ate) && m.ate > 0 ? Math.min(m.ate, t + 14 * HORA) : 0,
+      voltas: numero(m.voltas) && m.voltas > 0 ? Math.min(Math.round(m.voltas), 999) : 0,
+      foto: typeof m.foto === 'string' && /^[\w-]{6,16}$/.test(m.foto) ? m.foto : '',
     };
   }
-  // a última palavra de cada bar é a que vale (abriu, contou mais uma volta, fechou)
-  function juntar(lista, agora = Date.now()) {
-    const porId = new Map();
-    lista.forEach((x) => { if (x && (!porId.has(x.id) || porId.get(x.id).t <= x.t)) porId.set(x.id, x); });
-    return [...porId.values()].filter((x) => !x.fechado && x.ate > agora);
+  function limparFotoParte(m) {
+    if (!m || m.v !== 1 || m.tipo !== 'bar-foto' || typeof m.id !== 'string' || !ID.test(m.id)) return null;
+    const i = Number(m.i);
+    const n = Number(m.n);
+    if (typeof m.f !== 'string' || !/^[\w-]{6,16}$/.test(m.f) || !Number.isInteger(i) || !Number.isInteger(n) || n < 1 || n > 24 || i < 0 || i >= n) return null;
+    if (typeof m.parte !== 'string' || m.parte.length > FOTO_PARTE || !/^[A-Za-z0-9+/=]*$/.test(m.parte)) return null;
+    return { id: m.id, f: m.f, i, n, parte: m.parte };
   }
-  // ouve a vitrine ao vivo; quem passou da hora de fechar sai sozinho
+  // os bares que este celular já viu ficam guardados por 30 dias (o ntfy só guarda 12 h)
+  function lerCache() {
+    try { const c = JSON.parse(localStorage.getItem(CACHE) || '{}'); return c && c.bares && typeof c.bares === 'object' ? c.bares : {}; } catch (x) { return {}; }
+  }
+  function gravarCache(bares) { try { localStorage.setItem(CACHE, JSON.stringify({ v: 1, bares })); } catch (x) { /* sem espaço: fica só na memória */ } }
+  // ouve a vitrine ao vivo; cada bar traz se está aberto agora (até a hora de fechar que ele mesmo deu)
   function ouvirVitrine(aoMudar) {
-    const vistos = [];
+    const bares = {};
+    const agora0 = Date.now();
+    Object.entries(lerCache()).forEach(([id, b]) => { if (ID.test(id) && b && b.nome && b.visto > agora0 - VALE_CACHE) bares[id] = b; });
+    const partes = new Map();
     let fim = false;
-    let ultimo = '';
-    const avisar = () => {
-      if (fim) return;
-      const lista = juntar(vistos);
-      const chave = lista.map((x) => `${x.id}:${x.t}`).join();
-      if (chave === ultimo) return;
-      ultimo = chave;
-      aoMudar(lista);
+    let avisoT = 0;
+    let gravarT = 0;
+    const lista = () => { const agora = Date.now(); return Object.values(bares).filter((b) => b.nome).map((b) => ({ ...b, aberto: b.ate > agora })); };
+    const mudou = () => {
+      clearTimeout(avisoT);
+      avisoT = setTimeout(() => { if (!fim) aoMudar(lista()); }, 60);
+      clearTimeout(gravarT);
+      gravarT = setTimeout(() => {
+        const out = {};
+        Object.keys(bares).filter((id) => bares[id].nome).sort((a, b) => bares[b].visto - bares[a].visto).slice(0, 40).forEach((id) => { out[id] = bares[id]; });
+        gravarCache(out);
+      }, 800);
     };
     const sub = R.canal.assinar([R.topico.bares()], (env) => {
+      if (env && env.tipo === 'bar-foto') {
+        const p = limparFotoParte(env);
+        if (!p) return;
+        const k = `${p.id}|${p.f}`;
+        const arr = partes.get(k) || new Array(p.n).fill(null);
+        if (arr.length !== p.n) return;
+        arr[p.i] = p.parte;
+        partes.set(k, arr);
+        if (arr.some((x) => x === null)) return;
+        partes.delete(k);
+        const b64 = arr.join('');
+        if (!b64.startsWith('/9j/') || b64.length > FOTO_MAX) return;
+        const b = bares[p.id] || (bares[p.id] = { id: p.id, t: 0, visto: Date.now() });
+        b.fotoDados = `data:image/jpeg;base64,${b64}`;
+        b.fotoId = p.f;
+        mudou();
+        return;
+      }
       const x = limparVitrine(env);
       if (!x) return;
-      vistos.push(x);
-      if (vistos.length > 400) vistos.splice(0, vistos.length - 400);
-      avisar();
+      const atual = bares[x.id];
+      if (atual && atual.t > x.t) return;
+      if (x.removido) { delete bares[x.id]; mudou(); return; }
+      if (x.fechado) { if (atual) { atual.ate = 0; atual.t = x.t; mudou(); } return; }
+      bares[x.id] = { ...(atual || {}), ...x, visto: Date.now() };
+      mudou();
     }, { desde: '12h' });
-    const relogio = setInterval(avisar, 60000);
-    return { fechar() { fim = true; clearInterval(relogio); if (sub) sub.fechar(); }, agora: () => juntar(vistos) };
+    const relogio = setInterval(() => { if (!fim) aoMudar(lista()); }, 60000);
+    setTimeout(() => { if (!fim) aoMudar(lista()); }, 0);
+    return { fechar() { fim = true; clearInterval(relogio); if (sub) sub.fechar(); }, agora: lista };
   }
-  const ateTxt = (b) => `aberto até ${hhmm(new Date(b.ate))}`;
+  // a foto do bar: recortada em 3 × 2, pequena o bastante para ir em pedaços pelo ntfy
+  async function reduzirFoto(arquivo) {
+    const url = URL.createObjectURL(arquivo);
+    try {
+      const img = await new Promise((ok, falha) => { const i = new Image(); i.onload = () => ok(i); i.onerror = () => falha(new Error('foto')); i.src = url; });
+      const W = 480;
+      const H = 320;
+      const c = document.createElement('canvas');
+      c.width = W;
+      c.height = H;
+      const x = c.getContext('2d');
+      const k = Math.max(W / img.naturalWidth, H / img.naturalHeight);
+      const w = img.naturalWidth * k;
+      const h = img.naturalHeight * k;
+      x.drawImage(img, (W - w) / 2, (H - h) / 2, w, h);
+      let q = 0.74;
+      let d = c.toDataURL('image/jpeg', q);
+      while (d.length > FOTO_MAX - 4000 && q > 0.35) { q -= 0.08; d = c.toDataURL('image/jpeg', q); }
+      if (!d.startsWith('data:image/jpeg;base64,/9j/')) throw new Error('foto');
+      return d;
+    } finally { URL.revokeObjectURL(url); }
+  }
+  const idDaFoto = async (d) => (await R.resumo(d)).replace(/[^\w-]/g, '').slice(0, 12);
+  const ateTxt = (b) => (b.ate > Date.now() ? `aberto até ${hhmm(new Date(b.ate))}` : 'fechado agora');
   const voltasTxt = (n) => (n ? `${n} ${n === 1 ? 'volta' : 'voltas'} de Drink hoje` : 'nenhuma volta de Drink ainda hoje');
   // como chegar: o app de mapas do celular (o Drink só leva de volta; quem vai é você, no seu carro)
   const comoChegar = (b) => `https://www.google.com/maps/dir/?api=1&destination=${b.lat},${b.lon}`;
 
-  /* ---------- o painel do bar (na aba Eventos, de quem tem um bar) ---------- */
+  /* ---------- o painel do bar (na aba Bares, de quem tem um bar) ---------- */
   function criar(op) {
     const raiz = op.raiz;
     const q = (s) => $(s, raiz);
@@ -219,16 +303,33 @@
       visivel = sim;
       ouvirCanal();
       const b = meu();
-      if (sim && aberto(b) && Date.now() - publicadoEm > REPUBLICAR) publicarVitrine(b);
+      if (sim && b && Date.now() - Math.max(publicadoEm, b.vitrineEm || 0) > REPUBLICAR) publicarVitrine(b);
+    }
+    // o app aberto (em qualquer tela) mantém o bar na vitrine: o ntfy só guarda 12 h
+    function manter() {
+      const b = meu();
+      if (b && Date.now() - Math.max(publicadoEm, b.vitrineEm || 0) > 2 * HORA) publicarVitrine(b);
     }
 
     /* ---------- a vitrine do bar ---------- */
-    function publicarVitrine(b) {
+    function publicarVitrine(b, fotoNova = false) {
       publicadoEm = Date.now();
+      b.vitrineEm = publicadoEm;
       R.fila.mandar(R.topico.bares(), {
-        v: 1, tipo: 'bar', id: b.id, t: Date.now(), nome: b.nome, bairro: b.lugar.bairro || '',
-        lat: cinco(b.lugar.lat), lon: cinco(b.lugar.lon), beneficio: b.beneficio, ate: b.aberto.ate, voltas: daNoite(b).length,
+        v: 1, tipo: 'bar', id: b.id, t: Date.now(), nome: b.nome, endereco: b.lugar.nome !== b.nome ? b.lugar.nome : '', bairro: b.lugar.bairro || '',
+        lat: cinco(b.lugar.lat), lon: cinco(b.lugar.lon), beneficio: b.beneficio, fecha: b.fecha, ate: aberto(b) ? b.aberto.ate : 0,
+        voltas: daNoite(b).length, foto: b.fotoId || '',
       }, { validade: 2 * HORA });
+      // a foto vai junto quando é nova e, depois, de 6 em 6 h (para não sumir do ntfy)
+      if (b.foto && b.fotoId && (fotoNova || !b.fotoEm || Date.now() - b.fotoEm > 6 * HORA)) {
+        b.fotoEm = Date.now();
+        const dados = b.foto.split(',')[1] || '';
+        const n = Math.ceil(dados.length / FOTO_PARTE);
+        for (let i = 0; i < n; i += 1) {
+          R.fila.mandar(R.topico.bares(), { v: 1, tipo: 'bar-foto', id: b.id, f: b.fotoId, i, n, parte: dados.slice(i * FOTO_PARTE, (i + 1) * FOTO_PARTE) }, { validade: 2 * HORA });
+        }
+      }
+      op.salvar();
     }
     function agendarVitrine() {
       clearTimeout(republicar);
@@ -247,14 +348,13 @@
       const b = meu();
       if (!b) return;
       b.aberto = null;
-      op.salvar();
       clearTimeout(republicar);
-      R.fila.mandar(R.topico.bares(), { v: 1, tipo: 'bar', id: b.id, t: Date.now(), fechado: true }, { validade: 2 * HORA });
+      publicarVitrine(b);
       pagina();
-      op.avisar('O bar saiu do mapa por hoje. O QR continua valendo.');
+      op.avisar('O bar saiu do mapa por hoje. Ele continua na aba Bares, como fechado, e o QR continua valendo.');
     }
 
-    /* ---------- o cartão na aba Eventos ---------- */
+    /* ---------- o cartão na aba Bares ---------- */
     function cartao() {
       const b = meu();
       q('#rp-bar-cartao-t').textContent = b ? b.nome : 'Tem um bar?';
@@ -268,8 +368,9 @@
 
     /* ---------- cadastrar o bar ---------- */
     function novo() {
-      rascunho = { lugar: null, beneficio: 'agua' };
+      rascunho = { lugar: null, beneficio: 'agua', foto: '' };
       q('#rp-barn-nome').value = '';
+      q('#rp-barn-foto-in').value = '';
       q('#rp-barn-fecha').value = '02:00';
       q('#rp-barn-erro').hidden = true;
       op.ir('bar-novo');
@@ -277,8 +378,8 @@
     function lugarEscolhido(l) {
       if (!rascunho) return;
       rascunho.lugar = { nome: texto(l.nome, 80) || 'Bar', bairro: texto(l.bairro, 40), lat: l.lat, lon: l.lon };
-      // um lugar com nome (da busca) já preenche o nome do bar; o endereço do GPS, não
-      if (!l.gps && !q('#rp-barn-nome').value.trim() && l.nome) q('#rp-barn-nome').value = texto(l.nome, 60);
+      // um lugar com nome (da busca) já preenche o nome do bar; o endereço do GPS ou do ponto no mapa, não
+      if (!l.gps && !l.noMapa && !q('#rp-barn-nome').value.trim() && l.nome) q('#rp-barn-nome').value = texto(l.nome, 60);
       q('#rp-barn-erro').hidden = true;
     }
     function desenharForm() {
@@ -288,6 +389,21 @@
       q('#rp-barn-onde b').textContent = l ? l.nome : 'Escolher o endereço';
       q('#rp-barn-onde small').textContent = l ? (l.bairro || 'Belo Horizonte') : 'É de lá que o Drink busca os clientes';
       q('#rp-barn-onde').classList.toggle('ok', Boolean(l));
+      desenharFoto(q('#rp-barn-foto'), rascunho.foto, 'Pôr a foto do bar', 'A fachada ou o salão: é ela que aparece na aba Bares');
+    }
+    // o botão da foto: a foto escolhida ou o convite para pôr uma
+    function desenharFoto(caixa, foto, titulo, sub) {
+      caixa.classList.toggle('tem', Boolean(foto));
+      caixa.querySelector('.bar-foto-ver').innerHTML = foto ? `<img src="${foto}" alt="">` : '<svg aria-hidden="true"><use href="#i-camera"/></svg>';
+      caixa.querySelector('b').textContent = foto ? 'Trocar a foto' : titulo;
+      caixa.querySelector('small').textContent = foto ? 'A foto que aparece na aba Bares' : sub;
+    }
+    async function lerFoto(input, aoTer) {
+      const f = input.files && input.files[0];
+      input.value = '';
+      if (!f) return;
+      if (!/^image\//.test(f.type)) { op.avisar('Escolhe uma foto (JPG ou PNG).'); return; }
+      try { aoTer(await reduzirFoto(f)); } catch (e) { op.avisar('Não deu para ler essa foto. Tenta outra.'); }
     }
     function erroForm(txt, campo) {
       const p = q('#rp-barn-erro');
@@ -295,7 +411,7 @@
       p.hidden = false;
       if (campo) campo.focus();
     }
-    function criarBar() {
+    async function criarBar() {
       const r = rascunho;
       if (!r) return;
       const nome = texto(q('#rp-barn-nome').value, 60);
@@ -307,28 +423,31 @@
       const u = eu();
       u.bar = {
         id: R.idAleatorio(12), chave: R.novaChave(), nome, lugar: { ...r.lugar }, beneficio: r.beneficio, fecha,
-        criado: Date.now(), voltas: [], aberto: null,
+        criado: Date.now(), voltas: [], aberto: null, foto: r.foto || '', fotoId: '',
       };
-      op.salvar();
+      if (u.bar.foto) u.bar.fotoId = await idDaFoto(u.bar.foto);
+      // já entra na aba Bares de todo mundo (como fechado, até abrir hoje)
+      publicarVitrine(u.bar, Boolean(u.bar.foto));
       rascunho = null;
       op.ir('bar');
-      op.avisar('Bar cadastrado. Imprime o QR e cola no balcão e nas mesas.');
+      op.avisar('Bar cadastrado. Ele já aparece na aba Bares. Imprime o QR e cola nas mesas.');
     }
 
     /* ---------- a página do bar ---------- */
     function pagina() {
       const b = meu();
-      if (!b) { op.ir('eventos'); return; }
+      if (!b) { op.ir('bares'); return; }
       const ab = aberto(b);
+      desenharFoto(q('#rp-barp-foto'), b.foto, 'Pôr a foto do bar', 'Sem foto, o bar aparece só com o nome na aba Bares');
       const ben = beneficioTxt(b.beneficio);
       q('#rp-barp-t').textContent = b.nome;
       q('#rp-barp-onde').textContent = [b.lugar.nome !== b.nome ? b.lugar.nome : '', b.lugar.bairro].filter(Boolean).join(' · ') || 'Belo Horizonte';
       const chip = q('#rp-barp-sit');
-      chip.textContent = ab ? `No mapa até ${hhmm(new Date(b.aberto.ate))}` : 'Fora do mapa';
+      chip.textContent = ab ? `Aberto até ${hhmm(new Date(b.aberto.ate))}` : 'Fechado';
       chip.className = `ev-sit ${ab ? 'ev-sit-agora' : 'ev-sit-acabou'}`;
       q('#rp-barp-estado').textContent = ab
-        ? 'Quem pede e quem dirige vê o bar no mapa do Drink. Os motoristas sabem que tem volta saindo daqui.'
-        : `Toca em abrir quando o bar abrir: ele aparece no mapa do Drink até as ${b.fecha}.`;
+        ? 'Aberto na aba Bares e no mapa de quem pede e de quem dirige. Os motoristas sabem que tem volta saindo daqui.'
+        : `Na aba Bares como fechado. Toca em abrir quando o bar abrir: ele fica aberto e no mapa do Drink até as ${b.fecha}.`;
       q('[data-bar="abrir-hoje"]').hidden = ab;
       q('[data-bar="abrir-hoje"]').textContent = `Abrir hoje, até as ${b.fecha}`;
       q('[data-bar="fechar-hoje"]').hidden = !ab;
@@ -361,11 +480,11 @@
         setTimeout(() => { if (op.atual() === 'bar') pagina(); }, 4100);
         return;
       }
-      if (aberto(b)) R.fila.mandar(R.topico.bares(), { v: 1, tipo: 'bar', id: b.id, t: Date.now(), fechado: true }, { validade: 2 * HORA });
+      R.fila.mandar(R.topico.bares(), { v: 1, tipo: 'bar', id: b.id, t: Date.now(), removido: true }, { validade: 2 * HORA });
       const u = eu();
       delete u.bar;
       op.salvar();
-      op.ir('eventos');
+      op.ir('bares');
       op.avisar('Bar apagado deste aparelho. O QR antigo para de contar as voltas aqui.');
     }
     function compartilhar() {
@@ -435,7 +554,7 @@
       if (ds.barcCambio && chamada) { chamada.cambio = ds.barcCambio; desenharChamada(); return; }
       const acoes = {
         cartao: abrirPagina,
-        lista: () => op.ir('eventos'),
+        lista: () => op.ir('bares'),
         pagina: () => op.ir('bar'),
         onde: () => op.buscarLugar(),
         'abrir-hoje': abrirHoje,
@@ -450,17 +569,171 @@
     });
     q('#rp-barn-form').addEventListener('submit', (ev) => { ev.preventDefault(); criarBar(); });
     q('#rp-barn-form').addEventListener('input', () => { q('#rp-barn-erro').hidden = true; });
+    q('#rp-barn-foto-in').addEventListener('change', (ev) => lerFoto(ev.target, (d) => { if (rascunho) { rascunho.foto = d; desenharForm(); } }));
+    q('#rp-barp-foto-in').addEventListener('change', (ev) => lerFoto(ev.target, async (d) => {
+      const b = meu();
+      if (!b) return;
+      b.foto = d;
+      b.fotoId = await idDaFoto(d);
+      publicarVitrine(b, true);
+      pagina();
+      op.avisar('Foto trocada. Ela já vai para a aba Bares.');
+    }));
     q('#rp-barc-form').addEventListener('submit', (ev) => { ev.preventDefault(); seguirChamada(); });
     q('#rp-barc-form').addEventListener('input', (ev) => {
       q('#rp-barc-erro').hidden = true;
       if (ev.target.id === 'rp-barc-placa') q('#rp-barc-previa').innerHTML = CARROS.placa.previa(ev.target.value);
     });
 
-    return { cartao, desenharForm, pagina, desenharChamada, novo, lugarEscolhido, mostrar, meu };
+    return { cartao, desenharForm, pagina, desenharChamada, novo, lugarEscolhido, mostrar, manter, meu };
+  }
+
+  /* ---------- a aba Bares, de quem pede ---------- */
+  // a lista dos bares (com a foto), a página de cada um com "Solicite o seu Drink" e a câmera para o QR da mesa
+  function criarAba(op) {
+    const raiz = op.raiz;
+    const q = (s) => $(s, raiz);
+    const LEITOR = window.Drink.leitor;
+    let lista = [];
+    let filtro = '';
+    let visto = null;
+    let peloQr = false;
+    let leitor = null;
+    let abrindo = 0;
+    const norm = (t) => String(t || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+    const situacao = (b) => (b.aberto ? `Aberto até ${hhmm(new Date(b.ate))}` : 'Fechado agora');
+    // o bar que veio do QR (com a chave) vira um cartão como os da vitrine
+    const doLink = (b) => ({ id: b.id, nome: b.nome, endereco: b.lugar.nome !== b.nome ? b.lugar.nome : '', bairro: b.lugar.bairro, lat: b.lugar.lat, lon: b.lugar.lon, beneficio: b.beneficio, ate: 0, voltas: 0 });
+
+    function receber(l) {
+      lista = l;
+      if (op.atual() === 'bares') desenhar();
+      if (visto) {
+        const n = lista.find((b) => b.id === visto.id);
+        if (n) { visto = { ...visto, ...n }; if (op.atual() === 'bar-ver') pagina(); }
+      }
+    }
+    function ordenados() {
+      const ref = op.pos() || S.BH;
+      const f = norm(filtro.trim());
+      return lista.map((b) => ({ ...b, m: S.distancia(ref, b) }))
+        .filter((b) => !f || norm(`${b.nome} ${b.bairro} ${b.endereco}`).includes(f))
+        .sort((a, b) => (Number(b.aberto) - Number(a.aberto)) || a.m - b.m);
+    }
+    function capa(b, classe) {
+      return b.fotoDados
+        ? `<img class="${classe}" src="${b.fotoDados}" alt="Foto do ${esc(b.nome)}">`
+        : `<span class="${classe} bs-sem-foto" aria-hidden="true"><svg><use href="#i-copo"/></svg></span>`;
+    }
+    function desenhar() {
+      const l = ordenados();
+      const abertos = l.filter((b) => b.aberto).length;
+      q('#rp-bs-n').textContent = lista.length ? `${lista.length} ${lista.length === 1 ? 'bar parceiro' : 'bares parceiros'}${abertos ? ` · ${abertos} ${abertos === 1 ? 'aberto' : 'abertos'} agora` : ''}` : 'Bares parceiros';
+      q('#rp-bs-lista').innerHTML = l.map((b) => `<li><button type="button" class="bs-cartao" data-rp-bar-ver="${esc(b.id)}">${capa(b, 'bs-foto')}<span class="bs-txt"><b>${esc(b.nome)}</b><small>${esc([b.bairro, S.textoKm(b.m / 1000)].filter(Boolean).join(' · '))}</small><em class="bs-sit${b.aberto ? ' aberto' : ''}">${esc(situacao(b))}</em></span></button></li>`).join('');
+      const vazio = q('#rp-bs-vazio');
+      vazio.hidden = l.length > 0;
+      vazio.textContent = filtro.trim()
+        ? 'Nenhum bar parceiro com esse nome. Se você está no bar, aponte a câmera para o QR Code da mesa.'
+        : 'Os bares parceiros aparecem aqui assim que se cadastram. Num bar com o QR do Drink na mesa, aponte a câmera: ele aparece na hora.';
+    }
+    function abrirBar(b, qr = false) {
+      visto = b;
+      peloQr = qr;
+      op.ir('bar-ver');
+    }
+    function abrirId(id) { const b = lista.find((x) => x.id === id); if (b) abrirBar(b); }
+    // o link do QR (pela câmera do app ou pela câmera do celular): acha o bar na hora
+    function abrirDoLink(b) {
+      const n = lista.find((x) => x.id === b.id);
+      abrirBar({ ...doLink(b), ...(n || {}) }, true);
+    }
+    function pagina() {
+      const b = visto;
+      if (!b) { op.ir('bares'); return; }
+      const ref = op.pos();
+      q('#rp-bv-capa').innerHTML = capa(b, 'bv-foto');
+      q('#rp-bv-t').textContent = b.nome;
+      q('#rp-bv-onde').textContent = [b.endereco, b.bairro, ref ? `a ${S.textoKm(S.distancia(ref, b) / 1000)} de você` : ''].filter(Boolean).join(' · ') || 'Belo Horizonte';
+      const chip = q('#rp-bv-sit');
+      chip.textContent = situacao(b);
+      chip.classList.toggle('aberto', Boolean(b.aberto));
+      q('#rp-bv-achou').hidden = !peloQr;
+      if (peloQr) q('#rp-bv-achou').textContent = `Achamos pelo QR: você está no ${b.nome}. O Drink busca você na porta.`;
+      q('#rp-bv-ben').textContent = beneficioTxt(b.beneficio) || 'Sem benefício';
+      q('#rp-bv-voltas').textContent = voltasTxt(b.voltas || 0).replace(/^n/, 'N');
+      q('#rp-bv-ir').href = comoChegar(b);
+    }
+
+    /* a câmera para o QR da mesa */
+    async function abrirCamera() {
+      const minha = ++abrindo;
+      op.ir('bar-camera');
+      const txt = q('#rp-bq-txt');
+      q('#rp-bq').classList.remove('sem-camera');
+      txt.textContent = 'Abrindo a câmera…';
+      if (!LEITOR.temCamera()) { semCamera('Esse navegador não deixa o app usar a câmera. Abra a câmera do celular e aponte para o QR da mesa: o link abre o Drink no bar certo.'); return; }
+      try {
+        const l = await LEITOR.iniciar(q('#rp-bq-video'), lido);
+        if (minha !== abrindo || op.atual() !== 'bar-camera') { l.parar(); return; }
+        leitor = l;
+        txt.textContent = 'Aponte para o QR Code da mesa. O Drink acha o bar na hora.';
+      } catch (e) {
+        if (minha !== abrindo) return;
+        semCamera(e && (e.name === 'NotAllowedError' || e.name === 'SecurityError')
+          ? 'O celular não deixou o Drink usar a câmera. Libere a câmera nas configurações do navegador, ou abra a câmera do celular e aponte para o QR: o link abre o Drink no bar certo.'
+          : 'Não deu para abrir a câmera aqui. Abra a câmera do celular e aponte para o QR da mesa: o link abre o Drink no bar certo.');
+      }
+    }
+    function semCamera(msg) {
+      q('#rp-bq').classList.add('sem-camera');
+      q('#rp-bq-txt').textContent = msg;
+    }
+    function fecharCamera() {
+      abrindo += 1;
+      if (leitor) { leitor.parar(); leitor = null; }
+    }
+    function lido(txt) {
+      const r = lerQrTexto(txt);
+      if (r && r.bar) {
+        fecharCamera();
+        guardarAqui(r.bar, false);
+        if (navigator.vibrate) navigator.vibrate(60);
+        abrirDoLink(r.bar);
+        return;
+      }
+      if (r && r.evento) { fecharCamera(); op.evento(r.evento); return; }
+      q('#rp-bq-txt').textContent = r && r.invalido
+        ? 'Esse QR do Drink veio com defeito. Peça para o bar imprimir de novo.'
+        : 'Esse QR não é de um bar do Drink. Procure o QR com o copo do Drink na mesa.';
+    }
+    // a câmera desliga ao sair da tela dela
+    function mostrar(nome) { if (nome !== 'bar-camera') fecharCamera(); }
+    // os bares do Drink que batem com o que a pessoa digita na busca de endereço (eles vêm primeiro)
+    function buscar(texto) {
+      const f = norm(texto.trim());
+      if (f.length < 2) return [];
+      return ordenados().filter((b) => norm(`${b.nome} ${b.endereco}`).includes(f)).slice(0, 4);
+    }
+
+    raiz.addEventListener('click', (ev) => {
+      const bt = ev.target.closest('button');
+      if (!bt || !raiz.contains(bt) || bt.disabled) return;
+      if (bt.dataset.rpBarVer) { abrirId(bt.dataset.rpBarVer); return; }
+      const acoes = {
+        'bar-camera': abrirCamera,
+        'bq-fechar': () => { fecharCamera(); op.ir('bares'); },
+        'bar-solicitar': () => { if (visto) op.solicitar(visto); },
+      };
+      if (bt.dataset.rp && acoes[bt.dataset.rp]) acoes[bt.dataset.rp]();
+    });
+    q('#rp-bs-busca').addEventListener('input', (ev) => { filtro = ev.target.value; desenhar(); });
+
+    return { receber, desenhar, pagina, abrirId, abrirDoLink, mostrar, buscar, visto: () => visto };
   }
 
   window.Drink.bares = {
     BENEFICIOS, PERTO_DO_BAR, beneficioTxt, fechamento, linkBar, lerLink, guardarAqui, esquecerAqui, aqui, saiDoBar, novoCupom,
-    topico, mandar, abrir, avisarVolta, limparVolta, limparVitrine, juntar, ouvirVitrine, ateTxt, voltasTxt, comoChegar, criar,
+    topico, mandar, abrir, avisarVolta, limparVolta, limparVitrine, ouvirVitrine, ateTxt, voltasTxt, comoChegar, criar, criarAba,
+    lerQrTexto, novoDoQr, reduzirFoto,
   };
 }());

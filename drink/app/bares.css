@@ -116,3 +116,103 @@ html[data-tema="claro"] .app :is(.bar-cartao-ic, .bar-li-ic) { background: rgba(
 html[data-tema="claro"] .app :is(.bar-estado, .bar-numeros, .rp-bares-linha) { box-shadow: inset 0 0 0 1px var(--a-linha); }
 html[data-tema="claro"] .app .bar-numeros li + li { border-left-color: var(--a-linha); }
 html[data-tema="claro"] .app .rp-bar-aqui { box-shadow: inset 0 0 0 1px rgba(61, 102, 0, .35); }
+
+/* ---------- v36: a aba Bares ---------- */
+/* seis abas: Início, Viagens, Bares, Eventos, Carteira, Perfil */
+.app #rp-abas { grid-template-columns: repeat(6, minmax(0, 1fr)); padding-left: .15em; padding-right: .15em; }
+.app #rp-abas svg { padding-left: .7em; padding-right: .7em; }
+.app #rp-abas span { overflow: hidden; max-width: 100%; white-space: nowrap; text-overflow: ellipsis; }
+
+.app :is(.bs-vazio, .bv-achou, .bq-mira)[hidden] { display: none !important; }
+.app button.bs-qr {
+  display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: var(--e3); width: 100%;
+  margin-top: var(--e3); padding: var(--e4); border: 0; border-radius: var(--r-g); background: var(--lima); color: #0E0D12;
+  font: inherit; text-align: left; cursor: pointer; box-shadow: 0 .8em 1.6em -1em rgba(210, 255, 60, .6);
+}
+.app .bs-qr-ic { display: grid; place-items: center; width: 3em; height: 3em; border-radius: var(--r-m); background: #0E0D12; color: #D2FF3C; }
+.app .bs-qr-ic svg { width: 1.7em; height: 1.7em; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.app .bs-qr span:last-child { display: grid; gap: .15em; }
+.app .bs-qr b { font-size: max(16px, 1.05em); font-weight: 760; letter-spacing: -.01em; }
+.app .bs-qr small { font-size: max(13px, .84em); font-weight: 560; color: rgba(14, 13, 18, .78); }
+.app .bs-busca {
+  display: flex; align-items: center; gap: var(--e2); margin-top: var(--e3); padding: 0 var(--e4); min-height: 3.1em;
+  border-radius: var(--r-g); background: var(--a-card); box-shadow: inset 0 0 0 1px var(--a-linha);
+}
+.app .bs-busca:focus-within { box-shadow: inset 0 0 0 1.5px var(--lima-tx); }
+.app .bs-busca svg { flex: none; width: 1.2em; height: 1.2em; fill: none; stroke: var(--a-texto-2); stroke-width: 2; stroke-linecap: round; }
+.app .bs-busca input { flex: 1; min-width: 0; padding: .7em 0; border: 0; background: transparent; outline: none; color: var(--luz); font: inherit; font-size: max(16px, 1em); font-weight: 600; }
+.app .bs-busca input::placeholder { color: var(--a-texto-2); font-weight: 500; }
+.app .bs-lista { display: grid; gap: var(--e3); margin: 0; padding: 0; list-style: none; }
+.app button.bs-cartao {
+  display: grid; grid-template-columns: 6.2em minmax(0, 1fr); align-items: center; gap: var(--e3); width: 100%; padding: var(--e2);
+  border: 0; border-radius: var(--r-g); background: var(--a-card); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .05);
+  color: inherit; font: inherit; text-align: left; cursor: pointer;
+}
+.app .bs-foto { display: block; width: 6.2em; aspect-ratio: 3 / 2; border-radius: calc(var(--r-g) - .35em); object-fit: cover; background: var(--a-card-2); }
+.app .bs-sem-foto { display: grid; place-items: center; background: linear-gradient(140deg, rgba(210, 255, 60, .22), rgba(210, 255, 60, .04)), var(--a-card-2); }
+.app .bs-sem-foto svg { width: 42%; height: 42%; fill: none; stroke: var(--lima-tx); stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.app .bs-txt { display: grid; gap: .2em; min-width: 0; }
+.app .bs-txt b { overflow: hidden; font-size: max(15px, .98em); font-weight: 680; white-space: nowrap; text-overflow: ellipsis; }
+.app .bs-txt small { font-size: max(12.5px, .8em); color: var(--a-texto-2); }
+.app .bs-sit {
+  justify-self: start; padding: .2em .6em; border-radius: 999px; background: var(--a-card-2); color: var(--a-texto-2);
+  font-style: normal; font-size: max(12px, .76em); font-weight: 650;
+}
+.app .bs-sit.aberto { background: rgba(210, 255, 60, .14); color: var(--lima-tx); }
+.app .bs-vazio { margin: 0; padding: var(--e4); border-radius: var(--r-g); border: 1px dashed var(--a-linha); font-size: max(13px, .86em); line-height: 1.45; color: var(--a-texto-2); text-align: center; }
+.app [data-rt="bares"] .bar-cartao { margin-top: var(--e5); }
+
+/* a página de um bar */
+.app .rt[data-rt="bar-ver"] { padding: 0; overflow-y: auto; }
+.app .bv-capa { position: relative; flex: none; }
+.app .bv-capa::after { content: ""; position: absolute; inset: 55% 0 0; background: linear-gradient(transparent, var(--a-bg)); pointer-events: none; }
+.app .bv-foto { display: block; width: 100%; aspect-ratio: 3 / 2; object-fit: cover; border-radius: 0; }
+.app .bv-capa .bs-sem-foto { width: 100%; aspect-ratio: 3 / 2; }
+.app .bv-capa .bs-sem-foto svg { width: 22%; height: 22%; }
+.app .bv-voltar { position: absolute; top: calc(var(--topo) + var(--e2)); left: var(--g); z-index: 2; }
+.app .bv-corpo { position: relative; z-index: 1; display: grid; gap: var(--e3); margin-top: -2.2em; padding: 0 var(--g) calc(var(--e6) + var(--base)); }
+.app .bv-corpo > p { margin: 0; }
+.app .bv-t { margin: 0; font-size: 1.9em; line-height: 1.05; }
+.app .bv-onde { font-size: max(14px, .9em); line-height: 1.4; color: var(--a-texto-2); }
+.app .bv-achou { padding: var(--e3) var(--e4); border-radius: var(--r-g); background: rgba(210, 255, 60, .14); color: var(--lima-tx); font-size: max(14px, .9em); font-weight: 650; line-height: 1.4; }
+.app .bv-pedir { height: 3.4em; font-size: 1.05em; }
+.app .bv-nota { font-size: max(12.5px, .8em); line-height: 1.45; color: var(--a-texto-2); }
+
+/* a câmera para o QR da mesa */
+.app .rt.bq { padding: 0; background: #000; overflow: hidden; }
+.app .bq-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.app .bq-mira { position: absolute; left: 50%; top: 42%; width: min(68%, 17em); aspect-ratio: 1; transform: translate(-50%, -50%); border-radius: 1.4em; box-shadow: 0 0 0 100vmax rgba(0, 0, 0, .45); }
+.app .bq-mira::before, .app .bq-mira::after, .app .bq-mira i::before, .app .bq-mira i::after {
+  content: ""; position: absolute; width: 2.2em; height: 2.2em; border: .3em solid #D2FF3C;
+}
+.app .bq-mira::before { left: -.15em; top: -.15em; border-right: 0; border-bottom: 0; border-top-left-radius: 1.4em; }
+.app .bq-mira::after { right: -.15em; top: -.15em; border-left: 0; border-bottom: 0; border-top-right-radius: 1.4em; }
+.app .bq-mira i::before { left: -.15em; bottom: -.15em; border-right: 0; border-top: 0; border-bottom-left-radius: 1.4em; }
+.app .bq-mira i::after { right: -.15em; bottom: -.15em; border-left: 0; border-top: 0; border-bottom-right-radius: 1.4em; }
+.app .bq-fechar { position: absolute; top: calc(var(--topo) + var(--e2)); left: var(--g); z-index: 3; }
+.app .bq-base { position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; display: grid; gap: var(--e2); padding: var(--e5) var(--g) calc(var(--e6) + var(--base)); background: linear-gradient(transparent, rgba(0, 0, 0, .85) 35%); color: #fff; text-align: center; }
+.app .bq-base .d-titulo { margin: 0; color: #fff; font-size: 1.5em; }
+.app .bq-txt { margin: 0; font-size: max(14px, .9em); line-height: 1.45; color: rgba(255, 255, 255, .86); }
+.app .bq.sem-camera .bq-mira { display: none; }
+.app .bq.sem-camera .bq-base { top: 0; align-content: center; background: #0E0D12; }
+
+/* a foto do bar, no cadastro e na página do dono */
+.app .bar-foto-campo {
+  display: grid; grid-template-columns: 6.2em minmax(0, 1fr); align-items: center; gap: var(--e3); padding: var(--e2);
+  border-radius: var(--r-g); background: var(--a-card); box-shadow: inset 0 0 0 1px var(--a-linha); cursor: pointer;
+}
+.app .bar-foto-campo:focus-within { box-shadow: inset 0 0 0 1.5px var(--lima-tx); }
+.app .bar-foto-ver { display: grid; place-items: center; width: 6.2em; aspect-ratio: 3 / 2; overflow: hidden; border-radius: calc(var(--r-g) - .35em); background: var(--a-card-2); }
+.app .bar-foto-ver img { width: 100%; height: 100%; object-fit: cover; }
+.app .bar-foto-ver svg { width: 1.6em; height: 1.6em; fill: none; stroke: var(--lima-tx); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.app .bar-foto-txt { display: grid; gap: .15em; }
+.app .bar-foto-txt b { font-size: max(14.5px, .95em); font-weight: 650; }
+.app .bar-foto-txt small { font-size: max(12.5px, .8em); line-height: 1.35; color: var(--a-texto-2); }
+
+/* no claro */
+html[data-tema="claro"] .app :is(.bs-busca, .bar-foto-campo) { box-shadow: inset 0 0 0 1px var(--a-linha); }
+html[data-tema="claro"] .app button.bs-cartao { box-shadow: inset 0 0 0 1px var(--a-linha); }
+html[data-tema="claro"] .app .bs-sit.aberto, html[data-tema="claro"] .app .bv-achou { background: rgba(61, 102, 0, .1); }
+html[data-tema="claro"] .app .bs-sem-foto { background: linear-gradient(140deg, rgba(61, 102, 0, .16), rgba(61, 102, 0, .03)), var(--a-card-2); }
+.app .bq-voltar { display: none; justify-self: center; margin-top: var(--e2); padding: 0 1.4em; }
+.app .bq.sem-camera .bq-voltar { display: inline-flex; }

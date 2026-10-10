@@ -601,8 +601,8 @@
   // treino de motorista: de onde veio (para voltar) e se veio do site pedindo o treino antes de ter conta
   let origemTreino = 'papel';
   let querTreino = false;
-  // o site leva quem organiza um evento direto para a aba Eventos (?aba=eventos)
-  let querEventos = false;
+  // o site leva quem organiza um evento (ou tem um bar) direto para a aba Eventos ou Bares (?aba=eventos, ?aba=bares)
+  let querAba = '';
 
   // o cadastro de motorista completo e conferido; quem se cadastrou antes completa o que falta
   const podeDirigir = (u) => Boolean(u && u.motoristaOk && cadastro.completo(u));
@@ -617,10 +617,11 @@
       querTreino = false;
       if (!(u.corrida && !u.corrida.simulada)) { treinarMotorista(); return; }
     }
-    if (querEventos && !u.corridaMotorista) {
-      querEventos = false;
+    if (querAba && !u.corridaMotorista) {
+      const aba = querAba;
+      querAba = '';
       if (u.papel !== 'passageiro') { u.papel = 'passageiro'; salvar(); }
-      abrirPassageiro(anim || 'entra', 'eventos');
+      abrirPassageiro(anim || 'entra', aba);
       return;
     }
     if (!u.papel) { $('#en-ok-txt').textContent = `Oi, ${primeiro(u)}`; irEn('papel', { anim }); return; }
@@ -1309,7 +1310,8 @@
     const B = window.Drink.bares;
     barLido = B.lerLink(busca.get('bar'), location.hash.slice(1));
     if (!barLido) avisoConvite = 'Esse QR veio pela metade. Pede para o bar mostrar o QR de novo.';
-    else { B.guardarAqui(barLido); avisoConvite = `Você está no ${barLido.nome}. Na hora de ir embora, é só pedir: o Drink busca você na porta.`; }
+    // novo: o app abre direto na página do bar, com o "Solicite o seu Drink"
+    else { B.guardarAqui(barLido, true); avisoConvite = `Você está no ${barLido.nome}. O Drink busca você na porta.`; }
     try { history.replaceState(null, '', location.pathname); } catch (e) { /* ok */ }
   }
   const u = eu();
@@ -1324,7 +1326,7 @@
   }
   // o site manda quem quer dirigir direto para o treino (?treino=motorista), com ou sem conta
   if (busca.get('treino') === 'motorista') querTreino = true;
-  if (busca.get('aba') === 'eventos') querEventos = true;
+  if (['eventos', 'bares'].includes(busca.get('aba'))) querAba = busca.get('aba');
   if (pedidoPapel || busca.has('treino') || busca.has('aba')) { try { history.replaceState(null, '', location.pathname); } catch (e) { /* ok */ } }
   mostrarInstalar();
   window.Drink.avisos.sincronizar();
@@ -1334,7 +1336,7 @@
       mostrar(tela('boas'), null);
       tela('boas').classList.add('voando');
       if (querTreino) setTimeout(() => avisar('Para treinar como motorista, cria a sua conta. O treino começa logo depois, sem pedir CNH.'), 2600);
-      else if (querEventos) setTimeout(() => avisar('Para criar o seu evento, cria a sua conta. A aba Eventos abre logo depois.'), 2600);
+      else if (querAba) setTimeout(() => avisar(`Para ${querAba === 'bares' ? 'cadastrar o seu bar' : 'criar o seu evento'}, cria a sua conta. A aba ${querAba === 'bares' ? 'Bares' : 'Eventos'} abre logo depois.`), 2600);
     }
   } catch (e) {
     // se abrir a conta falhar, a abertura sai do mesmo jeito e o erro aparece
