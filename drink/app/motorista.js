@@ -176,7 +176,14 @@
       if (foco) { const t = $('.d-titulo, .en-t', tela); if (t) t.focus({ preventScroll: true }); }
     }
     const ENTRAR = {
-      off() { desenharGanhos(); },
+      off() {
+        desenharGanhos();
+        // offline, o mapa fica ao fundo onde o motorista estava (o GPS só liga quando ele fica online ou simula)
+        const p = pos || S.gps.ultima();
+        mapa.limpar();
+        mapa.tirar('eu');
+        if (p) { mapa.ponto('eu', p, Mapa.ICONE.motorista(eu().veiculo)); mapa.centrar(p, 15); } else mapa.centrar(S.BH, 14);
+      },
       online() {
         mapa.limpar();
         if (pos) { mapa.ponto('eu', pos, Mapa.ICONE.motorista(eu().veiculo)); mapa.centrar(pos, 15); }

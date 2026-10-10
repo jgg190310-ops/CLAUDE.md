@@ -11,7 +11,7 @@
   const app = $('#app');
   const abertura = $('#abertura');
   const meta = $('meta[name="theme-color"]');
-  const COR = { azul: '#2E3CF2', noite: '#0A0B0F' };
+  const COR = { noite: '#0A0B0F' };
   const CHAVE = 'drink-app';
   const ms = (t) => (reduzirMovimento() ? Math.min(t, 60) : t);
 
@@ -147,7 +147,7 @@
     if (nome !== 'codigo') pararDeOuvir();
     const t = tela(nome);
     mostrar(t, anim);
-    cor(nome === 'boas' ? COR.azul : COR.noite);
+    cor(COR.noite);
     if (ENTRAR[nome]) ENTRAR[nome](t);
     if (foco) focar(t, nome);
   }
@@ -180,7 +180,7 @@
       timer = setTimeout(sair, ms(temConta ? 1550 : 2000));
     }
     abertura.addEventListener('click', sair);
-    cor(COR.azul);
+    cor(COR.noite);
     // espera a fonte do nome (no máximo 0,7 s) para o nome não trocar de letra no meio da animação
     let comecou = false;
     const uma = () => { if (!comecou) { comecou = true; comecar(); } };
@@ -196,7 +196,7 @@
 
   // quem já tem conta: a abertura some e o app aparece
   function sumirAbertura() {
-    cor(vista === tela('boas') ? COR.azul : COR.noite);
+    cor(COR.noite);
     if (reduzirMovimento() || !abertura.animate) { fimAbertura(); return; }
     // o toque já passa para o app enquanto a abertura some, e ela sai de vez mesmo se a animação não avisar o fim
     abertura.style.pointerEvents = 'none';
@@ -256,7 +256,7 @@
     const ny = n2.top + n2.height / 2 - (n1.top + n1.height / 2);
     nome.animate(curva(nx, ny, nx * .05, ny * .95, (t) => `scale(${1 + (escala - 1) * t})`), voo);
     $('.ab-sub', abertura).animate([{ opacity: 1 }, { opacity: 0 }], { duration: 220, fill: 'forwards' });
-    abertura.animate([{ backgroundColor: 'rgba(46, 60, 242, 1)' }, { backgroundColor: 'rgba(46, 60, 242, 0)' }],
+    abertura.animate([{ backgroundColor: 'rgba(10, 11, 15, 1)' }, { backgroundColor: 'rgba(10, 11, 15, 0)' }],
       { duration: 420, delay: 120, easing: 'ease-out', fill: 'forwards' });
     setTimeout(pousar, voo.duration);
   }

@@ -1,40 +1,41 @@
-/* Drink — o desenho do mapa: a noite de BH em azul-marinho, ruas limpas, nomes legíveis e os bares em limão.
+/* Drink — o desenho do mapa: a noite de BH em grafite, sem cor gritando, ruas limpas, nomes legíveis e os bares
+   em limão (a única cor forte, junto com a rota).
    Mapa vetorial do OpenFreeMap (dados do OpenStreetMap, sem chave), no esquema OpenMapTiles. Se ele não
    responder, o app usa o mapa de imagens do OpenStreetMap, escurecido do mesmo jeito. */
 (function () {
   'use strict';
 
   const COR = {
-    chao: '#11142A',
-    bairro: '#13172F',
-    comercio: '#161A35',
-    verde: '#122C2D',
-    agua: '#0C2649',
-    rio: '#15407A',
-    predio: '#1A1F3F',
-    predioBorda: '#232A55',
-    rua: '#262E57',
-    ruaMedia: '#30396A',
-    avenida: '#3A447B',
-    rodovia: '#4A5594',
-    trilha: '#2B3360',
-    trilho: '#2A3159',
-    nomeRua: '#9AA2D6',
-    nomeBairro: '#737BB0',
-    nomeCidade: '#EDE3D0',
-    nomeAgua: '#5582C6',
-    numero: '#5A6294',
+    chao: '#17191E',
+    bairro: '#191B21',
+    comercio: '#1C1E24',
+    verde: '#1A2620',
+    agua: '#142230',
+    rio: '#1E3448',
+    predio: '#1F2228',
+    predioBorda: '#272A31',
+    rua: '#2A2D34',
+    ruaMedia: '#33363E',
+    avenida: '#3F434C',
+    rodovia: '#4C505A',
+    trilha: '#2A2D33',
+    trilho: '#2E3138',
+    nomeRua: '#8D919B',
+    nomeBairro: '#6E727C',
+    nomeCidade: '#D9DBE0',
+    nomeAgua: '#5C7A96',
+    numero: '#5F636C',
     bar: '#D2FF3C',
-    nomeBar: '#D9F58E',
+    nomeBar: '#C9E58A',
     // referências da cidade: praças e parques, hospitais, metrô e o resto (shopping, faculdade, estádio)
-    parque: '#58B27A',
-    nomeParque: '#8FD3A6',
-    hospital: '#FF6F8E',
-    nomeHospital: '#FFA3B8',
-    metro: '#7C98FF',
-    nomeMetro: '#AFC1FF',
-    lugar: '#A99BF0',
-    nomeLugar: '#C6BCF7',
+    parque: '#5E8F6E',
+    nomeParque: '#7FA48A',
+    hospital: '#E06A6A',
+    nomeHospital: '#D99A9A',
+    metro: '#7E93C9',
+    nomeMetro: '#9FAED6',
+    lugar: '#8E8AA6',
+    nomeLugar: '#A3A0B8',
   };
   const NOME = ['coalesce', ['get', 'name:pt'], ['get', 'name']];
   const FONTE = ['Noto Sans Regular'];
@@ -53,7 +54,7 @@
   function vetorial(cfg) {
     return {
       version: 8,
-      name: 'Drink · noite',
+      name: 'Drink · grafite',
       glyphs: cfg.mapaFontes,
       sources: { omt: { type: 'vector', url: cfg.mapaVetor } },
       layers: [
@@ -101,7 +102,7 @@
             'symbol-placement': 'line', 'symbol-spacing': 380, 'text-field': NOME, 'text-font': FONTE_B,
             'text-size': ['interpolate', ['linear'], ['zoom'], 12, 10.5, 18, 14.5], 'text-max-angle': 30, 'text-letter-spacing': 0.03, 'text-padding': 4,
           },
-          paint: { 'text-color': '#B3BAE6', 'text-halo-color': COR.chao, 'text-halo-width': 1.6 },
+          paint: { 'text-color': '#A6AAB3', 'text-halo-color': COR.chao, 'text-halo-width': 1.6 },
         },
         {
           id: 'numeros', type: 'symbol', source: 'omt', 'source-layer': 'housenumber', minzoom: 17.2,
@@ -179,17 +180,17 @@
     };
   }
 
-  // reserva: o mapa de imagens do OpenStreetMap, com o claro virado em escuro e meio transparente sobre o azul
+  // reserva: o mapa de imagens do OpenStreetMap, com o claro virado em escuro, em tons de cinza
   function imagens(url) {
     return {
       version: 8,
       name: 'Drink · noite (imagens)',
       sources: { osm: { type: 'raster', tiles: [url.replace('{s}', 'a')], tileSize: 256, maxzoom: 19 } },
       layers: [
-        { id: 'fundo', type: 'background', paint: { 'background-color': '#1C2395' } },
+        { id: 'fundo', type: 'background', paint: { 'background-color': '#17191E' } },
         {
           id: 'osm', type: 'raster', source: 'osm',
-          paint: { 'raster-opacity': 0.8, 'raster-brightness-min': 0.95, 'raster-brightness-max': 0.05, 'raster-hue-rotate': 180, 'raster-saturation': -0.4, 'raster-contrast': 0.05 },
+          paint: { 'raster-opacity': 0.9, 'raster-brightness-min': 0.92, 'raster-brightness-max': 0.08, 'raster-saturation': -1, 'raster-contrast': -0.05 },
         },
       ],
     };
