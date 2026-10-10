@@ -179,7 +179,6 @@
     const bares = {};
     const agora0 = Date.now();
     Object.entries(lerCache()).forEach(([id, b]) => { if (ID.test(id) && b && b.nome && b.visto > agora0 - VALE_CACHE) bares[id] = b; });
-    const partes = new Map();
     let fim = false;
     let avisoT = 0;
     let gravarT = 0;
@@ -194,25 +193,36 @@
         gravarCache(out);
       }, 800);
     };
-    const sub = R.canal.assinar([R.topico.bares()], (env) => {
-      if (env && env.tipo === 'bar-foto') {
-        const p = limparFotoParte(env);
-        if (!p) return;
-        const k = `${p.id}|${p.f}`;
-        const arr = partes.get(k) || new Array(p.n).fill(null);
-        if (arr.length !== p.n) return;
+    // a foto de um bar vem do canal dela, só quando é nova (no máximo uma busca a cada 5 min por bar)
+    const buscando = new Map();
+    async function buscarFoto(id, f, tentativa = 0) {
+      if (fim || (!tentativa && Date.now() - (buscando.get(id) || 0) < 5 * 60000)) return;
+      buscando.set(id, Date.now());
+      let lidas = [];
+      try { lidas = await R.canal.ler(R.topico.barFoto(id), '12h'); } catch (e) { buscando.delete(id); return; }
+      const arr = [];
+      let n = 0;
+      lidas.forEach(({ corpo }) => {
+        const p = limparFotoParte(corpo);
+        if (!p || p.id !== id || p.f !== f) return;
+        n = p.n;
         arr[p.i] = p.parte;
-        partes.set(k, arr);
-        if (arr.some((x) => x === null)) return;
-        partes.delete(k);
-        const b64 = arr.join('');
-        if (!b64.startsWith('/9j/') || b64.length > FOTO_MAX) return;
-        const b = bares[p.id] || (bares[p.id] = { id: p.id, t: 0, visto: Date.now() });
-        b.fotoDados = `data:image/jpeg;base64,${b64}`;
-        b.fotoId = p.f;
-        mudou();
+      });
+      // a foto ainda chegando (o cartão vem antes dos pedaços): tenta de novo daqui a pouco
+      if (!n || arr.filter((x) => typeof x === 'string').length < n) {
+        if (tentativa < 4) setTimeout(() => buscarFoto(id, f, tentativa + 1), 3000 * (tentativa + 1));
         return;
       }
+      const b64 = arr.slice(0, n).join('');
+      const b = bares[id];
+      if (!b || !b64.startsWith('/9j/') || b64.length > FOTO_MAX) return;
+      b.fotoDados = `data:image/jpeg;base64,${b64}`;
+      b.fotoId = f;
+      mudou();
+    }
+    const fotoEmDia = (b) => !b.foto || (b.fotoDados && b.fotoId === b.foto);
+    Object.values(bares).forEach((b) => { if (!fotoEmDia(b)) buscarFoto(b.id, b.foto); });
+    const sub = R.canal.assinar([R.topico.bares()], (env) => {
       const x = limparVitrine(env);
       if (!x) return;
       const atual = bares[x.id];
@@ -220,6 +230,7 @@
       if (x.removido) { delete bares[x.id]; mudou(); return; }
       if (x.fechado) { if (atual) { atual.ate = 0; atual.t = x.t; mudou(); } return; }
       bares[x.id] = { ...(atual || {}), ...x, visto: Date.now() };
+      if (!fotoEmDia(bares[x.id])) buscarFoto(x.id, x.foto);
       mudou();
     }, { desde: '12h' });
     const relogio = setInterval(() => { if (!fim) aoMudar(lista()); }, 60000);
@@ -320,13 +331,13 @@
         lat: cinco(b.lugar.lat), lon: cinco(b.lugar.lon), beneficio: b.beneficio, fecha: b.fecha, ate: aberto(b) ? b.aberto.ate : 0,
         voltas: daNoite(b).length, foto: b.fotoId || '',
       }, { validade: 2 * HORA });
-      // a foto vai junto quando é nova e, depois, de 6 em 6 h (para não sumir do ntfy)
-      if (b.foto && b.fotoId && (fotoNova || !b.fotoEm || Date.now() - b.fotoEm > 6 * HORA)) {
+      // a foto vai no canal dela quando é nova e, depois, a cada 10 h (o ntfy guarda 12 h)
+      if (b.foto && b.fotoId && (fotoNova || !b.fotoEm || Date.now() - b.fotoEm > 10 * HORA)) {
         b.fotoEm = Date.now();
         const dados = b.foto.split(',')[1] || '';
         const n = Math.ceil(dados.length / FOTO_PARTE);
         for (let i = 0; i < n; i += 1) {
-          R.fila.mandar(R.topico.bares(), { v: 1, tipo: 'bar-foto', id: b.id, f: b.fotoId, i, n, parte: dados.slice(i * FOTO_PARTE, (i + 1) * FOTO_PARTE) }, { validade: 2 * HORA });
+          R.fila.mandar(R.topico.barFoto(b.id), { v: 1, tipo: 'bar-foto', id: b.id, f: b.fotoId, i, n, parte: dados.slice(i * FOTO_PARTE, (i + 1) * FOTO_PARTE) }, { validade: 2 * HORA });
         }
       }
       op.salvar();
