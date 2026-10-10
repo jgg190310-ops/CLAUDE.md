@@ -126,9 +126,11 @@ html[data-tema="claro"] .app .rm-agd-item > em { color: #2F4F00; }
 .app .rp-op-acao { display: flex; gap: var(--e2); align-items: stretch; }
 .app .rp-op-acao .t-botao { flex: 1; min-width: 0; }
 .app .rp-op-agendar {
-  flex: none; display: grid; place-items: center; aspect-ratio: 1; min-width: var(--toque); border-radius: 50%;
+  flex: none; display: grid; place-items: center; aspect-ratio: 1; min-width: var(--toque); border: 0; border-radius: 50%;
   background: var(--a-card-2); color: var(--luz); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .08);
 }
 .app .rp-op-agendar[hidden] { display: none; }
 .app .rp-op-agendar svg { width: 1.3em; height: 1.3em; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .app .rp-op-agendar:active { transform: scale(.96); }
+/* na simulação, o botão das agendadas sai do caminho (o pedido de treino é o que importa) */
+.app.simulando .rm-agd-bt { display: none; }
