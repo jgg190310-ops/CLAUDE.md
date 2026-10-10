@@ -22,9 +22,9 @@
 .app .rp-ag-resumo span { font-size: max(12.5px, .82em); color: var(--a-texto-2); }
 .app .rp-ag-resumo strong { justify-self: start; margin-top: .25em; padding: .3em .7em; border-radius: 999px; background: rgba(210, 255, 60, .12); color: var(--lima-tx); font-size: max(13px, .86em); font-weight: 640; }
 .app .rp-ag-regras { display: grid; gap: .5em; margin: 0; padding: 0; list-style: none; }
-.app .rp-ag-regras li { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: .6em; align-items: start; font-size: max(12.5px, .82em); line-height: 1.45; color: var(--a-texto-2); }
+.app .rp-ag-regras li { position: relative; padding-left: 1.15em; font-size: max(12.5px, .82em); line-height: 1.45; color: var(--a-texto-2); }
 .app .rp-ag-regras li::before {
-  content: ""; width: .55em; height: .55em; margin-top: .45em; border-radius: 50%; background: var(--lima-tx);
+  content: ""; position: absolute; left: 0; top: .45em; width: .55em; height: .55em; border-radius: 50%; background: var(--lima-tx);
 }
 .app .rp-ag-regras li.taxa::before { background: #FF8A4C; }
 .app .rp-ag-regras b { color: var(--luz); font-weight: 600; }
@@ -85,10 +85,10 @@
 .app .rm-agd-item.pronto { background: rgba(210, 255, 60, .07); }
 .app .rm-agd-hora { grid-area: hora; display: grid; justify-items: center; min-width: 3.6em; padding: .35em .4em; border-radius: var(--r-m); background: var(--a-card-2); }
 .app .rm-agd-hora b { font-size: 1.05em; font-weight: 660; font-variant-numeric: tabular-nums; }
-.app .rm-agd-hora small { font-size: max(10.5px, .64em); color: var(--a-texto-3); text-align: center; line-height: 1.2; }
+.app .rm-agd-hora small { font-size: max(10.5px, .64em); color: var(--a-texto-2); text-align: center; line-height: 1.2; }
 .app .rm-agd-txt { grid-area: txt; display: grid; gap: .1em; min-width: 0; }
 .app .rm-agd-txt b { overflow: hidden; font-size: max(14px, .9em); font-weight: 620; white-space: nowrap; text-overflow: ellipsis; }
-.app .rm-agd-txt small { overflow: hidden; font-size: max(12px, .76em); color: var(--a-texto-2); white-space: nowrap; text-overflow: ellipsis; }
+.app .rm-agd-txt small { font-size: max(12px, .76em); line-height: 1.35; color: var(--a-texto-2); overflow-wrap: anywhere; }
 .app .rm-agd-item > em { grid-area: valor; align-self: start; font-style: normal; font-weight: 660; font-variant-numeric: tabular-nums; color: var(--lima-tx); }
 .app .rm-agd-bts { grid-area: bts; display: flex; align-items: center; gap: var(--e3); margin-top: .3em; }
 .app .rm-agd-bts .t-botao { flex: 1; height: 2.9em; }

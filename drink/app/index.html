@@ -73,15 +73,16 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&display=swap">
-  <link rel="stylesheet" href="../app-telas.css?v=33">
-  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=33">
-  <link rel="stylesheet" href="vendor/leaflet.css?v=33">
-  <link rel="stylesheet" href="app.css?v=33">
-  <link rel="stylesheet" href="visual.css?v=33">
-  <link rel="stylesheet" href="tema.css?v=33">
-  <link rel="stylesheet" href="ritmo.css?v=33">
-  <link rel="stylesheet" href="perfil.css?v=33">
-  <link rel="stylesheet" href="jornada.css?v=33">
+  <link rel="stylesheet" href="../app-telas.css?v=34">
+  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=34">
+  <link rel="stylesheet" href="vendor/leaflet.css?v=34">
+  <link rel="stylesheet" href="app.css?v=34">
+  <link rel="stylesheet" href="visual.css?v=34">
+  <link rel="stylesheet" href="tema.css?v=34">
+  <link rel="stylesheet" href="ritmo.css?v=34">
+  <link rel="stylesheet" href="perfil.css?v=34">
+  <link rel="stylesheet" href="jornada.css?v=34">
+  <link rel="stylesheet" href="agenda.css?v=34">
 </head>
 <body>
 <svg class="sprite" aria-hidden="true" focusable="false">
@@ -446,6 +447,8 @@
             <h3 class="d-titulo d-ola" id="rp-ola" tabindex="-1"><span class="rp-saudacao">Boa noite</span>, <span data-en-primeiro>você</span></h3>
             <p class="d-local"><svg aria-hidden="true"><use href="#i-pin"/></svg><span id="rp-local">Procurando você no mapa…</span></p>
             <button type="button" class="d-busca" data-rp-ir="destino"><svg aria-hidden="true"><use href="#i-busca"/></svg>Para onde?</button>
+            <button type="button" class="rp-pend-card" id="rp-pend-card" data-rp-folha="rp-pend" hidden><span class="rp-pend-ic" aria-hidden="true">!</span><span><b id="rp-pend-card-t">Taxa pendente</b><small id="rp-pend-card-sub"></small></span></button>
+            <button type="button" class="rp-ag-card" id="rp-ag-card" data-rp-folha="rp-agenda" hidden><span class="rp-ag-ic" aria-hidden="true"><svg><use href="#i-calendario"/></svg></span><span><b id="rp-ag-card-t">Volta agendada</b><small id="rp-ag-card-sub"></small></span></button>
             <div class="rp-evento" id="rp-evento" hidden>
               <svg aria-hidden="true"><use href="#i-festa"/></svg>
               <p><b id="rp-evento-t">Evento</b><small id="rp-evento-sub"></small></p>
@@ -512,6 +515,7 @@
             <p class="rp-op-ev" id="rp-op-ev" hidden></p>
             <p class="rp-op-ev fora" id="rp-op-gps" role="status" hidden></p>
             <ul class="d-linhas">
+              <li><span>Quando</span><button type="button" id="rp-op-quando" data-rp-folha="rp-agendar">Agora · ou agendar</button></li>
               <li><span>Embarque</span><button type="button" id="rp-op-emb" data-rp="trocar-embarque">Sua localização</button></li>
               <li><span>Chega de</span><button type="button" id="rp-op-veic">Tanto faz</button></li>
               <li><span>Seu carro</span><button type="button" id="rp-op-carro" data-rp-folha="rp-carro">Cadastrar</button></li>
@@ -941,6 +945,54 @@
           </form>
         </section>
 
+        <section class="d-sobre" id="rp-agendar" aria-labelledby="rp-agendar-t" hidden>
+          <div class="d-sobre-cab">
+            <span class="d-sobre-ic" aria-hidden="true"><svg><use href="#i-calendario"/></svg></span>
+            <div><h4 id="rp-agendar-t" tabindex="-1">Agendar a volta</h4><small>Para lugar longe: um Drink reserva antes e vai até você na hora</small></div>
+            <button type="button" class="d-fechar" data-rp-fechar aria-label="Fechar"><svg aria-hidden="true"><use href="#i-fechar"/></svg></button>
+          </div>
+          <p class="d-sec" id="rp-ag-horas-t">Sair a partir de</p>
+          <div class="rp-ag-horas" id="rp-ag-horas" role="radiogroup" aria-labelledby="rp-ag-horas-t"></div>
+          <div class="rp-ag-resumo"><b id="rp-ag-janela">Saída</b><span id="rp-ag-rota"></span><strong id="rp-ag-valor">R$ 0,00</strong></div>
+          <ul class="rp-ag-regras">
+            <li>A janela é de 1 hora: dentro dela você avisa que está pronto e o motorista vai até você.</li>
+            <li>Cancelar é <b>de graça até as <span id="rp-ag-gratis">--:--</span></b> (2 h antes).</li>
+            <li class="taxa">Depois disso, a taxa é de <b id="rp-ag-taxa">R$ 15</b>. Se o motorista chegar e você não aparecer em <span id="rp-ag-espera">15</span> min, <b id="rp-ag-naoveio">R$ 25</b>. A taxa vai por Pix para ele.</li>
+          </ul>
+          <button type="button" class="t-botao" id="rp-ag-ok" data-rp="agendar">Agendar</button>
+        </section>
+
+        <section class="d-sobre" id="rp-agenda" aria-labelledby="rp-agenda-t" hidden>
+          <div class="d-sobre-cab">
+            <span class="d-sobre-ic" aria-hidden="true"><svg><use href="#i-calendario"/></svg></span>
+            <div><h4 id="rp-agenda-t" tabindex="-1">Volta agendada</h4><small id="rp-agenda-sub"></small></div>
+            <button type="button" class="d-fechar" data-rp-fechar aria-label="Fechar"><svg aria-hidden="true"><use href="#i-fechar"/></svg></button>
+          </div>
+          <p class="rp-agenda-estado" id="rp-agenda-estado" aria-live="polite"></p>
+          <div class="rp-agenda-mot" id="rp-agenda-mot" hidden><span class="t-av" id="rp-agenda-av">DR</span><span><b id="rp-agenda-nome">Motorista</b><small id="rp-agenda-info"></small></span></div>
+          <ul class="d-linhas rp-rec-info">
+            <li><span>Embarque</span><b id="rp-agenda-de"></b></li>
+            <li><span>Destino</span><b id="rp-agenda-para"></b></li>
+            <li><span>Valor estimado</span><b id="rp-agenda-valor"></b></li>
+            <li><span>Cancelar</span><b id="rp-agenda-gratis"></b></li>
+          </ul>
+          <button type="button" class="t-botao" id="rp-agenda-pronto" data-rp="ag-pronto" hidden>Estou pronto, pode vir</button>
+          <button type="button" class="en-link rp-agenda-cancelar" id="rp-agenda-cancelar" data-rp="ag-cancelar">Cancelar o agendamento</button>
+        </section>
+
+        <section class="d-sobre" id="rp-pend" aria-labelledby="rp-pend-t" hidden>
+          <div class="d-sobre-cab">
+            <span class="d-sobre-ic d-sobre-ic-alerta" aria-hidden="true"><svg><use href="#i-pix"/></svg></span>
+            <div><h4 id="rp-pend-t" tabindex="-1">Taxa de cancelamento</h4><small id="rp-pend-sub"></small></div>
+            <button type="button" class="d-fechar" data-rp-fechar aria-label="Fechar"><svg aria-hidden="true"><use href="#i-fechar"/></svg></button>
+          </div>
+          <p class="rp-pend-valor" id="rp-pend-valor">R$ 0,00</p>
+          <p class="rp-pend-para" id="rp-pend-para"></p>
+          <div class="rp-pend-qr" id="rp-pend-qr"></div>
+          <button type="button" class="t-bt" id="rp-pend-copiar" data-rp="pend-copiar"><svg aria-hidden="true"><use href="#i-copiar"/></svg>Copiar o código do Pix</button>
+          <button type="button" class="t-botao" data-rp="pend-paguei">Já paguei</button>
+        </section>
+
         <section class="d-sobre rp-mot-perfil" id="rp-mot" aria-labelledby="rp-mot-t" hidden>
           <button type="button" class="d-fechar rp-mot-fechar" data-rp-fechar aria-label="Fechar"><svg aria-hidden="true"><use href="#i-fechar"/></svg></button>
           <div class="rp-mot-topo">
@@ -1055,6 +1107,7 @@
               <li data-pronto="raio"><svg aria-hidden="true"><use href="#i-pin"/></svg><span>Pedidos até</span><b id="rm-pronto-raio">5 km</b></li>
               <li data-pronto="bateria" hidden><svg aria-hidden="true"><use href="#i-bat"/></svg><span>Bateria</span><b id="rm-pronto-bat">…</b></li>
             </ul>
+            <button type="button" class="rm-agd-bt" data-rm="agendadas" data-agd-bt data-treino="nao"><svg aria-hidden="true"><use href="#i-calendario"/></svg><span><b>Voltas agendadas</b><small data-agd-resumo>Reserve as voltas de mais tarde</small></span><svg class="en-treino-seta" aria-hidden="true"><use href="#i-seta"/></svg></button>
             <ol class="rm-treino-passos" id="rm-treino-passos" data-treino="sim" aria-label="O que você treina" hidden>
               <li>Aceitar o pedido</li><li>Conferir o código</li><li>Vistoria do carro</li><li>Dobrar a bike</li><li>Dirigir até a casa</li><li>Receber pelo Pix</li>
             </ol>
@@ -1066,6 +1119,22 @@
               <button type="button" class="t-bt" data-rm="sair-treino">Voltar</button>
             </div>
           </div>
+        </section>
+
+        <!-- voltas agendadas: as reservas do motorista e as abertas -->
+        <section class="rt rt-cheia" data-rt="agendadas" aria-labelledby="rm-agd-t" hidden>
+          <div class="d-cab rt-cab">
+            <button type="button" class="d-voltar" data-rm="agd-voltar" aria-label="Voltar"><svg aria-hidden="true"><use href="#i-voltar"/></svg></button>
+            <h3 class="d-titulo" id="rm-agd-t" tabindex="-1">Voltas agendadas</h3>
+          </div>
+          <p class="d-resumo">Gente que vai voltar de lugar longe e marcou a hora antes. Reserve com calma e vá na hora.</p>
+          <p class="d-sec">Suas reservas</p>
+          <ul class="rm-agd-lista" id="rm-agd-reservas"></ul>
+          <p class="d-sec" id="rm-agd-taxas-t" hidden>Taxas a receber</p>
+          <ul class="rm-agd-lista rm-agd-taxas" id="rm-agd-taxas" hidden></ul>
+          <div class="rm-agd-cab d-sec-linha"><p class="d-sec">Abertas</p><button type="button" class="en-link rm-agd-atualizar" data-rm="agd-atualizar">Atualizar</button></div>
+          <ul class="rm-agd-lista" id="rm-agd-abertas" aria-live="polite"></ul>
+          <p class="rm-agd-regras">Se a pessoa cancelar a menos de 2 h, a taxa de R$ 15 vai por Pix para você. Se você chegar e ela não aparecer em 15 min, R$ 25. Desistir avisa a pessoa na hora e a volta volta para a lista.</p>
         </section>
 
         <!-- online: pedidos chegando -->
@@ -1084,6 +1153,7 @@
                 <button type="button" role="radio" aria-checked="false" data-raio="8">8 km</button>
               </div>
             </div>
+            <button type="button" class="rm-agd-bt" data-rm="agendadas" data-agd-bt><svg aria-hidden="true"><use href="#i-calendario"/></svg><span><b>Voltas agendadas</b><small data-agd-resumo>Reserve as voltas de mais tarde</small></span><svg class="en-treino-seta" aria-hidden="true"><use href="#i-seta"/></svg></button>
             <ul class="rm-pedidos" id="rm-pedidos" aria-live="polite"></ul>
             <p class="rm-vazio" id="rm-vazio">Nenhum pedido agora. Quando chegar um, o celular toca e vibra.</p>
             <p class="rm-longe" id="rm-longe" hidden></p>
@@ -1560,23 +1630,24 @@
   <p class="vira-txt" id="vira-txt">O Drink é feito para usar na vertical. Nada se perde: se tiver corrida, ela continua rolando.</p>
 </div>
 
-<script src="vendor/maplibre-gl.js?v=33"></script>
-<script src="vendor/leaflet.js?v=33"></script>
-<script src="vendor/qrcode.js?v=33"></script>
-<script src="../app-nucleo.js?v=33"></script>
-<script src="servicos.js?v=33"></script>
-<script src="rede.js?v=33"></script>
-<script src="mapa-estilo.js?v=33"></script>
-<script src="mapa.js?v=33"></script>
-<script src="carros.js?v=33"></script>
-<script src="cadastro-motorista.js?v=33"></script>
-<script src="perfil.js?v=33"></script>
-<script src="pix.js?v=33"></script>
-<script src="avisos.js?v=33"></script>
-<script src="sms.js?v=33"></script>
-<script src="eventos.js?v=33"></script>
-<script src="passageiro.js?v=33"></script>
-<script src="motorista.js?v=33"></script>
-<script src="app.js?v=33"></script>
+<script src="vendor/maplibre-gl.js?v=34"></script>
+<script src="vendor/leaflet.js?v=34"></script>
+<script src="vendor/qrcode.js?v=34"></script>
+<script src="../app-nucleo.js?v=34"></script>
+<script src="servicos.js?v=34"></script>
+<script src="rede.js?v=34"></script>
+<script src="mapa-estilo.js?v=34"></script>
+<script src="mapa.js?v=34"></script>
+<script src="carros.js?v=34"></script>
+<script src="cadastro-motorista.js?v=34"></script>
+<script src="perfil.js?v=34"></script>
+<script src="pix.js?v=34"></script>
+<script src="avisos.js?v=34"></script>
+<script src="sms.js?v=34"></script>
+<script src="eventos.js?v=34"></script>
+<script src="agenda.js?v=34"></script>
+<script src="passageiro.js?v=34"></script>
+<script src="motorista.js?v=34"></script>
+<script src="app.js?v=34"></script>
 </body>
 </html>

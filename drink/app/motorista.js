@@ -221,8 +221,17 @@
       if (ENTRAR[nome]) ENTRAR[nome](tela);
       if (foco) { const t = $('.d-titulo, .en-t', tela); if (t) t.focus({ preventScroll: true }); }
     }
+    // as voltas agendadas (agenda.js)
+    const AGM = window.Drink.agenda.motorista({
+      raiz, eu, nomeCurto, nota, salvar: () => op.salvar(), avisar: (t) => op.avisar(t), notificar: (a, b) => notificar(a, b), tocar: () => tocar(),
+      avisos: () => avisos(), atual: () => atual, pos: () => pos || S.gps.ultima(), ocupado: () => Boolean(corrida || aceito),
+      iniciar: (r) => iniciarAgendada(r), registrarTaxa: (t) => registrarTaxa(t),
+    });
+    let agdLido = 0;
+    const contarAgendadas = () => { AGM.desenhar(); if (Date.now() - agdLido > 60000) { agdLido = Date.now(); AGM.carregar(); } };
     const ENTRAR = {
       off() {
+        contarAgendadas();
         desenharGanhos();
         desenharPronto();
         // offline, o mapa fica ao fundo onde o motorista estava (o GPS só liga quando ele fica online ou simula)
@@ -231,7 +240,14 @@
         mapa.tirar('eu');
         if (p) { mapa.ponto('eu', p, Mapa.ICONE.motorista(eu().veiculo)); mapa.centrar(p, 15); } else mapa.centrar(S.BH, 14);
       },
+      agendadas() {
+        AGM.desenhar();
+        AGM.carregar();
+        // fora do ar o GPS fica parado: uma leitura só, para dizer a que distância cada embarque está
+        if (!pos && !S.gps.negado()) S.gps.agora().then(() => { if (atual === 'agendadas') AGM.desenhar(); }, () => {});
+      },
       online() {
+        contarAgendadas();
         mapa.limpar();
         if (pos) { mapa.ponto('eu', pos, Mapa.ICONE.motorista(eu().veiculo)); mapa.centrar(pos, 15); }
         desenharGanhos();
@@ -634,6 +650,10 @@
           break;
         case 'cancelado':
           if (!corrida || ['viagem', 'receber'].includes(corrida.etapa)) return;
+          if (corrida.agendada && Number(msg.taxa) > 0) {
+            const c = corrida;
+            AGM.aReceber({ id: c.id, chave: c.chave, pub: c.pub, priv: c.priv, valor: Math.min(window.Drink.agenda.REGRAS.taxaTarde, Number(msg.taxa)), nome: c.passageiro.nome, rota: `${c.embarque.bairro || c.embarque.nome} → ${c.destino.bairro || c.destino.nome}`, motivo: 'cancelou depois que você saiu' });
+          }
           notificar('Corrida cancelada', 'O passageiro cancelou.');
           op.avisar('O passageiro cancelou a corrida.');
           encerrar();
@@ -641,6 +661,44 @@
           break;
         default:
       }
+    }
+    function iniciarAgendada(r) {
+      corrida = {
+        id: r.id, pub: r.pub, priv: r.priv, chave: r.chave, t0: Date.now(), etapa: 'buscar', agendada: true, janela: r.janela,
+        passageiro: { nome: r.passageiro.nome, nota: 0 }, embarque: r.embarque, destino: r.destino, carro: r.carro || {}, valor: r.valor, km: r.km,
+        msgs: [], fotos: 0, avaliacao: null, paguei: false, ultimo: null, evento: null,
+      };
+      aceito = null;
+      limparTimers();
+      pararPedidos();
+      ligarGps();
+      travarTela();
+      assinarCorrida(r.id, String(Math.floor(Date.now() / 1000) - 5));
+      avisos().definir('motorista', [R.topico.aviso(r.id, 'm')]);
+      salvarCorrida();
+      mandarFoto();
+      ir('buscar');
+      avisarSePerto();
+      enviarPosicao(true);
+      clearInterval(posTimer);
+      posTimer = setInterval(() => enviarPosicao(true), 45000);
+    }
+    function naoVeio() {
+      const c = corrida;
+      const taxa = window.Drink.agenda.REGRAS.taxaNaoVeio;
+      enviar({ tipo: 'nao-veio', taxa });
+      avisarPassageiro('ag-nao-veio');
+      AGM.aReceber({ id: c.id, chave: c.chave, pub: c.pub, priv: c.priv, valor: taxa, nome: c.passageiro.nome, rota: `${c.embarque.bairro || c.embarque.nome} → ${c.destino.bairro || c.destino.nome}`, motivo: 'não apareceu' });
+      encerrar();
+      op.avisar(`Volta encerrada. A taxa de ${brl(taxa)} vai por Pix para você.`);
+      if (online) { ouvirPedidos(); ir('online'); } else ir('off');
+    }
+    function registrarTaxa(t) {
+      const u = eu();
+      u.corridasFeitas = [{ id: `${t.id}-taxa`, data: new Date().toISOString(), rota: `Taxa · ${t.rota}`, total: t.valor, km: 0, valor: t.valor, espera: 0, gorjeta: 0, nota: 0, taxa: true }, ...(u.corridasFeitas || [])].slice(0, 100);
+      contarDia(u);
+      op.salvar();
+      desenharGanhos();
     }
     // o rosto do motorista vai para o passageiro confirmado, cifrado, em pedaços (cada mensagem do ntfy tem limite)
     async function mandarFoto() {
@@ -729,6 +787,7 @@
     function mostrarEspera() {
       clearInterval(esperaTimer);
       const c = corrida;
+      q('#motorista [data-rt="codigo"] .rt-cancelar').textContent = 'O passageiro não apareceu? Cancelar';
       if (!c || !c.chegouEm) { q('#rm-espera').textContent = ''; return; }
       if (!c.esperaConta) { q('#rm-espera').textContent = c.simulada ? 'Na simulação, a espera não é cobrada.' : 'Sem o GPS no embarque, a espera não é cobrada.'; return; }
       const passo = () => {
@@ -738,6 +797,13 @@
         q('#rm-espera').textContent = taxa
           ? `Esperando há ${min} min · espera de ${brl(taxa)} somada à corrida`
           : `Esperando há ${min} min · espera grátis até ${PRECO.esperaGratis} min`;
+        // na volta agendada, depois de 15 min no embarque o "não apareceu" vale a taxa
+        if (c.agendada) {
+          const REG = window.Drink.agenda.REGRAS;
+          const libera = c.chegouEm + REG.esperaNaoVeioMin * 60000;
+          q('#motorista [data-rt="codigo"] .rt-cancelar').textContent = Date.now() >= libera
+            ? `Não apareceu · taxa de ${brl(REG.taxaNaoVeio)} para você` : `Não apareceu? A taxa vale a partir das ${hhmm(new Date(libera))}`;
+        }
       };
       passo();
       esperaTimer = setInterval(passo, 15000);
@@ -1364,6 +1430,9 @@
       if (ds.dia) { diaEscolhido = diaEscolhido === ds.dia ? null : ds.dia; desenharSemana(); return; }
       if (ds.rmTodas !== undefined) { diaEscolhido = null; desenharSemana(); return; }
       if (ds.aceitar) { aceitar(ds.aceitar); return; }
+      if (ds.agdReservar) { AGM.reservar(ds.agdReservar); return; }
+      if (ds.agdIr) { AGM.ir(ds.agdIr); return; }
+      if (ds.agdDesistir) { AGM.desistir(ds.agdDesistir); return; }
       if (ds.evCobrar) { cobrarDeNovo(ds.evCobrar); return; }
       if (ds.evCaiu) { jaCaiu(ds.evCaiu); return; }
       if (ds.raio) { mudarRaio(Number(ds.raio)); return; }
@@ -1401,9 +1470,19 @@
         cadastro: () => op.irCadastro(),
         'sair-treino': () => op.sairTreino(),
         'pular-fotos': pularFotos,
+        agendadas: () => ir('agendadas'),
+        'agd-voltar': () => ir(online ? 'online' : 'off'),
+        'agd-atualizar': () => { agdLido = Date.now(); AGM.carregar(); },
         cancelar: () => {
           if (!corrida) return;
           if (corrida.simulada) { fimSimulacao('Simulação encerrada.'); return; }
+          // volta agendada: depois de 15 min esperando no embarque (o GPS confirmou que ele estava lá), quem não apareceu paga a taxa
+          if (corrida.agendada && corrida.chegouEm && corrida.esperaConta) {
+            const REG = window.Drink.agenda.REGRAS;
+            const libera = corrida.chegouEm + REG.esperaNaoVeioMin * 60000;
+            if (Date.now() >= libera) { naoVeio(); return; }
+            if (!corrida.avisouTaxa) { corrida.avisouTaxa = true; op.avisar(`Espera até as ${hhmm(new Date(libera))}: se ${primeiroNome(corrida.passageiro.nome)} não aparecer, a taxa de ${brl(REG.taxaNaoVeio)} vai para você. Toca de novo para cancelar agora, sem taxa.`); return; }
+          }
           enviar({ tipo: 'cancelado', motivo: 'motorista' });
           avisarPassageiro('cancelado');
           encerrar();
@@ -1471,6 +1550,7 @@
       if (atual === 'online') { op.avisar('Pra parar de receber pedidos, toca em Ficar offline.'); return true; }
       if (atual === 'aguardando') { desistir(); return true; }
       if (atual === 'fim') { ir(online ? 'online' : 'off'); return true; }
+      if (atual === 'agendadas') { ir(online ? 'online' : 'off'); return true; }
       op.avisar('Termina a corrida antes de voltar.');
       return true;
     }

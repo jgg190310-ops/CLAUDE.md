@@ -352,6 +352,12 @@
       if (op.aoIr) op.aoIr(nome);
     }
 
+    // a volta agendada (agenda.js): o que ela precisa daqui
+    const AG = window.Drink.agenda.passageiro({
+      raiz, eu, nomeCurto, salvar: () => op.salvar(), avisar: (t) => op.avisar(t), notificar: (a, b) => notificar(a, b),
+      abrirFolha: (id) => abrirFolha(id), fecharFolha: () => fecharFolha(), avisos: () => avisos(), pedirNotificacao: () => op.pedirNotificacao(),
+      iniciar: (ag, desde) => iniciarAgendada(ag, desde),
+    });
     const ENTRAR = {
       inicio() {
         const h = new Date().getHours();
@@ -361,6 +367,7 @@
         centrarEmMim();
         desenharAtalhos();
         desenharRecentes();
+        AG.desenhar();
         q('#rp-gps').hidden = !gpsNegado;
         if (!ultimoEndereco && pos) atualizarEmbarque();
         desenharConvite();
@@ -674,6 +681,14 @@
     }
     async function pedirAgora() {
       const u = eu();
+      if (AG.pendente()) { abrirFolha('rp-pend'); return; }
+      // perto da hora da agendada o motorista dela pode já estar a caminho: não dá para pedir outra por cima
+      const agv = AG.ativa();
+      if (agv && agv.estado === 'confirmada' && Date.now() >= agv.janela.de - window.Drink.agenda.REGRAS.irAntesMin * 60000) {
+        op.avisar('A sua volta agendada já está perto da hora e o motorista pode estar saindo. Avisa que está pronto ou cancela ela antes.');
+        abrirFolha('rp-agenda');
+        return;
+      }
       if (esperaAtiva()) pararEspera();
       op.pedirNotificacao();
       if (!R.cifraPronta) { op.avisar('Esse navegador não tem a proteção que o Drink usa. Tenta no Chrome ou no Safari atualizados.'); return; }
@@ -884,6 +899,17 @@
           }
           break;
         }
+        case 'nao-veio': {
+          if (!c.agendada || !['a-caminho', 'chegou'].includes(c.etapa)) return;
+          const taxa = Math.max(0, Math.min(window.Drink.agenda.REGRAS.taxaNaoVeio, Number(msg.taxa) || 0));
+          AG.taxaDaCorrida(c, taxa, `${nome} chegou e esperou ${window.Drink.agenda.REGRAS.esperaNaoVeioMin} min, mas você não apareceu`);
+          notificar('Volta encerrada', `${nome} esperou e você não apareceu. A taxa é de ${brl(taxa)}.`);
+          encerrar();
+          ir('inicio');
+          op.avisar(`${nome} esperou e você não apareceu: a taxa de ${brl(taxa)} vai por Pix para ele.`);
+          abrirFolha('rp-pend');
+          return;
+        }
         case 'cobranca': {
           const px = msg.pix;
           const pix = px && typeof px.chave === 'string' && px.chave.length <= 77
@@ -963,6 +989,7 @@
       q('#rp-mot-info').textContent = c.simulada ? 'simulação' : notaCorridas(m);
       desenharVeiculo(m);
       q('#rp-codigo').textContent = c.codigo.split('').join(' ');
+      q('#passageiro [data-rt="caminho"] .rt-cancelar').textContent = c.agendada ? `Cancelar · taxa de ${brl(window.Drink.agenda.REGRAS.taxaTarde)}` : 'Cancelar a corrida';
       q('#rp-codigo-txt').textContent = c.etapa === 'chegou'
         ? `Fala esse código pro ${nome}. Quando ele digitar no app, o seu celular confere e aí você entrega a chave.`
         : 'Fala esse código pro motorista quando ele chegar. Ele digita no app e o seu celular confere se é ele mesmo.';
@@ -1410,6 +1437,26 @@
       mostrarPix();
       agendar(() => { if (corrida === c) { c.podeConcluir = true; mostrarPix(); q('#rp-pix-status').textContent = `O ${primeiroNome(c.motorista && c.motorista.nome)} ainda não confirmou. Se você já pagou, pode concluir.`; } }, 90000);
     }
+    // a volta agendada vira corrida: o motorista tocou em "Ir buscar" (a mensagem dele já está no canal)
+    function iniciarAgendada(ag, desde) {
+      // uma simulação aberta dá lugar à volta de verdade
+      if (corrida && corrida.simulada) encerrar();
+      if (corrida) { op.avisar(`${primeiroNome(ag.motorista.nome)} saiu para a sua volta agendada, mas você já está em outra corrida.`); return; }
+      corrida = {
+        id: ag.id, t0: Date.now(), pedidoEm: ag.criada, etapa: 'a-caminho', agendada: true, janela: ag.janela,
+        embarque: ag.embarque, destino: ag.destino, km: ag.km, min: ag.min, linha: ag.linha,
+        valor: ag.valor, saida: ag.saida, rodado: ag.rodado, adicional: ag.adicional, veic: ag.veic, carro: ag.carro,
+        codigo: ag.codigo, priv: ag.priv, pub: ag.pub, rastreio: ag.rastreio, segredo: ag.segredo,
+        motorista: ag.motorista, chave: ag.chave, ultimo: desde || null, aceiteEm: ag.aceiteEm, msgs: [], fotos: 0, malas: false,
+        nota: 0, tags: [], gorjeta: 0, cobranca: null, paguei: false, compartilhada: false, evento: null,
+      };
+      privada = null;
+      salvarCorrida();
+      assinarCorrida();
+      avisos().definir('passageiro', [R.topico.aviso(ag.id, 'p')]);
+      notificar(`${primeiroNome(ag.motorista.nome)} está indo te buscar`, 'A sua volta agendada começou.');
+      ir('caminho');
+    }
     function trajetoCurto(linha) {
       if (!Array.isArray(linha) || linha.length < 2) return undefined;
       const passo = Math.max(1, Math.ceil(linha.length / 80));
@@ -1430,7 +1477,7 @@
         embarque: { nome: c.embarque.nome, bairro: c.embarque.bairro, lat: c.embarque.lat, lon: c.embarque.lon }, inicio: c.inicioViagem ? new Date(c.inicioViagem).toISOString() : null,
         // o desenho do trajeto (no máximo uns 80 pontos) e os horários, para o recibo
         linha: trajetoCurto(c.linha),
-        tempos: { pedido: c.t0 || 0, aceite: c.aceiteEm || 0, embarque: c.noEmbarque || 0, codigo: c.codigoEm || 0, saida: c.inicioViagem || 0, chegada: c.chegada || 0 },
+        tempos: { pedido: c.pedidoEm || c.t0 || 0, aceite: c.aceiteEm || 0, embarque: c.noEmbarque || 0, codigo: c.codigoEm || 0, saida: c.inicioViagem || 0, chegada: c.chegada || 0 },
         veiculo: c.motorista ? PF.descrever({ tipo: c.motorista.veiculo, ...(c.motorista.veic || {}) }) : '',
         simulada: c.simulada || undefined,
       };
@@ -1552,6 +1599,18 @@
       // a simulação para a qualquer hora, sem avisar ninguém
       if (c.simulada) { encerrar(); op.avisar('Simulação encerrada.'); ir(destino ? 'opcoes' : 'inicio'); return; }
       if (['preparo', 'viagem', 'chegada', 'pagando'].includes(c.etapa)) { op.avisar('A corrida já começou. Se precisar, usa a Ajuda.'); return; }
+      if (c.agendada && ['a-caminho', 'chegou'].includes(c.etapa)) {
+        // a taxa de quem cancela é a mesma do agendamento; a de R$ 25 é só para quem não aparece (o motorista é quem marca)
+        const taxa = window.Drink.agenda.REGRAS.taxaTarde;
+        if (!c.confirmouCancelar) { c.confirmouCancelar = true; op.avisar(`${primeiroNome(c.motorista.nome)} já saiu para te buscar: cancelar agora tem taxa de ${brl(taxa)}. Toca de novo para cancelar.`); return; }
+        enviar({ tipo: 'cancelado', motivo: 'passageiro', taxa });
+        avisarMotorista('cancelado');
+        AG.taxaDaCorrida(c, taxa, 'Cancelou a volta agendada depois que o motorista saiu');
+        encerrar();
+        ir('inicio');
+        abrirFolha('rp-pend');
+        return;
+      }
       if (c.etapa === 'buscando') publicarFechado();
       else { enviar({ tipo: 'cancelado', motivo: 'passageiro' }); avisarMotorista('cancelado'); }
       encerrar();
@@ -1685,6 +1744,9 @@
       }
       if (id === 'rp-preco') desenharPreco();
       if (id === 'rp-mot') desenharPerfilMotorista();
+      if (id === 'rp-agendar') AG.desenharAgendar({ embarque, destino, rota, veic });
+      if (id === 'rp-agenda') AG.desenharFolha();
+      if (id === 'rp-pend') AG.desenharPendencia();
       if (id === 'rp-contato') { q('#rp-contato-nome').value = ''; q('#rp-contato-cel').value = ''; q('#rp-contato-erro').hidden = true; }
       const t = $('h4', q(`#${id}`));
       if (t) t.focus({ preventScroll: true });
@@ -1704,7 +1766,12 @@
       if (!b || !raiz.contains(b) || b.disabled) return;
       const ds = b.dataset;
       if (ds.rpFechar !== undefined) { fecharFolha(); return; }
-      if (ds.rpFolha) { abrirFolha(ds.rpFolha); return; }
+      if (ds.rpFolha) {
+        if (ds.rpFolha === 'rp-agendar' && (!rota || !embarque || !destino)) { op.avisar('Espera a rota aparecer no mapa e toca de novo.'); return; }
+        abrirFolha(ds.rpFolha);
+        return;
+      }
+      if (ds.agHora) { AG.escolher(ds.agHora); return; }
       if (ds.rpAba) { ir(ds.rpAba); return; }
       if (ds.rpIr) { ir(ds.rpIr); return; }
       if (ds.rpLocal) { const l = eu().locais[ds.rpLocal]; if (l) { modoBusca = 'destino'; destino = { ...l }; ir('opcoes'); } return; }
@@ -1801,6 +1868,18 @@
         },
         'copiar-link': () => { if (!corrida) return; marcarCompartilhada(); copiar(linkRastreio(), 'Link da viagem copiado.'); fecharFolha(); },
         'recibo-compartilhar': () => { if (reciboAberto) compartilharRecibo(reciboAberto); },
+        agendar: async () => {
+          const ag = await AG.agendar();
+          if (!ag) return;
+          fecharFolha(false);
+          destino = null;
+          ir('inicio');
+          op.avisar(`Volta agendada: ${window.Drink.agenda.janelaTxt(ag.janela)}. Quando um motorista reservar, o celular avisa.`);
+        },
+        'ag-pronto': () => AG.pronto(),
+        'ag-cancelar': () => AG.cancelar(),
+        'pend-copiar': () => AG.copiarPendencia(),
+        'pend-paguei': () => AG.paguei(),
         'recibo-de-novo': () => {
           const v = reciboAberto;
           if (!v || !v.destino || !ponto(v.destino) || corrida) return;

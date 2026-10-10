@@ -267,6 +267,8 @@
   }
   const topico = {
     pedidos: () => `${cfg.sala}-pedidos`,
+    // as voltas agendadas: o ntfy guarda por 12 h, que é o limite para agendar
+    agendadas: () => `${cfg.sala}-agendadas`,
     // pedidos fechados ficam num canal à parte: no canal de pedidos, cada mensagem vira um aviso no celular
     fechados: () => `${cfg.sala}-fechados`,
     online: () => `${cfg.sala}-online`,
