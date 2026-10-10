@@ -73,14 +73,15 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&display=swap">
-  <link rel="stylesheet" href="../app-telas.css?v=32">
-  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=32">
-  <link rel="stylesheet" href="vendor/leaflet.css?v=32">
-  <link rel="stylesheet" href="app.css?v=32">
-  <link rel="stylesheet" href="visual.css?v=32">
-  <link rel="stylesheet" href="tema.css?v=32">
-  <link rel="stylesheet" href="ritmo.css?v=32">
-  <link rel="stylesheet" href="perfil.css?v=32">
+  <link rel="stylesheet" href="../app-telas.css?v=33">
+  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=33">
+  <link rel="stylesheet" href="vendor/leaflet.css?v=33">
+  <link rel="stylesheet" href="app.css?v=33">
+  <link rel="stylesheet" href="visual.css?v=33">
+  <link rel="stylesheet" href="tema.css?v=33">
+  <link rel="stylesheet" href="ritmo.css?v=33">
+  <link rel="stylesheet" href="perfil.css?v=33">
+  <link rel="stylesheet" href="jornada.css?v=33">
 </head>
 <body>
 <svg class="sprite" aria-hidden="true" focusable="false">
@@ -439,7 +440,7 @@
 
         <!-- início -->
         <section class="rt" data-rt="inicio" aria-labelledby="rp-ola">
-          <div class="rt-topo"><p class="t-chip rt-chip" id="rp-online" aria-live="polite"><span class="t-ponto"></span><span id="rp-online-txt">Procurando Drinks online</span></p></div>
+          <div class="rt-topo"><p class="t-chip rt-chip" id="rp-online" aria-live="polite"><span class="t-ponto"></span><span id="rp-online-txt">Procurando Drinks online</span><span class="rp-online-eta" id="rp-online-eta"></span></p></div>
           <button type="button" class="rt-mira" data-rp="centralizar" aria-label="Voltar para onde você está"><svg aria-hidden="true"><use href="#i-mira"/></svg></button>
           <div class="t-folha rt-folha">
             <h3 class="d-titulo d-ola" id="rp-ola" tabindex="-1"><span class="rp-saudacao">Boa noite</span>, <span data-en-primeiro>você</span></h3>
@@ -451,6 +452,7 @@
               <button type="button" class="d-fechar" data-rp="sair-evento" aria-label="Sair do convite do evento"><svg aria-hidden="true"><use href="#i-fechar"/></svg></button>
             </div>
             <div class="d-atalhos" id="rp-atalhos"></div>
+            <div class="rp-recentes" id="rp-recentes" role="group" aria-label="Voltar para um lugar recente" hidden></div>
             <button type="button" class="rp-avise" id="rp-avise" data-rp="avise" aria-pressed="false" hidden>
               <svg aria-hidden="true"><use href="#i-sino"/></svg>
               <span><b id="rp-avise-t">Me avise quando tiver Drink perto</b><small id="rp-avise-sub">Chega uma notificação quando alguém ficar online na sua região.</small></span>
@@ -497,6 +499,11 @@
           <div class="t-folha rt-folha">
             <h3 class="d-titulo" id="rp-op-t" tabindex="-1">Destino</h3>
             <p class="rt-rota" id="rp-op-rota">Calculando a rota…</p>
+            <ol class="rp-op-tempo" id="rp-op-tempo" aria-label="Quanto tempo leva, por estimativa" hidden>
+              <li><span>Drink chega</span><b id="rp-op-t1">—</b></li>
+              <li><span>Vistoria e dobra</span><b id="rp-op-t2">uns 5 min</b></li>
+              <li><span>Em casa</span><b id="rp-op-t3">—</b></li>
+            </ol>
             <button type="button" class="t-opcao rt-opcao" data-rp-folha="rp-preco" aria-label="Ver como o preço é calculado">
               <svg class="t-opcao-ic" aria-hidden="true"><use href="#i-bike"/></svg>
               <div><b>Drink</b><span id="rp-op-chega">bike ou patinete</span></div>
@@ -601,6 +608,8 @@
               <div><p class="t-rot">Chegada</p><p class="t-grande" id="rp-chegada">--:--</p></div>
               <div class="t-dir"><p class="t-rot">Faltam</p><p class="t-medio" id="rp-faltam">--</p></div>
             </div>
+            <div class="rp-via-prog" aria-hidden="true"><span class="rp-via-trilho"><i id="rp-via-barra"></i></span></div>
+            <p class="rp-via-pontas"><span id="rp-via-de">Saída</span><span id="rp-via-pct">0% do caminho</span></p>
             <p class="d-rua"><svg aria-hidden="true"><use href="#i-rota"/></svg><span>para <b id="rp-via-dest">o destino</b></span></p>
             <button type="button" class="t-mot rp-mot-bt" data-rp-folha="rp-mot" aria-describedby="rp-mot-dica2">
               <span class="t-av" id="rp-via-av">DR</span>
@@ -711,6 +720,11 @@
             <span class="t-av d-av-cliente" data-en-iniciais>JA</span>
             <div><h3 class="d-titulo" id="rp-pe-t" tabindex="-1" data-en-nome>Nome</h3><small data-en-fone></small><small class="rp-nota" id="rp-minha-nota" hidden></small></div>
           </div>
+          <dl class="d-numeros rp-pe-numeros" aria-label="Você no Drink">
+            <div><dt>Voltas</dt><dd id="rp-pe-voltas">0</dd></div>
+            <div><dt>Km rodados</dt><dd id="rp-pe-km">0</dd></div>
+            <div><dt>Sua nota</dt><dd id="rp-pe-nota">—</dd></div>
+          </dl>
           <p class="d-sec">Seu carro</p>
           <button type="button" class="d-carro rt-carro" data-rp-folha="rp-carro">
             <svg aria-hidden="true"><use href="#i-carro"/></svg>
@@ -985,7 +999,10 @@
             <div><h4 id="rp-rec-t" tabindex="-1">Recibo</h4><small id="rp-rec-sub">Viagem</small></div>
             <button type="button" class="d-fechar" data-rp-fechar aria-label="Fechar"><svg aria-hidden="true"><use href="#i-fechar"/></svg></button>
           </div>
+          <figure class="rp-rec-mapa" id="rp-rec-mapa" hidden><svg id="rp-rec-svg" viewBox="0 0 320 150" role="img" aria-label="O trajeto da volta"></svg><figcaption id="rp-rec-mapa-leg"></figcaption></figure>
           <div class="t-recibo d-recibo-det" id="rp-rec-det"></div>
+          <p class="d-sec rp-rec-sec" id="rp-rec-tempo-t" hidden>A volta, minuto a minuto</p>
+          <ol class="rp-rec-tempo" id="rp-rec-tempo" hidden></ol>
           <ul class="d-linhas rp-rec-info" id="rp-rec-info"></ul>
           <div class="rp-rec-bts" id="rp-rec-bts">
             <a class="t-bt" id="rp-rec-email" href="mailto:"><svg aria-hidden="true"><use href="#i-email"/></svg><span>Mandar por e-mail</span></a>
@@ -1240,6 +1257,8 @@
             <span class="t-fim-ic d-ic-sodio" aria-hidden="true"><svg><use href="#i-carteira"/></svg></span>
             <h3 class="d-titulo ma-ganhou" id="rm-fim-t" tabindex="-1">+ R$ 0,00</h3>
             <p class="t-sub" id="rm-fim-sub">Corrida concluída.</p>
+            <div class="rm-fim-nota" id="rm-fim-nota" hidden></div>
+            <dl class="rm-fim-resumo" id="rm-fim-resumo" aria-label="A corrida" hidden></dl>
             <button type="button" class="ma-linha ma-linha-fim rm-fim-ganhos" data-rm-folha="rm-ganhos"><small>Ganhos de hoje</small><b id="rm-hoje-3">R$ 0,00</b><span id="rm-viagens-3">0 viagens</span><em class="rm-ganhos-ver">Ver a semana <svg aria-hidden="true"><use href="#i-seta"/></svg></em></button>
           </div>
           <div class="rt-bts rt-bts-baixo">
@@ -1541,23 +1560,23 @@
   <p class="vira-txt" id="vira-txt">O Drink é feito para usar na vertical. Nada se perde: se tiver corrida, ela continua rolando.</p>
 </div>
 
-<script src="vendor/maplibre-gl.js?v=32"></script>
-<script src="vendor/leaflet.js?v=32"></script>
-<script src="vendor/qrcode.js?v=32"></script>
-<script src="../app-nucleo.js?v=32"></script>
-<script src="servicos.js?v=32"></script>
-<script src="rede.js?v=32"></script>
-<script src="mapa-estilo.js?v=32"></script>
-<script src="mapa.js?v=32"></script>
-<script src="carros.js?v=32"></script>
-<script src="cadastro-motorista.js?v=32"></script>
-<script src="perfil.js?v=32"></script>
-<script src="pix.js?v=32"></script>
-<script src="avisos.js?v=32"></script>
-<script src="sms.js?v=32"></script>
-<script src="eventos.js?v=32"></script>
-<script src="passageiro.js?v=32"></script>
-<script src="motorista.js?v=32"></script>
-<script src="app.js?v=32"></script>
+<script src="vendor/maplibre-gl.js?v=33"></script>
+<script src="vendor/leaflet.js?v=33"></script>
+<script src="vendor/qrcode.js?v=33"></script>
+<script src="../app-nucleo.js?v=33"></script>
+<script src="servicos.js?v=33"></script>
+<script src="rede.js?v=33"></script>
+<script src="mapa-estilo.js?v=33"></script>
+<script src="mapa.js?v=33"></script>
+<script src="carros.js?v=33"></script>
+<script src="cadastro-motorista.js?v=33"></script>
+<script src="perfil.js?v=33"></script>
+<script src="pix.js?v=33"></script>
+<script src="avisos.js?v=33"></script>
+<script src="sms.js?v=33"></script>
+<script src="eventos.js?v=33"></script>
+<script src="passageiro.js?v=33"></script>
+<script src="motorista.js?v=33"></script>
+<script src="app.js?v=33"></script>
 </body>
 </html>

@@ -1,0 +1,135 @@
+/* Drink — a volta com mais detalhe (v33). Vem depois de perfil.css.
+   - início: quanto o Drink mais perto demora e os últimos destinos para pedir de novo;
+   - preço: a linha do tempo estimada (o Drink chega, vistoria e dobra, em casa);
+   - viagem: o progresso do trajeto;
+   - recibo: o desenho do trajeto e a volta minuto a minuto;
+   - motorista: o resumo da corrida no fim, com a nota e os elogios. */
+
+/* ---------- início ---------- */
+.app .rp-online-eta { color: var(--a-texto-2); font-weight: 560; }
+.app .rp-recentes { display: flex; gap: var(--e2); overflow-x: auto; margin: 0 calc(var(--g) * -1); padding: 0 var(--g); scrollbar-width: none; }
+.app .rp-recentes::-webkit-scrollbar { display: none; }
+.app .rp-recentes[hidden] { display: none; }
+.app .rp-recentes button {
+  flex: none; display: inline-flex; align-items: center; gap: .45em; max-width: 16em; min-height: 40px; padding: 0 .9em 0 .7em;
+  border: 0; border-radius: 999px; background: var(--a-card); color: var(--luz); font: inherit; font-size: max(13px, .84em); font-weight: 560;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .06); cursor: pointer;
+}
+.app .rp-recentes button:hover { background: var(--a-card-2); }
+.app .rp-recentes svg { flex: none; width: 1.1em; height: 1.1em; fill: none; stroke: var(--lima-tx); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.app .rp-recentes span { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+
+/* ---------- preço: quanto tempo leva ---------- */
+.app .rp-op-tempo {
+  position: relative; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 0; padding: 0; list-style: none;
+}
+.app .rp-op-tempo[hidden] { display: none; }
+.app .rp-op-tempo::before {
+  content: ""; position: absolute; left: 1.05em; right: 1.05em; top: .42em; height: 2px; border-radius: 2px;
+  background: linear-gradient(90deg, var(--lima-tx), var(--lima-tx) 66%, rgba(255, 255, 255, .14) 66%);
+}
+.app .rp-op-tempo li { position: relative; display: grid; gap: .15em; padding-top: 1.25em; min-width: 0; }
+.app .rp-op-tempo li::before {
+  content: ""; position: absolute; top: 0; left: .7em; width: .85em; height: .85em; border-radius: 50%;
+  background: var(--a-folha); box-shadow: inset 0 0 0 2px var(--lima-tx);
+}
+.app .rp-op-tempo li:nth-child(2) { justify-items: center; text-align: center; }
+.app .rp-op-tempo li:nth-child(2)::before { left: calc(50% - .425em); }
+.app .rp-op-tempo li:last-child { justify-items: end; text-align: right; }
+.app .rp-op-tempo li:last-child::before { left: auto; right: .7em; background: var(--lima); box-shadow: 0 0 0 .2em rgba(210, 255, 60, .2); }
+.app .rp-op-tempo span { font-size: max(11.5px, .72em); font-weight: 600; letter-spacing: .02em; color: var(--a-texto-3); }
+.app .rp-op-tempo b { overflow: hidden; font-size: max(13px, .86em); font-weight: 640; white-space: nowrap; text-overflow: ellipsis; }
+.app .rp-op-tempo.sem-drink li:first-child b { color: #FFB48C; }
+.app .rp-op-tempo.sem-drink::before { background: linear-gradient(90deg, rgba(255, 138, 76, .7), rgba(255, 255, 255, .14) 40%); }
+
+/* ---------- viagem: o progresso ---------- */
+.app .rp-via-prog { margin-top: calc(var(--e1) * -1); }
+.app .rp-via-trilho { position: relative; display: block; height: .45em; border-radius: 999px; background: var(--a-card-2); overflow: hidden; }
+.app .rp-via-trilho i {
+  position: absolute; inset: 0 auto 0 0; width: 0; border-radius: 999px;
+  background: linear-gradient(90deg, rgba(210, 255, 60, .55), var(--lima)); transition: width .8s cubic-bezier(.2, .8, .2, 1);
+}
+.app .rp-via-pontas { display: flex; justify-content: space-between; gap: var(--e3); margin: calc(var(--e1) * -1) 0 0; font-size: max(12px, .76em); color: var(--a-texto-2); }
+.app .rp-via-pontas span:last-child { flex: none; color: var(--lima-tx); font-weight: 620; }
+
+/* ---------- recibo: o trajeto e os horários ---------- */
+.app .rp-rec-mapa { margin: 0; border-radius: var(--r-g); overflow: hidden; background: var(--a-card); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .05); }
+.app .rp-rec-mapa[hidden] { display: none; }
+.app .rp-rec-mapa svg { display: block; width: 100%; height: auto; }
+.app .rp-rec-grade { fill: none; stroke: rgba(255, 255, 255, .05); stroke-width: 1; }
+.app .rp-rec-luz { fill: none; stroke: rgba(210, 255, 60, .18); stroke-width: 10; stroke-linecap: round; stroke-linejoin: round; }
+.app .rp-rec-linha { fill: none; stroke: var(--lima-tx); stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; }
+.app .rp-rec-de { fill: var(--a-folha); stroke: var(--luz); stroke-width: 3; }
+.app .rp-rec-para { fill: #FF6FB1; stroke: var(--a-folha); stroke-width: 3; }
+.app .rp-rec-mapa figcaption { padding: .55em .85em .65em; font-size: max(12px, .76em); font-weight: 560; color: var(--a-texto-2); }
+.app .rp-rec-sec { margin: var(--e2) 0 calc(var(--e1) * -1); }
+.app .rp-rec-tempo { position: relative; display: grid; margin: 0; padding: 0; list-style: none; }
+.app .rp-rec-tempo[hidden] { display: none; }
+.app .rp-rec-tempo li { position: relative; display: grid; grid-template-columns: 3.1em minmax(0, 1fr) auto; align-items: start; gap: var(--e3); padding: .45em 0; }
+.app .rp-rec-tempo li::before {
+  content: ""; position: absolute; left: 3.45em; top: .95em; width: .55em; height: .55em; border-radius: 50%; background: var(--lima-tx);
+}
+.app .rp-rec-tempo li:not(:last-child):not(.total)::after {
+  content: ""; position: absolute; left: calc(3.45em + .24em); top: 1.5em; bottom: -.55em; width: 2px; background: rgba(255, 255, 255, .1);
+}
+.app .rp-rec-tempo li:nth-last-child(2)::after { display: none; }
+.app .rp-rec-tempo time { padding-top: .1em; font-size: max(12.5px, .8em); font-weight: 620; font-variant-numeric: tabular-nums; color: var(--luz); }
+.app .rp-rec-tempo span { padding-left: 1.2em; min-width: 0; }
+.app .rp-rec-tempo b { display: block; font-size: max(13.5px, .88em); font-weight: 600; }
+.app .rp-rec-tempo small { display: block; font-size: max(12px, .76em); color: var(--a-texto-2); }
+.app .rp-rec-tempo em { padding-top: .15em; font-style: normal; font-size: max(12px, .74em); font-weight: 600; color: var(--a-texto-3); font-variant-numeric: tabular-nums; }
+.app .rp-rec-tempo li.total { margin-top: .3em; padding-top: .7em; border-top: 1px solid rgba(255, 255, 255, .08); }
+.app .rp-rec-tempo li.total::before { display: none; }
+.app .rp-rec-tempo li.total span { padding-left: 0; grid-column: 1 / 3; }
+.app .rp-rec-tempo li.total time { display: none; }
+.app .rp-rec-tempo li.total em { color: var(--lima-tx); font-size: max(13px, .84em); }
+
+/* ---------- perfil: os números ---------- */
+.app .rt-cheia > .rp-pe-numeros { margin-top: var(--e3); }
+
+/* ---------- motorista: o resumo no fim da corrida ---------- */
+.app .rm-fim-nota { display: grid; justify-items: center; gap: .3em; margin-top: var(--e2); }
+.app .rm-fim-nota[hidden] { display: none; }
+.app .rm-fim-estrelas { display: flex; gap: .15em; margin: 0; }
+.app .rm-fim-estrelas svg { width: 1.5em; height: 1.5em; color: var(--a-card-2); }
+.app .rm-fim-estrelas svg.on { color: #F2C94C; }
+.app .rm-fim-quem { margin: 0; font-size: max(12.5px, .82em); color: var(--a-texto-2); }
+.app .rm-fim-nota ul { display: flex; flex-wrap: wrap; justify-content: center; gap: .35em; margin: .2em 0 0; padding: 0; list-style: none; }
+.app .rm-fim-nota li { padding: .35em .75em; border-radius: 999px; background: rgba(210, 255, 60, .12); color: var(--lima-tx); font-size: max(12px, .76em); font-weight: 600; }
+.app .rm-fim-resumo {
+  display: grid; width: 100%; max-width: 24em; margin: var(--e4) 0 0; border-radius: var(--r-g); background: var(--a-card);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .05); text-align: left;
+}
+.app .rm-fim-resumo[hidden] { display: none; }
+.app .rm-fim-resumo > div { display: flex; justify-content: space-between; align-items: center; gap: var(--e3); padding: .6em var(--e4); }
+.app .rm-fim-resumo > div + div { border-top: 1px solid rgba(255, 255, 255, .06); }
+.app .rm-fim-resumo dt { min-width: 0; font-size: max(13.5px, .88em); font-weight: 600; }
+.app .rm-fim-resumo dt small { display: block; overflow: hidden; font-size: max(12px, .76em); font-weight: 450; color: var(--a-texto-2); white-space: nowrap; text-overflow: ellipsis; }
+.app .rm-fim-resumo dd { flex: none; margin: 0; font-weight: 640; font-variant-numeric: tabular-nums; }
+.app .rm-fim-resumo .total dt, .app .rm-fim-resumo .total dd { color: var(--lima-tx); font-size: 1em; }
+
+/* ---------- no claro ---------- */
+html[data-tema="claro"] .app .rp-recentes button,
+html[data-tema="claro"] .app :is(.rp-rec-mapa, .rm-fim-resumo) { box-shadow: inset 0 0 0 1px var(--a-linha); }
+html[data-tema="claro"] .app .rp-op-tempo::before { background: linear-gradient(90deg, #3D6600, #3D6600 66%, rgba(14, 13, 18, .14) 66%); }
+html[data-tema="claro"] .app .rp-op-tempo li:last-child::before { background: #3D6600; box-shadow: 0 0 0 .2em rgba(61, 102, 0, .2); }
+html[data-tema="claro"] .app .rp-op-tempo.sem-drink li:first-child b { color: #8A3200; }
+html[data-tema="claro"] .app .rp-via-trilho i { background: linear-gradient(90deg, rgba(61, 102, 0, .5), #3D6600); }
+html[data-tema="claro"] .app .rp-rec-grade { stroke: rgba(14, 13, 18, .06); }
+html[data-tema="claro"] .app .rp-rec-luz { stroke: rgba(130, 190, 0, .25); }
+html[data-tema="claro"] .app .rp-rec-tempo li:not(:last-child):not(.total)::after { background: rgba(14, 13, 18, .12); }
+html[data-tema="claro"] .app .rp-rec-tempo li.total { border-color: var(--a-linha); }
+html[data-tema="claro"] .app .rm-fim-resumo > div + div { border-color: var(--a-linha); }
+html[data-tema="claro"] .app .rm-fim-nota li { background: rgba(130, 190, 0, .16); color: #2F4F00; }
+html[data-tema="claro"] .app .rm-fim-estrelas svg.on { color: #E0A800; }
+html[data-tema="claro"] .app .rm-fim-estrelas svg { color: #D9D6CE; }
+
+/* ---------- celular baixo ---------- */
+@container (max-height: 760px) {
+  .app .rp-recentes button { min-height: 36px; }
+}
+@container (max-height: 620px) {
+  .app .rp-recentes { display: none; }
+  .app .rp-op-tempo { display: none; }
+  .app .rp-via-pontas { display: none; }
+}
