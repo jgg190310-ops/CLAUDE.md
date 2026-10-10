@@ -404,3 +404,111 @@ body { font-family: var(--f-texto); font-feature-settings: "cv11", "ss01"; lette
 @media (min-width: 780px) and (min-height: 600px) {
   .mesa-txt, .mesa-qr p { font-family: var(--f-texto); }
 }
+
+/* ==========================================================================================================
+   v29: o app inteiro no escuro grafite. A abertura e as boas-vindas deixam o azul e o desenho de lua e carro:
+   um pedaço do mapa de BH com a rota em limão. O motorista offline vê o mapa e um botão redondo para ficar online.
+   ========================================================================================================== */
+
+/* ---------- abertura ---------- */
+.app .ab { background: radial-gradient(60% 42% at 50% 47%, rgba(210, 255, 60, .12), transparent 70%), #0A0B0F; }
+.app .ab-sub { color: var(--a-texto-2); font-weight: 600; letter-spacing: .26em; }
+
+/* ---------- boas-vindas ---------- */
+.app .boas { background: var(--a-bg); }
+.app .boas-ceu { min-height: 15em; background: #15171C; }
+.app .boas-ceu::after { display: none; }
+.boas-mapa { position: absolute; inset: 0; width: 100%; height: 100%; }
+.boas-quadras path { fill: none; stroke: #20232A; stroke-width: 9; }
+.boas-ruas path { fill: none; stroke: #272A32; stroke-width: 16; }
+.boas-rota, .boas-rota-luz { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.boas-rota { stroke: var(--lima); stroke-width: 4.5; }
+.boas-rota-luz { stroke: rgba(210, 255, 60, .16); stroke-width: 18; }
+.boas-inicio circle:first-child { fill: rgba(91, 103, 255, .28); }
+.boas-inicio circle:last-child { fill: #5B67FF; stroke: #fff; stroke-width: 3; r: 7px; }
+.boas-fim circle { fill: var(--lima); }
+.boas-fim use { fill: none; stroke: #0A0B0F; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.boas-anda circle, .boas-parado circle { fill: #0A0B0F; stroke: var(--lima); stroke-width: 2.5; }
+.boas-anda use, .boas-parado use { fill: none; stroke: var(--lima); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.boas-parado { display: none; }
+@media (prefers-reduced-motion: reduce) { .boas-anda { display: none; } .boas-parado { display: inline; } }
+/* a marca lá em cima, à esquerda: o limão (que voa da abertura até aqui) e o nome */
+.app .boas-lua {
+  top: calc(var(--topo) + 1.15em); left: 1.3em; right: auto; width: 2.1em; height: 2.1em; max-width: none; aspect-ratio: auto;
+}
+.app .boas-lua::before, .app .boas-lua::after { display: none; }
+.app .boas-lua svg { filter: none; }
+.app .boas-marca { top: calc(var(--topo) + 1.02em); left: 2.4em; font-size: 1.62em; }
+/* o texto continua o mapa, sem folha por cima */
+.app .boas-folha { margin-top: -4.2em; padding-top: 0; background: transparent; border-radius: 0; gap: .95em; }
+.app .boas-t { font-size: 2.15em; line-height: 1.06; letter-spacing: -.035em; }
+.boas-bebeu-t { display: block; color: var(--lima); }
+.app .boas-t em { color: var(--luz); }
+.boas-selos { display: flex; flex-wrap: wrap; gap: .4em; margin: .1em 0 .2em; padding: 0; list-style: none; }
+.boas-selos li {
+  display: inline-flex; align-items: center; gap: .4em; padding: .45em .75em .45em .6em; border-radius: 999px;
+  background: var(--a-card); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .06); font-size: .76em; font-weight: 560; color: var(--luz-2);
+}
+.boas-selos svg { width: 1.15em; height: 1.15em; fill: none; stroke: var(--lima); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.boas.entrou .boas-mapa { animation: aparece .9s .05s ease-out both; }
+.boas.entrou .boas-selos { animation: boas-sobe .6s .35s cubic-bezier(.2, .8, .2, 1) both; }
+@keyframes boas-sobe { from { opacity: 0; transform: translateY(.8em); } to { opacity: 1; transform: none; } }
+
+/* ---------- o mapa em grafite (o vetorial vem de mapa-estilo.js; aqui o fundo e a reserva de imagens) ---------- */
+.app .mapa, .app .mapa.mapa-imagens, .app .leaflet-container { background: #17191E; }
+.app .mapa .leaflet-tile-pane { filter: invert(1) grayscale(1) brightness(.88) contrast(.92); }
+.app .mk-on { background: #23262D; }
+
+/* ---------- no computador: a mesa também no escuro ---------- */
+@media (min-width: 780px) and (min-height: 600px) {
+  body { background: #0A0B0F; }
+  .mesa { background: radial-gradient(40vw 40vw at 72% 50%, rgba(210, 255, 60, .09), transparent 70%), radial-gradient(50vw 50vw at 10% 0%, rgba(72, 85, 255, .18), transparent 70%), #0A0B0F; }
+  .mesa-voltar { background: rgba(255, 255, 255, .07); }
+  .mesa-voltar:hover { background: rgba(255, 255, 255, .12); }
+  .mesa-txt, .mesa-qr p { color: var(--a-texto-2); }
+}
+
+/* ---------- motorista offline: o mapa ao fundo, os ganhos em cima e o botão redondo de ficar online ---------- */
+.app .rm-off-topo {
+  position: absolute; z-index: 3; top: calc(var(--topo) + 1.75em); left: .9em; right: .9em;
+  padding: .55em .55em .55em .6em; border-radius: var(--r-g);
+  background: var(--vidro); box-shadow: var(--sombra-flut);
+  -webkit-backdrop-filter: blur(14px) saturate(140%); backdrop-filter: blur(14px) saturate(140%);
+}
+.app .rm-off-topo .en-menu-bt { background: rgba(255, 255, 255, .07); }
+.app .rm-off .ma-ganhos {
+  position: absolute; z-index: 3; top: calc(var(--topo) + 6.15em); left: .9em; right: .9em; margin: 0;
+  grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: .1em 1em; padding: .85em 1.05em;
+}
+.app .rm-off .ma-ganhos small { grid-column: 1 / -1; }
+.app .rm-off .ma-ganhos b { font-size: 1.8em; }
+.app .rm-off .ma-ganhos span { grid-column: 1; }
+.app .rm-off .rm-ganhos-ver { position: static; grid-column: 2; grid-row: 2 / span 2; align-self: center; }
+.app .rm-go {
+  position: relative; z-index: 3; align-self: center; flex: none; display: grid; place-items: center;
+  width: 6.2em; height: 6.2em; margin: 0 0 1.1em; padding: 0; border: 0; border-radius: 50%;
+  background: var(--lima); color: #0A0B0F; font: inherit; font-size: 1em; font-weight: 660; line-height: 1.1; letter-spacing: -.01em; text-align: center; cursor: pointer;
+  box-shadow: 0 0 0 .45em rgba(10, 11, 15, .55), 0 1.2em 2.4em -.8em rgba(0, 0, 0, .9);
+  transition: transform .15s;
+}
+.app .rm-go[hidden] { display: none; }
+.app .rm-go::before {
+  content: ""; position: absolute; inset: -.45em; border-radius: 50%; border: 2px solid rgba(210, 255, 60, .55);
+  animation: rm-go-onda 2.4s ease-out infinite; pointer-events: none;
+}
+@keyframes rm-go-onda { from { transform: scale(.92); opacity: .9; } to { transform: scale(1.35); opacity: 0; } }
+.app .rm-go:active { transform: scale(.96); }
+.app .rm-off-folha { gap: .75em; padding-bottom: calc(1.4em + var(--base)); }
+.app .rm-off-cab { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: .85em; }
+.app .rm-off-cab .ma-status { width: 3em; height: 3em; margin: 0; background: var(--a-card-2); box-shadow: none; }
+.app .rm-off-cab .ma-status svg { width: 1.55em; height: 1.55em; }
+.app .rm-off-cab .d-titulo { font-size: 1.4em; }
+.app .rm-off-cab .rm-treino-selo { margin: 0 0 .35em; }
+.app .rm-off-sub { font-size: .88em; line-height: 1.5; color: var(--a-texto-2); }
+.app .rm-off .rm-treino-passos { justify-content: flex-start; max-width: none; margin: 0; }
+.app .rm-off .rm-simular { justify-self: start; margin-top: 0; }
+.app .rm-off .rm-treino-bts { margin: .2em 0 0; }
+
+/* ---------- início do passageiro: a busca com a lupa num círculo limão ---------- */
+.app .d-busca { gap: .8em; padding-left: .55em; }
+.app .d-busca svg { box-sizing: content-box; width: 1.05em; height: 1.05em; padding: .55em; border-radius: 50%; background: var(--lima); stroke: #0A0B0F; stroke-width: 2.6; }
