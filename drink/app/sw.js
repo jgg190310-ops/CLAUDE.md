@@ -1,12 +1,12 @@
 /* Drink — o service worker do app. Guarda o app no aparelho para abrir sem internet e mostra os avisos
    (pedido novo, motorista chegou, mensagem…) que chegam pelo ntfy mesmo com o app fechado.
    Com internet, tudo vem da rede primeiro: o celular sempre usa a versão mais nova do app. */
-const VERSAO = 'drink-app-29';
+const VERSAO = 'drink-app-30';
 const FONTES = 'drink-fontes-1';
-const V = '?v=29';
+const V = '?v=30';
 const ARQUIVOS = [
   './', 'manifest.webmanifest',
-  ...['app.css', 'visual.css', 'app.js', 'servicos.js', 'rede.js', 'mapa-estilo.js', 'mapa.js', 'carros.js', 'cadastro-motorista.js', 'pix.js', 'avisos.js', 'sms.js',
+  ...['app.css', 'visual.css', 'tema.css', 'app.js', 'servicos.js', 'rede.js', 'mapa-estilo.js', 'mapa.js', 'carros.js', 'cadastro-motorista.js', 'pix.js', 'avisos.js', 'sms.js',
     'eventos.js', 'passageiro.js', 'motorista.js', 'vendor/maplibre-gl.js', 'vendor/maplibre-gl.css', 'vendor/leaflet.js', 'vendor/leaflet.css', 'vendor/qrcode.js',
     '../app-telas.css', '../app-nucleo.js'].map((a) => a + V),
   'fontes/inter-latin.woff2',

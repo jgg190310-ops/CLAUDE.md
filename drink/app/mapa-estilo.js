@@ -5,7 +5,7 @@
 (function () {
   'use strict';
 
-  const COR = {
+  const ESCURO = {
     chao: '#17191E',
     bairro: '#191B21',
     comercio: '#1C1E24',
@@ -37,6 +37,40 @@
     lugar: '#8E8AA6',
     nomeLugar: '#A3A0B8',
   };
+  // o mesmo mapa no tema claro: papel quente, ruas brancas, nomes em cinza-escuro
+  const CLARO = {
+    chao: '#ECEAE4',
+    bairro: '#E8E6DF',
+    comercio: '#E4E1DA',
+    verde: '#D3E6C2',
+    agua: '#C6DBEE',
+    rio: '#9EC3E6',
+    predio: '#DFDCD4',
+    predioBorda: '#D3CFC6',
+    rua: '#FFFFFF',
+    ruaMedia: '#FFFFFF',
+    avenida: '#FFFFFF',
+    rodovia: '#FFE9A8',
+    trilha: '#D6D2C9',
+    trilho: '#C9C5BC',
+    nomeRua: '#5C5F67',
+    nomeBairro: '#7A7D86',
+    nomeCidade: '#2A2C33',
+    nomeAgua: '#4C78A8',
+    numero: '#8A8D95',
+    bar: '#4E7A00',
+    nomeBar: '#3E6200',
+    parque: '#5E9A6E',
+    nomeParque: '#4D7F5B',
+    hospital: '#C9483F',
+    nomeHospital: '#A8433C',
+    metro: '#4A63B8',
+    nomeMetro: '#3E559E',
+    lugar: '#7A7395',
+    nomeLugar: '#6A6485',
+  };
+  const CORES = { escuro: ESCURO, claro: CLARO };
+  const COR = ESCURO;
   const NOME = ['coalesce', ['get', 'name:pt'], ['get', 'name']];
   const FONTE = ['Noto Sans Regular'];
   const FONTE_B = ['Noto Sans Bold'];
@@ -51,10 +85,11 @@
   // largura das ruas: cresce com o zoom (valores em pixels, zoom do MapLibre)
   const largura = (pares) => ['interpolate', ['exponential', 1.5], ['zoom'], ...pares];
 
-  function vetorial(cfg) {
+  function vetorial(cfg, tema = 'escuro') {
+    const COR = CORES[tema] || ESCURO;
     return {
       version: 8,
-      name: 'Drink · grafite',
+      name: tema === 'claro' ? 'Drink · claro' : 'Drink · grafite',
       glyphs: cfg.mapaFontes,
       sources: { omt: { type: 'vector', url: cfg.mapaVetor } },
       layers: [
@@ -102,7 +137,7 @@
             'symbol-placement': 'line', 'symbol-spacing': 380, 'text-field': NOME, 'text-font': FONTE_B,
             'text-size': ['interpolate', ['linear'], ['zoom'], 12, 10.5, 18, 14.5], 'text-max-angle': 30, 'text-letter-spacing': 0.03, 'text-padding': 4,
           },
-          paint: { 'text-color': '#A6AAB3', 'text-halo-color': COR.chao, 'text-halo-width': 1.6 },
+          paint: { 'text-color': tema === 'claro' ? '#3A3D45' : '#A6AAB3', 'text-halo-color': COR.chao, 'text-halo-width': 1.6 },
         },
         {
           id: 'numeros', type: 'symbol', source: 'omt', 'source-layer': 'housenumber', minzoom: 17.2,
@@ -181,20 +216,21 @@
   }
 
   // reserva: o mapa de imagens do OpenStreetMap, com o claro virado em escuro, em tons de cinza
-  function imagens(url) {
+  function imagens(url, tema = 'escuro') {
+    const claro = tema === 'claro';
     return {
       version: 8,
       name: 'Drink · noite (imagens)',
       sources: { osm: { type: 'raster', tiles: [url.replace('{s}', 'a')], tileSize: 256, maxzoom: 19 } },
       layers: [
-        { id: 'fundo', type: 'background', paint: { 'background-color': '#17191E' } },
+        { id: 'fundo', type: 'background', paint: { 'background-color': claro ? '#ECEAE4' : '#17191E' } },
         {
           id: 'osm', type: 'raster', source: 'osm',
-          paint: { 'raster-opacity': 0.9, 'raster-brightness-min': 0.92, 'raster-brightness-max': 0.08, 'raster-saturation': -1, 'raster-contrast': -0.05 },
+          paint: claro ? { 'raster-opacity': 1, 'raster-saturation': -0.85, 'raster-contrast': -0.05 } : { 'raster-opacity': 0.9, 'raster-brightness-min': 0.92, 'raster-brightness-max': 0.08, 'raster-saturation': -1, 'raster-contrast': -0.05 },
         },
       ],
     };
   }
 
-  window.Drink.estiloMapa = { vetorial, imagens, COR };
+  window.Drink.estiloMapa = { vetorial, imagens, COR, CORES };
 }());
