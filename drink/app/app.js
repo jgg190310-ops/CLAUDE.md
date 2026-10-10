@@ -565,8 +565,16 @@
     banco.usuarios[u.celular] = u;
     banco.atual = u.celular;
     salvar();
-    // quem chegou pelo QR de um evento vai direto pedir a volta
+    // quem chegou pelo QR de um evento (ou do balcão de um bar) vai direto pedir a volta
     const convite = window.Drink.Eventos.convite();
+    const barAqui = window.Drink.bares.aqui();
+    if (barAqui && !convite) {
+      u.papel = 'passageiro';
+      salvar();
+      entrarNoApp(u, 'entra');
+      avisar(`Tudo pronto, ${primeiro(u)}! Na hora de ir embora do ${barAqui.nome}, pede o seu Drink aqui: ele busca você na porta.`);
+      return;
+    }
     if (convite) {
       u.papel = 'passageiro';
       salvar();
@@ -1295,9 +1303,18 @@
     else { Ev.guardarConvite(convite); avisoConvite = `Convite do ${convite.nome} guardado. Na hora de ir embora, é só pedir.`; }
     try { history.replaceState(null, '', location.pathname); } catch (e) { /* ok */ }
   }
+  // o QR do balcão de um bar parceiro: o bar fica guardado a noite toda e o embarque vai para a porta dele
+  let barLido = null;
+  if (busca.get('bar')) {
+    const B = window.Drink.bares;
+    barLido = B.lerLink(busca.get('bar'), location.hash.slice(1));
+    if (!barLido) avisoConvite = 'Esse QR veio pela metade. Pede para o bar mostrar o QR de novo.';
+    else { B.guardarAqui(barLido); avisoConvite = `Você está no ${barLido.nome}. Na hora de ir embora, é só pedir: o Drink busca você na porta.`; }
+    try { history.replaceState(null, '', location.pathname); } catch (e) { /* ok */ }
+  }
   const u = eu();
-  if (u && convite && u.papel !== 'passageiro' && !u.corridaMotorista) { u.papel = 'passageiro'; salvar(); }
-  if (avisoConvite) setTimeout(() => avisar(u || !convite ? avisoConvite : `Convite do ${convite.nome} guardado. Entra com o seu celular para pedir a volta.`), 2600);
+  if (u && (convite || barLido) && u.papel !== 'passageiro' && !u.corridaMotorista) { u.papel = 'passageiro'; salvar(); }
+  if (avisoConvite) setTimeout(() => avisar(u || !(convite || barLido) ? avisoConvite : (barLido ? `Você está no ${barLido.nome}. Entra com o seu celular para pedir a volta.` : `Convite do ${convite.nome} guardado. Entra com o seu celular para pedir a volta.`)), 2600);
   // voltas de teste de versões antigas do app não contam mais
   if (u && Array.isArray(u.voltas) && u.voltas.some((v) => v.simulada)) { u.voltas = u.voltas.filter((v) => !v.simulada); salvar(); }
   const pedidoPapel = busca.get('papel');

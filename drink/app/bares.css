@@ -1,0 +1,118 @@
+/* Drink — bares parceiros (bares.js): o cartão e o painel do bar, o "você está no bar", os bares abertos no mapa e
+   na lista, o pedido feito pelo bar e o QR do Pix no celular do motorista. */
+
+/* o que some tem que sumir, mesmo com display definido acima */
+.app :is(.rp-simular, .rp-via-liberar, .bar-estado > *, .rp-bares-linha, .rm-bares, .rm-re-qr, .rp-op-bar, .bar-pagina > *, .ev-resumo)[hidden] { display: none !important; }
+
+/* ---------- a aba Eventos: o cartão do bar ---------- */
+.app button.bar-cartao {
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: var(--e3);
+  width: 100%; margin-top: var(--e3); padding: var(--e3) var(--e4); border: 0; border-radius: var(--r-g);
+  background: linear-gradient(120deg, rgba(210, 255, 60, .12), rgba(210, 255, 60, .03) 60%), var(--a-card);
+  box-shadow: inset 0 0 0 1px rgba(210, 255, 60, .28); color: inherit; font: inherit; text-align: left; cursor: pointer;
+}
+.app .bar-cartao-ic { display: grid; place-items: center; width: 2.6em; height: 2.6em; border-radius: 50%; background: rgba(210, 255, 60, .14); }
+.app .bar-cartao-ic svg, .app .bar-li-ic svg, .app .rp-bares-linha > svg, .app .rp-bar-aqui > svg {
+  width: 1.35em; height: 1.35em; fill: none; stroke: var(--lima-tx); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
+}
+.app .bar-cartao-txt { display: grid; gap: .15em; min-width: 0; }
+.app .bar-cartao-txt b { font-size: max(15px, .98em); font-weight: 680; }
+.app .bar-cartao-txt small { font-size: max(12.5px, .8em); line-height: 1.35; color: var(--a-texto-2); }
+.app .bar-cartao em {
+  font-style: normal; font-size: max(12.5px, .8em); font-weight: 700; color: var(--a-bg); background: var(--lima-tx);
+  padding: .45em .8em; border-radius: 999px; white-space: nowrap;
+}
+
+/* ---------- cadastro e página do bar ---------- */
+.app .bar-lede { margin: 0; font-size: max(13.5px, .88em); line-height: 1.45; color: var(--a-texto-2); }
+.app .en-rot select {
+  width: 100%; min-width: 0; padding: 0; border: 0; background: transparent; outline: none; color: var(--luz);
+  font: inherit; font-size: max(16px, 1.05em); font-weight: 700; -webkit-appearance: none; appearance: none;
+}
+.app .en-rot select option { color: #0E0D12; }
+.app .bar-carro { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: var(--e2); }
+
+/* coluna flex como a do evento: dentro da página que rola, nada encolhe abaixo do próprio conteúdo */
+.app .bar-pagina { gap: var(--e3); }
+.app .bar-pagina > .ev-bloco-convite { order: 0; }
+.app .bar-estado { display: grid; gap: var(--e2); padding: var(--e4); border-radius: var(--r-g); background: var(--a-card); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .05); }
+.app .bar-estado p { margin: 0; font-size: max(13.5px, .88em); line-height: 1.45; color: var(--a-texto-2); }
+.app .bar-numeros {
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 0; padding: 0; list-style: none;
+  border-radius: var(--r-g); background: var(--a-card); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .05);
+}
+.app .bar-numeros li { display: grid; gap: .15em; padding: var(--e3) var(--e4); text-align: center; }
+.app .bar-numeros li + li { border-left: 1px solid rgba(255, 255, 255, .06); }
+.app .bar-numeros b { font-size: 1.5em; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
+.app .bar-numeros small { font-size: max(12px, .74em); color: var(--a-texto-2); }
+.app .t-bt.bar-chamar {
+  display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: var(--e3); height: auto; min-height: var(--toque);
+  padding: var(--e3) var(--e4); border-radius: var(--r-g); text-align: left; box-shadow: inset 0 0 0 1.5px rgba(210, 255, 60, .45);
+}
+.app .t-bt.bar-chamar > svg { width: 1.6em; height: 1.6em; fill: none; stroke: var(--lima-tx); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.app .bar-chamar span { display: grid; gap: .1em; }
+.app .bar-chamar b { font-size: max(14.5px, .95em); font-weight: 680; }
+.app .bar-chamar small { font-size: max(12.5px, .78em); font-weight: 500; color: var(--a-texto-2); }
+.app .bar-voltas li code {
+  flex: none; padding: .3em .55em; border-radius: .5em; background: var(--a-card-2); color: var(--lima-tx);
+  font-family: var(--f-texto); font-size: 1.05em; font-weight: 800; letter-spacing: .12em; font-variant-numeric: tabular-nums;
+}
+.app .bar-tag { font-style: normal; font-size: .82em; font-weight: 700; color: var(--lima-tx); }
+
+/* ---------- passageiro: você está no bar e os bares abertos ---------- */
+.app .rp-bar-aqui { box-shadow: inset 0 0 0 1px rgba(210, 255, 60, .3); }
+.app button.rp-bares-linha {
+  display: flex; align-items: center; gap: var(--e3); width: 100%; padding: var(--e3) var(--e4); border: 0; border-radius: var(--r-g);
+  background: var(--a-card); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .05); color: inherit; font: inherit; text-align: left; cursor: pointer;
+}
+.app .rp-bares-linha > svg { flex: none; }
+.app .rp-bares-linha span { display: grid; gap: .1em; min-width: 0; }
+.app .rp-bares-linha b { font-size: max(14px, .9em); font-weight: 650; }
+.app .rp-bares-linha small { overflow: hidden; font-size: max(12.5px, .78em); color: var(--a-texto-2); white-space: nowrap; text-overflow: ellipsis; }
+
+.app .bar-lista { display: grid; gap: var(--e2); margin: 0; padding: 0; list-style: none; }
+.app .bar-lista button {
+  display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: var(--e3); width: 100%;
+  padding: var(--e3) var(--e4); border: 0; border-radius: var(--r-g); background: var(--a-card); color: inherit; font: inherit; text-align: left; cursor: pointer;
+}
+.app .bar-li-ic { display: grid; place-items: center; width: 2.4em; height: 2.4em; border-radius: 50%; background: rgba(210, 255, 60, .12); }
+.app .bar-lista span:not(.bar-li-ic) { display: grid; gap: .1em; min-width: 0; }
+.app .bar-lista b { font-size: max(14.5px, .95em); font-weight: 650; }
+.app .bar-lista small { font-size: max(12.5px, .78em); line-height: 1.35; color: var(--a-texto-2); }
+.app .bar-li-vazio { padding: var(--e4); border-radius: var(--r-g); border: 1px dashed var(--a-linha); font-size: max(13px, .86em); color: var(--a-texto-2); text-align: center; }
+.app .bar-info { display: grid; margin: 0; }
+.app .bar-info > div { display: flex; justify-content: space-between; gap: var(--e3); padding: var(--e3) 0; border-bottom: 1px solid var(--a-linha); }
+.app .bar-info dt { font-size: max(13.5px, .88em); color: var(--a-texto-2); }
+.app .bar-info dd { margin: 0; font-size: max(13.5px, .88em); font-weight: 650; text-align: right; }
+.app .t-bt.bar-ir { display: flex; align-items: center; justify-content: center; gap: .5em; text-decoration: none; }
+.app .t-bt.bar-ir svg { width: 1.2em; height: 1.2em; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+/* o bar no mapa: um copo que dá para tocar (para o motorista, com as voltas da noite) */
+/* em bloco: com altura definida, os 100% do botão valem o tamanho do marcador */
+.mk-bar { display: block; }
+.mk-bar button {
+  position: relative; display: grid; place-items: center; width: 100%; height: 100%; padding: 0; border: 2px solid #0E0D12; border-radius: 50%;
+  background: #D2FF3C; color: #0E0D12; box-shadow: 0 0 0 4px rgba(210, 255, 60, .22), 0 4px 10px rgba(0, 0, 0, .5); cursor: pointer; pointer-events: auto;
+}
+.mk-bar button::before { content: ""; position: absolute; inset: -7px; border-radius: 50%; }
+.mk-bar svg { width: 58%; height: 58%; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.mk-bar b {
+  position: absolute; top: -.55em; right: -.6em; min-width: 1.45em; padding: .1em .3em; border-radius: 999px;
+  background: #FF6FB1; color: #0E0D12; font-size: 11px; font-weight: 800; line-height: 1.3; text-align: center;
+}
+
+/* ---------- o pedido feito pelo bar ---------- */
+.app .rp-op-bar { color: var(--lima-tx); }
+.app .rp-via-liberar { margin-top: var(--e2); }
+
+/* ---------- motorista: bares perto e o QR do Pix para o cliente do bar ---------- */
+.app .rm-bares { margin: var(--e2) 0 0; font-size: max(12.5px, .8em); line-height: 1.4; color: var(--a-texto-2); text-align: center; }
+.app .rm-re-qr { display: grid; justify-items: center; gap: var(--e2); margin: var(--e3) var(--g) 0; padding: var(--e4); border-radius: var(--r-g); background: var(--a-card); }
+.app .rm-re-qr p { margin: 0; font-size: max(14px, .9em); font-weight: 650; text-align: center; }
+
+/* ---------- no claro ---------- */
+html[data-tema="claro"] .app button.bar-cartao { background: linear-gradient(120deg, rgba(61, 102, 0, .1), rgba(61, 102, 0, .02) 60%), var(--a-card); box-shadow: inset 0 0 0 1px rgba(61, 102, 0, .35); }
+html[data-tema="claro"] .app :is(.bar-cartao-ic, .bar-li-ic) { background: rgba(61, 102, 0, .1); }
+html[data-tema="claro"] .app :is(.bar-estado, .bar-numeros, .rp-bares-linha) { box-shadow: inset 0 0 0 1px var(--a-linha); }
+html[data-tema="claro"] .app .bar-numeros li + li { border-left-color: var(--a-linha); }
+html[data-tema="claro"] .app .rp-bar-aqui { box-shadow: inset 0 0 0 1px rgba(61, 102, 0, .35); }

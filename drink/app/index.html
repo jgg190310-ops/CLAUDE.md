@@ -73,16 +73,17 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&display=swap">
-  <link rel="stylesheet" href="../app-telas.css?v=34">
-  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=34">
-  <link rel="stylesheet" href="vendor/leaflet.css?v=34">
-  <link rel="stylesheet" href="app.css?v=34">
-  <link rel="stylesheet" href="visual.css?v=34">
-  <link rel="stylesheet" href="tema.css?v=34">
-  <link rel="stylesheet" href="ritmo.css?v=34">
-  <link rel="stylesheet" href="perfil.css?v=34">
-  <link rel="stylesheet" href="jornada.css?v=34">
-  <link rel="stylesheet" href="agenda.css?v=34">
+  <link rel="stylesheet" href="../app-telas.css?v=35">
+  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=35">
+  <link rel="stylesheet" href="vendor/leaflet.css?v=35">
+  <link rel="stylesheet" href="app.css?v=35">
+  <link rel="stylesheet" href="visual.css?v=35">
+  <link rel="stylesheet" href="tema.css?v=35">
+  <link rel="stylesheet" href="ritmo.css?v=35">
+  <link rel="stylesheet" href="perfil.css?v=35">
+  <link rel="stylesheet" href="jornada.css?v=35">
+  <link rel="stylesheet" href="agenda.css?v=35">
+  <link rel="stylesheet" href="bares.css?v=35">
 </head>
 <body>
 <svg class="sprite" aria-hidden="true" focusable="false">
@@ -454,8 +455,14 @@
               <p><b id="rp-evento-t">Evento</b><small id="rp-evento-sub"></small></p>
               <button type="button" class="d-fechar" data-rp="sair-evento" aria-label="Sair do convite do evento"><svg aria-hidden="true"><use href="#i-fechar"/></svg></button>
             </div>
+            <div class="rp-evento rp-bar-aqui" id="rp-bar-aqui" hidden>
+              <svg aria-hidden="true"><use href="#i-copo"/></svg>
+              <p><b id="rp-bar-aqui-t">Bar</b><small id="rp-bar-aqui-sub"></small></p>
+              <button type="button" class="d-fechar" data-rp="sair-bar" aria-label="Não estou mais nesse bar"><svg aria-hidden="true"><use href="#i-fechar"/></svg></button>
+            </div>
             <div class="d-atalhos" id="rp-atalhos"></div>
             <div class="rp-recentes" id="rp-recentes" role="group" aria-label="Voltar para um lugar recente" hidden></div>
+            <button type="button" class="rp-bares-linha" id="rp-bares-linha" data-rp-folha="rp-bares" hidden><svg aria-hidden="true"><use href="#i-copo"/></svg><span><b id="rp-bares-linha-t">Bares parceiros abertos</b><small id="rp-bares-linha-sub"></small></span></button>
             <button type="button" class="rp-avise" id="rp-avise" data-rp="avise" aria-pressed="false" hidden>
               <svg aria-hidden="true"><use href="#i-sino"/></svg>
               <span><b id="rp-avise-t">Me avise quando tiver Drink perto</b><small id="rp-avise-sub">Chega uma notificação quando alguém ficar online na sua região.</small></span>
@@ -514,6 +521,7 @@
             </button>
             <p class="rp-op-ev" id="rp-op-ev" hidden></p>
             <p class="rp-op-ev fora" id="rp-op-gps" role="status" hidden></p>
+            <p class="rp-op-ev rp-op-bar" id="rp-op-bar" hidden></p>
             <ul class="d-linhas">
               <li><span>Embarque</span><button type="button" id="rp-op-emb" data-rp="trocar-embarque">Sua localização</button></li>
               <li><span>Chega de</span><button type="button" id="rp-op-veic">Tanto faz</button></li>
@@ -626,6 +634,7 @@
               <button type="button" class="t-bt" data-rp="compartilhar"><svg aria-hidden="true"><use href="#i-compartilhar"/></svg>Compartilhar</button>
               <button type="button" class="t-bt" data-rp-folha="rp-ajuda"><svg aria-hidden="true"><use href="#i-ajuda"/></svg>Ajuda</button>
             </div>
+            <button type="button" class="t-botao rp-via-liberar" id="rp-via-liberar" data-rp="liberar" hidden>Pronto: liberar o celular do bar</button>
           </div>
         </section>
 
@@ -758,6 +767,11 @@
         <section class="rt rt-cheia com-abas" data-rt="eventos" data-aba="eventos" aria-labelledby="rp-ev-t" hidden>
           <div class="d-cab d-cab-aba"><h3 class="d-titulo" id="rp-ev-t" tabindex="-1">Eventos</h3></div>
           <p class="ev-lede">Casamento, formatura, festa da empresa, bar ou casa de show: quem bebeu volta de Drink, no próprio carro.</p>
+          <button type="button" class="bar-cartao" id="rp-bar-cartao" data-bar="cartao">
+            <span class="bar-cartao-ic" aria-hidden="true"><svg><use href="#i-copo"/></svg></span>
+            <span class="bar-cartao-txt"><b id="rp-bar-cartao-t">Tem um bar?</b><small id="rp-bar-cartao-sub">QR no balcão, o seu bar no mapa do Drink e a volta do cliente chamada por você.</small></span>
+            <em id="rp-bar-cartao-acao">Cadastrar</em>
+          </button>
           <p class="d-sec" id="rp-ev-seus" hidden>Seus eventos</p>
           <ul class="ev-lista" id="rp-ev-lista" hidden></ul>
           <button type="button" class="t-botao ev-novo" id="rp-ev-novo" data-ev="novo">Criar um evento</button>
@@ -768,6 +782,97 @@
             <li><b>Cada um volta no próprio carro</b><span>O Drink chega de bike, leva o convidado e o carro até em casa e volta para buscar o próximo.</span></li>
             <li><b>Você acerta com os Drinks</b><span>Se o evento paga, você escolhe o teto de cada volta e paga cada Drink pelo Pix, aqui mesmo.</span></li>
           </ol>
+        </section>
+
+        <!-- bar novo -->
+        <section class="rt rt-cheia" data-rt="bar-novo" aria-labelledby="rp-barn-t" hidden>
+          <div class="d-cab rt-cab">
+            <button type="button" class="d-voltar" data-bar="lista" aria-label="Voltar para os eventos"><svg aria-hidden="true"><use href="#i-voltar"/></svg></button>
+            <h3 class="d-titulo" id="rp-barn-t" tabindex="-1">Seu bar no Drink</h3>
+          </div>
+          <form class="ev-form" id="rp-barn-form" novalidate>
+            <p class="bar-lede">Quem bebeu no seu bar volta de Drink, no próprio carro. Você ganha um QR para o balcão e as mesas, o bar no mapa do Drink e um jeito de chamar a volta do cliente.</p>
+            <p class="rt-rot">Onde</p>
+            <button type="button" class="ev-onde" id="rp-barn-onde" data-bar="onde"><svg aria-hidden="true"><use href="#i-pin"/></svg><span><b>Escolher o endereço</b><small>É de lá que o Drink busca os clientes</small></span><em>trocar</em></button>
+            <label class="en-campo en-rot"><span>Nome do bar</span><input id="rp-barn-nome" type="text" maxlength="60" autocomplete="organization" placeholder="Bar do Zé"></label>
+            <label class="en-campo en-rot"><span>Costuma fechar às</span><input id="rp-barn-fecha" type="time" value="02:00"></label>
+            <p class="rt-rot" id="rp-barn-ben-t">Quem volta de Drink ganha</p>
+            <div class="ev-chips" role="radiogroup" aria-labelledby="rp-barn-ben-t">
+              <button type="button" role="radio" aria-checked="true" data-bar-ben="agua">Água de cortesia</button>
+              <button type="button" role="radio" aria-checked="false" data-bar-ben="desconto">10% na próxima conta</button>
+              <button type="button" role="radio" aria-checked="false" data-bar-ben="petisco">Petisco na próxima visita</button>
+              <button type="button" role="radio" aria-checked="false" data-bar-ben="nenhum">Nada</button>
+            </div>
+            <p class="en-erro" id="rp-barn-erro" role="alert" hidden></p>
+            <button type="submit" class="t-botao">Cadastrar o bar</button>
+          </form>
+        </section>
+
+        <!-- a página do bar -->
+        <section class="rt rt-cheia" data-rt="bar" aria-labelledby="rp-barp-t" hidden>
+          <div class="d-cab rt-cab">
+            <button type="button" class="d-voltar" data-bar="lista" aria-label="Voltar para os eventos"><svg aria-hidden="true"><use href="#i-voltar"/></svg></button>
+            <h3 class="d-titulo" id="rp-barp-t" tabindex="-1">Bar</h3>
+          </div>
+          <div class="ev-pagina bar-pagina" id="rp-barp">
+            <p class="ev-quando-txt"><span id="rp-barp-onde"></span> <em class="ev-sit" id="rp-barp-sit"></em></p>
+            <div class="bar-estado">
+              <p id="rp-barp-estado"></p>
+              <button type="button" class="t-botao" data-bar="abrir-hoje">Abrir hoje</button>
+              <button type="button" class="t-bt" data-bar="fechar-hoje" hidden>Fechar por hoje</button>
+            </div>
+            <ul class="bar-numeros" aria-label="Voltas de Drink que saíram do bar">
+              <li><b id="rp-barp-noite">0</b><small>esta noite</small></li>
+              <li><b id="rp-barp-semana">0</b><small>em 7 dias</small></li>
+              <li><b id="rp-barp-total">0</b><small>no total</small></li>
+            </ul>
+            <button type="button" class="t-bt bar-chamar" data-bar="chamar"><svg aria-hidden="true"><use href="#i-bike"/></svg><span><b>Chamar um Drink para um cliente</b><small>O garçom pede pelo celular do bar e acompanha até o Drink chegar</small></span></button>
+            <div class="ev-bloco ev-bloco-convite">
+              <div class="ev-cartao-qr" id="rp-barp-cartao">
+                <p class="ev-cq-nome" id="rp-barp-cartao-nome">Bar</p>
+                <div class="ev-qr" id="rp-barp-qr"></div>
+                <p class="ev-cq-t">Bebeu? Volta de <b>Drink</b>.</p>
+                <p class="ev-cq-sub" id="rp-barp-qr-sub"></p>
+              </div>
+              <div class="ev-bts">
+                <button type="button" class="t-bt" data-bar="imprimir"><svg aria-hidden="true"><use href="#i-qr"/></svg>Imprimir o QR</button>
+                <button type="button" class="t-bt" data-bar="copiar"><svg aria-hidden="true"><use href="#i-copiar"/></svg>Copiar o link</button>
+                <button type="button" class="t-bt" data-bar="compartilhar"><svg aria-hidden="true"><use href="#i-compartilhar"/></svg>Mandar o link</button>
+              </div>
+            </div>
+            <p class="d-sec">Benefício</p>
+            <p class="ev-regra" id="rp-barp-ben"></p>
+            <p class="d-sec">Voltas desta noite</p>
+            <p class="ev-resumo" id="rp-barp-vazio">Nenhuma volta ainda. Quando alguém pedir pelo QR, ou você chamar pelo cliente, a volta aparece aqui com o código do recibo.</p>
+            <ul class="ev-voltas-lista bar-voltas" id="rp-barp-voltas"></ul>
+            <button type="button" class="en-link ev-apagar" data-bar="apagar">Apagar o bar deste aparelho</button>
+          </div>
+        </section>
+
+        <!-- chamar um Drink para um cliente do bar -->
+        <section class="rt rt-cheia" data-rt="bar-chamar" aria-labelledby="rp-barc-t" hidden>
+          <div class="d-cab rt-cab">
+            <button type="button" class="d-voltar" data-bar="pagina" aria-label="Voltar para o bar"><svg aria-hidden="true"><use href="#i-voltar"/></svg></button>
+            <h3 class="d-titulo" id="rp-barc-t" tabindex="-1">Chamar para um cliente</h3>
+          </div>
+          <form class="ev-form" id="rp-barc-form" novalidate>
+            <p class="bar-lede" id="rp-barc-sub"></p>
+            <label class="en-campo en-rot"><span>Nome do cliente</span><input id="rp-barc-nome" type="text" maxlength="30" autocomplete="off" placeholder="Carlos"></label>
+            <p class="rt-rot">Carro do cliente</p>
+            <div class="bar-carro">
+              <label class="en-campo en-rot"><span>Modelo</span><input id="rp-barc-modelo" type="text" maxlength="30" autocomplete="off" placeholder="Onix"></label>
+              <label class="en-campo en-rot"><span>Cor</span><select id="rp-barc-cor"><option value="">Escolher</option><option value="branco">Branco</option><option value="preto">Preto</option><option value="prata">Prata</option><option value="cinza">Cinza</option><option value="vermelho">Vermelho</option><option value="azul">Azul</option><option value="verde">Verde</option><option value="bege">Bege</option><option value="marrom">Marrom</option><option value="vinho">Vinho</option><option value="amarelo">Amarelo</option><option value="laranja">Laranja</option><option value="dourado">Dourado</option></select></label>
+            </div>
+            <label class="en-campo en-rot"><span>Placa</span><input id="rp-barc-placa" type="text" maxlength="8" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="ABC1D23"></label>
+            <div class="rt-placa-ver" id="rp-barc-previa" aria-hidden="true"></div>
+            <p class="rt-rot" id="rp-barc-cambio-t">Câmbio</p>
+            <div class="ev-chips" role="radiogroup" aria-labelledby="rp-barc-cambio-t">
+              <button type="button" role="radio" aria-checked="true" data-barc-cambio="automático">Automático</button>
+              <button type="button" role="radio" aria-checked="false" data-barc-cambio="manual">Manual</button>
+            </div>
+            <p class="en-erro" id="rp-barc-erro" role="alert" hidden></p>
+            <button type="submit" class="t-botao">Escolher o destino do cliente</button>
+          </form>
         </section>
 
         <!-- evento novo -->
@@ -945,6 +1050,30 @@
             <p class="en-erro" id="rp-carro-erro" role="alert" hidden></p>
             <button type="submit" class="t-botao">Salvar o carro</button>
           </form>
+        </section>
+
+        <section class="d-sobre" id="rp-bares" aria-labelledby="rp-bares-t" hidden>
+          <div class="d-sobre-cab">
+            <span class="d-sobre-ic" aria-hidden="true"><svg><use href="#i-copo"/></svg></span>
+            <div><h4 id="rp-bares-t" tabindex="-1">Bares parceiros abertos</h4><small>Quem bebe lá volta de Drink, no próprio carro</small></div>
+            <button type="button" class="d-fechar" data-rp-fechar aria-label="Fechar"><svg aria-hidden="true"><use href="#i-fechar"/></svg></button>
+          </div>
+          <ul class="bar-lista" id="rp-bares-lista"></ul>
+        </section>
+
+        <section class="d-sobre" id="rp-bar-info" aria-labelledby="rp-bari-t" hidden>
+          <div class="d-sobre-cab">
+            <span class="d-sobre-ic" aria-hidden="true"><svg><use href="#i-copo"/></svg></span>
+            <div><h4 id="rp-bari-t" tabindex="-1">Bar</h4><small id="rp-bari-sub"></small></div>
+            <button type="button" class="d-fechar" data-rp-fechar aria-label="Fechar"><svg aria-hidden="true"><use href="#i-fechar"/></svg></button>
+          </div>
+          <dl class="bar-info">
+            <div><dt>Hoje</dt><dd id="rp-bari-ate"></dd></div>
+            <div><dt>Voltas de Drink</dt><dd id="rp-bari-voltas"></dd></div>
+            <div><dt>Quem volta de Drink</dt><dd id="rp-bari-ben"></dd></div>
+          </dl>
+          <a class="t-bt bar-ir" id="rp-bari-ir" href="#" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#i-navegar"/></svg>Como chegar</a>
+          <button type="button" class="t-botao" data-rp="bar-daqui">Estou aqui: pedir a volta saindo daqui</button>
         </section>
 
         <section class="d-sobre" id="rp-agendar" aria-labelledby="rp-agendar-t" hidden>
@@ -1158,6 +1287,7 @@
             <ul class="rm-pedidos" id="rm-pedidos" aria-live="polite"></ul>
             <p class="rm-vazio" id="rm-vazio">Nenhum pedido agora. Quando chegar um, o celular toca e vibra.</p>
             <p class="rm-longe" id="rm-longe" hidden></p>
+            <p class="rm-bares" id="rm-bares" hidden></p>
             <button type="button" class="rm-agd-bt" data-rm="agendadas" data-agd-bt data-treino="nao"><svg aria-hidden="true"><use href="#i-calendario"/></svg><span><b>Voltas agendadas</b><small data-agd-resumo>Reserve as voltas de mais tarde</small></span><svg class="en-treino-seta" aria-hidden="true"><use href="#i-seta"/></svg></button>
             <button type="button" class="t-bt rm-offline" data-rm="offline">Ficar offline</button>
           </div>
@@ -1309,6 +1439,10 @@
             <p class="t-sub" id="rm-re-sub">O passageiro paga direto na sua chave Pix.</p>
           </div>
           <div class="t-recibo" id="rm-recibo"></div>
+          <div class="rm-re-qr" id="rm-re-qr" hidden>
+            <p id="rm-re-qr-t">Mostre este QR para o cliente pagar</p>
+            <div class="rt-qr" id="rm-re-qr-img"></div>
+          </div>
           <ul class="t-lista d-checks rt-checks" id="rm-re-checks">
             <li><svg aria-hidden="true"><use href="#i-check"/></svg><span id="rm-re-aval">Esperando a avaliação</span></li>
             <li><svg aria-hidden="true"><use href="#i-check"/></svg><span id="rm-re-pago">Esperando o pagamento</span></li>
@@ -1632,24 +1766,25 @@
   <p class="vira-txt" id="vira-txt">O Drink é feito para usar na vertical. Nada se perde: se tiver corrida, ela continua rolando.</p>
 </div>
 
-<script src="vendor/maplibre-gl.js?v=34"></script>
-<script src="vendor/leaflet.js?v=34"></script>
-<script src="vendor/qrcode.js?v=34"></script>
-<script src="../app-nucleo.js?v=34"></script>
-<script src="servicos.js?v=34"></script>
-<script src="rede.js?v=34"></script>
-<script src="mapa-estilo.js?v=34"></script>
-<script src="mapa.js?v=34"></script>
-<script src="carros.js?v=34"></script>
-<script src="cadastro-motorista.js?v=34"></script>
-<script src="perfil.js?v=34"></script>
-<script src="pix.js?v=34"></script>
-<script src="avisos.js?v=34"></script>
-<script src="sms.js?v=34"></script>
-<script src="eventos.js?v=34"></script>
-<script src="agenda.js?v=34"></script>
-<script src="passageiro.js?v=34"></script>
-<script src="motorista.js?v=34"></script>
-<script src="app.js?v=34"></script>
+<script src="vendor/maplibre-gl.js?v=35"></script>
+<script src="vendor/leaflet.js?v=35"></script>
+<script src="vendor/qrcode.js?v=35"></script>
+<script src="../app-nucleo.js?v=35"></script>
+<script src="servicos.js?v=35"></script>
+<script src="rede.js?v=35"></script>
+<script src="mapa-estilo.js?v=35"></script>
+<script src="mapa.js?v=35"></script>
+<script src="carros.js?v=35"></script>
+<script src="cadastro-motorista.js?v=35"></script>
+<script src="perfil.js?v=35"></script>
+<script src="pix.js?v=35"></script>
+<script src="avisos.js?v=35"></script>
+<script src="sms.js?v=35"></script>
+<script src="eventos.js?v=35"></script>
+<script src="agenda.js?v=35"></script>
+<script src="bares.js?v=35"></script>
+<script src="passageiro.js?v=35"></script>
+<script src="motorista.js?v=35"></script>
+<script src="app.js?v=35"></script>
 </body>
 </html>

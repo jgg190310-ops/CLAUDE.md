@@ -180,3 +180,5 @@ html[data-tema="claro"] .app .boas .en-instalar-link { color: #D2FF3C; }
 html[data-tema="claro"] .app :is(.d-gorjeta, .d-horas, .d-seg) [aria-checked="true"] { border-color: #0E0D12; background: #0E0D12; color: #FFFFFF; }
 /* a faixa de simulação é limão com o botão preto: a letra do botão continua limão */
 html[data-tema="claro"] .app .rp-sim button { color: #D2FF3C; }
+/* no claro, o item que ainda falta fica num cinza legível (a transparência apagava demais o texto) */
+html[data-tema="claro"] .app .d-checks li:not(.ok) { opacity: 1; color: var(--a-texto-2); }

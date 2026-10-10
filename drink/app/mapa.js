@@ -23,6 +23,8 @@
     carro: () => marca('mk-mot', '<svg aria-hidden="true"><use href="#i-carro"/></svg>', 38),
     online: (veic) => marca('mk-on', veiculo(veic), 26),
     pedido: () => marca('mk-ped', '<i></i>', 18),
+    // um bar parceiro aberto: o copo, que dá para tocar (para o motorista, com as voltas da noite)
+    bar: (id, nome, quem, voltas) => marca('mk-bar', `<button type="button" data-${quem}-bar="${String(id).replace(/[^\w-]/g, '')}" aria-label="${String(nome).replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`)}"><svg aria-hidden="true"><use href="#i-copo"/></svg>${voltas ? `<b>${Math.min(99, Number(voltas) || 0)}</b>` : ''}</button>`, 34),
   };
   const CREDITOS = '<a href="https://openfreemap.org" target="_blank" rel="noopener">OpenFreeMap</a> · © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>';
 
@@ -187,7 +189,7 @@
     const tweens = {};
     let linhaRota = null;
     let anel = null;
-    const grupos = { online: [], pedidos: [] };
+    const grupos = { online: [], pedidos: [], bares: [] };
     let medirFolga = () => 0;
     let seguir = null;
     const folga = () => Math.max(0, medirFolga() || 0);
@@ -292,6 +294,16 @@
         grupos[nome].forEach((m) => m.remove());
         grupos[nome] = (lista || []).map((p) => { const q = espalhar(p); return marcador(q, desenho(q)); });
       },
+      // os bares ficam no ponto exato (é um lugar aberto, com fachada)
+      bares(lista, desenho) {
+        grupos.bares.forEach((m) => m.remove());
+        // o toque é o botão de dentro: o marcador em volta não pode ser outro botão (leitor de tela e teclado)
+        grupos.bares = (lista || []).map((p) => {
+          const mk = marcador(p, desenho(p));
+          ['role', 'tabindex', 'aria-label'].forEach((a) => mk.getElement().removeAttribute(a));
+          return mk;
+        });
+      },
       // mostra todos os pontos dados, deixando livre o espaço da folha de baixo. A lista pode ser uma função:
       // quando a vista é refeita, os pontos são os de agora (o motorista andou)
       enquadrar(lista, { maxZoom = 16 } = {}) {
@@ -331,6 +343,7 @@
         api.semRota();
         api.online([]);
         api.pedidos([]);
+        api.bares([]);
         memoria.esquecer();
       },
     };
@@ -363,7 +376,7 @@
     const tweens = {};
     let rota = null;
     let anel = null;
-    const grupos = { online: [], pedidos: [] };
+    const grupos = { online: [], pedidos: [], bares: [] };
     let medirFolga = () => 0;
     let seguir = null;
     let pendente = null;
@@ -449,6 +462,10 @@
         grupos[nome].forEach((m) => m.remove());
         grupos[nome] = (lista || []).map((p) => { const q = espalhar(p); return L.marker([q.lat, q.lon], { icon: icone(desenho(q)), interactive: false, keyboard: false }).addTo(mapa); });
       },
+      bares(lista, desenho) {
+        grupos.bares.forEach((m) => m.remove());
+        grupos.bares = (lista || []).map((p) => L.marker([p.lat, p.lon], { icon: icone(desenho(p)), interactive: false, keyboard: false }).addTo(mapa));
+      },
       enquadrar(lista, { maxZoom = 16 } = {}) {
         const pegar = typeof lista === 'function' ? lista : () => lista;
         const fazer = () => {
@@ -479,6 +496,7 @@
         api.semRota();
         api.online([]);
         api.pedidos([]);
+        api.bares([]);
         memoria.esquecer();
       },
     };

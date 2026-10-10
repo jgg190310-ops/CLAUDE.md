@@ -85,6 +85,15 @@
       buscarLugar: () => { voltarPara = 'evento-novo'; modoBusca = 'evento'; ir('destino'); },
     });
     const TELAS_EVENTO = ['eventos', 'evento', 'evento-novo'];
+    // o bar parceiro (bares.js): o painel do dono fica na mesma aba, e o QR do balcão põe o embarque na porta do bar
+    const BAR = window.Drink.bares;
+    const painelBar = BAR.criar({
+      raiz, eu, salvar: op.salvar, avisar: op.avisar, copiar: (t, ok) => copiar(t, ok),
+      ir: (nome) => ir(nome), atual: () => atual,
+      buscarLugar: () => { voltarPara = 'bar-novo'; modoBusca = 'bar'; ir('destino'); },
+      chamarPeloBar: (d) => chamarPeloBar(d),
+    });
+    const TELAS_BAR = ['eventos', 'bar', 'bar-novo', 'bar-chamar'];
 
     /* ---------- mapa e GPS ---------- */
     function garantirMapa() {
@@ -115,7 +124,8 @@
         if (mapa && !(corrida && corrida.etapa === 'viagem')) mapa.ponto('voce', p, Mapa.ICONE.voce());
         if (primeira && atual === 'inicio') { centrarEmMim(); desenharAtalhos(); }
         if (!corrida) atualizarEmbarque();
-        if (corrida && corrida.etapa === 'viagem' && !corrida.simulada) andarNaViagem(p);
+        // pedido pelo bar: este celular ficou no bar; quem diz onde o carro está é o motorista
+        if (corrida && corrida.etapa === 'viagem' && !corrida.simulada && !corrida.peloBar) andarNaViagem(p);
       });
     }
     // o embarque é onde você está (o nome da rua vem do endereço mais perto), ou o lugar que você escolheu
@@ -189,6 +199,129 @@
       conviteAplicado = '';
       op.avisar('Pronto, você saiu do convite do evento.');
     }
+    /* ---------- bar parceiro: quem leu o QR do balcão ---------- */
+    let barAplicado = '';
+    const minuscula = (t) => (t ? t.charAt(0).toLowerCase() + t.slice(1) : t);
+    function desenharBarAqui() {
+      const b = BAR.aqui();
+      const box = q('#rp-bar-aqui');
+      box.hidden = !b;
+      if (!b) return;
+      const ben = BAR.beneficioTxt(b.beneficio);
+      q('#rp-bar-aqui-t').textContent = `Você está no ${b.nome}`;
+      q('#rp-bar-aqui-sub').textContent = `O Drink busca você aqui, na porta.${ben ? ` Voltando de Drink: ${minuscula(ben)}.` : ''}`;
+      // o embarque vai para a porta do bar uma vez; se a pessoa trocar, vale a escolha dela
+      if (!corrida && !peloBar && barAplicado !== b.id) {
+        barAplicado = b.id;
+        embarque = { nome: b.lugar.nome, bairro: b.lugar.bairro, lat: b.lugar.lat, lon: b.lugar.lon };
+        embarqueManual = true;
+        mostrarEmbarque();
+      }
+    }
+    function sairDoBar() {
+      const b = BAR.aqui();
+      BAR.esquecerAqui();
+      q('#rp-bar-aqui').hidden = true;
+      if (b && embarqueManual && embarque && S.distancia(embarque, b.lugar) < 30) {
+        embarqueManual = false;
+        embarque = null;
+        atualizarEmbarque();
+        mostrarEmbarque();
+      }
+      barAplicado = '';
+      op.avisar('Pronto: o embarque volta a ser onde você está.');
+    }
+
+    /* ---------- os bares parceiros abertos (a vitrine aberta) ---------- */
+    let vitrine = null;
+    let bares = [];
+    let barVisto = null;
+    function ouvirBares() {
+      if (vitrine) return;
+      vitrine = BAR.ouvirVitrine((lista) => { bares = lista; desenharBares(); });
+    }
+    function baresPerto() {
+      const ref = pos || embarque || S.BH;
+      return bares.map((b) => ({ ...b, m: S.distancia(ref, b) })).filter((b) => b.m <= 30000).sort((a, b) => a.m - b.m).slice(0, 30);
+    }
+    function desenharBares() {
+      const perto = baresPerto();
+      // no mapa só no início: nas outras telas o mapa é da rota
+      if (mapa && atual === 'inicio') mapa.bares(perto, (b) => Mapa.ICONE.bar(b.id, b.nome, 'rp'));
+      const linha = q('#rp-bares-linha');
+      linha.hidden = !perto.length;
+      if (perto.length) {
+        q('#rp-bares-linha-t').textContent = perto.length === 1 ? '1 bar parceiro aberto agora' : `${perto.length} bares parceiros abertos agora`;
+        q('#rp-bares-linha-sub').textContent = perto.slice(0, 2).map((b) => b.nome).join(' · ') + (perto.length > 2 ? ` e mais ${perto.length - 2}` : '');
+      }
+      if (folha === 'rp-bares') desenharListaBares();
+    }
+    function desenharListaBares() {
+      const perto = baresPerto();
+      q('#rp-bares-lista').innerHTML = perto.length
+        ? perto.map((b) => `<li><button type="button" data-rp-bar="${esc(b.id)}"><span class="bar-li-ic" aria-hidden="true"><svg><use href="#i-copo"/></svg></span><span><b>${esc(b.nome)}</b><small>${esc([b.bairro, S.textoKm(b.m / 1000), BAR.ateTxt(b)].filter(Boolean).join(' · '))}</small><small>${esc(BAR.voltasTxt(b.voltas))}${BAR.beneficioTxt(b.beneficio) ? ` · ${esc(minuscula(BAR.beneficioTxt(b.beneficio)))}` : ''}</small></span></button></li>`).join('')
+        : '<li class="bar-li-vazio">Nenhum bar parceiro aberto perto agora.</li>';
+    }
+    function abrirBar(id) {
+      barVisto = bares.find((b) => b.id === id) || null;
+      if (!barVisto) return;
+      abrirFolha('rp-bar-info');
+    }
+    function desenharBarInfo() {
+      const b = barVisto;
+      if (!b) return;
+      const ref = pos || embarque;
+      q('#rp-bari-t').textContent = b.nome;
+      q('#rp-bari-sub').textContent = [b.bairro, ref ? `a ${S.textoKm(S.distancia(ref, b) / 1000)} de você` : ''].filter(Boolean).join(' · ');
+      q('#rp-bari-ate').textContent = BAR.ateTxt(b).replace(/^a/, 'A');
+      q('#rp-bari-voltas').textContent = BAR.voltasTxt(b.voltas).replace(/^n/, 'N');
+      q('#rp-bari-ben').textContent = BAR.beneficioTxt(b.beneficio) || 'Sem benefício';
+      q('#rp-bari-ir').href = BAR.comoChegar(b);
+    }
+    // estou no bar (sem o QR): o embarque vai para a porta dele
+    function barDaqui() {
+      const b = barVisto;
+      if (!b || corrida) return;
+      fecharFolha(false);
+      embarque = { nome: b.nome, bairro: b.bairro, lat: b.lat, lon: b.lon };
+      embarqueManual = true;
+      mostrarEmbarque();
+      modoBusca = 'destino';
+      ir('destino');
+    }
+
+    /* ---------- o bar chama o Drink pelo cliente ---------- */
+    // o celular do bar faz o pedido com o embarque na porta do bar, o nome e o carro do cliente; acompanha até o Drink
+    // chegar e o código bater, e pode ser liberado quando o carro sai (o cliente paga pelo QR no celular do Drink)
+    let peloBar = null;
+    let voltarDoBar = 'bar';
+    function chamarPeloBar(d) {
+      if (corrida) { op.avisar('Termina a corrida de agora antes de chamar outra.'); return; }
+      peloBar = d;
+      voltarDoBar = 'bar';
+      embarque = { nome: d.bar.lugar.nome, bairro: d.bar.lugar.bairro, lat: d.bar.lugar.lat, lon: d.bar.lugar.lon };
+      embarqueManual = true;
+      destino = null;
+      modoBusca = 'destino';
+      voltarPara = 'bar-chamar';
+      ir('destino');
+    }
+    function sairPeloBar() {
+      if (!peloBar) return;
+      peloBar = null;
+      embarqueManual = false;
+      embarque = null;
+      destino = null;
+      atualizarEmbarque();
+      mostrarEmbarque();
+    }
+    function liberarCelularDoBar() {
+      const c = corrida;
+      if (!c || !c.peloBar || !['viagem', 'chegada'].includes(c.etapa)) return;
+      c.liberado = true;
+      concluir();
+    }
+
     // quantas voltas o evento já pagou (e se quem organiza encerrou): lido no canal do evento, no máximo a cada minuto
     let usoEvento = null;
     const voltasAcabaram = (e) => Boolean(usoEvento && usoEvento.id === e.id && (usoEvento.encerrado || usoEvento.n >= e.voltas));
@@ -344,6 +477,7 @@
         medirFolha(tela);
       }
       painel.mostrar(TELAS_EVENTO.includes(nome));
+      painelBar.mostrar(TELAS_BAR.includes(nome));
       if (ENTRAR[nome]) ENTRAR[nome](tela);
       if (foco) {
         const t = $('.d-titulo, .en-t', tela);
@@ -370,17 +504,22 @@
         AG.desenhar();
         q('#rp-gps').hidden = !gpsNegado;
         if (!ultimoEndereco && pos) atualizarEmbarque();
+        // voltou ao início sem pedir: o pedido pelo bar fica para trás
+        if (peloBar && !corrida) sairPeloBar();
         desenharConvite();
+        desenharBarAqui();
+        ouvirBares();
+        desenharBares();
       },
       destino() {
         const campo = q('#rp-busca');
         campo.value = '';
-        const titulos = { destino: 'Para onde?', embarque: 'Onde o Drink te busca?', casa: 'Onde é a sua casa?', trabalho: 'Onde você trabalha?', evento: 'Onde vai ser o evento?' };
-        q('#rp-dest-t').textContent = titulos[modoBusca];
+        const titulos = { destino: 'Para onde?', embarque: 'Onde o Drink te busca?', casa: 'Onde é a sua casa?', trabalho: 'Onde você trabalha?', evento: 'Onde vai ser o evento?', bar: 'Onde fica o bar?' };
+        q('#rp-dest-t').textContent = peloBar && modoBusca === 'destino' ? `Para onde vai ${primeiroNome(peloBar.cliente)}?` : titulos[modoBusca];
         q('#rp-de-linha').hidden = modoBusca !== 'destino';
-        q('.rt-campos').classList.toggle('so-embarque', modoBusca === 'embarque' || modoBusca === 'evento');
+        q('.rt-campos').classList.toggle('so-embarque', modoBusca === 'embarque' || modoBusca === 'evento' || modoBusca === 'bar');
         q('#rp-de').textContent = (embarque && embarque.nome) || 'Sua localização';
-        campo.placeholder = { embarque: 'Rua e número, bar, praça…', evento: 'Salão, bar, casa de show ou endereço…' }[modoBusca] || 'Endereço, bar, bairro…';
+        campo.placeholder = { embarque: 'Rua e número, bar, praça…', evento: 'Salão, bar, casa de show ou endereço…', bar: 'Nome do bar ou endereço…' }[modoBusca] || (peloBar ? 'Endereço da casa do cliente…' : 'Endereço, bar, bairro…');
         mostrarSalvos();
         setTimeout(() => campo.focus({ preventScroll: true }), 50);
       },
@@ -401,7 +540,10 @@
       viagens() { desenharHistorico(); },
       carteira() { desenharCarteira(); },
       perfil() { desenharPerfil(); },
-      eventos() { painel.lista(); },
+      eventos() { painel.lista(); painelBar.cartao(); },
+      'bar-novo'() { painelBar.desenharForm(); },
+      bar() { painelBar.pagina(); },
+      'bar-chamar'() { painelBar.desenharChamada(); },
       'evento-novo'() { painel.desenharForm(); },
       evento() { painel.pagina(); },
     };
@@ -441,10 +583,11 @@
       const u = eu();
       const locais = (u && u.locais) || {};
       const lista = [];
-      if ((modoBusca === 'embarque' || modoBusca === 'evento') && pos) {
+      if ((modoBusca === 'embarque' || modoBusca === 'evento' || modoBusca === 'bar') && pos) {
         lista.push({ nome: 'Onde estou agora', detalhe: ultimoEndereco ? juntar(ultimoEndereco.lugar) : 'pelo GPS do celular', lat: pos.lat, lon: pos.lon, icone: 'i-mira', gps: true });
       }
-      if (modoBusca === 'destino' || modoBusca === 'embarque') {
+      // a casa e o trabalho são de quem tem a conta, não do cliente do bar
+      if ((modoBusca === 'destino' && !peloBar) || modoBusca === 'embarque') {
         if (locais.casa) lista.push({ ...locais.casa, nome: 'Casa', detalhe: locais.casa.nome, icone: 'i-casa' });
         if (locais.trabalho) lista.push({ ...locais.trabalho, nome: 'Trabalho', detalhe: locais.trabalho.nome, icone: 'i-maleta' });
         const vistos = new Set(lista.map((l) => l.detalhe));
@@ -486,6 +629,13 @@
       const lugar = { nome: l.detalhe && ['Casa', 'Trabalho'].includes(l.nome) ? l.detalhe : l.nome, detalhe: l.detalhe || '', bairro: l.bairro || '', lat: l.lat, lon: l.lon };
       const modo = modoBusca;
       modoBusca = 'destino';
+      if (modo === 'bar') {
+        // "onde estou agora": o endereço do GPS (que não é o nome do bar)
+        const aqui = l.gps && pos ? { ...(ultimoEndereco ? ultimoEndereco.lugar : { nome: 'Endereço do bar', bairro: '' }), lat: pos.lat, lon: pos.lon, gps: true } : lugar;
+        painelBar.lugarEscolhido(aqui);
+        ir('bar-novo');
+        return;
+      }
       if (modo === 'evento') {
         // "onde estou agora": o endereço do GPS, com o ponto exato
         const aqui = l.gps && pos ? { ...(ultimoEndereco ? ultimoEndereco.lugar : { nome: 'Local do evento', bairro: '' }), lat: pos.lat, lon: pos.lon } : lugar;
@@ -556,7 +706,15 @@
       bt.textContent = 'Pedir Drink';
       q('#rp-simular').disabled = true;
       q('#rp-op-ev').hidden = true;
-      q('#rp-op-quando').hidden = false;
+      q('#rp-op-quando').hidden = Boolean(peloBar);
+      // pedido pelo bar: o carro é o do cliente, e não dá para simular nem agendar
+      const carroBt = q('#rp-op-carro');
+      carroBt.previousElementSibling.textContent = peloBar ? 'Carro' : 'Seu carro';
+      carroBt.disabled = Boolean(peloBar);
+      if (peloBar) carroBt.textContent = `${nomeCarro(peloBar.carro)} · ${CARROS.placa.formatar(peloBar.carro.placa)}`;
+      q('#rp-op-bar').hidden = !peloBar;
+      if (peloBar) q('#rp-op-bar').textContent = `Pedido do ${peloBar.bar.nome} para ${peloBar.cliente}. O Drink busca ele no bar e leva ele e o carro pra casa; ele paga direto para o motorista, pelo QR no celular do Drink.`;
+      q('#rp-simular').hidden = Boolean(peloBar);
       avisoPrecisao();
       q('#rp-op-pag').textContent = 'Pix na chegada';
       // a cada preço novo, confere de novo se o evento ainda paga (quem organiza pode ter encerrado)
@@ -609,7 +767,8 @@
       const v = eventoDaVolta();
       if (v && v.cobre) conferirVoltas(v.e);
       q('#rp-op-pag').textContent = 'Pix na chegada';
-      if (!q('#rp-pedir').disabled) q('#rp-pedir').textContent = `Pedir Drink · ${brl(total)}`;
+      if (!q('#rp-pedir').disabled) q('#rp-pedir').textContent = peloBar ? `Pedir para ${primeiroNome(peloBar.cliente)} · ${brl(total)}` : `Pedir Drink · ${brl(total)}`;
+      if (peloBar) { linha.hidden = true; q('#rp-op-pag').textContent = 'Pix do cliente, na chegada'; return; }
       if (!v || (!v.cobre && !v.fora)) { linha.hidden = true; return; }
       linha.hidden = false;
       linha.classList.toggle('fora', !v.cobre);
@@ -684,9 +843,9 @@
     }
     async function pedirAgora() {
       const u = eu();
-      if (AG.pendente()) { abrirFolha('rp-pend'); return; }
+      if (!peloBar && AG.pendente()) { abrirFolha('rp-pend'); return; }
       // perto da hora da agendada o motorista dela pode já estar a caminho: não dá para pedir outra por cima
-      const agv = AG.ativa();
+      const agv = peloBar ? null : AG.ativa();
       if (agv && agv.estado === 'confirmada' && Date.now() >= agv.janela.de - window.Drink.agenda.REGRAS.irAntesMin * 60000) {
         op.avisar('A sua volta agendada já está perto da hora e o motorista pode estar saindo. Avisa que está pronto ou cancela ela antes.');
         abrirFolha('rp-agenda');
@@ -695,7 +854,7 @@
       if (esperaAtiva()) pararEspera();
       op.pedirNotificacao();
       if (!R.cifraPronta) { op.avisar('Esse navegador não tem a proteção que o Drink usa. Tenta no Chrome ou no Safari atualizados.'); return; }
-      if (!carroPronto(u.carro)) {
+      if (!peloBar && !carroPronto(u.carro)) {
         abrirFolha('rp-carro');
         q('#rp-carro-erro').hidden = false;
         q('#rp-carro-erro').textContent = u.carro ? 'Falta a placa do seu carro: é por ela que o Drink acha ele na rua.' : 'Antes de pedir, conta qual é o seu carro e a placa dele.';
@@ -703,7 +862,7 @@
       }
       if (!rota || !embarque || !destino) { op.avisar('Espera a rota aparecer no mapa e toca de novo.'); return; }
       // saindo de um evento: a volta leva o evento junto (o motorista manda a conta para ele, se ele paga)
-      const v = eventoDaVolta();
+      const v = peloBar ? null : eventoDaVolta();
       let evento = null;
       if (v && v.daqui) {
         evento = { id: v.e.id, chave: v.e.chave, nome: v.e.nome, teto: v.cobre ? v.e.teto : 0 };
@@ -718,6 +877,12 @@
         }
       }
       if (corrida) return;
+      // saindo de um bar parceiro (pelo QR do balcão, ou o próprio bar pedindo pelo cliente): o bar conta a volta
+      const barQr = BAR.aqui();
+      const barDaVolta = peloBar ? peloBar.bar : (BAR.saiDoBar(barQr, embarque) ? barQr : null);
+      const bar = barDaVolta ? { id: barDaVolta.id, chave: barDaVolta.chave, nome: barDaVolta.nome, beneficio: barDaVolta.beneficio, cupom: BAR.novoCupom() } : null;
+      const carro = peloBar ? { ...peloBar.carro } : { ...u.carro };
+      const pb = peloBar ? { cliente: peloBar.cliente, bar: peloBar.bar.nome } : null;
       const par = await R.novoPar();
       const agora = Date.now();
       const p = S.preco(rota.km);
@@ -725,7 +890,7 @@
         id: R.idAleatorio(), t0: agora, etapa: 'buscando',
         embarque: { ...embarque }, destino: { ...destino }, km: redondo(rota.km, 1), min: Math.round(rota.min), linha: rota.linha,
         valor: redondo(p.total), saida: p.saida, rodado: redondo(p.rodado), adicional: redondo(p.adicional),
-        veic, carro: { ...u.carro },
+        veic, carro, bar, peloBar: pb,
         codigo: String(1000 + Math.floor(Math.random() * 9000)),
         priv: par.priv, pub: par.pub, rastreio: R.novaChave(), segredo: R.idAleatorio(),
         motorista: null, chave: null, ultimo: null, msgs: [], fotos: 0, malas: false,
@@ -738,7 +903,7 @@
         v: 1, tipo: 'pedido', id: corrida.id, t: agora, expira: agora + PRAZO_BUSCA, pub: par.pub,
         de: { bairro: embarque.bairro || 'BH', ...S.aproximar(embarque) },
         para: { bairro: destino.bairro || destino.nome },
-        km: corrida.km, min: corrida.min, valor: corrida.valor, veic, cambio: u.carro.cambio, nota: minhaNota(u),
+        km: corrida.km, min: corrida.min, valor: corrida.valor, veic, cambio: carro.cambio, nota: peloBar ? 0 : minhaNota(u),
         fecho: await R.resumo(corrida.segredo),
         // o pedido aberto só diz que é de um evento e até quanto ele paga (o nome vai cifrado, depois do aceite)
         ev: evento ? { teto: evento.teto } : undefined,
@@ -832,7 +997,9 @@
           const u = eu();
           enviar({
             tipo: 'confirmado',
-            passageiro: { nome: nomeCurto(u) },
+            passageiro: { nome: c.peloBar ? c.peloBar.cliente : nomeCurto(u) },
+            bar: c.bar ? { nome: c.bar.nome } : undefined,
+            peloBar: c.peloBar ? { bar: c.peloBar.bar } : undefined,
             embarque: { lat: c.embarque.lat, lon: c.embarque.lon, nome: c.embarque.nome, bairro: c.embarque.bairro },
             destino: { lat: c.destino.lat, lon: c.destino.lon, nome: c.destino.nome, bairro: c.destino.bairro },
             carro: c.carro, valor: c.valor, km: c.km,
@@ -848,6 +1015,7 @@
           if (!ponto(msg)) return;
           c.pos = { lat: msg.lat, lon: msg.lon, t: Date.now() };
           if (atual === 'caminho') atualizarChegando();
+          if (c.peloBar && c.etapa === 'viagem') andarNaViagem(c.pos);
           break;
         case 'perto':
           if (c.etapa === 'a-caminho' && !c.avisouPerto) {
@@ -876,6 +1044,10 @@
           } else if (msg.etapa === 'viagem' && ['preparo', 'chegou'].includes(c.etapa)) {
             c.etapa = 'viagem';
             c.inicioViagem = Date.now();
+            if (c.bar && !c.barAvisado && !c.simulada) {
+              c.barAvisado = true;
+              BAR.avisarVolta(c.bar, { corrida: c.id, cliente: c.peloBar ? c.peloBar.cliente : eu().nome, para: c.destino.bairro || c.destino.nome, cupom: c.bar.cupom, peloBar: Boolean(c.peloBar) });
+            }
             ir('viagem');
           } else if (msg.etapa === 'chegada' && c.etapa !== 'chegada' && c.etapa !== 'pagando') {
             c.etapa = 'chegada';
@@ -1153,10 +1325,11 @@
       rosto(q('#rp-via-av'), m);
       q('#rp-via-veic').textContent = m.veiculo === 'patinete' ? 'o patinete' : 'a bike';
       q('#rp-vivo').textContent = c.compartilhada ? 'Ao vivo · compartilhada' : 'Ao vivo';
+      q('#rp-via-liberar').hidden = !c.peloBar;
       mapa.limpar();
       mapa.rota(c.linha);
       mapa.ponto('destino', c.destino, Mapa.ICONE.destino());
-      const aqui = pos || c.pos;
+      const aqui = c.peloBar ? c.pos : (pos || c.pos);
       mapa.enquadrar(() => [c.aqui || aqui || c.embarque, c.destino]);
       andarNaViagem(aqui || c.embarque);
       if (c.compartilhada) ligarRastreio();
@@ -1263,6 +1436,9 @@
       const linha = (a, b) => (b ? `<li><span>${esc(a)}</span><b>${esc(b)}</b></li>` : '');
       return linha('Motorista', v.motorista) + linha('Saiu de', lugarTxt(v.embarque)) + linha('Chegou em', lugarTxt(v.destino))
         + linha('Início', v.inicio ? quandoTxt(v.inicio) : '') + linha('Chegada', quandoTxt(v.data))
+        + linha('Pedido por', v.peloBar ? `${v.peloBar.bar}, para ${v.peloBar.cliente}` : '')
+        + linha('Saiu do bar', v.bar && !v.peloBar ? v.bar.nome : '')
+        + linha('Benefício', v.bar && v.bar.beneficio ? `${v.bar.beneficio} · código ${v.bar.cupom}` : '')
         + linha('Pagamento', v.evento ? (v.total > 0 ? `${v.evento.nome} e Pix direto para o motorista` : `Por conta de ${v.evento.nome}`) : `${v.pag || 'Pix'} direto para o motorista`);
     }
     // o trajeto da volta, desenhado da linha guardada (sem mapa de fundo: só a forma do caminho, a saída e a chegada)
@@ -1315,6 +1491,7 @@
       if (v.embarque) cab.push(`Saiu de: ${lugarTxt(v.embarque)}`);
       if (v.destino) cab.push(`Chegou em: ${lugarTxt(v.destino)}`);
       cab.push(`Motorista: ${v.motorista}`);
+      if (v.bar && v.bar.beneficio) cab.push(`Benefício do ${v.bar.nome}: ${v.bar.beneficio} (código ${v.bar.cupom})`);
       const conta = [`Saída: ${brl(v.saida)}`, `${S.virgula(v.km)} km rodados: ${brl(v.rodado)}`];
       if (v.adicional) conta.push(`Bandeira 2 (+20%): ${brl(v.adicional)}`);
       if (v.espera) conta.push(`Espera: ${brl(v.espera)}`);
@@ -1348,6 +1525,12 @@
       q('#rp-aval-t').textContent = `Como foi a volta com ${nome}?`;
       if (c.motorista) rosto(q('#rp-aval-av'), c.motorista);
       q('#rp-gorjeta-t').textContent = `Gorjeta, se quiser · vai inteira para ${nome}`;
+      q('#rp-gorjeta-t').hidden = Boolean(c.peloBar);
+      q('#rp-gorjeta').hidden = Boolean(c.peloBar);
+      if (c.peloBar) {
+        c.gorjeta = 0;
+        q('#rp-fim-sub').textContent = `${primeiroNome(c.peloBar.cliente)} chegou às ${hhmm(new Date(c.chegada || Date.now()))} · ${c.destino.bairro || c.destino.nome}. Ele paga direto para ${nome}, pelo QR no celular do Drink.`;
+      }
       desenharAvaliacao();
     }
     function desenharAvaliacao() {
@@ -1366,13 +1549,15 @@
         tags.classList.toggle('ruins', tipo === 'ruins');
         tags.innerHTML = TAGS[tipo].map((t) => `<button type="button" data-tag="${esc(t)}" aria-pressed="${c.tags.includes(t)}">${esc(t)}</button>`).join('');
       }
-      q('#rp-pagar').textContent = totalAtual() > 0 ? `Pagar ${brl(totalAtual())} com Pix` : 'Concluir a volta';
+      q('#rp-pagar').textContent = corrida.peloBar ? 'Concluir' : (totalAtual() > 0 ? `Pagar ${brl(totalAtual())} com Pix` : 'Concluir a volta');
     }
     function irPagar() {
       const c = corrida;
       c.etapa = 'pagando';
       enviar({ tipo: 'avaliacao', nota: c.nota, tags: c.tags, gorjeta: c.gorjeta, total: totalAtual() });
       salvarCorrida();
+      // pedido pelo bar: o cliente paga direto para o motorista, pelo QR no celular dele
+      if (c.peloBar) { concluir(); return; }
       // por conta do evento e sem gorjeta: não tem nada para pagar
       if (!c.simulada && totalAtual() <= 0) {
         c.paguei = true;
@@ -1483,13 +1668,23 @@
         tempos: { pedido: c.pedidoEm || c.t0 || 0, aceite: c.aceiteEm || 0, embarque: c.noEmbarque || 0, codigo: c.codigoEm || 0, saida: c.inicioViagem || 0, chegada: c.chegada || 0 },
         veiculo: c.motorista ? PF.descrever({ tipo: c.motorista.veiculo, ...(c.motorista.veic || {}) }) : '',
         simulada: c.simulada || undefined,
+        bar: c.bar ? { nome: c.bar.nome, beneficio: BAR.beneficioTxt(c.bar.beneficio), cupom: c.bar.cupom } : undefined,
+        peloBar: c.peloBar || undefined,
       };
-      u.voltas = [v, ...(u.voltas || [])].slice(0, 100);
+      // a volta que o bar chamou para um cliente fica na lista do bar, não nas viagens de quem tem a conta
+      if (!c.peloBar) u.voltas = [v, ...(u.voltas || [])].slice(0, 100);
       if (c.notaRecebida) u.notasRecebidas = [...(u.notasRecebidas || []), c.notaRecebida].slice(-100);
       op.salvar();
       embarqueManual = false;
       destino = null;
       encerrar();
+      if (c.peloBar) {
+        const volta = TELAS_BAR.includes(voltarDoBar) ? voltarDoBar : 'bar';
+        sairPeloBar();
+        op.avisar(c.liberado ? `Pronto. ${primeiroNome(c.peloBar.cliente)} segue com o Drink, e o celular do bar está livre.` : `${primeiroNome(c.peloBar.cliente)} chegou em casa. A volta está na lista do bar.`);
+        ir(painelBar.meu() ? volta : 'viagens');
+        return;
+      }
       op.avisar(v.evento && v.total <= 0 ? 'Volta concluída, por conta do evento. O recibo ficou salvo em Viagens.' : 'Pago! O recibo ficou salvo em Viagens.');
       ir('viagens');
     }
@@ -1750,6 +1945,8 @@
       if (id === 'rp-agendar') AG.desenharAgendar({ embarque, destino, rota, veic });
       if (id === 'rp-agenda') AG.desenharFolha();
       if (id === 'rp-pend') AG.desenharPendencia();
+      if (id === 'rp-bares') desenharListaBares();
+      if (id === 'rp-bar-info') desenharBarInfo();
       if (id === 'rp-contato') { q('#rp-contato-nome').value = ''; q('#rp-contato-cel').value = ''; q('#rp-contato-erro').hidden = true; }
       const t = $('h4', q(`#${id}`));
       if (t) t.focus({ preventScroll: true });
@@ -1777,6 +1974,7 @@
       if (ds.agHora) { AG.escolher(ds.agHora); return; }
       if (ds.rpAba) { ir(ds.rpAba); return; }
       if (ds.rpIr) { ir(ds.rpIr); return; }
+      if (ds.rpBar) { abrirBar(ds.rpBar); return; }
       if (ds.rpLocal) { const l = eu().locais[ds.rpLocal]; if (l) { modoBusca = 'destino'; destino = { ...l }; ir('opcoes'); } return; }
       if (ds.rpSalvar) { voltarPara = atual; modoBusca = ds.rpSalvar; ir('destino'); return; }
       if (ds.rpTirar) { const u = eu(); if (u.locais) delete u.locais[ds.rpTirar]; op.salvar(); desenharPerfil(); return; }
@@ -1845,7 +2043,12 @@
           centrarEmMim();
         },
         'trocar-embarque': () => { voltarPara = atual; modoBusca = 'embarque'; ir('destino'); },
-        'voltar-busca': () => { const volta = modoBusca === 'destino' ? 'inicio' : (voltarPara || 'perfil'); modoBusca = 'destino'; ir(volta); },
+        'voltar-busca': () => {
+          if (peloBar && modoBusca === 'destino') { sairPeloBar(); ir('bar-chamar'); return; }
+          const volta = modoBusca === 'destino' ? 'inicio' : (voltarPara || 'perfil');
+          modoBusca = 'destino';
+          ir(volta);
+        },
         'no-mapa': () => ir('no-mapa'),
         'confirmar-no-mapa': () => { if (meioLugar) escolherLugar(meioLugar); },
         cancelar,
@@ -1901,6 +2104,9 @@
         'copiar-pix': () => { if (corrida && corrida.pixCodigo) copiar(corrida.pixCodigo, 'Código Pix copiado. Agora cola no app do seu banco.'); },
         paguei,
         'sair-evento': sairDoConvite,
+        'sair-bar': sairDoBar,
+        'bar-daqui': barDaqui,
+        liberar: liberarCelularDoBar,
       };
       if (ds.rp && acoes[ds.rp]) { acoes[ds.rp](); return; }
       switch (b.id) {
@@ -2029,7 +2235,7 @@
     // voltar do aparelho: devolve true se tratou
     function voltar() {
       if (folha) { fecharFolha(); return true; }
-      const mapaVolta = { destino: modoBusca === 'destino' ? 'inicio' : (voltarPara || 'perfil'), 'no-mapa': 'destino', opcoes: 'destino', ninguem: 'opcoes', viagens: 'inicio', carteira: 'inicio', perfil: 'inicio', pix: 'chegou', eventos: 'inicio', 'evento-novo': 'eventos', evento: 'eventos' };
+      const mapaVolta = { destino: modoBusca === 'destino' ? 'inicio' : (voltarPara || 'perfil'), 'no-mapa': 'destino', opcoes: 'destino', ninguem: 'opcoes', viagens: 'inicio', carteira: 'inicio', perfil: 'inicio', pix: 'chegou', eventos: 'inicio', 'evento-novo': 'eventos', evento: 'eventos', 'bar-novo': 'eventos', bar: 'eventos', 'bar-chamar': 'bar' };
       if (atual === 'buscando' || atual === 'caminho') { op.avisar('Pra desistir, toca em Cancelar.'); return true; }
       if (mapaVolta[atual]) { if (atual === 'destino') modoBusca = 'destino'; ir(mapaVolta[atual]); return true; }
       if (atual === 'inicio') return false;
