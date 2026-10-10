@@ -908,6 +908,7 @@
       }
       const u = eu();
       c.etapa = 'receber';
+      c.chegadaEm = Date.now();
       enviar({ tipo: 'etapa', etapa: 'chegada', valor: c.valor, espera: c.espera || 0 });
       avisarPassageiro('chegada');
       // na simulação não tem Pix (e dá para treinar antes de cadastrar a chave)
@@ -976,6 +977,27 @@
         b.setAttribute('aria-checked', String(n === c.notaPassageiro));
       });
     }
+    // o fim da corrida em detalhe: o que entrou, o tempo e o que o passageiro achou
+    function desenharResumoFim(c, gorjeta, total) {
+      const linha = (a, sub, b, classe = '') => `<div${classe ? ` class="${classe}"` : ''}><dt>${esc(a)}${sub ? `<small>${esc(sub)}</small>` : ''}</dt><dd>${esc(b)}</dd></div>`;
+      const fim = c.chegadaEm || Date.now();
+      let h = linha('Corrida', `${S.virgula(c.km)} km · ${c.embarque.bairro || c.embarque.nome} → ${c.destino.bairro || c.destino.nome}`, brl(c.valor));
+      if (c.espera) h += linha('Espera', 'depois dos 10 min grátis', brl(c.espera));
+      if (gorjeta) h += linha('Gorjeta', 'do passageiro, inteira sua', brl(gorjeta));
+      if (c.eventoParte) h += linha(`Do ${c.evento.nome}`, 'a receber de quem organiza', brl(c.eventoParte));
+      h += linha('Tempo', 'do aceite à chegada', S.textoMin((fim - c.t0) / 60000));
+      h += linha('Total', '', brl(total), 'total');
+      q('#rm-fim-resumo').innerHTML = h;
+      q('#rm-fim-resumo').hidden = false;
+      const a = c.avaliacao;
+      const caixa = q('#rm-fim-nota');
+      caixa.hidden = !(a && a.nota);
+      if (a && a.nota) {
+        const estrelas = [1, 2, 3, 4, 5].map((n) => `<svg class="${n <= a.nota ? 'on' : ''}" aria-hidden="true"><use href="#i-estrela"/></svg>`).join('');
+        const tags = (a.tags || []).map((t) => `<li>${esc(t)}</li>`).join('');
+        caixa.innerHTML = `<p class="rm-fim-estrelas" role="img" aria-label="Nota ${a.nota} de 5">${estrelas}</p><p class="rm-fim-quem">${esc(primeiroNome(c.passageiro.nome))} deu nota ${a.nota}</p>${tags ? `<ul>${tags}</ul>` : ''}`;
+      }
+    }
     function recebi() {
       const c = corrida;
       if (!c) return;
@@ -998,6 +1020,7 @@
       encerrar();
       op.salvar();
       q('#rm-fim-t').textContent = `+ ${brl(total)}`;
+      desenharResumoFim(c, gorjeta, total);
       q('#rm-fim-sub').textContent = c.eventoParte
         ? `Corrida concluída. ${brl(c.eventoParte)} vêm do ${c.evento.nome}: você recebe um aviso quando quem organiza pagar.`
         : 'Corrida concluída. O Pix foi direto pra sua conta.';

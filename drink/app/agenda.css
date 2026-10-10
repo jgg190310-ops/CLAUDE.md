@@ -1,0 +1,123 @@
+/* Drink — a volta agendada (v34). Vem depois de jornada.css.
+   - o passageiro: a linha "Quando" no preço, a folha de agendar (os horários de meia em meia hora, o preço pela
+     bandeira da hora e as regras), o cartão da volta agendada no início e a taxa pendente;
+   - o motorista: o botão "Voltas agendadas" e a tela com as reservas dele e as abertas. */
+
+/* ---------- a folha de agendar ---------- */
+.app .rp-ag-horas {
+  display: flex; gap: .45em; overflow-x: auto; margin: 0 calc(var(--e3) * -1); padding: .25em var(--e3) .35em; scrollbar-width: none;
+}
+.app .rp-ag-horas::-webkit-scrollbar { display: none; }
+.app .rp-ag-horas button {
+  flex: none; display: grid; justify-items: center; gap: .05em; min-width: 4.4em; min-height: 52px; padding: .45em .6em;
+  border: 0; border-radius: var(--r-m); background: var(--a-card); color: var(--luz); font: inherit; cursor: pointer;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .06);
+}
+.app .rp-ag-horas b { font-size: 1.02em; font-weight: 660; font-variant-numeric: tabular-nums; }
+.app .rp-ag-horas small { font-size: max(11px, .66em); font-weight: 560; color: var(--a-texto-3); white-space: nowrap; }
+.app .rp-ag-horas [aria-checked="true"] { background: var(--lima); color: #0A0B0F; box-shadow: none; }
+.app .rp-ag-horas [aria-checked="true"] small { color: rgba(10, 11, 15, .7); }
+.app .rp-ag-resumo { display: grid; gap: .2em; padding: var(--e3) var(--e4); border-radius: var(--r-g); background: var(--a-card); }
+.app .rp-ag-resumo b { font-size: 1.05em; font-weight: 640; }
+.app .rp-ag-resumo span { font-size: max(12.5px, .82em); color: var(--a-texto-2); }
+.app .rp-ag-resumo strong { justify-self: start; margin-top: .25em; padding: .3em .7em; border-radius: 999px; background: rgba(210, 255, 60, .12); color: var(--lima-tx); font-size: max(13px, .86em); font-weight: 640; }
+.app .rp-ag-regras { display: grid; gap: .5em; margin: 0; padding: 0; list-style: none; }
+.app .rp-ag-regras li { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: .6em; align-items: start; font-size: max(12.5px, .82em); line-height: 1.45; color: var(--a-texto-2); }
+.app .rp-ag-regras li::before {
+  content: ""; width: .55em; height: .55em; margin-top: .45em; border-radius: 50%; background: var(--lima-tx);
+}
+.app .rp-ag-regras li.taxa::before { background: #FF8A4C; }
+.app .rp-ag-regras b { color: var(--luz); font-weight: 600; }
+
+/* ---------- o cartão no início ---------- */
+.app :is(.rp-ag-card, .rp-pend-card) {
+  display: flex; align-items: center; gap: var(--e3); width: 100%; padding: .65em .8em; border: 0; border-radius: var(--r-m);
+  background: var(--a-card); color: var(--luz); font: inherit; text-align: left; cursor: pointer;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .06);
+}
+.app :is(.rp-ag-card, .rp-pend-card)[hidden] { display: none; }
+.app .rp-ag-card.confirmada { box-shadow: inset 0 0 0 1.5px rgba(210, 255, 60, .55); background: rgba(210, 255, 60, .06); }
+.app .rp-ag-ic, .app .rp-pend-ic {
+  flex: none; display: grid; place-items: center; width: 2.3em; height: 2.3em; border-radius: 50%; background: rgba(210, 255, 60, .14);
+}
+.app .rp-ag-ic svg { width: 1.2em; height: 1.2em; fill: none; stroke: var(--lima-tx); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.app .rp-pend-card { background: rgba(255, 138, 76, .1); box-shadow: inset 0 0 0 1.5px rgba(255, 138, 76, .45); }
+.app .rp-pend-ic { background: #FF8A4C; color: #1A0E06; font-weight: 800; }
+.app :is(.rp-ag-card, .rp-pend-card) > span:last-child { display: grid; min-width: 0; }
+.app :is(.rp-ag-card, .rp-pend-card) b { overflow: hidden; font-size: max(14px, .9em); font-weight: 620; white-space: nowrap; text-overflow: ellipsis; }
+.app :is(.rp-ag-card, .rp-pend-card) small { font-size: max(12.5px, .8em); color: var(--a-texto-2); }
+.app .rp-pend-card small { color: #FFB48C; }
+
+/* ---------- a folha da volta agendada ---------- */
+.app .rp-agenda-estado { margin: 0; padding: .7em .85em; border-radius: var(--r-m); background: var(--a-card); font-size: max(13px, .86em); line-height: 1.45; color: var(--a-texto-2); }
+.app .rp-agenda-estado.ok { background: rgba(210, 255, 60, .1); color: var(--lima-tx); font-weight: 560; }
+.app .rp-agenda-mot { display: flex; align-items: center; gap: var(--e3); padding: var(--e3); border-radius: var(--r-g); background: var(--a-card); }
+.app .rp-agenda-mot[hidden] { display: none; }
+.app .rp-agenda-mot b { display: block; font-weight: 620; }
+.app .rp-agenda-mot small { display: block; font-size: max(12.5px, .8em); color: var(--a-texto-2); }
+.app .rp-agenda-cancelar.com-taxa { color: #FF9B8F; }
+
+/* ---------- a taxa pendente ---------- */
+.app .rp-pend-valor { margin: 0; font-family: var(--f-marca); font-stretch: 80%; font-size: 2.6em; font-weight: 800; letter-spacing: -.02em; line-height: 1; text-align: center; }
+.app .rp-pend-para { margin: 0; font-size: max(12.5px, .82em); color: var(--a-texto-2); text-align: center; }
+.app .rp-pend-qr { display: grid; place-items: center; padding: var(--e3); border-radius: var(--r-g); background: #FFFFFF; }
+.app .rp-pend-qr svg { width: min(13em, 60vw); height: auto; }
+.app .rp-pend-sem { margin: 0; color: #3A3A42; font-size: max(13px, .86em); text-align: center; }
+
+/* ---------- o motorista: o botão e a tela das agendadas ---------- */
+.app .rm-agd-bt {
+  display: flex; align-items: center; gap: var(--e3); width: 100%; padding: .6em .8em; border: 0; border-radius: var(--r-m);
+  background: var(--a-card); color: var(--luz); font: inherit; text-align: left; cursor: pointer; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .06);
+}
+.app .rm-agd-bt.tem { box-shadow: inset 0 0 0 1.5px rgba(210, 255, 60, .5); }
+.app .rm-agd-bt > svg:first-child { flex: none; width: 1.35em; height: 1.35em; fill: none; stroke: var(--lima-tx); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.app .rm-agd-bt span { display: grid; min-width: 0; }
+.app .rm-agd-bt b { font-size: max(14px, .9em); font-weight: 620; }
+.app .rm-agd-bt small { font-size: max(12.5px, .8em); color: var(--a-texto-2); }
+.app .rm-agd-bt .en-treino-seta { margin-left: auto; }
+.app .rm-agd-lista { display: grid; gap: var(--e2); margin-top: 0; margin-bottom: 0; padding: 0; list-style: none; }
+.app .rm-agd-lista[hidden] { display: none; }
+.app .rm-agd-item {
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto; grid-template-areas: "hora txt valor" "bts bts bts"; gap: .3em var(--e3);
+  padding: var(--e3) var(--e4); border-radius: var(--r-g); background: var(--a-card); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .05);
+}
+.app .rm-agd-item.confirmada { box-shadow: inset 0 0 0 1.5px rgba(210, 255, 60, .55); }
+.app .rm-agd-item.pronto { background: rgba(210, 255, 60, .07); }
+.app .rm-agd-hora { grid-area: hora; display: grid; justify-items: center; min-width: 3.6em; padding: .35em .4em; border-radius: var(--r-m); background: var(--a-card-2); }
+.app .rm-agd-hora b { font-size: 1.05em; font-weight: 660; font-variant-numeric: tabular-nums; }
+.app .rm-agd-hora small { font-size: max(10.5px, .64em); color: var(--a-texto-3); text-align: center; line-height: 1.2; }
+.app .rm-agd-txt { grid-area: txt; display: grid; gap: .1em; min-width: 0; }
+.app .rm-agd-txt b { overflow: hidden; font-size: max(14px, .9em); font-weight: 620; white-space: nowrap; text-overflow: ellipsis; }
+.app .rm-agd-txt small { overflow: hidden; font-size: max(12px, .76em); color: var(--a-texto-2); white-space: nowrap; text-overflow: ellipsis; }
+.app .rm-agd-item > em { grid-area: valor; align-self: start; font-style: normal; font-weight: 660; font-variant-numeric: tabular-nums; color: var(--lima-tx); }
+.app .rm-agd-bts { grid-area: bts; display: flex; align-items: center; gap: var(--e3); margin-top: .3em; }
+.app .rm-agd-bts .t-botao { flex: 1; height: 2.9em; }
+.app .rm-agd-bts .t-bt { flex: 1; }
+.app .rm-agd-desistir { margin-left: auto; color: var(--a-texto-2); }
+.app .rm-agd-vazio { padding: var(--e4); border-radius: var(--r-g); border: 1px dashed var(--a-linha); font-size: max(13px, .86em); color: var(--a-texto-2); text-align: center; list-style: none; }
+.app .rm-agd-taxas li { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: .1em var(--e3); padding: var(--e3) var(--e4); border-radius: var(--r-g); background: rgba(255, 138, 76, .1); }
+.app .rm-agd-taxas li b { grid-row: span 2; align-self: center; color: #FFB48C; font-weight: 660; }
+.app .rm-agd-taxas li span { font-size: max(12.5px, .82em); }
+.app .rm-agd-taxas li small { font-size: max(12px, .74em); color: var(--a-texto-3); }
+.app .rm-agd-regras { margin: 0; padding: .7em .85em; border-radius: var(--r-m); background: rgba(91, 103, 255, .12); font-size: max(12.5px, .8em); line-height: 1.45; color: #C9CDFF; }
+.app .rm-agd-cab { display: flex; align-items: center; justify-content: space-between; gap: var(--e3); }
+.app .rm-agd-cab .d-sec { margin: 0; }
+.app .rm-agd-atualizar { min-height: 36px; padding: 0 .6em; }
+
+/* a tela das agendadas rola inteira, na margem das outras abas */
+.app .rt[data-rt="agendadas"] { overflow-y: auto; overscroll-behavior: contain; padding-bottom: calc(var(--e6) + var(--base)); scrollbar-width: none; }
+.app .rt[data-rt="agendadas"]::-webkit-scrollbar { display: none; }
+.app .rt-cheia > :is(.rm-agd-lista, .rm-agd-cab, .rm-agd-regras) { flex: none; margin-left: var(--g); margin-right: var(--g); }
+.app .rt-cheia > .rm-agd-cab { margin-top: var(--e6); margin-bottom: var(--e3); }
+.app .rt-cheia > .rm-agd-regras { margin-top: var(--e5); }
+
+/* ---------- no claro ---------- */
+html[data-tema="claro"] .app :is(.rp-ag-horas button, .rp-ag-card, .rm-agd-bt, .rm-agd-item) { box-shadow: inset 0 0 0 1px var(--a-linha); }
+html[data-tema="claro"] .app .rp-ag-horas [aria-checked="true"] { background: #0E0D12; color: #D2FF3C; box-shadow: none; }
+html[data-tema="claro"] .app .rp-ag-horas [aria-checked="true"] small { color: rgba(210, 255, 60, .8); }
+html[data-tema="claro"] .app .rp-ag-card.confirmada, html[data-tema="claro"] .app .rm-agd-item.confirmada, html[data-tema="claro"] .app .rm-agd-bt.tem { box-shadow: inset 0 0 0 1.5px #3D6600; }
+html[data-tema="claro"] .app .rp-ag-resumo strong, html[data-tema="claro"] .app .rp-agenda-estado.ok { background: rgba(130, 190, 0, .16); color: #2F4F00; }
+html[data-tema="claro"] .app .rp-pend-card small, html[data-tema="claro"] .app .rm-agd-taxas li b { color: #8A3200; }
+html[data-tema="claro"] .app .rp-agenda-cancelar.com-taxa { color: #B3261E; }
+html[data-tema="claro"] .app .rm-agd-regras { background: rgba(46, 60, 242, .07); color: #2A3399; }
+html[data-tema="claro"] .app .rm-agd-item > em { color: #2F4F00; }

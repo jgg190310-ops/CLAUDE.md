@@ -231,6 +231,14 @@
     }
 
     /* ---------- Drinks online por perto ---------- */
+    // os que estão perto agora (a posição deles vem arredondada, uns 500 m): servem para estimar quanto o mais perto demora
+    let pertoAgora = [];
+    // bike ou patinete na cidade: uns 16 km/h, pelas ruas (a reta vezes 1,3), mais 1 min para sair
+    function maisPerto(ref) {
+      if (!ref || !pertoAgora.length) return null;
+      const km = Math.min(...pertoAgora.map((o) => S.distancia(ref, o.p))) / 1000;
+      return { km, min: Math.max(2, Math.round(((km * 1.3) / 16) * 60 + 1)) };
+    }
     async function lerOnline() {
       try {
         const lista = await R.canal.ler(R.topico.online(), '11m');
@@ -244,6 +252,10 @@
         // perto: até uns 6 km do embarque (motorista de bike não atravessa a cidade para buscar ninguém)
         const ref = embarque || pos;
         const perto = ref ? vivos.filter((o) => ponto(o.p) && S.distancia(ref, o.p) <= 6000) : vivos;
+        pertoAgora = perto.filter((o) => ponto(o.p));
+        const mp = maisPerto(ref);
+        q('#rp-online-eta').textContent = mp ? ` · chega em uns ${mp.min} min` : '';
+        if (atual === 'opcoes' && rota) desenharTempo();
         const txt = q('#rp-online-txt');
         if (perto.length) txt.textContent = `${perto.length} ${perto.length === 1 ? 'Drink online' : 'Drinks online'} perto de você`;
         else if (vivos.length) txt.textContent = `Nenhum Drink perto agora · ${vivos.length} na cidade`;
@@ -252,6 +264,8 @@
         desenharAvise(perto.length);
         if (mapa && atual === 'inicio') mapa.online(vivos.filter((o) => ponto(o.p)).map((o) => ({ lat: o.p.lat, lon: o.p.lon, veic: o.veic, id: o.d })));
       } catch (e) {
+        pertoAgora = [];
+        q('#rp-online-eta').textContent = '';
         q('#rp-online-txt').textContent = 'Sem conexão com a central';
         q('#rp-online').classList.add('vazio');
       }
@@ -346,6 +360,7 @@
         if (pos) mapa.ponto('voce', pos, Mapa.ICONE.voce());
         centrarEmMim();
         desenharAtalhos();
+        desenharRecentes();
         q('#rp-gps').hidden = !gpsNegado;
         if (!ultimoEndereco && pos) atualizarEmbarque();
         desenharConvite();
@@ -397,6 +412,17 @@
         return `<button type="button" data-rp-salvar="${tipo}"><svg aria-hidden="true"><use href="#${icone}"/></svg><span><b>${titulo}</b><small>Adicionar</small></span></button>`;
       };
       q('#rp-atalhos').innerHTML = item('casa', 'i-casa', 'Casa') + item('trabalho', 'i-maleta', 'Trabalho');
+    }
+
+    // os últimos destinos (das voltas de verdade), para pedir de novo com um toque
+    let recentes = [];
+    function desenharRecentes() {
+      const u = eu();
+      const vistos = new Set();
+      recentes = ((u && u.voltas) || []).map((v) => v.destino).filter((d) => d && ponto(d) && !vistos.has(d.nome) && vistos.add(d.nome)).slice(0, 3);
+      const caixa = q('#rp-recentes');
+      caixa.hidden = !recentes.length;
+      caixa.innerHTML = recentes.map((d, i) => `<button type="button" data-recente="${i}"><svg aria-hidden="true"><use href="#i-relogio"/></svg><span>${esc(d.bairro && d.bairro !== d.nome ? `${d.nome} · ${d.bairro}` : d.nome)}</span></button>`).join('');
     }
 
     /* ---------- busca de endereço ---------- */
@@ -555,7 +581,20 @@
       bt.disabled = false;
       bt.textContent = `Pedir Drink · ${brl(p.total)}`;
       q('#rp-simular').disabled = false;
+      desenharTempo();
       desenharParteEvento(p.total);
+    }
+    // por estimativa: o Drink mais perto até o embarque, a vistoria e a dobra (uns 5 min) e a rota até em casa
+    const PREPARO_MIN = 5;
+    function desenharTempo() {
+      const lista = q('#rp-op-tempo');
+      if (!rota || !embarque) { lista.hidden = true; return; }
+      const mp = maisPerto(embarque);
+      lista.hidden = false;
+      lista.classList.toggle('sem-drink', !mp);
+      q('#rp-op-t1').textContent = mp ? `uns ${mp.min} min` : 'sem Drink perto';
+      q('#rp-op-t2').textContent = `uns ${PREPARO_MIN} min`;
+      q('#rp-op-t3').textContent = mp ? `por volta de ${hhmm(new Date(Date.now() + (mp.min + PREPARO_MIN + Math.round(rota.min)) * 60000))}` : `${S.textoMin(rota.min)} de carro`;
     }
     function desenharParteEvento(total) {
       const linha = q('#rp-op-ev');
@@ -770,6 +809,7 @@
           c.chave = chave;
           c.pos = ponto(msg.pos) ? { lat: msg.pos.lat, lon: msg.pos.lon } : null;
           c.etapa = 'a-caminho';
+          c.aceiteEm = Date.now();
           limparTimers();
           const u = eu();
           enviar({
@@ -802,6 +842,7 @@
         case 'etapa':
           if (msg.etapa === 'chegou' && ['a-caminho'].includes(c.etapa)) {
             c.etapa = 'chegou';
+            c.noEmbarque = Date.now();
             // a espera só conta se o motorista está mesmo no embarque
             c.chegouEm = ponto(msg.pos) && S.distancia(msg.pos, c.embarque) <= 350 ? Date.now() : 0;
             if (ponto(msg.pos)) c.pos = { lat: msg.pos.lat, lon: msg.pos.lon, t: Date.now() };
@@ -1077,6 +1118,7 @@
       if (!c) return;
       const m = c.motorista || { nome: 'O Drink', veiculo: 'bike' };
       q('#rp-via-dest').textContent = c.destino.nome;
+      q('#rp-via-de').textContent = `Saiu ${c.inicioViagem ? `às ${hhmm(new Date(c.inicioViagem))}` : 'agora'} de ${c.embarque.bairro || c.embarque.nome}`;
       q('#rp-via-nome').textContent = primeiroNome(m.nome);
       rosto(q('#rp-via-av'), m);
       q('#rp-via-veic').textContent = m.veiculo === 'patinete' ? 'o patinete' : 'a bike';
@@ -1104,6 +1146,9 @@
         if (atual === 'viagem') {
           q('#rp-faltam').textContent = S.textoKm(falta);
           q('#rp-chegada').textContent = c.eta;
+          const pct = c.km > 0 ? Math.max(0, Math.min(100, Math.round((1 - falta / c.km) * 100))) : 0;
+          q('#rp-via-barra').style.width = `${pct}%`;
+          q('#rp-via-pct').textContent = `${pct}% do caminho`;
         }
       }
     }
@@ -1189,6 +1234,50 @@
       return linha('Motorista', v.motorista) + linha('Saiu de', lugarTxt(v.embarque)) + linha('Chegou em', lugarTxt(v.destino))
         + linha('Início', v.inicio ? quandoTxt(v.inicio) : '') + linha('Chegada', quandoTxt(v.data))
         + linha('Pagamento', v.evento ? (v.total > 0 ? `${v.evento.nome} e Pix direto para o motorista` : `Por conta de ${v.evento.nome}`) : `${v.pag || 'Pix'} direto para o motorista`);
+    }
+    // o trajeto da volta, desenhado da linha guardada (sem mapa de fundo: só a forma do caminho, a saída e a chegada)
+    function desenharTrajeto(v) {
+      const fig = q('#rp-rec-mapa');
+      const l = Array.isArray(v.linha) ? v.linha.filter((p) => Array.isArray(p) && Number.isFinite(p[0]) && Number.isFinite(p[1])) : [];
+      fig.hidden = l.length < 2;
+      if (fig.hidden) return;
+      const W = 320; const H = 150; const M = 18;
+      const lats = l.map((p) => p[0]); const lons = l.map((p) => p[1]);
+      const kx = Math.cos(((Math.min(...lats) + Math.max(...lats)) / 2) * Math.PI / 180);
+      const w = Math.max(1e-6, (Math.max(...lons) - Math.min(...lons)) * kx);
+      const h = Math.max(1e-6, Math.max(...lats) - Math.min(...lats));
+      const esc2 = Math.min((W - 2 * M) / w, (H - 2 * M) / h);
+      const ox = (W - w * esc2) / 2; const oy = (H - h * esc2) / 2;
+      const xy = ([lat, lon]) => [ox + (lon - Math.min(...lons)) * kx * esc2, oy + (Math.max(...lats) - lat) * esc2];
+      const pts = l.map(xy).map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(' ');
+      const [x0, y0] = xy(l[0]); const [x1, y1] = xy(l[l.length - 1]);
+      q('#rp-rec-svg').innerHTML = '<defs><pattern id="rp-rec-grade" width="16" height="16" patternUnits="userSpaceOnUse"><path d="M16 0H0V16" class="rp-rec-grade"/></pattern></defs>'
+        + `<rect width="${W}" height="${H}" fill="url(#rp-rec-grade)"/>`
+        + `<polyline points="${pts}" class="rp-rec-luz"/><polyline points="${pts}" class="rp-rec-linha"/>`
+        + `<circle cx="${x0.toFixed(1)}" cy="${y0.toFixed(1)}" r="6" class="rp-rec-de"/><circle cx="${x1.toFixed(1)}" cy="${y1.toFixed(1)}" r="7" class="rp-rec-para"/>`;
+      q('#rp-rec-mapa-leg').textContent = `${lugarTxt(v.embarque) || 'Saída'} → ${lugarTxt(v.destino) || 'Chegada'} · ${S.virgula(v.km)} km`;
+    }
+    // a volta minuto a minuto: só os horários que o celular viu de verdade
+    function desenharTempos(v) {
+      const t = v.tempos || {};
+      const nome = primeiroNome(v.motorista);
+      const passos = [
+        [t.pedido, 'Pedido', 'Você pediu o Drink'],
+        [t.aceite, 'Aceite', `${nome} aceitou${v.veiculo ? `, de ${v.veiculo}` : ''}`],
+        [t.embarque, 'No embarque', `${nome} chegou até você`],
+        [t.codigo, 'Código', 'O seu celular conferiu o código'],
+        [t.saida, 'Saída', `${nome} saiu com o seu carro`],
+        [t.chegada, 'Chegada', `Em ${lugarTxt(v.destino) || 'casa'}`],
+      ].filter(([ms]) => Number(ms) > 0);
+      const ol = q('#rp-rec-tempo');
+      ol.hidden = passos.length < 2;
+      q('#rp-rec-tempo-t').hidden = ol.hidden;
+      if (ol.hidden) return;
+      const ini = passos[0][0];
+      ol.innerHTML = passos.map(([ms, rot, txt], i) => {
+        const dif = i ? Math.round((ms - passos[i - 1][0]) / 60000) : 0;
+        return `<li><time>${hhmm(new Date(ms))}</time><span><b>${esc(rot)}</b><small>${esc(txt)}</small></span>${i ? `<em>+${Math.max(0, dif)} min</em>` : ''}</li>`;
+      }).join('') + `<li class="total"><time></time><span><b>Do pedido à chegada</b></span><em>${S.textoMin((passos[passos.length - 1][0] - ini) / 60000)}</em></li>`;
     }
     function textoRecibo(v) {
       const d = new Date(v.data);
@@ -1321,6 +1410,12 @@
       mostrarPix();
       agendar(() => { if (corrida === c) { c.podeConcluir = true; mostrarPix(); q('#rp-pix-status').textContent = `O ${primeiroNome(c.motorista && c.motorista.nome)} ainda não confirmou. Se você já pagou, pode concluir.`; } }, 90000);
     }
+    function trajetoCurto(linha) {
+      if (!Array.isArray(linha) || linha.length < 2) return undefined;
+      const passo = Math.max(1, Math.ceil(linha.length / 80));
+      const pts = linha.filter((_, i) => i % passo === 0 || i === linha.length - 1);
+      return pts.map(([lat, lon]) => [Math.round(lat * 1e5) / 1e5, Math.round(lon * 1e5) / 1e5]);
+    }
     function concluir() {
       const c = corrida;
       if (!c) return;
@@ -1332,7 +1427,12 @@
         saida: c.saida, rodado: c.rodado, adicional: c.adicional, espera: c.espera || 0, gorjeta: c.gorjeta, total: totalAtual(),
         evento: reciboEvento(c) || undefined,
         nota: c.nota, destino: { nome: c.destino.nome, bairro: c.destino.bairro, detalhe: c.destino.detalhe, lat: c.destino.lat, lon: c.destino.lon },
-        embarque: { nome: c.embarque.nome, bairro: c.embarque.bairro }, inicio: c.inicioViagem ? new Date(c.inicioViagem).toISOString() : null,
+        embarque: { nome: c.embarque.nome, bairro: c.embarque.bairro, lat: c.embarque.lat, lon: c.embarque.lon }, inicio: c.inicioViagem ? new Date(c.inicioViagem).toISOString() : null,
+        // o desenho do trajeto (no máximo uns 80 pontos) e os horários, para o recibo
+        linha: trajetoCurto(c.linha),
+        tempos: { pedido: c.t0 || 0, aceite: c.aceiteEm || 0, embarque: c.noEmbarque || 0, codigo: c.codigoEm || 0, saida: c.inicioViagem || 0, chegada: c.chegada || 0 },
+        veiculo: c.motorista ? PF.descrever({ tipo: c.motorista.veiculo, ...(c.motorista.veic || {}) }) : '',
+        simulada: c.simulada || undefined,
       };
       u.voltas = [v, ...(u.voltas || [])].slice(0, 100);
       if (c.notaRecebida) u.notasRecebidas = [...(u.notasRecebidas || []), c.notaRecebida].slice(-100);
@@ -1541,6 +1641,11 @@
       const nota = minhaNota(u);
       q('#rp-minha-nota').hidden = !nota;
       q('#rp-minha-nota').textContent = nota ? `Sua nota com os motoristas: ${S.virgula(nota)}` : '';
+      const reais = (u.voltas || []).filter((v) => !v.simulada);
+      const kmTotal = reais.reduce((t, v) => t + (v.km || 0), 0);
+      q('#rp-pe-voltas').textContent = String(reais.length);
+      q('#rp-pe-km').textContent = S.virgula(kmTotal, kmTotal < 10 ? 1 : 0);
+      q('#rp-pe-nota').textContent = nota ? S.virgula(nota) : '—';
       q('#rp-carro-t').textContent = u.carro ? nomeCarro(u.carro) : 'Cadastra o seu carro';
       q('#rp-carro-sub').textContent = u.carro
         ? [u.carro.marca, `câmbio ${u.carro.cambio}`].filter(Boolean).join(' · ') + (carroPronto(u.carro) ? '' : ' · falta a placa')
@@ -1627,6 +1732,14 @@
         return;
       }
       if (ds.rapida) { mandarMsg(ds.rapida); return; }
+      if (ds.recente !== undefined) {
+        const d = recentes[Number(ds.recente)];
+        if (!d || corrida) return;
+        modoBusca = 'destino';
+        destino = { nome: d.nome, detalhe: d.detalhe || '', bairro: d.bairro || '', lat: d.lat, lon: d.lon };
+        ir('opcoes');
+        return;
+      }
       if (ds.volta) {
         const v = eu().voltas[Number(ds.volta)];
         if (!v) return;
@@ -1634,6 +1747,8 @@
         q('#rp-rec-sub').textContent = `${v.rota} · ${new Date(v.data).toLocaleString('pt-BR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}`;
         q('#rp-rec-det').innerHTML = htmlRecibo(v);
         q('#rp-rec-info').innerHTML = infoRecibo(v);
+        desenharTrajeto(v);
+        desenharTempos(v);
         emailRecibo(v);
         q('#rp-rec-bts [data-rp="recibo-de-novo"]').hidden = !(v.destino && ponto(v.destino));
         abrirFolha('rp-recibo-folha');
