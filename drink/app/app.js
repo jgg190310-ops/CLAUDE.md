@@ -716,6 +716,14 @@
       'sem-suporte': 'Só com o app aberto neste navegador',
     }[window.Drink.avisos.estado()];
     $$('[data-avisos]').forEach((el) => { el.textContent = txt; });
+    // a versão curta, no quadrinho do motorista antes de ficar online
+    const e = window.Drink.avisos.estado();
+    const curto = { ligado: 'ligados', desligado: 'toque p/ ligar', bloqueado: 'bloqueados', instalar: 'instalar o app', 'sem-suporte': 'app aberto' }[e];
+    $$('[data-avisos-curto]').forEach((el) => {
+      el.textContent = curto;
+      const li = el.closest('[data-pronto]');
+      if (li) li.dataset.ok = e === 'ligado' ? 'sim' : 'nao';
+    });
   }
   function ligarAvisos(b) {
     const A = window.Drink.avisos;

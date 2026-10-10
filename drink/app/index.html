@@ -73,12 +73,13 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&display=swap">
-  <link rel="stylesheet" href="../app-telas.css?v=30">
-  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=30">
-  <link rel="stylesheet" href="vendor/leaflet.css?v=30">
-  <link rel="stylesheet" href="app.css?v=30">
-  <link rel="stylesheet" href="visual.css?v=30">
-  <link rel="stylesheet" href="tema.css?v=30">
+  <link rel="stylesheet" href="../app-telas.css?v=31">
+  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=31">
+  <link rel="stylesheet" href="vendor/leaflet.css?v=31">
+  <link rel="stylesheet" href="app.css?v=31">
+  <link rel="stylesheet" href="visual.css?v=31">
+  <link rel="stylesheet" href="tema.css?v=31">
+  <link rel="stylesheet" href="ritmo.css?v=31">
 </head>
 <body>
 <svg class="sprite" aria-hidden="true" focusable="false">
@@ -448,7 +449,7 @@
               <svg aria-hidden="true"><use href="#i-sino"/></svg>
               <span><b id="rp-avise-t">Me avise quando tiver Drink perto</b><small id="rp-avise-sub">Chega uma notificação quando alguém ficar online na sua região.</small></span>
             </button>
-            <button type="button" class="en-link rp-ver-sim" id="rp-ver-sim" data-rp="ver-simulacao" hidden>Enquanto isso, simule uma corrida para ver como funciona</button>
+            <button type="button" class="en-link rp-ver-sim" id="rp-ver-sim" data-rp="ver-simulacao" hidden>Simule uma corrida para ver como funciona</button>
             <p class="rt-alerta" id="rp-gps" role="status" hidden></p>
           </div>
         </section>
@@ -464,6 +465,11 @@
             <label class="rt-campo rt-campo-ativo"><span class="t-bol t-bol-fim"></span><input id="rp-busca" type="search" placeholder="Endereço, bar, bairro…" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search" aria-label="Buscar endereço"></label>
           </div>
           <p class="d-sec" id="rp-res-t">Salvos e recentes</p>
+          <ul class="d-dicas" id="rp-dicas" hidden>
+            <li><svg aria-hidden="true"><use href="#i-pin"/></svg><span><b>Rua e número</b><small>Rua da Bahia, 1000</small></span></li>
+            <li><svg aria-hidden="true"><use href="#i-copo"/></svg><span><b>Nome do lugar</b><small>Mineirão, Mercado Central</small></span></li>
+            <li><svg aria-hidden="true"><use href="#i-mapa"/></svg><span><b>Bairro</b><small>Savassi, Pampulha, Buritis</small></span></li>
+          </ul>
           <ul class="d-lista rt-lista" id="rp-resultados" aria-live="polite"></ul>
           <button type="button" class="rt-linha-bt" data-rp="no-mapa"><svg aria-hidden="true"><use href="#i-mapa"/></svg>Escolher no mapa</button>
         </section>
@@ -643,6 +649,12 @@
           <div class="d-cab d-cab-aba"><h3 class="d-titulo" id="rp-vi-t" tabindex="-1">Suas viagens</h3></div>
           <p class="d-resumo" id="rp-resumo">Nenhuma volta ainda</p>
           <ul class="d-hist" id="rp-hist"></ul>
+          <p class="d-sec" data-sem-voltas>O que fica salvo em cada volta</p>
+          <ul class="d-recibo-tem" data-sem-voltas>
+            <li><svg aria-hidden="true"><use href="#i-rota"/></svg><span><b>O trajeto</b><small>De onde saiu, onde chegou e os quilômetros</small></span></li>
+            <li><svg aria-hidden="true"><use href="#i-relogio"/></svg><span><b>Quem dirigiu e quando</b><small>O nome do motorista, a hora da saída e a da chegada</small></span></li>
+            <li><svg aria-hidden="true"><use href="#i-pix"/></svg><span><b>A conta inteira</b><small>Saída, km, bandeira, espera e gorjeta, para mandar a quem reembolsa</small></span></li>
+          </ul>
         </section>
 
         <!-- carteira -->
@@ -653,9 +665,27 @@
             <b id="rp-mes">R$ 0,00</b>
             <span id="rp-mes-txt">em nenhuma volta</span>
           </div>
+          <dl class="d-numeros" aria-label="Este mês">
+            <div><dt>Voltas</dt><dd id="rp-n-voltas">0</dd></div>
+            <div><dt>Rodados</dt><dd id="rp-n-km">0 km</dd></div>
+            <div><dt>Por volta</dt><dd id="rp-n-media">—</dd></div>
+          </dl>
+          <p class="d-sec">Como o preço é feito</p>
+          <div class="d-tarifa">
+            <p class="d-tarifa-agora" id="rp-tarifa-agora"><span class="t-ponto" aria-hidden="true"></span><span id="rp-tarifa-agora-txt">Agora: bandeira 1</span></p>
+            <dl class="d-tarifa-tab">
+              <div><dt>Saída</dt><dd id="rp-t-saida">R$ 25,00</dd></div>
+              <div><dt>Cada km rodado</dt><dd id="rp-t-km">R$ 3,50</dd></div>
+              <div><dt>Bandeira 2, de 0h às 5h</dt><dd id="rp-t-mad">+20%</dd></div>
+              <div><dt>Espera depois que o Drink chega</dt><dd id="rp-t-espera">10 min grátis</dd></div>
+            </dl>
+            <p class="d-tarifa-ex" id="rp-tarifa-ex"></p>
+          </div>
           <p class="d-sec">Como você paga</p>
           <div class="d-pags">
             <p class="rt-pag on"><svg aria-hidden="true"><use href="#i-pix"/></svg><span><b>Pix na chegada</b><small>Direto para o motorista, pelo app do seu banco</small></span></p>
+            <p class="rt-pag"><svg aria-hidden="true"><use href="#i-estrela"/></svg><span><b>Gorjeta, só se quiser</b><small>Entra no mesmo Pix e vai inteira para o motorista</small></span></p>
+            <button type="button" class="rt-pag rt-pag-ir" data-rp-aba="viagens"><svg aria-hidden="true"><use href="#i-rota"/></svg><span><b>Recibos</b><small>Cada volta fica salva em Viagens, para mandar por e-mail</small></span></button>
           </div>
         </section>
 
@@ -962,6 +992,12 @@
               </div>
             </div>
             <small class="rm-off-sub" id="rm-off-sub">Fica online pra receber pedidos de verdade perto de você. Deixa o app aberto e a tela ligada.</small>
+            <ul class="rm-pronto" id="rm-pronto" data-treino="nao" aria-label="Antes de ficar online">
+              <li data-pronto="gps"><svg aria-hidden="true"><use href="#i-mira"/></svg><span>GPS</span><b id="rm-pronto-gps">…</b></li>
+              <li data-pronto="avisos"><button type="button" data-app="avisos"><svg aria-hidden="true"><use href="#i-sino"/></svg><span>Avisos</span><b id="rm-pronto-avisos" data-avisos-curto>…</b></button></li>
+              <li data-pronto="raio"><svg aria-hidden="true"><use href="#i-pin"/></svg><span>Pedidos até</span><b id="rm-pronto-raio">5 km</b></li>
+              <li data-pronto="bateria" hidden><svg aria-hidden="true"><use href="#i-bat"/></svg><span>Bateria</span><b id="rm-pronto-bat">…</b></li>
+            </ul>
             <ol class="rm-treino-passos" id="rm-treino-passos" data-treino="sim" aria-label="O que você treina" hidden>
               <li>Aceitar o pedido</li><li>Conferir o código</li><li>Vistoria do carro</li><li>Dobrar a bike</li><li>Dirigir até a casa</li><li>Receber pelo Pix</li>
             </ol>
@@ -1445,22 +1481,22 @@
   <p class="vira-txt" id="vira-txt">O Drink é feito para usar na vertical. Nada se perde: se tiver corrida, ela continua rolando.</p>
 </div>
 
-<script src="vendor/maplibre-gl.js?v=30"></script>
-<script src="vendor/leaflet.js?v=30"></script>
-<script src="vendor/qrcode.js?v=30"></script>
-<script src="../app-nucleo.js?v=30"></script>
-<script src="servicos.js?v=30"></script>
-<script src="rede.js?v=30"></script>
-<script src="mapa-estilo.js?v=30"></script>
-<script src="mapa.js?v=30"></script>
-<script src="carros.js?v=30"></script>
-<script src="cadastro-motorista.js?v=30"></script>
-<script src="pix.js?v=30"></script>
-<script src="avisos.js?v=30"></script>
-<script src="sms.js?v=30"></script>
-<script src="eventos.js?v=30"></script>
-<script src="passageiro.js?v=30"></script>
-<script src="motorista.js?v=30"></script>
-<script src="app.js?v=30"></script>
+<script src="vendor/maplibre-gl.js?v=31"></script>
+<script src="vendor/leaflet.js?v=31"></script>
+<script src="vendor/qrcode.js?v=31"></script>
+<script src="../app-nucleo.js?v=31"></script>
+<script src="servicos.js?v=31"></script>
+<script src="rede.js?v=31"></script>
+<script src="mapa-estilo.js?v=31"></script>
+<script src="mapa.js?v=31"></script>
+<script src="carros.js?v=31"></script>
+<script src="cadastro-motorista.js?v=31"></script>
+<script src="pix.js?v=31"></script>
+<script src="avisos.js?v=31"></script>
+<script src="sms.js?v=31"></script>
+<script src="eventos.js?v=31"></script>
+<script src="passageiro.js?v=31"></script>
+<script src="motorista.js?v=31"></script>
+<script src="app.js?v=31"></script>
 </body>
 </html>

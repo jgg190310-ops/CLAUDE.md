@@ -1,0 +1,285 @@
+/* Drink — o ritmo e o celular (v31). Vem depois de tema.css.
+   - uma régua só de espaços, medida na letra base do app (--app-fs), e a mesma margem dos lados (--g) em todas as
+     telas: título, rótulo de seção e cartão começam na mesma linha;
+   - letra de apoio nunca abaixo de 12 px e alvos de toque com 44 px, como pedem o iPhone e o Android;
+   - celular baixo (o Safari com as barras, o Android com a barra de botões, o iPhone SE): as folhas ficam mais
+     enxutas, para o mapa e a rota continuarem aparecendo. */
+
+.app {
+  --e1: calc(var(--app-fs) * .25);
+  --e2: calc(var(--app-fs) * .5);
+  --e3: calc(var(--app-fs) * .75);
+  --e4: var(--app-fs);
+  --e5: calc(var(--app-fs) * 1.5);
+  --e6: calc(var(--app-fs) * 2);
+  --g: calc(var(--app-fs) * 1.25);
+  --toque: 44px;
+}
+
+/* ==========================================================================================================
+   telas cheias (as abas, a busca): tudo na mesma margem e com o mesmo respiro entre as seções
+   ========================================================================================================== */
+.app .rt-cheia > :is(.d-cab, .d-perfil-cab) { padding-left: var(--g); padding-right: var(--g); }
+.app .rt-cheia > .d-cab-aba { padding-top: var(--e5); padding-bottom: var(--e2); }
+.app .rt-cheia > .d-perfil-cab { gap: var(--e4); padding-top: var(--e5); padding-bottom: var(--e2); }
+.app .rt-cheia > .d-sec { margin: var(--e6) var(--g) var(--e3); }
+.app .rt-cheia > :is(.d-cab, .d-perfil-cab, .d-resumo, .ev-lede, .d-saldo, .d-numeros) + .d-sec { margin-top: var(--e5); }
+.app .rt-cheia > :is(.d-resumo, .ev-lede) { margin: 0 var(--g) var(--e4); }
+.app .rt-cheia > :is(.d-hist, .d-saldo, .d-pags, .en-conta, .d-carro, .ev-como, .ev-lista, .d-add, .rt-campos, .d-numeros, .d-tarifa, .d-dicas, .d-recibo-tem) {
+  margin-left: var(--g); margin-right: var(--g);
+}
+.app .rt-cheia > .en-conta { margin-bottom: 0; }
+.app .rt .rt-cheia > .ev-novo, .app .rt-cheia > .ev-novo { margin: var(--e2) var(--g) 0; }
+.app .rt-cheia > .d-lista { margin: 0 calc(var(--g) - .7em); }
+.app .rt-cheia > .rt-linha-bt { margin: var(--e2) var(--g) calc(var(--e5) + var(--base)); }
+.app .rt-cheia.com-abas { padding-bottom: calc(7em + var(--base)); }
+/* o rótulo de seção alinhado com o texto dos cartões (e não com a borda deles) */
+.app .rt-cheia > .d-sec { padding-left: .1em; }
+
+/* ==========================================================================================================
+   folhas por cima do mapa: o mesmo respiro em todas
+   ========================================================================================================== */
+.app .t-folha.rt-folha { gap: var(--e3); padding-left: var(--g); padding-right: var(--g); padding-top: calc(var(--e6) - .1em); }
+.app .rt-folha > .d-titulo + :is(.d-local, .rt-rota, .t-sub, small) { margin-top: calc(var(--e2) * -1); }
+.app .rt-folha > .d-busca { margin-top: var(--e1); }
+.app .d-atalhos { gap: var(--e2); }
+
+/* ==========================================================================================================
+   letra: a de apoio nunca abaixo de 12 px; os rótulos de seção e das abas, nunca abaixo de 11,5 px
+   ========================================================================================================== */
+.app :is(.d-atalhos, .d-lista, .d-hist, .d-pags, .d-carro, .en-conta, .d-opcoes-ajuda, .en-docs, .rp-avise, .en-tema, .t-opcao, .ma-topo, .d-perfil-cab) small:not(.placa *),
+.app :is(.rp-avise small, .t-opcao span, .ev-como span, .d-resumo, .rm-off-sub, .t-sub, .d-local, .rt-rota) {
+  font-size: max(12.5px, .82em);
+}
+.app :is(.d-sec, .en-sec, .t-rot, .rt-rot, .ev-faixa label, .en-rot > span, .rt-pix-valor small, .rm-semana-total small, .ma-linha small, .ma-prev-cab small, .d-saldo small, .ma-ganhos small) {
+  font-size: max(11.5px, .72em);
+}
+.app .d-abas button { font-size: max(11.5px, .74em); }
+.app .d-abas svg { width: 1.5em; height: 1.5em; }
+.app :is(.d-atalhos, .d-lista, .d-hist, .d-pags, .d-carro, .en-conta) b:not(.placa *) { font-size: max(14.5px, .95em); }
+.app .rt-pix-valor small, .app .rt-campo-de em { font-size: max(12.5px, .82em); }
+.app .t-preco small#rp-op-band, .app .t-preco small:not(.rt-ver-conta) { font-size: max(11px, .56em); }
+.app .t-preco small.rt-ver-conta { font-size: max(12px, .62em); }
+.app .mapa-creditos { font-size: 10px; }
+
+/* ==========================================================================================================
+   toque: 44 px no mínimo
+   ========================================================================================================== */
+/* as linhas de embarque, chegada, carro e pagamento: a linha inteira responde ao dedo */
+.app .d-linhas li { position: relative; min-height: var(--toque); padding: 0; }
+.app .d-linhas button { position: static; min-height: var(--toque); padding: 0 0 0 .5em; }
+.app .d-linhas button::before { content: ""; position: absolute; inset: 0; border-radius: .6em; }
+.app .d-linhas button:hover { background: transparent; }
+.app .d-linhas li:hover { background: rgba(255, 255, 255, .03); }
+.app .d-linhas button:focus-visible { outline: 0; }
+.app .d-linhas button:focus-visible::before { outline: 2px solid var(--lima-tx); outline-offset: -2px; }
+/* links que são botões */
+.app .en-link, .app .rp-ver-sim, .app .rp-simular, .app .rm-simular { min-height: var(--toque); display: inline-flex; align-items: center; justify-content: center; }
+.app .rt-folha > :is(.rp-simular, .rp-ver-sim) { align-self: center; margin-top: calc(var(--e2) * -1); margin-bottom: calc(var(--e2) * -1); }
+.app .rt-folha > .rt-cancelar { min-height: var(--toque); }
+/* botões redondos e pequenos */
+.app :is(.d-voltar, .en-menu-bt) { width: var(--toque); height: var(--toque); }
+.app .d-fechar { position: relative; width: 2.4em; height: 2.4em; }
+.app .d-fechar::after { content: ""; position: absolute; inset: -6px; border-radius: 50%; }
+.app .en-tema-ops button { min-height: 40px; font-size: max(13px, .86em); }
+.app .rm-raio button { min-height: 36px; }
+
+/* ==========================================================================================================
+   início do passageiro
+   ========================================================================================================== */
+.app .rp-ver-sim { font-size: max(13px, .84em); }
+.app button.rp-avise { gap: var(--e3); padding: var(--e3) var(--e4); align-items: center; }
+.app .rp-avise span { gap: .15em; }
+
+/* ==========================================================================================================
+   rota e preço: o cartão do Drink mais limpo, a bandeira e a conta numa linha só
+   ========================================================================================================== */
+.app .t-opcao { padding: var(--e3) var(--e4); }
+.app .t-preco { display: grid; justify-items: end; gap: .3em; }
+.app .t-preco small { margin: 0; }
+
+/* ==========================================================================================================
+   perfil: o cartão do carro com a placa ao lado e um lápis no lugar do "editar"
+   ========================================================================================================== */
+.app .d-carro {
+  grid-template-columns: auto minmax(0, 1fr) auto; grid-template-rows: auto auto; align-items: center; gap: .2em var(--e3);
+  padding: var(--e3) var(--e4); text-align: left;
+}
+.app .d-carro > svg { grid-row: 1 / span 2; width: 2.4em; height: 2.4em; padding: .45em; border-radius: 50%; background: rgba(210, 255, 60, .12); }
+.app .d-carro > span { grid-column: 2; grid-row: 1 / span 2; display: grid; gap: .25em; min-width: 0; }
+.app .d-carro #rp-carro-placa-mini:empty { display: none; }
+.app .d-carro #rp-carro-placa-mini { margin-top: .2em; }
+.app .d-carro > em {
+  grid-column: 3; grid-row: 1 / span 2; display: inline-flex; align-items: center; gap: .3em; padding: .4em .7em;
+  font-size: max(12px, .76em); border-radius: 999px;
+}
+.app .d-carro > em::before {
+  content: ""; width: 1em; height: 1em; background: currentColor;
+  -webkit-mask: var(--lapis) center / contain no-repeat; mask: var(--lapis) center / contain no-repeat;
+}
+.app {
+  --lapis: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16v4z'/%3E%3Cpath d='M13.5 6.5l4 4'/%3E%3C/svg%3E");
+}
+
+/* ==========================================================================================================
+   eventos: o número de cada passo alinhado com o título dele
+   ========================================================================================================== */
+.app .ev-como { gap: var(--e4); }
+.app .ev-como li { column-gap: var(--e3); align-items: start; }
+.app .ev-como li::before { align-self: start; margin-top: -.1em; }
+.app .ev-como b { display: block; margin-bottom: .2em; }
+
+/* ==========================================================================================================
+   motorista offline: respiro entre a barra de cima e os ganhos
+   ========================================================================================================== */
+.app .rm-off .ma-ganhos { top: calc(var(--topo) + 6.6em); }
+.app .rm-off-topo { padding: .6em .6em .6em .65em; }
+
+/* ==========================================================================================================
+   celular baixo: as folhas mais enxutas para o mapa continuar aparecendo
+   (o .app é um contêiner do tamanho da tela, então a regra vale pela altura de verdade que sobra para o app)
+   ========================================================================================================== */
+@container (max-height: 760px) {
+  .app .t-folha.rt-folha { gap: var(--e2); padding-top: calc(var(--e5) + .1em); padding-bottom: var(--e4); }
+  .app .rt-folha > .d-titulo { font-size: 1.75em; }
+  .app .d-ola { font-size: 2.05em; }
+  .app .rt-folha > .d-titulo + :is(.d-local, .rt-rota, .t-sub, small) { margin-top: calc(var(--e1) * -1); }
+  .app .d-busca { height: 3.25em; }
+  .app .d-atalhos button { padding: .55em .65em; }
+  .app :is(.d-atalhos, .d-lista) svg { width: 2.05em; height: 2.05em; padding: .45em; }
+  .app button.rp-avise { padding: var(--e2) var(--e3); }
+  .app .rp-avise small { display: none; }
+  .app .t-opcao { padding: var(--e2) var(--e3); }
+  .app .t-opcao-ic { width: 2.2em; height: 2.2em; }
+  .app .d-linhas li { min-height: 40px; }
+  .app .d-linhas button { min-height: 40px; }
+  .app .rt-folha .t-botao { height: 3.15em; }
+  .app .t-fim .t-titulo { font-size: 2em; }
+  .app .rm-off-cab .d-titulo { font-size: 1.7em; }
+  .app .rm-off-cab .ma-status { width: 2.6em; height: 2.6em; }
+  .app .rm-go { width: 5.4em; height: 5.4em; margin-bottom: .8em; }
+  .app .rt[data-rt="inicio"] > .rt-folha { margin-bottom: calc(5.3em + var(--base)); }
+  .app .d-abas { padding-top: .25em; padding-bottom: .3em; }
+}
+@container (max-height: 620px) {
+  .app .rt-folha > .d-titulo { font-size: 1.5em; }
+  .app .d-ola { font-size: 1.75em; }
+  .app :is(.d-atalhos) small { display: none; }
+  .app .d-atalhos button { padding: .45em .6em; }
+  .app .d-linhas li, .app .d-linhas button { min-height: 36px; }
+  .app .d-linhas li { font-size: .8em; }
+  .app .rt-folha .t-botao { height: 2.95em; }
+  .app .rt-folha > .rt-rota { display: none; }
+  .app .rm-off-sub { display: none; }
+}
+
+/* ==========================================================================================================
+   detalhes (v31): números do mês, a tabela do preço, dicas da busca, o que fica no recibo e o motorista pronto
+   ========================================================================================================== */
+/* carteira: três números do mês, embaixo do cartão azul */
+.app .d-numeros {
+  flex: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: var(--e3); margin-bottom: 0;
+  border-radius: var(--r-g); background: var(--a-card); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .05);
+}
+.app .d-numeros > div { display: grid; gap: .2em; padding: var(--e3) var(--e4); min-width: 0; }
+.app .d-numeros > div + div { border-left: 1px solid rgba(255, 255, 255, .06); }
+.app .d-numeros dt { font-size: max(11.5px, .72em); font-weight: 600; letter-spacing: .04em; color: var(--a-texto-3); }
+.app .d-numeros dd {
+  margin: 0; overflow: hidden; font-size: 1.15em; font-weight: 660; letter-spacing: -.02em; white-space: nowrap; text-overflow: ellipsis;
+  font-variant-numeric: tabular-nums;
+}
+
+/* carteira: a tabela do preço */
+.app .d-tarifa {
+  flex: none; display: grid; gap: var(--e3); padding: var(--e4); border-radius: var(--r-g);
+  background: var(--a-card); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .05);
+}
+.app .d-tarifa-agora {
+  display: inline-flex; align-items: center; gap: .55em; justify-self: start; margin: 0; padding: .4em .8em .4em .6em; border-radius: 999px;
+  background: rgba(210, 255, 60, .1); color: var(--lima-tx); font-size: max(12.5px, .8em); font-weight: 600;
+}
+.app .d-tarifa-agora .t-ponto { width: .55em; height: .55em; border-radius: 50%; background: var(--lima); box-shadow: 0 0 0 .2em rgba(210, 255, 60, .2); }
+.app .d-tarifa-agora.b2 { background: rgba(255, 138, 76, .14); color: #FFB48C; }
+.app .d-tarifa-agora.b2 .t-ponto { background: #FF8A4C; box-shadow: 0 0 0 .2em rgba(255, 138, 76, .22); }
+.app .d-tarifa-tab { display: grid; margin: 0; }
+.app .d-tarifa-tab > div { display: flex; justify-content: space-between; align-items: baseline; gap: var(--e3); padding: .6em 0; border-top: 1px solid rgba(255, 255, 255, .06); }
+.app .d-tarifa-tab > div:first-child { border-top: 0; padding-top: 0; }
+.app .d-tarifa-tab dt { font-size: .88em; color: var(--a-texto-2); }
+.app .d-tarifa-tab dd { margin: 0; font-size: .92em; font-weight: 620; text-align: right; font-variant-numeric: tabular-nums; }
+.app .d-tarifa-ex {
+  margin: 0; padding: .7em .85em; border-radius: var(--r-m); background: var(--a-card-2);
+  font-size: max(12.5px, .82em); line-height: 1.45; color: var(--a-texto-2);
+}
+.app .d-tarifa-ex:empty { display: none; }
+.app .rt-pag + .rt-pag { margin-top: 0; }
+.app .d-pags { gap: var(--e2); }
+.app .rt-pag-ir { width: 100%; text-align: left; font: inherit; color: inherit; cursor: pointer; border: 1px solid rgba(255, 255, 255, .06); }
+.app .rt-pag-ir::after { content: "›"; margin-left: auto; padding-left: .5em; font-size: 1.3em; color: var(--a-texto-3); }
+.app .rt-pag-ir:hover { background: var(--a-card-2); }
+.app .rt-pag:not(.on) svg { stroke: var(--luz-2); }
+
+/* busca: dicas do que dá para digitar */
+.app .d-dicas { flex: none; display: grid; gap: 0; margin-top: 0; margin-bottom: 0; padding: 0; list-style: none; border-radius: var(--r-g); background: var(--a-card); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .05); }
+.app .d-dicas[hidden] { display: none; }
+.app .d-dicas li { display: flex; align-items: center; gap: var(--e3); padding: var(--e3) var(--e4); }
+.app .d-dicas li + li { border-top: 1px solid rgba(255, 255, 255, .06); }
+.app .d-dicas svg { flex: none; width: 2.05em; height: 2.05em; padding: .45em; border-radius: 50%; background: var(--a-card-2); fill: none; stroke: var(--luz-2); stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+.app .d-dicas b { display: block; font-size: max(14px, .9em); font-weight: 600; }
+.app .d-dicas small { display: block; font-size: max(12.5px, .8em); color: var(--a-texto-2); }
+
+/* viagens: o que fica salvo em cada volta (só enquanto não tem nenhuma) */
+.app .d-recibo-tem { flex: none; display: grid; gap: var(--e4); margin-top: 0; margin-bottom: 0; padding: 0 .1em; list-style: none; }
+.app .d-recibo-tem[hidden], .app .d-sec[hidden] { display: none; }
+.app .d-recibo-tem li { display: flex; align-items: flex-start; gap: var(--e3); }
+.app .d-recibo-tem svg { flex: none; width: 2.1em; height: 2.1em; padding: .48em; border-radius: 50%; background: rgba(210, 255, 60, .1); fill: none; stroke: var(--lima-tx); stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+.app .d-recibo-tem b { display: block; font-size: max(14px, .9em); font-weight: 600; }
+.app .d-recibo-tem small { display: block; margin-top: .1em; font-size: max(12.5px, .8em); line-height: 1.45; color: var(--a-texto-2); }
+.app .d-hist-vazio { padding: var(--e5) var(--e4); }
+
+/* motorista offline: GPS, avisos, raio e bateria, cada um num quadrinho */
+.app .rm-pronto { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--e2); margin: var(--e1) 0 0; padding: 0; list-style: none; }
+.app .rm-pronto[hidden], .app .rm-pronto li[hidden] { display: none; }
+.app .rm-pronto li, .app .rm-pronto button {
+  position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-rows: auto auto; align-items: center; column-gap: .5em; row-gap: .05em;
+  min-width: 0; padding: .6em .7em; border-radius: var(--r-m); background: var(--a-card); text-align: left;
+}
+.app .rm-pronto button { width: 100%; min-height: 100%; margin: 0; border: 0; padding: .6em .7em; font: inherit; color: inherit; cursor: pointer; }
+.app .rm-pronto li:has(> button) { padding: 0; }
+.app .rm-pronto svg { grid-row: 1 / span 2; width: 1.25em; height: 1.25em; fill: none; stroke: var(--luz-2); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.app .rm-pronto span { font-size: max(11.5px, .72em); font-weight: 600; color: var(--a-texto-3); }
+.app .rm-pronto b { overflow: hidden; font-size: max(12.5px, .84em); font-weight: 620; white-space: nowrap; text-overflow: ellipsis; }
+.app .rm-pronto li::after {
+  content: ""; position: absolute; top: .55em; right: .55em; width: .45em; height: .45em; border-radius: 50%; background: transparent;
+}
+.app .rm-pronto li[data-ok="sim"]::after { background: var(--lima); }
+.app .rm-pronto li[data-ok="nao"]::after { background: #FF8A4C; }
+.app .rm-pronto li[data-ok="nao"] b { color: #FFB48C; }
+.app .rm-pronto li[data-pronto="raio"]::after { display: none; }
+
+/* no claro */
+html[data-tema="claro"] .app :is(.d-numeros, .d-tarifa, .d-dicas) { box-shadow: inset 0 0 0 1px var(--a-linha); }
+html[data-tema="claro"] .app .d-numeros > div + div,
+html[data-tema="claro"] .app .d-tarifa-tab > div,
+html[data-tema="claro"] .app .d-dicas li + li { border-color: var(--a-linha); }
+html[data-tema="claro"] .app .d-tarifa-agora { background: rgba(130, 190, 0, .16); color: #2F4F00; }
+html[data-tema="claro"] .app .d-tarifa-agora.b2 { background: rgba(255, 107, 44, .12); color: #8A3200; }
+html[data-tema="claro"] .app .d-recibo-tem svg { background: #0E0D12; stroke: #D2FF3C; }
+html[data-tema="claro"] .app .rm-pronto :is(li, button) { box-shadow: inset 0 0 0 1px var(--a-linha); }
+html[data-tema="claro"] .app .rm-pronto li:has(> button) { box-shadow: none; }
+html[data-tema="claro"] .app .rm-pronto li[data-ok="sim"]::after { background: #4E7A00; }
+html[data-tema="claro"] .app .rm-pronto li[data-ok="nao"] b { color: #8A3200; }
+html[data-tema="claro"] .app .rt-pag-ir { border-color: var(--a-linha); }
+html[data-tema="claro"] .app .d-carro > svg { background: #0E0D12; stroke: #D2FF3C; }
+
+@container (max-height: 760px) {
+  .app .rm-pronto li, .app .rm-pronto button { padding: .45em .6em; }
+  .app .rm-pronto li:has(> button) { padding: 0; }
+}
+html[data-tema="claro"] .app .ev-como li::before { background: #FFFFFF; box-shadow: inset 0 0 0 1px var(--a-linha); }
+/* nas abas a página inteira rola: a lista de voltas não encolhe nem corta o cartão de quem ainda não tem volta */
+.app .rt-cheia.com-abas > .d-hist { flex: none; overflow: visible; }
+/* o resto da letra miúda: o cartão de dinheiro, o cabeçalho das folhas e o menu do motorista */
+.app :is(.d-saldo, .ma-ganhos) span, .app .rm-ganhos-ver { font-size: max(12.5px, .8em); }
+.app .d-sobre-cab small { font-size: max(12.5px, .8em); }
+.app .en-menu-ganhos small { font-size: max(11.5px, .7em); }
+.app .d-hist .d-hist-vazio button { min-height: var(--toque); }

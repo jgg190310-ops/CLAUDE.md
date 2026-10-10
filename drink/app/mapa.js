@@ -64,6 +64,19 @@
     return { lat: p.lat + a * 0.004, lon: p.lon + b * 0.004, veic: p.veic };
   }
 
+  // quanto do mapa fica escondido embaixo: um número, uma função ou a própria folha
+  function cobre(el, x) {
+    if (typeof x === 'function') return x;
+    if (x && x.getBoundingClientRect) {
+      return () => {
+        const f = x.getBoundingClientRect();
+        if (!f.height) return 0;
+        return Math.max(0, el.getBoundingClientRect().bottom - f.top);
+      };
+    }
+    return () => x;
+  }
+
   // a última vista que o app pediu (enquadrar ou centrar), para refazer quando o mapa muda de formato: o celular
   // deitou e voltou em pé, a janela mudou muito. Sem isso, o motorista e o destino ficam fora da tela. Se a
   // pessoa mexeu no mapa com o dedo, a vista passa a ser dela e fica como está.
@@ -217,7 +230,12 @@
       mapa.addLayer({ id: 'precisao-borda', type: 'line', source: 'precisao', paint: { 'line-color': '#8D97FF', 'line-opacity': 0.5, 'line-width': 1 } }, antes);
     }
 
-    const pitch = () => (inclinar ? INCLINACAO : 0);
+    // inclinado em 3D; mas se sobra pouco mapa acima da folha (celular baixo), fica mais deitado para a rota caber
+    const pitch = () => {
+      if (!inclinar) return 0;
+      const livre = (el.clientHeight || 600) - folga();
+      return livre < 260 ? 18 : livre < 360 ? 32 : INCLINACAO;
+    };
     function centrarAgora(p, z) {
       mapa.easeTo({ center: [p.lon, p.lat], zoom: zGL(z), pitch: pitch(), offset: [0, -folga() / 2], duration: duracao() });
     }
@@ -225,7 +243,8 @@
     const api = {
       mapa,
       // quanto a folha de baixo cobre do mapa: um número ou uma função que mede na hora
-      folga(x) { medirFolga = typeof x === 'function' ? x : () => x; },
+      // (uma folha: mede do topo dela até o pé do mapa, e assim conta também a margem da folha solta e a barra de abas)
+      folga(x) { medirFolga = cobre(el, x); },
       aoMover(fn) { mapa.on('moveend', fn); },
       ponto(nome, p, icone) {
         if (!p) { api.tirar(nome); return; }
@@ -370,7 +389,8 @@
 
     const api = {
       mapa,
-      folga(x) { medirFolga = typeof x === 'function' ? x : () => x; },
+      // (uma folha: mede do topo dela até o pé do mapa, e assim conta também a margem da folha solta e a barra de abas)
+      folga(x) { medirFolga = cobre(el, x); },
       aoMover(fn) { mapa.on('moveend', fn); },
       ponto(nome, p, ic) {
         if (!p) { api.tirar(nome); return; }
