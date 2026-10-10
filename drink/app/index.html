@@ -73,13 +73,14 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&display=swap">
-  <link rel="stylesheet" href="../app-telas.css?v=31">
-  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=31">
-  <link rel="stylesheet" href="vendor/leaflet.css?v=31">
-  <link rel="stylesheet" href="app.css?v=31">
-  <link rel="stylesheet" href="visual.css?v=31">
-  <link rel="stylesheet" href="tema.css?v=31">
-  <link rel="stylesheet" href="ritmo.css?v=31">
+  <link rel="stylesheet" href="../app-telas.css?v=32">
+  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=32">
+  <link rel="stylesheet" href="vendor/leaflet.css?v=32">
+  <link rel="stylesheet" href="app.css?v=32">
+  <link rel="stylesheet" href="visual.css?v=32">
+  <link rel="stylesheet" href="tema.css?v=32">
+  <link rel="stylesheet" href="ritmo.css?v=32">
+  <link rel="stylesheet" href="perfil.css?v=32">
 </head>
 <body>
 <svg class="sprite" aria-hidden="true" focusable="false">
@@ -397,6 +398,11 @@
             <button type="button" role="radio" aria-checked="true" data-veiculo="bike"><svg aria-hidden="true"><use href="#i-bike"/></svg><b>Bike elétrica</b><small>dobrável · até 18 kg</small></button>
             <button type="button" role="radio" aria-checked="false" data-veiculo="patinete"><svg aria-hidden="true"><use href="#i-patinete"/></svg><b>Patinete elétrico</b><small>dobrável · até 15 kg</small></button>
           </div>
+          <button type="button" class="en-veic-det" data-app="veiculo" data-veic-de="cadastro">
+            <span class="en-veic-amostra" data-veic-amostra aria-hidden="true"><svg><use href="#i-bike"/></svg></span>
+            <span><b data-veic-titulo>Marca, modelo e cor</b><small data-veic-sub>Opcional · ajuda o passageiro a reconhecer você chegando</small></span>
+            <svg class="en-treino-seta" aria-hidden="true"><use href="#i-seta"/></svg>
+          </button>
           <p class="en-sec">2 · O seu rosto</p>
           <label class="en-selfie" id="en-selfie">
             <input type="file" accept="image/*" capture="user" id="en-selfie-in" aria-describedby="en-selfie-sub">
@@ -516,6 +522,12 @@
             <h3 class="d-titulo" id="rp-bu-t" tabindex="-1">Procurando um Drink</h3>
             <p class="t-sub" id="rp-bu-sub">O pedido foi para os Drinks online por perto.</p>
             <div class="ma-barra rt-prazo" aria-hidden="true"><span id="rp-prazo"></span></div>
+            <dl class="rp-bu-resumo" aria-label="O seu pedido">
+              <div><dt><span class="t-bol" aria-hidden="true"></span>De</dt><dd id="rp-bu-de">—</dd></div>
+              <div><dt><span class="t-bol t-bol-fim" aria-hidden="true"></span>Para</dt><dd id="rp-bu-para">—</dd></div>
+              <div><dt>Seu carro</dt><dd id="rp-bu-carro">—</dd></div>
+              <div><dt>Valor</dt><dd id="rp-bu-valor">—</dd></div>
+            </dl>
           </div>
           <button type="button" class="t-bt d-baixo" data-rp="cancelar">Cancelar pedido</button>
         </section>
@@ -539,11 +551,12 @@
           <div class="rt-topo"><p class="t-chip rt-chip" id="rp-eta" aria-live="polite">Chega em <b>alguns minutos</b></p></div>
           <div class="t-folha rt-folha">
             <h3 class="d-titulo" id="rp-cam-t" tabindex="-1">O Drink está a caminho</h3>
-            <div class="t-mot">
+            <button type="button" class="t-mot rp-mot-bt" data-rp-folha="rp-mot" aria-describedby="rp-mot-dica">
               <span class="t-av" id="rp-mot-av">DR</span>
-              <div><b id="rp-mot-nome">Motorista</b><span><svg class="t-estrela" aria-hidden="true"><use href="#i-estrela"/></svg><span id="rp-mot-info">novo no Drink</span></span></div>
-              <span class="t-veic" aria-hidden="true"><svg><use id="rp-mot-veic" href="#i-bike"/></svg></span>
-            </div>
+              <span class="rp-mot-txt"><b id="rp-mot-nome">Motorista</b><span class="rp-mot-nota"><svg class="t-estrela" aria-hidden="true"><use href="#i-estrela"/></svg><span id="rp-mot-info">novo no Drink</span></span></span>
+              <span class="rp-mot-veic" id="rp-mot-veic-box"><span class="t-veic" aria-hidden="true"><svg><use id="rp-mot-veic" href="#i-bike"/></svg></span><span class="rp-mot-veic-txt"><b id="rp-mot-veic-nome">Bike elétrica</b><small id="rp-mot-veic-sub">dobrável</small></span></span>
+              <span class="sr" id="rp-mot-dica">Toque para ver o perfil do motorista</span>
+            </button>
             <div class="d-codigo">
               <span><small>Código de segurança</small><b id="rp-codigo">0 0 0 0</b></span>
               <p id="rp-codigo-txt">Fala esse código pro motorista. Ele digita no app e o seu celular confere se é ele mesmo.</p>
@@ -589,10 +602,11 @@
               <div class="t-dir"><p class="t-rot">Faltam</p><p class="t-medio" id="rp-faltam">--</p></div>
             </div>
             <p class="d-rua"><svg aria-hidden="true"><use href="#i-rota"/></svg><span>para <b id="rp-via-dest">o destino</b></span></p>
-            <div class="t-mot">
+            <button type="button" class="t-mot rp-mot-bt" data-rp-folha="rp-mot" aria-describedby="rp-mot-dica2">
               <span class="t-av" id="rp-via-av">DR</span>
-              <div><b><span id="rp-via-nome">O Drink</span> está dirigindo</b><span>o seu carro, com <span id="rp-via-veic">a bike</span> no porta-malas</span></div>
-            </div>
+              <span class="rp-mot-txt"><b><span id="rp-via-nome">O Drink</span> está dirigindo</b><span>o seu carro, com <span id="rp-via-veic">a bike</span> no porta-malas</span></span>
+              <span class="sr" id="rp-mot-dica2">Toque para ver o perfil do motorista</span>
+            </button>
             <div class="t-acoes">
               <button type="button" class="t-bt" data-rp="compartilhar"><svg aria-hidden="true"><use href="#i-compartilhar"/></svg>Compartilhar</button>
               <button type="button" class="t-bt" data-rp-folha="rp-ajuda"><svg aria-hidden="true"><use href="#i-ajuda"/></svg>Ajuda</button>
@@ -609,6 +623,7 @@
           </div>
           <div class="t-recibo" id="rp-recibo"></div>
           <div class="d-avaliar">
+            <span class="t-av rp-aval-av" id="rp-aval-av" aria-hidden="true">DR</span>
             <p id="rp-aval-t">Como foi a corrida?</p>
             <div class="d-estrelas" id="rp-estrelas" role="radiogroup" aria-label="Nota para o motorista">
               <button type="button" role="radio" aria-checked="false" data-nota="1" aria-label="1 estrela"><svg aria-hidden="true"><use href="#i-estrela"/></svg></button>
@@ -619,7 +634,8 @@
             </div>
           </div>
           <div class="d-tags" id="rp-tags" hidden></div>
-          <div class="d-gorjeta" id="rp-gorjeta" role="radiogroup" aria-label="Gorjeta">
+          <p class="rp-gorjeta-t" id="rp-gorjeta-t">Gorjeta, se quiser · vai inteira para o motorista</p>
+          <div class="d-gorjeta" id="rp-gorjeta" role="radiogroup" aria-labelledby="rp-gorjeta-t">
             <button type="button" role="radio" aria-checked="true" data-gorjeta="0">Sem gorjeta</button>
             <button type="button" role="radio" aria-checked="false" data-gorjeta="5">R$ 5</button>
             <button type="button" role="radio" aria-checked="false" data-gorjeta="10">R$ 10</button>
@@ -909,6 +925,30 @@
             <p class="en-erro" id="rp-carro-erro" role="alert" hidden></p>
             <button type="submit" class="t-botao">Salvar o carro</button>
           </form>
+        </section>
+
+        <section class="d-sobre rp-mot-perfil" id="rp-mot" aria-labelledby="rp-mot-t" hidden>
+          <button type="button" class="d-fechar rp-mot-fechar" data-rp-fechar aria-label="Fechar"><svg aria-hidden="true"><use href="#i-fechar"/></svg></button>
+          <div class="rp-mot-topo">
+            <span class="t-av rp-mot-foto" id="rp-mot-foto">DR</span>
+            <h4 id="rp-mot-t" tabindex="-1">Motorista</h4>
+            <p class="rp-mot-desde" id="rp-mot-desde"></p>
+          </div>
+          <dl class="rp-mot-numeros">
+            <div><dt>Nota</dt><dd id="rp-mot-nota">—</dd></div>
+            <div><dt>Corridas</dt><dd id="rp-mot-corridas">0</dd></div>
+            <div><dt>No Drink</dt><dd id="rp-mot-tempo">novo</dd></div>
+          </dl>
+          <p class="d-sec rp-mot-sec">Chega com</p>
+          <div class="rp-mot-veiculo">
+            <span class="en-veic-amostra" id="rp-mot-amostra" aria-hidden="true"><svg><use id="rp-mot-amostra-ic" href="#i-bike"/></svg></span>
+            <span><b id="rp-mot-veic-t">Bike elétrica</b><small id="rp-mot-veic-s">dobrável, vai no seu porta-malas</small></span>
+          </div>
+          <p class="d-sec rp-mot-sec" id="rp-mot-elogios-t" hidden>O que os passageiros elogiaram</p>
+          <ul class="rp-mot-elogios" id="rp-mot-elogios" hidden></ul>
+          <p class="d-sec rp-mot-sec">O que o cadastro pediu</p>
+          <ul class="rp-mot-docs" id="rp-mot-docs"></ul>
+          <p class="rp-mot-nota-rodape" id="rp-mot-rodape">Antes de entregar a chave, confere o código de segurança: é ele que mostra que é o Drink certo.</p>
         </section>
 
         <section class="d-sobre" id="rp-preco" aria-labelledby="rp-preco-t" hidden>
@@ -1270,6 +1310,7 @@
         </div>
         <div class="en-menu-ganhos"><small>Ganhos de hoje</small><b data-en-ganhos>R$ 0,00</b><span data-en-viagens>0 viagens</span></div>
         <ul class="en-conta">
+          <li><button type="button" data-app="veiculo" data-veic-de="menu"><svg aria-hidden="true"><use href="#i-bike"/></svg><span><b>Seu veículo</b><small data-veic-menu>Marca, modelo e cor</small></span></button></li>
           <li><button type="button" data-app="trocar-veiculo"><svg aria-hidden="true"><use href="#i-trocar"/></svg><span><b id="en-veic-t">Trocar para patinete</b><small id="en-veic-sub">Hoje você chega de bike elétrica</small></span></button></li>
           <li><button type="button" data-app="editar-pix"><svg aria-hidden="true"><use href="#i-pix"/></svg><span><b>Chave Pix</b><small id="en-pix-atual">Onde você recebe</small></span></button></li>
           <li><button type="button" data-app="avisos"><svg aria-hidden="true"><use href="#i-sino"/></svg><span><b>Avisos no celular</b><small data-avisos>Toca para ligar</small></span></button></li>
@@ -1336,6 +1377,25 @@
           <h5>Seus direitos</h5>
           <p>Você vê e corrige os seus dados no próprio app. Em "Apagar minha conta", o app apaga a conta e tudo o que ela guardou neste aparelho. O que passou pelo ntfy estava cifrado e some sozinho em poucas horas.</p>
         </div>
+      </section>
+
+      <section class="d-sobre" id="en-veiculo" aria-labelledby="en-veiculo-t" hidden>
+        <div class="d-sobre-cab">
+          <span class="d-sobre-ic" aria-hidden="true"><svg><use id="en-veiculo-ic" href="#i-bike"/></svg></span>
+          <div><h4 id="en-veiculo-t" tabindex="-1">Sua bike</h4><small>É o que o passageiro vê quando você aceita a corrida</small></div>
+          <button type="button" class="d-fechar" data-app="fechar" aria-label="Fechar"><svg aria-hidden="true"><use href="#i-fechar"/></svg></button>
+        </div>
+        <form class="en-dados-form" id="en-veiculo-form" novalidate>
+          <div class="en-veic-tipos" role="radiogroup" aria-label="Qual veículo">
+            <button type="button" role="radio" aria-checked="true" data-veic-tipo="bike"><svg aria-hidden="true"><use href="#i-bike"/></svg>Bike</button>
+            <button type="button" role="radio" aria-checked="false" data-veic-tipo="patinete"><svg aria-hidden="true"><use href="#i-patinete"/></svg>Patinete</button>
+          </div>
+          <label class="en-campo en-rot"><span>Marca e modelo</span><input id="en-veiculo-modelo" autocomplete="off" autocapitalize="words" spellcheck="false" maxlength="40" placeholder="Caloi E-Vibe, Xiaomi M365…"></label>
+          <div class="en-veic-cores-cab"><span id="en-veiculo-cor-t">Cor</span><b id="en-veiculo-cor-nome"></b></div>
+          <div class="en-veic-cores" id="en-veiculo-cores" role="radiogroup" aria-labelledby="en-veiculo-cor-t"></div>
+          <div class="en-veic-ver" aria-hidden="true"><span class="en-veic-amostra" id="en-veiculo-amostra"><svg><use href="#i-bike"/></svg></span><span><small>O passageiro vê assim</small><b id="en-veiculo-previa">Bike elétrica</b></span></div>
+          <button type="submit" class="t-botao">Salvar</button>
+        </form>
       </section>
 
       <section class="d-sobre" id="en-dados" aria-labelledby="en-dados-t" hidden>
@@ -1481,22 +1541,23 @@
   <p class="vira-txt" id="vira-txt">O Drink é feito para usar na vertical. Nada se perde: se tiver corrida, ela continua rolando.</p>
 </div>
 
-<script src="vendor/maplibre-gl.js?v=31"></script>
-<script src="vendor/leaflet.js?v=31"></script>
-<script src="vendor/qrcode.js?v=31"></script>
-<script src="../app-nucleo.js?v=31"></script>
-<script src="servicos.js?v=31"></script>
-<script src="rede.js?v=31"></script>
-<script src="mapa-estilo.js?v=31"></script>
-<script src="mapa.js?v=31"></script>
-<script src="carros.js?v=31"></script>
-<script src="cadastro-motorista.js?v=31"></script>
-<script src="pix.js?v=31"></script>
-<script src="avisos.js?v=31"></script>
-<script src="sms.js?v=31"></script>
-<script src="eventos.js?v=31"></script>
-<script src="passageiro.js?v=31"></script>
-<script src="motorista.js?v=31"></script>
-<script src="app.js?v=31"></script>
+<script src="vendor/maplibre-gl.js?v=32"></script>
+<script src="vendor/leaflet.js?v=32"></script>
+<script src="vendor/qrcode.js?v=32"></script>
+<script src="../app-nucleo.js?v=32"></script>
+<script src="servicos.js?v=32"></script>
+<script src="rede.js?v=32"></script>
+<script src="mapa-estilo.js?v=32"></script>
+<script src="mapa.js?v=32"></script>
+<script src="carros.js?v=32"></script>
+<script src="cadastro-motorista.js?v=32"></script>
+<script src="perfil.js?v=32"></script>
+<script src="pix.js?v=32"></script>
+<script src="avisos.js?v=32"></script>
+<script src="sms.js?v=32"></script>
+<script src="eventos.js?v=32"></script>
+<script src="passageiro.js?v=32"></script>
+<script src="motorista.js?v=32"></script>
+<script src="app.js?v=32"></script>
 </body>
 </html>

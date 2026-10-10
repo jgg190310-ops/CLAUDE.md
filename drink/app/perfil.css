@@ -1,0 +1,187 @@
+/* Drink — o motorista e o veículo dele (v32). Vem depois de ritmo.css.
+   - o cartão do motorista a caminho: a foto, a nota e as corridas, e a bike ou o patinete com a cor de verdade;
+   - o perfil que abre ao tocar na foto, como nos apps de corrida;
+   - a folha em que o motorista conta a marca, o modelo e a cor;
+   - a chegada: a foto de quem dirigiu e estrelas grandes. */
+
+/* ---------- a amostra do veículo: o ícone na cor que o motorista escolheu ---------- */
+.app .en-veic-amostra {
+  position: relative; flex: none; display: grid; place-items: center; width: 2.6em; height: 2.6em; border-radius: 50%;
+  background: var(--a-card-2);
+}
+.app .en-veic-amostra svg { width: 1.45em; height: 1.45em; fill: none; stroke: var(--lima-tx); stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+.app .en-veic-amostra.com-cor::after {
+  content: ""; position: absolute; right: -.08em; bottom: -.08em; width: .95em; height: .95em; border-radius: 50%;
+  background: var(--veic); box-shadow: 0 0 0 .18em var(--a-folha), inset 0 0 0 1px rgba(255, 255, 255, .25);
+}
+
+/* ---------- cadastro: a linha "marca, modelo e cor" ---------- */
+.app .en-veic-det {
+  flex: none; display: flex; align-items: center; gap: var(--e3); width: 100%; margin-top: calc(var(--e2) * -1); padding: .7em .85em;
+  border: 1px dashed var(--a-linha); border-radius: var(--r-m); background: transparent; color: var(--luz); font: inherit; text-align: left; cursor: pointer;
+}
+.app .en-veic-det b { display: block; font-size: max(14px, .9em); font-weight: 600; }
+.app .en-veic-det small { display: block; font-size: max(12.5px, .78em); color: var(--a-texto-2); }
+.app .en-veic-det .en-treino-seta { margin-left: auto; }
+.app .en-veic-det:hover { background: var(--a-card); }
+
+/* ---------- a folha do veículo ---------- */
+.app .en-veic-tipos { display: grid; grid-template-columns: 1fr 1fr; gap: .25em; padding: .25em; border-radius: var(--r-m); background: var(--a-card-2); }
+.app .en-veic-tipos button {
+  display: flex; align-items: center; justify-content: center; gap: .5em; min-height: 44px; border: 0; border-radius: calc(var(--r-m) - .2em);
+  background: transparent; color: var(--a-texto-2); font: inherit; font-weight: 600; cursor: pointer;
+}
+.app .en-veic-tipos svg { width: 1.3em; height: 1.3em; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+.app .en-veic-tipos [aria-checked="true"] { background: var(--luz); color: var(--a-bg); box-shadow: 0 1px 3px rgba(0, 0, 0, .3); }
+.app .en-veic-cores-cab { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: -.3em; font-size: max(12.5px, .8em); }
+.app .en-veic-cores-cab span { font-weight: 600; color: var(--a-texto-2); }
+.app .en-veic-cores-cab b { font-weight: 600; color: var(--luz); }
+.app .en-veic-cores { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: .55em; }
+.app .en-veic-cores button { display: grid; place-items: center; min-height: 44px; padding: 0; border: 0; background: none; cursor: pointer; }
+.app .en-veic-cores i {
+  display: block; width: 2.3em; height: 2.3em; border-radius: 50%; background: var(--cor);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .2); transition: box-shadow .15s;
+}
+.app .en-veic-cores [aria-checked="true"] i { box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .2), 0 0 0 .2em var(--a-folha), 0 0 0 .38em var(--lima-tx); }
+.app .en-veic-cores button:focus-visible { outline: none; }
+.app .en-veic-cores button:focus-visible i { box-shadow: 0 0 0 .2em var(--a-folha), 0 0 0 .38em var(--luz); }
+.app .en-veic-ver { display: flex; align-items: center; gap: var(--e3); padding: .7em .85em; border-radius: var(--r-m); background: var(--a-card); }
+.app .en-veic-ver small { display: block; font-size: max(12px, .74em); color: var(--a-texto-3); }
+.app .en-veic-ver b { display: block; font-weight: 600; }
+
+/* ---------- o cartão do motorista a caminho ---------- */
+.app button.t-mot.rp-mot-bt {
+  position: relative; width: 100%; grid-template-columns: auto minmax(0, 1fr); grid-template-rows: auto auto; column-gap: var(--e3); row-gap: var(--e2);
+  margin: 0; padding: var(--e3); border: 0; border-radius: var(--r-g); background: var(--a-card); color: inherit; font: inherit; text-align: left; cursor: pointer;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .05);
+}
+.app button.t-mot.rp-mot-bt:hover { background: var(--a-card-2); }
+.app .rp-mot-bt::after {
+  content: ""; position: absolute; top: calc(var(--e3) + .95em); right: var(--e3); width: .5em; height: .5em;
+  border-top: 2px solid var(--a-texto-3); border-right: 2px solid var(--a-texto-3); transform: translateY(-50%) rotate(45deg);
+}
+.app .rp-mot-bt .t-av { position: relative; width: 2.9em; height: 2.9em; box-shadow: 0 0 0 .16em var(--a-folha), 0 0 0 .3em var(--lima-tx); }
+.app .rp-mot-txt { display: grid; gap: .15em; min-width: 0; padding-right: 1.4em; }
+.app .rp-mot-txt b { overflow: hidden; font-size: 1em; font-weight: 640; white-space: nowrap; text-overflow: ellipsis; }
+.app .rp-mot-txt > span { font-size: max(12.5px, .82em); color: var(--a-texto-2); }
+.app .rp-mot-txt > .rp-mot-nota { display: inline-flex; align-items: center; gap: .3em; }
+.app .rp-mot-nota .t-estrela { width: 1em; height: 1em; color: #F2C94C; }
+.app .rp-mot-veic {
+  grid-column: 1 / -1; display: flex; align-items: center; gap: var(--e3); padding: .55em .7em; border-radius: var(--r-m); background: var(--a-card-2);
+}
+.app .rp-mot-veic .t-veic { position: relative; width: 2.2em; height: 2.2em; background: var(--a-card); }
+.app .rp-mot-veic.com-cor .t-veic::after {
+  content: ""; position: absolute; right: -.05em; bottom: -.05em; width: .8em; height: .8em; border-radius: 50%;
+  background: var(--veic); box-shadow: 0 0 0 .16em var(--a-card-2), inset 0 0 0 1px rgba(255, 255, 255, .25);
+}
+.app .rp-mot-veic-txt { display: grid; min-width: 0; }
+.app .rp-mot-veic-txt b { overflow: hidden; font-size: max(14px, .9em); font-weight: 620; white-space: nowrap; text-overflow: ellipsis; }
+.app .rp-mot-veic-txt small { font-size: max(12px, .76em); color: var(--a-texto-2); }
+/* em viagem: só a pessoa, sem o veículo (ele vai no porta-malas) */
+.app [data-rt="viagem"] button.t-mot.rp-mot-bt { grid-template-rows: auto; }
+
+/* ---------- o perfil do motorista ---------- */
+.app .rp-mot-perfil { gap: var(--e3); padding-top: calc(var(--e6) + .2em); }
+.app .rp-mot-fechar { position: absolute; top: var(--e4); right: var(--e4); }
+.app .rp-mot-topo { display: grid; justify-items: center; gap: .35em; text-align: center; }
+.app .rp-mot-foto {
+  width: 5.4em; height: 5.4em; font-size: 1.15em; margin-bottom: .3em;
+  box-shadow: 0 0 0 .22em var(--a-folha), 0 0 0 .42em var(--lima-tx);
+}
+.app .rp-mot-topo h4 { margin: 0; font-family: var(--f-marca); font-stretch: 80%; font-size: 1.85em; font-weight: 800; letter-spacing: -.03em; line-height: 1; }
+.app .rp-mot-desde { margin: 0; font-size: max(12.5px, .82em); color: var(--a-texto-2); }
+.app .rp-mot-numeros {
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: var(--e1) 0 0; border-radius: var(--r-g); background: var(--a-card);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .05);
+}
+.app .rp-mot-numeros > div { display: grid; justify-items: center; gap: .15em; padding: var(--e3) .4em; text-align: center; }
+.app .rp-mot-numeros > div + div { border-left: 1px solid rgba(255, 255, 255, .06); }
+.app .rp-mot-numeros dt { font-size: max(11.5px, .72em); font-weight: 600; letter-spacing: .04em; color: var(--a-texto-3); }
+.app .rp-mot-numeros dd { margin: 0; font-size: 1.2em; font-weight: 660; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+.app .rp-mot-sec { margin: var(--e2) 0 calc(var(--e1) * -1); }
+.app .rp-mot-veiculo { display: flex; align-items: center; gap: var(--e3); padding: var(--e3) var(--e4); border-radius: var(--r-g); background: var(--a-card); }
+.app .rp-mot-veiculo b { display: block; font-weight: 620; }
+.app .rp-mot-veiculo small { display: block; margin-top: .15em; font-size: max(12.5px, .8em); line-height: 1.45; color: var(--a-texto-2); }
+.app .rp-mot-elogios { display: flex; flex-wrap: wrap; gap: .45em; margin: 0; padding: 0; list-style: none; }
+.app .rp-mot-elogios[hidden] { display: none; }
+.app .rp-mot-elogios li {
+  display: inline-flex; align-items: center; gap: .45em; padding: .45em .8em; border-radius: 999px;
+  background: rgba(210, 255, 60, .1); font-size: max(12.5px, .82em);
+}
+.app .rp-mot-elogios b { font-weight: 600; }
+.app .rp-mot-elogios span { color: var(--lima-tx); font-weight: 660; }
+.app .rp-mot-docs { display: grid; margin: 0; padding: 0; list-style: none; border-radius: var(--r-g); background: var(--a-card); overflow: hidden; }
+.app .rp-mot-docs li { display: flex; align-items: center; gap: var(--e3); padding: .7em var(--e4); }
+.app .rp-mot-docs li + li { border-top: 1px solid rgba(255, 255, 255, .06); }
+.app .rp-mot-docs svg { flex: none; width: 1.35em; height: 1.35em; fill: none; stroke: var(--luz-2); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.app .rp-mot-docs span { min-width: 0; }
+.app .rp-mot-docs b { display: block; font-size: max(14px, .9em); font-weight: 600; }
+.app .rp-mot-docs small { display: block; font-size: max(12px, .76em); color: var(--a-texto-2); }
+.app .rp-mot-docs em {
+  margin-left: auto; padding: .25em .6em; border-radius: 999px; font-style: normal; font-size: max(11.5px, .72em); font-weight: 600;
+  background: rgba(210, 255, 60, .12); color: var(--lima-tx);
+}
+.app .rp-mot-docs .pendente em { background: var(--a-card-2); color: var(--a-texto-3); }
+.app .rp-mot-docs .pendente svg { stroke: var(--a-texto-3); }
+.app .rp-mot-nota-rodape { margin: 0; padding: .7em .85em; border-radius: var(--r-m); background: rgba(91, 103, 255, .12); font-size: max(12.5px, .8em); line-height: 1.45; color: #C9CDFF; }
+
+/* ---------- procurando: o resumo do pedido ---------- */
+.app .rp-bu-resumo {
+  display: grid; width: 100%; max-width: 24em; margin: var(--e5) 0 0; border-radius: var(--r-g); background: var(--a-card);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .05); text-align: left;
+}
+.app .rp-bu-resumo > div { display: flex; justify-content: space-between; align-items: baseline; gap: var(--e3); padding: .65em var(--e4); }
+.app .rp-bu-resumo > div + div { border-top: 1px solid rgba(255, 255, 255, .06); }
+.app .rp-bu-resumo dt { flex: none; display: inline-flex; align-items: center; gap: .5em; font-size: max(12.5px, .8em); color: var(--a-texto-2); }
+.app .rp-bu-resumo dd { min-width: 0; margin: 0; overflow: hidden; font-size: max(13px, .86em); font-weight: 600; text-align: right; white-space: nowrap; text-overflow: ellipsis; }
+html[data-tema="claro"] .app .rp-bu-resumo { box-shadow: inset 0 0 0 1px var(--a-linha); }
+html[data-tema="claro"] .app .rp-bu-resumo > div + div { border-color: var(--a-linha); }
+
+/* ---------- a chegada: quem dirigiu e estrelas grandes ---------- */
+.app .rt[data-rt="chegou"] > .t-fim { margin: var(--e5) 0 0; padding-top: 0; }
+.app .rt[data-rt="chegou"] > .t-recibo { margin-top: var(--e5); }
+.app .rt[data-rt="chegou"] .d-avaliar {
+  display: grid; justify-items: center; gap: .35em; margin: var(--e5) var(--g) 0; font-size: 1em; text-align: center;
+}
+.app .rp-aval-av { width: 3em; height: 3em; box-shadow: 0 0 0 .16em var(--a-bg), 0 0 0 .3em var(--lima-tx); }
+.app .rt[data-rt="chegou"] #rp-aval-t { margin: .2em 0 0; font-size: 1.05em; font-weight: 640; }
+.app .rt[data-rt="chegou"] .d-estrelas { gap: .2em; }
+.app .rt[data-rt="chegou"] .d-estrelas button { width: 2.9em; height: 2.9em; color: var(--a-card-2); transition: transform .12s, color .12s; }
+.app .rt[data-rt="chegou"] .d-estrelas svg { width: 2em; height: 2em; }
+.app .rt[data-rt="chegou"] .d-estrelas button.on { color: #F2C94C; }
+.app .rt[data-rt="chegou"] .d-estrelas button:active { transform: scale(.9); }
+.app .rt[data-rt="chegou"] .d-tags { margin: var(--e2) var(--g) 0; gap: .45em; }
+.app .rt[data-rt="chegou"] .d-tags button { min-height: 36px; padding: .45em .9em; font-size: max(12.5px, .8em); }
+.app .rp-gorjeta-t { flex: none; margin: var(--e5) var(--g) var(--e2); font-size: max(12.5px, .82em); font-weight: 600; color: var(--a-texto-2); text-align: center; }
+.app .rt[data-rt="chegou"] .d-gorjeta { margin: 0 var(--g); }
+.app .rt[data-rt="chegou"] .d-gorjeta button { min-height: 44px; }
+.app .rt[data-rt="chegou"] > .t-botao { margin: auto var(--g) calc(var(--e5) + var(--base)); width: auto; }
+.app .rt[data-rt="chegou"] { overflow-y: auto; }
+.app .rt[data-rt="chegou"] > .t-botao { flex: none; }
+
+/* ---------- no claro ---------- */
+html[data-tema="claro"] .app :is(button.t-mot.rp-mot-bt, .rp-mot-numeros, .rp-mot-veiculo, .rp-mot-docs) { box-shadow: inset 0 0 0 1px var(--a-linha); }
+html[data-tema="claro"] .app .rp-mot-numeros > div + div, html[data-tema="claro"] .app .rp-mot-docs li + li { border-color: var(--a-linha); }
+html[data-tema="claro"] .app .rp-mot-elogios li { background: rgba(130, 190, 0, .16); }
+html[data-tema="claro"] .app .rp-mot-elogios span, html[data-tema="claro"] .app .rp-mot-docs em { color: #2F4F00; }
+html[data-tema="claro"] .app .rp-mot-docs em { background: rgba(130, 190, 0, .16); }
+html[data-tema="claro"] .app .rp-mot-nota-rodape { background: rgba(46, 60, 242, .07); color: #2A3399; }
+html[data-tema="claro"] .app .rp-mot-nota .t-estrela, html[data-tema="claro"] .app .rt[data-rt="chegou"] .d-estrelas button.on { color: #C99A00; }
+html[data-tema="claro"] .app .rt[data-rt="chegou"] .d-estrelas button { color: #D9D6CE; }
+html[data-tema="claro"] .app .rt[data-rt="chegou"] .d-estrelas button.on { color: #E0A800; }
+html[data-tema="claro"] .app .en-veic-tipos [aria-checked="true"] { background: #0E0D12; color: #FFFFFF; }
+
+/* ---------- celular baixo ---------- */
+@container (max-height: 760px) {
+  .app button.t-mot.rp-mot-bt { padding: var(--e2) var(--e3); row-gap: var(--e1); }
+  .app .rp-mot-veic { padding: .4em .6em; }
+  .app .rp-mot-bt .t-av { width: 2.6em; height: 2.6em; }
+  .app .rt[data-rt="chegou"] > .t-fim { margin-top: var(--e3); }
+  .app .rt[data-rt="chegou"] .t-fim-ic { width: 3em; height: 3em; }
+  .app .rt[data-rt="chegou"] .t-fim .t-titulo { font-size: 1.85em; }
+  .app .rt[data-rt="chegou"] > .t-recibo { margin-top: var(--e3); }
+  .app .rt[data-rt="chegou"] .d-avaliar { margin-top: var(--e3); }
+  .app .rp-aval-av { width: 2.5em; height: 2.5em; }
+  .app .rp-gorjeta-t { margin-top: var(--e3); }
+  .app .rp-mot-foto { width: 4.4em; height: 4.4em; }
+}

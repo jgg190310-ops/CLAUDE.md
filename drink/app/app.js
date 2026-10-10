@@ -7,6 +7,7 @@
 
   const { $, $$, reduzirMovimento, brl } = window.Drink.util;
   const PIX = window.Drink.pix;
+  const PF = window.Drink.perfil;
   const R = window.Drink.rede;
   const app = $('#app');
   const abertura = $('#abertura');
@@ -632,7 +633,86 @@
   function escolherVeiculo(v) {
     veiculoCadastro = v;
     $$('[data-veiculo]').forEach((b) => b.setAttribute('aria-checked', String(b.dataset.veiculo === v)));
+    desenharVeiculoConta();
   }
+
+  /* ---------- o veículo de quem dirige: marca, modelo e cor (o passageiro vê quando a corrida é aceita) ---------- */
+  let veicDe = 'menu';
+  let veicTipo = 'bike';
+  let veicCor = '';
+  const detalhes = (u, t) => ((u && u.veiculos && u.veiculos[t]) || {});
+  function pintarAmostra(el, t, cor) {
+    if (!el) return;
+    const c = PF.cor(cor);
+    el.style.setProperty('--veic', c ? c.hex : '');
+    el.classList.toggle('com-cor', Boolean(c));
+    const use = $('use', el);
+    if (use) use.setAttribute('href', t === 'patinete' ? '#i-patinete' : '#i-bike');
+  }
+  // a linha do cadastro e o item do menu mostram o que já foi contado
+  function desenharVeiculoConta() {
+    const u = eu();
+    const t = veiculoCadastro;
+    const d = detalhes(u, t);
+    const tem = Boolean(d.modelo || d.cor);
+    $$('[data-veic-titulo]').forEach((el) => { el.textContent = tem ? PF.descrever({ tipo: t, ...d }) : 'Marca, modelo e cor'; });
+    $$('[data-veic-sub]').forEach((el) => { el.textContent = tem ? 'Toque para mudar' : 'Opcional · ajuda o passageiro a reconhecer você chegando'; });
+    $$('[data-veic-amostra]').forEach((el) => pintarAmostra(el, t, d.cor));
+    const tm = (u && u.veiculo) || 'bike';
+    const dm = detalhes(u, tm);
+    $$('[data-veic-menu]').forEach((el) => { el.textContent = dm.modelo || dm.cor ? PF.descrever({ tipo: tm, ...dm }) : 'Marca, modelo e cor'; });
+  }
+  function previaVeiculo() {
+    const modelo = $('#en-veiculo-modelo').value.trim();
+    $('#en-veiculo-previa').textContent = PF.descrever({ tipo: veicTipo, modelo, cor: veicCor });
+    $('#en-veiculo-cor-nome').textContent = veicCor ? PF.corTxt(veicCor, veicTipo) : 'escolha uma';
+    pintarAmostra($('#en-veiculo-amostra'), veicTipo, veicCor);
+    $$('#en-veiculo-cores [data-cor-veic]').forEach((b) => {
+      b.setAttribute('aria-checked', String(b.dataset.corVeic === veicCor));
+      b.setAttribute('aria-label', PF.corTxt(b.dataset.corVeic, veicTipo));
+    });
+  }
+  function mostrarTipoVeiculo(t) {
+    const u = eu();
+    veicTipo = PF.tipo(t);
+    const d = detalhes(u, veicTipo);
+    veicCor = d.cor || '';
+    $('#en-veiculo-modelo').value = d.modelo || '';
+    $('#en-veiculo-t').textContent = veicTipo === 'patinete' ? 'Seu patinete' : 'Sua bike';
+    $('#en-veiculo-ic').setAttribute('href', veicTipo === 'patinete' ? '#i-patinete' : '#i-bike');
+    $$('#en-veiculo [data-veic-tipo]').forEach((b) => b.setAttribute('aria-checked', String(b.dataset.veicTipo === veicTipo)));
+    previaVeiculo();
+  }
+  function abrirVeiculo(b) {
+    const u = eu();
+    if (!u) return;
+    veicDe = b && b.dataset.veicDe === 'cadastro' ? 'cadastro' : 'menu';
+    $('#en-veiculo-cores').innerHTML = PF.CORES.map((c) => `<button type="button" role="radio" aria-checked="false" data-cor-veic="${c.chave}" style="--cor:${c.hex}"><i aria-hidden="true"></i></button>`).join('');
+    mostrarTipoVeiculo(veicDe === 'cadastro' ? veiculoCadastro : (u.veiculo || 'bike'));
+    abrirFolha('en-veiculo', b);
+  }
+  $('#en-veiculo').addEventListener('click', (e) => {
+    const t = e.target.closest('[data-veic-tipo]');
+    if (t) { mostrarTipoVeiculo(t.dataset.veicTipo); return; }
+    const c = e.target.closest('[data-cor-veic]');
+    if (c) { veicCor = veicCor === c.dataset.corVeic ? '' : c.dataset.corVeic; previaVeiculo(); }
+  });
+  $('#en-veiculo-modelo').addEventListener('input', previaVeiculo);
+  $('#en-veiculo-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const u = eu();
+    if (!u) return;
+    const v = PF.limparVeiculo({ tipo: veicTipo, modelo: $('#en-veiculo-modelo').value, cor: veicCor });
+    u.veiculos = { ...(u.veiculos || {}), [v.tipo]: { modelo: v.modelo, cor: v.cor } };
+    // o veículo que acabou de contar passa a ser o de hoje
+    u.veiculo = v.tipo;
+    if (veicDe === 'cadastro') escolherVeiculo(v.tipo);
+    salvar();
+    preencherConta();
+    desenharVeiculoConta();
+    fecharFolha();
+    avisar(`${v.tipo === 'patinete' ? 'Patinete' : 'Bike'} salva: ${PF.descrever(v)}.`.replace('Patinete salva', 'Patinete salvo'));
+  });
 
   function comecarADirigir() {
     const u = eu();
@@ -649,6 +729,8 @@
       return;
     }
     u.motoristaOk = true;
+    // desde quando dirige: o passageiro vê no perfil ("dirige com o Drink desde outubro de 2026")
+    if (!u.motoristaDesde) u.motoristaDesde = Date.now();
     u.papel = 'motorista';
     salvar();
     abrirMotorista('entra');
@@ -770,6 +852,7 @@
     const patinete = u.veiculo === 'patinete';
     $('#en-veic-t').textContent = patinete ? 'Trocar para bike' : 'Trocar para patinete';
     $('#en-veic-sub').textContent = `Hoje você chega de ${patinete ? 'patinete elétrico' : 'bike elétrica'}`;
+    desenharVeiculoConta();
     $('#en-pix-atual').textContent = u.pix ? `${PIX.TIPOS[u.pix.tipo].nome} · ${PIX.mascarar(u.pix.chave)}` : 'Cadastra onde você recebe';
     desenharAvisos();
     if (motorista) motorista.preencher();
@@ -1059,6 +1142,7 @@
     treinar: treinarMotorista,
     'virar-passageiro': virarPassageiro,
     'trocar-veiculo': trocarVeiculo,
+    veiculo: (b) => abrirVeiculo(b),
     'editar-pix': (b) => editarPix('', b),
     avisos: (b) => ligarAvisos(b),
     menu: (b) => { preencherConta(); abrirFolha('en-menu', b); },
