@@ -133,3 +133,7 @@ html[data-tema="claro"] .app .rm-fim-estrelas svg { color: #D9D6CE; }
   .app .rp-op-tempo { display: none; }
   .app .rp-via-pontas { display: none; }
 }
+
+/* nas abas, a barra de baixo flutua por cima do fim da página: o que rola até aparecer (pelo toque, pelo teclado ou
+   pelo leitor de tela) para acima dela, e não escondido atrás */
+.app .rt-cheia.com-abas { scroll-padding-bottom: calc(7.5em + var(--base)); scroll-padding-top: calc(var(--topo) + var(--e4)); }
