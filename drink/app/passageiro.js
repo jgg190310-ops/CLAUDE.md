@@ -556,6 +556,7 @@
       bt.textContent = 'Pedir Drink';
       q('#rp-simular').disabled = true;
       q('#rp-op-ev').hidden = true;
+      q('#rp-op-quando').hidden = false;
       avisoPrecisao();
       q('#rp-op-pag').textContent = 'Pix na chegada';
       // a cada preço novo, confere de novo se o evento ainda paga (quem organiza pode ter encerrado)
@@ -613,6 +614,8 @@
       linha.hidden = false;
       linha.classList.toggle('fora', !v.cobre);
       if (!v.cobre) { linha.textContent = v.fora; return; }
+      // a volta do evento é na hora, pelo QR: não tem agendar
+      q('#rp-op-quando').hidden = true;
       const parte = Math.min(total, v.e.teto);
       const resto = redondo(total - parte);
       linha.textContent = resto > 0 ? `${v.e.nome} paga ${brl(parte)}. Você paga ${brl(resto)} pelo Pix.` : `Por conta de ${v.e.nome}: você não paga nada.`;

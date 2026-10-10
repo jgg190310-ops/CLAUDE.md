@@ -112,7 +112,7 @@
 .app .rt-cheia > .rm-agd-regras { margin-top: var(--e5); }
 
 /* ---------- no claro ---------- */
-html[data-tema="claro"] .app :is(.rp-ag-horas button, .rp-ag-card, .rm-agd-bt, .rm-agd-item) { box-shadow: inset 0 0 0 1px var(--a-linha); }
+html[data-tema="claro"] .app :is(.rp-ag-horas button, .rp-ag-card, .rm-agd-bt, .rm-agd-item, .rp-op-agendar) { box-shadow: inset 0 0 0 1px var(--a-linha); }
 html[data-tema="claro"] .app .rp-ag-horas [aria-checked="true"] { background: #0E0D12; color: #D2FF3C; box-shadow: none; }
 html[data-tema="claro"] .app .rp-ag-horas [aria-checked="true"] small { color: rgba(210, 255, 60, .8); }
 html[data-tema="claro"] .app .rp-ag-card.confirmada, html[data-tema="claro"] .app .rm-agd-item.confirmada, html[data-tema="claro"] .app .rm-agd-bt.tem { box-shadow: inset 0 0 0 1.5px #3D6600; }
@@ -121,3 +121,14 @@ html[data-tema="claro"] .app .rp-pend-card small, html[data-tema="claro"] .app .
 html[data-tema="claro"] .app .rp-agenda-cancelar.com-taxa { color: #B3261E; }
 html[data-tema="claro"] .app .rm-agd-regras { background: rgba(46, 60, 242, .07); color: #2A3399; }
 html[data-tema="claro"] .app .rm-agd-item > em { color: #2F4F00; }
+
+/* agendar, ao lado do pedir: um botão redondo com o calendário (a folha não cresce) */
+.app .rp-op-acao { display: flex; gap: var(--e2); align-items: stretch; }
+.app .rp-op-acao .t-botao { flex: 1; min-width: 0; }
+.app .rp-op-agendar {
+  flex: none; display: grid; place-items: center; aspect-ratio: 1; min-width: var(--toque); border-radius: 50%;
+  background: var(--a-card-2); color: var(--luz); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .08);
+}
+.app .rp-op-agendar[hidden] { display: none; }
+.app .rp-op-agendar svg { width: 1.3em; height: 1.3em; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.app .rp-op-agendar:active { transform: scale(.96); }

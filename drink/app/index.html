@@ -515,13 +515,15 @@
             <p class="rp-op-ev" id="rp-op-ev" hidden></p>
             <p class="rp-op-ev fora" id="rp-op-gps" role="status" hidden></p>
             <ul class="d-linhas">
-              <li><span>Quando</span><button type="button" id="rp-op-quando" data-rp-folha="rp-agendar">Agora · ou agendar</button></li>
               <li><span>Embarque</span><button type="button" id="rp-op-emb" data-rp="trocar-embarque">Sua localização</button></li>
               <li><span>Chega de</span><button type="button" id="rp-op-veic">Tanto faz</button></li>
               <li><span>Seu carro</span><button type="button" id="rp-op-carro" data-rp-folha="rp-carro">Cadastrar</button></li>
               <li><span>Pagamento</span><button type="button" id="rp-op-pag">Pix na chegada</button></li>
             </ul>
-            <button type="button" class="t-botao" id="rp-pedir" disabled>Pedir Drink</button>
+            <div class="rp-op-acao">
+              <button type="button" class="t-botao" id="rp-pedir" disabled>Pedir Drink</button>
+              <button type="button" class="rp-op-agendar" id="rp-op-quando" data-rp-folha="rp-agendar" aria-label="Agendar a volta para mais tarde"><svg aria-hidden="true"><use href="#i-calendario"/></svg></button>
+            </div>
             <button type="button" class="en-link rp-simular" id="rp-simular" data-rp="simular" disabled>Simular esta corrida, sem chamar ninguém</button>
           </div>
         </section>
