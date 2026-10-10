@@ -1,0 +1,182 @@
+/* Drink — a direção B (Noite 3D) e o tema claro. Vem depois de visual.css.
+   - B: painéis de vidro soltos das bordas por cima do mapa inclinado, as abas numa barra flutuante, títulos grandes na
+     letra do Drink, a busca com borda em degradê limão e azul;
+   - tema claro (html[data-tema="claro"], escolhido no perfil ou seguindo o celular): papel quente, mapa claro, letra
+     escura, botão principal preto com letra limão. A abertura e as boas-vindas continuam escuras: são a cara da marca. */
+
+.app {
+  --vidro-folha: rgba(17, 18, 24, .86);
+  --campo: #101116;
+  --borda-busca: linear-gradient(120deg, #D2FF3C, #5B67FF 72%);
+  --destaque-fundo: linear-gradient(120deg, rgba(210, 255, 60, .14), rgba(91, 103, 255, .12));
+}
+
+/* ---------- B: painéis de vidro por cima do mapa ---------- */
+.app .rt:not(.rt-cheia) > .rt-folha {
+  margin: 0 .7em calc(.7em + var(--base)); padding-bottom: 1.35em; border-radius: 1.8em;
+  background: var(--vidro-folha);
+  -webkit-backdrop-filter: blur(18px) saturate(140%); backdrop-filter: blur(18px) saturate(140%);
+  box-shadow: 0 0 0 1px var(--vidro-borda), 0 1.8em 3.6em -1.2em rgba(0, 0, 0, .85);
+}
+.app .rt:not(.rt-cheia) > .rt-folha::before { top: .55em; }
+/* no início, a folha fica acima da barra de abas (que agora flutua) */
+.app .rt[data-rt="inicio"] > .rt-folha { margin-bottom: calc(5.7em + var(--base)); padding-bottom: 1.35em; }
+
+/* a barra de abas solta, de vidro */
+.app .d-abas {
+  left: .7em; right: .7em; bottom: calc(.7em + var(--base)); padding: .35em .3em .4em; border: 0; border-radius: 1.6em;
+  background: var(--vidro-folha);
+  -webkit-backdrop-filter: blur(18px) saturate(140%); backdrop-filter: blur(18px) saturate(140%);
+  box-shadow: 0 0 0 1px var(--vidro-borda), 0 1.2em 2.4em -1em rgba(0, 0, 0, .8);
+}
+.app .rt-cheia.com-abas { padding-bottom: calc(6.2em + var(--base)); }
+
+/* títulos grandes, na letra do Drink */
+.app :is(.rt-folha > .d-titulo, .d-centro .d-titulo, .rm-off-cab .d-titulo, .t-fim .t-titulo, .d-cab .d-titulo, .rt-cheia > .d-cab-aba .d-titulo, .d-perfil-cab .d-titulo) {
+  font-family: var(--f-marca); font-stretch: 80%; font-weight: 800; letter-spacing: -.03em; line-height: .96;
+}
+.app .rt-folha > .d-titulo { font-size: 2.05em; }
+.app .d-centro .d-titulo, .app .t-fim .t-titulo { font-size: 2.4em; }
+.app .d-cab .d-titulo, .app .rt-cheia > .d-cab-aba .d-titulo { font-size: 2.2em; }
+.app .d-perfil-cab .d-titulo { font-size: 2.1em; }
+.app .rm-off-cab .d-titulo { font-size: 2em; }
+.app .d-ola { font-size: 2.5em; }
+.app .d-ola [data-en-primeiro] { color: var(--lima-tx); }
+
+/* a busca: campo escuro com a borda em degradê */
+.app .d-busca {
+  border: 1.5px solid transparent;
+  background: linear-gradient(var(--campo), var(--campo)) padding-box, var(--borda-busca) border-box;
+  box-shadow: none;
+}
+.app .d-busca:hover { background: linear-gradient(var(--campo), var(--campo)) padding-box, var(--borda-busca) border-box; filter: brightness(1.08); }
+
+/* o preço e o código: o cartão de destaque em degradê */
+.app .t-opcao { border: 0; background: var(--destaque-fundo); box-shadow: inset 0 0 0 1.5px var(--lima-tx); }
+.app .t-preco > span { font-family: var(--f-marca); font-stretch: 80%; font-size: 1.35em; font-weight: 800; letter-spacing: -.02em; }
+
+/* o tempo de chegada, grande, no chip do topo */
+.app #rp-eta { padding: .6em 1.1em; font-size: .9em; }
+.app #rp-eta b { font-family: var(--f-marca); font-stretch: 80%; font-size: 1.5em; font-weight: 800; letter-spacing: -.02em; }
+
+/* ---------- seletor de aparência (perfil e menu do motorista) ---------- */
+.app .en-tema-li { display: grid; gap: .75em; padding: .85em 1em; }
+.app .en-tema { display: flex; align-items: center; gap: .75em; }
+.app .en-tema svg { flex: none; width: 1.4em; height: 1.4em; fill: none; stroke: var(--luz-2); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.app .en-tema b { display: block; font-size: .88em; font-weight: 600; }
+.app .en-tema small { display: block; font-size: .7em; color: var(--a-texto-2); }
+.app .en-tema-ops { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .25em; padding: .25em; border-radius: var(--r-m); background: var(--a-card-2); }
+.app .en-tema-ops button {
+  height: 2.6em; padding: 0 .3em; border: 0; border-radius: calc(var(--r-m) - .2em); background: transparent;
+  color: var(--a-texto-2); font: inherit; font-size: .82em; font-weight: 600; cursor: pointer;
+}
+.app .en-tema-ops [aria-checked="true"] { background: var(--luz); color: var(--a-bg); box-shadow: 0 1px 3px rgba(0, 0, 0, .3); }
+.app .en-tema-ops button:focus-visible { outline: 2px solid var(--lima-tx); outline-offset: 1px; }
+
+/* ==========================================================================================================
+   tema claro
+   ========================================================================================================== */
+html[data-tema="claro"] { color-scheme: light; }
+html[data-tema="claro"] .app {
+  --a-bg: #F3F2EE;
+  --a-folha: #FFFFFF;
+  --a-card: #F2F1ED;
+  --a-card-2: #E7E5DF;
+  --a-linha: #E0DED7;
+  --a-texto-2: #575862;
+  --a-texto-3: #6A6B74;
+  --luz: #0E0D12;
+  --luz-2: rgba(14, 13, 18, .78);
+  --luz-3: rgba(14, 13, 18, .62);
+  --farol: #0E0D12;
+  --ink: #0E0D12;
+  --lima-tx: #3D6600;
+  --vidro: rgba(255, 255, 255, .9);
+  --vidro-borda: rgba(14, 13, 18, .08);
+  --vidro-folha: rgba(255, 255, 255, .93);
+  --campo: #FFFFFF;
+  --borda-busca: linear-gradient(120deg, #9BD400, #2E3CF2 72%);
+  --destaque-fundo: linear-gradient(120deg, #EEFFB8, #E6E8FF);
+  --sombra-flut: 0 .5em 1.4em -.6em rgba(14, 13, 18, .35), 0 0 0 1px var(--vidro-borda);
+  --sombra-folha: 0 -.6em 2em -.8em rgba(14, 13, 18, .25);
+  background: var(--a-bg); color: var(--luz);
+}
+html[data-tema="claro"] body { background: #F3F2EE; color: #0E0D12; }
+/* a abertura e as boas-vindas ficam escuras */
+html[data-tema="claro"] .app :is(.ab, .boas) {
+  --a-bg: #0A0B0F; --a-folha: #121319; --a-card: #1A1B22; --a-card-2: #252630; --a-linha: #2A2B35;
+  --a-texto-2: #A0A1AD; --a-texto-3: #8A8B97; --luz: #F4F4F7; --luz-2: rgba(244, 244, 247, .8); --farol: #F4F4F7; --lima-tx: #D2FF3C;
+  color: #F4F4F7;
+}
+
+/* painéis de vidro, abas e mapa */
+html[data-tema="claro"] .app .rt:not(.rt-cheia) > .rt-folha,
+html[data-tema="claro"] .app .d-abas { box-shadow: 0 0 0 1px var(--vidro-borda), 0 1.4em 3em -1.2em rgba(14, 13, 18, .35); }
+html[data-tema="claro"] .app :is(.t-folha, .d-sobre)::before { background: rgba(14, 13, 18, .18); }
+html[data-tema="claro"] .app .mapa::after { background: linear-gradient(rgba(243, 242, 238, .85), rgba(243, 242, 238, 0)); }
+html[data-tema="claro"] .app :is(.mapa, .mapa.mapa-imagens, .leaflet-container) { background: #ECEAE4; }
+html[data-tema="claro"] .app .mapa .leaflet-tile-pane { filter: grayscale(.85) contrast(.95); }
+html[data-tema="claro"] .app .mapa-creditos { background: rgba(255, 255, 255, .75); color: rgba(14, 13, 18, .6); }
+html[data-tema="claro"] .app .mapa-creditos a { color: rgba(14, 13, 18, .8); }
+html[data-tema="claro"] .app .mk-on { background: #FFFFFF; border-color: #0E0D12; }
+html[data-tema="claro"] .app .mk-on svg { stroke: #0E0D12; }
+html[data-tema="claro"] .app .mk-emb i { background: #0E0D12; border-color: #FFFFFF; box-shadow: 0 0 0 5px rgba(14, 13, 18, .15), 0 4px 10px rgba(0, 0, 0, .3); }
+
+/* botão principal preto com letra limão; a barra de abas e a busca com o limão no preto */
+html[data-tema="claro"] .app .t-botao { background: #0E0D12; color: #D2FF3C; box-shadow: none; }
+html[data-tema="claro"] .app-fone .t-botao:hover:not(:disabled) { background: #26252C; }
+html[data-tema="claro"] .app .t-botao:disabled { background: var(--a-card-2); color: var(--a-texto-3); }
+html[data-tema="claro"] .app .t-botao.en-apagar-bt { background: var(--vermelho-fundo); color: #fff; }
+html[data-tema="claro"] .app .d-abas [aria-current="page"] svg { background: #0E0D12; stroke: #D2FF3C; }
+html[data-tema="claro"] .app .d-busca svg { background: #0E0D12; stroke: #D2FF3C; }
+html[data-tema="claro"] .app .t-opcao-ic { background: #0E0D12; stroke: #D2FF3C; }
+html[data-tema="claro"] .app .rm-raio button[aria-checked="true"] { background: #0E0D12; color: #D2FF3C; }
+html[data-tema="claro"] .app .en-tema-ops [aria-checked="true"] { box-shadow: 0 1px 3px rgba(14, 13, 18, .25); }
+html[data-tema="claro"] .app .rm-go { box-shadow: 0 0 0 .45em rgba(255, 255, 255, .7), 0 1.2em 2.4em -.8em rgba(14, 13, 18, .45); }
+html[data-tema="claro"] .app .rm-go::before { border-color: rgba(14, 13, 18, .35); }
+
+/* o nome em destaque no início: marca-texto limão */
+html[data-tema="claro"] .app .d-ola [data-en-primeiro] { color: #0E0D12; background: #D2FF3C; border-radius: .15em; padding: 0 .1em; }
+
+/* avisos e alertas */
+html[data-tema="claro"] .app .d-toast { background: #0E0D12; color: #F4F4F7; }
+html[data-tema="claro"] .app .d-toast-ic { background: #26252C; }
+html[data-tema="claro"] .app :is(.rt-alerta, #rp-op-gps) { background: rgba(255, 107, 44, .12); color: #8A3200; }
+html[data-tema="claro"] .app .rp-op-ev { background: rgba(130, 190, 0, .14); color: #2F4F00; }
+html[data-tema="claro"] .app .rp-op-ev.fora { background: var(--a-card); color: var(--a-texto-2); }
+html[data-tema="claro"] .app .t-preco small:not(.rt-ver-conta) { background: rgba(255, 107, 44, .14); color: #8A3200; }
+html[data-tema="claro"] .app .rt .rt-cancelar, html[data-tema="claro"] .app .en-erro { color: #B3261E; }
+html[data-tema="claro"] .app .en-conta .en-sair b, html[data-tema="claro"] .app .en-conta .en-apagar b { color: #B3261E; }
+html[data-tema="claro"] .app .en-conta .en-sair svg, html[data-tema="claro"] .app .en-conta .en-apagar svg { stroke: #B3261E; }
+html[data-tema="claro"] .app .rm-pedido .rm-ped-prazo { color: #A3205F; }
+html[data-tema="claro"] .app .en-nota { background: rgba(46, 60, 242, .07); border-color: rgba(46, 60, 242, .2); color: #2A3399; }
+html[data-tema="claro"] .app .en-nota svg { stroke: #2E3CF2; }
+
+/* cartões e campos sobre o papel */
+html[data-tema="claro"] .app :is(.en-conta, .d-carro, .d-atalhos button, button.rp-avise, .rm-pedido, .d-hist button, .d-pags button, .rt-pag, .rt-contato, .ev-cartao, .rm-semana) {
+  box-shadow: inset 0 0 0 1px var(--a-linha);
+}
+html[data-tema="claro"] .app .en-campo input::placeholder, html[data-tema="claro"] .app .rt-campo-ativo input::placeholder { color: #7A7B84; }
+html[data-tema="claro"] .app .rm-pedido.teste { background: rgba(46, 60, 242, .06); border-color: rgba(46, 60, 242, .35); }
+html[data-tema="claro"] .app .rm-chamado { background: rgba(255, 111, 177, .08); }
+
+/* desenhos da vistoria e da dobra: o traço claro vira escuro */
+html[data-tema="claro"] .app :is(.t-vist-carro, .tm-corpo, .tm-tampa, .tm-vao, .tm-vidro, .tm-porta) { stroke: #6A6B74; }
+html[data-tema="claro"] .app .tm-vao { fill: #DAD7CF; }
+html[data-tema="claro"] .app .tm-vidro { fill: #E7E5DF; }
+html[data-tema="claro"] .app .tm-porta { fill: #F2F1ED; }
+html[data-tema="claro"] .app .ma-bike, html[data-tema="claro"] .app .tm-bike { stroke: #0E0D12; }
+
+/* o motorista offline: a barra de cima e os ganhos */
+html[data-tema="claro"] .app .rm-off-topo .en-menu-bt { background: rgba(14, 13, 18, .06); }
+
+/* faixas de simulação e de conexão */
+html[data-tema="claro"] .app .app-rede { background: #0E0D12; color: #F4F4F7; }
+/* nas boas-vindas (sempre escuras) o botão continua limão; no cartão azul de ganhos, o link continua limão */
+html[data-tema="claro"] .app .boas .t-botao { background: #D2FF3C; color: #0A0B0F; }
+html[data-tema="claro"] .app .boas .en-instalar-link { color: #D2FF3C; }
+.app :is(.ma-ganhos, .d-saldo) .rm-ganhos-ver, .app :is(.ma-ganhos, .d-saldo) em { color: #D2FF3C; }
+/* escolhas marcadas (gorjeta, horário, segmentos): preto com letra branca no claro */
+html[data-tema="claro"] .app :is(.d-gorjeta, .d-horas, .d-seg) [aria-checked="true"] { border-color: #0E0D12; background: #0E0D12; color: #FFFFFF; }
+/* a faixa de simulação é limão com o botão preto: a letra do botão continua limão */
+html[data-tema="claro"] .app .rp-sim button { color: #D2FF3C; }

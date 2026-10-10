@@ -11,7 +11,7 @@
   const app = $('#app');
   const abertura = $('#abertura');
   const meta = $('meta[name="theme-color"]');
-  const COR = { noite: '#0A0B0F' };
+  const COR = { noite: '#0A0B0F', dia: '#F3F2EE' };
   const CHAVE = 'drink-app';
   const ms = (t) => (reduzirMovimento() ? Math.min(t, 60) : t);
 
@@ -62,7 +62,52 @@
     clearTimeout(timerAviso);
     timerAviso = setTimeout(() => { aviso.hidden = true; }, 3400);
   }
-  function cor(c) { if (meta) meta.setAttribute('content', c); }
+  // a barra do celular acompanha o tema (as boas-vindas e a abertura são sempre escuras)
+  function cor() {
+    if (!meta) return;
+    const claro = document.documentElement.getAttribute('data-tema') === 'claro' && !(vista && vista.classList.contains('boas')) && abertura.hidden;
+    meta.setAttribute('content', claro ? COR.dia : COR.noite);
+  }
+
+  /* ---------- tema: escuro, claro ou o do celular ---------- */
+  // a escolha fica neste aparelho; "automático" segue o tema do celular e muda junto com ele
+  const tema = (() => {
+    const raiz = document.documentElement;
+    const doCelular = window.matchMedia ? window.matchMedia('(prefers-color-scheme: light)') : null;
+    let escolha = 'escuro';
+    try { escolha = localStorage.getItem('drink-tema') || 'escuro'; } catch (e) { /* sem armazenamento */ }
+    const efetivo = () => (escolha === 'claro' || (escolha === 'auto' && doCelular && doCelular.matches) ? 'claro' : 'escuro');
+    function desenhar() {
+      const t = efetivo();
+      document.querySelectorAll('[data-tema-opcao]').forEach((b) => b.setAttribute('aria-checked', String(b.dataset.temaOpcao === escolha)));
+      document.querySelectorAll('[data-tema-legenda]').forEach((el) => {
+        el.textContent = escolha === 'auto' ? `Segue o celular: agora ${t}` : (t === 'claro' ? 'Sempre claro' : 'Sempre escuro');
+      });
+    }
+    function aplicar() {
+      const antes = raiz.getAttribute('data-tema');
+      const t = efetivo();
+      raiz.setAttribute('data-tema', t);
+      desenhar();
+      cor();
+      if (antes !== t) window.dispatchEvent(new CustomEvent('drink-tema', { detail: t }));
+    }
+    function escolher(nova) {
+      escolha = ['escuro', 'claro', 'auto'].includes(nova) ? nova : 'escuro';
+      try { localStorage.setItem('drink-tema', escolha); } catch (e) { /* sem armazenamento */ }
+      aplicar();
+    }
+    if (doCelular) {
+      const mudou = () => { if (escolha === 'auto') aplicar(); };
+      if (doCelular.addEventListener) doCelular.addEventListener('change', mudou); else if (doCelular.addListener) doCelular.addListener(mudou);
+    }
+    document.addEventListener('click', (e) => {
+      const b = e.target.closest('[data-tema-opcao]');
+      if (b) escolher(b.dataset.temaOpcao);
+    });
+    desenhar();
+    return { aplicar, escolher, efetivo };
+  })();
 
   /* ---------- faixa da conexão ---------- */
   // só aparece se a conexão ficar caída uns segundos (reconectar rápido não pisca nada) e some sozinha quando volta
@@ -147,7 +192,7 @@
     if (nome !== 'codigo') pararDeOuvir();
     const t = tela(nome);
     mostrar(t, anim);
-    cor(COR.noite);
+    cor();
     if (ENTRAR[nome]) ENTRAR[nome](t);
     if (foco) focar(t, nome);
   }
@@ -180,7 +225,7 @@
       timer = setTimeout(sair, ms(temConta ? 1550 : 2000));
     }
     abertura.addEventListener('click', sair);
-    cor(COR.noite);
+    cor();
     // espera a fonte do nome (no máximo 0,7 s) para o nome não trocar de letra no meio da animação
     let comecou = false;
     const uma = () => { if (!comecou) { comecou = true; comecar(); } };
@@ -192,11 +237,12 @@
     abertura.hidden = true;
     abertura.style.pointerEvents = '';
     app.classList.remove('abrindo');
+    cor();
   }
 
   // quem já tem conta: a abertura some e o app aparece
   function sumirAbertura() {
-    cor(COR.noite);
+    cor();
     if (reduzirMovimento() || !abertura.animate) { fimAbertura(); return; }
     // o toque já passa para o app enquanto a abertura some, e ela sai de vez mesmo se a animação não avisar o fim
     abertura.style.pointerEvents = 'none';
@@ -728,7 +774,7 @@
     garantirPassageiro();
     preencherConta();
     mostrar(modos.passageiro, anim);
-    cor(COR.noite);
+    cor();
     passageiro.abrir();
     if (telaInicial && !passageiro.corridaAtiva()) passageiro.ir(telaInicial);
   }
@@ -742,7 +788,7 @@
     motorista.definirTreino(!podeDirigir(u));
     preencherConta();
     mostrar(modos.motorista, anim);
-    cor(COR.noite);
+    cor();
     motorista.abrir();
   }
 
@@ -920,7 +966,7 @@
     abertura.hidden = true;
     const t = tela('acompanhar');
     mostrar(t, null);
-    cor(COR.noite);
+    cor();
     if (!/^[\w-]{16,32}$/.test(id) || !/^[\w-]{40,50}$/.test(chave)) {
       $('#ac-vivo').textContent = 'Link incompleto';
       $('#ac-t').textContent = 'Esse link veio pela metade';

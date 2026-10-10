@@ -40,6 +40,11 @@
     return { type: 'Feature', properties: {}, geometry: { type: 'Polygon', coordinates: [anel] } };
   }
 
+  // o tema do app (escuro ou claro), decidido em app.js e guardado no <html>
+  const temaAtual = () => (document.documentElement.getAttribute('data-tema') === 'claro' ? 'claro' : 'escuro');
+  // o mapa inclinado, em 3D, como no GPS do carro (sem WebGL, o Leaflet fica reto)
+  const INCLINACAO = 48;
+
   function temWebGL() {
     if (!window.maplibregl) return false;
     try {
@@ -88,13 +93,13 @@
   }
 
   /* ---------- mapa vetorial (MapLibre) ---------- */
-  function criarGL(el, { centro = BH, zoom = 15 } = {}) {
+  function criarGL(el, { centro = BH, zoom = 15, inclinar = true } = {}) {
     const gl = window.maplibregl;
     // o app conta o zoom como o Leaflet (ladrilhos de 256 px); o MapLibre usa ladrilhos de 512 px: um a menos
     const zGL = (z) => z - 1;
     const mapa = new gl.Map({
-      container: el, style: ESTILO.vetorial(cfg), center: [centro.lon, centro.lat], zoom: zGL(zoom),
-      minZoom: 3, maxZoom: 19, maxPitch: 0, attributionControl: false, dragRotate: false, pitchWithRotate: false,
+      container: el, style: ESTILO.vetorial(cfg, temaAtual()), center: [centro.lon, centro.lat], zoom: zGL(zoom), pitch: inclinar ? INCLINACAO : 0,
+      minZoom: 3, maxZoom: 19, maxPitch: 60, attributionControl: false, dragRotate: false, pitchWithRotate: false,
       touchPitch: false, renderWorldCopies: false, fadeDuration: 160, refreshExpiredTiles: false,
     });
     mapa.touchZoomRotate.disableRotation();
@@ -109,6 +114,7 @@
     // se o mapa vetorial não carregar, o mesmo mapa passa para as imagens do OpenStreetMap
     const reservas = [cfg.mapa, cfg.mapaReserva].filter(Boolean);
     let fonte = 'omt';
+    let urlImagens = null;
     let carregou = false;
     let falhas = 0;
     let estiloPronto = false;
@@ -121,7 +127,8 @@
       estiloPronto = false;
       el.classList.add('mapa-imagens');
       creditos.innerHTML = '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>';
-      mapa.setStyle(ESTILO.imagens(url));
+      urlImagens = url;
+      mapa.setStyle(ESTILO.imagens(url, temaAtual()));
       setTimeout(() => { if (!carregou && fonte === 'osm') trocarEstilo(); }, 12000);
     }
     mapa.on('sourcedata', (e) => { if (e.sourceId === fonte && e.tile) carregou = true; });
@@ -132,6 +139,11 @@
     });
     setTimeout(() => { if (!carregou && fonte === 'omt') trocarEstilo(); }, 12000);
     mapa.on('style.load', () => { estiloPronto = true; aplicarPrecisao(); aplicarRota(); });
+    // trocou o tema: o mesmo mapa no outro desenho (a rota e a margem do GPS voltam no style.load)
+    window.addEventListener('drink-tema', () => {
+      estiloPronto = false;
+      mapa.setStyle(fonte === 'omt' ? ESTILO.vetorial(cfg, temaAtual()) : ESTILO.imagens(urlImagens, temaAtual()), { diff: false });
+    });
     const memoria = memoriaDaVista(el);
     mapa.on('resize', () => memoria.conferir());
     mapa.on('dragstart', () => memoria.esquecer());
@@ -186,8 +198,10 @@
       mapa.addSource('rota', { type: 'geojson', data: dados });
       const antes = mapa.getLayer('bares') ? 'bares' : undefined;
       const jeito = { 'line-cap': 'round', 'line-join': 'round' };
-      mapa.addLayer({ id: 'rota-borda', type: 'line', source: 'rota', layout: jeito, paint: { 'line-color': '#0E0D12', 'line-width': ['interpolate', ['linear'], ['zoom'], 10, 6, 16, 11], 'line-opacity': 0.6 } }, antes);
-      mapa.addLayer({ id: 'rota-luz', type: 'line', source: 'rota', layout: jeito, paint: { 'line-color': '#D2FF3C', 'line-width': ['interpolate', ['linear'], ['zoom'], 10, 3, 16, 5.5] } }, antes);
+      // escuro: a rota em limão com borda escura; claro: a rota escura com um halo limão
+      const claro = temaAtual() === 'claro';
+      mapa.addLayer({ id: 'rota-borda', type: 'line', source: 'rota', layout: jeito, paint: { 'line-color': claro ? '#C2F23A' : '#0E0D12', 'line-width': ['interpolate', ['linear'], ['zoom'], 10, claro ? 8 : 6, 16, claro ? 14 : 11], 'line-opacity': claro ? 0.9 : 0.6, 'line-blur': claro ? 1.5 : 0 } }, antes);
+      mapa.addLayer({ id: 'rota-luz', type: 'line', source: 'rota', layout: jeito, paint: { 'line-color': claro ? '#0E0D12' : '#D2FF3C', 'line-width': ['interpolate', ['linear'], ['zoom'], 10, 3, 16, 5.5] } }, antes);
     }
 
     // a margem de erro do GPS: um círculo azul claro em volta de você
@@ -203,8 +217,9 @@
       mapa.addLayer({ id: 'precisao-borda', type: 'line', source: 'precisao', paint: { 'line-color': '#8D97FF', 'line-opacity': 0.5, 'line-width': 1 } }, antes);
     }
 
+    const pitch = () => (inclinar ? INCLINACAO : 0);
     function centrarAgora(p, z) {
-      mapa.easeTo({ center: [p.lon, p.lat], zoom: zGL(z), offset: [0, -folga() / 2], duration: duracao() });
+      mapa.easeTo({ center: [p.lon, p.lat], zoom: zGL(z), pitch: pitch(), offset: [0, -folga() / 2], duration: duracao() });
     }
 
     const api = {
@@ -250,7 +265,7 @@
           const topo = Math.min(96, Math.max(20, alto - baixo - 120));
           const caixa = new gl.LngLatBounds();
           pts.forEach((p) => caixa.extend([p.lon, p.lat]));
-          mapa.fitBounds(caixa, { padding: { top: topo, bottom: baixo, left: 44, right: 44 }, maxZoom: zGL(maxZoom), duration: duracao() });
+          mapa.fitBounds(caixa, { padding: { top: topo, bottom: baixo, left: 44, right: 44 }, maxZoom: zGL(maxZoom), pitch: pitch(), duration: duracao() });
         };
         memoria.guardar(fazer);
         fazer();

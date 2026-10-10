@@ -70,7 +70,7 @@ body { font-family: var(--f-texto); font-feature-settings: "cv11", "ss01"; lette
 .app .ma-meio .d-titulo { font-size: 1.55em; }
 .app .en-t { font-size: 1.85em; line-height: 1.1; letter-spacing: -.03em; }
 .app .boas-t { font-size: 1.85em; line-height: 1.1; letter-spacing: -.03em; }
-.app .boas-t em { color: var(--lima); }
+.app .boas-t em { color: var(--lima-tx); }
 .app .d-sobre-cab h4 { font-size: 1.25em; }
 .app :is(.en-sub, .boas-txt) { line-height: 1.5; }
 
@@ -103,9 +103,9 @@ body { font-family: var(--f-texto); font-feature-settings: "cv11", "ss01"; lette
 .app .en-instalar-link { font-weight: 600; }
 .app .rt-cancelar { font-weight: 600; }
 .app :is(.rp-simular, .rp-ver-sim, .rm-simular) { color: var(--a-texto-2); font-weight: 600; }
-.app :is(.rp-simular, .rp-ver-sim, .rm-simular)::after { content: "\00a0›"; color: var(--lima); }
+.app :is(.rp-simular, .rp-ver-sim, .rm-simular)::after { content: "\00a0›"; color: var(--lima-tx); }
 /* foco de teclado igual em tudo */
-.app :is(button, a, select):focus-visible { outline: 2px solid var(--lima); outline-offset: 2px; }
+.app :is(button, a, select):focus-visible { outline: 2px solid var(--lima-tx); outline-offset: 2px; }
 
 /* ---------- folhas em cima do mapa ---------- */
 .app .t-folha {
@@ -144,7 +144,7 @@ body { font-family: var(--f-texto); font-feature-settings: "cv11", "ss01"; lette
   -webkit-backdrop-filter: blur(14px) saturate(140%); backdrop-filter: blur(14px) saturate(140%);
 }
 .app .t-chip .t-ponto { background: var(--lima); box-shadow: 0 0 0 .22em rgba(210, 255, 60, .22); }
-.app .t-chip b { color: var(--lima); font-weight: 660; }
+.app .t-chip b { color: var(--lima-tx); font-weight: 660; }
 .app #rp-online.vazio .t-ponto { background: #8C8D99; box-shadow: none; }
 .app .rt-chip .ma-on { box-shadow: 0 0 0 .22em rgba(210, 255, 60, .22); }
 .app .mapa::after { height: calc(var(--topo) + 4.2em); background: linear-gradient(rgba(6, 7, 11, .72), rgba(6, 7, 11, 0)); }
@@ -160,13 +160,13 @@ body { font-family: var(--f-texto); font-feature-settings: "cv11", "ss01"; lette
 /* ---------- início do passageiro ---------- */
 .app .d-ola { margin-top: .1em; }
 .app .d-local { gap: .5em; margin-top: -.45em; font-size: .84em; color: var(--a-texto-2); }
-.app .d-local svg { stroke: var(--lima); width: 1.05em; height: 1.05em; }
+.app .d-local svg { stroke: var(--lima-tx); width: 1.05em; height: 1.05em; }
 .app .d-busca {
   height: 3.5em; padding: 0 1.1em; border-radius: var(--r-m);
   background: var(--a-card-2); color: var(--luz); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .05);
   font-weight: 600; font-size: 1.04em;
 }
-.app .d-busca svg { stroke: var(--lima); width: 1.15em; height: 1.15em; stroke-width: 2.4; }
+.app .d-busca svg { stroke: var(--lima-tx); width: 1.15em; height: 1.15em; stroke-width: 2.4; }
 .app .d-busca:hover { background: #2C2D38; }
 @media (hover: none) { .app .d-busca:hover { background: var(--a-card-2); } }
 .app .d-atalhos { gap: .6em; }
@@ -236,7 +236,7 @@ body { font-family: var(--f-texto); font-feature-settings: "cv11", "ss01"; lette
   margin-top: .25em; padding: 0; border-radius: 0; background: none; color: var(--a-texto-2);
   font-size: max(.6em, 10.5px); font-weight: 560; letter-spacing: 0; text-transform: none; text-decoration: none;
 }
-.app .t-preco small.rt-ver-conta::after { content: " ›"; color: var(--lima); }
+.app .t-preco small.rt-ver-conta::after { content: " ›"; color: var(--lima-tx); }
 .app .d-linhas { border-top: 0; }
 .app .d-linhas li { padding: .35em 0; border-bottom: 1px solid rgba(255, 255, 255, .06); font-size: .88em; }
 .app .d-linhas li:last-child { border-bottom: 0; }
@@ -263,7 +263,7 @@ body { font-family: var(--f-texto); font-feature-settings: "cv11", "ss01"; lette
 .app .d-abas button { gap: .25em; padding: .3em 0 .2em; font-weight: 560; color: var(--a-texto-3); }
 .app .d-abas svg { box-sizing: content-box; width: 1.55em; height: 1.55em; padding: .22em .9em; border-radius: 999px; stroke-width: 1.9; transition: background-color .2s; }
 .app .d-abas [aria-current="page"] { color: var(--luz); }
-.app .d-abas [aria-current="page"] svg { background: rgba(210, 255, 60, .16); stroke: var(--lima); }
+.app .d-abas [aria-current="page"] svg { background: rgba(210, 255, 60, .16); stroke: var(--lima-tx); }
 .app .d-abas [aria-current="page"]::before { display: none; }
 
 /* ---------- cartões, listas e formulários ---------- */
@@ -310,7 +310,7 @@ body { font-family: var(--f-texto); font-feature-settings: "cv11", "ss01"; lette
 .app .en-conta .rt-item { gap: 0; }
 .app .en-conta .rt-tirar { border-left: 1px solid rgba(255, 255, 255, .06); }
 .app .d-carro { border: 0; background: var(--a-card); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .05); border-radius: var(--r-g); }
-.app .d-carro em { background: rgba(210, 255, 60, .14); color: var(--lima); font-weight: 600; }
+.app .d-carro em { background: rgba(210, 255, 60, .14); color: var(--lima-tx); font-weight: 600; }
 .app .d-perfil-cab { padding: 1.2em 1.3em .4em; }
 
 /* passageiro ou motorista: dois cartões escuros, a cor só no ícone */
@@ -422,14 +422,14 @@ body { font-family: var(--f-texto); font-feature-settings: "cv11", "ss01"; lette
 .boas-quadras path { fill: none; stroke: #20232A; stroke-width: 9; }
 .boas-ruas path { fill: none; stroke: #272A32; stroke-width: 16; }
 .boas-rota, .boas-rota-luz { fill: none; stroke-linecap: round; stroke-linejoin: round; }
-.boas-rota { stroke: var(--lima); stroke-width: 4.5; }
+.boas-rota { stroke: var(--lima-tx); stroke-width: 4.5; }
 .boas-rota-luz { stroke: rgba(210, 255, 60, .16); stroke-width: 18; }
 .boas-inicio circle:first-child { fill: rgba(91, 103, 255, .28); }
 .boas-inicio circle:last-child { fill: #5B67FF; stroke: #fff; stroke-width: 3; r: 7px; }
 .boas-fim circle { fill: var(--lima); }
 .boas-fim use { fill: none; stroke: #0A0B0F; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
-.boas-anda circle, .boas-parado circle { fill: #0A0B0F; stroke: var(--lima); stroke-width: 2.5; }
-.boas-anda use, .boas-parado use { fill: none; stroke: var(--lima); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.boas-anda circle, .boas-parado circle { fill: #0A0B0F; stroke: var(--lima-tx); stroke-width: 2.5; }
+.boas-anda use, .boas-parado use { fill: none; stroke: var(--lima-tx); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
 .boas-parado { display: none; }
 @media (prefers-reduced-motion: reduce) { .boas-anda { display: none; } .boas-parado { display: inline; } }
 /* a marca lá em cima, à esquerda: o limão (que voa da abertura até aqui) e o nome */
@@ -442,14 +442,14 @@ body { font-family: var(--f-texto); font-feature-settings: "cv11", "ss01"; lette
 /* o texto continua o mapa, sem folha por cima */
 .app .boas-folha { margin-top: -4.2em; padding-top: 0; background: transparent; border-radius: 0; gap: .95em; }
 .app .boas-t { font-size: 2.15em; line-height: 1.06; letter-spacing: -.035em; }
-.boas-bebeu-t { display: block; color: var(--lima); }
+.boas-bebeu-t { display: block; color: var(--lima-tx); }
 .app .boas-t em { color: var(--luz); }
 .boas-selos { display: flex; flex-wrap: wrap; gap: .4em; margin: .1em 0 .2em; padding: 0; list-style: none; }
 .boas-selos li {
   display: inline-flex; align-items: center; gap: .4em; padding: .45em .75em .45em .6em; border-radius: 999px;
   background: var(--a-card); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .06); font-size: .76em; font-weight: 560; color: var(--luz-2);
 }
-.boas-selos svg { width: 1.15em; height: 1.15em; fill: none; stroke: var(--lima); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.boas-selos svg { width: 1.15em; height: 1.15em; fill: none; stroke: var(--lima-tx); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .boas.entrou .boas-mapa { animation: aparece .9s .05s ease-out both; }
 .boas.entrou .boas-selos { animation: boas-sobe .6s .35s cubic-bezier(.2, .8, .2, 1) both; }
 @keyframes boas-sobe { from { opacity: 0; transform: translateY(.8em); } to { opacity: 1; transform: none; } }
