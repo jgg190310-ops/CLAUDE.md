@@ -59,27 +59,23 @@ body {
   display: grid; place-content: center; justify-items: center; gap: 1.2em;
   background: var(--cobalto); color: var(--luz); cursor: pointer;
 }
-.ab-marca { display: flex; align-items: center; gap: .16em; font-size: 4.7em; line-height: 1; }
-.ab-roda-caixa { display: block; flex: none; width: .96em; height: .96em; }
-.ab-roda { display: block; width: 100%; height: 100%; transform-origin: 50% 100%; }
-.ab-nome {
-  display: block; padding-bottom: .1em;
-  font-family: var(--f-display); font-weight: 800; font-stretch: 88%; line-height: .8; letter-spacing: -.055em;
-  transform-origin: 0 50%;
-}
+.ab-marca { display: flex; align-items: center; font-size: 4.7em; line-height: 1; }
+/* a marca: "drink" com a rodela de limão no pingo do i; transform-origin no canto para voar até as boas-vindas */
+.ab-logo { display: block; width: 2.75em; height: auto; aspect-ratio: 1924 / 876; overflow: visible; transform-origin: 0 0; }
+.ab-letras, .ab-pingo, .ab-quica { transform-box: fill-box; }
+.ab-pingo { transform-origin: 50% 50%; }
+.ab-quica { transform-origin: 50% 100%; }
 .ab-sub { font-size: .76em; font-weight: 800; letter-spacing: .2em; text-transform: uppercase; color: var(--lima-tx); }
-/* antes de começar (esperando a fonte) só o azul aparece */
+/* antes de começar só o fundo aparece */
 .app:not(.abrindo) :is(.ab-marca, .ab-sub) { visibility: hidden; }
-.abrindo .ab-roda-caixa { animation: ab-rola .85s cubic-bezier(.3, .7, .35, 1) both; }
-.abrindo .ab-roda { animation: ab-quica .42s .78s ease-out forwards; }
-.abrindo .ab-nome { animation: ab-nome .6s .66s cubic-bezier(.2, .7, .1, 1) both; }
+/* as letras sobem, o limão cai girando no lugar do pingo e quica */
+.abrindo .ab-letras { animation: ab-letras .55s .08s cubic-bezier(.2, .7, .1, 1) both; }
+.abrindo .ab-pingo { animation: ab-cai .6s .38s cubic-bezier(.55, 0, .9, .45) both; }
+.abrindo .ab-quica { animation: ab-quica .42s .98s ease-out; }
 .abrindo .ab-sub { animation: ab-sub .5s 1s ease-out both; }
-@keyframes ab-rola { from { transform: translateX(-80cqw) rotate(-600deg); } to { transform: none; } }
-@keyframes ab-quica { 0%, 100% { transform: none; } 35% { transform: scale(1.1, .86); } 70% { transform: scale(.97, 1.04); } }
-@keyframes ab-nome {
-  from { clip-path: inset(-40% 100% -40% 0); transform: translateX(-.3em); }
-  to { clip-path: inset(-40% -10% -40% 0); transform: none; }
-}
+@keyframes ab-letras { from { opacity: 0; transform: translateY(18%); } to { opacity: 1; transform: none; } }
+@keyframes ab-cai { from { opacity: 0; transform: translateY(-330%) rotate(-260deg); } 25% { opacity: 1; } to { opacity: 1; transform: none; } }
+@keyframes ab-quica { 0%, 100% { transform: none; } 35% { transform: scale(1.14, .82); } 70% { transform: scale(.96, 1.05); } }
 @keyframes ab-sub { from { opacity: 0; transform: translateY(.7em); } to { opacity: 1; transform: none; } }
 
 /* ---------- telas da entrada ---------- */
@@ -105,17 +101,8 @@ body {
 .boas-faiscas { fill: var(--lima); }
 .boas-marca {
   position: absolute; top: calc(var(--topo) + 1em); left: 1.3em;
-  font-family: var(--f-display); font-weight: 800; font-stretch: 88%; font-size: 1.75em; line-height: .8; letter-spacing: -.055em;
-  padding-bottom: .1em; color: var(--luz);
+  display: block; width: auto; height: 2.5em; aspect-ratio: 1924 / 876; overflow: visible; color: var(--luz);
 }
-.boas-lua { position: absolute; top: calc(var(--topo) + 3.4em); right: 7cqw; width: 35cqw; max-width: 12em; aspect-ratio: 1; }
-.boas-lua::before, .boas-lua::after {
-  content: ""; position: absolute; border-radius: 50%; pointer-events: none;
-  border: 1.5px solid rgba(210, 255, 60, .32);
-}
-.boas-lua::before { inset: -13%; }
-.boas-lua::after { inset: -29%; border-color: rgba(210, 255, 60, .14); }
-.boas-lua svg { position: relative; display: block; width: 100%; height: 100%; filter: drop-shadow(0 0 1.6em rgba(210, 255, 60, .35)); }
 .boas-bebeu {
   position: absolute; left: .26em; bottom: 27cqw;
   font-family: var(--f-display); font-weight: 800; font-stretch: 75%; font-size: 5.3em; line-height: .82; letter-spacing: -.035em;
@@ -165,18 +152,13 @@ body {
 .boas.entrou .boas-serra { animation: boas-serra .8s .08s cubic-bezier(.2, .8, .2, 1) both; }
 .boas.entrou .boas-carro { animation: boas-carro 1.25s .5s cubic-bezier(.16, .8, .25, 1) both; }
 .boas.entrou .boas-estrelas { animation: aparece .9s .15s ease-out both; }
-.boas.entrou.sem-voo .boas-lua { animation: boas-lua .7s .1s cubic-bezier(.2, .8, .2, 1) both; }
 .boas.entrou.sem-voo .boas-marca { animation: aparece .5s .2s ease-out both; }
-.boas.voando :is(.boas-lua, .boas-marca) { visibility: hidden; }
-.boas.pousou .boas-lua::before, .boas.pousou .boas-lua::after { animation: halo .7s ease-out both; }
-.boas.pousou .boas-lua::after { animation-delay: .12s; }
+.boas.voando .boas-marca { visibility: hidden; }
 @keyframes boas-folha { from { transform: translateY(100%); } to { transform: none; } }
 @keyframes boas-bebeu { from { opacity: 0; transform: translateY(.35em); clip-path: inset(0 0 100% 0); } to { opacity: 1; transform: none; clip-path: inset(-20% -40% -20% 0); } }
 @keyframes boas-selo { from { opacity: 0; transform: rotate(-30deg) scale(.3); } to { opacity: 1; transform: rotate(-9deg); } }
 @keyframes boas-serra { from { transform: translateY(100%); } to { transform: none; } }
 @keyframes boas-carro { from { transform: translateX(-130%); } to { transform: none; } }
-@keyframes boas-lua { from { opacity: 0; transform: scale(.6) rotate(-90deg); } to { opacity: 1; transform: none; } }
-@keyframes halo { from { opacity: 0; transform: scale(.8); } to { opacity: 1; transform: none; } }
 @keyframes aparece { from { opacity: 0; } to { opacity: 1; } }
 
 /* formulários */
@@ -778,11 +760,8 @@ body {
   .mesa-voltar:hover { background: rgba(14, 13, 18, .4); }
   .mesa-voltar:focus-visible { outline: 2px solid var(--lima-tx); outline-offset: 3px; }
   .mesa-meio { display: grid; gap: 20px; }
-  .mesa-marca {
-    display: flex; align-items: center; gap: 10px;
-    font-family: var(--f-display); font-weight: 800; font-stretch: 88%; font-size: 34px; line-height: 1; letter-spacing: -.05em;
-  }
-  .mesa-marca svg { width: 38px; height: 38px; }
+  .mesa-marca { margin: 0; line-height: 0; }
+  .mesa-marca svg { display: block; width: auto; height: 52px; aspect-ratio: 1924 / 876; overflow: visible; }
   .mesa-t { font-family: var(--f-display); font-weight: 800; font-stretch: 80%; font-size: clamp(44px, 4.6vw, 64px); line-height: .95; letter-spacing: -.03em; text-wrap: balance; }
   .mesa-t span { color: var(--lima-tx); }
   .mesa-txt { max-width: 34ch; font-size: 18px; line-height: 1.5; color: var(--luz-2); }

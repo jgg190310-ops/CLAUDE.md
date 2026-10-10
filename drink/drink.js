@@ -32,7 +32,7 @@
     const lua = $('.lua');
     const final = $('.final');
     const sol = $('.sol');
-    const roda = $('.rodape-gigante svg');
+    const roda = $('.rodape-pingo');
     if (reduzirMovimento()) return () => {};
     let meias = [];
     const medir = () => { meias = trilhos.map((t) => t.scrollWidth / 2); };
