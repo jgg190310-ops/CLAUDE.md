@@ -10,6 +10,7 @@
   const Mapa = window.Drink.mapa;
   const CARROS = window.Drink.carros;
   const EV = window.Drink.Eventos;
+  const BAR = window.Drink.bares;
 
   const GUIA = [
     'Abre o porta-malas e estende a capa protetora.',
@@ -228,6 +229,28 @@
       iniciar: (r) => iniciarAgendada(r), registrarTaxa: (t) => registrarTaxa(t),
     });
     let agdLido = 0;
+    // os bares parceiros abertos: onde tem volta saindo hoje (a vitrine é aberta: nome, ponto e as voltas da noite)
+    let vitrine = null;
+    let bares = [];
+    function ouvirBares() {
+      if (vitrine) return;
+      vitrine = BAR.ouvirVitrine((lista) => { bares = lista; desenharBares(); });
+    }
+    function desenharBares() {
+      if (!['off', 'online'].includes(atual) || !mapa) return;
+      const ref = pos || S.gps.ultima() || S.BH;
+      const perto = bares.map((b) => ({ ...b, m: S.distancia(ref, b) })).filter((b) => b.m <= 15000).sort((a, b) => b.voltas - a.voltas || a.m - b.m).slice(0, 20);
+      mapa.bares(perto, (b) => Mapa.ICONE.bar(b.id, b.nome, 'rm', b.voltas));
+      const linha = q('#rm-bares');
+      linha.hidden = atual !== 'online' || !perto.length;
+      if (!linha.hidden) linha.textContent = `Bares abertos perto: ${perto.slice(0, 3).map((b) => `${b.nome} (${b.voltas ? `${b.voltas} ${b.voltas === 1 ? 'volta' : 'voltas'} hoje` : S.textoKm(b.m / 1000)})`).join(' · ')}`;
+    }
+    function mostrarBar(id) {
+      const b = bares.find((x) => x.id === id);
+      if (!b) return;
+      const ref = pos || S.gps.ultima();
+      op.avisar(`${b.nome}${b.bairro ? ` · ${b.bairro}` : ''}${ref ? ` · a ${S.textoKm(S.distancia(ref, b) / 1000)}` : ''} · ${BAR.ateTxt(b)} · ${BAR.voltasTxt(b.voltas)}.`);
+    }
     const contarAgendadas = () => { AGM.desenhar(); if (Date.now() - agdLido > 60000) { agdLido = Date.now(); AGM.carregar(); } };
     const ENTRAR = {
       off() {
@@ -239,6 +262,8 @@
         mapa.limpar();
         mapa.tirar('eu');
         if (p) { mapa.ponto('eu', p, Mapa.ICONE.motorista(eu().veiculo)); mapa.centrar(p, 15); } else mapa.centrar(S.BH, 14);
+        ouvirBares();
+        desenharBares();
       },
       agendadas() {
         AGM.desenhar();
@@ -252,6 +277,8 @@
         if (pos) { mapa.ponto('eu', pos, Mapa.ICONE.motorista(eu().veiculo)); mapa.centrar(pos, 15); }
         desenharGanhos();
         desenharPedidos();
+        ouvirBares();
+        desenharBares();
       },
       buscar() { mostrarBuscar(); },
       codigo() {
@@ -595,6 +622,8 @@
             valor: numero(msg.valor) && msg.valor > 0 ? msg.valor : p.valor, km: numero(msg.km) && msg.km > 0 ? msg.km : p.km,
             msgs: [], fotos: 0, avaliacao: null, paguei: false, ultimo: null,
             evento: limparEvento(msg.evento, p.ev),
+            bar: msg.bar && typeof msg.bar.nome === 'string' ? { nome: texto(msg.bar.nome, 60) } : null,
+            peloBar: msg.peloBar && typeof msg.peloBar.bar === 'string' ? { bar: texto(msg.peloBar.bar, 60) } : null,
           };
           if (aceito.simulada) Object.assign(corrida, { simulada: true, simCodigo: p.codigo, linha: p.linha || null });
           aceito = null;
@@ -758,9 +787,9 @@
       if (!c) return;
       const nome = primeiroNome(c.passageiro.nome);
       q('#rm-bu-t').textContent = c.simulada ? 'Vá buscar o passageiro' : `Vá buscar ${nome}`;
-      q('#rm-bu-end').textContent = [c.embarque.nome, c.embarque.bairro].filter(Boolean).join(' · ');
+      q('#rm-bu-end').textContent = [c.bar ? `Na porta do ${c.bar.nome}` : c.embarque.nome, c.embarque.bairro].filter(Boolean).join(' · ');
       q('#rm-pa-av').textContent = iniciais(c.passageiro.nome);
-      q('#rm-pa-nome').textContent = c.passageiro.nota ? `${c.passageiro.nome} · nota ${S.virgula(c.passageiro.nota)}` : c.passageiro.nome;
+      q('#rm-pa-nome').textContent = c.peloBar ? `${c.passageiro.nome} · chamado pelo bar` : (c.passageiro.nota ? `${c.passageiro.nome} · nota ${S.virgula(c.passageiro.nota)}` : c.passageiro.nome);
       const carro = c.carro || {};
       q('#rm-pa-carro').textContent = [[carro.modelo, carro.cor].filter(Boolean).join(' '), carro.cambio ? `câmbio ${carro.cambio}` : ''].filter(Boolean).join(' · ') || 'Carro do passageiro';
       q('#rm-pa-placa').innerHTML = CARROS.placa.valida(carro.placa || '') ? CARROS.placa.html(carro.placa) : '';
@@ -1017,12 +1046,22 @@
         : (doEvento
           ? `${brl(doEvento)} vêm do ${c.evento.nome}: quem organiza paga na sua chave ${chave}.${doPassageiro > 0 ? ` ${nome} paga ${brl(doPassageiro)} pelo Pix.` : ` ${nome} não paga nada.`}`
           : `${nome} paga pelo Pix direto na sua chave ${chave}.`);
+      // pedido pelo bar: o celular de quem pediu ficou no bar; o cliente paga pelo QR aqui, no celular do motorista
+      const qrBox = q('#rm-re-qr');
+      qrBox.hidden = !(c.peloBar && !c.simulada && doPassageiro > 0);
+      if (!qrBox.hidden) {
+        const u = eu();
+        const codigo = window.Drink.pix.copiaECola({ chave: u.pix.chave, nome: [u.nome, u.sobrenome].filter(Boolean).join(' '), cidade: 'BELO HORIZONTE', valor: doPassageiro, descricao: 'Volta Drink' });
+        q('#rm-re-qr-t').textContent = `Mostre este QR para ${nome} pagar ${brl(doPassageiro)}`;
+        q('#rm-re-qr-img').innerHTML = window.Drink.pix.qrSvg(codigo, `QR code do Pix de ${brl(doPassageiro)} para você`);
+        q('#rm-re-sub').textContent = `${nome} foi chamado pelo ${c.peloBar.bar}: ele paga aqui, pelo QR no seu celular, na chave ${chave}.`;
+      }
       q('#rm-recibo').innerHTML = `<p><span>Corrida · ${esc(S.virgula(c.km))} km</span><b>${esc(brl(c.valor))}</b></p>${espera ? `<p><span>Espera</span><b>${esc(brl(espera))}</b></p>` : ''}${gorjeta ? `<p><span>Gorjeta</span><b>${esc(brl(gorjeta))}</b></p>` : ''}${doEvento ? `<p><span>Do evento, no fim da noite</span><b>${esc(brl(doEvento))}</b></p><p><span>Do passageiro, pelo Pix</span><b>${esc(brl(doPassageiro))}</b></p>` : ''}<p class="t-total"><span>Total</span><b>${esc(brl(total))}</b></p>`;
       const checks = $$('#rm-re-checks li', raiz);
       checks[0].classList.toggle('ok', Boolean(c.avaliacao));
       q('#rm-re-aval').textContent = c.avaliacao
         ? (c.avaliacao.nota ? `${nome} deu ${c.avaliacao.nota} ${c.avaliacao.nota === 1 ? 'estrela' : 'estrelas'}${gorjeta ? ` e ${brl(gorjeta)} de gorjeta` : ''}` : `${nome} não deu nota${gorjeta ? `, mas deu ${brl(gorjeta)} de gorjeta` : ''}`)
-        : `Esperando ${c.simulada ? 'o passageiro' : nome} avaliar`;
+        : (c.peloBar ? `Chamado pelo ${c.peloBar.bar}` : `Esperando ${c.simulada ? 'o passageiro' : nome} avaliar`);
       const nadaDoPassageiro = doEvento && doPassageiro <= 0;
       checks[1].classList.toggle('ok', c.paguei || nadaDoPassageiro);
       q('#rm-re-pago').textContent = nadaDoPassageiro
@@ -1430,6 +1469,7 @@
       if (ds.dia) { diaEscolhido = diaEscolhido === ds.dia ? null : ds.dia; desenharSemana(); return; }
       if (ds.rmTodas !== undefined) { diaEscolhido = null; desenharSemana(); return; }
       if (ds.aceitar) { aceitar(ds.aceitar); return; }
+      if (ds.rmBar) { mostrarBar(ds.rmBar); return; }
       if (ds.agdReservar) { AGM.reservar(ds.agdReservar); return; }
       if (ds.agdIr) { AGM.ir(ds.agdIr); return; }
       if (ds.agdDesistir) { AGM.desistir(ds.agdDesistir); return; }

@@ -289,6 +289,10 @@
     aviso: (id, quem) => `drk-${id}-a${quem}`,
     // as contas das voltas de um evento, cifradas com a chave que só existe no convite
     evento: (id) => `drk-ev-${id}`,
+    // as voltas que saíram de um bar parceiro, cifradas com a chave do QR do balcão
+    bar: (id) => `drk-bar-${id}`,
+    // a vitrine aberta dos bares parceiros: nome, bairro, ponto, benefício e até que horas abre hoje
+    bares: () => `${cfg.sala}-bares`,
   };
 
   window.Drink.rede = {
