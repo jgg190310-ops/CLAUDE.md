@@ -91,6 +91,20 @@
         if (!r.ok) { const e = new Error(`publicar ${r.status}`); e.status = r.status; throw e; }
         return r.json().catch(() => ({}));
       },
+      // um e-mail de verdade: o ntfy encaminha a mensagem para o endereço. Vai num canal aleatório, que só este envio
+      // conhece, e com os parâmetros no endereço (sem cabeçalho extra, o navegador não precisa pedir licença antes)
+      async email(endereco, titulo, texto) {
+        const u = new URL(`${raiz}/drk-mail-${idAleatorio(12).replace(/[^A-Za-z0-9_-]/g, '')}`);
+        u.searchParams.set('email', endereco);
+        u.searchParams.set('title', titulo);
+        u.searchParams.set('tags', 'lemon');
+        // o código não fica guardado no servidor nem vai para o Firebase do ntfy
+        u.searchParams.set('cache', 'no');
+        u.searchParams.set('firebase', 'no');
+        const r = await fetch(u, { method: 'POST', body: texto });
+        if (!r.ok) { const e = new Error(`email ${r.status}`); e.status = r.status; throw e; }
+        return r.json().catch(() => ({}));
+      },
       // assina um ou mais canais; reconecta sozinho e continua de onde parou
       assinar(topicos, aoReceber, { desde } = {}) {
         let fonte = null;
