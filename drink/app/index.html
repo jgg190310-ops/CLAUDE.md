@@ -451,7 +451,7 @@
           <button type="button" class="rt-mira" data-rp="centralizar" aria-label="Voltar para onde você está"><svg aria-hidden="true"><use href="#i-mira"/></svg></button>
           <div class="t-folha rt-folha">
             <h3 class="d-titulo d-ola" id="rp-ola" tabindex="-1"><span class="rp-saudacao">Boa noite</span>, <span data-en-primeiro>você</span></h3>
-            <p class="d-local"><svg aria-hidden="true"><use href="#i-pin"/></svg><span id="rp-local">Procurando você no mapa…</span></p>
+            <div class="d-local rp-local"><svg aria-hidden="true"><use href="#i-pin"/></svg><span id="rp-local">Procurando você no mapa…</span><button type="button" class="rp-ajustar" id="rp-ajustar" data-rp="ajustar-embarque" aria-label="Ajustar o embarque no mapa" hidden>Ajustar</button></div>
             <button type="button" class="d-busca" data-rp-ir="destino"><svg aria-hidden="true"><use href="#i-busca"/></svg>Para onde?</button>
             <button type="button" class="rp-pend-card" id="rp-pend-card" data-rp-folha="rp-pend" hidden><span class="rp-pend-ic" aria-hidden="true">!</span><span><b id="rp-pend-card-t">Taxa pendente</b><small id="rp-pend-card-sub"></small></span></button>
             <button type="button" class="rp-ag-card" id="rp-ag-card" data-rp-folha="rp-agenda" hidden><span class="rp-ag-ic" aria-hidden="true"><svg><use href="#i-calendario"/></svg></span><span><b id="rp-ag-card-t">Volta agendada</b><small id="rp-ag-card-sub"></small></span></button>
@@ -499,12 +499,14 @@
 
         <!-- escolher no mapa -->
         <section class="rt" data-rt="no-mapa" aria-labelledby="rp-nm-t" hidden>
-          <button type="button" class="d-voltar d-voltar-flut rt-voltar" data-rp-ir="destino" aria-label="Voltar"><svg aria-hidden="true"><use href="#i-voltar"/></svg></button>
+          <button type="button" class="d-voltar d-voltar-flut rt-voltar" data-rp="sair-no-mapa" aria-label="Voltar"><svg aria-hidden="true"><use href="#i-voltar"/></svg></button>
+          <button type="button" class="rt-mira" data-rp="nm-aqui" aria-label="Levar o alfinete para onde você está"><svg aria-hidden="true"><use href="#i-mira"/></svg></button>
           <div class="rt-alfinete" id="rp-alfinete" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0113 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.6"/></svg></div>
           <div class="t-folha rt-folha">
             <h3 class="d-titulo" id="rp-nm-t" tabindex="-1">Arrasta o mapa até o lugar</h3>
-            <p class="d-local"><svg aria-hidden="true"><use href="#i-pin"/></svg><span id="rp-nm-txt">…</span></p>
-            <button type="button" class="t-botao" data-rp="confirmar-no-mapa">Confirmar esse lugar</button>
+            <p class="d-local"><svg aria-hidden="true"><use href="#i-pin"/></svg><span id="rp-nm-txt" aria-live="polite">…</span></p>
+            <p class="rp-nm-dica" id="rp-nm-dica" hidden></p>
+            <button type="button" class="t-botao" id="rp-nm-bt" data-rp="confirmar-no-mapa">Confirmar esse lugar</button>
           </div>
         </section>
 
