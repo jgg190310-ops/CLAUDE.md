@@ -475,7 +475,8 @@
     const vistos = new Set();
     return lista.filter((l) => {
       const k = `${semAcento(l.nome)}|${Math.round(l.lat * 2000)}|${Math.round(l.lon * 2000)}`;
-      const k2 = `${semAcento(l.nome)}|${semAcento(l.detalhe)}`;
+      // o mesmo lugar vindo das duas buscas (pontos um pouco diferentes); duas unidades longe uma da outra ficam
+      const k2 = `${semAcento(l.nome)}|${semAcento(l.detalhe)}|${Math.round(l.lat * 300)}|${Math.round(l.lon * 300)}`;
       if (vistos.has(k) || vistos.has(k2)) return false;
       vistos.add(k);
       vistos.add(k2);

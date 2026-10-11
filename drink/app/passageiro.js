@@ -627,7 +627,62 @@
     /* ---------- busca de endereço ---------- */
     function linhaLugar(l, i, icone = 'i-pin') {
       const dist = pos ? `<em>${S.textoKm(S.distancia(pos, l) / 1000)}</em>` : '';
-      return `<li><button type="button" data-lugar="${i}"><svg aria-hidden="true"><use href="#${icone}"/></svg><span><b>${esc(l.nome)}</b><small>${esc(l.detalhe || l.bairro || '')}</small></span>${dist}</button></li>`;
+      return `<li><button type="button" data-lugar="${i}"><svg aria-hidden="true"><use href="#${icone}"/></svg><span>${textoLugar(l)}</span>${dist}</button></li>`;
+    }
+    // o nome (com a unidade, se o lugar tem mais de uma) e o endereço
+    const textoLugar = (l) => `<b>${esc(l.nome)}${l.unidade ? ` <span class="rp-unidade">· ${esc(l.unidade)}</span>` : ''}</b>`
+      + `<small>${esc(l.detalhe || l.bairro || '')}${l.procurando ? ' · procurando o endereço…' : ''}</small>`;
+
+    /* ---------- o mesmo lugar com mais de uma unidade ---------- */
+    // o Bar do Lopes tem três: cada unidade diz qual é (o bairro ao lado do nome; no mesmo bairro, a rua) e mostra o
+    // endereço dela; se o mapa não tem a rua, o endereço vem do ponto da unidade, logo depois
+    const chaveNome = (t) => String(t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+    const nomeDaRua = (r) => String(r || '').replace(/,\s*\d.*$/, '');
+    function marcarUnidades(lista) {
+      const grupos = new Map();
+      lista.forEach((l) => {
+        if (l.ehRua || l.gps || !l.nome) return;
+        const k = chaveNome(l.nome);
+        grupos.set(k, [...(grupos.get(k) || []), l]);
+      });
+      for (const g of grupos.values()) {
+        if (g.length < 2) continue;
+        const pelaRua = new Set(g.map((l) => l.bairro)).size < g.length || g.some((l) => !l.bairro);
+        g.forEach((l) => {
+          l.unidades = g.length;
+          l.unidade = (pelaRua && nomeDaRua(l.rua)) || l.bairro || nomeDaRua(l.rua) || '';
+        });
+      }
+    }
+    // o endereço dos lugares que o mapa conhece sem a rua: as unidades primeiro, no máximo 4 por busca (o reverso
+    // pede uma consulta por segundo); cada linha se completa quando o endereço chega
+    function completarEnderecos(lista) {
+      const faltam = lista.filter((l) => !l.rua && !l.parceiro && !l.ehRua && !l.gps && l.categoria && l.categoria !== 'Bairro')
+        .sort((a, b) => (b.unidades ? 1 : 0) - (a.unidades ? 1 : 0)).slice(0, 4);
+      faltam.forEach((l) => {
+        l.procurando = true;
+        redesenharLugar(lista, l);
+        S.endereco(l).then((e) => {
+          if (e && e.ruaNome) {
+            l.rua = e.rua;
+            const partes = String(l.detalhe || '').split(' · ').filter(Boolean);
+            const depois = partes[0] === l.categoria ? 1 : 0;
+            partes.splice(depois, 0, e.rua);
+            l.detalhe = partes.join(' · ');
+          }
+        }).catch(() => {}).then(() => {
+          l.procurando = false;
+          if (l.unidades) marcarUnidades(lista);
+          lista.forEach((x) => { if (x.unidades && chaveNome(x.nome) === chaveNome(l.nome)) redesenharLugar(lista, x); });
+          redesenharLugar(lista, l);
+        });
+      });
+    }
+    function redesenharLugar(lista, l) {
+      if (achados !== lista) return;
+      const i = lista.indexOf(l);
+      const span = q(`#rp-resultados [data-lugar="${i}"] > span`);
+      if (span) span.innerHTML = textoLugar(l);
     }
     function mostrarSalvos() {
       const u = eu();
@@ -664,14 +719,16 @@
         q('#rp-res-t').textContent = 'Buscando…';
         // os bares do Drink que batem com o texto: achados na hora, mesmo que não estejam no mapa
         const parceiros = (modoBusca === 'destino' || modoBusca === 'embarque')
-          ? abaBar.buscar(texto).map((b) => ({ nome: b.nome, detalhe: ['Bar do Drink', b.endereco || b.bairro].filter(Boolean).join(' · '), bairro: b.bairro, lat: b.lat, lon: b.lon, icone: 'i-copo' }))
+          ? abaBar.buscar(texto).map((b) => ({ nome: b.nome, detalhe: ['Bar do Drink', b.endereco || b.bairro].filter(Boolean).join(' · '), bairro: b.bairro, rua: b.endereco || '', lat: b.lat, lon: b.lon, icone: 'i-copo', parceiro: true }))
           : [];
         try {
           const doMapa = await S.buscar(texto, pos, buscaCtl.signal);
           const lista = [...parceiros, ...doMapa.filter((l) => !parceiros.some((b) => S.distancia(b, l) < 60))];
+          marcarUnidades(lista);
           achados = lista;
           q('#rp-res-t').textContent = lista.length ? 'Resultados' : (modoBusca === 'bar' ? 'Não achei. Toca em "Escolher no mapa" e marca a porta do bar.' : 'Não achei esse lugar. Tenta outro nome ou escolhe no mapa.');
           q('#rp-resultados').innerHTML = lista.map((l, i) => linhaLugar(l, i, l.icone)).join('');
+          completarEnderecos(lista);
         } catch (e) {
           if (e.name === 'AbortError') return;
           achados = parceiros;
@@ -681,7 +738,10 @@
       }, 380);
     }
     function escolherLugar(l) {
-      const lugar = { nome: l.detalhe && ['Casa', 'Trabalho'].includes(l.nome) ? l.detalhe : l.nome, detalhe: l.detalhe || '', bairro: l.bairro || '', lat: l.lat, lon: l.lon };
+      const base = l.detalhe && ['Casa', 'Trabalho'].includes(l.nome) ? l.detalhe : l.nome;
+      // a unidade escolhida vai no nome do destino: o motorista vê qual é ("Bar do Lopes · Rua Antônio de Albuquerque, 617")
+      const nome = l.unidades > 1 ? (l.rua ? `${base} · ${l.rua}` : (l.unidade && l.unidade !== l.bairro ? `${base} · ${l.unidade}` : base)) : base;
+      const lugar = { nome, detalhe: l.detalhe || '', bairro: l.bairro || '', lat: l.lat, lon: l.lon };
       const modo = modoBusca;
       modoBusca = 'destino';
       if (modo === 'bar') {

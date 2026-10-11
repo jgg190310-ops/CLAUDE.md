@@ -529,3 +529,6 @@ body { font-family: var(--f-texto); font-feature-settings: "cv11", "ss01"; lette
 .app .rp-ajustar:hover { border-color: var(--lima-tx); }
 .app .rp-ajustar.forte { border-color: transparent; background: var(--lima); color: #0A0B0F; }
 .app .rp-nm-dica { margin: 0; font-size: .82em; line-height: 1.4; color: var(--a-texto-2); }
+
+/* a unidade de um lugar com mais de uma (Bar do Lopes · Savassi) */
+.app .d-lista .rp-unidade { font-weight: 500; color: var(--a-texto-2); }
