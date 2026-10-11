@@ -21,7 +21,7 @@
     mapaReserva: 'https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png',
     sala: 'drink-bh-9r4t-v1',
     // SMS de verdade no cadastro: a configuração do app da Web do projeto no Firebase (apiKey, authDomain,
-    // projectId, appId). Sem ela, o código chega como notificação neste celular.
+    // projectId, appId). Sem ela, o código chega por e-mail (o ntfy encaminha) ou por notificação neste celular.
     firebase: null,
   };
   try { Object.assign(cfg, JSON.parse(localStorage.getItem('drink-servicos') || '{}')); } catch (e) { /* sem ajuste */ }
