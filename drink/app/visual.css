@@ -416,7 +416,7 @@ body { font-family: var(--f-texto); font-feature-settings: "cv11", "ss01"; lette
    para sumir junto quando a marca voa até as boas-vindas) */
 .ab-fundo {
   position: absolute; inset: 0; pointer-events: none;
-  background: radial-gradient(60% 42% at 50% 47%, rgba(210, 255, 60, .1), transparent 70%), linear-gradient(135deg, #0A0B0F 0%, #0A0B0F 28%, #1B2A0A 66%, #5C8A0E 100%);
+  background: radial-gradient(60% 42% at 50% 47%, rgba(210, 255, 60, .1), transparent 70%), linear-gradient(135deg, #0A0B0F 0%, #0A0B0F 25%, #121A0C 62%, #2E4A06 100%);
 }
 .ab > :not(.ab-fundo) { position: relative; }
 .app .ab-sub { color: var(--a-texto-2); font-weight: 600; letter-spacing: .26em; }

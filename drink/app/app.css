@@ -62,19 +62,33 @@ body {
 .ab-marca { display: flex; align-items: center; font-size: 4.7em; line-height: 1; }
 /* a marca: "drink" com a rodela de limão no pingo do i; transform-origin no canto para voar até as boas-vindas */
 .ab-logo { display: block; width: 2.75em; height: auto; aspect-ratio: 1924 / 876; overflow: visible; transform-origin: 0 0; }
-.ab-letras, .ab-pingo, .ab-quica { transform-box: fill-box; }
+.ab-letras, .ab-pingo, .ab-quica, .ab-bate { transform-box: fill-box; }
+.ab-bate { transform-origin: 50% 50%; }
 .ab-pingo { transform-origin: 50% 50%; }
 .ab-quica { transform-origin: 50% 100%; }
 .ab-sub { font-size: .76em; font-weight: 800; letter-spacing: .2em; text-transform: uppercase; color: var(--lima-tx); }
 /* antes de começar só o fundo aparece */
 .app:not(.abrindo) :is(.ab-marca, .ab-sub) { visibility: hidden; }
-/* as letras sobem, o limão cai girando no lugar do pingo e quica */
-.abrindo .ab-letras { animation: ab-letras .55s .08s cubic-bezier(.2, .7, .1, 1) both; }
-.abrindo .ab-pingo { animation: ab-cai .6s .38s cubic-bezier(.55, 0, .9, .45) both; }
-.abrindo .ab-quica { animation: ab-quica .42s .98s ease-out; }
-.abrindo .ab-sub { animation: ab-sub .5s 1s ease-out both; }
-@keyframes ab-letras { from { opacity: 0; transform: translateY(18%); } to { opacity: 1; transform: none; } }
-@keyframes ab-cai { from { opacity: 0; transform: translateY(-330%) rotate(-260deg); } 25% { opacity: 1; } to { opacity: 1; transform: none; } }
+/* o nome aparece; em cima do "i", a coqueteleira bate, vira e solta a rodela de limão, que cai no pingo e quica */
+.abrindo .ab-letras { animation: ab-letras .35s .05s ease-out both; }
+.abrindo .ab-bate { animation: ab-bate 1.5s .1s both; }
+.abrindo .ab-pingo { animation: ab-cai .3s 1.18s cubic-bezier(.55, 0, .9, .45) both; }
+.abrindo .ab-quica { animation: ab-quica .42s 1.48s ease-out; }
+.abrindo .ab-sub { animation: ab-sub .5s 1.45s ease-out both; }
+@keyframes ab-letras { from { opacity: 0; } to { opacity: 1; } }
+@keyframes ab-bate {
+  0% { opacity: 0; transform: translateY(-12%) scale(.7) rotate(-8deg); }
+  10% { opacity: 1; transform: none; }
+  18%, 34% { transform: translateY(-9%) rotate(-16deg); }
+  26%, 42% { transform: translateY(5%) rotate(12deg); }
+  50% { transform: translateY(-6%) rotate(-10deg); }
+  58% { transform: none; }
+  72% { opacity: 1; transform: translateY(-4%) rotate(170deg); }
+  80% { opacity: 1; transform: translateY(-6%) rotate(180deg); }
+  100% { opacity: 0; transform: translateY(-30%) rotate(180deg); }
+}
+@keyframes ab-cai { from { opacity: 0; transform: translateY(-92%) scale(.55) rotate(-90deg); } 15% { opacity: 1; } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .ab-coqueteleira { display: none; } }
 @keyframes ab-quica { 0%, 100% { transform: none; } 35% { transform: scale(1.14, .82); } 70% { transform: scale(.96, 1.05); } }
 @keyframes ab-sub { from { opacity: 0; transform: translateY(.7em); } to { opacity: 1; transform: none; } }
 

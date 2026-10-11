@@ -211,7 +211,7 @@
     },
   };
 
-  /* ---------- abertura: o limão chega rolando, o nome aparece e o app começa ---------- */
+  /* ---------- abertura: a coqueteleira bate, solta o limão no pingo do i e o app começa ---------- */
   function abrir(temConta) {
     let saiu = false;
     let timer = 0;
@@ -223,7 +223,7 @@
     }
     function comecar() {
       app.classList.add('abrindo');
-      timer = setTimeout(sair, ms(temConta ? 1550 : 2000));
+      timer = setTimeout(sair, ms(temConta ? 1950 : 2300));
     }
     abertura.addEventListener('click', sair);
     cor();
