@@ -144,7 +144,7 @@ h3 { font-family: var(--f-display); font-weight: 800; font-stretch: 85%; font-si
 }
 /* marca: "drink" com a rodela de limão no pingo do i (as letras na cor do texto) */
 .marca { display: inline-flex; align-items: center; color: var(--luz); text-decoration: none; }
-.marca-logo { display: block; flex: none; width: auto; height: 40px; aspect-ratio: 1924 / 876; overflow: visible; }
+.marca-logo { display: block; flex: none; width: 64px; height: 64px; overflow: visible; }
 .nav { display: flex; gap: 2px; margin-left: auto; }
 .nav a {
   padding: 9px 14px; border-radius: 999px; text-decoration: none; white-space: nowrap;
@@ -975,9 +975,9 @@ input[type="range"]:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 2px var(
   max-width: var(--largura); margin: clamp(48px, 7vw, 96px) auto 0; padding-inline: var(--gutter);
   color: var(--luz); user-select: none;
 }
-.rodape-gigante svg { display: block; width: min(100%, 980px); height: auto; aspect-ratio: 1924 / 876; overflow: visible; }
-/* o limão do pingo gira com a rolagem, no lugar dele */
-.rodape-pingo { transform-box: fill-box; transform-origin: center; }
+.rodape-gigante svg { display: block; width: min(100%, 520px); height: auto; aspect-ratio: 1; overflow: visible; }
+/* o meio limão gira um pouco com a rolagem, preso no corte */
+.rodape-pingo { transform-box: view-box; transform-origin: 500px 500px; }
 .rodape-legal p:first-child { font-family: var(--f-display); font-weight: 800; font-stretch: 75%; font-size: 2.3rem; line-height: .95; text-transform: uppercase; color: var(--lima); }
 
 /* ---------- diálogos ---------- */
@@ -1023,6 +1023,7 @@ input[type="range"]:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 2px var(
 
 @media (max-width: 900px) {
   :root { --topo-h: 66px; }
+  .marca-logo { width: 56px; height: 56px; }
   .hero-in { grid-template-columns: minmax(0, 1fr); gap: 56px; }
   .hero-visual { --fw: min(262px, 66vw); padding-top: 12px; }
   .lua { --lua-w: min(96%, 94vw, 560px); left: 56%; top: 50%; }

@@ -223,7 +223,7 @@
     }
     function comecar() {
       app.classList.add('abrindo');
-      timer = setTimeout(sair, ms(temConta ? 2000 : 2350));
+      timer = setTimeout(sair, ms(temConta ? 2250 : 2600));
     }
     abertura.addEventListener('click', sair);
     cor();
@@ -267,7 +267,7 @@
     return quadros;
   }
 
-  // conta nova: a marca voa da abertura para o canto das boas-vindas, com o limão dando uma volta no pingo do i
+  // conta nova: a marca voa da abertura para o canto das boas-vindas, com o meio limão dando uma volta
   function voarParaBoas() {
     const boas = tela('boas');
     boas.classList.remove('entrou', 'pousou', 'sem-voo');
