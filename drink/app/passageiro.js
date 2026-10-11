@@ -122,7 +122,8 @@
         if (!p) return;
         gpsNegado = false;
         q('#rp-gps').hidden = true;
-        const primeira = !pos;
+        // a primeira leitura de verdade (depois da posição guardada de antes) também centra o mapa
+        const primeira = !pos || (pos.guardada && !p.guardada);
         pos = p;
         if (atual === 'opcoes') avisoPrecisao();
         if (mapa && !(corrida && corrida.etapa === 'viagem')) mapa.ponto('voce', p, Mapa.ICONE.voce());
