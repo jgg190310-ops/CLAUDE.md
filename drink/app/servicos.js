@@ -287,6 +287,28 @@
     const y = chaveRua(b);
     return Boolean(x && y && (x === y || (Math.min(x.length, y.length) >= 5 && (x.includes(y) || y.includes(x)))));
   }
+  // o tipo do lugar (a etiqueta do OpenStreetMap): o ícone e o nome que aparecem na lista, como na Uber
+  const CATEGORIAS = {
+    bar: ['i-copo', 'Bar'], pub: ['i-copo', 'Bar'], biergarten: ['i-copo', 'Cervejaria'], nightclub: ['i-musica', 'Balada'],
+    restaurant: ['i-talheres', 'Restaurante'], fast_food: ['i-talheres', 'Lanchonete'], food_court: ['i-talheres', 'Praça de alimentação'],
+    ice_cream: ['i-talheres', 'Sorveteria'], cafe: ['i-cafe', 'Café'],
+    music_venue: ['i-musica', 'Casa de show'], theatre: ['i-musica', 'Teatro'], cinema: ['i-musica', 'Cinema'], arts_centre: ['i-musica', 'Centro cultural'],
+    events_venue: ['i-festa', 'Espaço de eventos'], stadium: ['i-festa', 'Estádio'],
+    suburb: ['i-mapa', 'Bairro'], neighbourhood: ['i-mapa', 'Bairro'], quarter: ['i-mapa', 'Bairro'],
+    hotel: ['i-pin', 'Hotel'], hostel: ['i-pin', 'Hostel'], hospital: ['i-pin', 'Hospital'], marketplace: ['i-pin', 'Mercado'], mall: ['i-pin', 'Shopping'],
+    square: ['i-pin', 'Praça'], park: ['i-pin', 'Parque'], university: ['i-pin', 'Universidade'],
+  };
+  // bares, restaurantes, cafés e casas de show: o que mais se busca pelo nome para voltar de Drink
+  const ESTABELECIMENTO = new Set(['bar', 'pub', 'biergarten', 'nightclub', 'restaurant', 'fast_food', 'food_court', 'ice_cream', 'cafe', 'music_venue', 'theatre', 'cinema', 'arts_centre', 'events_venue']);
+  function comCategoria(l) {
+    const c = CATEGORIAS[l.tipo];
+    if (!c || l.ehRua) return l;
+    // o nome do tipo vai na frente do endereço, a não ser que o nome já diga ("Bar do Lopes" é bar; "Bairro Sion" é bairro)
+    const jaDiz = semAcento(l.nome).includes(semAcento(c[1]));
+    let detalhe = jaDiz ? l.detalhe : [c[1], l.detalhe].filter(Boolean).join(' · ');
+    if (c[1] === 'Bairro') detalhe = l.detalhe || 'Bairro';
+    return { ...l, icone: c[0], categoria: c[1], detalhe };
+  }
   function lugarDe(f) {
     const p = f.properties || {};
     const [lon, lat] = f.geometry.coordinates;
@@ -299,7 +321,7 @@
     if (p.name && rua && p.name !== p.street) detalhe.push(rua);
     if (bairro && bairro !== nome) detalhe.push(bairro);
     if (p.city && p.city !== nome && (p.city !== 'Belo Horizonte' || !bairro)) detalhe.push(p.city);
-    return { nome, detalhe: detalhe.join(' · '), rua, bairro: bairro || p.city || '', lat, lon, tipo: p.osm_value || p.type || '', numero: p.housenumber || '', ehRua, ruaNome };
+    return comCategoria({ nome, detalhe: detalhe.join(' · '), rua, bairro: bairro || p.city || '', lat, lon, tipo: p.osm_value || p.type || '', numero: p.housenumber || '', ehRua, ruaNome });
   }
   function lugarDoNominatim(x) {
     const a = x.address || {};
@@ -314,7 +336,7 @@
     if (x.name && rua && x.name !== via) detalhe.push(rua);
     if (bairro && bairro !== nome) detalhe.push(bairro);
     if (cidade && cidade !== nome && (cidade !== 'Belo Horizonte' || !bairro)) detalhe.push(cidade);
-    return { nome, detalhe: detalhe.join(' · '), rua, bairro: bairro || cidade, lat: +x.lat, lon: +x.lon, tipo: x.type || '', numero: a.house_number || '', ehRua, ruaNome };
+    return comCategoria({ nome, detalhe: detalhe.join(' · '), rua, bairro: bairro || cidade, lat: +x.lat, lon: +x.lon, tipo: x.type || '', numero: a.house_number || '', ehRua, ruaNome });
   }
 
   async function photon(caminho, params, sinal) {
@@ -384,6 +406,20 @@
     return { lat: base.lat, lon: base.lon, como: 'rua' };
   }
 
+  // a ordem de uma busca por nome, como na Uber: primeiro o que começa com o que foi digitado ("Bar do" → "Bar do
+  // Lopes"), depois o que tem todas as palavras (a última pode estar pela metade), e, entre eles, o mais perto
+  const palavrasDe = (t) => semAcento(t).split(/[^a-z0-9]+/).filter(Boolean);
+  function relevancia(l, q, ref) {
+    const ws = palavrasDe(q);
+    const nome = palavrasDe(l.nome);
+    let m = 0;
+    if (ws.length && nome.join(' ').startsWith(ws.join(' '))) m = 3;
+    else if (ws.length && ws.every((w, i) => nome.some((p) => (i === ws.length - 1 ? p.startsWith(w) : p === w)))) m = 2;
+    else if (ws.some((w) => w.length > 2 && nome.some((p) => p.startsWith(w)))) m = 1;
+    const km = distancia(ref, l) / 1000;
+    return m * 2 + (ESTABELECIMENTO.has(l.tipo) ? 0.4 : 0) - Math.log2(1 + km) * 0.5;
+  }
+
   async function buscar(texto, perto, sinal) {
     const ref = perto || BH;
     const e = entender(texto);
@@ -395,7 +431,16 @@
     const q = doCep ? [ruaCep || doCep.bairro, e.numero || '', ruaCep ? doCep.bairro : ''].filter(Boolean).join(' ') : (e.q || texto);
     let lista = [];
     let falha = null;
-    try { lista = (await buscaPhoton(q, ref, sinal)).map(lugarDe); } catch (x) { if (x.name === 'AbortError') throw x; falha = x; }
+    const porNome = !e.numero && !e.cep;
+    try {
+      // pelo nome (sem número nem CEP): a mesma busca, mais uma só entre bares, restaurantes e afins, pesando mais a
+      // distância que a fama do lugar; as duas juntas
+      const [geral, locais] = await Promise.all([
+        buscaPhoton(q, ref, sinal),
+        porNome ? buscaPhoton(q, ref, sinal, { osm_tag: 'amenity', limit: 12, location_bias_scale: 0.1 }).catch((x) => { if (x.name === 'AbortError') throw x; return []; }) : [],
+      ]);
+      lista = [...geral, ...locais].map(lugarDe);
+    } catch (x) { if (x.name === 'AbortError') throw x; falha = x; }
     // poucos resultados, nenhum com o número pedido, ou o Photon fora do ar: a outra busca do OpenStreetMap
     const temNumero = (l) => e.numero && String(parseInt(l.numero, 10)) === String(e.numero) && mesmaRua(l.ruaNome, ruaAlvo);
     if (lista.length < 3 || (e.numero && !lista.some(temNumero))) {
@@ -415,13 +460,17 @@
           const p = await numeroNaRua(base, e.numero, sinal);
           const nomeRua = base.ruaNome || base.nome;
           const aviso = { exato: '', calculado: 'número aproximado', rua: 'confira o número no mapa' }[p.como];
-          lista.unshift({ ...base, nome: `${nomeRua}, ${e.numero}`, rua: `${nomeRua}, ${e.numero}`, numero: String(e.numero), tipo: 'house',
+          lista.unshift({ ...base, nome: `${nomeRua}, ${e.numero}`, rua: `${nomeRua}, ${e.numero}`, numero: String(e.numero), tipo: 'house', icone: 'i-pin', categoria: '',
             detalhe: [base.bairro, doCep ? `CEP ${textoCep(e.cep)}` : '', aviso].filter(Boolean).join(' · '), lat: p.lat, lon: p.lon, aproximado: p.como !== 'exato', ehRua: false });
         }
       }
     } else if (doCep && ruaCep) {
       const base = lista.find((l) => l.ehRua && mesmaRua(l.ruaNome || l.nome, ruaCep));
       if (base) lista = [{ ...base, detalhe: [base.bairro || doCep.bairro, `CEP ${textoCep(e.cep)}`].filter(Boolean).join(' · ') }, ...lista.filter((l) => l !== base)];
+    }
+    if (porNome) {
+      const nota = new Map(lista.map((l, i) => [l, relevancia(l, q, ref) - i * 0.001]));
+      lista = [...lista].sort((a, b) => nota.get(b) - nota.get(a));
     }
     const vistos = new Set();
     return lista.filter((l) => {
@@ -431,7 +480,7 @@
       vistos.add(k);
       vistos.add(k2);
       return true;
-    }).slice(0, 10);
+    }).slice(0, 12);
   }
 
   // o endereço de um ponto (onde a pessoa está, ou o meio do mapa): a rua certa, e o número só quando há uma casa
