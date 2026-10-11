@@ -60,46 +60,21 @@ body {
   background: var(--cobalto); color: var(--luz); cursor: pointer;
 }
 .ab-marca { display: flex; align-items: center; font-size: 4.7em; line-height: 1; }
-/* a marca: "drink" com a rodela de limão no pingo do i; transform-origin no canto para voar até as boas-vindas */
+/* a marca: o meio limão e "drink" no corte; transform-origin no canto para voar até as boas-vindas */
 .ab-logo { display: block; width: 2.3em; height: 2.3em; overflow: visible; transform-origin: 0 0; }
-.ab-letras, .ab-pingo, .ab-quica, .ab-bate { transform-box: fill-box; }
-.ab-bate { transform-origin: 50% 50%; }
+.ab-letras, .ab-pingo, .ab-quica { transform-box: fill-box; }
 .ab-pingo { transform-origin: 50% 50%; }
 .ab-quica { transform-origin: 50% 100%; }
 .ab-sub { font-size: .76em; font-weight: 800; letter-spacing: .2em; text-transform: uppercase; color: var(--lima-tx); }
 /* antes de começar só o fundo aparece */
 .app:not(.abrindo) :is(.ab-marca, .ab-sub) { visibility: hidden; }
-/* a coqueteleira bate em cima da marca (com respingos de limão), a tampinha salta, ela vira e o meio limão cai no
-   lugar dele e quica; aí "drink" sobe da linha do corte */
-.ab-tampa, .ab-gota, .ab-traco { transform-box: fill-box; transform-origin: 50% 50%; }
-.ab-gota { fill: #D2FF3C; opacity: 0; }
-.ab-traco { fill: none; stroke: #D2FF3C; stroke-width: 5; stroke-linecap: round; opacity: 0; }
-.abrindo .ab-letras { animation: ab-letras .45s 1.5s cubic-bezier(.2, .7, .1, 1) both; }
-.abrindo .ab-bate { animation: ab-bate 1.5s .1s both; }
-.abrindo .ab-tampa { animation: ab-tampa .42s 1s cubic-bezier(.2, .7, .4, 1) both; }
-.abrindo .ab-gota { animation: ab-gota .26s calc(.24s + var(--i) * .04s) ease-out 3 both; }
-.abrindo .ab-traco { animation: ab-traco .16s .24s linear 5 alternate both; }
-.abrindo .ab-traco-2 { animation-delay: .32s; }
-.abrindo .ab-pingo { animation: ab-cai .3s 1.2s cubic-bezier(.55, 0, .9, .45) both; }
-.abrindo .ab-quica { animation: ab-quica .42s 1.5s ease-out; }
-.abrindo .ab-sub { animation: ab-sub .5s 1.75s ease-out both; }
+/* o meio limão cai girando no lugar dele e quica; aí "drink" sobe da linha do corte */
+.abrindo .ab-pingo { animation: ab-cai .62s .12s cubic-bezier(.55, 0, .9, .45) both; }
+.abrindo .ab-quica { animation: ab-quica .42s .74s ease-out; }
+.abrindo .ab-letras { animation: ab-letras .45s .8s cubic-bezier(.2, .7, .1, 1) both; }
+.abrindo .ab-sub { animation: ab-sub .5s 1.05s ease-out both; }
 @keyframes ab-letras { from { opacity: 0; transform: translateY(24%); } to { opacity: 1; transform: none; } }
-@keyframes ab-bate {
-  0% { opacity: 0; transform: translateY(-14%) scale(.8) rotate(-10deg); }
-  8% { opacity: 1; transform: none; }
-  14%, 26%, 38% { transform: translate(-3%, -8%) rotate(-22deg); }
-  20%, 32%, 44% { transform: translate(3%, 4%) rotate(16deg); }
-  50% { transform: translate(0, -4%) rotate(-6deg); }
-  56% { transform: none; }
-  68% { opacity: 1; transform: translateY(-3%) rotate(150deg); }
-  76%, 86% { opacity: 1; transform: translateY(-4%) rotate(165deg); }
-  100% { opacity: 0; transform: translateY(-26%) rotate(165deg) scale(.9); }
-}
-@keyframes ab-tampa { from { opacity: 1; transform: none; } to { opacity: 0; transform: translate(-70%, -180%) rotate(-60deg); } }
-@keyframes ab-gota { 0% { opacity: 0; transform: scale(.4); } 30% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(1); } }
-@keyframes ab-traco { from { opacity: .85; } to { opacity: 0; } }
-@keyframes ab-cai { from { opacity: 0; transform: translate(22%, -110%) scale(.35) rotate(-140deg); } 15% { opacity: 1; } to { opacity: 1; transform: none; } }
-@media (prefers-reduced-motion: reduce) { .ab-coqueteleira { display: none; } }
+@keyframes ab-cai { from { opacity: 0; transform: translateY(-150%) rotate(-200deg); } 20% { opacity: 1; } to { opacity: 1; transform: none; } }
 @keyframes ab-quica { 0%, 100% { transform: none; } 35% { transform: scale(1.14, .82); } 70% { transform: scale(.96, 1.05); } }
 @keyframes ab-sub { from { opacity: 0; transform: translateY(.7em); } to { opacity: 1; transform: none; } }
 
