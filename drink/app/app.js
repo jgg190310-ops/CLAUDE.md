@@ -308,26 +308,23 @@
     el.hidden = false;
   }
 
-  // como o código chega: SMS (com o Firebase ligado); senão por e-mail (o ntfy encaminha), quando a pessoa põe o
-  // e-mail; sem e-mail, por notificação neste celular ou, sem nenhum dos dois, sem código
+  // verificação em duas etapas, sempre: o código chega por SMS (com o Firebase ligado) ou, sem ele, pelo e-mail (o ntfy
+  // encaminha). Sem código certo, não entra
   const emailValido = (s) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(String(s || '').trim());
   const emailDigitado = () => $('#en-cel-email').value.trim();
   function jeitoDoCodigo() {
-    if (SMS.ativo()) return 'sms';
-    if (emailValido(emailDigitado())) return 'email';
-    return ['ligado', 'desligado'].includes(AVISOS.estado()) ? 'notificacao' : 'nenhum';
+    return SMS.ativo() ? 'sms' : 'email';
   }
   function atualizarBotaoCel() {
     const jeito = jeitoDoCodigo();
     const email = emailDigitado();
-    celBt.disabled = digitos(cel.value).length < 11 || Boolean(email && !emailValido(email));
-    celBt.textContent = { email: 'Receber código por e-mail', nenhum: 'Continuar' }[jeito] || 'Receber código';
+    celBt.disabled = digitos(cel.value).length < 11 || (jeito === 'email' && !emailValido(email));
+    celBt.textContent = jeito === 'email' ? 'Receber código por e-mail' : 'Receber código';
   }
   function comecarConta(modo) {
     fluxo.modo = modo;
     const sms = SMS.ativo();
-    const aviso = ['ligado', 'desligado'].includes(AVISOS.estado());
-    const como = sms ? 'um código por SMS' : (aviso ? 'um código pro seu e-mail (ou, sem e-mail, por notificação neste celular)' : 'um código pro seu e-mail');
+    const como = sms ? 'um código por SMS' : 'um código pro seu e-mail';
     $('#cel-t').textContent = modo === 'criar' ? 'Qual é o seu celular?' : 'Entra com o seu celular';
     $('#cel-sub').textContent = modo === 'criar' ? `A gente manda ${como} pra confirmar que é você.` : `O mesmo número do cadastro. A gente manda ${como}.`;
     $('#en-cel-nota').textContent = sms
@@ -357,18 +354,13 @@
     if (d.length < 11) { mostrarErro('#en-cel-erro', 'Faltam números: é o DDD mais os 9 dígitos.'); cel.focus(); return; }
     if (!celularValido(d)) { mostrarErro('#en-cel-erro', 'Esse não parece um celular. Confere o DDD e o 9 do começo.'); cel.focus(); return; }
     const email = emailDigitado();
-    if (email && !emailValido(email)) { mostrarErro('#en-cel-erro', 'Esse e-mail parece incompleto.'); $('#en-cel-email').focus(); return; }
-    fluxo.celular = d;
-    fluxo.email = email;
-    const jeito = jeitoDoCodigo();
-    if (jeito === 'nenhum') {
-      // sem SMS e sem notificação neste navegador: o número fica anotado, sem código de mentira
-      const estado = AVISOS.estado();
-      avisar(estado === 'instalar' ? 'Número anotado. Com o Drink instalado na tela de início, o código chega por notificação.'
-        : (estado === 'bloqueado' ? 'Número anotado. As notificações estão bloqueadas, então seguimos sem o código.' : 'Número anotado.'));
-      depoisDoCodigo();
+    if (jeitoDoCodigo() === 'email' && !emailValido(email)) {
+      mostrarErro('#en-cel-erro', email ? 'Esse e-mail parece incompleto.' : 'Põe o seu e-mail: o código de confirmação chega por lá.');
+      $('#en-cel-email').focus();
       return;
     }
+    fluxo.celular = d;
+    fluxo.email = email;
     irEn('codigo');
     enviarCodigo();
   });
@@ -481,7 +473,7 @@
     } catch (e) {
       if (fluxo.envio !== envio) return;
       mostrarErro('#en-cod-erro', e.status === 429
-        ? 'Muitos e-mails mandados daqui hoje. Tenta de novo mais tarde, ou segue sem o código.'
+        ? 'Muitos e-mails mandados daqui hoje. Tenta de novo daqui a uma hora.'
         : 'Não deu pra mandar o e-mail agora. Confere o endereço e a internet e toca em Reenviar código.');
       contarReenvio(0);
       mostrarSemCodigo();
@@ -560,11 +552,9 @@
   codIn.addEventListener('focus', () => codCaixa.classList.add('foco'));
   codIn.addEventListener('blur', () => codCaixa.classList.remove('foco'));
   $('#form-cod').addEventListener('submit', (e) => { e.preventDefault(); conferir(); });
+  // não chegou: sem entrar sem o código; ajuda a achar o e-mail ou trocar o endereço
   function seguirSemCodigo() {
-    pararDeOuvir();
-    AVISOS.definir('codigo', []);
-    avisar('Tudo bem: o número ficou anotado sem o código.');
-    depoisDoCodigo();
+    avisar(fluxo.email ? `Confere a caixa de spam de ${fluxo.email}, ou toca em Trocar e-mail e confere o endereço.` : 'Toca em Reenviar código.');
   }
 
   function depoisDoCodigo() {
