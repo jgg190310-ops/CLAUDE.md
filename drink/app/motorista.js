@@ -478,16 +478,20 @@
       }
       if (atual === 'online') desenharPedidos();
     }
+    const pertoChamado = (c) => (pos ? `${S.textoKm((S.distancia(pos, c.de) * 1.3) / 1000)} de você · ` : '');
+    const pertoPedido = (p) => (pos ? `${S.textoKm((S.distancia(pos, p.de) * 1.3) / 1000)} de você · ` : '');
+    const prazoPedido = (p, agora) => { const seg = Math.max(0, Math.round((p.expira - agora) / 1000)); return seg > 60 ? `aberto por mais ${Math.ceil(seg / 60)} min` : 'fechando'; };
     function htmlChamado(c) {
-      const perto = pos ? `${S.textoKm((S.distancia(pos, c.de) * 1.3) / 1000)} de você · ` : '';
+      const perto = pertoChamado(c);
       const det = [c.drinks ? `precisa de ${c.drinks} ${c.drinks === 1 ? 'Drink' : 'Drinks'}` : '', c.teto ? `o evento paga até ${brl0(c.teto)} por volta` : 'cada convidado paga a sua'].filter(Boolean).join(' · ');
-      return `<li class="rm-pedido rm-chamado">
+      return `<li class="rm-pedido rm-chamado" data-chamado="${esc(c.id)}">
           <div class="rm-ped-topo"><b>${esc(c.evento)} chamando Drinks</b>${c.fim ? `<em>até ${esc(c.fim)}</em>` : ''}</div>
-          <p>${esc(perto)}${esc(c.de.bairro)} · ${esc(det)}</p>
+          <p><span class="rm-ped-perto">${esc(perto)}</span>${esc(c.de.bairro)} · ${esc(det)}</p>
           <p class="rm-ped-prazo">Os pedidos dos convidados saem de perto desse ponto.</p>
           <a class="t-bt rm-ch-ir" href="https://www.google.com/maps/dir/?api=1&amp;destination=${c.de.lat},${c.de.lon}" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#i-navegar"/></svg>Ver no mapa</a>
         </li>`;
     }
+    let listaDesenhada = '';
     function desenharPedidos() {
       const agora = Date.now();
       [...pedidos.keys()].forEach((id) => { if (agora > pedidos.get(id).expira) pedidos.delete(id); });
@@ -508,17 +512,30 @@
       avisoGps();
       q('#rm-on-chip').textContent = simPedido ? 'Simulação · 1 pedido'
         : (lista.length ? `Online · ${lista.length} ${lista.length === 1 ? 'pedido' : 'pedidos'}` : 'Online · procurando pedidos');
-      q('#rm-pedidos').innerHTML = chamando.map(htmlChamado).join('') + lista.map((p) => {
-        const perto = pos ? S.textoKm((S.distancia(pos, p.de) * 1.3) / 1000) : '';
-        const seg = Math.max(0, Math.round((p.expira - agora) / 1000));
-        const ev = p.ev ? `<p class="rm-ped-ev"><b>Evento</b> · ${p.ev.teto ? (p.valor <= p.ev.teto ? 'o evento paga a volta toda' : `o evento paga ${esc(brl0(p.ev.teto))} e o passageiro o resto`) : 'o passageiro paga pelo Pix'}</p>` : '';
-        return `<li class="rm-pedido">
+      // a lista só é refeita quando entra ou sai um pedido; a cada leitura do GPS (uma por segundo, andando) muda só a
+      // distância e o prazo, no lugar: refazer a lista trocaria o botão Aceitar debaixo do dedo e o toque se perderia
+      const chaveLista = [...chamando.map((c) => `c${c.id}:${c.t}`), ...lista.map((p) => p.id)].join('|');
+      const caixa = q('#rm-pedidos');
+      if (chaveLista === listaDesenhada && caixa.children.length === chamando.length + lista.length) {
+        chamando.forEach((c) => { const e = caixa.querySelector(`[data-chamado="${CSS.escape(c.id)}"] .rm-ped-perto`); if (e) e.textContent = pertoChamado(c); });
+        lista.forEach((p) => {
+          const li = caixa.querySelector(`[data-pedido="${CSS.escape(p.id)}"]`);
+          if (!li) return;
+          li.querySelector('.rm-ped-perto').textContent = pertoPedido(p);
+          li.querySelector('.rm-ped-prazo').textContent = prazoPedido(p, agora);
+        });
+      } else {
+        listaDesenhada = chaveLista;
+        caixa.innerHTML = chamando.map(htmlChamado).join('') + lista.map((p) => {
+          const ev = p.ev ? `<p class="rm-ped-ev"><b>Evento</b> · ${p.ev.teto ? (p.valor <= p.ev.teto ? 'o evento paga a volta toda' : `o evento paga ${esc(brl0(p.ev.teto))} e o passageiro o resto`) : 'o passageiro paga pelo Pix'}</p>` : '';
+          return `<li class="rm-pedido" data-pedido="${esc(p.id)}">
           <div class="rm-ped-topo"><b>${esc(p.de.bairro)} → ${esc(p.para.bairro)}</b><em>${esc(brl(p.valor))}</em></div>${ev}
-          <p>${perto ? `${perto} de você · ` : ''}viagem de ${esc(S.textoKm(p.km))} · câmbio ${esc(p.cambio || 'automático')} · ${p.nota ? `passageiro nota ${esc(S.virgula(p.nota))}` : 'passageiro novo no Drink'}</p>
-          <p class="rm-ped-prazo">${seg > 60 ? `aberto por mais ${Math.ceil(seg / 60)} min` : 'fechando'}</p>
+          <p><span class="rm-ped-perto">${esc(pertoPedido(p))}</span>viagem de ${esc(S.textoKm(p.km))} · câmbio ${esc(p.cambio || 'automático')} · ${p.nota ? `passageiro nota ${esc(S.virgula(p.nota))}` : 'passageiro novo no Drink'}</p>
+          <p class="rm-ped-prazo">${prazoPedido(p, agora)}</p>
           <button type="button" class="t-botao" data-aceitar="${esc(p.id)}">Aceitar</button>
         </li>`;
-      }).join('');
+        }).join('');
+      }
       if (mapa && atual === 'online') {
         mapa.pedidos(lista.map((p) => ({ lat: p.de.lat, lon: p.de.lon, id: p.id })));
         // pedido novo: o mapa abre para mostrar de onde ele veio
