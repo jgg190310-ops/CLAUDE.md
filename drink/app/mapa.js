@@ -269,6 +269,7 @@
       // (uma folha: mede do topo dela até o pé do mapa, e assim conta também a margem da folha solta e a barra de abas)
       folga(x) { medirFolga = cobre(el, x); vigia = vigiarFolha(x, folga, memoria, vigia); },
       aoMover(fn) { mapa.on('moveend', fn); },
+      aoArrastar(fn) { mapa.on('dragstart', fn); },
       ponto(nome, p, icone) {
         if (!p) { api.tirar(nome); return; }
         if (ANEL.includes(nome)) { anel = comAnel(p); aplicarPrecisao(); }
@@ -430,6 +431,7 @@
       // (uma folha: mede do topo dela até o pé do mapa, e assim conta também a margem da folha solta e a barra de abas)
       folga(x) { medirFolga = cobre(el, x); vigia = vigiarFolha(x, folga, memoria, vigia); },
       aoMover(fn) { mapa.on('moveend', fn); },
+      aoArrastar(fn) { mapa.on('dragstart', fn); },
       ponto(nome, p, ic) {
         if (!p) { api.tirar(nome); return; }
         if (ANEL.includes(nome)) {
