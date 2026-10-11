@@ -440,7 +440,7 @@ body { font-family: var(--f-texto); font-feature-settings: "cv11", "ss01"; lette
 .boas-parado { display: none; }
 @media (prefers-reduced-motion: reduce) { .boas-anda { display: none; } .boas-parado { display: inline; } }
 /* a marca lá em cima, à esquerda (ela voa da abertura até aqui) */
-.app .boas-marca { top: calc(var(--topo) + .5em); left: .9em; width: 4.6em; height: 4.6em; }
+.app .boas-marca { top: calc(var(--topo) + .5em); left: .9em; width: 4em; height: 4em; }
 /* o texto continua o mapa, sem folha por cima */
 .app .boas-folha { margin-top: -4.2em; padding-top: 0; background: transparent; border-radius: 0; gap: .95em; }
 .app .boas-t { font-size: 2.15em; line-height: 1.06; letter-spacing: -.035em; }
