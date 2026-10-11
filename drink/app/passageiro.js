@@ -145,7 +145,10 @@
       if (!a.hidden) a.textContent = `Sua localização está aproximada (margem de uns ${margem()}). Confere o embarque antes de pedir.`;
     }
     function mostrarEmbarque() {
+      // o endereço achado antes só vale perto de onde a pessoa está agora (senão, o novo ainda está a caminho)
+      const velho = ultimoEndereco && pos && S.distancia(ultimoEndereco, pos) > 150;
       if (embarqueManual && embarque) q('#rp-local').textContent = `Embarque em ${juntar(embarque)}`;
+      else if (velho) q('#rp-local').textContent = 'Procurando o endereço daqui…';
       else if (ultimoEndereco && aproximado()) q('#rp-local').textContent = `Perto de ${juntar(ultimoEndereco.lugar)} · margem de uns ${margem()}`;
       else if (ultimoEndereco) q('#rp-local').textContent = `Você está em ${juntar(ultimoEndereco.lugar)}`;
       q('#rp-de').textContent = (embarque && embarque.nome) || 'Sua localização';
@@ -157,7 +160,9 @@
         mostrarEmbarque();
         return;
       }
-      embarque = { nome: (embarque && embarque.nome) || 'Sua localização', bairro: (embarque && embarque.bairro) || '', lat: pos.lat, lon: pos.lon };
+      // enquanto o endereço novo não chega, o nome antigo só fica se a pessoa ainda está perto dele
+      const valeONome = embarque && ultimoEndereco && S.distancia(ultimoEndereco, pos) < 150;
+      embarque = { nome: valeONome ? embarque.nome : 'Sua localização', bairro: valeONome ? embarque.bairro || '' : '', lat: pos.lat, lon: pos.lon };
       const aqui = pos;
       try {
         const l = await S.endereco(aqui);
