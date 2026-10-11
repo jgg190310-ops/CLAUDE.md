@@ -223,7 +223,7 @@
     }
     function comecar() {
       app.classList.add('abrindo');
-      timer = setTimeout(sair, ms(temConta ? 1950 : 2300));
+      timer = setTimeout(sair, ms(temConta ? 2000 : 2350));
     }
     abertura.addEventListener('click', sair);
     cor();
