@@ -77,6 +77,8 @@
     // o mapa do início segue o GPS até a pessoa arrastar; centradoCom é a precisão da última vez que centrou
     let mexeuNoMapa = false;
     let centradoCom = 0;
+    // o alfinete aberto pelo Ajustar do início (volta para o início, não para a busca)
+    let ajustando = false;
 
     const agendar = (fn, ms) => { timers.push(setTimeout(fn, ms)); };
     const limparTimers = () => { timers.forEach(clearTimeout); timers = []; };
@@ -151,7 +153,10 @@
       if (!a.hidden) a.textContent = `Sua localização está aproximada (margem de uns ${margem()}). Confere o embarque antes de pedir.`;
     }
     function mostrarEmbarque() {
+      // o endereço achado antes só vale perto de onde a pessoa está agora (senão, o novo ainda está a caminho)
+      const velho = ultimoEndereco && pos && S.distancia(ultimoEndereco, pos) > 150;
       if (embarqueManual && embarque) q('#rp-local').textContent = `Embarque em ${juntar(embarque)}`;
+      else if (velho) q('#rp-local').textContent = 'Procurando o endereço daqui…';
       else if (ultimoEndereco && aproximado()) q('#rp-local').textContent = `Perto de ${juntar(ultimoEndereco.lugar)} · margem de uns ${margem()}`;
       else if (ultimoEndereco) q('#rp-local').textContent = `Você está em ${juntar(ultimoEndereco.lugar)}`;
       q('#rp-de').textContent = (embarque && embarque.nome) || 'Sua localização';
@@ -170,7 +175,9 @@
         mostrarEmbarque();
         return;
       }
-      embarque = { nome: (embarque && embarque.nome) || 'Sua localização', bairro: (embarque && embarque.bairro) || '', lat: pos.lat, lon: pos.lon };
+      // enquanto o endereço novo não chega, o nome antigo só fica se a pessoa ainda está perto dele
+      const valeONome = embarque && ultimoEndereco && S.distancia(ultimoEndereco, pos) < 150;
+      embarque = { nome: valeONome ? embarque.nome : 'Sua localização', bairro: valeONome ? embarque.bairro || '' : '', lat: pos.lat, lon: pos.lon };
       const aqui = pos;
       try {
         const l = await S.endereco(aqui);
@@ -483,6 +490,7 @@
     /* ---------- telas ---------- */
     const COM_ABAS = ['inicio', 'viagens', 'bares', 'eventos', 'carteira', 'perfil'];
     function ir(nome, { foco = true } = {}) {
+      if (nome !== 'no-mapa') ajustando = false;
       fecharFolha(false);
       const tela = telas.find((t) => t.dataset.rt === nome);
       if (!tela) return;
@@ -699,7 +707,7 @@
           embarque = { ...lugar, noMapa: Boolean(l.noMapa) };
         }
         mostrarEmbarque();
-        if (voltarPara === 'inicio-ajuste') {
+        if (ajustando) {
           modoBusca = 'destino';
           ir('inicio');
           op.avisar(`Embarque ajustado: ${lugar.nome}.`);
@@ -2101,9 +2109,9 @@
           ir(volta);
         },
         'no-mapa': () => ir('no-mapa'),
-        'ajustar-embarque': () => { voltarPara = 'inicio-ajuste'; modoBusca = 'embarque'; ir('no-mapa'); },
+        'ajustar-embarque': () => { modoBusca = 'embarque'; ir('no-mapa'); ajustando = true; },
         'sair-no-mapa': () => {
-          if (voltarPara === 'inicio-ajuste') { modoBusca = 'destino'; ir('inicio'); return; }
+          if (ajustando) { modoBusca = 'destino'; ir('inicio'); return; }
           ir('destino');
         },
         'nm-aqui': () => {
@@ -2296,7 +2304,7 @@
       if (folha) { fecharFolha(); return true; }
       const mapaVolta = { destino: modoBusca === 'destino' ? 'inicio' : (voltarPara || 'perfil'), 'no-mapa': 'destino', opcoes: 'destino', ninguem: 'opcoes', viagens: 'inicio', carteira: 'inicio', perfil: 'inicio', pix: 'chegou', eventos: 'inicio', 'evento-novo': 'eventos', evento: 'eventos', bares: 'inicio', 'bar-ver': 'bares', 'bar-camera': 'bares', 'bar-novo': 'bares', bar: 'bares', 'bar-chamar': 'bar' };
       if (atual === 'buscando' || atual === 'caminho') { op.avisar('Pra desistir, toca em Cancelar.'); return true; }
-      if (atual === 'no-mapa' && voltarPara === 'inicio-ajuste') { modoBusca = 'destino'; ir('inicio'); return true; }
+      if (atual === 'no-mapa' && ajustando) { modoBusca = 'destino'; ir('inicio'); return true; }
       if (mapaVolta[atual]) { if (atual === 'destino') modoBusca = 'destino'; ir(mapaVolta[atual]); return true; }
       if (atual === 'inicio') return false;
       op.avisar('A corrida está acontecendo. Termina por aqui mesmo.');
