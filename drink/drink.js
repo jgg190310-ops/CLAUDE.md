@@ -59,7 +59,7 @@
         sol.style.translate = `0 ${((1 - p) * 38).toFixed(1)}%`;
         sol.style.rotate = `${(p * 40).toFixed(1)}deg`;
       }
-      if (roda) roda.style.rotate = `${(y * 0.08).toFixed(1)}deg`;
+      if (roda) roda.style.rotate = `${(Math.sin(y / 260) * 6).toFixed(2)}deg`;
     };
   }
 

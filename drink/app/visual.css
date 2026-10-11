@@ -411,7 +411,14 @@ body { font-family: var(--f-texto); font-feature-settings: "cv11", "ss01"; lette
    ========================================================================================================== */
 
 /* ---------- abertura ---------- */
-.app .ab { background: radial-gradient(60% 42% at 50% 47%, rgba(210, 255, 60, .12), transparent 70%), #0A0B0F; }
+.app .ab { background: #0A0B0F; }
+/* o fundo da marca: o mesmo degradê do ícone, do grafite ao verde do limão no canto de baixo (numa camada própria,
+   para sumir junto quando a marca voa até as boas-vindas) */
+.ab-fundo {
+  position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(60% 42% at 50% 47%, rgba(210, 255, 60, .1), transparent 70%), linear-gradient(135deg, #0A0B0F 0%, #0A0B0F 25%, #121A0C 62%, #2E4A06 100%);
+}
+.ab > :not(.ab-fundo) { position: relative; }
 .app .ab-sub { color: var(--a-texto-2); font-weight: 600; letter-spacing: .26em; }
 
 /* ---------- boas-vindas ---------- */
@@ -433,7 +440,7 @@ body { font-family: var(--f-texto); font-feature-settings: "cv11", "ss01"; lette
 .boas-parado { display: none; }
 @media (prefers-reduced-motion: reduce) { .boas-anda { display: none; } .boas-parado { display: inline; } }
 /* a marca lá em cima, à esquerda (ela voa da abertura até aqui) */
-.app .boas-marca { top: calc(var(--topo) + .9em); left: 1.3em; height: 2.6em; }
+.app .boas-marca { top: calc(var(--topo) + .5em); left: .9em; width: 4em; height: 4em; }
 /* o texto continua o mapa, sem folha por cima */
 .app .boas-folha { margin-top: -4.2em; padding-top: 0; background: transparent; border-radius: 0; gap: .95em; }
 .app .boas-t { font-size: 2.15em; line-height: 1.06; letter-spacing: -.035em; }
@@ -510,5 +517,18 @@ body { font-family: var(--f-texto); font-feature-settings: "cv11", "ss01"; lette
 
 /* v37: a marca no fim do perfil e do menu do motorista, na cor do texto (escura no tema claro) */
 .en-assina { display: grid; justify-items: center; gap: .55em; margin: 1.4em 0 .6em; color: var(--luz); }
-.en-assina svg { display: block; width: auto; height: 2.3em; aspect-ratio: 1924 / 876; overflow: visible; }
+.en-assina svg { display: block; width: 5.2em; height: 5.2em; overflow: visible; }
 .en-assina span { font-size: .72em; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--a-texto-2); }
+
+/* ajustar o embarque no mapa (início) e a dica do alfinete */
+.app .rp-local > span { flex: 1; min-width: 0; }
+.app .rp-ajustar {
+  flex: none; margin-left: auto; min-height: 2.3em; padding: 0 .9em; border: 1px solid var(--a-linha); border-radius: 99px;
+  background: transparent; color: var(--lima-tx); font: inherit; font-size: 1em; font-weight: 800; cursor: pointer;
+}
+.app .rp-ajustar:hover { border-color: var(--lima-tx); }
+.app .rp-ajustar.forte { border-color: transparent; background: var(--lima); color: #0A0B0F; }
+.app .rp-nm-dica { margin: 0; font-size: .82em; line-height: 1.4; color: var(--a-texto-2); }
+
+/* a unidade de um lugar com mais de uma (Bar do Lopes · Savassi) */
+.app .d-lista .rp-unidade { font-weight: 500; color: var(--a-texto-2); }

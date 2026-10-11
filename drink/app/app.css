@@ -60,21 +60,21 @@ body {
   background: var(--cobalto); color: var(--luz); cursor: pointer;
 }
 .ab-marca { display: flex; align-items: center; font-size: 4.7em; line-height: 1; }
-/* a marca: "drink" com a rodela de limão no pingo do i; transform-origin no canto para voar até as boas-vindas */
-.ab-logo { display: block; width: 2.75em; height: auto; aspect-ratio: 1924 / 876; overflow: visible; transform-origin: 0 0; }
+/* a marca: o meio limão e "drink" no corte; transform-origin no canto para voar até as boas-vindas */
+.ab-logo { display: block; width: 2.3em; height: 2.3em; overflow: visible; transform-origin: 0 0; }
 .ab-letras, .ab-pingo, .ab-quica { transform-box: fill-box; }
 .ab-pingo { transform-origin: 50% 50%; }
 .ab-quica { transform-origin: 50% 100%; }
 .ab-sub { font-size: .76em; font-weight: 800; letter-spacing: .2em; text-transform: uppercase; color: var(--lima-tx); }
 /* antes de começar só o fundo aparece */
 .app:not(.abrindo) :is(.ab-marca, .ab-sub) { visibility: hidden; }
-/* as letras sobem, o limão cai girando no lugar do pingo e quica */
-.abrindo .ab-letras { animation: ab-letras .55s .08s cubic-bezier(.2, .7, .1, 1) both; }
-.abrindo .ab-pingo { animation: ab-cai .6s .38s cubic-bezier(.55, 0, .9, .45) both; }
-.abrindo .ab-quica { animation: ab-quica .42s .98s ease-out; }
-.abrindo .ab-sub { animation: ab-sub .5s 1s ease-out both; }
-@keyframes ab-letras { from { opacity: 0; transform: translateY(18%); } to { opacity: 1; transform: none; } }
-@keyframes ab-cai { from { opacity: 0; transform: translateY(-330%) rotate(-260deg); } 25% { opacity: 1; } to { opacity: 1; transform: none; } }
+/* o meio limão cai girando no lugar dele e quica; aí "drink" sobe da linha do corte */
+.abrindo .ab-pingo { animation: ab-cai .62s .12s cubic-bezier(.55, 0, .9, .45) both; }
+.abrindo .ab-quica { animation: ab-quica .42s .74s ease-out; }
+.abrindo .ab-letras { animation: ab-letras .45s .8s cubic-bezier(.2, .7, .1, 1) both; }
+.abrindo .ab-sub { animation: ab-sub .5s 1.05s ease-out both; }
+@keyframes ab-letras { from { opacity: 0; transform: translateY(24%); } to { opacity: 1; transform: none; } }
+@keyframes ab-cai { from { opacity: 0; transform: translateY(-150%) rotate(-200deg); } 20% { opacity: 1; } to { opacity: 1; transform: none; } }
 @keyframes ab-quica { 0%, 100% { transform: none; } 35% { transform: scale(1.14, .82); } 70% { transform: scale(.96, 1.05); } }
 @keyframes ab-sub { from { opacity: 0; transform: translateY(.7em); } to { opacity: 1; transform: none; } }
 
@@ -101,7 +101,7 @@ body {
 .boas-faiscas { fill: var(--lima); }
 .boas-marca {
   position: absolute; top: calc(var(--topo) + 1em); left: 1.3em;
-  display: block; width: auto; height: 2.5em; aspect-ratio: 1924 / 876; overflow: visible; color: var(--luz);
+  display: block; width: 3em; height: 3em; overflow: visible; color: var(--luz);
 }
 .boas-bebeu {
   position: absolute; left: .26em; bottom: 27cqw;
@@ -761,7 +761,7 @@ body {
   .mesa-voltar:focus-visible { outline: 2px solid var(--lima-tx); outline-offset: 3px; }
   .mesa-meio { display: grid; gap: 20px; }
   .mesa-marca { margin: 0; line-height: 0; }
-  .mesa-marca svg { display: block; width: auto; height: 52px; aspect-ratio: 1924 / 876; overflow: visible; }
+  .mesa-marca svg { display: block; width: 112px; height: 112px; overflow: visible; }
   .mesa-t { font-family: var(--f-display); font-weight: 800; font-stretch: 80%; font-size: clamp(44px, 4.6vw, 64px); line-height: .95; letter-spacing: -.03em; text-wrap: balance; }
   .mesa-t span { color: var(--lima-tx); }
   .mesa-txt { max-width: 34ch; font-size: 18px; line-height: 1.5; color: var(--luz-2); }
@@ -1108,7 +1108,7 @@ html.deitado .vira {
 .ev-cq-t { font-family: var(--f-display); font-weight: 800; font-stretch: 88%; font-size: 1.45em; line-height: 1.05; }
 .ev-cq-t b { color: inherit; box-shadow: inset 0 -.26em 0 var(--lima); }
 /* a marca no alto do cartão (letras na cor da tinta, limão no pingo) */
-.ev-cq-marca { display: block; width: auto; height: 2.1em; aspect-ratio: 1924 / 876; overflow: visible; margin-bottom: .1em; color: var(--tinta); }
+.ev-cq-marca { display: block; width: 5em; height: 5em; overflow: visible; color: var(--tinta); }
 .ev-cq-sub { max-width: 24em; font-size: .78em; color: var(--tinta-2); text-wrap: pretty; }
 .ev-bts { display: grid; grid-template-columns: 1fr 1fr; gap: .5em; margin: .8em 1.2em 0; }
 .ev-bts .t-bt { height: 2.9em; }

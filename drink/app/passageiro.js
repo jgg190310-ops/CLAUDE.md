@@ -74,6 +74,11 @@
     let rastreioTimer = 0;
     let gpsNegado = false;
     let embarqueManual = false;
+    // o mapa do início segue o GPS até a pessoa arrastar; centradoCom é a precisão da última vez que centrou
+    let mexeuNoMapa = false;
+    let centradoCom = 0;
+    // o alfinete aberto pelo Ajustar do início (volta para o início, não para a busca)
+    let ajustando = false;
 
     const agendar = (fn, ms) => { timers.push(setTimeout(fn, ms)); };
     const limparTimers = () => { timers.forEach(clearTimeout); timers = []; };
@@ -104,6 +109,7 @@
       if (mapa) return mapa;
       mapa = Mapa.criar(q('#mapa-p'), { centro: pos || S.BH, zoom: 15 });
       mapa.aoMover(() => { if (atual === 'no-mapa') lerMeio(); });
+      mapa.aoArrastar(() => { mexeuNoMapa = true; });
       return mapa;
     }
     function ligarGps() {
@@ -122,11 +128,14 @@
         if (!p) return;
         gpsNegado = false;
         q('#rp-gps').hidden = true;
-        const primeira = !pos;
+        // a primeira leitura de verdade (depois da posição guardada de antes) também centra o mapa
+        const primeira = !pos || (pos.guardada && !p.guardada);
+        // a precisão melhorou muito (da rede para o GPS de verdade): o mapa vai junto, se a pessoa não arrastou
+        const melhorou = !primeira && centradoCom && p.precisao < centradoCom / 2 && S.distancia(p, pos) > 20 && !mexeuNoMapa;
         pos = p;
         if (atual === 'opcoes') avisoPrecisao();
         if (mapa && !(corrida && corrida.etapa === 'viagem')) mapa.ponto('voce', p, Mapa.ICONE.voce());
-        if (primeira && atual === 'inicio') { centrarEmMim(); desenharAtalhos(); }
+        if (primeira && atual === 'inicio') { centrarNoInicio(); desenharAtalhos(); } else if (melhorou && atual === 'inicio' && !embarqueManual) centrarEmMim();
         if (!corrida) atualizarEmbarque();
         // pedido pelo bar: este celular ficou no bar; quem diz onde o carro está é o motorista
         if (corrida && corrida.etapa === 'viagem' && !corrida.simulada && !corrida.peloBar) andarNaViagem(p);
@@ -144,23 +153,35 @@
       if (!a.hidden) a.textContent = `Sua localização está aproximada (margem de uns ${margem()}). Confere o embarque antes de pedir.`;
     }
     function mostrarEmbarque() {
+      // o endereço achado antes só vale perto de onde a pessoa está agora (senão, o novo ainda está a caminho)
+      const velho = ultimoEndereco && pos && S.distancia(ultimoEndereco, pos) > 150;
       if (embarqueManual && embarque) q('#rp-local').textContent = `Embarque em ${juntar(embarque)}`;
+      else if (velho) q('#rp-local').textContent = 'Procurando o endereço daqui…';
       else if (ultimoEndereco && aproximado()) q('#rp-local').textContent = `Perto de ${juntar(ultimoEndereco.lugar)} · margem de uns ${margem()}`;
       else if (ultimoEndereco) q('#rp-local').textContent = `Você está em ${juntar(ultimoEndereco.lugar)}`;
       q('#rp-de').textContent = (embarque && embarque.nome) || 'Sua localização';
+      const aj = q('#rp-ajustar');
+      aj.hidden = !(pos || (embarqueManual && embarque));
+      // localização aproximada: o Ajustar fica em destaque
+      aj.classList.toggle('forte', aproximado());
     }
     async function atualizarEmbarque() {
       if (!pos || embarqueManual) return;
-      if (ultimoEndereco && S.distancia(ultimoEndereco, pos) < 120) {
+      // com número da casa, 25 m já mudam a porta; e um endereço achado com uma posição bem pior que a de agora é refeito
+      const raio = ultimoEndereco && ultimoEndereco.lugar.numero ? 25 : 120;
+      const pior = ultimoEndereco && ultimoEndereco.precisao > 60 && ultimoEndereco.precisao > 2 * (pos.precisao || 0);
+      if (ultimoEndereco && S.distancia(ultimoEndereco, pos) < raio && !pior) {
         embarque = { ...ultimoEndereco.lugar, lat: pos.lat, lon: pos.lon };
         mostrarEmbarque();
         return;
       }
-      embarque = { nome: (embarque && embarque.nome) || 'Sua localização', bairro: (embarque && embarque.bairro) || '', lat: pos.lat, lon: pos.lon };
+      // enquanto o endereço novo não chega, o nome antigo só fica se a pessoa ainda está perto dele
+      const valeONome = embarque && ultimoEndereco && S.distancia(ultimoEndereco, pos) < 150;
+      embarque = { nome: valeONome ? embarque.nome : 'Sua localização', bairro: valeONome ? embarque.bairro || '' : '', lat: pos.lat, lon: pos.lon };
       const aqui = pos;
       try {
         const l = await S.endereco(aqui);
-        ultimoEndereco = { lat: aqui.lat, lon: aqui.lon, lugar: l };
+        ultimoEndereco = { lat: aqui.lat, lon: aqui.lon, precisao: aqui.precisao || 0, lugar: l };
         if (embarqueManual) return;
         embarque = { ...l, lat: pos.lat, lon: pos.lon };
         mostrarEmbarque();
@@ -350,6 +371,20 @@
     function centrarEmMim() {
       garantirMapa();
       mapa.centrar(pos || S.BH, 15.5);
+      centradoCom = pos ? pos.precisao || 1 : 0;
+      mexeuNoMapa = false;
+    }
+    // no início: o embarque ajustado no mapa aparece com o ponto dele; senão, o mapa fica em você
+    function centrarNoInicio() {
+      garantirMapa();
+      if (embarqueManual && embarque && embarque.noMapa) {
+        mapa.ponto('embarque', embarque, Mapa.ICONE.embarque());
+        mapa.centrar(embarque, 16.5);
+        mexeuNoMapa = false;
+        return;
+      }
+      mapa.tirar('embarque');
+      centrarEmMim();
     }
     // a folha de baixo cobre parte do mapa: o mapa precisa saber quanto
     function medirFolha(tela) {
@@ -455,6 +490,7 @@
     /* ---------- telas ---------- */
     const COM_ABAS = ['inicio', 'viagens', 'bares', 'eventos', 'carteira', 'perfil'];
     function ir(nome, { foco = true } = {}) {
+      if (nome !== 'no-mapa') ajustando = false;
       fecharFolha(false);
       const tela = telas.find((t) => t.dataset.rt === nome);
       if (!tela) return;
@@ -494,7 +530,8 @@
         q('.rp-saudacao').textContent = h >= 5 && h < 12 ? 'Bom dia' : (h >= 12 && h < 18 ? 'Boa tarde' : 'Boa noite');
         mapa.limpar();
         if (pos) mapa.ponto('voce', pos, Mapa.ICONE.voce());
-        centrarEmMim();
+        centrarNoInicio();
+        mostrarEmbarque();
         desenharAtalhos();
         desenharRecentes();
         AG.desenhar();
@@ -523,10 +560,21 @@
         mostrarSalvos();
         setTimeout(() => campo.focus({ preventScroll: true }), 50);
       },
-      'no-mapa'() {
+      'no-mapa'(tela) {
         mapa.limpar();
         if (pos) mapa.ponto('voce', pos, Mapa.ICONE.voce());
-        mapa.centrar(destino || pos || S.BH, 16);
+        const emb = modoBusca === 'embarque';
+        const centro = emb ? (embarque || pos) : (modoBusca === 'destino' ? (destino || pos) : pos);
+        q('#rp-nm-t').textContent = { embarque: 'Arrasta o mapa até onde você vai estar', bar: 'Arrasta o mapa até a porta do bar', evento: 'Arrasta o mapa até a entrada do evento', casa: 'Arrasta o mapa até a sua casa', trabalho: 'Arrasta o mapa até o seu trabalho' }[modoBusca] || 'Arrasta o mapa até o lugar';
+        const dica = q('#rp-nm-dica');
+        dica.hidden = !emb;
+        if (emb) dica.textContent = pos && pos.precisao > PRECISAO_RUIM
+          ? `O GPS está com margem de uns ${margem()}: põe a ponta do alfinete na porta onde o motorista te encontra.`
+          : 'A ponta do alfinete é onde o motorista vai te encontrar. Dá para pôr na porta certa, do outro lado da rua.';
+        q('#rp-nm-bt').textContent = emb ? 'Embarcar aqui' : 'Confirmar esse lugar';
+        // a dica muda a altura da folha: mede de novo antes de centrar, para a ponta do alfinete cair no ponto
+        medirFolha(tela);
+        mapa.centrar(centro || S.BH, emb ? 17.5 : 16);
         posicionarAlfinete();
         lerMeio();
       },
@@ -579,7 +627,62 @@
     /* ---------- busca de endereço ---------- */
     function linhaLugar(l, i, icone = 'i-pin') {
       const dist = pos ? `<em>${S.textoKm(S.distancia(pos, l) / 1000)}</em>` : '';
-      return `<li><button type="button" data-lugar="${i}"><svg aria-hidden="true"><use href="#${icone}"/></svg><span><b>${esc(l.nome)}</b><small>${esc(l.detalhe || l.bairro || '')}</small></span>${dist}</button></li>`;
+      return `<li><button type="button" data-lugar="${i}"><svg aria-hidden="true"><use href="#${icone}"/></svg><span>${textoLugar(l)}</span>${dist}</button></li>`;
+    }
+    // o nome (com a unidade, se o lugar tem mais de uma) e o endereço
+    const textoLugar = (l) => `<b>${esc(l.nome)}${l.unidade ? ` <span class="rp-unidade">· ${esc(l.unidade)}</span>` : ''}</b>`
+      + `<small>${esc(l.detalhe || l.bairro || '')}${l.procurando ? ' · procurando o endereço…' : ''}</small>`;
+
+    /* ---------- o mesmo lugar com mais de uma unidade ---------- */
+    // o Bar do Lopes tem três: cada unidade diz qual é (o bairro ao lado do nome; no mesmo bairro, a rua) e mostra o
+    // endereço dela; se o mapa não tem a rua, o endereço vem do ponto da unidade, logo depois
+    const chaveNome = (t) => String(t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+    const nomeDaRua = (r) => String(r || '').replace(/,\s*\d.*$/, '');
+    function marcarUnidades(lista) {
+      const grupos = new Map();
+      lista.forEach((l) => {
+        if (l.ehRua || l.gps || !l.nome) return;
+        const k = chaveNome(l.nome);
+        grupos.set(k, [...(grupos.get(k) || []), l]);
+      });
+      for (const g of grupos.values()) {
+        if (g.length < 2) continue;
+        const pelaRua = new Set(g.map((l) => l.bairro)).size < g.length || g.some((l) => !l.bairro);
+        g.forEach((l) => {
+          l.unidades = g.length;
+          l.unidade = (pelaRua && nomeDaRua(l.rua)) || l.bairro || nomeDaRua(l.rua) || '';
+        });
+      }
+    }
+    // o endereço dos lugares que o mapa conhece sem a rua: as unidades primeiro, no máximo 4 por busca (o reverso
+    // pede uma consulta por segundo); cada linha se completa quando o endereço chega
+    function completarEnderecos(lista) {
+      const faltam = lista.filter((l) => !l.rua && !l.parceiro && !l.ehRua && !l.gps && l.categoria && l.categoria !== 'Bairro')
+        .sort((a, b) => (b.unidades ? 1 : 0) - (a.unidades ? 1 : 0)).slice(0, 4);
+      faltam.forEach((l) => {
+        l.procurando = true;
+        redesenharLugar(lista, l);
+        S.endereco(l).then((e) => {
+          if (e && e.ruaNome) {
+            l.rua = e.rua;
+            const partes = String(l.detalhe || '').split(' · ').filter(Boolean);
+            const depois = partes[0] === l.categoria ? 1 : 0;
+            partes.splice(depois, 0, e.rua);
+            l.detalhe = partes.join(' · ');
+          }
+        }).catch(() => {}).then(() => {
+          l.procurando = false;
+          if (l.unidades) marcarUnidades(lista);
+          lista.forEach((x) => { if (x.unidades && chaveNome(x.nome) === chaveNome(l.nome)) redesenharLugar(lista, x); });
+          redesenharLugar(lista, l);
+        });
+      });
+    }
+    function redesenharLugar(lista, l) {
+      if (achados !== lista) return;
+      const i = lista.indexOf(l);
+      const span = q(`#rp-resultados [data-lugar="${i}"] > span`);
+      if (span) span.innerHTML = textoLugar(l);
     }
     function mostrarSalvos() {
       const u = eu();
@@ -616,14 +719,16 @@
         q('#rp-res-t').textContent = 'Buscando…';
         // os bares do Drink que batem com o texto: achados na hora, mesmo que não estejam no mapa
         const parceiros = (modoBusca === 'destino' || modoBusca === 'embarque')
-          ? abaBar.buscar(texto).map((b) => ({ nome: b.nome, detalhe: ['Bar do Drink', b.endereco || b.bairro].filter(Boolean).join(' · '), bairro: b.bairro, lat: b.lat, lon: b.lon, icone: 'i-copo' }))
+          ? abaBar.buscar(texto).map((b) => ({ nome: b.nome, detalhe: ['Bar do Drink', b.endereco || b.bairro].filter(Boolean).join(' · '), bairro: b.bairro, rua: b.endereco || '', lat: b.lat, lon: b.lon, icone: 'i-copo', parceiro: true }))
           : [];
         try {
           const doMapa = await S.buscar(texto, pos, buscaCtl.signal);
           const lista = [...parceiros, ...doMapa.filter((l) => !parceiros.some((b) => S.distancia(b, l) < 60))];
+          marcarUnidades(lista);
           achados = lista;
           q('#rp-res-t').textContent = lista.length ? 'Resultados' : (modoBusca === 'bar' ? 'Não achei. Toca em "Escolher no mapa" e marca a porta do bar.' : 'Não achei esse lugar. Tenta outro nome ou escolhe no mapa.');
           q('#rp-resultados').innerHTML = lista.map((l, i) => linhaLugar(l, i, l.icone)).join('');
+          completarEnderecos(lista);
         } catch (e) {
           if (e.name === 'AbortError') return;
           achados = parceiros;
@@ -633,7 +738,10 @@
       }, 380);
     }
     function escolherLugar(l) {
-      const lugar = { nome: l.detalhe && ['Casa', 'Trabalho'].includes(l.nome) ? l.detalhe : l.nome, detalhe: l.detalhe || '', bairro: l.bairro || '', lat: l.lat, lon: l.lon };
+      const base = l.detalhe && ['Casa', 'Trabalho'].includes(l.nome) ? l.detalhe : l.nome;
+      // a unidade escolhida vai no nome do destino: o motorista vê qual é ("Bar do Lopes · Rua Antônio de Albuquerque, 617")
+      const nome = l.unidades > 1 ? (l.rua ? `${base} · ${l.rua}` : (l.unidade && l.unidade !== l.bairro ? `${base} · ${l.unidade}` : base)) : base;
+      const lugar = { nome, detalhe: l.detalhe || '', bairro: l.bairro || '', lat: l.lat, lon: l.lon };
       const modo = modoBusca;
       modoBusca = 'destino';
       if (modo === 'bar') {
@@ -656,9 +764,15 @@
           atualizarEmbarque();
         } else {
           embarqueManual = true;
-          embarque = lugar;
+          embarque = { ...lugar, noMapa: Boolean(l.noMapa) };
         }
         mostrarEmbarque();
+        if (ajustando) {
+          modoBusca = 'destino';
+          ir('inicio');
+          op.avisar(`Embarque ajustado: ${lugar.nome}.`);
+          return;
+        }
         ir(voltarPara === 'opcoes' && destino ? 'opcoes' : 'destino');
         return;
       }
@@ -2044,7 +2158,7 @@
             centrarEmMim();
             return;
           }
-          if (embarqueManual) { embarqueManual = false; op.avisar('Embarque de volta onde você está.'); atualizarEmbarque(); }
+          if (embarqueManual) { embarqueManual = false; mapa.tirar('embarque'); op.avisar('Embarque de volta onde você está.'); atualizarEmbarque(); }
           centrarEmMim();
         },
         'trocar-embarque': () => { voltarPara = atual; modoBusca = 'embarque'; ir('destino'); },
@@ -2055,6 +2169,15 @@
           ir(volta);
         },
         'no-mapa': () => ir('no-mapa'),
+        'ajustar-embarque': () => { modoBusca = 'embarque'; ir('no-mapa'); ajustando = true; },
+        'sair-no-mapa': () => {
+          if (ajustando) { modoBusca = 'destino'; ir('inicio'); return; }
+          ir('destino');
+        },
+        'nm-aqui': () => {
+          if (!pos) { S.gps.tentar(); op.avisar(S.gps.negado() ? 'A localização está bloqueada. Libera nas configurações do navegador.' : 'Procurando você no mapa…'); return; }
+          mapa.centrar(pos, 17.5);
+        },
         'confirmar-no-mapa': () => { if (meioLugar) escolherLugar(meioLugar); },
         cancelar,
         simular,
@@ -2241,6 +2364,7 @@
       if (folha) { fecharFolha(); return true; }
       const mapaVolta = { destino: modoBusca === 'destino' ? 'inicio' : (voltarPara || 'perfil'), 'no-mapa': 'destino', opcoes: 'destino', ninguem: 'opcoes', viagens: 'inicio', carteira: 'inicio', perfil: 'inicio', pix: 'chegou', eventos: 'inicio', 'evento-novo': 'eventos', evento: 'eventos', bares: 'inicio', 'bar-ver': 'bares', 'bar-camera': 'bares', 'bar-novo': 'bares', bar: 'bares', 'bar-chamar': 'bar' };
       if (atual === 'buscando' || atual === 'caminho') { op.avisar('Pra desistir, toca em Cancelar.'); return true; }
+      if (atual === 'no-mapa' && ajustando) { modoBusca = 'destino'; ir('inicio'); return true; }
       if (mapaVolta[atual]) { if (atual === 'destino') modoBusca = 'destino'; ir(mapaVolta[atual]); return true; }
       if (atual === 'inicio') return false;
       op.avisar('A corrida está acontecendo. Termina por aqui mesmo.');
