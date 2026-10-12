@@ -73,17 +73,17 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&display=swap">
-  <link rel="stylesheet" href="../app-telas.css?v=51">
-  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=51">
-  <link rel="stylesheet" href="vendor/leaflet.css?v=51">
-  <link rel="stylesheet" href="app.css?v=51">
-  <link rel="stylesheet" href="visual.css?v=51">
-  <link rel="stylesheet" href="tema.css?v=51">
-  <link rel="stylesheet" href="ritmo.css?v=51">
-  <link rel="stylesheet" href="perfil.css?v=51">
-  <link rel="stylesheet" href="jornada.css?v=51">
-  <link rel="stylesheet" href="agenda.css?v=51">
-  <link rel="stylesheet" href="bares.css?v=51">
+  <link rel="stylesheet" href="../app-telas.css?v=52">
+  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=52">
+  <link rel="stylesheet" href="vendor/leaflet.css?v=52">
+  <link rel="stylesheet" href="app.css?v=52">
+  <link rel="stylesheet" href="visual.css?v=52">
+  <link rel="stylesheet" href="tema.css?v=52">
+  <link rel="stylesheet" href="ritmo.css?v=52">
+  <link rel="stylesheet" href="perfil.css?v=52">
+  <link rel="stylesheet" href="jornada.css?v=52">
+  <link rel="stylesheet" href="agenda.css?v=52">
+  <link rel="stylesheet" href="bares.css?v=52">
 </head>
 <body>
 <svg class="sprite" aria-hidden="true" focusable="false">
@@ -100,6 +100,7 @@
     <symbol id="i-estrela" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.8l-5.2 2.7 1-5.8-4.2-4.1 5.8-.8z" style="fill:currentColor;stroke:none"/></symbol>
     <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
     <symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 8h3.2l1.8-2.5h6L16.8 8H20v11H4z"/><circle cx="12" cy="13.2" r="3.3"/></symbol>
+    <symbol id="i-coracao" viewBox="0 0 24 24"><path d="M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0112 7.2a4.3 4.3 0 017.5 2.6C19.5 15.4 12 20 12 20z"/></symbol>
     <symbol id="i-lapis" viewBox="0 0 24 24"><path d="M4.5 19.5l1-4.2L16.3 4.5a2 2 0 012.9 0l.3.3a2 2 0 010 2.9L8.7 18.5z"/><path d="M14.5 6.3l3.2 3.2"/></symbol>
     <symbol id="i-chave" viewBox="0 0 24 24"><circle cx="8" cy="15.5" r="4"/><path d="M10.9 12.6L19 4.5M15.5 8l2.5 2.5M13.5 10l2 2"/></symbol>
     <symbol id="i-ajuda" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v5.5M12 16.3v.2"/></symbol>
@@ -848,6 +849,11 @@
               <li><b id="rp-barp-semana">0</b><small>em 7 dias</small></li>
               <li><b id="rp-barp-total">0</b><small>no total</small></li>
             </ul>
+            <div class="bar-relatorio">
+              <p class="d-sec" id="rp-barp-rel-t">Últimas 7 noites</p>
+              <ol class="bar-grafico" id="rp-barp-grafico" aria-labelledby="rp-barp-rel-t"></ol>
+              <p class="bar-rel-resumo" id="rp-barp-resumo"></p>
+            </div>
             <button type="button" class="t-bt bar-chamar" data-bar="chamar"><svg aria-hidden="true"><use href="#i-bike"/></svg><span><b>Chamar um Drink para um cliente</b><small>O garçom pede pelo celular do bar e acompanha até o Drink chegar</small></span></button>
             <div class="ev-bloco ev-bloco-convite">
               <div class="ev-cartao-qr" id="rp-barp-cartao">
@@ -869,9 +875,15 @@
               <p><b id="rp-barp-ben-t">Sem benefício</b><small id="rp-barp-ben"></small></p>
             </div>
             <button type="button" class="t-bt bar-editar" data-bar="editar"><svg aria-hidden="true"><use href="#i-lapis"/></svg>Editar o bar e o benefício</button>
+            <form class="bar-conferir" id="rp-barp-conf" novalidate>
+              <label class="en-campo en-rot"><span>Conferir o código do recibo</span><input id="rp-barp-cod" type="text" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="0000" aria-describedby="rp-barp-conf-res"></label>
+              <button type="submit" class="t-botao">Conferir</button>
+              <p class="bar-conf-res" id="rp-barp-conf-res" role="status" aria-live="polite" hidden></p>
+            </form>
             <p class="d-sec">Voltas desta noite</p>
             <p class="ev-resumo" id="rp-barp-vazio">Nenhuma volta ainda. Quando alguém pedir pelo QR, ou você chamar pelo cliente, a volta aparece aqui com o código do recibo.</p>
             <ul class="ev-voltas-lista bar-voltas" id="rp-barp-voltas"></ul>
+            <button type="button" class="t-bt bar-exportar" data-bar="exportar"><svg aria-hidden="true"><use href="#i-copiar"/></svg>Baixar as voltas em planilha</button>
             <button type="button" class="en-link ev-apagar" data-bar="apagar">Apagar o bar deste aparelho</button>
           </div>
         </section>
@@ -915,6 +927,7 @@
             <button type="button" role="radio" aria-checked="true" data-bs-filtro="todos">Todos</button>
             <button type="button" role="radio" aria-checked="false" data-bs-filtro="abertos">Abertos agora</button>
             <button type="button" role="radio" aria-checked="false" data-bs-filtro="beneficio">Com benefício</button>
+            <button type="button" role="radio" aria-checked="false" data-bs-filtro="favoritos">Favoritos</button>
           </div>
           <p class="d-sec" id="rp-bs-n">Bares parceiros</p>
           <ul class="bs-lista" id="rp-bs-lista" aria-live="polite"></ul>
@@ -930,6 +943,7 @@
         <section class="rt rt-cheia" data-rt="bar-ver" aria-labelledby="rp-bv-t" hidden>
           <div class="bv-capa" id="rp-bv-capa"></div>
           <button type="button" class="d-voltar d-voltar-flut bv-voltar" data-rp-aba="bares" aria-label="Voltar para os bares"><svg aria-hidden="true"><use href="#i-voltar"/></svg></button>
+          <button type="button" class="d-voltar d-voltar-flut bv-fav" id="rp-bv-fav" data-rp="bar-fav" aria-pressed="false" aria-label="Favoritar o bar (avisa quando ele abrir)"><svg aria-hidden="true"><use href="#i-coracao"/></svg></button>
           <div class="bv-corpo">
             <p class="bv-achou" id="rp-bv-achou" role="status" hidden></p>
             <h3 class="d-titulo bv-t" id="rp-bv-t" tabindex="-1">Bar</h3>
@@ -1838,26 +1852,26 @@
   <p class="vira-txt" id="vira-txt">O Drink é feito para usar na vertical. Nada se perde: se tiver corrida, ela continua rolando.</p>
 </div>
 
-<script src="vendor/maplibre-gl.js?v=51"></script>
-<script src="vendor/leaflet.js?v=51"></script>
-<script src="vendor/qrcode.js?v=51"></script>
-<script src="../app-nucleo.js?v=51"></script>
-<script src="servicos.js?v=51"></script>
-<script src="rede.js?v=51"></script>
-<script src="mapa-estilo.js?v=51"></script>
-<script src="mapa.js?v=51"></script>
-<script src="carros.js?v=51"></script>
-<script src="cadastro-motorista.js?v=51"></script>
-<script src="perfil.js?v=51"></script>
-<script src="pix.js?v=51"></script>
-<script src="avisos.js?v=51"></script>
-<script src="sms.js?v=51"></script>
-<script src="eventos.js?v=51"></script>
-<script src="agenda.js?v=51"></script>
-<script src="leitor.js?v=51"></script>
-<script src="bares.js?v=51"></script>
-<script src="passageiro.js?v=51"></script>
-<script src="motorista.js?v=51"></script>
-<script src="app.js?v=51"></script>
+<script src="vendor/maplibre-gl.js?v=52"></script>
+<script src="vendor/leaflet.js?v=52"></script>
+<script src="vendor/qrcode.js?v=52"></script>
+<script src="../app-nucleo.js?v=52"></script>
+<script src="servicos.js?v=52"></script>
+<script src="rede.js?v=52"></script>
+<script src="mapa-estilo.js?v=52"></script>
+<script src="mapa.js?v=52"></script>
+<script src="carros.js?v=52"></script>
+<script src="cadastro-motorista.js?v=52"></script>
+<script src="perfil.js?v=52"></script>
+<script src="pix.js?v=52"></script>
+<script src="avisos.js?v=52"></script>
+<script src="sms.js?v=52"></script>
+<script src="eventos.js?v=52"></script>
+<script src="agenda.js?v=52"></script>
+<script src="leitor.js?v=52"></script>
+<script src="bares.js?v=52"></script>
+<script src="passageiro.js?v=52"></script>
+<script src="motorista.js?v=52"></script>
+<script src="app.js?v=52"></script>
 </body>
 </html>

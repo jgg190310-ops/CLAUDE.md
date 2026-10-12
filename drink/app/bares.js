@@ -326,6 +326,94 @@
     const aberto = (b) => Boolean(b && b.aberto && b.aberto.ate > Date.now());
     const daNoite = (b) => b.voltas.filter((v) => v.t >= inicioDaNoite());
     const daSemana = (b) => b.voltas.filter((v) => v.t >= Date.now() - 7 * DIA);
+    const doMes = (b) => b.voltas.filter((v) => v.t >= Date.now() - 30 * DIA);
+    const SEMANA = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
+    const SEMANA_LONGA = ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'];
+    const dataCurta = (t) => new Date(t).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+
+    /* ---------- o relatório: as últimas 7 noites e o mês ---------- */
+    function relatorio(b) {
+      const hoje = inicioDaNoite();
+      const noites = [];
+      for (let i = 6; i >= 0; i -= 1) {
+        const de = hoje - i * DIA;
+        const n = b.voltas.filter((v) => v.t >= de && v.t < de + DIA).length;
+        noites.push({ de, n, dia: new Date(de).getDay() });
+      }
+      const max = Math.max(1, ...noites.map((x) => x.n));
+      q('#rp-barp-grafico').innerHTML = noites.map((x, i) => `<li aria-label="${SEMANA_LONGA[x.dia]}${i === 6 ? ' (hoje)' : ''}: ${voltasNum(x.n)}"><b>${x.n}</b><i style="--h:${Math.round((x.n / max) * 100)}%"${x.n ? '' : ' class="zero"'}></i><small>${i === 6 ? 'hoje' : SEMANA[x.dia]}</small></li>`).join('');
+      const mes = doMes(b);
+      if (!mes.length) { q('#rp-barp-resumo').textContent = 'Ainda sem voltas no mês. Com o QR nas mesas, elas aparecem aqui.'; return; }
+      // o pico: a hora em que mais saiu volta no mês
+      const horas = new Array(24).fill(0);
+      mes.forEach((v) => { horas[new Date(v.t).getHours()] += 1; });
+      const pico = horas.indexOf(Math.max(...horas));
+      const peloBar = mes.filter((v) => v.peloBar).length;
+      const usados = mes.filter((v) => v.usado).length;
+      q('#rp-barp-resumo').textContent = [
+        `Em 30 dias: ${voltasNum(mes.length)}`, `o pico é por volta das ${String(pico).padStart(2, '0')}h`,
+        peloBar ? `${peloBar} ${peloBar === 1 ? 'chamada' : 'chamadas'} pelo bar` : '',
+        usados ? `${usados} ${usados === 1 ? 'benefício usado' : 'benefícios usados'}` : '',
+      ].filter(Boolean).join(' · ') + '.';
+    }
+    const voltasNum = (n) => `${n} ${n === 1 ? 'volta' : 'voltas'}`;
+
+    /* ---------- conferir o código do recibo (e marcar o benefício como usado) ---------- */
+    function conferir() {
+      const b = meu();
+      const res = q('#rp-barp-conf-res');
+      const cod = q('#rp-barp-cod').value.replace(/\D/g, '');
+      res.hidden = false;
+      res.className = 'bar-conf-res';
+      if (!b) return;
+      if (!/^\d{4}$/.test(cod)) { res.textContent = 'O código do recibo tem 4 números.'; res.classList.add('erro'); q('#rp-barp-cod').focus(); return; }
+      const achados = b.voltas.filter((v) => v.cupom === cod && v.t >= Date.now() - 30 * DIA).sort((x, y) => y.t - x.t);
+      if (!achados.length) { res.textContent = `O código ${cod} não está nas voltas dos últimos 30 dias. Confira o número no recibo do cliente.`; res.classList.add('erro'); return; }
+      const v = achados.find((x) => !x.usado);
+      if (!v) {
+        const u = achados[0];
+        res.textContent = `Esse código já foi usado em ${dataCurta(u.usado)} às ${hhmm(new Date(u.usado))} (${u.cliente}).`;
+        res.classList.add('aviso');
+        return;
+      }
+      v.usado = Date.now();
+      op.salvar();
+      const ben = beneficioTxt(b.beneficio);
+      res.textContent = `Vale: ${v.cliente} voltou de Drink em ${dataCurta(v.t)} às ${hhmm(new Date(v.t))}${ben ? `. Benefício: ${minuscula(ben)}` : ''}. Marcado como usado.`;
+      res.classList.add('ok');
+      q('#rp-barp-cod').value = '';
+      desenharVoltas(b);
+      relatorio(b);
+    }
+    function desenharVoltas(b) {
+      const noite = daNoite(b).slice().reverse();
+      q('#rp-barp-vazio').hidden = noite.length > 0;
+      q('#rp-barp-voltas').innerHTML = noite.map((v) => `<li><span><b>${esc(v.cliente)}</b>${v.peloBar ? ' <em class="bar-tag">chamado pelo bar</em>' : ''}${v.usado ? ' <em class="bar-tag bar-usado">benefício usado</em>' : ''}<small>${esc(hhmm(new Date(v.t)))}${v.para ? ` · para ${esc(v.para)}` : ''}</small></span>${v.cupom ? `<code aria-label="Código ${esc(v.cupom.split('').join(' '))}">${esc(v.cupom)}</code>` : ''}</li>`).join('');
+    }
+
+    /* ---------- baixar as voltas numa planilha (abre no Excel e no Google Planilhas) ---------- */
+    function exportar() {
+      const b = meu();
+      if (!b) return;
+      if (!b.voltas.length) { op.avisar('Ainda não tem volta para baixar.'); return; }
+      const cel = (x) => `"${String(x).replace(/"/g, '""')}"`;
+      const linhas = [['Data', 'Hora', 'Cliente', 'Para', 'Código do recibo', 'Chamado pelo bar', 'Benefício usado em']]
+        .concat(b.voltas.slice().sort((x, y) => x.t - y.t).map((v) => [
+          new Date(v.t).toLocaleDateString('pt-BR'), hhmm(new Date(v.t)), v.cliente, v.para || '', v.cupom || '', v.peloBar ? 'sim' : 'não',
+          v.usado ? `${new Date(v.usado).toLocaleDateString('pt-BR')} ${hhmm(new Date(v.usado))}` : '',
+        ]));
+      const csv = `\ufeff${linhas.map((l) => l.map(cel).join(';')).join('\r\n')}\r\n`;
+      const nome = `voltas-${b.nome.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'bar'}-${new Date().toISOString().slice(0, 10)}.csv`;
+      const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = nome;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 30000);
+      op.avisar(`Planilha baixada: ${voltasNum(b.voltas.length)}.`);
+    }
 
     /* ouvir as voltas do bar enquanto o painel está na tela (o ntfy guarda 12 h) */
     function ouvirCanal() {
@@ -394,6 +482,8 @@
       b.aberto = { desde: Date.now(), ate: fechamento(b.fecha) };
       op.salvar();
       publicarVitrine(b);
+      // quem favoritou o bar fica sabendo (aviso no celular, mesmo com o app fechado)
+      R.fila.mandar(R.topico.barAbriu(b.id), { v: 1, tipo: 'bar-abriu', id: b.id, nome: b.nome, bairro: b.lugar.bairro || '', ate: b.aberto.ate, beneficio: beneficioTxt(b.beneficio) }, { validade: 2 * HORA });
       pagina();
       op.avisar(`Pronto: o ${b.nome} está no mapa do Drink até ${hhmm(new Date(b.aberto.ate))}.`);
     }
@@ -568,9 +658,8 @@
       q('#rp-barp-ben').textContent = ben
         ? `${b.regra ? `${b.regra}. ` : ''}Quem volta de Drink mostra o código do recibo; ele aparece aqui, na lista da noite.`
         : 'Quem volta de Drink não ganha nada no seu bar. Um brinde simples traz o cliente de volta: toca em Editar.';
-      const noite = daNoite(b).slice().reverse();
-      q('#rp-barp-vazio').hidden = noite.length > 0;
-      q('#rp-barp-voltas').innerHTML = noite.map((v) => `<li><span><b>${esc(v.cliente)}</b>${v.peloBar ? ' <em class="bar-tag">chamado pelo bar</em>' : ''}<small>${esc(hhmm(new Date(v.t)))}${v.para ? ` · para ${esc(v.para)}` : ''}</small></span>${v.cupom ? `<code aria-label="Código ${esc(v.cupom.split('').join(' '))}">${esc(v.cupom)}</code>` : ''}</li>`).join('');
+      desenharVoltas(b);
+      relatorio(b);
       q('[data-bar="apagar"]').textContent = apagarArmado > Date.now() ? 'Toca de novo para apagar' : 'Apagar o bar deste aparelho';
       ouvirCanal();
     }
@@ -678,6 +767,7 @@
         imprimir,
         chamar: novaChamada,
         editar,
+        exportar,
         apagar,
       };
       if (ds.bar && acoes[ds.bar]) acoes[ds.bar]();
@@ -695,6 +785,8 @@
       op.avisar('Foto trocada. Ela já vai para a aba Bares.');
     }));
     q('#rp-barc-form').addEventListener('submit', (ev) => { ev.preventDefault(); seguirChamada(); });
+    q('#rp-barp-conf').addEventListener('submit', (ev) => { ev.preventDefault(); conferir(); });
+    q('#rp-barp-cod').addEventListener('input', (ev) => { ev.target.value = ev.target.value.replace(/\D/g, '').slice(0, 4); });
     q('#rp-barc-form').addEventListener('input', (ev) => {
       q('#rp-barc-erro').hidden = true;
       if (ev.target.id === 'rp-barc-placa') q('#rp-barc-previa').innerHTML = CARROS.placa.previa(ev.target.value);
@@ -721,7 +813,40 @@
     // o bar que veio do QR (com a chave) vira um cartão como os da vitrine
     const doLink = (b) => ({ id: b.id, nome: b.nome, endereco: b.lugar.nome !== b.nome ? b.lugar.nome : '', bairro: b.lugar.bairro, lat: b.lugar.lat, lon: b.lugar.lon, beneficio: b.beneficio, ate: 0, voltas: 0 });
 
+    /* os bares favoritos: até 10; quando um deles abre, o celular avisa (o dono publica "abriu" no canal do bar) */
+    const favs = () => { const u = op.eu && op.eu(); if (!u) return []; u.baresFav = (u.baresFav || []).filter((f) => f && ID.test(f.id)).slice(0, 10); return u.baresFav; };
+    const ehFav = (id) => favs().some((f) => f.id === id);
+    function sincronizarFavs() { const av = op.avisos && op.avisos(); if (av) av.definir('favoritos', favs().map((f) => R.topico.barAbriu(f.id))); }
+    function alternarFav() {
+      const b = visto;
+      const u = op.eu && op.eu();
+      if (!b || !u) return;
+      const av = op.avisos();
+      if (ehFav(b.id)) {
+        u.baresFav = favs().filter((f) => f.id !== b.id);
+        op.salvar();
+        sincronizarFavs();
+        op.avisar(`${b.nome} saiu dos favoritos.`);
+      } else {
+        if (favs().length >= 10) { op.avisar('Dá para ter até 10 bares favoritos. Tire um para pôr este.'); return; }
+        // a permissão dos avisos é pedida direto no toque (o iPhone só pergunta assim)
+        const pedido = av && av.estado() === 'desligado' ? av.pedir() : Promise.resolve(av ? av.estado() : 'sem-suporte');
+        u.baresFav = [...favs(), { id: b.id, nome: b.nome }];
+        op.salvar();
+        sincronizarFavs();
+        pedido.then((st) => op.avisar(st === 'ligado'
+          ? `${b.nome} nos favoritos: quando ele abrir, o celular avisa.`
+          : `${b.nome} nos favoritos. Para ser avisado quando ele abrir, ligue os avisos no Perfil${st === 'instalar' ? ' (no iPhone, com o Drink na tela de início)' : ''}.`));
+      }
+      pagina();
+      if (op.atual() === 'bares') desenhar();
+    }
+    let carregou = false;
     function receber(l) {
+      // um favorito que abriu com o app aberto: aviso na hora (a primeira leitura só mostra, não avisa)
+      const antes = new Set(lista.filter((b) => b.aberto).map((b) => b.id));
+      if (carregou) l.filter((b) => b.aberto && !antes.has(b.id) && ehFav(b.id)).forEach((b) => op.avisar(`${b.nome} abriu: até ${hhmm(new Date(b.ate))}.`));
+      carregou = carregou || l.length > 0;
       lista = l;
       if (op.atual() === 'bares') desenhar();
       if (visto) {
@@ -734,7 +859,7 @@
       const f = norm(filtro.trim());
       return lista.map((b) => ({ ...b, m: S.distancia(ref, b) }))
         .filter((b) => !f || norm(`${b.nome} ${b.bairro} ${b.endereco}`).includes(f))
-        .sort((a, b) => (Number(b.aberto) - Number(a.aberto)) || a.m - b.m);
+        .sort((a, b) => (Number(b.aberto) - Number(a.aberto)) || (Number(ehFav(b.id)) - Number(ehFav(a.id))) || a.m - b.m);
     }
     function capa(b, classe) {
       return b.fotoDados
@@ -742,7 +867,7 @@
         : `<span class="${classe} bs-sem-foto" aria-hidden="true"><svg><use href="#i-copo"/></svg></span>`;
     }
     // os filtros da aba (todos, abertos agora, com benefício) valem só para a lista; a busca de endereço vê todos
-    const passaFiltro = (b) => mostrar_ === 'abertos' ? b.aberto : (mostrar_ === 'beneficio' ? Boolean(beneficioTxt(b.beneficio)) : true);
+    const passaFiltro = (b) => ({ abertos: b.aberto, beneficio: Boolean(beneficioTxt(b.beneficio)), favoritos: ehFav(b.id) }[mostrar_] ?? true);
     function desenhar() {
       const todos = ordenados();
       const l = todos.filter(passaFiltro);
@@ -752,14 +877,15 @@
       q('#rp-bs-lista').innerHTML = l.map((b) => {
         const ben = beneficioTxt(b.beneficio);
         const voltas = b.voltas ? `<em class="bs-voltas">${esc(voltasTxt(b.voltas).replace(' de Drink', ''))}</em>` : '';
-        return `<li><button type="button" class="bs-cartao" data-rp-bar-ver="${esc(b.id)}">${capa(b, 'bs-foto')}<span class="bs-txt"><b>${esc(b.nome)}</b><small>${esc([b.bairro, S.textoKm(b.m / 1000)].filter(Boolean).join(' · '))}</small><span class="bs-linha"><em class="bs-sit${b.aberto ? ' aberto' : ''}">${esc(situacao(b))}</em>${voltas}</span>${ben ? `<span class="bs-ben"><svg aria-hidden="true"><use href="#i-cupom"/></svg><span><span class="sr">Benefício: </span>${esc(ben)}</span></span>` : ''}</span></button></li>`;
+        return `<li><button type="button" class="bs-cartao" data-rp-bar-ver="${esc(b.id)}">${capa(b, 'bs-foto')}<span class="bs-txt"><b>${esc(b.nome)}${ehFav(b.id) ? '<svg class="bs-fav" role="img" aria-label="favorito"><use href="#i-coracao"/></svg>' : ''}</b><small>${esc([b.bairro, S.textoKm(b.m / 1000)].filter(Boolean).join(' · '))}</small><span class="bs-linha"><em class="bs-sit${b.aberto ? ' aberto' : ''}">${esc(situacao(b))}</em>${voltas}</span>${ben ? `<span class="bs-ben"><svg aria-hidden="true"><use href="#i-cupom"/></svg><span><span class="sr">Benefício: </span>${esc(ben)}</span></span>` : ''}</span></button></li>`;
       }).join('');
       const vazio = q('#rp-bs-vazio');
       vazio.hidden = l.length > 0;
       vazio.textContent = filtro.trim()
         ? 'Nenhum bar parceiro com esse nome. Se você está no bar, aponte a câmera para o QR Code da mesa.'
         : (mostrar_ === 'abertos' && todos.length ? 'Nenhum bar parceiro aberto agora. Toque em Todos para ver os que abrem mais tarde.'
-          : (mostrar_ === 'beneficio' && todos.length ? 'Nenhum bar parceiro com benefício por enquanto.'
+          : (mostrar_ === 'favoritos' ? 'Nenhum bar favorito ainda. Abra um bar e toque no coração: o celular avisa quando ele abrir.'
+            : mostrar_ === 'beneficio' && todos.length ? 'Nenhum bar parceiro com benefício por enquanto.'
             : 'Os bares parceiros aparecem aqui assim que se cadastram. Num bar com o QR do Drink na mesa, aponte a câmera: ele aparece na hora.'));
     }
     function abrirBar(b, qr = false) {
@@ -797,6 +923,9 @@
       q('#rp-bv-voltas').textContent = String(n);
       q('#rp-bv-voltas-t').textContent = n === 1 ? 'volta hoje' : 'voltas hoje';
       q('#rp-bv-ir').href = comoChegar(b);
+      const fav = ehFav(b.id);
+      q('#rp-bv-fav').setAttribute('aria-pressed', String(fav));
+      q('#rp-bv-fav').setAttribute('aria-label', fav ? 'Tirar dos favoritos' : 'Favoritar o bar (avisa quando ele abrir)');
     }
 
     /* a câmera para o QR da mesa */
@@ -858,6 +987,7 @@
         'bar-camera': abrirCamera,
         'bq-fechar': () => { fecharCamera(); op.ir('bares'); },
         'bar-solicitar': () => { if (visto) op.solicitar(visto); },
+        'bar-fav': alternarFav,
       };
       if (bt.dataset.rp && acoes[bt.dataset.rp]) acoes[bt.dataset.rp]();
     });
@@ -871,6 +1001,7 @@
 
     // o cartão do bar na vitrine (com o benefício que o dono editou depois de imprimir o QR)
     const porId = (id) => lista.find((b) => b.id === id) || null;
+    setTimeout(sincronizarFavs, 0);
     return { receber, desenhar, pagina, abrirId, abrirDoLink, mostrar, buscar, porId, visto: () => visto };
   }
 

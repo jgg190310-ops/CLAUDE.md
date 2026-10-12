@@ -102,7 +102,7 @@
     });
     const TELAS_BAR = ['bares', 'bar', 'bar-novo', 'bar-chamar'];
     const abaBar = BAR.criarAba({
-      raiz, ir: (nome) => ir(nome), atual: () => atual, pos: () => pos, avisar: op.avisar,
+      raiz, ir: (nome) => ir(nome), atual: () => atual, pos: () => pos, avisar: op.avisar, eu, salvar: op.salvar, avisos: () => window.Drink.avisos,
       solicitar: (b) => solicitarNoBar(b), evento: (r) => conviteDoQr(r),
     });
 
