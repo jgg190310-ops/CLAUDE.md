@@ -746,7 +746,17 @@
         }
       }, 380);
     }
-    function escolherLugar(l) {
+    let conferindo = false;
+    async function escolherLugar(l) {
+      // unidade com o ponto da rua (lista dos conhecidos): confere a casa pelo endereço antes de seguir
+      if (l.aprox && !conferindo) {
+        conferindo = true;
+        const titulo = q('#rp-res-t').textContent;
+        q('#rp-res-t').textContent = 'Conferindo o endereço…';
+        try { l = await S.refinar(l); } finally { conferindo = false; }
+        if (atual !== 'destino') return;
+        q('#rp-res-t').textContent = titulo;
+      } else if (conferindo) return;
       const base = l.detalhe && ['Casa', 'Trabalho'].includes(l.nome) ? l.detalhe : l.nome;
       // a unidade escolhida vai no nome do destino: o motorista vê qual é ("Bar do Lopes · Rua Antônio de Albuquerque, 617")
       const nome = l.unidades > 1 ? (l.rua ? `${base} · ${l.rua}` : (l.unidade && l.unidade !== l.bairro ? `${base} · ${l.unidade}` : base)) : base;
