@@ -1230,3 +1230,12 @@ section.onda {
   .conversa .pergunta p { max-width: calc(100% - 44px); font-size: .96rem; }
   .adesivo-ev { right: 0; top: -2.7em; font-size: .9rem; }
 }
+
+/* ---------- links para as páginas de motoristas e de bares ---------- */
+.mais-link {
+  display: inline-flex; align-items: center; gap: 8px; width: fit-content; margin-top: 4px;
+  color: inherit; font-weight: 800; text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: .22em;
+}
+.mais-link .i { flex: none; width: 18px; height: 18px; stroke-width: 2.6; transition: transform .2s; }
+.mais-link:hover .i { transform: translateX(3px); }
+.ev-pontos .mais-link { color: var(--lima); }
