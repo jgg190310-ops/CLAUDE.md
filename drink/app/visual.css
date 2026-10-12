@@ -149,6 +149,8 @@ body { font-family: var(--f-texto); font-feature-settings: "cv11", "ss01"; lette
 .app .rt-chip .ma-on { box-shadow: 0 0 0 .22em rgba(210, 255, 60, .22); }
 .app .mapa::after { height: calc(var(--topo) + 4.2em); background: linear-gradient(rgba(6, 7, 11, .72), rgba(6, 7, 11, 0)); }
 .app .mapa-creditos { background: rgba(10, 11, 15, .6); color: rgba(244, 244, 247, .5); }
+.app .mapa-creditos.recolhido { background: transparent; }
+.app .mapa-creditos.recolhido .mapa-cred-i { width: 20px; height: 20px; border: 0; background: rgba(10, 11, 15, .72); color: rgba(244, 244, 247, .9); font-size: 11px; opacity: 1; }
 
 /* aviso no topo */
 .app .d-toast {
