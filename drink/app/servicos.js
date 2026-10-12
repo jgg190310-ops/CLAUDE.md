@@ -25,7 +25,7 @@
     firebase: null,
     // o código por e-mail: o EmailJS manda o e-mail direto do app, com a conta do Drink no emailjs.com
     // ({ servico, modelo, chave }: o Service ID, o Template ID e a Public Key de lá). Sem ela, não há e-mail
-    emailjs: null,
+    emailjs: { servico: 'service_gleq2px', modelo: 'template_psxaink', chave: 'YQZsN4vOvKUa4_bsK' },
     emailjsUrl: 'https://api.emailjs.com',
   };
   try { Object.assign(cfg, JSON.parse(localStorage.getItem('drink-servicos') || '{}')); } catch (e) { /* sem ajuste */ }
