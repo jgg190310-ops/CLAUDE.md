@@ -308,31 +308,57 @@
     el.hidden = false;
   }
 
-  // verificação em duas etapas, sempre: o código chega por SMS (com o Firebase ligado) ou, sem ele, pelo e-mail (o ntfy
-  // encaminha). Sem código certo, não entra
+  // verificação em duas etapas, sempre. O código chega por SMS (com o Firebase ligado), por e-mail (com o EmailJS
+  // ligado) ou por notificação neste celular (com o Drink instalado e as notificações liberadas); a pessoa escolhe
+  // entre os que dão. Sem código certo, não entra
   const emailValido = (s) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(String(s || '').trim());
   const emailDigitado = () => $('#en-cel-email').value.trim();
+  const temEmailJs = () => { const c = window.Drink.servicos.cfg.emailjs; return Boolean(c && c.servico && c.modelo && c.chave); };
+  function jeitosDisponiveis() {
+    const l = [];
+    if (SMS.ativo()) l.push('sms');
+    if (temEmailJs()) l.push('email');
+    if (['ligado', 'desligado'].includes(AVISOS.estado())) l.push('notificacao');
+    return l;
+  }
   function jeitoDoCodigo() {
-    return SMS.ativo() ? 'sms' : 'email';
+    const l = jeitosDisponiveis();
+    return l.includes(fluxo.jeito) ? fluxo.jeito : (l[0] || 'nenhum');
+  }
+  // sem nenhum jeito de mandar o código: o que a pessoa faz para receber
+  function semJeitoTxt() {
+    const e = AVISOS.estado();
+    if (e === 'instalar') return 'Pra receber o código, instala o Drink: no Safari, toca em Compartilhar e depois em "Adicionar à Tela de Início". Abre o Drink por lá e faz o cadastro.';
+    if (e === 'bloqueado') return 'As notificações do Drink estão bloqueadas, e é por elas que o código chega. Libera nos Ajustes do celular e volta aqui.';
+    return 'Este navegador não recebe o código. Abre o Drink no navegador do celular (Chrome ou Safari).';
+  }
+  function desenharJeitos() {
+    const l = jeitosDisponiveis();
+    const jeito = jeitoDoCodigo();
+    $('#en-jeitos').hidden = l.length < 2;
+    $$('#en-jeitos [data-jeito]').forEach((b) => {
+      b.hidden = !l.includes(b.dataset.jeito);
+      b.setAttribute('aria-checked', String(b.dataset.jeito === jeito));
+      b.tabIndex = b.dataset.jeito === jeito ? 0 : -1;
+    });
+    $('#en-cel-email-campo').hidden = jeito !== 'email';
+    $('#en-sem-jeito').hidden = jeito !== 'nenhum';
+    if (jeito === 'nenhum') $('#en-sem-jeito-txt').textContent = semJeitoTxt();
+    $('#en-cel-nota').parentElement.hidden = false;
+    $('#en-cel-nota').textContent = { sms: 'SMS de verdade, protegido pelo reCAPTCHA do Google.', email: 'O seu número só aparece para o motorista da sua corrida. O e-mail fica para os recibos.' }[jeito]
+      || 'O seu número só aparece para o motorista da sua corrida.';
   }
   function atualizarBotaoCel() {
     const jeito = jeitoDoCodigo();
-    const email = emailDigitado();
-    celBt.disabled = digitos(cel.value).length < 11 || (jeito === 'email' && !emailValido(email));
-    celBt.textContent = jeito === 'email' ? 'Receber código por e-mail' : 'Receber código';
+    celBt.disabled = jeito === 'nenhum' || digitos(cel.value).length < 11 || (jeito === 'email' && !emailValido(emailDigitado()));
+    celBt.textContent = { sms: 'Receber código por SMS', email: 'Receber código por e-mail', notificacao: 'Receber código por notificação' }[jeito] || 'Receber código';
   }
   function comecarConta(modo) {
     fluxo.modo = modo;
-    const sms = SMS.ativo();
-    const como = sms ? 'um código por SMS' : 'um código pro seu e-mail';
     $('#cel-t').textContent = modo === 'criar' ? 'Qual é o seu celular?' : 'Entra com o seu celular';
-    $('#cel-sub').textContent = modo === 'criar' ? `A gente manda ${como} pra confirmar que é você.` : `O mesmo número do cadastro. A gente manda ${como}.`;
-    $('#en-cel-nota').textContent = sms
-      ? 'SMS de verdade, protegido pelo reCAPTCHA do Google.'
-      : 'O seu número só aparece para o motorista da sua corrida. O e-mail fica para os recibos.';
-    // com o SMS ligado, o e-mail fica para depois (no cadastro)
-    $('#en-cel-email-campo').hidden = sms;
+    $('#cel-sub').textContent = modo === 'criar' ? 'A gente manda um código pra confirmar que é você.' : 'O mesmo número do cadastro. A gente manda um código pra confirmar que é você.';
     $('#en-cel-email').value = '';
+    desenharJeitos();
     cel.value = '';
     atualizarBotaoCel();
     $('#en-cel-erro').hidden = true;
@@ -348,19 +374,29 @@
     $('#en-cel-erro').hidden = true;
   });
   $('#en-cel-email').addEventListener('input', () => { atualizarBotaoCel(); $('#en-cel-erro').hidden = true; });
+  $('#en-jeitos').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-jeito]');
+    if (!b) return;
+    fluxo.jeito = b.dataset.jeito;
+    desenharJeitos();
+    atualizarBotaoCel();
+    $('#en-cel-erro').hidden = true;
+    if (fluxo.jeito === 'email' && !emailDigitado()) $('#en-cel-email').focus();
+  });
   $('#form-cel').addEventListener('submit', (e) => {
     e.preventDefault();
     const d = digitos(cel.value);
     if (d.length < 11) { mostrarErro('#en-cel-erro', 'Faltam números: é o DDD mais os 9 dígitos.'); cel.focus(); return; }
     if (!celularValido(d)) { mostrarErro('#en-cel-erro', 'Esse não parece um celular. Confere o DDD e o 9 do começo.'); cel.focus(); return; }
     const email = emailDigitado();
+    if (jeitoDoCodigo() === 'nenhum') { mostrarErro('#en-cel-erro', semJeitoTxt()); return; }
     if (jeitoDoCodigo() === 'email' && !emailValido(email)) {
       mostrarErro('#en-cel-erro', email ? 'Esse e-mail parece incompleto.' : 'Põe o seu e-mail: o código de confirmação chega por lá.');
       $('#en-cel-email').focus();
       return;
     }
     fluxo.celular = d;
-    fluxo.email = email;
+    fluxo.email = jeitoDoCodigo() === 'email' ? email : '';
     irEn('codigo');
     enviarCodigo();
   });
@@ -409,7 +445,8 @@
     $('#en-cod-erro').hidden = true;
     $('#en-sem-codigo').hidden = true;
     const jeito = jeitoDoCodigo();
-    montarCaixas(jeito === 'email' ? 6 : SMS.digitos());
+    fluxo.usado = jeito;
+    montarCaixas(jeito === 'email' || jeito === 'sms' ? 6 : 4);
     desenharCodigo();
     const numero = `<b>+55 ${formatarCel(fluxo.celular)}</b>`;
     $('#cod-sub .en-link').textContent = jeito === 'email' ? 'Trocar e-mail' : 'Trocar número';
@@ -462,13 +499,22 @@
     }, { desde: String(Math.floor(Date.now() / 1000) - 5) });
   }
   // o código por e-mail (o ntfy encaminha): o código vale só neste aparelho, por 15 minutos
+  // o e-mail com o código, pelo EmailJS (o modelo de lá usa {{to_email}}, {{codigo}}, {{celular}} e {{validade}})
+  async function mandarEmailJs(para, codigo, celular) {
+    const cfg = window.Drink.servicos.cfg;
+    const c = cfg.emailjs;
+    const r = await fetch(`${cfg.emailjsUrl}/api/v1.0/email/send`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ service_id: c.servico, template_id: c.modelo, user_id: c.chave, template_params: { to_email: para, codigo, celular, validade: '15 minutos' } }),
+    });
+    if (!r.ok) { const e = new Error(`email ${r.status}`); e.status = r.status; throw e; }
+  }
   async function enviarEmail(envio) {
     pararDeOuvir();
     contarReenvio(45);
     fluxo.codigoAte = Date.now() + 15 * 60000;
     try {
-      await R.canal.email(fluxo.email, `Seu código do Drink: ${fluxo.codigo}`,
-        `Seu código do Drink é ${fluxo.codigo}.\n\nDigite no app para confirmar o cadastro do celular +55 ${formatarCel(fluxo.celular)}. Ele vale por 15 minutos.\n\nSe não foi você, pode ignorar este e-mail.`);
+      await mandarEmailJs(fluxo.email, fluxo.codigo, `+55 ${formatarCel(fluxo.celular)}`);
       if (fluxo.envio === envio) avisar('E-mail enviado. O código chega em alguns segundos.');
     } catch (e) {
       if (fluxo.envio !== envio) return;
@@ -515,15 +561,15 @@
     codCaixa.classList.remove('erro');
     void codCaixa.offsetWidth;
     codCaixa.classList.add('erro');
-    const onde = SMS.ativo() ? 'no SMS' : (fluxo.email ? 'no e-mail' : 'na notificação');
+    const onde = { sms: 'no SMS', email: 'no e-mail' }[fluxo.usado] || 'na notificação';
     mostrarErro('#en-cod-erro', motivo || `Código errado. Confere ${onde} e tenta de novo.`);
     const errado = codIn.value;
     agendar(() => { if (codIn.value === errado) { codIn.value = ''; desenharCodigo(); } }, 450);
   }
   async function conferir() {
     if (codIn.value.length < tamanho || codCaixa.classList.contains('certo') || fluxo.conferindo) return;
-    if (!SMS.ativo()) {
-      if (fluxo.email && fluxo.codigoAte && Date.now() > fluxo.codigoAte) { codigoErrado('Esse código venceu. Toca em Reenviar código.'); return; }
+    if (fluxo.usado !== 'sms') {
+      if (fluxo.usado === 'email' && fluxo.codigoAte && Date.now() > fluxo.codigoAte) { codigoErrado('Esse código venceu. Toca em Reenviar código.'); return; }
       if (codIn.value === fluxo.codigo) codigoCerto(); else codigoErrado();
       return;
     }
@@ -554,7 +600,7 @@
   $('#form-cod').addEventListener('submit', (e) => { e.preventDefault(); conferir(); });
   // não chegou: sem entrar sem o código; ajuda a achar o e-mail ou trocar o endereço
   function seguirSemCodigo() {
-    avisar(fluxo.email ? `Confere a caixa de spam de ${fluxo.email}, ou toca em Trocar e-mail e confere o endereço.` : 'Toca em Reenviar código.');
+    avisar({ email: `Confere a caixa de spam de ${fluxo.email}, ou toca em Trocar e-mail e confere o endereço.`, notificacao: 'Confere se as notificações do Drink estão liberadas nos Ajustes, e toca em Reenviar código.' }[fluxo.usado] || 'Toca em Reenviar código.');
   }
 
   function depoisDoCodigo() {
