@@ -1608,6 +1608,11 @@
       fecharFolha();
       relatoMotivo = '';
       q('#rp-relato-txt').value = '';
+      // com o servidor ligado, o relato também fica guardado lá para a equipe acompanhar
+      const SV = window.Drink.servidor;
+      if (SV && SV.ligado()) {
+        SV.relato({ corrida: String(c.id || '').slice(0, 40), motivo: c.relato.motivo, texto: txt, celular: String((eu() || {}).celular || '').replace(/\D/g, '') || null, volta: `${juntar(c.embarque)} → ${juntar(c.destino)}`.slice(0, 300) }).catch(() => {});
+      }
       if (S.cfg.suporte) {
         // vai sozinho para o e-mail da equipe (o ntfy encaminha); sem internet, abre o e-mail pronto no celular
         const assunto = `Drink · ${c.relato.motivo}`;

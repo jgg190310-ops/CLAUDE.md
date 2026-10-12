@@ -797,7 +797,28 @@
     avisar(`${v.tipo === 'patinete' ? 'Patinete' : 'Bike'} salva: ${PF.descrever(v)}.`.replace('Patinete salva', 'Patinete salvo'));
   });
 
-  function comecarADirigir() {
+  // com o servidor ligado, o cadastro vai para a equipe do Drink aprovar: a selfie, a foto da CNH, a certidão e os dados
+  async function enviarParaAnalise(u) {
+    const d = u.docs || {};
+    const arquivos = {
+      selfie: await (await fetch(u.selfie)).blob(),
+      cnh: await cadastro.lerArquivo(`${u.celular}:cnh`).catch(() => null),
+      antecedentes: await cadastro.lerArquivo(`${u.celular}:antecedentes`).catch(() => null),
+    };
+    if (!arquivos.cnh || !arquivos.antecedentes) throw Object.assign(new Error('arquivo'), { falta: arquivos.cnh ? 'a certidão' : 'a foto da CNH' });
+    const v = (u.veiculos || {})[u.veiculo];
+    const dados = {
+      celular: String(u.celular).replace(/\D/g, ''), nome: `${u.nome || ''} ${u.sobrenome || ''}`.trim().slice(0, 80), email: u.email || null,
+      cpf: d.cpf, nascimento: d.nascimento, cnh_numero: d.cnh.numero, cnh_categoria: d.cnh.categoria, cnh_validade: d.cnh.validade, cnh_primeira: d.cnh.primeira,
+      veiculo: u.veiculo === 'patinete' ? 'patinete' : 'bike', veiculo_desc: v ? PF.descrever({ tipo: u.veiculo, ...v }).slice(0, 80) : null,
+      pix_tipo: u.pix ? u.pix.tipo : null, pix_chave: u.pix ? u.pix.chave : null,
+    };
+    const r = await window.Drink.servidor.enviarCadastro(dados, arquivos);
+    u.verificacao = { id: r.id, segredo: r.segredo, estado: 'em_analise', enviado: Date.now() };
+    salvar();
+  }
+  let enviandoCadastro = false;
+  async function comecarADirigir() {
     const u = eu();
     if (!u) { irEn('boas'); return; }
     u.veiculo = veiculoCadastro;
@@ -811,13 +832,31 @@
       avisar(`Antes de dirigir, ${falta.length > 1 ? 'faltam' : 'falta'} ${falta.join(', ').replace(/, ([^,]*)$/, ' e $1')}.`);
       return;
     }
+    const SV = window.Drink.servidor;
+    const analise = Boolean(SV && SV.ligado());
+    if (analise && (!u.verificacao || u.verificacao.estado === 'recusado')) {
+      if (enviandoCadastro) return;
+      enviandoCadastro = true;
+      avisar('Enviando os seus documentos para a equipe do Drink…');
+      try {
+        await enviarParaAnalise(u);
+      } catch (e) {
+        avisar(e.falta ? `Não achei ${e.falta} neste celular. Anexa de novo e toca em Começar a dirigir.`
+          : (e.tipo !== undefined ? 'A certidão precisa ser PDF ou foto (JPG ou PNG). Anexa de novo.' : 'Não deu para enviar os documentos agora. Confere a internet e tenta de novo.'));
+        return;
+      } finally {
+        enviandoCadastro = false;
+      }
+    }
     u.motoristaOk = true;
     // desde quando dirige: o passageiro vê no perfil ("dirige com o Drink desde outubro de 2026")
     if (!u.motoristaDesde) u.motoristaDesde = Date.now();
     u.papel = 'motorista';
     salvar();
     abrirMotorista('entra');
-    avisar(`Cadastro completo, ${primeiro(u)}! Fica online quando quiser.`);
+    avisar(analise && u.verificacao && u.verificacao.estado !== 'aprovado'
+      ? `Cadastro enviado, ${primeiro(u)}! A equipe do Drink confere os documentos e você recebe um aviso quando for aprovado.`
+      : `Cadastro completo, ${primeiro(u)}! Fica online quando quiser.`);
   }
 
   /* ---------- treino de motorista: uma corrida simulada, sem cadastro ---------- */

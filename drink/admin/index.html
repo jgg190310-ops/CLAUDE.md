@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Painel do Drink</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#0E0D12">
+  <link rel="icon" href="../icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="admin.css?v=1">
+</head>
+<body>
+<header class="pn-topo">
+  <a class="pn-marca" href="../" aria-label="Site do Drink"><img src="../icon.svg" alt="" width="32" height="32"><span>drink <small>painel</small></span></a>
+  <p class="pn-quem" id="pn-quem" hidden><span id="pn-email"></span><button type="button" class="pn-link" id="pn-sair">Sair</button></p>
+</header>
+
+<main class="pn-main" id="conteudo">
+  <section class="pn-cartao pn-aviso" id="pn-sem-servidor" hidden>
+    <h1>O servidor ainda não está ligado</h1>
+    <p>Preencha a <b>url</b> e a <b>chave</b> do projeto no Supabase em <code>drink/app/config-servidor.js</code>. O passo a passo está em <code>drink/servidor/LEIA-ME.md</code>.</p>
+  </section>
+
+  <section class="pn-cartao pn-login" id="pn-login" hidden aria-labelledby="pn-login-t">
+    <h1 id="pn-login-t">Entrar no painel</h1>
+    <p class="pn-sub">Só para a equipe do Drink: o e-mail precisa estar na lista da equipe no Supabase.</p>
+    <form id="pn-login-form" novalidate>
+      <label class="pn-campo"><span>E-mail</span><input type="email" id="pn-login-email" autocomplete="username" required></label>
+      <label class="pn-campo"><span>Senha</span><input type="password" id="pn-login-senha" autocomplete="current-password" required></label>
+      <p class="pn-erro" id="pn-login-erro" role="alert" hidden></p>
+      <button type="submit" class="pn-botao" id="pn-login-bt">Entrar</button>
+    </form>
+  </section>
+
+  <section id="pn-painel" hidden>
+    <nav class="pn-abas" role="tablist" aria-label="O que ver">
+      <button type="button" role="tab" id="aba-mot" aria-controls="pn-mot" aria-selected="true" data-aba="mot">Motoristas <span class="pn-n" id="pn-n-mot"></span></button>
+      <button type="button" role="tab" id="aba-rel" aria-controls="pn-rel" aria-selected="false" data-aba="rel">Relatos <span class="pn-n" id="pn-n-rel"></span></button>
+    </nav>
+
+    <section id="pn-mot" role="tabpanel" aria-labelledby="aba-mot">
+      <div class="pn-filtros" role="radiogroup" aria-label="Situação do cadastro">
+        <button type="button" role="radio" aria-checked="true" data-filtro="em_analise">Em análise <span id="pn-f-em_analise"></span></button>
+        <button type="button" role="radio" aria-checked="false" data-filtro="aprovado">Aprovados <span id="pn-f-aprovado"></span></button>
+        <button type="button" role="radio" aria-checked="false" data-filtro="recusado">Recusados <span id="pn-f-recusado"></span></button>
+      </div>
+      <ul class="pn-lista" id="pn-lista-mot" aria-live="polite"></ul>
+    </section>
+
+    <section id="pn-rel" role="tabpanel" aria-labelledby="aba-rel" hidden>
+      <ul class="pn-lista" id="pn-lista-rel"></ul>
+    </section>
+  </section>
+</main>
+
+<dialog class="pn-dlg" id="pn-recusar" aria-labelledby="pn-rec-t">
+  <form method="dialog" id="pn-recusar-form">
+    <h2 id="pn-rec-t">Recusar o cadastro</h2>
+    <p class="pn-sub">O motorista vê o motivo no app e pode corrigir e enviar de novo.</p>
+    <div class="pn-chips" id="pn-rec-chips">
+      <button type="button" data-motivo="A foto da CNH está ilegível.">CNH ilegível</button>
+      <button type="button" data-motivo="A selfie não confere com a foto da CNH.">Selfie não confere</button>
+      <button type="button" data-motivo="A CNH não tem a observação EAR.">Sem EAR</button>
+      <button type="button" data-motivo="A certidão de antecedentes tem pendência ou não é a da Polícia Federal.">Certidão</button>
+      <button type="button" data-motivo="Os dados digitados não conferem com a CNH.">Dados diferentes</button>
+    </div>
+    <label class="pn-campo"><span>Motivo (o motorista lê isto)</span><textarea id="pn-rec-motivo" rows="3" maxlength="300"></textarea></label>
+    <p class="pn-erro" id="pn-rec-erro" role="alert" hidden></p>
+    <div class="pn-bts">
+      <button type="button" class="pn-link" value="cancelar" id="pn-rec-cancelar">Cancelar</button>
+      <button type="submit" class="pn-botao pn-botao-perigo" id="pn-rec-ok">Recusar</button>
+    </div>
+  </form>
+</dialog>
+
+<p class="pn-toast" id="pn-toast" role="status" hidden></p>
+<script src="../app/config-servidor.js?v=1"></script>
+<script src="admin.js?v=1"></script>
+</body>
+</html>
