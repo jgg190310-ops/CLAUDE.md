@@ -33,11 +33,32 @@
     ['petisco', 'Um petisco de cortesia na próxima visita'],
     ['nenhum', 'Sem benefício'],
   ];
-  const beneficioTxt = (k) => (k && k !== 'nenhum' ? ((BENEFICIOS.find((b) => b[0] === k) || [])[1] || '') : '');
+  // v51: o benefício é do jeito que o bar quiser ("um chope de cortesia na próxima visita"), com uma regra se
+  // quiser ("de terça a quinta"); as sugestões só preenchem o texto. Os três de antes (agua, desconto, petisco)
+  // continuam valendo nos QR já impressos
+  const SUGESTOES = [
+    'Uma água de cortesia', '10% na próxima conta', 'Um chope de cortesia na próxima visita',
+    'Uma caipirinha de cortesia na próxima visita', 'Um petisco de cortesia na próxima visita', 'Sobremesa de cortesia na próxima visita',
+  ];
+  const BEN_MAX = 60;
+  const REGRA_MAX = 60;
+  const numero = (n) => typeof n === 'number' && Number.isFinite(n);
+  const texto = (s, max) => (typeof s === 'string' ? s.replace(/[\u0000-\u001f\u007f<>]/g, '').replace(/\s+/g, ' ').trim().slice(0, max) : '');
+  // o que veio de fora (link, vitrine, formulário): uma das chaves antigas, um texto de 3 a 60 letras, ou nada
+  function limparBeneficio(v) {
+    if (typeof v !== 'string') return 'nenhum';
+    if (BENEFICIOS.some((b) => b[0] === v)) return v;
+    const t = texto(v, BEN_MAX);
+    return t.length >= 3 ? t : 'nenhum';
+  }
+  const beneficioTxt = (k) => {
+    if (!k || k === 'nenhum' || typeof k !== 'string') return '';
+    const antigo = BENEFICIOS.find((b) => b[0] === k);
+    return antigo ? antigo[1] : texto(k, BEN_MAX);
+  };
+  const regraTxt = (r) => texto(r, REGRA_MAX);
   const ID = /^[\w-]{16}$/;
   const CHAVE = /^[\w-]{43}$/;
-  const numero = (n) => typeof n === 'number' && Number.isFinite(n);
-  const texto = (s, max) => (typeof s === 'string' ? s.replace(/\s+/g, ' ').trim().slice(0, max) : '');
   const cinco = (x) => Math.round(x * 1e5) / 1e5;
   const primeiro = (nome) => String(nome || '').trim().split(/\s+/)[0] || '';
 
@@ -91,7 +112,7 @@
     return {
       id: i, chave: k, nome: n,
       lugar: { nome: texto(lugar, 80) || n, bairro: texto(bairro, 40), lat, lon },
-      beneficio: BENEFICIOS.some((b) => b[0] === ben) ? ben : 'nenhum',
+      beneficio: limparBeneficio(ben),
     };
   }
   // quem leu o QR: o bar fica guardado no aparelho a noite toda
@@ -155,7 +176,7 @@
     if (!numero(m.lat) || !numero(m.lon) || !S.naGrandeBH(m)) return null;
     return {
       id: m.id, t, nome: texto(m.nome, 60) || 'Bar', endereco: texto(m.endereco, 80), bairro: texto(m.bairro, 40), lat: m.lat, lon: m.lon,
-      beneficio: BENEFICIOS.some((b) => b[0] === m.beneficio) ? m.beneficio : 'nenhum', fecha: /^\d{2}:\d{2}$/.test(String(m.fecha)) ? m.fecha : '',
+      beneficio: limparBeneficio(m.beneficio), regra: regraTxt(m.regra), fecha: /^\d{2}:\d{2}$/.test(String(m.fecha)) ? m.fecha : '',
       ate: numero(m.ate) && m.ate > 0 ? Math.min(m.ate, t + 14 * HORA) : 0,
       voltas: numero(m.voltas) && m.voltas > 0 ? Math.min(Math.round(m.voltas), 999) : 0,
       foto: typeof m.foto === 'string' && /^[\w-]{6,16}$/.test(m.foto) ? m.foto : '',
@@ -349,7 +370,7 @@
       b.vitrineEm = publicadoEm;
       R.fila.mandar(R.topico.bares(), {
         v: 1, tipo: 'bar', id: b.id, t: Date.now(), nome: b.nome, endereco: b.lugar.nome !== b.nome ? b.lugar.nome : '', bairro: b.lugar.bairro || '',
-        lat: cinco(b.lugar.lat), lon: cinco(b.lugar.lon), beneficio: b.beneficio, fecha: b.fecha, ate: aberto(b) ? b.aberto.ate : 0,
+        lat: cinco(b.lugar.lat), lon: cinco(b.lugar.lon), beneficio: b.beneficio, regra: b.regra || '', fecha: b.fecha, ate: aberto(b) ? b.aberto.ate : 0,
         voltas: daNoite(b).length, foto: b.fotoId || '',
       }, { validade: 2 * HORA });
       // a foto vai no canal dela quando é nova e, depois, a cada 10 h (o ntfy guarda 12 h)
@@ -398,14 +419,39 @@
       ouvirCanal();
     }
 
-    /* ---------- cadastrar o bar ---------- */
+    /* ---------- cadastrar e editar o bar (o mesmo formulário) ---------- */
     function novo() {
-      rascunho = { lugar: null, beneficio: 'agua', foto: '' };
+      rascunho = { lugar: null, foto: '', editar: false };
       q('#rp-barn-nome').value = '';
       q('#rp-barn-foto-in').value = '';
       q('#rp-barn-fecha').value = '02:00';
+      q('#rp-barn-ben').value = SUGESTOES[0];
+      q('#rp-barn-regra').value = '';
       q('#rp-barn-erro').hidden = true;
       op.ir('bar-novo');
+    }
+    // editar: nome, horário, benefício e regra. O endereço fica (é ele que vai no QR impresso, para a porta certa)
+    function editar() {
+      const b = meu();
+      if (!b) return;
+      rascunho = { lugar: { ...b.lugar }, foto: '', editar: true };
+      q('#rp-barn-nome').value = b.nome;
+      q('#rp-barn-fecha').value = b.fecha || '02:00';
+      q('#rp-barn-ben').value = beneficioTxt(b.beneficio);
+      q('#rp-barn-regra').value = b.regra || '';
+      q('#rp-barn-erro').hidden = true;
+      op.ir('bar-novo');
+    }
+    const editando = () => Boolean(rascunho && rascunho.editar);
+    const minuscula = (t) => (t ? t.charAt(0).toLowerCase() + t.slice(1) : t);
+    // como o benefício vai aparecer no QR e na aba Bares, enquanto a pessoa escreve
+    function desenharBeneficio() {
+      const ben = texto(q('#rp-barn-ben').value, BEN_MAX);
+      const regra = regraTxt(q('#rp-barn-regra').value);
+      $$('#rp-barn-sug [data-bar-sug]', raiz).forEach((bt) => bt.setAttribute('aria-pressed', String(bt.dataset.barSug === ben)));
+      q('#rp-barn-previa').innerHTML = ben.length >= 3
+        ? `<b>No QR e na aba Bares:</b> “Voltando de Drink: ${esc(minuscula(ben))}.”${regra ? ` <span>${esc(regra)}.</span>` : ''}`
+        : '<b>Sem benefício:</b> o QR e a aba Bares não mostram brinde. Dá para pôr um quando quiser.';
     }
     function lugarEscolhido(l) {
       if (!rascunho) return;
@@ -416,7 +462,18 @@
     }
     function desenharForm() {
       if (!rascunho) { novo(); return; }
-      $$('[data-bar-ben]', raiz).forEach((b) => b.setAttribute('aria-checked', String(b.dataset.barBen === rascunho.beneficio)));
+      const ed = rascunho.editar;
+      q('#rp-barn-t').textContent = ed ? 'Editar o bar' : 'Seu bar no Drink';
+      q('#rp-barn-ok').textContent = ed ? 'Salvar' : 'Cadastrar o bar';
+      q('#rp-barn-voltar').dataset.bar = ed ? 'pagina' : 'lista';
+      q('#rp-barn-voltar').setAttribute('aria-label', ed ? 'Voltar para o bar' : 'Voltar para os bares');
+      q('#rp-barn-lede').textContent = ed
+        ? `O endereço fica o mesmo (${rascunho.lugar.nome}): é ele que vai no QR impresso. O benefício novo já vale para quem abrir o bar no app.`
+        : 'Quem bebeu no seu bar volta de Drink, no próprio carro. Você ganha um QR para o balcão e as mesas, o bar no mapa do Drink e um jeito de chamar a volta do cliente.';
+      ['#rp-barn-onde-t', '#rp-barn-onde', '#rp-barn-foto'].forEach((x) => { q(x).hidden = ed; });
+      q('#rp-barn-sug').innerHTML = [...SUGESTOES.map((t) => [t, t]), ['', 'Sem benefício']]
+        .map(([v, t]) => `<button type="button" aria-pressed="false" data-bar-sug="${esc(v)}">${esc(t)}</button>`).join('');
+      desenharBeneficio();
       const l = rascunho.lugar;
       q('#rp-barn-onde b').textContent = l ? l.nome : 'Escolher o endereço';
       q('#rp-barn-onde small').textContent = l ? (l.bairro || 'Belo Horizonte') : 'É de lá que o Drink busca os clientes';
@@ -448,13 +505,31 @@
       if (!r) return;
       const nome = texto(q('#rp-barn-nome').value, 60);
       const fecha = q('#rp-barn-fecha').value;
+      const benEscrito = texto(q('#rp-barn-ben').value, BEN_MAX);
+      const regra = regraTxt(q('#rp-barn-regra').value);
       if (nome.length < 2) { erroForm('Coloca o nome do bar, do jeito que está na fachada.', q('#rp-barn-nome')); return; }
+      if (benEscrito && benEscrito.length < 3) { erroForm('Escreve o benefício com um pouco mais de detalhe, ou toca em Sem benefício.', q('#rp-barn-ben')); return; }
+      if (regra && !benEscrito) { erroForm('A regra é do benefício: escreve o benefício primeiro, ou apaga a regra.', q('#rp-barn-regra')); return; }
+      const beneficio = benEscrito ? limparBeneficio(benEscrito) : 'nenhum';
+      if (r.editar) {
+        const b = meu();
+        if (!b) return;
+        if (!/^\d{2}:\d{2}$/.test(fecha)) { erroForm('Coloca a hora que o bar costuma fechar.', q('#rp-barn-fecha')); return; }
+        const mudouNome = b.nome !== nome;
+        Object.assign(b, { nome, fecha, beneficio, regra: benEscrito ? regra : '' });
+        if (aberto(b)) b.aberto.ate = fechamento(fecha);
+        publicarVitrine(b);
+        rascunho = null;
+        op.ir('bar');
+        op.avisar(mudouNome ? 'Salvo. O nome novo vai no QR: imprime de novo para as mesas.' : 'Salvo. O benefício novo já aparece na aba Bares e para quem abrir o bar pelo QR.');
+        return;
+      }
       if (!r.lugar) { erroForm('Escolhe o endereço do bar: é de lá que o Drink busca os clientes.', q('#rp-barn-onde')); return; }
       if (!S.naGrandeBH(r.lugar)) { erroForm('Por enquanto o Drink só roda na Grande BH. Escolhe um endereço por aqui.', q('#rp-barn-onde')); return; }
       if (!/^\d{2}:\d{2}$/.test(fecha)) { erroForm('Coloca a hora que o bar costuma fechar.', q('#rp-barn-fecha')); return; }
       const u = eu();
       u.bar = {
-        id: R.idAleatorio(12), chave: R.novaChave(), nome, lugar: { ...r.lugar }, beneficio: r.beneficio, fecha,
+        id: R.idAleatorio(12), chave: R.novaChave(), nome, lugar: { ...r.lugar }, beneficio, regra: benEscrito ? regra : '', fecha,
         criado: Date.now(), voltas: [], aberto: null, foto: r.foto || '', fotoId: '',
       };
       if (u.bar.foto) u.bar.fotoId = await idDaFoto(u.bar.foto);
@@ -489,9 +564,10 @@
       q('#rp-barp-cartao-nome').textContent = b.nome;
       q('#rp-barp-qr').innerHTML = PIX.qrSvg(linkBar(b), `QR code do ${b.nome}`);
       q('#rp-barp-qr-sub').textContent = `Aponta a câmera do celular. O Drink busca você aqui e leva você e o seu carro pra casa.${ben ? ` Voltando de Drink: ${ben.charAt(0).toLowerCase()}${ben.slice(1)}.` : ''}`;
+      q('#rp-barp-ben-t').textContent = ben || 'Sem benefício';
       q('#rp-barp-ben').textContent = ben
-        ? `${ben}. Quem volta de Drink mostra o código do recibo; ele aparece aqui, na lista da noite.`
-        : 'Sem benefício para quem volta de Drink. Dá para mudar apagando e cadastrando o bar de novo.';
+        ? `${b.regra ? `${b.regra}. ` : ''}Quem volta de Drink mostra o código do recibo; ele aparece aqui, na lista da noite.`
+        : 'Quem volta de Drink não ganha nada no seu bar. Um brinde simples traz o cliente de volta: toca em Editar.';
       const noite = daNoite(b).slice().reverse();
       q('#rp-barp-vazio').hidden = noite.length > 0;
       q('#rp-barp-voltas').innerHTML = noite.map((v) => `<li><span><b>${esc(v.cliente)}</b>${v.peloBar ? ' <em class="bar-tag">chamado pelo bar</em>' : ''}<small>${esc(hhmm(new Date(v.t)))}${v.para ? ` · para ${esc(v.para)}` : ''}</small></span>${v.cupom ? `<code aria-label="Código ${esc(v.cupom.split('').join(' '))}">${esc(v.cupom)}</code>` : ''}</li>`).join('');
@@ -582,7 +658,13 @@
       const bt = ev.target.closest('button');
       if (!bt || !raiz.contains(bt) || bt.disabled) return;
       const ds = bt.dataset;
-      if (ds.barBen && rascunho) { rascunho.beneficio = ds.barBen; desenharForm(); return; }
+      if (ds.barSug !== undefined && rascunho) {
+        q('#rp-barn-ben').value = ds.barSug;
+        if (!ds.barSug) q('#rp-barn-regra').value = '';
+        q('#rp-barn-erro').hidden = true;
+        desenharBeneficio();
+        return;
+      }
       if (ds.barcCambio && chamada) { chamada.cambio = ds.barcCambio; desenharChamada(); return; }
       const acoes = {
         cartao: abrirPagina,
@@ -595,12 +677,13 @@
         copiar: () => { const b = meu(); if (b) op.copiar(linkBar(b), 'Link do QR copiado.'); },
         imprimir,
         chamar: novaChamada,
+        editar,
         apagar,
       };
       if (ds.bar && acoes[ds.bar]) acoes[ds.bar]();
     });
     q('#rp-barn-form').addEventListener('submit', (ev) => { ev.preventDefault(); criarBar(); });
-    q('#rp-barn-form').addEventListener('input', () => { q('#rp-barn-erro').hidden = true; });
+    q('#rp-barn-form').addEventListener('input', () => { q('#rp-barn-erro').hidden = true; desenharBeneficio(); });
     q('#rp-barn-foto-in').addEventListener('change', (ev) => lerFoto(ev.target, (d) => { if (rascunho) { rascunho.foto = d; desenharForm(); } }));
     q('#rp-barp-foto-in').addEventListener('change', (ev) => lerFoto(ev.target, async (d) => {
       const b = meu();
@@ -617,7 +700,7 @@
       if (ev.target.id === 'rp-barc-placa') q('#rp-barc-previa').innerHTML = CARROS.placa.previa(ev.target.value);
     });
 
-    return { cartao, desenharForm, pagina, desenharChamada, novo, lugarEscolhido, mostrar, manter, meu };
+    return { cartao, desenharForm, pagina, desenharChamada, novo, editar, editando, lugarEscolhido, mostrar, manter, meu };
   }
 
   /* ---------- a aba Bares, de quem pede ---------- */
@@ -628,6 +711,7 @@
     const LEITOR = window.Drink.leitor;
     let lista = [];
     let filtro = '';
+    let mostrar_ = 'todos';
     let visto = null;
     let peloQr = false;
     let leitor = null;
@@ -657,16 +741,26 @@
         ? `<img class="${classe}" src="${b.fotoDados}" alt="Foto do ${esc(b.nome)}">`
         : `<span class="${classe} bs-sem-foto" aria-hidden="true"><svg><use href="#i-copo"/></svg></span>`;
     }
+    // os filtros da aba (todos, abertos agora, com benefício) valem só para a lista; a busca de endereço vê todos
+    const passaFiltro = (b) => mostrar_ === 'abertos' ? b.aberto : (mostrar_ === 'beneficio' ? Boolean(beneficioTxt(b.beneficio)) : true);
     function desenhar() {
-      const l = ordenados();
-      const abertos = l.filter((b) => b.aberto).length;
+      const todos = ordenados();
+      const l = todos.filter(passaFiltro);
+      const abertos = todos.filter((b) => b.aberto).length;
+      $$('[data-bs-filtro]', raiz).forEach((bt) => bt.setAttribute('aria-checked', String(bt.dataset.bsFiltro === mostrar_)));
       q('#rp-bs-n').textContent = lista.length ? `${lista.length} ${lista.length === 1 ? 'bar parceiro' : 'bares parceiros'}${abertos ? ` · ${abertos} ${abertos === 1 ? 'aberto' : 'abertos'} agora` : ''}` : 'Bares parceiros';
-      q('#rp-bs-lista').innerHTML = l.map((b) => `<li><button type="button" class="bs-cartao" data-rp-bar-ver="${esc(b.id)}">${capa(b, 'bs-foto')}<span class="bs-txt"><b>${esc(b.nome)}</b><small>${esc([b.bairro, S.textoKm(b.m / 1000)].filter(Boolean).join(' · '))}</small><em class="bs-sit${b.aberto ? ' aberto' : ''}">${esc(situacao(b))}</em></span></button></li>`).join('');
+      q('#rp-bs-lista').innerHTML = l.map((b) => {
+        const ben = beneficioTxt(b.beneficio);
+        const voltas = b.voltas ? `<em class="bs-voltas">${esc(voltasTxt(b.voltas).replace(' de Drink', ''))}</em>` : '';
+        return `<li><button type="button" class="bs-cartao" data-rp-bar-ver="${esc(b.id)}">${capa(b, 'bs-foto')}<span class="bs-txt"><b>${esc(b.nome)}</b><small>${esc([b.bairro, S.textoKm(b.m / 1000)].filter(Boolean).join(' · '))}</small><span class="bs-linha"><em class="bs-sit${b.aberto ? ' aberto' : ''}">${esc(situacao(b))}</em>${voltas}</span>${ben ? `<span class="bs-ben"><svg aria-hidden="true"><use href="#i-cupom"/></svg><span><span class="sr">Benefício: </span>${esc(ben)}</span></span>` : ''}</span></button></li>`;
+      }).join('');
       const vazio = q('#rp-bs-vazio');
       vazio.hidden = l.length > 0;
       vazio.textContent = filtro.trim()
         ? 'Nenhum bar parceiro com esse nome. Se você está no bar, aponte a câmera para o QR Code da mesa.'
-        : 'Os bares parceiros aparecem aqui assim que se cadastram. Num bar com o QR do Drink na mesa, aponte a câmera: ele aparece na hora.';
+        : (mostrar_ === 'abertos' && todos.length ? 'Nenhum bar parceiro aberto agora. Toque em Todos para ver os que abrem mais tarde.'
+          : (mostrar_ === 'beneficio' && todos.length ? 'Nenhum bar parceiro com benefício por enquanto.'
+            : 'Os bares parceiros aparecem aqui assim que se cadastram. Num bar com o QR do Drink na mesa, aponte a câmera: ele aparece na hora.'));
     }
     function abrirBar(b, qr = false) {
       visto = b;
@@ -691,8 +785,17 @@
       chip.classList.toggle('aberto', Boolean(b.aberto));
       q('#rp-bv-achou').hidden = !peloQr;
       if (peloQr) q('#rp-bv-achou').textContent = `Achamos pelo QR: você está no ${b.nome}. O Drink busca você na porta.`;
-      q('#rp-bv-ben').textContent = beneficioTxt(b.beneficio) || 'Sem benefício';
-      q('#rp-bv-voltas').textContent = voltasTxt(b.voltas || 0).replace(/^n/, 'N');
+      const ben = beneficioTxt(b.beneficio);
+      q('#rp-bv-ben').textContent = ben || 'Sem benefício por enquanto';
+      q('#rp-bv-regra').textContent = ben && b.regra ? b.regra : (ben ? 'Mostre o código do recibo do Drink no bar' : 'O bar ainda não pôs um brinde para quem volta de Drink');
+      q('#rp-bv-ben-box').classList.toggle('sem', !ben);
+      // o bar hoje: até que horas fica aberto (ou a hora que costuma fechar), a distância e as voltas da noite
+      q('#rp-bv-hoje').textContent = b.aberto ? hhmm(new Date(b.ate)) : (b.fecha || '--');
+      q('#rp-bv-hoje-t').textContent = b.aberto ? 'aberto até' : (b.fecha ? 'costuma fechar' : 'horário');
+      q('#rp-bv-dist').textContent = ref ? S.textoKm(S.distancia(ref, b) / 1000) : '--';
+      const n = b.voltas || 0;
+      q('#rp-bv-voltas').textContent = String(n);
+      q('#rp-bv-voltas-t').textContent = n === 1 ? 'volta hoje' : 'voltas hoje';
       q('#rp-bv-ir').href = comoChegar(b);
     }
 
@@ -759,12 +862,20 @@
       if (bt.dataset.rp && acoes[bt.dataset.rp]) acoes[bt.dataset.rp]();
     });
     q('#rp-bs-busca').addEventListener('input', (ev) => { filtro = ev.target.value; desenhar(); });
+    raiz.addEventListener('click', (ev) => {
+      const bt = ev.target.closest('[data-bs-filtro]');
+      if (!bt || !raiz.contains(bt)) return;
+      mostrar_ = bt.dataset.bsFiltro;
+      desenhar();
+    });
 
-    return { receber, desenhar, pagina, abrirId, abrirDoLink, mostrar, buscar, visto: () => visto };
+    // o cartão do bar na vitrine (com o benefício que o dono editou depois de imprimir o QR)
+    const porId = (id) => lista.find((b) => b.id === id) || null;
+    return { receber, desenhar, pagina, abrirId, abrirDoLink, mostrar, buscar, porId, visto: () => visto };
   }
 
   window.Drink.bares = {
-    BENEFICIOS, PERTO_DO_BAR, beneficioTxt, fechamento, linkBar, lerLink, guardarAqui, esquecerAqui, aqui, saiDoBar, novoCupom,
+    BENEFICIOS, SUGESTOES, PERTO_DO_BAR, beneficioTxt, regraTxt, limparBeneficio, fechamento, linkBar, lerLink, guardarAqui, esquecerAqui, aqui, saiDoBar, novoCupom,
     topico, mandar, abrir, avisarVolta, limparVolta, limparVitrine, ouvirVitrine, ateTxt, voltasTxt, comoChegar, criar, criarAba,
     lerQrTexto, novoDoQr, reduzirFoto,
   };

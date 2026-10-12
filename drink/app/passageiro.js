@@ -259,7 +259,9 @@
       const box = q('#rp-bar-aqui');
       box.hidden = !b;
       if (!b) return;
-      const ben = BAR.beneficioTxt(b.beneficio);
+      // o benefício de agora: o dono pode ter mudado depois de imprimir o QR (a vitrine traz o novo)
+      const v = abaBar.porId(b.id);
+      const ben = BAR.beneficioTxt(v ? v.beneficio : b.beneficio);
       q('#rp-bar-aqui-t').textContent = `Você está no ${b.nome}`;
       q('#rp-bar-aqui-sub').textContent = `O Drink busca você aqui, na porta.${ben ? ` Voltando de Drink: ${minuscula(ben)}.` : ''}`;
       // o embarque vai para a porta do bar uma vez; se a pessoa trocar, vale a escolha dela
@@ -1054,7 +1056,8 @@
       // saindo de um bar parceiro (pelo QR do balcão, ou o próprio bar pedindo pelo cliente): o bar conta a volta
       const barQr = BAR.aqui();
       const barDaVolta = peloBar ? peloBar.bar : (BAR.saiDoBar(barQr, embarque) ? barQr : null);
-      const bar = barDaVolta ? { id: barDaVolta.id, chave: barDaVolta.chave, nome: barDaVolta.nome, beneficio: barDaVolta.beneficio, cupom: BAR.novoCupom() } : null;
+      const naVitrine = barDaVolta && !peloBar ? abaBar.porId(barDaVolta.id) : null;
+      const bar = barDaVolta ? { id: barDaVolta.id, chave: barDaVolta.chave, nome: barDaVolta.nome, beneficio: naVitrine ? naVitrine.beneficio : barDaVolta.beneficio, cupom: BAR.novoCupom() } : null;
       const carro = peloBar ? { ...peloBar.carro } : { ...u.carro };
       const pb = peloBar ? { cliente: peloBar.cliente, bar: peloBar.bar.nome } : null;
       const par = await R.novoPar();
@@ -2425,7 +2428,7 @@
     // voltar do aparelho: devolve true se tratou
     function voltar() {
       if (folha) { fecharFolha(); return true; }
-      const mapaVolta = { destino: modoBusca === 'destino' ? 'inicio' : (voltarPara || 'perfil'), 'no-mapa': 'destino', opcoes: 'destino', ninguem: 'opcoes', viagens: 'inicio', carteira: 'inicio', perfil: 'inicio', pix: 'chegou', eventos: 'inicio', 'evento-novo': 'eventos', evento: 'eventos', bares: 'inicio', 'bar-ver': 'bares', 'bar-camera': 'bares', 'bar-novo': 'bares', bar: 'bares', 'bar-chamar': 'bar' };
+      const mapaVolta = { destino: modoBusca === 'destino' ? 'inicio' : (voltarPara || 'perfil'), 'no-mapa': 'destino', opcoes: 'destino', ninguem: 'opcoes', viagens: 'inicio', carteira: 'inicio', perfil: 'inicio', pix: 'chegou', eventos: 'inicio', 'evento-novo': 'eventos', evento: 'eventos', bares: 'inicio', 'bar-ver': 'bares', 'bar-camera': 'bares', 'bar-novo': painelBar.editando() ? 'bar' : 'bares', bar: 'bares', 'bar-chamar': 'bar' };
       if (atual === 'buscando' || atual === 'caminho') { op.avisar('Pra desistir, toca em Cancelar.'); return true; }
       if (atual === 'no-mapa' && ajustando) { modoBusca = 'destino'; ir('inicio'); return true; }
       if (mapaVolta[atual]) { if (atual === 'destino') modoBusca = 'destino'; ir(mapaVolta[atual]); return true; }
