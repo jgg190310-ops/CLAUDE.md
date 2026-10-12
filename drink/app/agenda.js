@@ -54,6 +54,38 @@
     if (dif === 1) return 'amanhã';
     return semana;
   }
+  // a volta que repete: "toda sexta, 23:00"; de madrugada, o dia é o da festa ("toda sexta, 01:00 da madrugada")
+  const SEMANA = ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'];
+  const todo = (d) => `${d === 0 || d === 6 ? 'todo' : 'toda'} ${SEMANA[d]}`;
+  function repeteTxt(t) {
+    const d = new Date(t);
+    const madrugada = d.getHours() < 6;
+    return `${todo(madrugada ? (d.getDay() + 6) % 7 : d.getDay())}, ${hhmm(d)}${madrugada ? ' da madrugada' : ''}`;
+  }
+  // o próximo horário dessa repetição (o mesmo dia da semana e a mesma hora), a partir de agora
+  function proxima(rec, agora = Date.now()) {
+    const h = Math.floor(rec.minuto / 60);
+    const m = rec.minuto % 60;
+    const hoje = new Date(agora);
+    for (let i = -1; i <= 8; i += 1) {
+      const t = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate() + i, h, m).getTime();
+      if (new Date(t).getDay() === rec.diaSemana && t + REGRAS.janelaMin * MIN > agora) return t;
+    }
+    return 0;
+  }
+  // dá para agendar a partir de 12 h antes (o canal guarda as mensagens por 12 h): é quando o app agenda sozinho
+  const abreEm = (t) => t + REGRAS.janelaMin * MIN - REGRAS.maxHoras * 3600000;
+  // em que pé está a repetição desta semana
+  // (agendada: a volta desta repetição que está aberta agora; se ela foi cancelada, conta a da semana seguinte)
+  function situacao(rec, agendada, agora = Date.now()) {
+    let t = proxima(rec, agora);
+    if (rec.ultima === t && agendada) return { t, txt: `Esta semana já está agendada: ${janelaTxt({ de: t, ate: t + REGRAS.janelaMin * MIN }, agora)}`, curto: 'esta semana já está agendada' };
+    if (rec.ultima === t) t = proxima(rec, t + REGRAS.janelaMin * MIN);
+    if (agora > t - REGRAS.antecedenciaMin * MIN) return { t, txt: 'Desta vez ficou em cima da hora para agendar: peça na hora', curto: 'em cima da hora: peça na hora' };
+    if (agora >= abreEm(t)) return { t, txt: 'Agendando a desta semana…', curto: 'agendando…' };
+    const abre = `${dia(abreEm(t), agora)} a partir das ${hhmm(new Date(abreEm(t)))}`;
+    return { t, txt: `Agenda sozinha ${abre}, quando você abrir o app`, curto: `agenda sozinha ${abre}` };
+  }
   const janelaTxt = (j, agora) => `${dia(j.de, agora)}, ${hhmm(new Date(j.de))} às ${hhmm(new Date(j.ate))}`;
   const gratisAte = (ag) => ag.janela.de - REGRAS.gratisAteMin * MIN;
   function taxaCancelar(ag, agora = Date.now()) {
@@ -85,6 +117,8 @@
     const filas = new Map();
     let escolhido = 0;
     let base = null;
+    let auto = false;
+    const recorrentes = () => { const u = ctx.eu(); if (!u) return []; u.recorrentes = (u.recorrentes || []).filter(Boolean); return u.recorrentes; };
 
     /* ---------- agendar ---------- */
     // a folha de agendar: os horários, o preço pela bandeira da hora e as regras
@@ -92,6 +126,7 @@
       base = b;
       const hs = horarios();
       if (!escolhido || !hs.includes(escolhido)) escolhido = hs[0];
+      q('#rp-ag-repetir').checked = false;
       q('#rp-ag-horas').innerHTML = hs.map((t) => `<button type="button" role="radio" aria-checked="${t === escolhido}" data-ag-hora="${t}"><b>${hhmm(new Date(t))}</b><small>${esc(dia(t))}</small></button>`).join('');
       desenharEscolha();
     }
@@ -108,15 +143,17 @@
       q('#rp-ag-naoveio').textContent = `R$ ${S.virgula(REGRAS.taxaNaoVeio, Number.isInteger(REGRAS.taxaNaoVeio) ? 0 : 2)}`;
       q('#rp-ag-espera').textContent = String(REGRAS.esperaNaoVeioMin);
       q('#rp-ag-ok').textContent = `Agendar · ${brl(p.total)}`;
+      q('#rp-ag-repetir-t').textContent = `Repetir ${repeteTxt(escolhido)}`;
     }
     function escolher(t) { escolhido = Number(t); desenharEscolha(); }
 
     async function agendar() {
       if (!base || !base.rota || !base.embarque || !base.destino) return null;
-      if (ativa()) { ctx.avisar('Você já tem uma volta agendada. Cancela ela antes de marcar outra.'); return null; }
-      if (pendente()) { ctx.fecharFolha(); ctx.abrirFolha('rp-pend'); return null; }
+      if (ativa()) { if (!auto) ctx.avisar('Você já tem uma volta agendada. Cancela ela antes de marcar outra.'); return null; }
+      if (pendente()) { if (!auto) { ctx.fecharFolha(); ctx.abrirFolha('rp-pend'); } return null; }
       const agora = Date.now();
-      if (!horarios(agora).includes(escolhido)) { desenharAgendar(base); ctx.avisar('Esse horário ficou perto demais. Escolhe outro.'); return null; }
+      if (!horarios(agora).includes(escolhido)) { if (!auto) { desenharAgendar(base); ctx.avisar('Esse horário ficou perto demais. Escolhe outro.'); } return null; }
+      const repetir = !auto && q('#rp-ag-repetir').checked;
       const u = ctx.eu();
       const par = await R.novoPar();
       const p = S.preco(base.rota.km, new Date(escolhido));
@@ -127,7 +164,8 @@
         codigo: String(1000 + Math.floor(Math.random() * 9000)), priv: par.priv, pub: par.pub, rastreio: R.novaChave(), segredo: R.idAleatorio(),
         motorista: null, chave: null, aceiteEm: 0, ultimo: null,
       };
-      try { await publicar(ag); } catch (e) { ctx.avisar('Sem conexão com a central: a volta não foi agendada. Confere a internet e tenta de novo.'); return null; }
+      try { await publicar(ag); } catch (e) { if (!auto) ctx.avisar('Sem conexão com a central: a volta não foi agendada. Confere a internet e tenta de novo.'); return null; }
+      if (repetir) ag.rec = guardarRepeticao(ag);
       lista().unshift(ag);
       ctx.salvar();
       ouvir(ag);
@@ -136,6 +174,71 @@
       desenhar();
       return ag;
     }
+    /* ---------- a volta que repete toda semana ---------- */
+    // sem servidor, quem agenda é o próprio celular: quando o app abre (ou está aberto) a partir de 12 h antes do
+    // horário, ele agenda a volta da semana sozinho e avisa. Até 3 repetições.
+    function guardarRepeticao(ag) {
+      const d = new Date(ag.janela.de);
+      const igual = recorrentes().find((r) => r.diaSemana === d.getDay() && r.minuto === d.getHours() * 60 + d.getMinutes() && S.distancia(r.destino, ag.destino) < 80 && S.distancia(r.embarque, ag.embarque) < 80);
+      if (igual) { igual.ultima = ag.janela.de; return igual.id; }
+      const rec = {
+        id: R.idAleatorio(), criada: Date.now(), diaSemana: d.getDay(), minuto: d.getHours() * 60 + d.getMinutes(), ultima: ag.janela.de,
+        embarque: { ...ag.embarque }, destino: { ...ag.destino }, km: ag.km, min: ag.min, linha: ag.linha, veic: ag.veic,
+      };
+      const u = ctx.eu();
+      u.recorrentes = [rec, ...recorrentes()].slice(0, 3);
+      return rec.id;
+    }
+    const aberta = (rec) => lista().some((a) => a.rec === rec.id && ['procurando', 'confirmada'].includes(a.estado));
+    let agendando = false;
+    async function agendarRepeticoes() {
+      if (agendando || ctx.ocupado() || ativa() || pendente()) return;
+      const agora = Date.now();
+      const hs = horarios(agora);
+      const rec = recorrentes().find((r) => { const t = proxima(r, agora); return r.ultima !== t && hs.includes(t); });
+      if (!rec) return;
+      agendando = true;
+      const antes = { base, escolhido };
+      try {
+        auto = true;
+        base = { embarque: rec.embarque, destino: rec.destino, rota: { km: rec.km, min: rec.min, linha: rec.linha }, veic: rec.veic };
+        escolhido = proxima(rec, agora);
+        const ag = await agendar();
+        if (ag) {
+          ag.rec = rec.id;
+          rec.ultima = ag.janela.de;
+          ctx.salvar();
+          const txt = `${janelaTxt(ag.janela)}, de ${lugar(rec.embarque)} para ${lugar(rec.destino)}. Procurando motorista.`;
+          ctx.notificar('A sua volta da semana foi agendada', txt);
+          ctx.avisar(`Volta de ${repeteTxt(ag.janela.de)} agendada sozinha: ${janelaTxt(ag.janela)}.`);
+        }
+      } finally {
+        auto = false;
+        ({ base, escolhido } = antes);
+        agendando = false;
+      }
+    }
+    function pararRepeticao(id) {
+      const u = ctx.eu();
+      const rec = recorrentes().find((r) => r.id === id);
+      if (!u || !rec) return;
+      u.recorrentes = recorrentes().filter((r) => r.id !== id);
+      ctx.salvar();
+      ctx.avisar(`Pronto: a volta de ${repeteTxt(proxima(rec) || Date.now())} não repete mais. A que já está agendada continua.`);
+      desenharRec();
+      desenhar();
+    }
+    function desenharRec() {
+      const recs = recorrentes();
+      const agora = Date.now();
+      if (!recs.length) { ctx.fecharFolha(); return; }
+      q('#rp-rec-lista').innerHTML = recs.map((r) => {
+        const { t, txt: quando } = situacao(r, aberta(r), agora);
+        return `<li><span class="rp-rec-ic" aria-hidden="true"><svg><use href="#i-repetir"/></svg></span><span><b>${esc(repeteTxt(t || agora))}</b><small>${esc(lugar(r.embarque))} → ${esc(lugar(r.destino))}</small><small class="rp-rec-quando">${esc(quando)}</small></span>`
+          + `<button type="button" class="en-link" data-rec-parar="${esc(r.id)}" aria-label="Parar de repetir a volta de ${esc(repeteTxt(t || agora))}">Parar</button></li>`;
+      }).join('');
+    }
+
     async function publicar(ag) {
       const pedido = {
         v: 1, tipo: 'agendada', id: ag.id, t: Date.now(), janela: ag.janela, pub: ag.pub,
@@ -359,6 +462,19 @@
         q('#rp-ag-card-sub').textContent = sub;
         card.classList.toggle('confirmada', ag.estado === 'confirmada');
       }
+      // a repetição: com uma volta agendada, o cartão dela já diz; sem, o próximo horário que repete
+      const recs = recorrentes();
+      const rc = q('#rp-rec-card');
+      rc.hidden = !recs.length || Boolean(ag);
+      if (recs.length && !ag) {
+        const agora = Date.now();
+        const prox = recs.map((r) => ({ r, t: proxima(r, agora) })).filter((x) => x.t).sort((a, b) => a.t - b.t)[0];
+        q('#rp-rec-card-t').textContent = recs.length > 1 ? `${recs.length} voltas que repetem` : `Volta ${repeteTxt(prox.t)}`;
+        const sit = situacao(prox.r, aberta(prox.r), agora);
+        const para = prox.r.destino.bairro || prox.r.destino.nome;
+        q('#rp-rec-card-sub').textContent = recs.length > 1 ? `A próxima: ${repeteTxt(prox.t)} · ${sit.curto}` : `Para ${para} · ${sit.curto}`;
+      }
+      if (ag && ag.rec && recs.some((r) => r.id === ag.rec)) q('#rp-ag-card-sub').textContent += ` · repete ${repeteTxt(ag.janela.de)}`;
       const p = pendente();
       q('#rp-pend-card').hidden = !p;
       if (p) {
@@ -370,7 +486,7 @@
       const ag = ativa();
       if (!ag) { ctx.fecharFolha(); return; }
       const m = ag.motorista;
-      q('#rp-agenda-sub').textContent = janelaTxt(ag.janela);
+      q('#rp-agenda-sub').textContent = `${janelaTxt(ag.janela)}${ag.rec && recorrentes().some((r) => r.id === ag.rec) ? ` · repete ${repeteTxt(ag.janela.de)}` : ''}`;
       q('#rp-agenda-estado').textContent = ag.estado === 'procurando'
         ? 'Procurando motorista. Quando alguém reservar, o celular avisa.'
         : (ag.pronto ? `${primeiro(m.nome)} sabe que você está pronto.` : `${primeiro(m.nome)} reservou. Na hora, ${m.veiculo === 'patinete' ? 'ele vem de patinete' : 'vem de bike'} até você.`);
@@ -389,6 +505,7 @@
       const taxa = taxaCancelar(ag);
       q('#rp-agenda-gratis').textContent = !m ? 'De graça até alguém reservar' : (taxa ? `Agora custa ${brl(taxa)}` : `De graça até as ${hhmm(new Date(gratisAte(ag)))}`);
       q('#rp-agenda-pronto').hidden = !(m && naJanela(ag.janela) && !ag.pronto);
+      q('#rp-agenda-rec').hidden = !(ag.rec && recorrentes().some((r) => r.id === ag.rec));
       const bt = q('#rp-agenda-cancelar');
       bt.textContent = taxa ? `Cancelar · taxa de ${brl(taxa)}` : 'Cancelar o agendamento';
       bt.classList.toggle('com-taxa', Boolean(taxa));
@@ -396,11 +513,12 @@
 
     // ao abrir o app: volta a ouvir as agendadas e confere o que venceu
     lista().forEach((ag) => { if (['procurando', 'confirmada'].includes(ag.estado)) ouvir(ag); });
-    const relogio = setInterval(() => { if (lista().length || pendente()) desenhar(); }, 30000);
+    const relogio = setInterval(() => { if (lista().length || pendente() || recorrentes().length) { desenhar(); agendarRepeticoes(); } }, 30000);
     desenhar();
+    setTimeout(agendarRepeticoes, 1500);
 
     return {
-      REGRAS, desenhar, desenharAgendar, escolher, agendar, desenharFolha, pronto, cancelar,
+      REGRAS, desenhar, desenharAgendar, escolher, agendar, desenharFolha, pronto, cancelar, desenharRec, pararRepeticao, agendarRepeticoes, recorrentes,
       pendente, desenharPendencia, copiarPendencia, paguei, taxaDaCorrida, ativa,
       parar: () => { clearInterval(relogio); [...assinaturas.keys()].forEach(parar); },
     };
@@ -687,5 +805,5 @@
     };
   }
 
-  window.Drink.agenda = { REGRAS, horarios, dia, janelaTxt, taxaCancelar, naJanela, podeIr, passageiro, motorista };
+  window.Drink.agenda = { REGRAS, horarios, dia, janelaTxt, repeteTxt, proxima, taxaCancelar, naJanela, podeIr, passageiro, motorista };
 }());

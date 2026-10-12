@@ -166,3 +166,24 @@ html[data-tema="claro"] .app :is(.rp-quando, .rp-op-agendar) { box-shadow: inset
   font: inherit; font-size: .8em; font-weight: 700;
 }
 html[data-tema="claro"] .app .rp-dest-ag { background: rgba(61, 102, 0, .07); box-shadow: inset 0 0 0 1px rgba(61, 102, 0, .3); }
+
+/* ---------- v54: a volta que repete toda semana ---------- */
+.app .rp-ag-repetir { margin: var(--e3) 0 var(--e2); }
+.app .rp-ag-repetir > span:last-child { display: grid; gap: .15em; }
+.app .rp-ag-repetir b { color: var(--luz); font-size: max(14px, 1.06em); font-weight: 620; }
+.app .rp-ag-repetir small { font-size: max(12.5px, .94em); line-height: 1.4; color: var(--a-texto-2); }
+.app .rp-rec-lista { display: grid; gap: .55em; margin: 0 0 var(--e3); padding: 0; list-style: none; }
+.app .rp-rec-lista li {
+  display: flex; align-items: center; gap: var(--e3); padding: .7em .8em; border-radius: var(--r-m);
+  background: var(--a-card); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .06);
+}
+.app .rp-rec-lista li > span:nth-child(2) { display: grid; flex: 1; min-width: 0; gap: .1em; }
+.app .rp-rec-lista b { font-size: max(14px, .92em); font-weight: 650; color: var(--luz); }
+.app .rp-rec-lista small { font-size: max(12.5px, .8em); color: var(--a-texto-2); overflow-wrap: anywhere; }
+.app .rp-rec-lista .rp-rec-quando { color: var(--lima-tx); }
+.app .rp-rec-ic { flex: none; display: grid; place-items: center; width: 2.3em; height: 2.3em; border-radius: 50%; background: rgba(210, 255, 60, .14); }
+.app .rp-rec-ic svg { width: 1.2em; height: 1.2em; fill: none; stroke: var(--lima-tx); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.app .rp-rec-lista .en-link { flex: none; padding: .5em .3em; color: #FF9A6B; }
+.app .rp-rec-dica { margin: 0; font-size: max(12.5px, .8em); line-height: 1.5; }
+html[data-tema="claro"] .app .rp-rec-lista .en-link { color: #B3261E; }
+html[data-tema="claro"] .app .rp-rec-lista .rp-rec-quando { color: var(--a-texto-2); font-weight: 600; }
