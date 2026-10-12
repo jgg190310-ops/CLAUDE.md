@@ -757,7 +757,7 @@
         return `<li class="rm-agd-item ${confirmada ? 'confirmada' : 'reservada'}${r.pronto ? ' pronto' : ''}">`
           + `<div class="rm-agd-hora"><b>${hhmm(new Date(r.janela.de))}</b><small>${esc(dia(r.janela.de, agora))}</small></div>`
           + `<div class="rm-agd-txt"><b>${esc(rotaTxt(r))}</b><small>${esc(quem)}${r.pronto ? ' · pronto' : ''}</small><small>${esc(end)}</small></div>`
-          + `<em>${brl(r.valor || r.pedido.valor)}</em>`
+          + `<em>${brl(S.partes(r.valor || r.pedido.valor).motorista)}</em>`
           + `<div class="rm-agd-bts">${confirmada ? `<button type="button" class="t-botao" data-agd-ir="${esc(r.id)}"${pode ? '' : ' disabled'}>${pode ? 'Ir buscar' : `Sair a partir das ${hhmm(new Date(r.janela.de - REGRAS.irAntesMin * MIN))}`}</button>` : ''}`
           + `<button type="button" class="en-link rm-agd-desistir" data-agd-desistir="${esc(r.id)}">Desistir</button></div></li>`;
       };
@@ -771,7 +771,7 @@
         const longe = pos ? S.textoKm(S.distancia(pos, a.de) / 1000) : '';
         return `<li class="rm-agd-item aberta"><div class="rm-agd-hora"><b>${hhmm(new Date(a.janela.de))}</b><small>${esc(dia(a.janela.de, agora))}</small></div>`
           + `<div class="rm-agd-txt"><b>${esc(a.de.bairro)} → ${esc(a.para.bairro)}</b><small>${S.virgula(a.km)} km de carro${a.cambio ? ` · câmbio ${esc(a.cambio)}` : ''}</small><small>${longe ? `Embarque a uns ${longe} de você` : 'Embarque aproximado'}</small></div>`
-          + `<em>${brl(a.valor)}</em><div class="rm-agd-bts"><button type="button" class="t-bt" data-agd-reservar="${esc(a.id)}">Reservar</button></div></li>`;
+          + `<em>${brl(S.partes(a.valor).motorista)}</em><div class="rm-agd-bts"><button type="button" class="t-bt" data-agd-reservar="${esc(a.id)}">Reservar</button></div></li>`;
       }).join('') : '<li class="rm-agd-vazio">Nenhuma volta agendada aberta agora. Quando alguém agendar perto, o celular avisa.</li>';
     }
 

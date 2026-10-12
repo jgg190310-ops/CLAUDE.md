@@ -1228,3 +1228,13 @@ html.deitado .vira {
 .app .t-acoes-3 .t-bt { padding: 0 .4em; gap: .35em; font-size: .84em; white-space: nowrap; }
 .app .t-acoes-3 .t-bt svg { flex: none; }
 @media (max-width: 374px) { .app .t-acoes-3 .t-bt { flex-direction: column; height: 3.6em; gap: .15em; font-size: .8em; border-radius: 1.1em; } }
+/* v56: a parte do Drink (25%) a acertar, na folha de ganhos */
+.app .rm-taxa { display: grid; gap: .5em; margin: 0 0 .9em; padding: .85em .95em; border-radius: var(--r-m, 14px); background: var(--a-card); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .07); }
+.app .rm-taxa[hidden] { display: none; }
+.app .rm-taxa-cab { display: flex; justify-content: space-between; align-items: end; gap: .6em; flex-wrap: wrap; }
+.app .rm-taxa-cab span { display: grid; }
+.app .rm-taxa-cab small { font-size: max(12.5px, .8em); color: var(--a-texto-2); }
+.app .rm-taxa-cab b { font-size: 1.25em; font-weight: 700; color: var(--luz); }
+.app .rm-taxa-txt { margin: 0; font-size: max(12.5px, .82em); line-height: 1.45; color: var(--a-texto-2); }
+.app .rm-taxa-bts { display: flex; align-items: center; gap: .8em; }
+.app .rm-taxa-bts .t-bt { padding: 0 1.1em; }

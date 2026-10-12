@@ -1591,8 +1591,14 @@
       relatoMotivo = '';
       q('#rp-relato-txt').value = '';
       if (S.cfg.suporte) {
-        location.href = `mailto:${encodeURIComponent(S.cfg.suporte)}?subject=${encodeURIComponent(`Drink · ${c.relato.motivo}`)}&body=${encodeURIComponent(corpo)}`;
-        op.avisar('Relato guardado no recibo desta volta. O e-mail para a equipe do Drink já abriu pronto.');
+        // vai sozinho para o e-mail da equipe (o ntfy encaminha); sem internet, abre o e-mail pronto no celular
+        const assunto = `Drink · ${c.relato.motivo}`;
+        R.canal.email(S.cfg.suporte, assunto, `${corpo}\n\nCelular de quem relatou: ${(eu() || {}).celular || ''}`)
+          .then(() => { c.relato.enviado = Date.now(); salvarCorrida(); op.avisar('Relato enviado para a equipe do Drink e guardado no recibo desta volta.'); })
+          .catch(() => {
+            location.href = `mailto:${encodeURIComponent(S.cfg.suporte).replace(/%40/g, '@')}?subject=${encodeURIComponent(assunto)}&body=${encodeURIComponent(corpo)}`;
+            op.avisar('Relato guardado no recibo desta volta. Sem conexão: o e-mail para a equipe do Drink abriu pronto.');
+          });
       } else if (navigator.share) {
         navigator.share({ title: `Drink · ${c.relato.motivo}`, text: corpo }).catch(() => {});
         op.avisar('Relato guardado no recibo desta volta.');

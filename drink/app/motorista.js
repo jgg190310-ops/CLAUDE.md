@@ -466,7 +466,7 @@
       pedidos.set(msg.id, { ...msg, chegou: Date.now() });
       if (!corrida && !aceito && dentro(msg)) {
         tocar();
-        notificar('Pedido novo no Drink', `${msg.de.bairro} → ${msg.para.bairro} · ${brl(msg.valor)}`, 'drink-pedido');
+        notificar('Pedido novo no Drink', `${msg.de.bairro} → ${msg.para.bairro} · ${brl(S.partes(msg.valor).motorista)} para você`, 'drink-pedido');
       }
       if (atual === 'online') desenharPedidos();
     }
@@ -532,8 +532,8 @@
         caixa.innerHTML = chamando.map(htmlChamado).join('') + lista.map((p) => {
           const ev = p.ev ? `<p class="rm-ped-ev"><b>Evento</b> · ${p.ev.teto ? (p.valor <= p.ev.teto ? 'o evento paga a volta toda' : `o evento paga ${esc(brl0(p.ev.teto))} e o passageiro o resto`) : 'o passageiro paga pelo Pix'}</p>` : '';
           return `<li class="rm-pedido" data-pedido="${esc(p.id)}">
-          <div class="rm-ped-topo"><b>${esc(p.de.bairro)} → ${esc(p.para.bairro)}</b><em>${esc(brl(p.valor))}</em></div>${ev}
-          <p><span class="rm-ped-perto">${esc(pertoPedido(p))}</span>viagem de ${esc(S.textoKm(p.km))} · câmbio ${esc(p.cambio || 'automático')} · ${p.nota ? `passageiro nota ${esc(S.virgula(p.nota))}` : 'passageiro novo no Drink'}</p>
+          <div class="rm-ped-topo"><b>${esc(p.de.bairro)} → ${esc(p.para.bairro)}</b><em aria-label="${esc(`Você recebe ${brl(S.partes(p.valor).motorista)}`)}">${esc(brl(S.partes(p.valor).motorista))}</em></div>${ev}
+          <p><span class="rm-ped-perto">${esc(pertoPedido(p))}</span>corrida de ${esc(brl(p.valor))}, 75% seu · viagem de ${esc(S.textoKm(p.km))} · câmbio ${esc(p.cambio || 'automático')} · ${p.nota ? `passageiro nota ${esc(S.virgula(p.nota))}` : 'passageiro novo no Drink'}</p>
           <p class="rm-ped-prazo">${prazoPedido(p, agora)}</p>
           <button type="button" class="t-botao" data-aceitar="${esc(p.id)}">Aceitar</button>
         </li>`;
@@ -1162,15 +1162,16 @@
       });
     }
     // o fim da corrida em detalhe: o que entrou, o tempo e o que o passageiro achou
-    function desenharResumoFim(c, gorjeta, total) {
+    function desenharResumoFim(c, gorjeta, total, drink = 0) {
       const linha = (a, sub, b, classe = '') => `<div${classe ? ` class="${classe}"` : ''}><dt>${esc(a)}${sub ? `<small>${esc(sub)}</small>` : ''}</dt><dd>${esc(b)}</dd></div>`;
       const fim = c.chegadaEm || Date.now();
       let h = linha('Corrida', `${S.virgula(c.km)} km · ${c.embarque.bairro || c.embarque.nome} → ${c.destino.bairro || c.destino.nome}`, brl(c.valor));
       if (c.espera) h += linha('Espera', 'depois dos 10 min grátis', brl(c.espera));
+      if (drink) h += linha('Parte do Drink', '25% da corrida e da espera, acertada na semana', `− ${brl(drink)}`);
       if (gorjeta) h += linha('Gorjeta', 'do passageiro, inteira sua', brl(gorjeta));
       if (c.eventoParte) h += linha(`Do ${c.evento.nome}`, 'a receber de quem organiza', brl(c.eventoParte));
       h += linha('Tempo', 'do aceite à chegada', S.textoMin((fim - c.t0) / 60000));
-      h += linha('Total', '', brl(total), 'total');
+      h += linha('Seu ganho', '', brl(redondo(total - drink)), 'total');
       q('#rm-fim-resumo').innerHTML = h;
       q('#rm-fim-resumo').hidden = false;
       const a = c.avaliacao;
@@ -1190,6 +1191,8 @@
       const u = eu();
       const gorjeta = c.avaliacao ? c.avaliacao.gorjeta : 0;
       const total = redondo(c.valor + (c.espera || 0) + gorjeta);
+      // o passageiro paga tudo na chave do motorista; a parte do Drink (25% da corrida e da espera) fica anotada
+      const drink = S.partes(c.valor + (c.espera || 0)).drink;
       enviar({ tipo: 'recebido', nota: c.notaPassageiro || 0 });
       u.totalCorridas = (u.totalCorridas || 0) + 1;
       if (c.avaliacao && c.avaliacao.nota) u.avaliacoes = [...(u.avaliacoes || []), c.avaliacao.nota].slice(-100);
@@ -1197,15 +1200,15 @@
       if (c.avaliacao && c.avaliacao.comentario) u.comentarios = [{ t: Date.now(), nota: c.avaliacao.nota, txt: c.avaliacao.comentario }, ...(u.comentarios || [])].slice(0, 20);
       u.corridasFeitas = [{
         id: c.id, data: new Date().toISOString(), rota: `${c.embarque.bairro || c.embarque.nome} → ${c.destino.bairro || c.destino.nome}`,
-        total, km: c.km, valor: c.valor, espera: c.espera || 0, gorjeta, nota: c.avaliacao ? c.avaliacao.nota || 0 : 0,
+        total, taxaDrink: drink, km: c.km, valor: c.valor, espera: c.espera || 0, gorjeta, nota: c.avaliacao ? c.avaliacao.nota || 0 : 0,
         // a parte do evento fica "a receber" até quem organiza avisar que pagou
         ...(c.eventoParte ? { evento: { id: c.evento.id, chave: c.evento.chave, nome: c.evento.nome, valor: c.eventoParte, pago: false, conta: contaDoEvento(c) } } : {}),
       }, ...(u.corridasFeitas || [])].slice(0, 100);
       contarDia(u);
       encerrar();
       op.salvar();
-      q('#rm-fim-t').textContent = `+ ${brl(total)}`;
-      desenharResumoFim(c, gorjeta, total);
+      q('#rm-fim-t').textContent = `+ ${brl(redondo(total - drink))}`;
+      desenharResumoFim(c, gorjeta, total, drink);
       q('#rm-fim-sub').textContent = c.eventoParte
         ? `Corrida concluída. ${brl(c.eventoParte)} vêm do ${c.evento.nome}: você recebe um aviso quando quem organiza pagar.`
         : 'Corrida concluída. O Pix foi direto pra sua conta.';
@@ -1250,7 +1253,7 @@
       }
       (u.corridasFeitas || []).forEach((c) => {
         const d = dias.find((x) => x.chave === S.diaDoDrink(new Date(c.data).getTime()));
-        if (d) { d.total = redondo(d.total + (Number(c.total) || 0)); d.n += 1; d.lista.push(c); }
+        if (d) { d.total = redondo(d.total + S.liquido(c)); d.n += 1; d.lista.push(c); }
       });
       if (diaEscolhido && !dias.some((d) => d.chave === diaEscolhido)) diaEscolhido = null;
       const total = redondo(dias.reduce((soma, d) => soma + d.total, 0));
@@ -1272,10 +1275,41 @@
       q('#rm-feitas-todas').hidden = !diaEscolhido;
       q('#rm-feitas').innerHTML = mostrar.length
         ? mostrar.map((d) => `${diaEscolhido ? '' : `<li class="rm-feitas-dia"><span>${esc(nomeDia(d))}</span><b>${esc(brl(d.total))}</b></li>`}${d.lista.map((c) => {
-          const det = [hhmm(new Date(c.data)), c.km ? `${S.virgula(Number(c.km))} km` : '', c.espera ? `espera ${brl(c.espera)}` : '', c.gorjeta ? `gorjeta ${brl(c.gorjeta)}` : '', c.evento ? `${brl(c.evento.valor)} do evento${c.evento.pago ? ', pago' : ', a receber'}` : ''].filter(Boolean).join(' · ');
-          return `<li class="rm-feita"><div><b>${esc(c.rota || 'Corrida')}</b><small>${esc(det)}</small></div><strong>${esc(brl(Number(c.total) || 0))}</strong></li>`;
+          const det = [hhmm(new Date(c.data)), c.km ? `${S.virgula(Number(c.km))} km` : '', c.espera ? `espera ${brl(c.espera)}` : '', c.gorjeta ? `gorjeta ${brl(c.gorjeta)}` : '', c.taxaDrink ? `Drink ${brl(c.taxaDrink)}` : '', c.evento ? `${brl(c.evento.valor)} do evento${c.evento.pago ? ', pago' : ', a receber'}` : ''].filter(Boolean).join(' · ');
+          return `<li class="rm-feita"><div><b>${esc(c.rota || 'Corrida')}</b><small>${esc(det)}</small></div><strong>${esc(brl(S.liquido(c)))}</strong></li>`;
         }).join('')}`).join('')
         : `<li class="rm-feitas-vazio">${diaEscolhido ? 'Nenhuma corrida nesse dia.' : 'Quando você fizer corridas, elas aparecem aqui com o valor, a espera e a gorjeta.'}</li>`;
+    }
+
+    /* ---------- a parte do Drink: 25% de cada corrida, acertada pelo Pix ---------- */
+    const taxasAbertas = () => (eu().corridasFeitas || []).filter((c) => c.taxaDrink && !c.taxaPaga);
+    function desenharTaxa() {
+      const abertas = taxasAbertas();
+      const soma = redondo(abertas.reduce((s, c) => s + c.taxaDrink, 0));
+      const box = q('#rm-taxa');
+      box.hidden = !abertas.length;
+      if (!abertas.length) return;
+      q('#rm-taxa-valor').textContent = brl(soma);
+      q('#rm-taxa-sub').textContent = `${abertas.length} ${abertas.length === 1 ? 'corrida' : 'corridas'} · 25% da corrida e da espera`;
+      const px = S.cfg.pixDrink;
+      q('#rm-taxa-bts').hidden = !(px && px.chave);
+      q('#rm-taxa-txt').textContent = px && px.chave
+        ? 'O passageiro paga tudo na sua chave. Toda semana, você acerta a parte do Drink pelo Pix.'
+        : 'O passageiro paga tudo na sua chave. A parte do Drink fica anotada aqui; a chave Pix para o acerto semanal vai aparecer neste lugar.';
+    }
+    function pagarTaxa() {
+      const px = S.cfg.pixDrink;
+      const soma = redondo(taxasAbertas().reduce((s, c) => s + c.taxaDrink, 0));
+      if (!px || !px.chave || !soma) return;
+      const codigo = window.Drink.pix.copiaECola({ chave: px.chave, nome: px.nome || 'DRINK', cidade: px.cidade || 'BELO HORIZONTE', valor: soma, descricao: 'Parte do Drink' });
+      if (navigator.clipboard) navigator.clipboard.writeText(codigo).catch(() => {});
+      op.avisar(`Pix copia e cola de ${brl(soma)} copiado. Cola no app do seu banco e depois toque em Já paguei.`);
+    }
+    function taxaPaga() {
+      taxasAbertas().forEach((c) => { c.taxaPaga = Date.now(); });
+      op.salvar();
+      desenharTaxa();
+      op.avisar('Parte do Drink marcada como acertada.');
     }
 
     /* ---------- a receber de eventos ---------- */
@@ -1520,7 +1554,7 @@
       veu.hidden = false;
       q(`#${id}`).hidden = false;
       soltarFolha = S.prenderFoco(q(`#${id}`));
-      if (id === 'rm-ganhos') { diaEscolhido = null; desenharSemana(); desenharReceber(); }
+      if (id === 'rm-ganhos') { diaEscolhido = null; desenharSemana(); desenharReceber(); desenharTaxa(); }
       if (id === 'rm-chat' && corrida) {
         corrida.novaMsg = false;
         q('#rm-nova-msg').hidden = true;
@@ -1555,6 +1589,8 @@
       if (ds.agdDesistir) { AGM.desistir(ds.agdDesistir); return; }
       if (ds.evCobrar) { cobrarDeNovo(ds.evCobrar); return; }
       if (ds.evCaiu) { jaCaiu(ds.evCaiu); return; }
+      if (ds.rmTaxa === 'pagar') { pagarTaxa(); return; }
+      if (ds.rmTaxa === 'paga') { taxaPaga(); return; }
       if (ds.raio) { mudarRaio(Number(ds.raio)); return; }
       if (ds.notaP) { if (corrida) { corrida.notaPassageiro = Number(ds.notaP); desenharNotaPassageiro(); salvarCorrida(); } return; }
       if (ds.rapida) { mandarMsg(ds.rapida); return; }

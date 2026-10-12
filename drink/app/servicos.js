@@ -32,6 +32,8 @@
     google: null,
     // o e-mail da equipe do Drink que recebe os relatos de problema (sem ele, o relato vai pelo "compartilhar" do celular)
     suporte: '',
+    // a chave Pix do Drink, para quem dirige acertar a parte do Drink (25%) toda semana. Sem ela, a taxa fica anotada
+    pixDrink: null,
     googleUrl: 'https://places.googleapis.com',
   };
   try { Object.assign(cfg, JSON.parse(localStorage.getItem('drink-servicos') || '{}')); } catch (e) { /* sem ajuste */ }
@@ -705,8 +707,18 @@
   // quanto o motorista fez num dia do Drink, somando as corridas feitas
   function ganhosDoDia(feitas, dia = diaDoDrink()) {
     const lista = (feitas || []).filter((c) => c && diaDoDrink(new Date(c.data).getTime()) === dia);
-    return { total: Math.round(lista.reduce((s, c) => s + (Number(c.total) || 0), 0) * 100) / 100, n: lista.length };
+    return { total: Math.round(lista.reduce((s, c) => s + liquido(c), 0) * 100) / 100, n: lista.length };
   }
+  // a divisão de cada volta: 75% da corrida (e da espera) para quem dirige, 25% para o Drink. A gorjeta e as taxas de
+  // cancelamento e de "não veio" ficam inteiras com o motorista
+  const PARTE_MOTORISTA = 0.75;
+  function partes(tarifa) {
+    const t = Math.max(0, Number(tarifa) || 0);
+    const drink = Math.round(t * (1 - PARTE_MOTORISTA) * 100) / 100;
+    return { drink, motorista: Math.round((t - drink) * 100) / 100 };
+  }
+  // o que fica com o motorista numa corrida feita (as feitas antes da divisão não têm taxa)
+  const liquido = (c) => Math.round(((Number(c && c.total) || 0) - (Number(c && c.taxaDrink) || 0)) * 100) / 100;
 
   // folha por cima da tela: vira uma janela para o leitor de tela e o resto do app fica inerte (o toque, o Tab e
   // o leitor só alcançam a folha); o véu e os avisos que falam continuam de fora. Devolve a função que solta,
@@ -733,6 +745,7 @@
   }
 
   window.Drink.servicos = {
+    PARTE_MOTORISTA, partes, liquido,
     cfg, BH, CAIXA, gps, distancia, textoKm, textoMin, preco, aproximar, naGrandeBH,
     buscar, refinar, endereco, entender, semAcento, rota, faltaNaLinha, pontosNaLinha, virgula, diaDoDrink, ganhosDoDia, prenderFoco,
   };

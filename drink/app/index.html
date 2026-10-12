@@ -73,17 +73,17 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&display=swap">
-  <link rel="stylesheet" href="../app-telas.css?v=54">
-  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=54">
-  <link rel="stylesheet" href="vendor/leaflet.css?v=54">
-  <link rel="stylesheet" href="app.css?v=54">
-  <link rel="stylesheet" href="visual.css?v=54">
-  <link rel="stylesheet" href="tema.css?v=54">
-  <link rel="stylesheet" href="ritmo.css?v=54">
-  <link rel="stylesheet" href="perfil.css?v=54">
-  <link rel="stylesheet" href="jornada.css?v=54">
-  <link rel="stylesheet" href="agenda.css?v=54">
-  <link rel="stylesheet" href="bares.css?v=54">
+  <link rel="stylesheet" href="../app-telas.css?v=56">
+  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=56">
+  <link rel="stylesheet" href="vendor/leaflet.css?v=56">
+  <link rel="stylesheet" href="app.css?v=56">
+  <link rel="stylesheet" href="visual.css?v=56">
+  <link rel="stylesheet" href="tema.css?v=56">
+  <link rel="stylesheet" href="ritmo.css?v=56">
+  <link rel="stylesheet" href="perfil.css?v=56">
+  <link rel="stylesheet" href="jornada.css?v=56">
+  <link rel="stylesheet" href="agenda.css?v=56">
+  <link rel="stylesheet" href="bares.css?v=56">
 </head>
 <body>
 <svg class="sprite" aria-hidden="true" focusable="false">
@@ -1602,12 +1602,17 @@
         <section class="d-sobre rm-ganhos" id="rm-ganhos" aria-labelledby="rm-ganhos-t" hidden>
           <div class="d-sobre-cab">
             <span class="d-sobre-ic" aria-hidden="true"><svg><use href="#i-carteira"/></svg></span>
-            <div><h4 id="rm-ganhos-t" tabindex="-1">Seus ganhos</h4><small>O Pix de cada corrida cai direto na sua chave</small></div>
+            <div><h4 id="rm-ganhos-t" tabindex="-1">Seus ganhos</h4><small>75% de cada corrida e a gorjeta inteira são seus</small></div>
             <button type="button" class="d-fechar" data-rm-fechar aria-label="Fechar"><svg aria-hidden="true"><use href="#i-fechar"/></svg></button>
           </div>
           <div class="rm-semana">
             <p class="rm-semana-total"><small>Últimos 7 dias</small><b id="rm-semana-valor">R$ 0,00</b><span id="rm-semana-txt">0 corridas nos últimos 7 dias</span></p>
             <div class="rm-barras" id="rm-barras"></div>
+          </div>
+          <div class="rm-taxa" id="rm-taxa" hidden>
+            <p class="rm-taxa-cab"><span><small>Parte do Drink a acertar</small><b id="rm-taxa-valor">R$ 0,00</b></span><small id="rm-taxa-sub"></small></p>
+            <p class="rm-taxa-txt" id="rm-taxa-txt"></p>
+            <div class="rm-taxa-bts" id="rm-taxa-bts" hidden><button type="button" class="t-bt" data-rm-taxa="pagar">Copiar o Pix</button><button type="button" class="en-link" data-rm-taxa="paga">Já paguei</button></div>
           </div>
           <div class="rm-ev-receber" id="rm-ev-receber" hidden>
             <p class="d-sec">A receber de eventos</p>
@@ -1696,6 +1701,7 @@
           <p id="en-termos-preco">Você vê o valor antes de pedir.</p>
           <h5>Pagamento</h5>
           <p>Você paga pelo Pix direto na chave do motorista, pelo app do seu banco, na chegada. O Drink não recebe nem guarda esse dinheiro. Confira o nome do motorista antes de pagar.</p>
+          <p>Quem dirige fica com 75% da corrida e da espera e com a gorjeta inteira. A parte do Drink (25%) fica anotada no app do motorista e é acertada por ele toda semana.</p>
           <h5>Segurança</h5>
           <ul>
             <li>Só entregue a chave depois que o seu celular confirmar o código de 4 números que o motorista digitar.</li>
@@ -1892,26 +1898,26 @@
   <p class="vira-txt" id="vira-txt">O Drink é feito para usar na vertical. Nada se perde: se tiver corrida, ela continua rolando.</p>
 </div>
 
-<script src="vendor/maplibre-gl.js?v=54"></script>
-<script src="vendor/leaflet.js?v=54"></script>
-<script src="vendor/qrcode.js?v=54"></script>
-<script src="../app-nucleo.js?v=54"></script>
-<script src="servicos.js?v=54"></script>
-<script src="rede.js?v=54"></script>
-<script src="mapa-estilo.js?v=54"></script>
-<script src="mapa.js?v=54"></script>
-<script src="carros.js?v=54"></script>
-<script src="cadastro-motorista.js?v=54"></script>
-<script src="perfil.js?v=54"></script>
-<script src="pix.js?v=54"></script>
-<script src="avisos.js?v=54"></script>
-<script src="sms.js?v=54"></script>
-<script src="eventos.js?v=54"></script>
-<script src="agenda.js?v=54"></script>
-<script src="leitor.js?v=54"></script>
-<script src="bares.js?v=54"></script>
-<script src="passageiro.js?v=54"></script>
-<script src="motorista.js?v=54"></script>
-<script src="app.js?v=54"></script>
+<script src="vendor/maplibre-gl.js?v=56"></script>
+<script src="vendor/leaflet.js?v=56"></script>
+<script src="vendor/qrcode.js?v=56"></script>
+<script src="../app-nucleo.js?v=56"></script>
+<script src="servicos.js?v=56"></script>
+<script src="rede.js?v=56"></script>
+<script src="mapa-estilo.js?v=56"></script>
+<script src="mapa.js?v=56"></script>
+<script src="carros.js?v=56"></script>
+<script src="cadastro-motorista.js?v=56"></script>
+<script src="perfil.js?v=56"></script>
+<script src="pix.js?v=56"></script>
+<script src="avisos.js?v=56"></script>
+<script src="sms.js?v=56"></script>
+<script src="eventos.js?v=56"></script>
+<script src="agenda.js?v=56"></script>
+<script src="leitor.js?v=56"></script>
+<script src="bares.js?v=56"></script>
+<script src="passageiro.js?v=56"></script>
+<script src="motorista.js?v=56"></script>
+<script src="app.js?v=56"></script>
 </body>
 </html>
