@@ -73,17 +73,17 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&display=swap">
-  <link rel="stylesheet" href="../app-telas.css?v=57">
-  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=57">
-  <link rel="stylesheet" href="vendor/leaflet.css?v=57">
-  <link rel="stylesheet" href="app.css?v=57">
-  <link rel="stylesheet" href="visual.css?v=57">
-  <link rel="stylesheet" href="tema.css?v=57">
-  <link rel="stylesheet" href="ritmo.css?v=57">
-  <link rel="stylesheet" href="perfil.css?v=57">
-  <link rel="stylesheet" href="jornada.css?v=57">
-  <link rel="stylesheet" href="agenda.css?v=57">
-  <link rel="stylesheet" href="bares.css?v=57">
+  <link rel="stylesheet" href="../app-telas.css?v=58">
+  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=58">
+  <link rel="stylesheet" href="vendor/leaflet.css?v=58">
+  <link rel="stylesheet" href="app.css?v=58">
+  <link rel="stylesheet" href="visual.css?v=58">
+  <link rel="stylesheet" href="tema.css?v=58">
+  <link rel="stylesheet" href="ritmo.css?v=58">
+  <link rel="stylesheet" href="perfil.css?v=58">
+  <link rel="stylesheet" href="jornada.css?v=58">
+  <link rel="stylesheet" href="agenda.css?v=58">
+  <link rel="stylesheet" href="bares.css?v=58">
 </head>
 <body>
 <svg class="sprite" aria-hidden="true" focusable="false">
@@ -588,7 +588,9 @@
           </div>
           <div class="rt-bts">
             <button type="button" class="t-botao" data-rp="tentar">Tentar de novo</button>
-            <button type="button" class="t-bt" data-rp="simular">Simular a corrida para ver como é</button>
+            <button type="button" class="t-bt" data-rp="ninguem-agendar"><svg aria-hidden="true"><use href="#i-calendario"/></svg>Agendar esta volta</button>
+            <button type="button" class="t-bt" id="rp-ni-avise" data-rp="ninguem-avise"><svg aria-hidden="true"><use href="#i-sino"/></svg>Me avise quando tiver Drink perto</button>
+            <button type="button" class="en-link" data-rp="simular">Simular a corrida para ver como é</button>
             <button type="button" class="en-link" data-rp-ir="inicio">Voltar ao início</button>
           </div>
         </section>
@@ -782,6 +784,7 @@
           <p class="d-sec">Conta</p>
           <ul class="en-conta">
             <li><button type="button" data-app="avisos"><svg aria-hidden="true"><use href="#i-sino"/></svg><span><b>Avisos no celular</b><small data-avisos>Toca para ligar</small></span></button></li>
+            <li><button type="button" data-rp-folha="rp-guia"><svg aria-hidden="true"><use href="#i-limao"/></svg><span><b>Como funciona uma volta</b><small>O código, a vistoria, a bike e o Pix</small></span></button></li>
             <li><button type="button" data-app="virar-motorista"><svg aria-hidden="true"><use href="#i-bike"/></svg><span><b>Quero dirigir com o Drink</b><small>Ganhe à noite com a sua bike ou patinete</small></span></button></li>
             <li data-instalar hidden><button type="button" data-app="instalar"><svg aria-hidden="true"><use href="#i-celular"/></svg><span><b>Instalar o app</b><small>Na tela de início, sem passar pela loja</small></span></button></li>
             <li class="en-tema-li"><div class="en-tema"><svg aria-hidden="true"><use href="#i-lua"/></svg><span><b>Aparência</b><small data-tema-legenda>Sempre escuro</small></span></div><div class="en-tema-ops" role="radiogroup" aria-label="Aparência do app"><button type="button" role="radio" data-tema-opcao="escuro" aria-checked="true">Escuro</button><button type="button" role="radio" data-tema-opcao="claro" aria-checked="false">Claro</button><button type="button" role="radio" data-tema-opcao="auto" aria-checked="false">Automático</button></div></li>
@@ -1130,6 +1133,21 @@
           </ul>
           <p class="d-sec" id="rp-ajuda-cont-t">Avisar meus contatos de confiança por SMS</p>
           <ul class="d-opcoes-ajuda" id="rp-ajuda-contatos" aria-labelledby="rp-ajuda-cont-t"></ul>
+        </section>
+
+        <section class="d-sobre rp-guia" id="rp-guia" aria-labelledby="rp-guia-t" hidden>
+          <div class="d-sobre-cab">
+            <span class="d-sobre-ic" aria-hidden="true"><svg><use href="#i-limao"/></svg></span>
+            <div><h4 id="rp-guia-t" tabindex="-1">Como é uma volta de Drink</h4><small>Leva 30 segundos para ler</small></div>
+            <button type="button" class="d-fechar" data-rp-fechar aria-label="Fechar"><svg aria-hidden="true"><use href="#i-fechar"/></svg></button>
+          </div>
+          <ol class="rp-guia-passos">
+            <li><span class="rp-guia-ic" aria-hidden="true"><svg><use href="#i-bike"/></svg></span><span><b>O motorista chega de bike ou patinete</b><small>Elétrico e dobrável. Ele dobra e guarda no seu porta-malas, e dirige o seu carro.</small></span></li>
+            <li><span class="rp-guia-ic" aria-hidden="true"><svg><use href="#i-chave"/></svg></span><span><b>A chave só depois do código</b><small>Fale o código de 4 números que aparece aqui. Ele digita no app dele, e o seu celular confirma que é a pessoa certa.</small></span></li>
+            <li><span class="rp-guia-ic" aria-hidden="true"><svg><use href="#i-camera"/></svg></span><span><b>Vistoria antes de sair</b><small>Ele tira 5 fotos do carro, com data e hora, que ficam guardadas. Aí é só ir para casa.</small></span></li>
+            <li><span class="rp-guia-ic" aria-hidden="true"><svg><use href="#i-pix"/></svg></span><span><b>Pix na chegada</b><small>Você paga o valor mostrado agora, pelo app do seu banco, direto na chave do motorista.</small></span></li>
+          </ol>
+          <button type="button" class="t-botao" id="rp-guia-ok" data-rp="guia-pedir">Entendi, pedir o Drink</button>
         </section>
 
         <section class="d-sobre" id="rp-relato" aria-labelledby="rp-relato-t" hidden>
@@ -1898,26 +1916,26 @@
   <p class="vira-txt" id="vira-txt">O Drink é feito para usar na vertical. Nada se perde: se tiver corrida, ela continua rolando.</p>
 </div>
 
-<script src="vendor/maplibre-gl.js?v=57"></script>
-<script src="vendor/leaflet.js?v=57"></script>
-<script src="vendor/qrcode.js?v=57"></script>
-<script src="../app-nucleo.js?v=57"></script>
-<script src="servicos.js?v=57"></script>
-<script src="rede.js?v=57"></script>
-<script src="mapa-estilo.js?v=57"></script>
-<script src="mapa.js?v=57"></script>
-<script src="carros.js?v=57"></script>
-<script src="cadastro-motorista.js?v=57"></script>
-<script src="perfil.js?v=57"></script>
-<script src="pix.js?v=57"></script>
-<script src="avisos.js?v=57"></script>
-<script src="sms.js?v=57"></script>
-<script src="eventos.js?v=57"></script>
-<script src="agenda.js?v=57"></script>
-<script src="leitor.js?v=57"></script>
-<script src="bares.js?v=57"></script>
-<script src="passageiro.js?v=57"></script>
-<script src="motorista.js?v=57"></script>
-<script src="app.js?v=57"></script>
+<script src="vendor/maplibre-gl.js?v=58"></script>
+<script src="vendor/leaflet.js?v=58"></script>
+<script src="vendor/qrcode.js?v=58"></script>
+<script src="../app-nucleo.js?v=58"></script>
+<script src="servicos.js?v=58"></script>
+<script src="rede.js?v=58"></script>
+<script src="mapa-estilo.js?v=58"></script>
+<script src="mapa.js?v=58"></script>
+<script src="carros.js?v=58"></script>
+<script src="cadastro-motorista.js?v=58"></script>
+<script src="perfil.js?v=58"></script>
+<script src="pix.js?v=58"></script>
+<script src="avisos.js?v=58"></script>
+<script src="sms.js?v=58"></script>
+<script src="eventos.js?v=58"></script>
+<script src="agenda.js?v=58"></script>
+<script src="leitor.js?v=58"></script>
+<script src="bares.js?v=58"></script>
+<script src="passageiro.js?v=58"></script>
+<script src="motorista.js?v=58"></script>
+<script src="app.js?v=58"></script>
 </body>
 </html>

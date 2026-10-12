@@ -1238,3 +1238,11 @@ html.deitado .vira {
 .app .rm-taxa-txt { margin: 0; font-size: max(12.5px, .82em); line-height: 1.45; color: var(--a-texto-2); }
 .app .rm-taxa-bts { display: flex; align-items: center; gap: .8em; }
 .app .rm-taxa-bts .t-bt { padding: 0 1.1em; }
+/* v58: a primeira volta guiada */
+.app .rp-guia-passos { display: grid; gap: .9em; margin: 0 0 1.1em; padding: 0; list-style: none; counter-reset: guia; }
+.app .rp-guia-passos li { display: flex; align-items: flex-start; gap: .85em; }
+.app .rp-guia-ic { flex: none; display: grid; place-items: center; width: 2.6em; height: 2.6em; border-radius: 50%; background: rgba(210, 255, 60, .14); }
+.app .rp-guia-ic svg { width: 1.3em; height: 1.3em; fill: none; stroke: var(--lima-tx); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.app .rp-guia-passos li > span:last-child { display: grid; gap: .15em; }
+.app .rp-guia-passos b { font-size: max(14.5px, .96em); font-weight: 650; color: var(--luz); }
+.app .rp-guia-passos small { font-size: max(13px, .84em); line-height: 1.45; color: var(--a-texto-2); }

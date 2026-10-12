@@ -448,6 +448,7 @@
         q('#rp-online-eta').textContent = mp ? ` · chega em uns ${mp.min} min` : '';
         if (atual === 'opcoes' && rota) desenharTempo();
         const txt = q('#rp-online-txt');
+        naCidade = vivos.length;
         if (perto.length) txt.textContent = `${perto.length} ${perto.length === 1 ? 'Drink online' : 'Drinks online'} perto de você`;
         else if (vivos.length) txt.textContent = `Nenhum Drink perto agora · ${vivos.length} na cidade`;
         else txt.textContent = 'Nenhum Drink online agora';
@@ -460,6 +461,17 @@
         q('#rp-online-txt').textContent = 'Sem conexão com a central';
         q('#rp-online').classList.add('vazio');
       }
+    }
+    let naCidade = 0;
+    // espera a rota da tela do preço ficar pronta (até 10 s) para abrir algo que depende dela
+    function esperarRotaE(fn) {
+      const ate = Date.now() + 10000;
+      const tic = () => {
+        if (atual !== 'opcoes') return;
+        if (rota && embarque && destino) { fn(); return; }
+        if (Date.now() < ate) setTimeout(tic, 200);
+      };
+      tic();
     }
     /* ---------- me avise quando tiver Drink perto ---------- */
     const esperaAtiva = () => { const e = (eu() || {}).aviseOnline; return Boolean(e && e.ate > Date.now()); };
@@ -1012,6 +1024,7 @@
     }
 
     let pedindo = false;
+    let guiaPedir = false;
     async function pedir() {
       if (pedindo) return;
       pedindo = true;
@@ -1020,6 +1033,8 @@
     async function pedirAgora() {
       const u = eu();
       if (!peloBar && AG.pendente()) { abrirFolha('rp-pend'); return; }
+      // a primeira volta: antes de pedir, três passos do que vai acontecer (quem nunca viu estranha o patinete)
+      if (!peloBar && !u.guiaVisto) { guiaPedir = true; abrirFolha('rp-guia'); return; }
       // perto da hora da agendada o motorista dela pode já estar a caminho: não dá para pedir outra por cima
       const agv = peloBar ? null : AG.ativa();
       if (agv && agv.estado === 'confirmada' && Date.now() >= agv.janela.de - window.Drink.agenda.REGRAS.irAntesMin * 60000) {
@@ -1119,7 +1134,10 @@
       encerrar();
       ir('ninguem');
       q('#rp-ni-t').textContent = 'Nenhum Drink aceitou agora';
-      q('#rp-ni-sub').textContent = 'Pode ser que ninguém esteja online perto de você agora. Tenta de novo daqui a pouco.';
+      q('#rp-ni-sub').textContent = naCidade
+        ? `Tem ${naCidade} ${naCidade === 1 ? 'Drink online' : 'Drinks online'} na cidade, mas ninguém perto o bastante aceitou. Dá para tentar de novo, agendar ou ser avisado.`
+        : 'Ninguém está online perto de você agora. Dá para tentar de novo, agendar a volta ou ser avisado quando alguém ficar online.';
+      q('#rp-ni-avise').hidden = esperaAtiva();
     }
     function publicarFechado() {
       if (!corrida || corrida.simulada) return;
@@ -2200,6 +2218,7 @@
       if (id === 'rp-agendar') AG.desenharAgendar({ embarque, destino, rota, veic });
       if (id === 'rp-ajuda') desenharAjuda();
       if (id === 'rp-relato') desenharRelato();
+      if (id === 'rp-guia') q('#rp-guia-ok').textContent = guiaPedir ? 'Entendi, pedir o Drink' : 'Entendi';
       if (id === 'rp-agenda') AG.desenharFolha();
       if (id === 'rp-rec') AG.desenharRec();
       if (id === 'rp-pend') AG.desenharPendencia();
@@ -2209,6 +2228,7 @@
     }
     function fecharFolha(foco = true) {
       if (!folha) return;
+      if (folha === 'rp-guia') { guiaPedir = false; const u = eu(); if (u && !u.guiaVisto) { u.guiaVisto = Date.now(); op.salvar(); } }
       q(`#${folha}`).hidden = true;
       veu.hidden = true;
       folha = null;
@@ -2335,6 +2355,10 @@
         },
         'sair-sim': () => { if (corrida && corrida.simulada) cancelar(); },
         tentar: () => ir('opcoes'),
+        // ninguém aceitou: agendar a mesma volta (a rota volta a ser calculada na tela do preço) ou ser avisado
+        'ninguem-agendar': () => { ir('opcoes'); esperarRotaE(() => abrirFolha('rp-agendar')); },
+        'ninguem-avise': () => { ir('inicio'); pedirAviso(); },
+        'guia-pedir': () => { const ir2 = guiaPedir; guiaPedir = false; fecharFolha(false); if (ir2) pedir(); },
         compartilhar: () => {
           if (!corrida) return;
           if (corrida.simulada) { op.avisar('Na simulação não dá pra compartilhar. Numa corrida de verdade, quem recebe o link vê o carro no mapa até você chegar.'); return; }
