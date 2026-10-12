@@ -61,6 +61,8 @@
     let rota = null;
     let veic = 'qualquer';
     let modoBusca = 'destino';
+    // tocou em "Agendar" no início: depois do destino, a folha dos horários abre sozinha
+    let querAgendar = false;
     let buscaCtl = null;
     let buscaTimer = 0;
     let achados = [];
@@ -535,6 +537,7 @@
         desenharAtalhos();
         desenharRecentes();
         AG.desenhar();
+        querAgendar = false;
         q('#rp-gps').hidden = !gpsNegado;
         if (!ultimoEndereco && pos) atualizarEmbarque();
         // voltou ao início sem pedir: o pedido pelo bar fica para trás
@@ -554,6 +557,7 @@
         const titulos = { destino: 'Para onde?', embarque: 'Onde o Drink te busca?', casa: 'Onde é a sua casa?', trabalho: 'Onde você trabalha?', evento: 'Onde vai ser o evento?', bar: 'Onde fica o bar?' };
         q('#rp-dest-t').textContent = peloBar && modoBusca === 'destino' ? `Para onde vai ${primeiroNome(peloBar.cliente)}?` : titulos[modoBusca];
         q('#rp-de-linha').hidden = modoBusca !== 'destino';
+        q('#rp-dest-ag').hidden = !(querAgendar && modoBusca === 'destino');
         q('.rt-campos').classList.toggle('so-embarque', modoBusca === 'embarque' || modoBusca === 'evento' || modoBusca === 'bar');
         q('#rp-de').textContent = (embarque && embarque.nome) || 'Sua localização';
         campo.placeholder = { embarque: 'Rua e número, bar, praça…', evento: 'Salão, bar, casa de show ou endereço…', bar: 'Nome do bar ou endereço…' }[modoBusca] || (peloBar ? 'Endereço da casa do cliente…' : 'Endereço, bar, bairro…');
@@ -875,6 +879,11 @@
       q('#rp-simular').disabled = false;
       desenharTempo();
       desenharParteEvento(p.total);
+      // veio do "Agendar" do início: com a rota pronta, já abre os horários (a volta do evento e a do bar são na hora)
+      if (querAgendar) {
+        querAgendar = false;
+        if (!q('#rp-op-quando').hidden && !folha) abrirFolha('rp-agendar');
+      }
     }
     // por estimativa: o Drink mais perto até o embarque, a vistoria e a dobra (uns 5 min) e a rota até em casa
     const PREPARO_MIN = 5;
@@ -2166,6 +2175,14 @@
           if (embarqueManual) { embarqueManual = false; mapa.tirar('embarque'); op.avisar('Embarque de volta onde você está.'); atualizarEmbarque(); }
           centrarEmMim();
         },
+        'quero-agendar': () => {
+          if (AG.pendente()) { abrirFolha('rp-pend'); return; }
+          if (AG.ativa()) { op.avisar('Você já tem uma volta agendada. Ela está aqui; para marcar outra, cancela esta antes.'); abrirFolha('rp-agenda'); return; }
+          modoBusca = 'destino';
+          querAgendar = true;
+          ir('destino');
+        },
+        'nao-agendar': () => { querAgendar = false; q('#rp-dest-ag').hidden = true; q('#rp-busca').focus(); },
         'trocar-embarque': () => { voltarPara = atual; modoBusca = 'embarque'; ir('destino'); },
         'voltar-busca': () => {
           if (peloBar && modoBusca === 'destino') { sairPeloBar(); ir('bar-chamar'); return; }

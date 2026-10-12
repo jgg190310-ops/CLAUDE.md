@@ -73,17 +73,17 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&display=swap">
-  <link rel="stylesheet" href="../app-telas.css?v=43">
-  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=43">
-  <link rel="stylesheet" href="vendor/leaflet.css?v=43">
-  <link rel="stylesheet" href="app.css?v=43">
-  <link rel="stylesheet" href="visual.css?v=43">
-  <link rel="stylesheet" href="tema.css?v=43">
-  <link rel="stylesheet" href="ritmo.css?v=43">
-  <link rel="stylesheet" href="perfil.css?v=43">
-  <link rel="stylesheet" href="jornada.css?v=43">
-  <link rel="stylesheet" href="agenda.css?v=43">
-  <link rel="stylesheet" href="bares.css?v=43">
+  <link rel="stylesheet" href="../app-telas.css?v=44">
+  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=44">
+  <link rel="stylesheet" href="vendor/leaflet.css?v=44">
+  <link rel="stylesheet" href="app.css?v=44">
+  <link rel="stylesheet" href="visual.css?v=44">
+  <link rel="stylesheet" href="tema.css?v=44">
+  <link rel="stylesheet" href="ritmo.css?v=44">
+  <link rel="stylesheet" href="perfil.css?v=44">
+  <link rel="stylesheet" href="jornada.css?v=44">
+  <link rel="stylesheet" href="agenda.css?v=44">
+  <link rel="stylesheet" href="bares.css?v=44">
 </head>
 <body>
 <svg class="sprite" aria-hidden="true" focusable="false">
@@ -461,7 +461,10 @@
           <div class="t-folha rt-folha">
             <h3 class="d-titulo d-ola" id="rp-ola" tabindex="-1"><span class="rp-saudacao">Boa noite</span>, <span data-en-primeiro>você</span></h3>
             <div class="d-local rp-local"><svg aria-hidden="true"><use href="#i-pin"/></svg><span id="rp-local">Procurando você no mapa…</span><button type="button" class="rp-ajustar" id="rp-ajustar" data-rp="ajustar-embarque" aria-label="Ajustar o embarque no mapa" hidden>Ajustar</button></div>
-            <button type="button" class="d-busca" data-rp-ir="destino"><svg aria-hidden="true"><use href="#i-busca"/></svg>Para onde?</button>
+            <div class="rp-busca-linha">
+              <button type="button" class="d-busca" data-rp-ir="destino"><svg aria-hidden="true"><use href="#i-busca"/></svg>Para onde?</button>
+              <button type="button" class="rp-quando" id="rp-quando" data-rp="quero-agendar"><svg aria-hidden="true"><use href="#i-calendario"/></svg><span>Agendar</span></button>
+            </div>
             <button type="button" class="rp-pend-card" id="rp-pend-card" data-rp-folha="rp-pend" hidden><span class="rp-pend-ic" aria-hidden="true">!</span><span><b id="rp-pend-card-t">Taxa pendente</b><small id="rp-pend-card-sub"></small></span></button>
             <button type="button" class="rp-ag-card" id="rp-ag-card" data-rp-folha="rp-agenda" hidden><span class="rp-ag-ic" aria-hidden="true"><svg><use href="#i-calendario"/></svg></span><span><b id="rp-ag-card-t">Volta agendada</b><small id="rp-ag-card-sub"></small></span></button>
             <div class="rp-evento" id="rp-evento" hidden>
@@ -492,6 +495,7 @@
             <button type="button" class="d-voltar" data-rp="voltar-busca" aria-label="Voltar"><svg aria-hidden="true"><use href="#i-voltar"/></svg></button>
             <h3 class="d-titulo" id="rp-dest-t" tabindex="-1">Para onde?</h3>
           </div>
+          <p class="rp-dest-ag" id="rp-dest-ag" hidden><svg aria-hidden="true"><use href="#i-calendario"/></svg><span><b>Agendando a volta</b><small>Escolhe o destino; depois, o horário</small></span><button type="button" data-rp="nao-agendar">Pedir agora</button></p>
           <div class="rt-campos">
             <button type="button" class="rt-campo rt-campo-de" id="rp-de-linha" data-rp="trocar-embarque"><span class="t-bol"></span><span class="sr">Embarque: </span><span class="rt-campo-txt" id="rp-de">Sua localização</span><em>trocar</em></button>
             <label class="rt-campo rt-campo-ativo"><span class="t-bol t-bol-fim"></span><input id="rp-busca" type="search" placeholder="Endereço, bar, bairro…" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search" aria-label="Buscar endereço"></label>
@@ -546,7 +550,7 @@
             </ul>
             <div class="rp-op-acao">
               <button type="button" class="t-botao" id="rp-pedir" disabled>Pedir Drink</button>
-              <button type="button" class="rp-op-agendar" id="rp-op-quando" data-rp-folha="rp-agendar" aria-label="Agendar a volta para mais tarde"><svg aria-hidden="true"><use href="#i-calendario"/></svg></button>
+              <button type="button" class="rp-op-agendar" id="rp-op-quando" data-rp-folha="rp-agendar" aria-label="Agendar a volta para mais tarde"><svg aria-hidden="true"><use href="#i-calendario"/></svg><span aria-hidden="true">Agendar</span></button>
             </div>
             <button type="button" class="en-link rp-simular" id="rp-simular" data-rp="simular" disabled>Simular esta corrida, sem chamar ninguém</button>
           </div>
@@ -1811,26 +1815,26 @@
   <p class="vira-txt" id="vira-txt">O Drink é feito para usar na vertical. Nada se perde: se tiver corrida, ela continua rolando.</p>
 </div>
 
-<script src="vendor/maplibre-gl.js?v=43"></script>
-<script src="vendor/leaflet.js?v=43"></script>
-<script src="vendor/qrcode.js?v=43"></script>
-<script src="../app-nucleo.js?v=43"></script>
-<script src="servicos.js?v=43"></script>
-<script src="rede.js?v=43"></script>
-<script src="mapa-estilo.js?v=43"></script>
-<script src="mapa.js?v=43"></script>
-<script src="carros.js?v=43"></script>
-<script src="cadastro-motorista.js?v=43"></script>
-<script src="perfil.js?v=43"></script>
-<script src="pix.js?v=43"></script>
-<script src="avisos.js?v=43"></script>
-<script src="sms.js?v=43"></script>
-<script src="eventos.js?v=43"></script>
-<script src="agenda.js?v=43"></script>
-<script src="leitor.js?v=43"></script>
-<script src="bares.js?v=43"></script>
-<script src="passageiro.js?v=43"></script>
-<script src="motorista.js?v=43"></script>
-<script src="app.js?v=43"></script>
+<script src="vendor/maplibre-gl.js?v=44"></script>
+<script src="vendor/leaflet.js?v=44"></script>
+<script src="vendor/qrcode.js?v=44"></script>
+<script src="../app-nucleo.js?v=44"></script>
+<script src="servicos.js?v=44"></script>
+<script src="rede.js?v=44"></script>
+<script src="mapa-estilo.js?v=44"></script>
+<script src="mapa.js?v=44"></script>
+<script src="carros.js?v=44"></script>
+<script src="cadastro-motorista.js?v=44"></script>
+<script src="perfil.js?v=44"></script>
+<script src="pix.js?v=44"></script>
+<script src="avisos.js?v=44"></script>
+<script src="sms.js?v=44"></script>
+<script src="eventos.js?v=44"></script>
+<script src="agenda.js?v=44"></script>
+<script src="leitor.js?v=44"></script>
+<script src="bares.js?v=44"></script>
+<script src="passageiro.js?v=44"></script>
+<script src="motorista.js?v=44"></script>
+<script src="app.js?v=44"></script>
 </body>
 </html>

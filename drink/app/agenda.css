@@ -126,11 +126,43 @@ html[data-tema="claro"] .app .rm-agd-item > em { color: #2F4F00; }
 .app .rp-op-acao { display: flex; gap: var(--e2); align-items: stretch; }
 .app .rp-op-acao .t-botao { flex: 1; min-width: 0; }
 .app .rp-op-agendar {
-  flex: none; display: grid; place-items: center; aspect-ratio: 1; min-width: var(--toque); border: 0; border-radius: 50%;
-  background: var(--a-card-2); color: var(--luz); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .08);
+  flex: none; display: flex; align-items: center; justify-content: center; gap: .4em; min-width: var(--toque); padding: 0 1em; border: 0;
+  border-radius: var(--r-m); background: var(--a-card-2); color: var(--luz); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .08);
+  font: inherit; font-weight: 700; font-size: .92em;
 }
+.app .rp-op-agendar svg { color: var(--lima-tx); }
 .app .rp-op-agendar[hidden] { display: none; }
-.app .rp-op-agendar svg { width: 1.3em; height: 1.3em; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.app .rp-op-agendar svg { width: 1.2em; height: 1.2em; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .app .rp-op-agendar:active { transform: scale(.96); }
 /* na simulação, o botão das agendadas sai do caminho (o pedido de treino é o que importa) */
 .app.simulando .rm-agd-bt { display: none; }
+
+/* agendar já no início, ao lado do "Para onde?" (como o "Agora/Agendar" da Uber) */
+.app .rp-busca-linha { display: flex; gap: var(--e2); align-items: stretch; }
+.app .rt-folha > .rp-busca-linha { margin-top: var(--e1); }
+.app .rp-busca-linha .d-busca { flex: 1; min-width: 0; margin-top: 0; }
+.app .rp-quando {
+  flex: none; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .15em; min-width: 4.6em; padding: 0 .7em;
+  border: 0; border-radius: var(--r-m); background: var(--a-card-2); color: var(--luz); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .08);
+  font: inherit; font-weight: 700; font-size: .78em; letter-spacing: .01em;
+}
+.app .rp-quando svg { width: 1.45em; height: 1.45em; fill: none; stroke: var(--lima-tx); stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+.app .rp-quando:active { transform: scale(.96); }
+.app.simulando .rp-quando { display: none; }
+html[data-tema="claro"] .app :is(.rp-quando, .rp-op-agendar) { box-shadow: inset 0 0 0 1px var(--a-linha); }
+
+/* na busca do destino: o lembrete de que é para agendar */
+.app .rp-dest-ag {
+  display: flex; align-items: center; gap: .7em; margin: 0 0 var(--e2); padding: .65em .7em .65em .85em; border-radius: var(--r-m);
+  background: rgba(210, 255, 60, .07); box-shadow: inset 0 0 0 1px rgba(210, 255, 60, .3);
+}
+.app .rp-dest-ag[hidden] { display: none; }
+.app .rp-dest-ag > svg { flex: none; width: 1.3em; height: 1.3em; fill: none; stroke: var(--lima-tx); stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+.app .rp-dest-ag > span { flex: 1; min-width: 0; display: grid; }
+.app .rp-dest-ag b { font-size: .92em; }
+.app .rp-dest-ag small { color: var(--a-texto-2); font-size: .8em; }
+.app .rp-dest-ag button {
+  flex: none; min-height: 36px; padding: 0 .8em; border: 0; border-radius: 999px; background: var(--a-card-2); color: var(--luz);
+  font: inherit; font-size: .8em; font-weight: 700;
+}
+html[data-tema="claro"] .app .rp-dest-ag { background: rgba(61, 102, 0, .07); box-shadow: inset 0 0 0 1px rgba(61, 102, 0, .3); }
