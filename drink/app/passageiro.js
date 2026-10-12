@@ -631,7 +631,9 @@
     /* ---------- busca de endereço ---------- */
     function linhaLugar(l, i, icone = 'i-pin') {
       const dist = pos ? `<em>${S.textoKm(S.distancia(pos, l) / 1000)}</em>` : '';
-      return `<li><button type="button" data-lugar="${i}"><svg aria-hidden="true"><use href="#${icone}"/></svg><span>${textoLugar(l)}</span>${dist}</button></li>`;
+      // bar parceiro (cadastrado na aba Bares): o meio limão do Drink do lado direito
+      const selo = l.parceiro ? '<i class="rp-selo" title="Parceiro do Drink"><svg aria-hidden="true"><use href="#i-selo"/></svg><span class="sr">Parceiro do Drink</span></i>' : '';
+      return `<li><button type="button" data-lugar="${i}"${l.parceiro ? ' class="rp-parceiro"' : ''}><svg aria-hidden="true"><use href="#${icone}"/></svg><span>${textoLugar(l)}</span>${selo}${dist}</button></li>`;
     }
     // o nome (com a unidade, se o lugar tem mais de uma) e o endereço
     const textoLugar = (l) => `<b>${esc(l.nome)}${l.unidade ? ` <span class="rp-unidade">· ${esc(l.unidade)}</span>` : ''}</b>`
