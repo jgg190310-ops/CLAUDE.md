@@ -1,9 +1,9 @@
 /* Drink — o service worker do app. Guarda o app no aparelho para abrir sem internet e mostra os avisos
    (pedido novo, motorista chegou, mensagem…) que chegam pelo ntfy mesmo com o app fechado.
    Com internet, tudo vem da rede primeiro: o celular sempre usa a versão mais nova do app. */
-const VERSAO = 'drink-app-51';
+const VERSAO = 'drink-app-52';
 const FONTES = 'drink-fontes-1';
-const V = '?v=51';
+const V = '?v=52';
 const ARQUIVOS = [
   './', 'manifest.webmanifest',
   ...['app.css', 'visual.css', 'tema.css', 'ritmo.css', 'perfil.css', 'jornada.css', 'agenda.css', 'bares.css', 'app.js', 'servicos.js', 'rede.js', 'mapa-estilo.js', 'mapa.js', 'carros.js', 'cadastro-motorista.js', 'perfil.js', 'agenda.js', 'leitor.js', 'bares.js', 'pix.js', 'avisos.js', 'sms.js',
@@ -121,6 +121,14 @@ async function mostrarAviso(dados) {
       titulo = 'Volta agendada perto de você';
       texto = `${bairro(corpo.de)} → ${bairro(corpo.para)} · às ${h} · ${reais(corpo.valor)}`;
       tag = 'drink-agendada';
+    } else if (corpo && corpo.tipo === 'bar-abriu' && /^[\w-]{16}$/.test(String(corpo.id))) {
+      // um bar favorito abriu: o nome, até que horas e o benefício (o que o bar já mostra na fachada)
+      const nome = String(corpo.nome || 'Seu bar favorito').replace(/[\u0000-\u001f<>]/g, '').slice(0, 60);
+      const ate = Number(corpo.ate) > 0 ? new Date(Number(corpo.ate)).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Sao_Paulo' }) : '';
+      const ben = String(corpo.beneficio || '').replace(/[\u0000-\u001f<>]/g, '').slice(0, 60);
+      titulo = `${nome} abriu`;
+      texto = `${ate ? `Aberto até ${ate}. ` : ''}${ben ? `Voltando de Drink: ${ben.charAt(0).toLowerCase()}${ben.slice(1)}.` : 'Bebeu? Volte de Drink.'}`;
+      tag = `drink-bar-${corpo.id}`;
     } else if (corpo && corpo.tipo === 'pedido') {
       titulo = 'Pedido novo no Drink';
       texto = `${bairro(corpo.de)} → ${bairro(corpo.para)} · ${reais(corpo.valor)}`;

@@ -309,6 +309,8 @@
     bares: () => `${cfg.sala}-bares`,
     // a foto de cada bar, num canal só dela: quem pede só baixa a foto que ainda não tem
     barFoto: (id) => `${cfg.sala}-barf-${id}`,
+    // "o seu bar favorito abriu": uma mensagem por noite, quando o dono toca em abrir (vira aviso no celular de quem favoritou)
+    barAbriu: (id) => `${cfg.sala}-bara-${id}`,
   };
 
   window.Drink.rede = {
