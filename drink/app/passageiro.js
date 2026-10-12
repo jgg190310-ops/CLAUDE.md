@@ -138,10 +138,35 @@
         if (atual === 'opcoes') avisoPrecisao();
         if (mapa && !(corrida && corrida.etapa === 'viagem')) mapa.ponto('voce', p, Mapa.ICONE.voce());
         if (primeira && atual === 'inicio') { centrarNoInicio(); desenharAtalhos(); } else if (melhorou && atual === 'inicio' && !embarqueManual) centrarEmMim();
-        if (!corrida) atualizarEmbarque();
+        if (!corrida) atualizarEmbarque(); else seguirEmbarque(p);
         // pedido pelo bar: este celular ficou no bar; quem diz onde o carro está é o motorista
         if (corrida && corrida.etapa === 'viagem' && !corrida.simulada && !corrida.peloBar) andarNaViagem(p);
       });
+    }
+    // esperando o Drink: o embarque pelo GPS segue a pessoa quando o GPS melhora muito (a margem cai) ou ela anda
+    // até outro ponto (saiu do bar para a calçada). Vai cifrado para o motorista, no máximo a cada 15 s, com o
+    // endereço novo; o embarque escolhido na busca, no mapa ou na porta do bar não muda
+    let embarqueEnviado = 0;
+    let seguindo = false;
+    async function seguirEmbarque(p) {
+      const c = corrida;
+      if (seguindo || !c || c.simulada || c.etapa !== 'a-caminho' || !c.embarque || !c.embarque.gps || c.peloBar || !p || p.precisao > 100) return;
+      const antes = c.embarque;
+      const d = S.distancia(p, antes);
+      const melhorou = p.precisao < (antes.margem || 9999) * 0.6;
+      const andou = d > Math.max(30, p.precisao);
+      // longe demais já não é o mesmo embarque (aí a pessoa fala com o motorista)
+      if ((!melhorou && !andou) || d > 800 || Date.now() - embarqueEnviado < 15000) return;
+      embarqueEnviado = Date.now();
+      seguindo = true;
+      let lugar = null;
+      if (d > 40) { try { lugar = await S.endereco(p); } catch (e) { lugar = null; } }
+      seguindo = false;
+      if (corrida !== c || c.etapa !== 'a-caminho') return;
+      c.embarque = { ...antes, ...(lugar ? { nome: lugar.nome, bairro: lugar.bairro || '' } : {}), lat: p.lat, lon: p.lon, margem: Math.round(p.precisao) };
+      enviar({ tipo: 'embarque', lat: redondo(p.lat, 6), lon: redondo(p.lon, 6), margem: c.embarque.margem, ...(lugar ? { nome: c.embarque.nome, bairro: c.embarque.bairro } : {}) });
+      salvarCorrida();
+      if (atual === 'caminho') mapa.ponto('embarque', c.embarque, Mapa.ICONE.embarque());
     }
     // o embarque é onde você está (o nome da rua vem do endereço mais perto), ou o lugar que você escolheu
     const juntar = (l) => [l.nome, l.bairro && l.bairro !== l.nome ? l.bairro : ''].filter(Boolean).join(' · ');
@@ -173,19 +198,19 @@
       const raio = ultimoEndereco && ultimoEndereco.lugar.numero ? 25 : 120;
       const pior = ultimoEndereco && ultimoEndereco.precisao > 60 && ultimoEndereco.precisao > 2 * (pos.precisao || 0);
       if (ultimoEndereco && S.distancia(ultimoEndereco, pos) < raio && !pior) {
-        embarque = { ...ultimoEndereco.lugar, lat: pos.lat, lon: pos.lon };
+        embarque = { ...ultimoEndereco.lugar, lat: pos.lat, lon: pos.lon, gps: true, margem: Math.round(pos.precisao || 0) };
         mostrarEmbarque();
         return;
       }
       // enquanto o endereço novo não chega, o nome antigo só fica se a pessoa ainda está perto dele
       const valeONome = embarque && ultimoEndereco && S.distancia(ultimoEndereco, pos) < 150;
-      embarque = { nome: valeONome ? embarque.nome : 'Sua localização', bairro: valeONome ? embarque.bairro || '' : '', lat: pos.lat, lon: pos.lon };
+      embarque = { nome: valeONome ? embarque.nome : 'Sua localização', bairro: valeONome ? embarque.bairro || '' : '', lat: pos.lat, lon: pos.lon, gps: true, margem: Math.round(pos.precisao || 0) };
       const aqui = pos;
       try {
         const l = await S.endereco(aqui);
         ultimoEndereco = { lat: aqui.lat, lon: aqui.lon, precisao: aqui.precisao || 0, lugar: l };
         if (embarqueManual) return;
-        embarque = { ...l, lat: pos.lat, lon: pos.lon };
+        embarque = { ...l, lat: pos.lat, lon: pos.lon, gps: true, margem: Math.round(pos.precisao || 0) };
         mostrarEmbarque();
       } catch (e) {
         if (!embarqueManual && !ultimoEndereco) q('#rp-local').textContent = 'Você está aqui no mapa';
@@ -824,6 +849,8 @@
       clearTimeout(meioTimer);
       q('#rp-nm-txt').textContent = 'Procurando o endereço…';
       meioTimer = setTimeout(async () => {
+        // o mapa ainda está indo para o ponto (abriu agora, ou a mira): lê quando ele parar (o "moveend" chama de novo)
+        if (mapa.parado && !mapa.parado()) return;
         const p = mapa.meio();
         meioLugar = { nome: 'Ponto no mapa', detalhe: '', bairro: '', lat: p.lat, lon: p.lon, noMapa: true };
         try {
@@ -862,7 +889,7 @@
       // a cada preço novo, confere de novo se o evento ainda paga (quem organiza pode ter encerrado)
       usoEvento = null;
       mapa.limpar();
-      if (!embarque && pos) embarque = { nome: 'Sua localização', bairro: '', lat: pos.lat, lon: pos.lon };
+      if (!embarque && pos) embarque = { nome: 'Sua localização', bairro: '', lat: pos.lat, lon: pos.lon, gps: true, margem: Math.round(pos.precisao || 0) };
       q('#rp-op-emb').textContent = embarque ? embarque.nome : 'Escolher';
       if (!embarque) {
         q('#rp-op-rota').textContent = 'Falta o embarque: toca em Embarque e escolhe onde o Drink te busca.';
@@ -1147,7 +1174,8 @@
             passageiro: { nome: c.peloBar ? c.peloBar.cliente : nomeCurto(u) },
             bar: c.bar ? { nome: c.bar.nome } : undefined,
             peloBar: c.peloBar ? { bar: c.peloBar.bar } : undefined,
-            embarque: { lat: c.embarque.lat, lon: c.embarque.lon, nome: c.embarque.nome, bairro: c.embarque.bairro },
+            // o embarque pelo GPS vai com a margem de erro (o motorista sabe quando o ponto é aproximado)
+            embarque: { lat: c.embarque.lat, lon: c.embarque.lon, nome: c.embarque.nome, bairro: c.embarque.bairro, margem: c.embarque.gps ? c.embarque.margem || 0 : undefined },
             destino: { lat: c.destino.lat, lon: c.destino.lon, nome: c.destino.nome, bairro: c.destino.bairro },
             carro: c.carro, valor: c.valor, km: c.km,
             evento: c.evento || undefined,

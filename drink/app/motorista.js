@@ -18,6 +18,8 @@
     'Dobra o quadro ao meio, abaixa o selim e guarda no porta-malas.',
   ];
   const redondo = (v, c = 2) => Math.round(v * 10 ** c) / 10 ** c;
+  // a margem de erro do embarque que o passageiro manda (metros; o que não for número vira 0)
+  const margemDe = (m) => (Number.isFinite(m) ? Math.max(0, Math.min(5000, Math.round(m))) : 0);
   const primeiroNome = (nome) => String(nome || '').trim().split(' ')[0] || 'Passageiro';
   const iniciais = (nome) => String(nome || '').replace(/\(.*?\)/g, '').split(' ').filter(Boolean).map((p) => p[0]).join('').slice(0, 2).toUpperCase() || 'PA';
   const nomeCurto = (u) => [u.nome, u.sobrenome ? `${u.sobrenome.trim()[0]}.` : ''].filter(Boolean).join(' ');
@@ -643,7 +645,7 @@
           corrida = {
             id: aceito.id, pub: aceito.pub, priv: aceito.priv, chave: aceito.chave, t0: Date.now(),
             etapa: 'buscar', passageiro: { nome: String((msg.passageiro && msg.passageiro.nome) || 'Passageiro').slice(0, 40), nota: p.nota || 0 },
-            embarque: { lat: msg.embarque.lat, lon: msg.embarque.lon, nome: texto(msg.embarque.nome, 80) || 'Embarque', bairro: texto(msg.embarque.bairro) },
+            embarque: { lat: msg.embarque.lat, lon: msg.embarque.lon, nome: texto(msg.embarque.nome, 80) || 'Embarque', bairro: texto(msg.embarque.bairro), margem: margemDe(msg.embarque.margem) },
             destino: { lat: msg.destino.lat, lon: msg.destino.lon, nome: texto(msg.destino.nome, 80) || 'Destino', bairro: texto(msg.destino.bairro) },
             carro: msg.carro && typeof msg.carro === 'object' ? {
               marca: texto(msg.carro.marca, 20), modelo: texto(msg.carro.modelo, 40), cor: texto(msg.carro.cor, 20),
@@ -708,6 +710,18 @@
         case 'msg':
           adicionarMsg('ela', String(msg.txt || '').slice(0, 300));
           break;
+        // o passageiro esperando: o GPS dele melhorou ou ele andou até outro ponto (saiu do bar para a calçada)
+        case 'embarque': {
+          const c = corrida;
+          if (!c || c.etapa !== 'buscar' || !ponto(msg) || S.distancia(msg, c.embarque) > 800) return;
+          const longe = S.distancia(msg, c.embarque) > 60;
+          c.embarque = { ...c.embarque, lat: msg.lat, lon: msg.lon, margem: margemDe(msg.margem),
+            ...(typeof msg.nome === 'string' && msg.nome ? { nome: texto(msg.nome, 80), bairro: texto(msg.bairro) } : {}) };
+          salvarCorrida();
+          if (atual === 'buscar') mostrarBuscar();
+          if (longe) op.avisar(`${primeiroNome(c.passageiro.nome)} mudou de lugar: o embarque agora é ${[c.embarque.nome, c.embarque.bairro].filter(Boolean).join(' · ')}.`);
+          break;
+        }
         case 'cancelado':
           if (!corrida || ['viagem', 'receber'].includes(corrida.etapa)) return;
           if (corrida.agendada && Number(msg.taxa) > 0) {
@@ -844,7 +858,9 @@
       if (!c) return;
       const nome = primeiroNome(c.passageiro.nome);
       q('#rm-bu-t').textContent = c.simulada ? 'Vá buscar o passageiro' : `Vá buscar ${nome}`;
-      q('#rm-bu-end').textContent = [c.bar ? `Na porta do ${c.bar.nome}` : c.embarque.nome, c.embarque.bairro].filter(Boolean).join(' · ');
+      // ponto do GPS do passageiro com margem grande: o motorista sabe que é aproximado
+      const margem = !c.bar && c.embarque.margem > 60 ? `ponto do GPS, margem de uns ${S.textoKm(Math.round(c.embarque.margem / 50) * 50 / 1000)}` : '';
+      q('#rm-bu-end').textContent = [c.bar ? `Na porta do ${c.bar.nome}` : c.embarque.nome, c.embarque.bairro, margem].filter(Boolean).join(' · ');
       q('#rm-pa-av').textContent = iniciais(c.passageiro.nome);
       q('#rm-pa-nome').textContent = c.peloBar ? `${c.passageiro.nome} · chamado pelo bar` : (c.passageiro.nota ? `${c.passageiro.nome} · nota ${S.virgula(c.passageiro.nota)}` : c.passageiro.nome);
       const carro = c.carro || {};

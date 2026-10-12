@@ -276,6 +276,8 @@
       // (uma folha: mede do topo dela até o pé do mapa, e assim conta também a margem da folha solta e a barra de abas)
       folga(x) { medirFolga = cobre(el, x); vigia = vigiarFolha(x, folga, memoria, vigia); },
       aoMover(fn) { mapa.on('moveend', fn); },
+      // o mapa parou de andar (o centro de agora é o de verdade, não um ponto no meio da animação)
+      parado: () => !mapa.isMoving(),
       aoArrastar(fn) { mapa.on('dragstart', fn); },
       ponto(nome, p, icone, ms) {
         if (!p) { api.tirar(nome); return; }
@@ -384,6 +386,9 @@
     const tweens = {};
     let rota = null;
     let anel = null;
+    let andando = false;
+    mapa.on('movestart', () => { andando = true; });
+    mapa.on('moveend', () => { andando = false; });
     const grupos = { online: [], pedidos: [], bares: [] };
     let medirFolga = () => 0;
     let seguir = null;
@@ -442,6 +447,7 @@
       // (uma folha: mede do topo dela até o pé do mapa, e assim conta também a margem da folha solta e a barra de abas)
       folga(x) { medirFolga = cobre(el, x); vigia = vigiarFolha(x, folga, memoria, vigia); },
       aoMover(fn) { mapa.on('moveend', fn); },
+      parado: () => !andando,
       aoArrastar(fn) { mapa.on('dragstart', fn); },
       ponto(nome, p, ic, ms) {
         if (!p) { api.tirar(nome); return; }
