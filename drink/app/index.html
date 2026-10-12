@@ -73,17 +73,17 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&display=swap">
-  <link rel="stylesheet" href="../app-telas.css?v=52">
-  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=52">
-  <link rel="stylesheet" href="vendor/leaflet.css?v=52">
-  <link rel="stylesheet" href="app.css?v=52">
-  <link rel="stylesheet" href="visual.css?v=52">
-  <link rel="stylesheet" href="tema.css?v=52">
-  <link rel="stylesheet" href="ritmo.css?v=52">
-  <link rel="stylesheet" href="perfil.css?v=52">
-  <link rel="stylesheet" href="jornada.css?v=52">
-  <link rel="stylesheet" href="agenda.css?v=52">
-  <link rel="stylesheet" href="bares.css?v=52">
+  <link rel="stylesheet" href="../app-telas.css?v=53">
+  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=53">
+  <link rel="stylesheet" href="vendor/leaflet.css?v=53">
+  <link rel="stylesheet" href="app.css?v=53">
+  <link rel="stylesheet" href="visual.css?v=53">
+  <link rel="stylesheet" href="tema.css?v=53">
+  <link rel="stylesheet" href="ritmo.css?v=53">
+  <link rel="stylesheet" href="perfil.css?v=53">
+  <link rel="stylesheet" href="jornada.css?v=53">
+  <link rel="stylesheet" href="agenda.css?v=53">
+  <link rel="stylesheet" href="bares.css?v=53">
 </head>
 <body>
 <svg class="sprite" aria-hidden="true" focusable="false">
@@ -606,9 +606,10 @@
               <span><small>Código de segurança</small><b id="rp-codigo">0 0 0 0</b></span>
               <p id="rp-codigo-txt">Fala esse código pro motorista. Ele digita no app e o seu celular confere se é ele mesmo.</p>
             </div>
-            <div class="t-acoes">
+            <div class="t-acoes t-acoes-3">
               <button type="button" class="t-bt" data-rp-folha="rp-chat"><svg aria-hidden="true"><use href="#i-mensagem"/></svg>Mensagem<span class="d-bolinha" id="rp-nova-msg" hidden></span></button>
               <button type="button" class="t-bt" data-rp="compartilhar"><svg aria-hidden="true"><use href="#i-compartilhar"/></svg>Compartilhar</button>
+              <button type="button" class="t-bt" data-rp-folha="rp-ajuda"><svg aria-hidden="true"><use href="#i-ajuda"/></svg>Ajuda</button>
             </div>
             <button type="button" class="en-link rt-cancelar" data-rp="cancelar">Cancelar a corrida</button>
           </div>
@@ -682,6 +683,7 @@
             </div>
           </div>
           <div class="d-tags" id="rp-tags" hidden></div>
+          <label class="en-campo en-rot rp-comentario" id="rp-comentario-campo" hidden><span>Quer dizer algo para o motorista? (opcional)</span><textarea id="rp-comentario" maxlength="240" rows="2" placeholder="Ex.: cuidou muito bem do carro"></textarea></label>
           <p class="rp-gorjeta-t" id="rp-gorjeta-t">Gorjeta, se quiser · vai inteira para o motorista</p>
           <div class="d-gorjeta" id="rp-gorjeta" role="radiogroup" aria-labelledby="rp-gorjeta-t">
             <button type="button" role="radio" aria-checked="true" data-gorjeta="0">Sem gorjeta</button>
@@ -689,6 +691,7 @@
             <button type="button" role="radio" aria-checked="false" data-gorjeta="10">R$ 10</button>
           </div>
           <button type="button" class="t-botao" id="rp-pagar">Pagar com Pix</button>
+          <button type="button" class="en-link rp-relatar" data-rp-folha="rp-relato">Relatar um problema nesta volta</button>
         </section>
 
         <!-- pagar com Pix -->
@@ -1120,9 +1123,31 @@
           <ul class="d-opcoes-ajuda">
             <li><a class="d-perigo" href="tel:190"><svg aria-hidden="true"><use href="#i-escudo"/></svg><span><b>Ligar para a polícia (190)</b><small>Abre o telefone do seu celular</small></span></a></li>
             <li><a href="tel:192"><svg aria-hidden="true"><use href="#i-mais"/></svg><span><b>Ligar para o SAMU (192)</b><small>Se alguém passar mal ou se machucar</small></span></a></li>
-            <li><button type="button" data-rp="mandar-local"><svg aria-hidden="true"><use href="#i-pin"/></svg><span><b>Mandar minha localização</b><small>Para quem você escolher, pelo WhatsApp ou outro app</small></span></button></li>
+            <li><button type="button" data-rp="mandar-local"><svg aria-hidden="true"><use href="#i-pin"/></svg><span><b>Mandar minha localização</b><small id="rp-ajuda-local-sub">Com o motorista, o carro e a placa, para quem você escolher</small></span></button></li>
             <li><button type="button" data-rp="compartilhar"><svg aria-hidden="true"><use href="#i-compartilhar"/></svg><span><b>Compartilhar a viagem ao vivo</b><small>Quem recebe vê o carro no mapa até você chegar</small></span></button></li>
           </ul>
+          <p class="d-sec" id="rp-ajuda-cont-t">Avisar meus contatos de confiança por SMS</p>
+          <ul class="d-opcoes-ajuda" id="rp-ajuda-contatos" aria-labelledby="rp-ajuda-cont-t"></ul>
+        </section>
+
+        <section class="d-sobre" id="rp-relato" aria-labelledby="rp-relato-t" hidden>
+          <div class="d-sobre-cab">
+            <span class="d-sobre-ic d-sobre-ic-alerta" aria-hidden="true"><svg><use href="#i-escudo"/></svg></span>
+            <div><h4 id="rp-relato-t" tabindex="-1">Relatar um problema</h4><small>Fica no recibo desta volta e vai para a equipe do Drink</small></div>
+            <button type="button" class="d-fechar" data-rp-fechar aria-label="Fechar"><svg aria-hidden="true"><use href="#i-fechar"/></svg></button>
+          </div>
+          <p class="d-sec" id="rp-relato-mot-t">O que aconteceu?</p>
+          <div class="ev-chips rp-relato-motivos" role="radiogroup" aria-labelledby="rp-relato-mot-t">
+            <button type="button" role="radio" aria-checked="false" data-relato="Direção perigosa">Direção perigosa</button>
+            <button type="button" role="radio" aria-checked="false" data-relato="Dano no carro">Dano no carro</button>
+            <button type="button" role="radio" aria-checked="false" data-relato="Comportamento do motorista">Comportamento do motorista</button>
+            <button type="button" role="radio" aria-checked="false" data-relato="Cobrança errada">Cobrança errada</button>
+            <button type="button" role="radio" aria-checked="false" data-relato="Esqueci um objeto">Esqueci um objeto</button>
+            <button type="button" role="radio" aria-checked="false" data-relato="Outro">Outro</button>
+          </div>
+          <label class="en-campo en-rot"><span>Conte o que houve</span><textarea id="rp-relato-txt" maxlength="600" rows="4" placeholder="O que, onde e quando. As fotos da vistoria ficam guardadas no seu celular."></textarea></label>
+          <p class="en-erro" id="rp-relato-erro" role="alert" hidden></p>
+          <button type="button" class="t-botao" data-rp="relatar">Enviar o relato</button>
         </section>
 
         <section class="d-sobre" id="rp-comp" aria-labelledby="rp-comp-t" hidden>
@@ -1529,6 +1554,7 @@
           </div>
           <ul class="t-lista d-checks rt-checks" id="rm-re-checks">
             <li><svg aria-hidden="true"><use href="#i-check"/></svg><span id="rm-re-aval">Esperando a avaliação</span></li>
+            <li class="rm-re-com" id="rm-re-com" hidden></li>
             <li><svg aria-hidden="true"><use href="#i-check"/></svg><span id="rm-re-pago">Esperando o pagamento</span></li>
           </ul>
           <div class="d-avaliar rm-avaliar">
@@ -1852,26 +1878,26 @@
   <p class="vira-txt" id="vira-txt">O Drink é feito para usar na vertical. Nada se perde: se tiver corrida, ela continua rolando.</p>
 </div>
 
-<script src="vendor/maplibre-gl.js?v=52"></script>
-<script src="vendor/leaflet.js?v=52"></script>
-<script src="vendor/qrcode.js?v=52"></script>
-<script src="../app-nucleo.js?v=52"></script>
-<script src="servicos.js?v=52"></script>
-<script src="rede.js?v=52"></script>
-<script src="mapa-estilo.js?v=52"></script>
-<script src="mapa.js?v=52"></script>
-<script src="carros.js?v=52"></script>
-<script src="cadastro-motorista.js?v=52"></script>
-<script src="perfil.js?v=52"></script>
-<script src="pix.js?v=52"></script>
-<script src="avisos.js?v=52"></script>
-<script src="sms.js?v=52"></script>
-<script src="eventos.js?v=52"></script>
-<script src="agenda.js?v=52"></script>
-<script src="leitor.js?v=52"></script>
-<script src="bares.js?v=52"></script>
-<script src="passageiro.js?v=52"></script>
-<script src="motorista.js?v=52"></script>
-<script src="app.js?v=52"></script>
+<script src="vendor/maplibre-gl.js?v=53"></script>
+<script src="vendor/leaflet.js?v=53"></script>
+<script src="vendor/qrcode.js?v=53"></script>
+<script src="../app-nucleo.js?v=53"></script>
+<script src="servicos.js?v=53"></script>
+<script src="rede.js?v=53"></script>
+<script src="mapa-estilo.js?v=53"></script>
+<script src="mapa.js?v=53"></script>
+<script src="carros.js?v=53"></script>
+<script src="cadastro-motorista.js?v=53"></script>
+<script src="perfil.js?v=53"></script>
+<script src="pix.js?v=53"></script>
+<script src="avisos.js?v=53"></script>
+<script src="sms.js?v=53"></script>
+<script src="eventos.js?v=53"></script>
+<script src="agenda.js?v=53"></script>
+<script src="leitor.js?v=53"></script>
+<script src="bares.js?v=53"></script>
+<script src="passageiro.js?v=53"></script>
+<script src="motorista.js?v=53"></script>
+<script src="app.js?v=53"></script>
 </body>
 </html>

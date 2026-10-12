@@ -1210,3 +1210,21 @@ html.deitado .vira {
 .ev-fim-bts { order: 4; }
 .ev-pagina.com-voltas .ev-bloco-voltas { order: 0; margin-bottom: .6em; }
 .ev-pagina.com-voltas .ev-bloco-voltas > .d-sec:first-child { margin-top: .2em; }
+
+/* ---------- v53: a ajuda com tudo, o comentário e o relato ---------- */
+.app :is(.rm-re-com, .rp-comentario)[hidden] { display: none !important; }
+.app .rm-re-com { display: block; padding: .2em 0 0 2.1em; font-style: italic; color: var(--a-texto-2); line-height: 1.4; }
+.app .rp-comentario textarea, .app #rp-relato textarea {
+  width: 100%; min-width: 0; padding: 0; border: 0; background: transparent; outline: none; resize: none;
+  color: var(--luz); font: inherit; font-size: max(16px, 1em); line-height: 1.4;
+}
+.app .rp-comentario { margin-top: var(--e3); }
+.app .rp-relatar { display: block; margin: var(--e3) auto 0; min-height: var(--toque); color: var(--a-texto-2); }
+.app #rp-relato .ev-chips { margin-bottom: var(--e3); }
+.app #rp-relato .en-campo { margin-bottom: var(--e3); }
+.app #rp-ajuda .d-sec { margin: var(--e4) 0 var(--e2); }
+/* a caminho: mensagem, compartilhar e ajuda na mesma linha (em tela estreita, o ícone fica em cima do texto) */
+.app .t-acoes-3 { grid-template-columns: repeat(3, 1fr); gap: .5em; }
+.app .t-acoes-3 .t-bt { padding: 0 .4em; gap: .35em; font-size: .84em; white-space: nowrap; }
+.app .t-acoes-3 .t-bt svg { flex: none; }
+@media (max-width: 374px) { .app .t-acoes-3 .t-bt { flex-direction: column; height: 3.6em; gap: .15em; font-size: .8em; border-radius: 1.1em; } }

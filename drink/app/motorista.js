@@ -697,7 +697,7 @@
         }
         case 'avaliacao':
           if (!corrida) return;
-          corrida.avaliacao = { nota: Number(msg.nota) || 0, tags: Array.isArray(msg.tags) ? msg.tags.slice(0, 4) : [], gorjeta: Math.max(0, Number(msg.gorjeta) || 0) };
+          corrida.avaliacao = { nota: Number(msg.nota) || 0, tags: Array.isArray(msg.tags) ? msg.tags.slice(0, 4) : [], gorjeta: Math.max(0, Number(msg.gorjeta) || 0), comentario: texto(msg.comentario, 240) };
           if (atual === 'receber') mostrarReceber();
           break;
         case 'paguei':
@@ -1137,6 +1137,10 @@
       q('#rm-re-aval').textContent = c.avaliacao
         ? (c.avaliacao.nota ? `${nome} deu ${c.avaliacao.nota} ${c.avaliacao.nota === 1 ? 'estrela' : 'estrelas'}${gorjeta ? ` e ${brl(gorjeta)} de gorjeta` : ''}` : `${nome} não deu nota${gorjeta ? `, mas deu ${brl(gorjeta)} de gorjeta` : ''}`)
         : (c.peloBar ? `Chamado pelo ${c.peloBar.bar}` : `Esperando ${c.simulada ? 'o passageiro' : nome} avaliar`);
+      // o que o passageiro escreveu, junto da nota
+      const com = q('#rm-re-com');
+      com.hidden = !(c.avaliacao && c.avaliacao.comentario);
+      if (!com.hidden) com.textContent = `“${c.avaliacao.comentario}”`;
       const nadaDoPassageiro = doEvento && doPassageiro <= 0;
       checks[1].classList.toggle('ok', c.paguei || nadaDoPassageiro);
       q('#rm-re-pago').textContent = nadaDoPassageiro
@@ -1190,6 +1194,7 @@
       u.totalCorridas = (u.totalCorridas || 0) + 1;
       if (c.avaliacao && c.avaliacao.nota) u.avaliacoes = [...(u.avaliacoes || []), c.avaliacao.nota].slice(-100);
       if (c.avaliacao) window.Drink.perfil.somarElogios(u, c.avaliacao.nota, c.avaliacao.tags);
+      if (c.avaliacao && c.avaliacao.comentario) u.comentarios = [{ t: Date.now(), nota: c.avaliacao.nota, txt: c.avaliacao.comentario }, ...(u.comentarios || [])].slice(0, 20);
       u.corridasFeitas = [{
         id: c.id, data: new Date().toISOString(), rota: `${c.embarque.bairro || c.embarque.nome} → ${c.destino.bairro || c.destino.nome}`,
         total, km: c.km, valor: c.valor, espera: c.espera || 0, gorjeta, nota: c.avaliacao ? c.avaliacao.nota || 0 : 0,

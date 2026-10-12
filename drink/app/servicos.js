@@ -30,6 +30,8 @@
     // a busca de lugares do Google (a mesma base da Uber), para bar e restaurante que o OpenStreetMap não tem:
     // a chave da Places API (New), restrita ao site do Drink. Sem ela, só o OpenStreetMap
     google: null,
+    // o e-mail da equipe do Drink que recebe os relatos de problema (sem ele, o relato vai pelo "compartilhar" do celular)
+    suporte: '',
     googleUrl: 'https://places.googleapis.com',
   };
   try { Object.assign(cfg, JSON.parse(localStorage.getItem('drink-servicos') || '{}')); } catch (e) { /* sem ajuste */ }
