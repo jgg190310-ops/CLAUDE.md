@@ -90,10 +90,26 @@
     let liberado = '';
 
     const num = (x) => (Number.isFinite(x) ? x : null);
-    const ler = (p) => ({
-      lat: p.coords.latitude, lon: p.coords.longitude, precisao: Math.max(1, Math.round(num(p.coords.accuracy) || 5000)),
-      rumo: num(p.coords.heading), vel: num(p.coords.speed), t: Date.now(),
-    });
+    // t: quando chegou (é o que diz se a posição está em dia); lido: a hora da própria leitura. O celular às vezes
+    // entrega uma leitura guardada, e ela pode chegar depois de uma mais nova: a mais velha não passa por cima.
+    // A leitura rápida (a que o celular já tinha) de mais de 1 min vale como aproximada: a pessoa pode ter andado
+    function ler(p, rapida) {
+      const agora = Date.now();
+      const ts = num(p.timestamp);
+      const lido = ts && Math.abs(agora - ts) < 864e5 ? Math.min(ts, agora) : agora;
+      const idade = (agora - lido) / 1000;
+      const precisao = Math.max(1, Math.round(num(p.coords.accuracy) || 5000));
+      return {
+        lat: p.coords.latitude, lon: p.coords.longitude, precisao: rapida && idade > 60 ? Math.min(5000, Math.round(precisao + (idade - 60) * 1.4)) : precisao,
+        rumo: num(p.coords.heading), vel: num(p.coords.speed), t: agora, lido,
+      };
+    }
+    // salto impossível (mais de 250 km/h, bem além da margem de erro) numa leitura menos precisa que a de agora:
+    // a antena ou o wi-fi errou feio por um instante (o GPS de verdade não pula quilômetros). Só vale se a leitura
+    // seguinte confirmar, ou se em 6 s nada desmentir (parado, o celular demora a mandar outra)
+    const SALTO = 70;
+    let suspeita = null;
+    let suspeitaTimer = 0;
     function avisar() {
       ouvintes.forEach((f) => { try { f(ultima, erro); } catch (e) { setTimeout(() => { throw e; }, 0); } });
     }
@@ -113,12 +129,24 @@
         return { lat: g.lat, lon: g.lon, precisao: Math.max(300, g.precisao), rumo: null, vel: null, t: g.t, guardada: true };
       } catch (e) { return null; }
     }
-    function receber(nova) {
+    function receber(nova, confirmada) {
       // a posição guardada (de antes) sai na hora que chega uma leitura de verdade
       if (ultima && ultima.guardada) ultima = null;
-      if (ultima) {
+      if (ultima && !confirmada) {
         const idade = nova.t - ultima.t;
         const d = distancia(ultima, nova);
+        // chegou atrasada (uma leitura mais nova já está aqui): fica a mais nova
+        if (nova.lido < ultima.lido) return;
+        if (d / Math.max(1, idade / 1000) > SALTO && d > nova.precisao + ultima.precisao + 100 && nova.precisao > Math.max(25, ultima.precisao * 1.5)) {
+          const confirma = suspeita && distancia(suspeita, nova) < Math.max(60, nova.precisao + suspeita.precisao);
+          if (!confirma) {
+            const esta = nova;
+            suspeita = esta;
+            clearTimeout(suspeitaTimer);
+            suspeitaTimer = setTimeout(() => { if (suspeita === esta) receber(esta, true); }, 6000);
+            return;
+          }
+        }
         // bem pior que a de agora, que ainda vale, e no mesmo lugar: fica a de agora
         if (nova.precisao > Math.max(60, ultima.precisao * 2.5) && idade < 30000 && d < nova.precisao) return;
         // parado: o ponto não fica tremendo dentro da margem de erro (a leitura mais precisa pesa mais)
@@ -129,6 +157,8 @@
         }
       }
       ultima = nova;
+      suspeita = null;
+      clearTimeout(suspeitaTimer);
       erro = null;
       tentativas = 0;
       guardar(nova);
@@ -167,7 +197,7 @@
           const g = guardada();
           if (g) { ultima = g; setTimeout(avisar, 0); }
         }
-        navigator.geolocation.getCurrentPosition((p) => receber(ler(p)), () => {}, { enableHighAccuracy: false, maximumAge: 300000, timeout: 6000 });
+        navigator.geolocation.getCurrentPosition((p) => receber(ler(p, true)), () => {}, { enableHighAccuracy: false, maximumAge: 300000, timeout: 6000 });
       }
     }
     function parar() {
