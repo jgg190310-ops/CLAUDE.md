@@ -551,7 +551,7 @@
     const AG = window.Drink.agenda.passageiro({
       raiz, eu, nomeCurto, salvar: () => op.salvar(), avisar: (t) => op.avisar(t), notificar: (a, b) => notificar(a, b),
       abrirFolha: (id) => abrirFolha(id), fecharFolha: () => fecharFolha(), avisos: () => avisos(), pedirNotificacao: () => op.pedirNotificacao(),
-      iniciar: (ag, desde) => iniciarAgendada(ag, desde),
+      iniciar: (ag, desde) => iniciarAgendada(ag, desde), ocupado: () => Boolean(corrida),
     });
     const ENTRAR = {
       inicio() {
@@ -2195,6 +2195,7 @@
       if (id === 'rp-ajuda') desenharAjuda();
       if (id === 'rp-relato') desenharRelato();
       if (id === 'rp-agenda') AG.desenharFolha();
+      if (id === 'rp-rec') AG.desenharRec();
       if (id === 'rp-pend') AG.desenharPendencia();
       if (id === 'rp-contato') { q('#rp-contato-nome').value = ''; q('#rp-contato-cel').value = ''; q('#rp-contato-erro').hidden = true; }
       const t = $('h4', q(`#${id}`));
@@ -2221,6 +2222,7 @@
         return;
       }
       if (ds.agHora) { AG.escolher(ds.agHora); return; }
+      if (ds.recParar) { AG.pararRepeticao(ds.recParar); return; }
       if (ds.rpAba) { ir(ds.rpAba); return; }
       if (ds.rpIr) { ir(ds.rpIr); return; }
       if (ds.rpBar) { abaBar.abrirId(ds.rpBar); return; }

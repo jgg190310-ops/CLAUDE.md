@@ -73,17 +73,17 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&display=swap">
-  <link rel="stylesheet" href="../app-telas.css?v=53">
-  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=53">
-  <link rel="stylesheet" href="vendor/leaflet.css?v=53">
-  <link rel="stylesheet" href="app.css?v=53">
-  <link rel="stylesheet" href="visual.css?v=53">
-  <link rel="stylesheet" href="tema.css?v=53">
-  <link rel="stylesheet" href="ritmo.css?v=53">
-  <link rel="stylesheet" href="perfil.css?v=53">
-  <link rel="stylesheet" href="jornada.css?v=53">
-  <link rel="stylesheet" href="agenda.css?v=53">
-  <link rel="stylesheet" href="bares.css?v=53">
+  <link rel="stylesheet" href="../app-telas.css?v=54">
+  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=54">
+  <link rel="stylesheet" href="vendor/leaflet.css?v=54">
+  <link rel="stylesheet" href="app.css?v=54">
+  <link rel="stylesheet" href="visual.css?v=54">
+  <link rel="stylesheet" href="tema.css?v=54">
+  <link rel="stylesheet" href="ritmo.css?v=54">
+  <link rel="stylesheet" href="perfil.css?v=54">
+  <link rel="stylesheet" href="jornada.css?v=54">
+  <link rel="stylesheet" href="agenda.css?v=54">
+  <link rel="stylesheet" href="bares.css?v=54">
 </head>
 <body>
 <svg class="sprite" aria-hidden="true" focusable="false">
@@ -101,6 +101,7 @@
     <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
     <symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 8h3.2l1.8-2.5h6L16.8 8H20v11H4z"/><circle cx="12" cy="13.2" r="3.3"/></symbol>
     <symbol id="i-coracao" viewBox="0 0 24 24"><path d="M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0112 7.2a4.3 4.3 0 017.5 2.6C19.5 15.4 12 20 12 20z"/></symbol>
+    <symbol id="i-repetir" viewBox="0 0 24 24"><path d="M17 2.5l3 3-3 3"/><path d="M4 11.5v-1a5 5 0 015-5h11"/><path d="M7 21.5l-3-3 3-3"/><path d="M20 12.5v1a5 5 0 01-5 5H4"/></symbol>
     <symbol id="i-lapis" viewBox="0 0 24 24"><path d="M4.5 19.5l1-4.2L16.3 4.5a2 2 0 012.9 0l.3.3a2 2 0 010 2.9L8.7 18.5z"/><path d="M14.5 6.3l3.2 3.2"/></symbol>
     <symbol id="i-chave" viewBox="0 0 24 24"><circle cx="8" cy="15.5" r="4"/><path d="M10.9 12.6L19 4.5M15.5 8l2.5 2.5M13.5 10l2 2"/></symbol>
     <symbol id="i-ajuda" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v5.5M12 16.3v.2"/></symbol>
@@ -471,6 +472,7 @@
             </div>
             <button type="button" class="rp-pend-card" id="rp-pend-card" data-rp-folha="rp-pend" hidden><span class="rp-pend-ic" aria-hidden="true">!</span><span><b id="rp-pend-card-t">Taxa pendente</b><small id="rp-pend-card-sub"></small></span></button>
             <button type="button" class="rp-ag-card" id="rp-ag-card" data-rp-folha="rp-agenda" hidden><span class="rp-ag-ic" aria-hidden="true"><svg><use href="#i-calendario"/></svg></span><span><b id="rp-ag-card-t">Volta agendada</b><small id="rp-ag-card-sub"></small></span></button>
+            <button type="button" class="rp-ag-card rp-rec-card" id="rp-rec-card" data-rp-folha="rp-rec" hidden><span class="rp-ag-ic" aria-hidden="true"><svg><use href="#i-repetir"/></svg></span><span><b id="rp-rec-card-t">Volta que repete</b><small id="rp-rec-card-sub"></small></span></button>
             <div class="rp-evento" id="rp-evento" hidden>
               <svg aria-hidden="true"><use href="#i-festa"/></svg>
               <p><b id="rp-evento-t">Evento</b><small id="rp-evento-sub"></small></p>
@@ -1199,6 +1201,7 @@
             <li>Cancelar é <b>de graça até as <span id="rp-ag-gratis">--:--</span></b> (2 h antes).</li>
             <li class="taxa">Depois disso, a taxa é de <b id="rp-ag-taxa">R$ 15</b>. Se o motorista chegar e você não aparecer em <span id="rp-ag-espera">15</span> min, <b id="rp-ag-naoveio">R$ 25</b>. A taxa vai por Pix para ele.</li>
           </ul>
+          <label class="en-check rp-ag-repetir"><input type="checkbox" id="rp-ag-repetir" aria-describedby="rp-ag-repetir-d"><span class="en-caixa" aria-hidden="true"></span><span><b id="rp-ag-repetir-t">Repetir toda semana</b><small id="rp-ag-repetir-d">O app agenda sozinho a da semana seguinte quando você abrir ele no dia (a partir de 11 h antes). Dá para parar quando quiser.</small></span></label>
           <button type="button" class="t-botao" id="rp-ag-ok" data-rp="agendar">Agendar</button>
         </section>
 
@@ -1218,6 +1221,17 @@
           </ul>
           <button type="button" class="t-botao" id="rp-agenda-pronto" data-rp="ag-pronto" hidden>Estou pronto, pode vir</button>
           <button type="button" class="en-link rp-agenda-cancelar" id="rp-agenda-cancelar" data-rp="ag-cancelar">Cancelar o agendamento</button>
+          <button type="button" class="en-link rp-agenda-rec" id="rp-agenda-rec" data-rp-folha="rp-rec" hidden>Repete toda semana · ver ou parar</button>
+        </section>
+
+        <section class="d-sobre" id="rp-rec" aria-labelledby="rp-rec-t" hidden>
+          <div class="d-sobre-cab">
+            <span class="d-sobre-ic" aria-hidden="true"><svg><use href="#i-repetir"/></svg></span>
+            <div><h4 id="rp-rec-t" tabindex="-1">Voltas que repetem</h4><small>O mesmo caminho, no mesmo dia e hora, toda semana</small></div>
+            <button type="button" class="d-fechar" data-rp-fechar aria-label="Fechar"><svg aria-hidden="true"><use href="#i-fechar"/></svg></button>
+          </div>
+          <ul class="rp-rec-lista" id="rp-rec-lista"></ul>
+          <p class="rt-dica rp-rec-dica">Quem agenda é o seu celular: a partir de 11 h antes do horário, quando você abrir o Drink, a volta da semana é agendada sozinha e o celular avisa. Se não abrir o app no dia, ela não é agendada naquela semana. As regras e as taxas são as de qualquer volta agendada.</p>
         </section>
 
         <section class="d-sobre" id="rp-pend" aria-labelledby="rp-pend-t" hidden>
@@ -1878,26 +1892,26 @@
   <p class="vira-txt" id="vira-txt">O Drink é feito para usar na vertical. Nada se perde: se tiver corrida, ela continua rolando.</p>
 </div>
 
-<script src="vendor/maplibre-gl.js?v=53"></script>
-<script src="vendor/leaflet.js?v=53"></script>
-<script src="vendor/qrcode.js?v=53"></script>
-<script src="../app-nucleo.js?v=53"></script>
-<script src="servicos.js?v=53"></script>
-<script src="rede.js?v=53"></script>
-<script src="mapa-estilo.js?v=53"></script>
-<script src="mapa.js?v=53"></script>
-<script src="carros.js?v=53"></script>
-<script src="cadastro-motorista.js?v=53"></script>
-<script src="perfil.js?v=53"></script>
-<script src="pix.js?v=53"></script>
-<script src="avisos.js?v=53"></script>
-<script src="sms.js?v=53"></script>
-<script src="eventos.js?v=53"></script>
-<script src="agenda.js?v=53"></script>
-<script src="leitor.js?v=53"></script>
-<script src="bares.js?v=53"></script>
-<script src="passageiro.js?v=53"></script>
-<script src="motorista.js?v=53"></script>
-<script src="app.js?v=53"></script>
+<script src="vendor/maplibre-gl.js?v=54"></script>
+<script src="vendor/leaflet.js?v=54"></script>
+<script src="vendor/qrcode.js?v=54"></script>
+<script src="../app-nucleo.js?v=54"></script>
+<script src="servicos.js?v=54"></script>
+<script src="rede.js?v=54"></script>
+<script src="mapa-estilo.js?v=54"></script>
+<script src="mapa.js?v=54"></script>
+<script src="carros.js?v=54"></script>
+<script src="cadastro-motorista.js?v=54"></script>
+<script src="perfil.js?v=54"></script>
+<script src="pix.js?v=54"></script>
+<script src="avisos.js?v=54"></script>
+<script src="sms.js?v=54"></script>
+<script src="eventos.js?v=54"></script>
+<script src="agenda.js?v=54"></script>
+<script src="leitor.js?v=54"></script>
+<script src="bares.js?v=54"></script>
+<script src="passageiro.js?v=54"></script>
+<script src="motorista.js?v=54"></script>
+<script src="app.js?v=54"></script>
 </body>
 </html>
