@@ -455,6 +455,44 @@
     return m * 2 + (ESTABELECIMENTO.has(l.tipo) ? 0.4 : 0) - Math.log2(1 + km) * 0.5;
   }
 
+  // lugares que o OpenStreetMap não tem (ou tem sem as unidades), conferidos à mão: cada unidade com o endereço dela.
+  // "aprox": o ponto é o da rua; quando a pessoa escolhe, o app confere a casa pelo endereço (refinar)
+  const CONHECIDOS = [
+    { nome: 'Bar do Lopes', rua: 'Rua Professor Antônio Aleixo', numero: '260', bairro: 'Lourdes', cidade: 'Belo Horizonte', lat: -19.93381, lon: -43.94261, tipo: 'bar' },
+    { nome: 'Bar do Lopes', rua: 'Rua Antônio de Albuquerque', numero: '969', bairro: 'Savassi', cidade: 'Belo Horizonte', lat: -19.93804, lon: -43.93617, tipo: 'bar', aprox: true },
+    { nome: 'Bar do Lopes', rua: 'Rodovia Januário Carneiro', numero: '20', bairro: 'Vila da Serra', cidade: 'Nova Lima', lat: -19.9806, lon: -43.9457, tipo: 'bar', aprox: true, ponto: 'no Layback Park' },
+  ];
+  const PALAVRA_VAZIA = /^(do|da|de|dos|das|e|o|a|no|na)$/;
+  // todas as palavras digitadas (a última pode estar pela metade) batem com o nome, a rua ou o bairro
+  function conhecidos(texto) {
+    const ws = semAcento(texto).split(/[^a-z0-9]+/).filter((w) => w.length > 1 && !PALAVRA_VAZIA.test(w));
+    if (!ws.length) return [];
+    return CONHECIDOS.filter((c) => {
+      const ps = semAcento(`${c.nome} ${c.bairro} ${c.rua}`).split(/[^a-z0-9]+/);
+      return semAcento(c.nome).split(/[^a-z0-9]+/).some((p) => p.length > 2 && ws.some((w) => p.startsWith(w)))
+        && ws.every((w) => ps.some((p) => p.startsWith(w)));
+    }).map((c) => {
+      const rua = `${c.rua}, ${c.numero}`;
+      return comCategoria({ nome: c.nome, detalhe: [rua, c.bairro, c.cidade !== 'Belo Horizonte' ? c.cidade : '', c.ponto || ''].filter(Boolean).join(' · '),
+        rua, bairro: c.bairro, lat: c.lat, lon: c.lon, tipo: c.tipo, numero: c.numero, ehRua: false, ruaNome: c.rua, conhecido: true, aprox: Boolean(c.aprox) });
+    });
+  }
+  // a unidade com o ponto da rua: busca o endereço (rua e número) e fica com a casa, se cair perto
+  async function refinar(l, ms = 4000) {
+    if (!l || !l.aprox || !l.rua) return l;
+    const ctl = new AbortController();
+    const t = setTimeout(() => ctl.abort(), ms);
+    try {
+      const r = await buscar(l.rua, l, ctl.signal);
+      const casa = r.find((x) => String(parseInt(x.numero, 10)) === String(parseInt(l.numero, 10)) && mesmaRua(x.ruaNome || x.rua, l.ruaNome) && distancia(x, l) < 1500);
+      return casa ? { ...l, lat: casa.lat, lon: casa.lon, aprox: false } : l;
+    } catch (e) {
+      return l;
+    } finally {
+      clearTimeout(t);
+    }
+  }
+
   async function buscar(texto, perto, sinal) {
     const ref = perto || BH;
     const e = entender(texto);
@@ -481,6 +519,7 @@
       // o mesmo lugar nas duas bases: fica o do Google (com o endereço mais completo)
       lista = [...doGoogle, ...doOsm.filter((l) => !doGoogle.some((g) => semAcento(g.nome) === semAcento(l.nome) && distancia(g, l) < 150))];
     } catch (x) { if (x.name === 'AbortError') throw x; falha = x; }
+    const daLista = porNome ? conhecidos(e.q || texto) : [];
     // poucos resultados, nenhum com o número pedido, ou o Photon fora do ar: a outra busca do OpenStreetMap
     const temNumero = (l) => e.numero && String(parseInt(l.numero, 10)) === String(e.numero) && mesmaRua(l.ruaNome, ruaAlvo);
     if (lista.length < 3 || (e.numero && !lista.some(temNumero))) {
@@ -488,7 +527,13 @@
         const nom = await nominatim('search', { q: doCep ? q : (e.q || texto), countrycodes: 'br', viewbox: [CAIXA[0], CAIXA[3], CAIXA[2], CAIXA[1]].join(','), bounded: 1, limit: 8 }, sinal);
         if (Array.isArray(nom)) lista = lista.concat(nom.map(lugarDoNominatim));
       } catch (x) { if (x.name === 'AbortError') throw x; }
-      if (falha && !lista.length) throw falha;
+      if (falha && !lista.length && !daLista.length) throw falha;
+    }
+    // os conhecidos entram mesmo com a busca fora do ar; a mesma unidade no mapa (ou no Google) aparece uma vez só
+    if (daLista.length) {
+      const mesmo = (a, b, m) => semAcento(a.nome) === semAcento(b.nome) && distancia(a, b) < m;
+      const novos = daLista.filter((c) => !lista.some((l) => l.google && mesmo(l, c, 300)));
+      lista = [...lista.filter((l) => l.google), ...novos, ...lista.filter((l) => !l.google && !novos.some((c) => mesmo(l, c, 400)))];
     }
     if (e.numero && ruaAlvo) {
       // o número digitado não se perde: a casa exata, ou o ponto calculado na rua
@@ -509,7 +554,7 @@
       if (base) lista = [{ ...base, detalhe: [base.bairro || doCep.bairro, `CEP ${textoCep(e.cep)}`].filter(Boolean).join(' · ') }, ...lista.filter((l) => l !== base)];
     }
     if (porNome) {
-      const nota = new Map(lista.map((l, i) => [l, relevancia(l, q, ref) + (l.google ? 0.3 : 0) - i * 0.001]));
+      const nota = new Map(lista.map((l, i) => [l, relevancia(l, q, ref) + (l.google || l.conhecido ? 0.3 : 0) - i * 0.001]));
       lista = [...lista].sort((a, b) => nota.get(b) - nota.get(a));
     }
     const vistos = new Set();
@@ -657,6 +702,6 @@
 
   window.Drink.servicos = {
     cfg, BH, CAIXA, gps, distancia, textoKm, textoMin, preco, aproximar, naGrandeBH,
-    buscar, endereco, entender, semAcento, rota, faltaNaLinha, pontosNaLinha, virgula, diaDoDrink, ganhosDoDia, prenderFoco,
+    buscar, refinar, endereco, entender, semAcento, rota, faltaNaLinha, pontosNaLinha, virgula, diaDoDrink, ganhosDoDia, prenderFoco,
   };
 }());
