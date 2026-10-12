@@ -26,6 +26,30 @@
     // um bar parceiro aberto: o copo, que dá para tocar (para o motorista, com as voltas da noite)
     bar: (id, nome, quem, voltas) => marca('mk-bar', `<button type="button" data-${quem}-bar="${String(id).replace(/[^\w-]/g, '')}" aria-label="${String(nome).replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`)}"><svg aria-hidden="true"><use href="#i-copo"/></svg>${voltas ? `<b>${Math.min(99, Number(voltas) || 0)}</b>` : ''}</button>`, 34),
   };
+  // os créditos do mapa (a licença do OpenStreetMap pede): aparecem quando o mapa abre e, depois de 5 s ou do
+  // primeiro toque no mapa, viram um "i" pequeno no canto; tocar no "i" mostra de novo
+  function creditosDoMapa(el, html) {
+    const cx = document.createElement('p');
+    cx.className = 'mapa-creditos';
+    const id = `cred-${Math.random().toString(36).slice(2, 8)}`;
+    cx.innerHTML = `<button type="button" class="mapa-cred-i" aria-label="Créditos do mapa" aria-expanded="true" aria-controls="${id}">i</button><span class="mapa-cred-txt" id="${id}"></span>`;
+    const bt = cx.firstChild;
+    const txt = cx.lastChild;
+    txt.innerHTML = html;
+    let timer = 0;
+    const abrir = (sim) => {
+      cx.classList.toggle('recolhido', !sim);
+      bt.setAttribute('aria-expanded', String(Boolean(sim)));
+      clearTimeout(timer);
+      if (sim) timer = setTimeout(() => abrir(false), sim === 'toque' ? 6000 : 5000);
+    };
+    bt.addEventListener('click', (e) => { e.stopPropagation(); abrir(cx.classList.contains('recolhido') ? 'toque' : false); });
+    // o primeiro toque no mapa (arrastar, aproximar) recolhe na hora
+    el.addEventListener('pointerdown', (e) => { if (!cx.contains(e.target) && !cx.classList.contains('recolhido')) abrir(false); }, { passive: true });
+    el.appendChild(cx);
+    abrir(true);
+    return { definir: (h) => { txt.innerHTML = h; } };
+  }
   const CREDITOS = '<a href="https://openfreemap.org" target="_blank" rel="noopener">OpenFreeMap</a> · © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>';
 
   // você (passageiro) e eu (motorista) ganham o círculo da margem de erro do GPS, quando ela passa de uns 20 m
@@ -141,10 +165,7 @@
     mapa.keyboard.disableRotation();
     el.classList.add('mapa-gl');
     el.mapaGL = mapa;
-    const creditos = document.createElement('p');
-    creditos.className = 'mapa-creditos';
-    creditos.innerHTML = CREDITOS;
-    el.appendChild(creditos);
+    const creditos = creditosDoMapa(el, CREDITOS);
 
     // se o mapa vetorial não carregar, o mesmo mapa passa para as imagens do OpenStreetMap
     const reservas = [cfg.mapa, cfg.mapaReserva].filter(Boolean);
@@ -161,7 +182,7 @@
       falhas = 0;
       estiloPronto = false;
       el.classList.add('mapa-imagens');
-      creditos.innerHTML = '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>';
+      creditos.definir('© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>');
       urlImagens = url;
       mapa.setStyle(ESTILO.imagens(url, temaAtual()));
       setTimeout(() => { if (!carregou && fonte === 'osm') trocarEstilo(); }, 12000);
@@ -368,10 +389,7 @@
       attributionControl: false, tapTolerance: 20, bounceAtZoomLimits: false,
     });
     el.classList.add('mapa-imagens');
-    const creditos = document.createElement('p');
-    creditos.className = 'mapa-creditos';
-    creditos.innerHTML = '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>';
-    el.appendChild(creditos);
+    creditosDoMapa(el, '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>');
     // o mapa claro do OpenStreetMap fica escuro no CSS (invertido, meio transparente sobre o azul da noite)
     const camada = L.tileLayer(cfg.mapa, { subdomains: 'abc', maxZoom: 19, opacity: 0.8 }).addTo(mapa);
     let carregados = 0;
