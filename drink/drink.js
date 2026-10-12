@@ -340,7 +340,7 @@
       let html = item('Saída', brl(p.saida)) + item(`${k} km × R$ 3,50`, brl(p.rodado));
       if (p.adicional) html += item('Bandeira 2 (+20%)', brl(p.adicional));
       if (agendado()) html += item(`Agendado para ${agendaHora.value || '--:--'}`, 'grátis', true);
-      html += item('Seguro da viagem', 'incluso', true);
+      html += item('Vistoria com fotos', 'incluída', true);
       itens.innerHTML = html;
       $('#c-total').textContent = brl(p.total);
       $('#tx-b1').dataset.on = String(!p.adicional);
@@ -410,7 +410,7 @@
           aceito,
           `A caminho de ${veiculo}, chega em ${5 + Math.floor(Math.random() * 8)} min`,
           'Chegou e conferiu o seu nome',
-          'Vistoria feita com 5 fotos. Seguro ativo',
+          'Vistoria feita com 5 fotos, com data e hora',
           `${dobrado} no porta-malas. Em viagem para ${para}`,
           'Carro estacionado e chave na sua mão',
         ], 'Entregue');
@@ -441,7 +441,7 @@
       botoes.forEach((b) => b.setAttribute('aria-pressed', String(tiradas.has(b.dataset.foto))));
       barra.style.width = `${(n / 5) * 100}%`;
       vist.classList.toggle('completa', n === 5);
-      res.textContent = n === 5 ? 'Vistoria completa. Seguro ativado.' : `${n} de 5 fotos`;
+      res.textContent = n === 5 ? 'Vistoria completa: 5 fotos guardadas.' : `${n} de 5 fotos`;
       refazer.hidden = n === 0;
     }
 

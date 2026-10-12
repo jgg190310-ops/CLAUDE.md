@@ -263,7 +263,7 @@
       bt.disabled = n < 5;
       bt.textContent = n < 5 ? `${n} de 5 fotos` : `Guardar ${est.veiculo === 'patinete' ? 'o patinete' : 'a bike'}`;
       const sub = $('#d-vist-sub');
-      sub.textContent = n < 5 ? 'Toque nos 5 pontos para fotografar' : `Seguro ativo desde ${agora()}`;
+      sub.textContent = n < 5 ? 'Toque nos 5 pontos para fotografar' : `Vistoria feita às ${agora()}`;
       sub.classList.toggle('ok', n === 5);
     }
 
@@ -271,7 +271,7 @@
     function htmlRecibo(v) {
       let html = linhaRecibo('Saída', brl(v.saida)) + linhaRecibo(`${String(v.km).replace('.', ',')} km rodados`, brl(v.rodado));
       if (v.adicional) html += linhaRecibo('Bandeira 2 (+20%)', brl(v.adicional));
-      html += linhaRecibo('Seguro da viagem', 'incluso');
+      html += linhaRecibo('Vistoria com fotos', 'incluída');
       if (v.desconto) html += linhaRecibo('Cupom PRIMEIRADRINK', `− ${brl(v.desconto)}`);
       if (v.gorjeta) html += linhaRecibo('Gorjeta', brl(v.gorjeta));
       html += linhaRecibo(`Total · ${v.pag.split(' ')[0]}`, brl(v.total), 't-total');
