@@ -73,17 +73,17 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&display=swap">
-  <link rel="stylesheet" href="../app-telas.css?v=40">
-  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=40">
-  <link rel="stylesheet" href="vendor/leaflet.css?v=40">
-  <link rel="stylesheet" href="app.css?v=40">
-  <link rel="stylesheet" href="visual.css?v=40">
-  <link rel="stylesheet" href="tema.css?v=40">
-  <link rel="stylesheet" href="ritmo.css?v=40">
-  <link rel="stylesheet" href="perfil.css?v=40">
-  <link rel="stylesheet" href="jornada.css?v=40">
-  <link rel="stylesheet" href="agenda.css?v=40">
-  <link rel="stylesheet" href="bares.css?v=40">
+  <link rel="stylesheet" href="../app-telas.css?v=41">
+  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=41">
+  <link rel="stylesheet" href="vendor/leaflet.css?v=41">
+  <link rel="stylesheet" href="app.css?v=41">
+  <link rel="stylesheet" href="visual.css?v=41">
+  <link rel="stylesheet" href="tema.css?v=41">
+  <link rel="stylesheet" href="ritmo.css?v=41">
+  <link rel="stylesheet" href="perfil.css?v=41">
+  <link rel="stylesheet" href="jornada.css?v=41">
+  <link rel="stylesheet" href="agenda.css?v=41">
+  <link rel="stylesheet" href="bares.css?v=41">
 </head>
 <body>
 <svg class="sprite" aria-hidden="true" focusable="false">
@@ -289,7 +289,7 @@
         </div>
         <div class="boas-folha">
           <h1 class="boas-t" id="boas-t" tabindex="-1"><span class="boas-bebeu-t">Bebeu?</span> A gente leva você <em>e o seu carro</em> pra casa.</h1>
-          <p class="boas-txt">O motorista chega de bike, guarda ela dobrada no seu porta-malas e dirige o seu carro até a sua porta.</p>
+          <p class="boas-txt">O motorista chega de bike ou patinete, guarda dobrado no seu porta-malas e dirige o seu carro até a sua porta.</p>
           <ul class="boas-selos">
             <li><svg aria-hidden="true"><use href="#i-escudo"/></svg>CNH e antecedentes conferidos</li>
             <li><svg aria-hidden="true"><use href="#i-chave"/></svg>Código de segurança</li>
@@ -317,7 +317,13 @@
             <span class="en-ddi" aria-hidden="true"><span class="en-bandeira"></span>+55</span>
             <input id="en-cel" name="celular" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="(31) 99999-9999" maxlength="15" aria-label="Celular com DDD" aria-describedby="cel-sub en-cel-erro">
           </div>
-          <label class="en-campo en-rot" id="en-cel-email-campo"><span>E-mail · o código chega por lá</span><input id="en-cel-email" name="email" type="email" required inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" placeholder="voce@email.com" aria-describedby="cel-sub en-cel-erro"></label>
+          <div class="en-jeitos" id="en-jeitos" role="radiogroup" aria-label="Como receber o código" hidden>
+            <button type="button" role="radio" aria-checked="false" data-jeito="sms"><svg aria-hidden="true"><use href="#i-mensagem"/></svg>SMS</button>
+            <button type="button" role="radio" aria-checked="false" data-jeito="email"><svg aria-hidden="true"><use href="#i-email"/></svg>E-mail</button>
+            <button type="button" role="radio" aria-checked="false" data-jeito="notificacao"><svg aria-hidden="true"><use href="#i-sino"/></svg>Notificação</button>
+          </div>
+          <p class="en-nota en-sem-jeito" id="en-sem-jeito" hidden><svg aria-hidden="true"><use href="#i-celular"/></svg><span id="en-sem-jeito-txt"></span></p>
+          <label class="en-campo en-rot" id="en-cel-email-campo"><span>E-mail · o código chega por lá</span><input id="en-cel-email" name="email" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" placeholder="voce@email.com" aria-describedby="cel-sub en-cel-erro"></label>
           <p class="en-erro" id="en-cel-erro" role="alert" hidden></p>
           <button type="submit" class="t-botao" id="en-cel-bt" disabled>Receber código</button>
           <p class="en-nota"><svg aria-hidden="true"><use href="#i-escudo"/></svg><span id="en-cel-nota">O seu número só aparece para o motorista da sua corrida.</span></p>
@@ -785,7 +791,7 @@
           <ol class="ev-como">
             <li><b>Você cria o evento</b><span>Dia, horário, lugar e quantos convidados. O app diz quantos Drinks o evento precisa.</span></li>
             <li><b>Os convidados recebem o QR</b><span>Na mesa, no convite ou no telão. Escaneou, o Drink já busca no lugar do evento.</span></li>
-            <li><b>Cada um volta no próprio carro</b><span>O Drink chega de bike, leva o convidado e o carro até em casa e volta para buscar o próximo.</span></li>
+            <li><b>Cada um volta no próprio carro</b><span>O Drink chega de bike ou patinete, leva o convidado e o carro até em casa e volta para buscar o próximo.</span></li>
             <li><b>Você acerta com os Drinks</b><span>Se o evento paga, você escolhe o teto de cada volta e paga cada Drink pelo Pix, aqui mesmo.</span></li>
           </ol>
         </section>
@@ -1633,7 +1639,7 @@
             <li><b>O link da viagem</b> que você compartilha leva a chave no próprio link: só quem recebe consegue ver.</li>
             <li><b>Mapa, busca e rotas</b> usam serviços abertos: OpenFreeMap para o mapa (dados do OpenStreetMap), Photon e Nominatim para a busca (o texto que você digita e, para achar onde você está, a sua posição), ViaCEP quando você busca por CEP (só o CEP) e OSRM para as rotas (os pontos de saída e de chegada).</li>
             <li><b>Avisos no celular</b> passam pelo ntfy e pelo serviço de notificações do seu celular (Apple ou Google) e dizem só o tipo do aviso, como "o motorista chegou".</li>
-            <li><b>O código por e-mail</b> vai pelo ntfy.sh, que manda o e-mail para o endereço que você digitou. A mensagem tem só o código e o seu número, e o ntfy não guarda uma cópia.</li>
+            <li><b>O código por e-mail</b> vai pelo EmailJS, que manda o e-mail para o endereço que você digitou. A mensagem tem só o código e o seu número.</li>
             <li><b>O código por SMS</b>, quando está ligado, manda o seu número ao Firebase (Google) só para enviar a mensagem.</li>
           </ul>
           <h5>Documentos de quem dirige</h5>
@@ -1805,26 +1811,26 @@
   <p class="vira-txt" id="vira-txt">O Drink é feito para usar na vertical. Nada se perde: se tiver corrida, ela continua rolando.</p>
 </div>
 
-<script src="vendor/maplibre-gl.js?v=40"></script>
-<script src="vendor/leaflet.js?v=40"></script>
-<script src="vendor/qrcode.js?v=40"></script>
-<script src="../app-nucleo.js?v=40"></script>
-<script src="servicos.js?v=40"></script>
-<script src="rede.js?v=40"></script>
-<script src="mapa-estilo.js?v=40"></script>
-<script src="mapa.js?v=40"></script>
-<script src="carros.js?v=40"></script>
-<script src="cadastro-motorista.js?v=40"></script>
-<script src="perfil.js?v=40"></script>
-<script src="pix.js?v=40"></script>
-<script src="avisos.js?v=40"></script>
-<script src="sms.js?v=40"></script>
-<script src="eventos.js?v=40"></script>
-<script src="agenda.js?v=40"></script>
-<script src="leitor.js?v=40"></script>
-<script src="bares.js?v=40"></script>
-<script src="passageiro.js?v=40"></script>
-<script src="motorista.js?v=40"></script>
-<script src="app.js?v=40"></script>
+<script src="vendor/maplibre-gl.js?v=41"></script>
+<script src="vendor/leaflet.js?v=41"></script>
+<script src="vendor/qrcode.js?v=41"></script>
+<script src="../app-nucleo.js?v=41"></script>
+<script src="servicos.js?v=41"></script>
+<script src="rede.js?v=41"></script>
+<script src="mapa-estilo.js?v=41"></script>
+<script src="mapa.js?v=41"></script>
+<script src="carros.js?v=41"></script>
+<script src="cadastro-motorista.js?v=41"></script>
+<script src="perfil.js?v=41"></script>
+<script src="pix.js?v=41"></script>
+<script src="avisos.js?v=41"></script>
+<script src="sms.js?v=41"></script>
+<script src="eventos.js?v=41"></script>
+<script src="agenda.js?v=41"></script>
+<script src="leitor.js?v=41"></script>
+<script src="bares.js?v=41"></script>
+<script src="passageiro.js?v=41"></script>
+<script src="motorista.js?v=41"></script>
+<script src="app.js?v=41"></script>
 </body>
 </html>

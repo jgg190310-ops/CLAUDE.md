@@ -23,6 +23,10 @@
     // SMS de verdade no cadastro: a configuração do app da Web do projeto no Firebase (apiKey, authDomain,
     // projectId, appId). Sem ela, o código chega por e-mail (o ntfy encaminha) ou por notificação neste celular.
     firebase: null,
+    // o código por e-mail: o EmailJS manda o e-mail direto do app, com a conta do Drink no emailjs.com
+    // ({ servico, modelo, chave }: o Service ID, o Template ID e a Public Key de lá). Sem ela, não há e-mail
+    emailjs: null,
+    emailjsUrl: 'https://api.emailjs.com',
   };
   try { Object.assign(cfg, JSON.parse(localStorage.getItem('drink-servicos') || '{}')); } catch (e) { /* sem ajuste */ }
 

@@ -532,3 +532,14 @@ body { font-family: var(--f-texto); font-feature-settings: "cv11", "ss01"; lette
 
 /* a unidade de um lugar com mais de uma (Bar do Lopes · Savassi) */
 .app .d-lista .rp-unidade { font-weight: 500; color: var(--a-texto-2); }
+
+/* como receber o código: SMS, e-mail ou notificação */
+.app .en-jeitos { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: .4em; padding: .3em; border-radius: var(--r-m); background: var(--a-card); }
+.app .en-jeitos button {
+  display: flex; align-items: center; justify-content: center; gap: .4em; min-height: 2.75em; padding: 0 .5em; border: 0; border-radius: calc(var(--r-m) - .25em);
+  background: transparent; color: var(--a-texto-2); font: inherit; font-size: .9em; font-weight: 700; cursor: pointer;
+}
+.app .en-jeitos button[hidden] { display: none; }
+.app .en-jeitos button svg { width: 1.15em; height: 1.15em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.app .en-jeitos button[aria-checked="true"] { background: var(--lima); color: #0A0B0F; }
+.app .en-sem-jeito { border-color: rgba(255, 170, 80, .45); }
