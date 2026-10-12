@@ -777,7 +777,8 @@
     function enviarPosicao(forcar) {
       // na volta pedida pelo bar, o celular de quem pediu ficou no bar: a posição vai também durante a viagem
       if (!corrida || !pos || !(corrida.etapa === 'buscar' || (corrida.etapa === 'viagem' && corrida.peloBar))) return;
-      if (!forcar && ultimaPosEnviada && (S.distancia(pos, ultimaPosEnviada) < 80 || Date.now() - ultimaPosEnviada.t < 20000)) return;
+      // a cada uns 8 s andando (bike: uns 30 m): o passageiro vê o Drink vindo sem saltos
+      if (!forcar && ultimaPosEnviada && (S.distancia(pos, ultimaPosEnviada) < 25 || Date.now() - ultimaPosEnviada.t < 8000)) return;
       ultimaPosEnviada = { lat: pos.lat, lon: pos.lon, t: Date.now() };
       enviar({ tipo: 'pos', lat: redondo(pos.lat, 6), lon: redondo(pos.lon, 6) });
       if (atual === 'buscar' && mapa) mapa.ponto('eu', pos, Mapa.ICONE.motorista(eu().veiculo));

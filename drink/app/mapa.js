@@ -208,16 +208,21 @@
       return new gl.Marker({ element: caixa, anchor: 'center' }).setLngLat([p.lon, p.lat]).addTo(mapa);
     }
     // move o marcador devagar até o ponto novo
-    function mover(nome, p) {
+    // desliza até o ponto novo; o motorista desliza o tempo entre duas posições (anda sem parar, não pula)
+    const alvos = {};
+    function mover(nome, p, ms = 900) {
       const m = pontos[nome];
       const de = m.getLngLat();
+      const alvo = `${p.lat},${p.lon}`;
+      if (tweens[nome] && alvos[nome] === alvo) return;   // já indo para lá
+      alvos[nome] = alvo;
       if (tweens[nome]) cancelAnimationFrame(tweens[nome]);
       if (reduzirMovimento() || S.distancia({ lat: de.lat, lon: de.lng }, p) > 2000) { m.setLngLat([p.lon, p.lat]); return; }
       const t0 = performance.now();
       const passo = (agora) => {
-        const t = Math.min(1, (agora - t0) / 900);
+        const t = Math.min(1, (agora - t0) / ms);
         m.setLngLat([de.lng + (p.lon - de.lng) * t, de.lat + (p.lat - de.lat) * t]);
-        if (t < 1) tweens[nome] = requestAnimationFrame(passo);
+        if (t < 1) tweens[nome] = requestAnimationFrame(passo); else delete tweens[nome];
       };
       tweens[nome] = requestAnimationFrame(passo);
     }
@@ -257,7 +262,9 @@
     const pitch = () => {
       if (!inclinar) return 0;
       const livre = (el.clientHeight || 600) - folga();
-      return livre < 260 ? 18 : livre < 360 ? 32 : INCLINACAO;
+      // com muito pouco mapa livre (celular baixo, Safari com as barras), deitado de vez: inclinado, a caixa da rota
+      // não cabe certa no pedaço que sobra e o embarque cai na borda da folha
+      return livre < 200 ? 0 : livre < 260 ? 18 : livre < 360 ? 32 : INCLINACAO;
     };
     function centrarAgora(p, z) {
       mapa.easeTo({ center: [p.lon, p.lat], zoom: zGL(z), pitch: pitch(), offset: [0, -folga() / 2], duration: duracao() });
@@ -270,16 +277,16 @@
       folga(x) { medirFolga = cobre(el, x); vigia = vigiarFolha(x, folga, memoria, vigia); },
       aoMover(fn) { mapa.on('moveend', fn); },
       aoArrastar(fn) { mapa.on('dragstart', fn); },
-      ponto(nome, p, icone) {
+      ponto(nome, p, icone, ms) {
         if (!p) { api.tirar(nome); return; }
         if (ANEL.includes(nome)) { anel = comAnel(p); aplicarPrecisao(); }
-        if (pontos[nome]) { mover(nome, p); if (icone) pintar(pontos[nome].getElement(), icone); return; }
+        if (pontos[nome]) { mover(nome, p, ms); if (icone) pintar(pontos[nome].getElement(), icone); return; }
         pontos[nome] = marcador(p, icone || ICONE.voce());
         if (seguir === nome) api.centrar(p);
       },
       tirar(nome) {
         if (ANEL.includes(nome)) { anel = null; aplicarPrecisao(); }
-        if (tweens[nome]) cancelAnimationFrame(tweens[nome]);
+        if (tweens[nome]) { cancelAnimationFrame(tweens[nome]); delete tweens[nome]; }
         if (pontos[nome]) { pontos[nome].remove(); delete pontos[nome]; }
       },
       tem: (nome) => Boolean(pontos[nome]),
@@ -317,8 +324,8 @@
           // respiro de cima encolhe antes, para a rota não ficar embaixo da folha
           const alto = el.clientHeight || 600;
           const livre = alto - folga();
-          const topo = Math.round(Math.min(96, Math.max(20, livre * 0.25)));
-          const baixo = Math.max(40, Math.min(folga() + 36, alto - topo - 90));
+          const topo = Math.round(Math.min(96, Math.max(14, livre * 0.2)));
+          const baixo = Math.max(40, Math.min(folga() + 36, alto - topo - 70));
           const caixa = new gl.LngLatBounds();
           pts.forEach((p) => caixa.extend([p.lon, p.lat]));
           mapa.fitBounds(caixa, { padding: { top: topo, bottom: baixo, left: 44, right: 44 }, maxZoom: zGL(maxZoom), pitch: pitch(), duration: duracao() });
@@ -392,17 +399,21 @@
       }
       fazer();
     }
-    function mover(nome, p) {
+    const alvos = {};
+    function mover(nome, p, ms = 900) {
       const m = pontos[nome];
       const de = m.getLatLng();
       const ate = L.latLng(p.lat, p.lon);
+      const alvo = `${p.lat},${p.lon}`;
+      if (tweens[nome] && alvos[nome] === alvo) return;
+      alvos[nome] = alvo;
       if (tweens[nome]) cancelAnimationFrame(tweens[nome]);
       if (reduzirMovimento() || de.distanceTo(ate) > 2000) { m.setLatLng(ate); return; }
       const t0 = performance.now();
       const passo = (agora) => {
-        const t = Math.min(1, (agora - t0) / 900);
+        const t = Math.min(1, (agora - t0) / ms);
         m.setLatLng([de.lat + (ate.lat - de.lat) * t, de.lng + (ate.lng - de.lng) * t]);
-        if (t < 1) tweens[nome] = requestAnimationFrame(passo);
+        if (t < 1) tweens[nome] = requestAnimationFrame(passo); else delete tweens[nome];
       };
       tweens[nome] = requestAnimationFrame(passo);
     }
@@ -432,7 +443,7 @@
       folga(x) { medirFolga = cobre(el, x); vigia = vigiarFolha(x, folga, memoria, vigia); },
       aoMover(fn) { mapa.on('moveend', fn); },
       aoArrastar(fn) { mapa.on('dragstart', fn); },
-      ponto(nome, p, ic) {
+      ponto(nome, p, ic, ms) {
         if (!p) { api.tirar(nome); return; }
         if (ANEL.includes(nome)) {
           const a = comAnel(p);
@@ -440,12 +451,13 @@
             anel = L.circle([a.lat, a.lon], { radius: a.precisao, color: '#8D97FF', weight: 1, opacity: 0.5, fillColor: '#5B67FF', fillOpacity: 0.13, interactive: false }).addTo(mapa);
           }
         }
-        if (pontos[nome]) { mover(nome, p); if (ic) pontos[nome].setIcon(icone(ic)); return; }
+        if (pontos[nome]) { mover(nome, p, ms); if (ic) pontos[nome].setIcon(icone(ic)); return; }
         pontos[nome] = L.marker([p.lat, p.lon], { icon: icone(ic || ICONE.voce()), keyboard: false, interactive: false }).addTo(mapa);
         if (seguir === nome) api.centrar(p);
       },
       tirar(nome) {
         if (ANEL.includes(nome) && anel) { anel.remove(); anel = null; }
+        if (tweens[nome]) { cancelAnimationFrame(tweens[nome]); delete tweens[nome]; }
         if (pontos[nome]) { pontos[nome].remove(); delete pontos[nome]; }
       },
       tem: (nome) => Boolean(pontos[nome]),

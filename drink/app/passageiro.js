@@ -1160,7 +1160,8 @@
         }
         case 'pos':
           if (!ponto(msg)) return;
-          c.pos = { lat: msg.lat, lon: msg.lon, t: Date.now() };
+          // o ícone desliza o tempo entre as duas posições (uns 8 s): anda sem parar, como na Uber
+          c.pos = { lat: msg.lat, lon: msg.lon, t: Date.now(), desliza: c.pos && c.pos.t ? Math.max(900, Math.min(10000, Date.now() - c.pos.t)) : 900 };
           if (atual === 'caminho') atualizarChegando();
           if (c.peloBar && c.etapa === 'viagem') andarNaViagem(c.pos);
           break;
@@ -1424,7 +1425,7 @@
       if (!c || !c.motorista) return;
       const chip = q('#rp-eta');
       if (c.pos) {
-        mapa.ponto('motorista', c.pos, Mapa.ICONE.motorista(c.motorista.veiculo));
+        mapa.ponto('motorista', c.pos, Mapa.ICONE.motorista(c.motorista.veiculo), c.pos.desliza);
         const d = S.distancia(c.pos, c.embarque);
         if (c.etapa === 'chegou' || d < 60) {
           chip.innerHTML = `<b>${esc(primeiroNome(c.motorista.nome))}</b> está no embarque${textoEspera(c)}`;
