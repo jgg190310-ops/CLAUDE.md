@@ -1,9 +1,9 @@
 /* Drink — o service worker do app. Guarda o app no aparelho para abrir sem internet e mostra os avisos
    (pedido novo, motorista chegou, mensagem…) que chegam pelo ntfy mesmo com o app fechado.
    Com internet, tudo vem da rede primeiro: o celular sempre usa a versão mais nova do app. */
-const VERSAO = 'drink-app-46';
+const VERSAO = 'drink-app-47';
 const FONTES = 'drink-fontes-1';
-const V = '?v=46';
+const V = '?v=47';
 const ARQUIVOS = [
   './', 'manifest.webmanifest',
   ...['app.css', 'visual.css', 'tema.css', 'ritmo.css', 'perfil.css', 'jornada.css', 'agenda.css', 'bares.css', 'app.js', 'servicos.js', 'rede.js', 'mapa-estilo.js', 'mapa.js', 'carros.js', 'cadastro-motorista.js', 'perfil.js', 'agenda.js', 'leitor.js', 'bares.js', 'pix.js', 'avisos.js', 'sms.js',
@@ -75,6 +75,21 @@ const AVISOS = {
   'ag-taxa': ['Taxa paga', 'Confere no app do seu banco se o Pix caiu.'],
   'ag-nao-veio': ['Taxa por não aparecer', 'O motorista esperou e você não apareceu. Abre o Drink.'],
 };
+// a corrida num aviso só, que vai se atualizando na tela de bloqueio (como o placar de um jogo): cada etapa substitui
+// a anterior, e um aviso atrasado de uma etapa que já passou não volta o placar
+const ETAPA_AO_VIVO = { aceite: 1, 'ag-indo': 1, indo: 2, perto: 3, chegou: 4, viagem: 5, chegada: 6, cancelado: 7 };
+const barra = (pct) => { const n = Math.max(0, Math.min(10, Math.round(pct / 10))); return '▰'.repeat(n) + '▱'.repeat(10 - n); };
+const virgula = (n) => String(n).replace('.', ',');
+function aoVivo(corpo) {
+  const min = Math.max(1, Math.min(240, parseInt(corpo.min, 10) || 1));
+  const km = Math.max(0, Math.min(200, Number(corpo.km) || 0));
+  const pct = Math.max(0, Math.min(100, Number(corpo.pct) || 0));
+  const hora = /^\d{2}:\d{2}$/.test(String(corpo.hora)) ? corpo.hora : '';
+  if (corpo.etapa === 'viagem') {
+    return [`Indo pra casa · ${min} min`, `${barra(pct)}  ${virgula(km)} km${hora ? `\nEm casa por volta das ${hora}` : ''}`];
+  }
+  return [`O Drink está a ${min} min`, `${barra(pct)}  ${virgula(km)} km${hora ? `\nChega por volta das ${hora}` : ''}`];
+}
 const reais = (v) => `R$ ${Number(v || 0).toFixed(2).replace('.', ',')}`;
 const bairro = (p) => String((p && p.bairro) || '').slice(0, 30) || 'BH';
 
@@ -82,6 +97,7 @@ async function mostrarAviso(dados) {
   let titulo = 'Drink';
   let texto = 'Tem novidade no Drink.';
   let tag = 'drink';
+  let etapa = '';
   if (dados && dados.event === 'subscription_expiring') {
     texto = 'Abre o Drink para continuar recebendo os avisos.';
     tag = 'drink-expira';
@@ -109,18 +125,32 @@ async function mostrarAviso(dados) {
       titulo = 'Pedido novo no Drink';
       texto = `${bairro(corpo.de)} → ${bairro(corpo.para)} · ${reais(corpo.valor)}`;
       tag = 'drink-pedido';
+    } else if (corpo && corpo.tipo === 'ao-vivo' && ['indo', 'viagem'].includes(corpo.etapa)) {
+      [titulo, texto] = aoVivo(corpo);
+      tag = 'drink-ao-vivo';
+      etapa = corpo.etapa;
     } else if (corpo && AVISOS[corpo.tipo]) {
       [titulo, texto] = AVISOS[corpo.tipo];
-      tag = 'drink-corrida';
+      tag = ETAPA_AO_VIVO[corpo.tipo] ? 'drink-ao-vivo' : 'drink-corrida';
+      if (ETAPA_AO_VIVO[corpo.tipo]) etapa = corpo.tipo;
     }
+  }
+  let mudou = true;
+  if (etapa) {
+    // o placar não volta: se já passou dessa etapa, fica o que estava (o iPhone pede que todo push mostre algo)
+    const [antes] = await self.registration.getNotifications({ tag: 'drink-ao-vivo' });
+    const etapaAntes = antes && antes.data && antes.data.etapa;
+    if (etapaAntes && ETAPA_AO_VIVO[etapaAntes] > ETAPA_AO_VIVO[etapa]) { titulo = antes.title; texto = antes.body; etapa = etapaAntes; }
+    mudou = etapaAntes !== etapa;
   }
   // com o app na tela, o aviso chega sem som (o próprio app já avisou)
   const abertos = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
   const naTela = abertos.some((c) => c.visibilityState === 'visible');
   return self.registration.showNotification(titulo, {
-    // "tem Drink perto" chega uma vez: os seguintes só trocam o texto, sem tocar de novo
-    body: texto, tag, renotify: tag !== 'drink-online', silent: naTela,
-    icon: '../icon-192.png', badge: '../icon-192.png', data: { url: './' },
+    // "tem Drink perto" chega uma vez: os seguintes só trocam o texto, sem tocar de novo; o ao vivo só toca quando
+    // muda a etapa (os minutos que baixam trocam o texto em silêncio)
+    body: texto, tag, renotify: tag !== 'drink-online' && mudou, silent: naTela || !mudou,
+    icon: '../icon-192.png', badge: '../icon-192.png', data: { url: './', etapa },
   });
 }
 
