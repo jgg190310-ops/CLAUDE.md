@@ -726,7 +726,12 @@
           const lista = [...parceiros, ...doMapa.filter((l) => !parceiros.some((b) => S.distancia(b, l) < 60))];
           marcarUnidades(lista);
           achados = lista;
-          q('#rp-res-t').textContent = lista.length ? 'Resultados' : (modoBusca === 'bar' ? 'Não achei. Toca em "Escolher no mapa" e marca a porta do bar.' : 'Não achei esse lugar. Tenta outro nome ou escolhe no mapa.');
+          // nenhum resultado com todas as palavras no nome (o lugar não está no mapa): diz isso, e o resto vira "parecidos"
+          const palavras = S.semAcento(texto).split(/[^a-z0-9]+/).filter((w) => w.length > 1 && !/^(do|da|de|dos|das|e)$/.test(w) && !/^\d+$/.test(w));
+          const bate = (l) => { const n = S.semAcento(l.nome); return palavras.every((w) => n.includes(w)); };
+          const algumBate = !palavras.length || lista.some(bate) || /\d/.test(texto);
+          q('#rp-res-t').textContent = !lista.length ? (modoBusca === 'bar' ? 'Não achei. Toca em "Escolher no mapa" e marca a porta do bar.' : 'Não achei esse lugar. Tenta outro nome ou escolhe no mapa.')
+            : (algumBate ? 'Resultados' : `Não achei "${texto}" no mapa. Parecidos:`);
           q('#rp-resultados').innerHTML = lista.map((l, i) => linhaLugar(l, i, l.icone)).join('');
           completarEnderecos(lista);
         } catch (e) {
