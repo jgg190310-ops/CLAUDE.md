@@ -27,6 +27,10 @@
     // ({ servico, modelo, chave }: o Service ID, o Template ID e a Public Key de lá). Sem ela, não há e-mail
     emailjs: { servico: 'service_gleq2px', modelo: 'template_psxaink', chave: 'YQZsN4vOvKUa4_bsK' },
     emailjsUrl: 'https://api.emailjs.com',
+    // a busca de lugares do Google (a mesma base da Uber), para bar e restaurante que o OpenStreetMap não tem:
+    // a chave da Places API (New), restrita ao site do Drink. Sem ela, só o OpenStreetMap
+    google: null,
+    googleUrl: 'https://places.googleapis.com',
   };
   try { Object.assign(cfg, JSON.parse(localStorage.getItem('drink-servicos') || '{}')); } catch (e) { /* sem ajuste */ }
 
@@ -343,6 +347,33 @@
     return comCategoria({ nome, detalhe: detalhe.join(' · '), rua, bairro: bairro || cidade, lat: +x.lat, lon: +x.lon, tipo: x.type || '', numero: a.house_number || '', ehRua, ruaNome });
   }
 
+  const TIPO_GOOGLE = { bar: 'bar', pub: 'pub', wine_bar: 'bar', night_club: 'nightclub', restaurant: 'restaurant', brazilian_restaurant: 'restaurant',
+    pizza_restaurant: 'restaurant', steak_house: 'restaurant', fast_food_restaurant: 'fast_food', hamburger_restaurant: 'fast_food', cafe: 'cafe', coffee_shop: 'cafe',
+    bakery: 'cafe', ice_cream_shop: 'ice_cream', event_venue: 'events_venue', stadium: 'stadium', movie_theater: 'cinema', performing_arts_theater: 'theatre',
+    hotel: 'hotel', hospital: 'hospital', shopping_mall: 'mall', park: 'park', university: 'university', market: 'marketplace' };
+  function lugarDoGoogle(g) {
+    const parte = (tipo) => ((g.addressComponents || []).find((c) => (c.types || []).includes(tipo)) || {}).longText || '';
+    const via = parte('route');
+    const rua = [via, parte('street_number')].filter(Boolean).join(', ');
+    const bairro = [parte('sublocality_level_1'), parte('sublocality'), parte('neighborhood')].find((b) => b && !ehRegional(b)) || '';
+    const cidade = parte('administrative_area_level_2') || parte('locality');
+    const nome = (g.displayName && g.displayName.text) || rua || bairro || 'Local sem nome';
+    const detalhe = [rua !== nome ? rua : '', bairro !== nome ? bairro : '', cidade && cidade !== 'Belo Horizonte' ? cidade : ''].filter(Boolean).join(' · ');
+    return comCategoria({ nome, detalhe, rua, bairro: bairro || cidade, lat: g.location.latitude, lon: g.location.longitude, tipo: TIPO_GOOGLE[g.primaryType] || '', numero: parte('street_number'), ehRua: false, ruaNome: via, google: true });
+  }
+  async function buscaGoogle(q, ref, sinal) {
+    const c = cfg.google;
+    if (!c || !c.chave) return [];
+    const r = await fetch(`${cfg.googleUrl}/v1/places:searchText`, {
+      method: 'POST', signal: sinal,
+      headers: { 'Content-Type': 'application/json', 'X-Goog-Api-Key': c.chave, 'X-Goog-FieldMask': 'places.displayName,places.location,places.primaryType,places.addressComponents' },
+      body: JSON.stringify({ textQuery: q, languageCode: 'pt-BR', regionCode: 'BR', maxResultCount: 10, locationBias: { circle: { center: { latitude: ref.lat, longitude: ref.lon }, radius: 30000 } } }),
+    });
+    if (!r.ok) throw new Error(`google ${r.status}`);
+    const j = await r.json();
+    return (j.places || []).filter((g) => g.location).map(lugarDoGoogle)
+      .filter((l) => l.lon >= CAIXA[0] && l.lon <= CAIXA[2] && l.lat >= CAIXA[1] && l.lat <= CAIXA[3]);
+  }
   async function photon(caminho, params, sinal) {
     const u = new URL(`${cfg.photon}/${caminho}`);
     Object.entries(params).forEach(([k, v]) => { if (v !== undefined && v !== '') u.searchParams.set(k, String(v)); });
@@ -439,11 +470,16 @@
     try {
       // pelo nome (sem número nem CEP): a mesma busca, mais uma só entre bares, restaurantes e afins, pesando mais a
       // distância que a fama do lugar; as duas juntas
-      const [geral, locais] = await Promise.all([
+      // e, com a chave do Google, a busca de lugares dele (a mesma base da Uber), que vem primeiro
+      const semFalha = (x) => { if (x.name === 'AbortError') throw x; return []; };
+      const [geral, locais, doGoogle] = await Promise.all([
         buscaPhoton(q, ref, sinal),
-        porNome ? buscaPhoton(q, ref, sinal, { osm_tag: 'amenity', limit: 12, location_bias_scale: 0.1 }).catch((x) => { if (x.name === 'AbortError') throw x; return []; }) : [],
+        porNome ? buscaPhoton(q, ref, sinal, { osm_tag: 'amenity', limit: 12, location_bias_scale: 0.1 }).catch(semFalha) : [],
+        porNome ? buscaGoogle(e.q || texto, ref, sinal).catch(semFalha) : [],
       ]);
-      lista = [...geral, ...locais].map(lugarDe);
+      const doOsm = [...geral, ...locais].map(lugarDe);
+      // o mesmo lugar nas duas bases: fica o do Google (com o endereço mais completo)
+      lista = [...doGoogle, ...doOsm.filter((l) => !doGoogle.some((g) => semAcento(g.nome) === semAcento(l.nome) && distancia(g, l) < 150))];
     } catch (x) { if (x.name === 'AbortError') throw x; falha = x; }
     // poucos resultados, nenhum com o número pedido, ou o Photon fora do ar: a outra busca do OpenStreetMap
     const temNumero = (l) => e.numero && String(parseInt(l.numero, 10)) === String(e.numero) && mesmaRua(l.ruaNome, ruaAlvo);
@@ -473,7 +509,7 @@
       if (base) lista = [{ ...base, detalhe: [base.bairro || doCep.bairro, `CEP ${textoCep(e.cep)}`].filter(Boolean).join(' · ') }, ...lista.filter((l) => l !== base)];
     }
     if (porNome) {
-      const nota = new Map(lista.map((l, i) => [l, relevancia(l, q, ref) - i * 0.001]));
+      const nota = new Map(lista.map((l, i) => [l, relevancia(l, q, ref) + (l.google ? 0.3 : 0) - i * 0.001]));
       lista = [...lista].sort((a, b) => nota.get(b) - nota.get(a));
     }
     const vistos = new Set();
@@ -621,6 +657,6 @@
 
   window.Drink.servicos = {
     cfg, BH, CAIXA, gps, distancia, textoKm, textoMin, preco, aproximar, naGrandeBH,
-    buscar, endereco, entender, rota, faltaNaLinha, pontosNaLinha, virgula, diaDoDrink, ganhosDoDia, prenderFoco,
+    buscar, endereco, entender, semAcento, rota, faltaNaLinha, pontosNaLinha, virgula, diaDoDrink, ganhosDoDia, prenderFoco,
   };
 }());
