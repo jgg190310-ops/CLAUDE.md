@@ -31,7 +31,7 @@
     // a chave da Places API (New), restrita ao site do Drink. Sem ela, só o OpenStreetMap
     google: null,
     // o e-mail da equipe do Drink que recebe os relatos de problema (sem ele, o relato vai pelo "compartilhar" do celular)
-    suporte: '',
+    suporte: 'drinksuportemdv@gmail.com',
     // a chave Pix do Drink, para quem dirige acertar a parte do Drink (25%) toda semana. Sem ela, a taxa fica anotada
     pixDrink: null,
     googleUrl: 'https://places.googleapis.com',
