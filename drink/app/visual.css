@@ -413,12 +413,12 @@ body { font-family: var(--f-texto); font-feature-settings: "cv11", "ss01"; lette
    ========================================================================================================== */
 
 /* ---------- abertura ---------- */
-.app .ab { background: #0A0B0F; }
-/* o fundo da marca: o mesmo degradê do ícone, do grafite ao verde do limão no canto de baixo (numa camada própria,
-   para sumir junto quando a marca voa até as boas-vindas) */
+.app .ab { background: #050505; }
+/* o fundo da marca: o preto do ícone, com um brilho leve de limão atrás da logo (numa camada própria, para sumir
+   junto quando a marca voa até as boas-vindas) */
 .ab-fundo {
   position: absolute; inset: 0; pointer-events: none;
-  background: radial-gradient(60% 42% at 50% 47%, rgba(210, 255, 60, .1), transparent 70%), linear-gradient(135deg, #0A0B0F 0%, #0A0B0F 25%, #121A0C 62%, #2E4A06 100%);
+  background: radial-gradient(55% 38% at 50% 47%, rgba(185, 238, 46, .08), transparent 70%), #050505;
 }
 .ab > :not(.ab-fundo) { position: relative; }
 .app .ab-sub { color: var(--a-texto-2); font-weight: 600; letter-spacing: .26em; }
