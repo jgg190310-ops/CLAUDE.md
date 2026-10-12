@@ -1536,6 +1536,71 @@
     }
 
     /* ---------- compartilhar ao vivo ---------- */
+    /* ---------- emergência: a mensagem de ajuda e os contatos de confiança ---------- */
+    // tudo o que quem vai ajudar precisa: onde estou, quem dirige, o carro, a placa, para onde vamos e o link ao vivo
+    function textoEmergencia() {
+      const c = corrida;
+      // onde ela está: o GPS dela; na viagem, o carro é o mesmo, então a posição do motorista também serve.
+      // Antes do embarque, c.pos é o motorista vindo, não ela (o embarque é a reserva)
+      const p = (c && c.aqui) || pos || (c && (c.etapa === 'viagem' ? c.pos : c.embarque)) || null;
+      if (!ponto(p)) return '';
+      const partes = ['Preciso de ajuda.'];
+      if (c && c.motorista && !c.simulada) {
+        const carro = c.carro && c.carro.modelo ? `${nomeCarro(c.carro)}${c.carro.placa ? `, placa ${CARROS.placa.formatar(CARROS.placa.limpar(c.carro.placa))}` : ''}` : '';
+        partes.push(`Estou voltando de Drink: o motorista é ${c.motorista.nome}${carro ? `, no ${c.peloBar ? 'carro' : 'meu carro'} ${carro}` : ''}${c.destino ? `, indo para ${juntar(c.destino)}` : ''}.`);
+      }
+      partes.push(`Onde estou agora: https://maps.google.com/?q=${p.lat.toFixed(6)},${p.lon.toFixed(6)}`);
+      if (c && c.rastreio && !c.simulada && ['a-caminho', 'chegou', 'preparo', 'viagem'].includes(c.etapa)) partes.push(`Acompanhe ao vivo: ${linkRastreio()}`);
+      return partes.join(' ');
+    }
+    function desenharAjuda() {
+      const u = eu() || {};
+      const contatos = u.contatos || [];
+      const texto = textoEmergencia();
+      q('#rp-ajuda-local-sub').textContent = corrida && corrida.motorista ? 'Com o motorista, o carro e a placa, para quem você escolher' : 'Para quem você escolher, pelo WhatsApp ou outro app';
+      // o SMS abre pronto no app de mensagens do celular (é só tocar em enviar)
+      q('#rp-ajuda-contatos').innerHTML = contatos.length
+        ? contatos.map((ct) => `<li><a href="sms:${esc(String(ct.cel).replace(/[^\d+]/g, ''))}?&body=${encodeURIComponent(texto || 'Preciso de ajuda.')}"><svg aria-hidden="true"><use href="#i-mensagem"/></svg><span><b>${esc(ct.nome)}</b><small>SMS pronto, com onde você está</small></span></a></li>`).join('')
+        : '<li class="rt-dica">Cadastre contatos de confiança no Perfil: aqui eles recebem o SMS de ajuda com um toque.</li>';
+    }
+
+    /* ---------- relatar um problema da volta ---------- */
+    let relatoMotivo = '';
+    function desenharRelato() {
+      $$('[data-relato]', raiz).forEach((b) => b.setAttribute('aria-checked', String(b.dataset.relato === relatoMotivo)));
+    }
+    function enviarRelato() {
+      const c = corrida;
+      if (!c) return;
+      const txt = q('#rp-relato-txt').value.replace(/\s+/g, ' ').trim().slice(0, 600);
+      const erro = q('#rp-relato-erro');
+      if (!relatoMotivo) { erro.textContent = 'Escolha o que aconteceu.'; erro.hidden = false; return; }
+      if (txt.length < 10) { erro.textContent = 'Conte um pouco mais do que houve (pelo menos uma frase).'; erro.hidden = false; q('#rp-relato-txt').focus(); return; }
+      c.relato = { motivo: relatoMotivo, txt, t: Date.now() };
+      salvarCorrida();
+      const quando = new Date(c.t0 || Date.now());
+      const corpo = [
+        `Relato de problema · ${relatoMotivo}`, '',
+        txt, '',
+        `Volta: ${quando.toLocaleDateString('pt-BR')} ${hhmm(quando)} · ${juntar(c.embarque)} → ${juntar(c.destino)}`,
+        c.motorista ? `Motorista: ${c.motorista.nome}` : '',
+        c.carro && c.carro.placa ? `Carro: ${nomeCarro(c.carro)} · ${CARROS.placa.formatar(CARROS.placa.limpar(c.carro.placa))}` : '',
+        `Código da volta: ${c.id}`,
+      ].filter((x) => x !== null).join('\n');
+      fecharFolha();
+      relatoMotivo = '';
+      q('#rp-relato-txt').value = '';
+      if (S.cfg.suporte) {
+        location.href = `mailto:${encodeURIComponent(S.cfg.suporte)}?subject=${encodeURIComponent(`Drink · ${c.relato.motivo}`)}&body=${encodeURIComponent(corpo)}`;
+        op.avisar('Relato guardado no recibo desta volta. O e-mail para a equipe do Drink já abriu pronto.');
+      } else if (navigator.share) {
+        navigator.share({ title: `Drink · ${c.relato.motivo}`, text: corpo }).catch(() => {});
+        op.avisar('Relato guardado no recibo desta volta.');
+      } else {
+        copiar(corpo, 'Relato guardado no recibo desta volta e copiado.');
+      }
+    }
+
     function linkRastreio() {
       const u = new URL(location.href);
       u.search = `?acompanhar=${corrida.id}`;
@@ -1618,6 +1683,7 @@
         + linha('Pedido por', v.peloBar ? `${v.peloBar.bar}, para ${v.peloBar.cliente}` : '')
         + linha('Saiu do bar', v.bar && !v.peloBar ? v.bar.nome : '')
         + linha('Benefício', v.bar && v.bar.beneficio ? `${v.bar.beneficio} · código ${v.bar.cupom}` : '')
+        + linha('Problema relatado', v.relato ? `${v.relato.motivo}${v.relato.txt ? `: ${v.relato.txt}` : ''}` : '')
         + linha('Pagamento', v.evento ? (v.total > 0 ? `${v.evento.nome} e Pix direto para o motorista` : `Por conta de ${v.evento.nome}`) : `${v.pag || 'Pix'} direto para o motorista`);
     }
     // o trajeto da volta, desenhado da linha guardada (sem mapa de fundo: só a forma do caminho, a saída e a chegada)
@@ -1729,11 +1795,15 @@
         tags.innerHTML = TAGS[tipo].map((t) => `<button type="button" data-tag="${esc(t)}" aria-pressed="${c.tags.includes(t)}">${esc(t)}</button>`).join('');
       }
       q('#rp-pagar').textContent = corrida.peloBar ? 'Concluir' : (totalAtual() > 0 ? `Pagar ${brl(totalAtual())} com Pix` : 'Concluir a volta');
+      q('#rp-comentario-campo').hidden = !c.nota;
+      if (document.activeElement !== q('#rp-comentario')) q('#rp-comentario').value = c.comentario || '';
     }
     function irPagar() {
       const c = corrida;
       c.etapa = 'pagando';
-      enviar({ tipo: 'avaliacao', nota: c.nota, tags: c.tags, gorjeta: c.gorjeta, total: totalAtual() });
+      // o comentário vai para o motorista com a nota (texto curto, sem quebra de linha)
+      c.comentario = c.nota ? q('#rp-comentario').value.replace(/\s+/g, ' ').trim().slice(0, 240) : '';
+      enviar({ tipo: 'avaliacao', nota: c.nota, tags: c.tags, gorjeta: c.gorjeta, total: totalAtual(), comentario: c.comentario || undefined });
       salvarCorrida();
       // pedido pelo bar: o cliente paga direto para o motorista, pelo QR no celular dele
       if (c.peloBar) { concluir(); return; }
@@ -1840,7 +1910,7 @@
         pag: parteEvento(c) ? (totalAtual() > 0 ? 'Evento + Pix' : 'Evento') : 'Pix',
         saida: c.saida, rodado: c.rodado, adicional: c.adicional, espera: c.espera || 0, gorjeta: c.gorjeta, total: totalAtual(),
         evento: reciboEvento(c) || undefined,
-        nota: c.nota, destino: { nome: c.destino.nome, bairro: c.destino.bairro, detalhe: c.destino.detalhe, lat: c.destino.lat, lon: c.destino.lon },
+        nota: c.nota, comentario: c.comentario || undefined, relato: c.relato || undefined, destino: { nome: c.destino.nome, bairro: c.destino.bairro, detalhe: c.destino.detalhe, lat: c.destino.lat, lon: c.destino.lon },
         embarque: { nome: c.embarque.nome, bairro: c.embarque.bairro, lat: c.embarque.lat, lon: c.embarque.lon }, inicio: c.inicioViagem ? new Date(c.inicioViagem).toISOString() : null,
         // o desenho do trajeto (no máximo uns 80 pontos) e os horários, para o recibo
         linha: trajetoCurto(c.linha),
@@ -2122,6 +2192,8 @@
       if (id === 'rp-preco') desenharPreco();
       if (id === 'rp-mot') desenharPerfilMotorista();
       if (id === 'rp-agendar') AG.desenharAgendar({ embarque, destino, rota, veic });
+      if (id === 'rp-ajuda') desenharAjuda();
+      if (id === 'rp-relato') desenharRelato();
       if (id === 'rp-agenda') AG.desenharFolha();
       if (id === 'rp-pend') AG.desenharPendencia();
       if (id === 'rp-contato') { q('#rp-contato-nome').value = ''; q('#rp-contato-cel').value = ''; q('#rp-contato-erro').hidden = true; }
@@ -2165,6 +2237,7 @@
         return;
       }
       if (ds.gorjeta) { corrida.gorjeta = Number(ds.gorjeta); desenharAvaliacao(); salvarCorrida(); return; }
+      if (ds.relato) { relatoMotivo = ds.relato; desenharRelato(); q('#rp-relato-erro').hidden = true; return; }
       if (ds.cambio) { $$('#rp-carro [data-cambio]', raiz).forEach((x) => x.setAttribute('aria-checked', String(x === b))); return; }
       if (ds.cor) { $$('#rp-carro [data-cor]', raiz).forEach((x) => x.setAttribute('aria-checked', String(x === b))); q('#rp-carro-erro').hidden = true; return; }
       if (ds.carroSug !== undefined) {
@@ -2289,12 +2362,12 @@
           ir('opcoes');
         },
         'mandar-local': () => {
-          const p = (corrida && (corrida.aqui || corrida.pos)) || pos;
-          if (!p) { op.avisar('Ainda não achei você no mapa.'); return; }
-          const texto = `Estou aqui: https://maps.google.com/?q=${p.lat.toFixed(6)},${p.lon.toFixed(6)}`;
+          const texto = textoEmergencia();
+          if (!texto) { op.avisar('Ainda não achei você no mapa.'); return; }
           if (navigator.share) navigator.share({ text: texto }).catch(() => {});
-          else copiar(texto, 'Localização copiada.');
+          else copiar(texto, 'Mensagem de ajuda copiada. Cola no WhatsApp de quem vai te ajudar.');
         },
+        relatar: () => enviarRelato(),
         'copiar-pix': () => { if (corrida && corrida.pixCodigo) copiar(corrida.pixCodigo, 'Código Pix copiado. Agora cola no app do seu banco.'); },
         paguei,
         'sair-evento': sairDoConvite,
@@ -2323,6 +2396,8 @@
       }
     });
     q('#rp-busca').addEventListener('input', buscarAgora);
+    // o comentário fica na volta enquanto ela escolhe gorjeta e etiquetas (a tela se redesenha a cada toque)
+    q('#rp-comentario').addEventListener('input', (e) => { if (corrida) corrida.comentario = e.target.value.slice(0, 240); });
     q('#rp-busca').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); clearTimeout(buscaTimer); buscarAgora(); } });
     q('#rp-chat-form').addEventListener('submit', (e) => {
       e.preventDefault();
