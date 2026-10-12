@@ -125,6 +125,20 @@
       db.close();
     }
   }
+  // lê um arquivo guardado (a foto da CNH, a certidão) de volta como Blob, para mandar à equipe do Drink
+  async function lerArquivo(chave) {
+    const db = await base();
+    try {
+      const reg = await new Promise((ok, falha) => {
+        const r = db.transaction('arquivos', 'readonly').objectStore('arquivos').get(chave);
+        r.onsuccess = () => ok(r.result || null);
+        r.onerror = () => falha(r.error);
+      });
+      return reg ? new Blob([reg.dados], { type: reg.tipo || '' }) : null;
+    } finally {
+      db.close();
+    }
+  }
   // apagar a conta: a foto da CNH e a certidão saem do aparelho junto
   async function apagarArquivos(celular) {
     const db = await base();
@@ -408,7 +422,7 @@
       else if (nome === 'treino') abrirTreino(origem);
     }
 
-    return { desenhar, completo, faltando, situacao, abrirDoc, apagarArquivos };
+    return { desenhar, completo, faltando, situacao, abrirDoc, apagarArquivos, lerArquivo };
   }
 
   window.Drink.cadastroMotorista = { criar, cpfValido, cnhValida };

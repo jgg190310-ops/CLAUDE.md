@@ -73,17 +73,17 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&display=swap">
-  <link rel="stylesheet" href="../app-telas.css?v=58">
-  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=58">
-  <link rel="stylesheet" href="vendor/leaflet.css?v=58">
-  <link rel="stylesheet" href="app.css?v=58">
-  <link rel="stylesheet" href="visual.css?v=58">
-  <link rel="stylesheet" href="tema.css?v=58">
-  <link rel="stylesheet" href="ritmo.css?v=58">
-  <link rel="stylesheet" href="perfil.css?v=58">
-  <link rel="stylesheet" href="jornada.css?v=58">
-  <link rel="stylesheet" href="agenda.css?v=58">
-  <link rel="stylesheet" href="bares.css?v=58">
+  <link rel="stylesheet" href="../app-telas.css?v=59">
+  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=59">
+  <link rel="stylesheet" href="vendor/leaflet.css?v=59">
+  <link rel="stylesheet" href="app.css?v=59">
+  <link rel="stylesheet" href="visual.css?v=59">
+  <link rel="stylesheet" href="tema.css?v=59">
+  <link rel="stylesheet" href="ritmo.css?v=59">
+  <link rel="stylesheet" href="perfil.css?v=59">
+  <link rel="stylesheet" href="jornada.css?v=59">
+  <link rel="stylesheet" href="agenda.css?v=59">
+  <link rel="stylesheet" href="bares.css?v=59">
 </head>
 <body>
 <svg class="sprite" aria-hidden="true" focusable="false">
@@ -1372,6 +1372,10 @@
                 <h3 class="d-titulo" id="rm-off-t" tabindex="-1">Você está offline</h3>
               </div>
             </div>
+            <div class="rm-verif" id="rm-verif" role="status" hidden>
+              <p><b id="rm-verif-t">Documentos em análise</b><small id="rm-verif-sub"></small></p>
+              <button type="button" class="t-bt" id="rm-verif-bt" data-rm="cadastro" hidden>Corrigir e enviar de novo</button>
+            </div>
             <small class="rm-off-sub" id="rm-off-sub">Fica online pra receber pedidos de verdade perto de você. Deixa o app aberto e a tela ligada.</small>
             <ul class="rm-pronto" id="rm-pronto" data-treino="nao" aria-label="Antes de ficar online">
               <li data-pronto="gps"><svg aria-hidden="true"><use href="#i-mira"/></svg><span>GPS</span><b id="rm-pronto-gps">…</b></li>
@@ -1734,7 +1738,7 @@
         </div>
         <div class="en-termos-txt" id="en-termos-privacidade" role="tabpanel" aria-labelledby="en-termos-aba-privacidade" hidden>
           <h5>Seus dados ficam no seu celular</h5>
-          <p>O Drink não tem um servidor que guarda o seu cadastro. Nome, celular, carro e placa, lugares salvos, contatos de confiança e o histórico de voltas ficam só neste aparelho. Para quem dirige, também CPF, CNH, foto da CNH, certidão, selfie, fotos da vistoria e ganhos.</p>
+          <p>O cadastro de passageiro não fica num servidor do Drink. Nome, celular, carro e placa, lugares salvos, contatos de confiança e o histórico de voltas ficam só neste aparelho. Para quem dirige, também CPF, CNH, foto da CNH, certidão, selfie, fotos da vistoria e ganhos.</p>
           <h5>O que sai do celular, e para onde</h5>
           <ul>
             <li><b>O pedido</b> vai para os motoristas online sem o endereço exato: o bairro e um ponto aproximado do embarque (uns 500 m), o bairro do destino, a distância, o valor, o câmbio do carro e a sua nota.</li>
@@ -1748,7 +1752,7 @@
             <li><b>O código por SMS</b>, quando está ligado, manda o seu número ao Firebase (Google) só para enviar a mensagem.</li>
           </ul>
           <h5>Documentos de quem dirige</h5>
-          <p>O app confere o formato do CPF e da CNH, a idade, a categoria, a validade e o tempo de habilitação. Os documentos e a certidão não saem do celular do motorista. O passageiro recebe só o nome, o rosto e a nota.</p>
+          <p>O app confere o formato do CPF e da CNH, a idade, a categoria, a validade e o tempo de habilitação. Quando a verificação pela equipe está ligada, ao tocar em Começar a dirigir a selfie, a foto da CNH, a certidão e os dados do cadastro vão, por conexão segura, para o servidor do Drink (Supabase), num arquivo fechado que só a equipe de verificação abre. A equipe confere e aprova ou recusa com o motivo. O passageiro recebe só o nome, o rosto e a nota.</p>
           <h5>Seus direitos</h5>
           <p>Você vê e corrige os seus dados no próprio app. Em "Apagar minha conta", o app apaga a conta e tudo o que ela guardou neste aparelho. O que passou pelo ntfy estava cifrado e some sozinho em poucas horas.</p>
         </div>
@@ -1916,26 +1920,28 @@
   <p class="vira-txt" id="vira-txt">O Drink é feito para usar na vertical. Nada se perde: se tiver corrida, ela continua rolando.</p>
 </div>
 
-<script src="vendor/maplibre-gl.js?v=58"></script>
-<script src="vendor/leaflet.js?v=58"></script>
-<script src="vendor/qrcode.js?v=58"></script>
-<script src="../app-nucleo.js?v=58"></script>
-<script src="servicos.js?v=58"></script>
-<script src="rede.js?v=58"></script>
-<script src="mapa-estilo.js?v=58"></script>
-<script src="mapa.js?v=58"></script>
-<script src="carros.js?v=58"></script>
-<script src="cadastro-motorista.js?v=58"></script>
-<script src="perfil.js?v=58"></script>
-<script src="pix.js?v=58"></script>
-<script src="avisos.js?v=58"></script>
-<script src="sms.js?v=58"></script>
-<script src="eventos.js?v=58"></script>
-<script src="agenda.js?v=58"></script>
-<script src="leitor.js?v=58"></script>
-<script src="bares.js?v=58"></script>
-<script src="passageiro.js?v=58"></script>
-<script src="motorista.js?v=58"></script>
-<script src="app.js?v=58"></script>
+<script src="vendor/maplibre-gl.js?v=59"></script>
+<script src="vendor/leaflet.js?v=59"></script>
+<script src="vendor/qrcode.js?v=59"></script>
+<script src="../app-nucleo.js?v=59"></script>
+<script src="config-servidor.js?v=59"></script>
+<script src="servicos.js?v=59"></script>
+<script src="rede.js?v=59"></script>
+<script src="mapa-estilo.js?v=59"></script>
+<script src="mapa.js?v=59"></script>
+<script src="carros.js?v=59"></script>
+<script src="cadastro-motorista.js?v=59"></script>
+<script src="servidor.js?v=59"></script>
+<script src="perfil.js?v=59"></script>
+<script src="pix.js?v=59"></script>
+<script src="avisos.js?v=59"></script>
+<script src="sms.js?v=59"></script>
+<script src="eventos.js?v=59"></script>
+<script src="agenda.js?v=59"></script>
+<script src="leitor.js?v=59"></script>
+<script src="bares.js?v=59"></script>
+<script src="passageiro.js?v=59"></script>
+<script src="motorista.js?v=59"></script>
+<script src="app.js?v=59"></script>
 </body>
 </html>

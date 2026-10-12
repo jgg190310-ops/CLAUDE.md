@@ -274,6 +274,8 @@
         if (p) { mapa.ponto('eu', p, Mapa.ICONE.motorista(eu().veiculo)); mapa.centrar(p, 15); } else mapa.centrar(S.BH, 14);
         ouvirBares();
         desenharBares();
+        desenharVerificacao();
+        conferirVerificacao();
       },
       agendadas() {
         AGM.desenhar();
@@ -344,11 +346,66 @@
     }
     const notaTxt = (u) => (nota(u) ? `nota ${S.virgula(nota(u))}` : 'novo no Drink');
 
+    /* ---------- a análise do cadastro pela equipe do Drink (só com o servidor ligado) ---------- */
+    const SV = window.Drink.servidor;
+    const precisaAnalise = () => Boolean(SV && SV.ligado() && !treino);
+    function desenharVerificacao() {
+      const box = q('#rm-verif');
+      if (!box) return;
+      const u = eu();
+      const v = u && u.verificacao;
+      box.hidden = !precisaAnalise() || Boolean(v && v.estado === 'aprovado');
+      if (box.hidden) return;
+      const recusado = Boolean(v && v.estado === 'recusado');
+      box.classList.toggle('recusado', recusado);
+      q('#rm-verif-t').textContent = !v ? 'Falta enviar os documentos' : (recusado ? 'Cadastro recusado' : 'Documentos em análise');
+      q('#rm-verif-sub').textContent = !v ? 'Antes de ficar online, a equipe do Drink confere a sua CNH, a certidão e a selfie.'
+        : (recusado ? `${v.motivo || 'A equipe não aprovou o cadastro.'} Corrija e envie de novo.` : 'A equipe do Drink está conferindo a sua CNH, a certidão e a selfie. Você recebe um aviso quando for aprovado.');
+      const bt = q('#rm-verif-bt');
+      bt.hidden = Boolean(v && v.estado === 'em_analise');
+      bt.textContent = !v ? 'Enviar os documentos' : 'Corrigir e enviar de novo';
+    }
+    let conferindo = false;
+    async function conferirVerificacao() {
+      const u = eu();
+      const v = u && u.verificacao;
+      if (!precisaAnalise() || !v || v.estado !== 'em_analise' || conferindo) return;
+      conferindo = true;
+      try {
+        const st = await SV.status(v);
+        if (st && st.estado && st.estado !== v.estado) {
+          v.estado = st.estado;
+          v.motivo = st.motivo || '';
+          v.revisado = Date.now();
+          op.salvar();
+          if (st.estado === 'aprovado') {
+            notificar('Cadastro aprovado no Drink', 'Pode ficar online e receber pedidos.', 'drink-verif');
+            op.avisar('Cadastro aprovado! Pode ficar online quando quiser.');
+          } else if (st.estado === 'recusado') {
+            notificar('Cadastro do Drink', `Precisa corrigir: ${st.motivo || 'veja no app'}`, 'drink-verif');
+          }
+        }
+      } catch (e) { /* sem conexão: confere de novo daqui a pouco */ } finally {
+        conferindo = false;
+        desenharVerificacao();
+      }
+    }
+    setInterval(() => { if (atual === 'off') conferirVerificacao(); }, 60000);
+
     /* ---------- ficar online ---------- */
     async function ficarOnline() {
       const u = eu();
       q('#rm-alerta').hidden = true;
       if (treino) { op.irCadastro(); return; }
+      // com o servidor ligado, só fica online quem a equipe do Drink aprovou
+      if (precisaAnalise() && !(u.verificacao && u.verificacao.estado === 'aprovado')) {
+        desenharVerificacao();
+        const v = u.verificacao;
+        alerta(!v ? 'Antes de ficar online, mande os seus documentos para a equipe do Drink conferir.'
+          : (v.estado === 'recusado' ? 'O seu cadastro foi recusado. Corrija o que a equipe pediu e envie de novo.' : 'O seu cadastro ainda está em análise. Você recebe um aviso quando for aprovado.'));
+        conferirVerificacao();
+        return;
+      }
       if (!u.pix || !u.pix.chave) { op.editarPix('Antes de ficar online, cadastra a chave Pix onde você recebe.'); return; }
       op.pedirNotificacao();
       if (!R.cifraPronta) { alerta('Esse navegador não tem a proteção que o Drink usa. Usa o Chrome ou o Safari atualizados.'); return; }

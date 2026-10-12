@@ -34,6 +34,8 @@
     suporte: 'drinksuportemdv@gmail.com',
     // a chave Pix do Drink, para quem dirige acertar a parte do Drink (25%) toda semana. Sem ela, a taxa fica anotada
     pixDrink: null,
+    // o servidor (Supabase) para a verificação dos motoristas e os relatos: { url, chave }. Vem de config-servidor.js
+    supabase: null,
     googleUrl: 'https://places.googleapis.com',
   };
   try { Object.assign(cfg, JSON.parse(localStorage.getItem('drink-servicos') || '{}')); } catch (e) { /* sem ajuste */ }
