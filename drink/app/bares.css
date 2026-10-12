@@ -216,3 +216,12 @@ html[data-tema="claro"] .app .bs-sit.aberto, html[data-tema="claro"] .app .bv-ac
 html[data-tema="claro"] .app .bs-sem-foto { background: linear-gradient(140deg, rgba(61, 102, 0, .16), rgba(61, 102, 0, .03)), var(--a-card-2); }
 .app .bq-voltar { display: none; justify-self: center; margin-top: var(--e2); padding: 0 1.4em; }
 .app .bq.sem-camera .bq-voltar { display: inline-flex; }
+
+/* v46: o selo do bar parceiro na busca — o meio limão do Drink do lado direito, antes da distância */
+.app .d-lista .rp-selo {
+  display: grid; place-items: center; width: 1.9em; height: 1.9em; border-radius: 50%;
+  background: rgba(210, 255, 60, .1); box-shadow: inset 0 0 0 1px rgba(210, 255, 60, .35); font-style: normal;
+}
+.app .d-lista button.rp-parceiro { grid-template-columns: auto minmax(0, 1fr) auto auto; }
+.app .d-lista .rp-selo svg { width: 1.3em; height: 1.3em; padding: 0; background: none; border-radius: 0; stroke: none; }
+html[data-tema="claro"] .app .d-lista .rp-selo { background: rgba(61, 102, 0, .08); box-shadow: inset 0 0 0 1px rgba(61, 102, 0, .3); }
