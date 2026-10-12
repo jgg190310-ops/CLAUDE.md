@@ -93,6 +93,11 @@
     window.Drink.rede.fila.mandar(topico, { v: 1, tipo }, { validade: 5 * 60000 });
   }
 
+  // o "ao vivo" da corrida (quanto falta): direto, sem a fila; se não sair, o próximo substitui
+  function aoVivo(topico, dados) {
+    window.Drink.rede.canal.publicar(topico, { v: 1, tipo: 'ao-vivo', ...dados }).catch(() => {});
+  }
+
   // o código do cadastro, mandado como notificação para este aparelho (enquanto o SMS não está ligado)
   const topicoCodigo = () => `drk-cod-${dados.aparelho}`;
   async function codigo(numero) {
@@ -103,5 +108,5 @@
     return true;
   }
 
-  window.Drink.avisos = { estado, pedir, definir, sincronizar, mandar, instalado, ehIOS, codigo, topicoCodigo };
+  window.Drink.avisos = { estado, pedir, definir, sincronizar, mandar, aoVivo, instalado, ehIOS, codigo, topicoCodigo };
 }());

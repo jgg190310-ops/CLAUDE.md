@@ -121,6 +121,7 @@
         assinarRegioes();
         if (corrida && corrida.etapa === 'buscar') { enviarPosicao(); avisarSePerto(); } else if (corrida && corrida.etapa === 'viagem' && corrida.peloBar) enviarPosicao();
         if (corrida && corrida.etapa === 'viagem') atualizarViagem();
+        avisarAoVivo();
       });
     }
     // online com o GPS bloqueado, sem sinal ou fraco: o motorista fica sabendo (os pedidos dependem de onde ele está)
@@ -665,6 +666,7 @@
           ir('buscar');
           avisarSePerto();
           enviarPosicao(true);
+          avisarAoVivo(true);
           clearInterval(posTimer);
           posTimer = setInterval(() => enviarPosicao(true), 45000);
           break;
@@ -738,6 +740,7 @@
       ir('buscar');
       avisarSePerto();
       enviarPosicao(true);
+      avisarAoVivo(true);
       clearInterval(posTimer);
       posTimer = setInterval(() => enviarPosicao(true), 45000);
     }
@@ -788,6 +791,29 @@
       enviar({ tipo: 'perto' });
       avisarPassageiro('perto');
       salvarCorrida();
+    }
+    // o "ao vivo" na tela de bloqueio do passageiro: um aviso só, que vai se atualizando (quantos minutos faltam e a
+    // barra do caminho), como o placar de um jogo. Vai direto, sem a fila: um que se perde, o próximo cobre. Só números:
+    // nada de nome, endereço ou placa (o aviso passa pelo servidor do ntfy sem cifra)
+    const VEL_AO_VIVO = { indo: 200, viagem: 330 }; // metros por minuto em linha reta (bike / carro na cidade, de noite)
+    let aoVivoUltimo = null;
+    function avisarAoVivo(forcar) {
+      const c = corrida;
+      if (!c || c.simulada || !pos) return;
+      const etapa = c.etapa === 'buscar' ? 'indo' : (c.etapa === 'viagem' ? 'viagem' : '');
+      const alvo = etapa === 'indo' ? c.embarque : (etapa === 'viagem' ? c.destino : null);
+      if (!etapa || !alvo || !Number.isFinite(alvo.lat)) return;
+      const m = S.distancia(pos, alvo);
+      c.aoVivoInicio = c.aoVivoInicio || {};
+      if (!c.aoVivoInicio[etapa]) c.aoVivoInicio[etapa] = Math.max(m, 1);
+      const min = Math.max(1, Math.round(m / VEL_AO_VIVO[etapa]));
+      const pct = Math.max(0, Math.min(100, Math.round((1 - m / c.aoVivoInicio[etapa]) * 100)));
+      const agora = Date.now();
+      const u = aoVivoUltimo;
+      // de minuto em minuto (ou quando muda a etapa): o limite de envios do ntfy agradece
+      if (!forcar && u && u.id === c.id && u.etapa === etapa && (u.min === min || agora - u.t < 40000)) return;
+      aoVivoUltimo = { id: c.id, etapa, min, t: agora };
+      avisos().aoVivo(R.topico.aviso(c.id, 'p'), { etapa, min, km: Math.round(m / 100) / 10, pct, hora: hhmm(new Date(agora + min * 60000)) });
     }
     function encerrar() {
       // só uma corrida de verdade volta a assinar os avisos de pedidos
@@ -987,6 +1013,7 @@
       corrida.etapa = 'viagem';
       enviar({ tipo: 'etapa', etapa: 'malas' });
       enviar({ tipo: 'etapa', etapa: 'viagem' });
+      avisarAoVivo(true);
       clearInterval(posTimer);
       if (corrida.peloBar) { enviarPosicao(true); posTimer = setInterval(() => enviarPosicao(true), 45000); }
       salvarCorrida();
