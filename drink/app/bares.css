@@ -225,3 +225,80 @@ html[data-tema="claro"] .app .bs-sem-foto { background: linear-gradient(140deg, 
 .app .d-lista button.rp-parceiro { grid-template-columns: auto minmax(0, 1fr) auto auto; }
 .app .d-lista .rp-selo svg { width: 1.3em; height: 1.3em; padding: 0; background: none; border-radius: 0; stroke: none; }
 html[data-tema="claro"] .app .d-lista .rp-selo { background: rgba(61, 102, 0, .08); box-shadow: inset 0 0 0 1px rgba(61, 102, 0, .3); }
+
+/* ---------- v51: o benefício do jeito do bar ---------- */
+.app :is(#rp-barn-onde-t, #rp-barn-onde, #rp-barn-foto)[hidden] { display: none !important; }
+.app .bar-ben {
+  display: grid; gap: var(--e3); padding: var(--e4); border-radius: var(--r-g);
+  background: linear-gradient(150deg, rgba(210, 255, 60, .09), rgba(210, 255, 60, .02) 55%), var(--a-card);
+  box-shadow: inset 0 0 0 1px rgba(210, 255, 60, .22);
+}
+.app .bar-ben-cab { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: var(--e3); margin: 0; }
+.app .bar-ben-cab > span:last-child { display: grid; gap: .15em; }
+.app .bar-ben-cab b { font-size: max(15px, .98em); font-weight: 700; }
+.app .bar-ben-cab small { font-size: max(12.5px, .8em); line-height: 1.35; color: var(--a-texto-2); }
+.app .bar-ben-ic { display: grid; place-items: center; width: 2.5em; height: 2.5em; border-radius: 50%; background: rgba(210, 255, 60, .16); }
+.app .bar-ben-ic svg { width: 1.3em; height: 1.3em; fill: none; stroke: var(--lima-tx); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.app .bar-ben .rt-rot { margin: 0; }
+.app .bar-sug button { min-height: 36px; text-align: left; line-height: 1.25; }
+.app .bar-sug button[aria-pressed="true"] { border-color: var(--lima-tx); background: var(--lima); color: var(--tinta); }
+.app .bar-ben-previa {
+  margin: 0; padding: var(--e3); border-radius: var(--r-m); background: rgba(0, 0, 0, .22);
+  font-size: max(13px, .84em); line-height: 1.45; color: var(--luz-2);
+}
+.app .bar-ben-previa b { color: var(--lima-tx); font-weight: 700; }
+.app .bar-ben-previa span { color: var(--a-texto-2); }
+/* na página do dono */
+.app .bar-ben-cartao {
+  display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: var(--e3); padding: var(--e4); border-radius: var(--r-g);
+  background: linear-gradient(150deg, rgba(210, 255, 60, .12), rgba(210, 255, 60, .02) 60%), var(--a-card); box-shadow: inset 0 0 0 1px rgba(210, 255, 60, .3);
+}
+.app .bar-ben-cartao p { display: grid; gap: .2em; margin: 0; }
+.app .bar-ben-cartao b { font-size: max(16px, 1.04em); font-weight: 720; line-height: 1.25; }
+.app .bar-ben-cartao small { font-size: max(12.5px, .8em); line-height: 1.4; color: var(--a-texto-2); }
+.app .t-bt.bar-editar { display: flex; align-items: center; justify-content: center; gap: .5em; }
+.app .t-bt.bar-editar svg { width: 1.15em; height: 1.15em; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+html[data-tema="claro"] .app :is(.bar-ben, .bar-ben-cartao) { background: linear-gradient(150deg, rgba(61, 102, 0, .08), rgba(61, 102, 0, .01) 55%), var(--a-card); box-shadow: inset 0 0 0 1px rgba(61, 102, 0, .28); }
+html[data-tema="claro"] .app .bar-ben-ic { background: rgba(61, 102, 0, .1); }
+html[data-tema="claro"] .app .bar-ben-previa { background: rgba(14, 13, 18, .05); color: rgba(14, 13, 18, .82); }
+
+/* ---------- v51: a aba Bares mais completa ---------- */
+.app .bs-filtros { margin-top: var(--e3); }
+.app .bs-filtros button { min-height: 36px; }
+.app .bs-linha { display: flex; flex-wrap: wrap; align-items: center; gap: .35em .5em; }
+.app .bs-voltas { font-style: normal; font-size: max(12px, .76em); font-weight: 650; color: var(--a-texto-2); }
+.app .bs-voltas::before { content: "•"; margin-right: .45em; color: var(--a-texto-3); }
+.app .bs-ben { display: flex; align-items: flex-start; gap: .35em; margin-top: .1em; font-size: max(12.5px, .8em); font-weight: 600; line-height: 1.3; color: var(--lima-tx); }
+.app .bs-ben > svg { flex: none; width: 1.15em; height: 1.15em; margin-top: .05em; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.app .bs-ben > span { display: -webkit-box; overflow: hidden; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.app button.bs-cartao { align-items: start; }
+.app button.bs-cartao .bs-foto { align-self: center; }
+
+/* a página de um bar */
+.app .bv-selo { display: flex; flex-wrap: wrap; align-items: center; gap: .5em; }
+.app .bv-parceiro { display: inline-flex; align-items: center; gap: .35em; font-size: max(12.5px, .8em); font-weight: 650; color: var(--a-texto-2); }
+.app .bv-parceiro svg { width: 1.35em; height: 1.35em; }
+.app .bv-dados {
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 0; padding: 0; list-style: none;
+  border-radius: var(--r-g); background: var(--a-card); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .05);
+}
+.app .bv-dados li { display: grid; gap: .15em; padding: var(--e3) var(--e2); text-align: center; }
+.app .bv-dados li + li { border-left: 1px solid rgba(255, 255, 255, .06); }
+.app .bv-dados b { font-size: 1.3em; font-weight: 720; font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
+.app .bv-dados small { font-size: max(12px, .74em); color: var(--a-texto-2); }
+.app .bv-ben p small:first-child { font-size: max(12px, .74em); font-weight: 650; letter-spacing: .02em; color: var(--lima-tx); }
+.app .bv-ben.sem { background: var(--a-card); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .06); }
+.app .bv-ben.sem b { color: var(--a-texto-2); font-weight: 650; }
+.app .bv-como-t { margin: var(--e3) 0 0; }
+.app .bv-passos { display: grid; gap: var(--e3); margin: 0; padding: 0; list-style: none; counter-reset: passo; }
+.app .bv-passos li { display: grid; grid-template-columns: 2em minmax(0, 1fr); column-gap: var(--e3); counter-increment: passo; }
+.app .bv-passos li::before {
+  content: counter(passo); grid-row: span 2; display: grid; place-items: center; width: 2em; height: 2em; border-radius: 50%;
+  background: rgba(210, 255, 60, .14); color: var(--lima-tx); font-weight: 800; font-size: .9em;
+}
+.app .bv-passos b { font-size: max(14.5px, .94em); font-weight: 680; }
+.app .bv-passos small { font-size: max(12.5px, .8em); line-height: 1.4; color: var(--a-texto-2); }
+html[data-tema="claro"] .app .bv-dados { box-shadow: inset 0 0 0 1px var(--a-linha); }
+html[data-tema="claro"] .app .bv-dados li + li { border-left-color: var(--a-linha); }
+html[data-tema="claro"] .app .bv-passos li::before { background: rgba(61, 102, 0, .1); }
+html[data-tema="claro"] .app .bv-ben.sem { box-shadow: inset 0 0 0 1px var(--a-linha); }
