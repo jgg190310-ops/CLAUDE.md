@@ -616,7 +616,7 @@
     // o e-mail do código já fica para os recibos
     if (fluxo.email && !$('#en-email').value) $('#en-email').value = fluxo.email;
     $('#nome-sub').textContent = fluxo.modo === 'entrar'
-      ? 'Não achamos conta com esse número neste aparelho. Bora criar uma, é rapidinho.'
+      ? 'Não achamos conta com esse número neste aparelho. Se ela foi criada numa aba privada (anônima), sumiu quando a aba fechou. Bora criar uma, é rapidinho.'
       : 'É assim que o motorista vai te chamar na porta do bar.';
     $('#en-nome-erro').hidden = true;
     irEn('nome');
@@ -1175,6 +1175,32 @@
     salvar();
     voltarParaBoas('Conta apagada. Nada dela ficou neste aparelho.');
   }
+
+  /* ---------- o navegador está guardando a conta? (v69) ---------- */
+  // A conta mora no aparelho. Numa aba privada (anônima), ou com os cookies bloqueados, o navegador não guarda nada ou
+  // apaga tudo ao fechar: a conta "some" ao reiniciar o navegador. O app avisa nas boas-vindas e no cadastro.
+  let guardaTxt = '';
+  async function conferirGuarda() {
+    let motivo = '';
+    try {
+      localStorage.setItem('drink-teste-guarda', '1');
+      if (localStorage.getItem('drink-teste-guarda') !== '1') motivo = 'bloqueado';
+      localStorage.removeItem('drink-teste-guarda');
+    } catch (e) { motivo = 'bloqueado'; }
+    if (!motivo && navigator.cookieEnabled === false) motivo = 'bloqueado';
+    // aba privada do Safari: a pasta de arquivos do site não abre ("unknown transient reason")
+    if (!motivo && navigator.storage && navigator.storage.getDirectory && /Safari/.test(navigator.userAgent) && !/Chrome|CriOS|Android/.test(navigator.userAgent)) {
+      try { await navigator.storage.getDirectory(); } catch (e) { if (/unknown transient reason/i.test(String(e && e.message))) motivo = 'privado'; }
+    }
+    guardaTxt = {
+      bloqueado: 'Este navegador está bloqueando o que o Drink guarda (cookies bloqueados ou aba privada). A conta some quando ele fechar. Abre o Drink numa aba normal ou instala o app na tela de início.',
+      privado: 'Parece uma aba privada: o navegador apaga a conta quando ela fechar. Abre o Drink numa aba normal ou instala o app na tela de início.',
+    }[motivo] || '';
+    $$('[data-guarda-aviso]').forEach((p) => { p.hidden = !guardaTxt; });
+    $$('[data-guarda-txt]').forEach((s) => { s.textContent = guardaTxt; });
+    return motivo;
+  }
+  conferirGuarda();
 
   /* ---------- levar a conta para outro aparelho (v68) ---------- */
   // A conta mora no aparelho. No iPhone, o Safari e o app instalado na tela de início guardam tudo separado, e remover o
