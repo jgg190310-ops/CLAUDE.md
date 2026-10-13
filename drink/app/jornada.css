@@ -87,6 +87,21 @@
 /* ---------- perfil: os números ---------- */
 .app .rt-cheia > .rp-pe-numeros { margin-top: var(--e3); }
 
+/* ---------- a caminho: a dica de instalar no iPhone (v67) ---------- */
+.app button.rp-dica-inst {
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: var(--e3); width: 100%;
+  padding: var(--e2) var(--e3); border: 0; border-radius: var(--r-m); background: rgba(210, 255, 60, .08);
+  box-shadow: inset 0 0 0 1px rgba(210, 255, 60, .25); color: inherit; font: inherit; text-align: left; cursor: pointer;
+}
+.app button.rp-dica-inst[hidden] { display: none; }
+.app .rp-dica-inst-ic { display: grid; place-items: center; width: 2.3em; height: 2.3em; border-radius: 50%; background: rgba(210, 255, 60, .14); color: var(--lima-tx); }
+.app .rp-dica-inst-ic svg, .app .rp-dica-inst-seta { width: 1.2em; height: 1.2em; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+.app .rp-dica-inst-seta { color: var(--lima-tx); }
+.app .rp-dica-inst > span:nth-child(2) { display: grid; gap: .1em; }
+.app .rp-dica-inst b { font-size: max(14px, .9em); font-weight: 650; }
+.app .rp-dica-inst small { font-size: max(12.5px, .8em); line-height: 1.35; color: var(--a-texto-2); }
+html[data-tema="claro"] .app button.rp-dica-inst { background: rgba(61, 102, 0, .07); box-shadow: inset 0 0 0 1px rgba(61, 102, 0, .3); }
+
 /* ---------- motorista: o resumo no fim da corrida ---------- */
 .app .rm-fim-nota { display: grid; justify-items: center; gap: .3em; margin-top: var(--e2); }
 .app .rm-fim-nota[hidden] { display: none; }
