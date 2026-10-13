@@ -61,7 +61,7 @@
   <meta name="format-detection" content="telephone=no">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="../icon.svg" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="../icon-180.png?v=66">
+  <link rel="apple-touch-icon" href="../icon-180.png?v=67">
   <meta property="og:type" content="website">
   <meta property="og:locale" content="pt_BR">
   <meta property="og:title" content="Drink · o app">
@@ -73,17 +73,17 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&display=swap">
-  <link rel="stylesheet" href="../app-telas.css?v=66">
-  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=66">
-  <link rel="stylesheet" href="vendor/leaflet.css?v=66">
-  <link rel="stylesheet" href="app.css?v=66">
-  <link rel="stylesheet" href="visual.css?v=66">
-  <link rel="stylesheet" href="tema.css?v=66">
-  <link rel="stylesheet" href="ritmo.css?v=66">
-  <link rel="stylesheet" href="perfil.css?v=66">
-  <link rel="stylesheet" href="jornada.css?v=66">
-  <link rel="stylesheet" href="agenda.css?v=66">
-  <link rel="stylesheet" href="bares.css?v=66">
+  <link rel="stylesheet" href="../app-telas.css?v=67">
+  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=67">
+  <link rel="stylesheet" href="vendor/leaflet.css?v=67">
+  <link rel="stylesheet" href="app.css?v=67">
+  <link rel="stylesheet" href="visual.css?v=67">
+  <link rel="stylesheet" href="tema.css?v=67">
+  <link rel="stylesheet" href="ritmo.css?v=67">
+  <link rel="stylesheet" href="perfil.css?v=67">
+  <link rel="stylesheet" href="jornada.css?v=67">
+  <link rel="stylesheet" href="agenda.css?v=67">
+  <link rel="stylesheet" href="bares.css?v=67">
 </head>
 <body>
 <svg class="sprite" aria-hidden="true" focusable="false">
@@ -609,6 +609,12 @@
               <span><small>Código de segurança</small><b id="rp-codigo">0 0 0 0</b></span>
               <p id="rp-codigo-txt">Fala esse código pro motorista. Ele digita no app e o seu celular confere se é ele mesmo.</p>
             </div>
+            <!-- v67: no iPhone fora da tela de início não chega aviso com a tela apagada; a dica aparece aqui, na hora que importa -->
+            <button type="button" class="rp-dica-inst" id="rp-dica-inst" data-app="instalar" hidden>
+              <span class="rp-dica-inst-ic" aria-hidden="true"><svg><use href="#i-celular"/></svg></span>
+              <span><b>Avisar mesmo com a tela apagada</b><small id="rp-dica-inst-txt">Instala o Drink na tela de início e o celular toca quando o motorista chegar.</small></span>
+              <svg class="rp-dica-inst-seta" aria-hidden="true"><use href="#i-seta"/></svg>
+            </button>
             <div class="t-acoes t-acoes-3">
               <button type="button" class="t-bt" data-rp-folha="rp-chat"><svg aria-hidden="true"><use href="#i-mensagem"/></svg>Mensagem<span class="d-bolinha" id="rp-nova-msg" hidden></span></button>
               <button type="button" class="t-bt" data-rp="compartilhar"><svg aria-hidden="true"><use href="#i-compartilhar"/></svg>Compartilhar</button>
@@ -1919,28 +1925,28 @@
   <p class="vira-txt" id="vira-txt">O Drink é feito para usar na vertical. Nada se perde: se tiver corrida, ela continua rolando.</p>
 </div>
 
-<script src="vendor/maplibre-gl.js?v=66"></script>
-<script src="vendor/leaflet.js?v=66"></script>
-<script src="vendor/qrcode.js?v=66"></script>
-<script src="../app-nucleo.js?v=66"></script>
-<script src="config-servidor.js?v=66"></script>
-<script src="servicos.js?v=66"></script>
-<script src="rede.js?v=66"></script>
-<script src="mapa-estilo.js?v=66"></script>
-<script src="mapa.js?v=66"></script>
-<script src="carros.js?v=66"></script>
-<script src="cadastro-motorista.js?v=66"></script>
-<script src="servidor.js?v=66"></script>
-<script src="perfil.js?v=66"></script>
-<script src="pix.js?v=66"></script>
-<script src="avisos.js?v=66"></script>
-<script src="sms.js?v=66"></script>
-<script src="eventos.js?v=66"></script>
-<script src="agenda.js?v=66"></script>
-<script src="leitor.js?v=66"></script>
-<script src="bares.js?v=66"></script>
-<script src="passageiro.js?v=66"></script>
-<script src="motorista.js?v=66"></script>
-<script src="app.js?v=66"></script>
+<script src="vendor/maplibre-gl.js?v=67"></script>
+<script src="vendor/leaflet.js?v=67"></script>
+<script src="vendor/qrcode.js?v=67"></script>
+<script src="../app-nucleo.js?v=67"></script>
+<script src="config-servidor.js?v=67"></script>
+<script src="servicos.js?v=67"></script>
+<script src="rede.js?v=67"></script>
+<script src="mapa-estilo.js?v=67"></script>
+<script src="mapa.js?v=67"></script>
+<script src="carros.js?v=67"></script>
+<script src="cadastro-motorista.js?v=67"></script>
+<script src="servidor.js?v=67"></script>
+<script src="perfil.js?v=67"></script>
+<script src="pix.js?v=67"></script>
+<script src="avisos.js?v=67"></script>
+<script src="sms.js?v=67"></script>
+<script src="eventos.js?v=67"></script>
+<script src="agenda.js?v=67"></script>
+<script src="leitor.js?v=67"></script>
+<script src="bares.js?v=67"></script>
+<script src="passageiro.js?v=67"></script>
+<script src="motorista.js?v=67"></script>
+<script src="app.js?v=67"></script>
 </body>
 </html>

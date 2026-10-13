@@ -1360,6 +1360,10 @@
       q('#rp-mot-nome').textContent = m.nome;
       q('#rp-mot-info').textContent = c.simulada ? 'simulação' : notaCorridas(m);
       desenharVeiculo(m);
+      // no iPhone sem o app na tela de início, o "chegou" não toca com a tela apagada: a dica de instalar, na hora
+      const dica = q('#rp-dica-inst');
+      dica.hidden = Boolean(c.simulada) || avisos().estado() !== 'instalar' || c.etapa === 'chegou';
+      if (!dica.hidden) q('#rp-dica-inst-txt').textContent = `Instala o Drink na tela de início e o celular toca quando ${nome} chegar.`;
       q('#rp-codigo').textContent = c.codigo.split('').join(' ');
       q('#passageiro [data-rt="caminho"] .rt-cancelar').textContent = c.agendada ? `Cancelar · taxa de ${brl(window.Drink.agenda.REGRAS.taxaTarde)}` : 'Cancelar a corrida';
       q('#rp-codigo-txt').textContent = c.etapa === 'chegou'
