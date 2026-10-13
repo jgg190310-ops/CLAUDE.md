@@ -195,13 +195,27 @@
     try { const c = JSON.parse(localStorage.getItem(CACHE) || '{}'); return c && c.bares && typeof c.bares === 'object' ? c.bares : {}; } catch (x) { return {}; }
   }
   function gravarCache(bares) { try { localStorage.setItem(CACHE, JSON.stringify({ v: 1, bares })); } catch (x) { /* sem espaço: fica só na memória */ } }
+  // v70: cadastros que o dono pediu para tirar e não tem mais como (perdeu a conta que cadastrou). O "Bar do Lopes"
+  // de Lourdes era o da Savassi cadastrado no lugar errado: sai o que tiver esse nome ali perto e for de antes da
+  // retirada; quem já viu guarda o id e não mostra mais, mesmo se o cartão voltar. Um cadastro novo continua valendo
+  const RETIRADOS = [{ nome: /lopes/i, lat: -19.93381, lon: -43.94261, raio: 500, ate: Date.UTC(2026, 9, 13, 12) }];
+  const BLOQUEADOS = 'drink-bares-fora';
+  function lerBloqueados() { try { const l = JSON.parse(localStorage.getItem(BLOQUEADOS) || '[]'); return Array.isArray(l) ? l.filter((id) => ID.test(id)) : []; } catch (x) { return []; } }
+  function retirado(b) {
+    if (!b || !b.id) return false;
+    if (lerBloqueados().includes(b.id)) return true;
+    if (!numero(b.lat) || !numero(b.lon) || typeof b.nome !== 'string') return false;
+    const sai = RETIRADOS.some((r) => r.nome.test(b.nome) && (b.t || 0) < r.ate && S.distancia(r, b) <= r.raio);
+    if (sai) { try { localStorage.setItem(BLOQUEADOS, JSON.stringify(lerBloqueados().concat(b.id).slice(-20))); } catch (x) { /* fica só agora */ } }
+    return sai;
+  }
   // a vitrine; cada bar traz se está aberto agora (até a hora de fechar que ele mesmo deu). Ao vivo (uma conexão
   // aberta) só enquanto a tela mostra os bares: ligar(true/false). Fora disso, ler() busca uma vez, sem ficar ouvindo,
   // e receber() aceita as mensagens de uma conexão que já está aberta para outra coisa (os pedidos do motorista).
   function ouvirVitrine(aoMudar) {
     const bares = {};
     const agora0 = Date.now();
-    Object.entries(lerCache()).forEach(([id, b]) => { if (ID.test(id) && b && b.nome && b.visto > agora0 - VALE_CACHE) bares[id] = b; });
+    Object.entries(lerCache()).forEach(([id, b]) => { if (ID.test(id) && b && b.nome && b.visto > agora0 - VALE_CACHE && !retirado({ ...b, id })) bares[id] = b; });
     let fim = false;
     let avisoT = 0;
     let gravarT = 0;
@@ -252,7 +266,7 @@
       if (!x) return;
       const atual = bares[x.id];
       if (atual && atual.t > x.t) return;
-      if (x.removido) { delete bares[x.id]; mudou(); return; }
+      if (x.removido || retirado(x)) { delete bares[x.id]; mudou(); return; }
       if (x.fechado) { if (atual) { atual.ate = 0; atual.t = x.t; mudou(); } return; }
       bares[x.id] = { ...(atual || {}), ...x, visto: Date.now() };
       if (!fotoEmDia(bares[x.id])) buscarFoto(x.id, x.foto);
