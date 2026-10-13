@@ -428,6 +428,11 @@ body { font-family: var(--f-texto); font-feature-settings: "cv11", "ss01"; lette
 .app .boas-ceu { min-height: 15em; background: #15171C; }
 .app .boas-ceu::after { display: none; }
 .boas-mapa { position: absolute; inset: 0; width: 100%; height: 100%; }
+/* celular baixo (iPhone SE, Android de 640): o desenho encolhe pela altura para a rota ficar acima do título; as
+   ruas continuam pelos lados */
+@media (max-height: 760px) {
+  .boas-mapa { inset: 0 auto auto 50%; width: auto; height: 100%; aspect-ratio: 390 / 520; transform: translateX(-50%); overflow: visible; }
+}
 .boas-quadras path { fill: none; stroke: #20232A; stroke-width: 9; }
 .boas-ruas path { fill: none; stroke: #272A32; stroke-width: 16; }
 .boas-rota, .boas-rota-luz { fill: none; stroke-linecap: round; stroke-linejoin: round; }
@@ -529,6 +534,11 @@ body { font-family: var(--f-texto); font-feature-settings: "cv11", "ss01"; lette
   background: transparent; color: var(--lima-tx); font: inherit; font-size: 1em; font-weight: 800; cursor: pointer;
 }
 .app .rp-ajustar:hover { border-color: var(--lima-tx); }
+/* v73: alvos de toque de pelo menos 44 px (o desenho continua o mesmo; a área do dedo é maior) */
+.app .rp-ajustar { position: relative; }
+.app .rp-ajustar::after { content: ""; position: absolute; inset: -8px -4px; }
+.app button.rp-avise { min-height: 44px; }
+.app .en-instalar-link { min-height: 44px; }
 .app .rp-ajustar.forte { border-color: transparent; background: var(--lima); color: #0A0B0F; }
 .app .rp-nm-dica { margin: 0; font-size: .82em; line-height: 1.4; color: var(--a-texto-2); }
 

@@ -70,5 +70,25 @@
     if (!r.ok) throw erro('relato', r);
   }
 
-  window.Drink.servidor = { ligado, enviarCadastro, status, relato, sha256 };
+  // a volta de um bar parceiro, confirmada por quem dirigiu (só motorista aprovado): é ela que libera o benefício
+  async function confirmarVolta(v, volta) {
+    if (!v || !v.id || !v.segredo) return false;
+    const r = await fetch(`${raiz()}/rest/v1/rpc/confirmar_volta`, {
+      method: 'POST', headers: cab({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify({ p_id: v.id, p_segredo: v.segredo, p_bar: volta.bar, p_corrida: volta.corrida, p_cupom: volta.cupom }),
+    });
+    if (!r.ok) throw erro('volta', r);
+    return (await r.json()) === true;
+  }
+  // o bar confere o código do recibo: 'vale' (e já fica usado), 'usado', 'nao' ou 'segredo' (outro aparelho é o dono)
+  async function conferirVolta(bar, segredo, cupom) {
+    const r = await fetch(`${raiz()}/rest/v1/rpc/conferir_volta`, {
+      method: 'POST', headers: cab({ 'Content-Type': 'application/json' }), body: JSON.stringify({ p_bar: bar, p_segredo: segredo, p_cupom: cupom }),
+    });
+    if (!r.ok) throw erro('conferir', r);
+    const l = await r.json();
+    return Array.isArray(l) && l[0] ? l[0] : null;
+  }
+
+  window.Drink.servidor = { ligado, enviarCadastro, status, relato, sha256, confirmarVolta, conferirVolta };
 }());

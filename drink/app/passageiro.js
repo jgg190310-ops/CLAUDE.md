@@ -1194,7 +1194,8 @@
           enviar({
             tipo: 'confirmado',
             passageiro: { nome: c.peloBar ? c.peloBar.cliente : nomeCurto(u) },
-            bar: c.bar ? { nome: c.bar.nome } : undefined,
+            // o id do bar e o código do recibo: o motorista confirma a volta no servidor (é o que libera o benefício)
+            bar: c.bar ? { nome: c.bar.nome, id: c.bar.id, cupom: c.bar.cupom } : undefined,
             peloBar: c.peloBar ? { bar: c.peloBar.bar } : undefined,
             // o embarque pelo GPS vai com a margem de erro (o motorista sabe quando o ponto é aproximado)
             embarque: { lat: c.embarque.lat, lon: c.embarque.lon, nome: c.embarque.nome, bairro: c.embarque.bairro, margem: c.embarque.gps ? c.embarque.margem || 0 : undefined },

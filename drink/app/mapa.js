@@ -144,10 +144,28 @@
     return ob;
   }
 
+  // o Leaflet só vem junto no celular sem WebGL (index.html); se o mapa vetorial falhar mesmo com WebGL, ele é
+  // buscado aqui, na hora (síncrono de propósito: quem chama espera o mapa pronto)
+  function garantirLeaflet() {
+    if (window.L) return;
+    const v = (document.querySelector('script[src*="mapa.js"]') || {}).src || '';
+    const sufixo = (/\?v=\d+/.exec(v) || [''])[0];
+    try {
+      const css = document.createElement('link');
+      css.rel = 'stylesheet';
+      css.href = `vendor/leaflet.css${sufixo}`;
+      document.head.appendChild(css);
+      const x = new XMLHttpRequest();
+      x.open('GET', `vendor/leaflet.js${sufixo}`, false);
+      x.send();
+      if (x.status === 200) (0, eval)(x.responseText);
+    } catch (e) { /* sem rede: fica sem mapa */ }
+  }
   function criar(el, opcoes = {}) {
     if (temWebGL()) {
       try { return criarGL(el, opcoes); } catch (e) { el.innerHTML = ''; }
     }
+    garantirLeaflet();
     return criarLeaflet(el, opcoes);
   }
 
