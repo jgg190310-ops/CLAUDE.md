@@ -33,12 +33,12 @@
     ['petisco', 'Um petisco de cortesia na próxima visita'],
     ['nenhum', 'Sem benefício'],
   ];
-  // v51: o benefício é do jeito que o bar quiser ("um chope de cortesia na próxima visita"), com uma regra se
-  // quiser ("de terça a quinta"); as sugestões só preenchem o texto. Os três de antes (agua, desconto, petisco)
+  // v51: o benefício é do jeito que o bar quiser ("agendou seu Drink? Um chope por nossa conta"), com uma regra se
+  // quiser ("de terça a quinta"); as sugestões só preenchem o texto (v71: o brinde vem por agendar o Drink no bar). Os três de antes (agua, desconto, petisco)
   // continuam valendo nos QR já impressos
   const SUGESTOES = [
-    'Uma água de cortesia', '10% na próxima conta', 'Um chope de cortesia na próxima visita',
-    'Uma caipirinha de cortesia na próxima visita', 'Um petisco de cortesia na próxima visita', 'Sobremesa de cortesia na próxima visita',
+    'Agendou seu Drink? Um chope por nossa conta', 'Agendou seu Drink? A caipirinha é por nossa conta',
+    'Agendou seu Drink? Um petisco por nossa conta', 'Agendou seu Drink? A sobremesa é por nossa conta', 'Uma água de cortesia', '10% na próxima conta',
   ];
   const BEN_MAX = 60;
   const REGRA_MAX = 60;
@@ -57,6 +57,11 @@
     return antigo ? antigo[1] : texto(k, BEN_MAX);
   };
   const regraTxt = (r) => texto(r, REGRA_MAX);
+  // o benefício numa frase: "Voltando de Drink: uma água de cortesia." ou, quando o bar já escreveu como chamada
+  // ("Agendou seu Drink? Um chope por nossa conta"), do jeito dele; benCurto() fica só com o brinde ("um chope por nossa conta")
+  const minusculaBen = (t) => (t ? t.charAt(0).toLowerCase() + t.slice(1) : t);
+  const fraseBen = (ben) => (!ben ? '' : ben.includes('?') ? `${ben}${/[.!?]$/.test(ben) ? '' : '.'}` : `Voltando de Drink: ${minusculaBen(ben)}.`);
+  const benCurto = (ben) => minusculaBen(ben && ben.includes('?') ? ben.slice(ben.lastIndexOf('?') + 1).trim() || ben : ben);
   const ID = /^[\w-]{16}$/;
   const CHAVE = /^[\w-]{43}$/;
   const cinco = (x) => Math.round(x * 1e5) / 1e5;
@@ -393,7 +398,7 @@
       v.usado = Date.now();
       op.salvar();
       const ben = beneficioTxt(b.beneficio);
-      res.textContent = `Vale: ${v.cliente} voltou de Drink em ${dataCurta(v.t)} às ${hhmm(new Date(v.t))}${ben ? `. Benefício: ${minuscula(ben)}` : ''}. Marcado como usado.`;
+      res.textContent = `Vale: ${v.cliente} voltou de Drink em ${dataCurta(v.t)} às ${hhmm(new Date(v.t))}${ben ? `. Benefício: ${benCurto(ben)}` : ''}. Marcado como usado.`;
       res.classList.add('ok');
       q('#rp-barp-cod').value = '';
       desenharVoltas(b);
@@ -547,14 +552,13 @@
       op.ir('bar-novo');
     }
     const editando = () => Boolean(rascunho && rascunho.editar);
-    const minuscula = (t) => (t ? t.charAt(0).toLowerCase() + t.slice(1) : t);
     // como o benefício vai aparecer no QR e na aba Bares, enquanto a pessoa escreve
     function desenharBeneficio() {
       const ben = texto(q('#rp-barn-ben').value, BEN_MAX);
       const regra = regraTxt(q('#rp-barn-regra').value);
       $$('#rp-barn-sug [data-bar-sug]', raiz).forEach((bt) => bt.setAttribute('aria-pressed', String(bt.dataset.barSug === ben)));
       q('#rp-barn-previa').innerHTML = ben.length >= 3
-        ? `<b>No QR e na aba Bares:</b> “Voltando de Drink: ${esc(minuscula(ben))}.”${regra ? ` <span>${esc(regra)}.</span>` : ''}`
+        ? `<b>No QR e na aba Bares:</b> “${esc(fraseBen(ben))}”${regra ? ` <span>${esc(regra)}.</span>` : ''}`
         : '<b>Sem benefício:</b> o QR e a aba Bares não mostram brinde. Dá para pôr um quando quiser.';
     }
     function lugarEscolhido(l) {
@@ -573,7 +577,7 @@
       q('#rp-barn-voltar').setAttribute('aria-label', ed ? 'Voltar para o bar' : 'Voltar para os bares');
       q('#rp-barn-lede').textContent = ed
         ? `O endereço fica o mesmo (${rascunho.lugar.nome}): é ele que vai no QR impresso. O benefício novo já vale para quem abrir o bar no app.`
-        : 'Quem bebeu no seu bar volta de Drink, no próprio carro. Você ganha um QR para o balcão e as mesas, o bar no mapa do Drink e um jeito de chamar a volta do cliente.';
+        : 'Os motoristas do Drink ficam no seu bar, e quem bebeu volta de Drink no próprio carro. Você ganha um QR para o balcão e as mesas, o bar no mapa do Drink e um jeito de chamar a volta do cliente.';
       ['#rp-barn-onde-t', '#rp-barn-onde', '#rp-barn-foto'].forEach((x) => { q(x).hidden = ed; });
       q('#rp-barn-sug').innerHTML = [...SUGESTOES.map((t) => [t, t]), ['', 'Sem benefício']]
         .map(([v, t]) => `<button type="button" aria-pressed="false" data-bar-sug="${esc(v)}">${esc(t)}</button>`).join('');
@@ -667,7 +671,7 @@
       q('#rp-barp-total').textContent = String(b.voltas.length);
       q('#rp-barp-cartao-nome').textContent = b.nome;
       q('#rp-barp-qr').innerHTML = PIX.qrSvg(linkBar(b), `QR code do ${b.nome}`);
-      q('#rp-barp-qr-sub').textContent = `Aponta a câmera do celular. O Drink busca você aqui e leva você e o seu carro pra casa.${ben ? ` Voltando de Drink: ${ben.charAt(0).toLowerCase()}${ben.slice(1)}.` : ''}`;
+      q('#rp-barp-qr-sub').textContent = `Aponta a câmera do celular. O Drink busca você aqui e leva você e o seu carro pra casa.${ben ? ` ${fraseBen(ben)}` : ''}`;
       q('#rp-barp-ben-t').textContent = ben || 'Sem benefício';
       q('#rp-barp-ben').textContent = ben
         ? `${b.regra ? `${b.regra}. ` : ''}Quem volta de Drink mostra o código do recibo; ele aparece aqui, na lista da noite.`
@@ -1020,7 +1024,7 @@
   }
 
   window.Drink.bares = {
-    BENEFICIOS, SUGESTOES, PERTO_DO_BAR, beneficioTxt, regraTxt, limparBeneficio, fechamento, linkBar, lerLink, guardarAqui, esquecerAqui, aqui, saiDoBar, novoCupom,
+    BENEFICIOS, SUGESTOES, PERTO_DO_BAR, beneficioTxt, fraseBen, regraTxt, limparBeneficio, fechamento, linkBar, lerLink, guardarAqui, esquecerAqui, aqui, saiDoBar, novoCupom,
     topico, mandar, abrir, avisarVolta, limparVolta, limparVitrine, ouvirVitrine, ateTxt, voltasTxt, comoChegar, criar, criarAba,
     lerQrTexto, novoDoQr, reduzirFoto,
   };

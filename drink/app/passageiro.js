@@ -253,7 +253,6 @@
     }
     /* ---------- bar parceiro: quem leu o QR do balcão ---------- */
     let barAplicado = '';
-    const minuscula = (t) => (t ? t.charAt(0).toLowerCase() + t.slice(1) : t);
     function desenharBarAqui() {
       const b = BAR.aqui();
       const box = q('#rp-bar-aqui');
@@ -263,7 +262,7 @@
       const v = abaBar.porId(b.id);
       const ben = BAR.beneficioTxt(v ? v.beneficio : b.beneficio);
       q('#rp-bar-aqui-t').textContent = `Você está no ${b.nome}`;
-      q('#rp-bar-aqui-sub').textContent = `O Drink busca você aqui, na porta.${ben ? ` Voltando de Drink: ${minuscula(ben)}.` : ''}`;
+      q('#rp-bar-aqui-sub').textContent = `O Drink busca você aqui, na porta.${ben ? ` ${BAR.fraseBen(ben)}` : ''}`;
       // o embarque vai para a porta do bar uma vez; se a pessoa trocar, vale a escolha dela
       if (!corrida && !peloBar && barAplicado !== b.id) {
         barAplicado = b.id;

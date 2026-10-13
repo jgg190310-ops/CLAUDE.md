@@ -61,7 +61,7 @@
   <meta name="format-detection" content="telephone=no">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="../icon.svg" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="../icon-180.png?v=70">
+  <link rel="apple-touch-icon" href="../icon-180.png?v=71">
   <meta property="og:type" content="website">
   <meta property="og:locale" content="pt_BR">
   <meta property="og:title" content="Drink · o app">
@@ -73,17 +73,17 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&display=swap">
-  <link rel="stylesheet" href="../app-telas.css?v=70">
-  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=70">
-  <link rel="stylesheet" href="vendor/leaflet.css?v=70">
-  <link rel="stylesheet" href="app.css?v=70">
-  <link rel="stylesheet" href="visual.css?v=70">
-  <link rel="stylesheet" href="tema.css?v=70">
-  <link rel="stylesheet" href="ritmo.css?v=70">
-  <link rel="stylesheet" href="perfil.css?v=70">
-  <link rel="stylesheet" href="jornada.css?v=70">
-  <link rel="stylesheet" href="agenda.css?v=70">
-  <link rel="stylesheet" href="bares.css?v=70">
+  <link rel="stylesheet" href="../app-telas.css?v=71">
+  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=71">
+  <link rel="stylesheet" href="vendor/leaflet.css?v=71">
+  <link rel="stylesheet" href="app.css?v=71">
+  <link rel="stylesheet" href="visual.css?v=71">
+  <link rel="stylesheet" href="tema.css?v=71">
+  <link rel="stylesheet" href="ritmo.css?v=71">
+  <link rel="stylesheet" href="perfil.css?v=71">
+  <link rel="stylesheet" href="jornada.css?v=71">
+  <link rel="stylesheet" href="agenda.css?v=71">
+  <link rel="stylesheet" href="bares.css?v=71">
 </head>
 <body>
 <svg class="sprite" aria-hidden="true" focusable="false">
@@ -828,7 +828,7 @@
             <h3 class="d-titulo" id="rp-barn-t" tabindex="-1">Seu bar no Drink</h3>
           </div>
           <form class="ev-form" id="rp-barn-form" novalidate>
-            <p class="bar-lede" id="rp-barn-lede">Quem bebeu no seu bar volta de Drink, no próprio carro. Você ganha um QR para o balcão e as mesas, o bar no mapa do Drink e um jeito de chamar a volta do cliente.</p>
+            <p class="bar-lede" id="rp-barn-lede">Os motoristas do Drink ficam no seu bar, e quem bebeu volta de Drink no próprio carro. Você ganha um QR para o balcão e as mesas, o bar no mapa do Drink e um jeito de chamar a volta do cliente.</p>
             <p class="rt-rot" id="rp-barn-onde-t">Onde</p>
             <button type="button" class="ev-onde" id="rp-barn-onde" data-bar="onde"><svg aria-hidden="true"><use href="#i-pin"/></svg><span><b>Escolher o endereço</b><small>É de lá que o Drink busca os clientes</small></span><em>trocar</em></button>
             <label class="bar-foto-campo" id="rp-barn-foto"><input type="file" id="rp-barn-foto-in" accept="image/*" class="sr"><span class="bar-foto-ver" aria-hidden="true"></span><span class="bar-foto-txt"><b>Pôr a foto do bar</b><small></small></span></label>
@@ -836,7 +836,7 @@
             <label class="en-campo en-rot"><span>Costuma fechar às</span><input id="rp-barn-fecha" type="time" value="02:00"></label>
             <div class="bar-ben">
               <p class="bar-ben-cab"><span class="bar-ben-ic" aria-hidden="true"><svg><use href="#i-cupom"/></svg></span><span><b>O benefício de quem volta de Drink</b><small>Do jeito do seu bar: escreva o que quiser, ou toque numa sugestão</small></span></p>
-              <label class="en-campo en-rot"><span>Quem volta de Drink ganha</span><input id="rp-barn-ben" type="text" maxlength="60" autocomplete="off" placeholder="Ex.: um chope de cortesia na próxima visita" aria-describedby="rp-barn-previa"></label>
+              <label class="en-campo en-rot"><span>Benefício para quem chama o Drink</span><input id="rp-barn-ben" type="text" maxlength="60" autocomplete="off" placeholder="Ex.: agendou seu Drink? Um chope por nossa conta" aria-describedby="rp-barn-previa"></label>
               <p class="rt-rot" id="rp-barn-sug-t">Sugestões</p>
               <div class="ev-chips bar-sug" id="rp-barn-sug" role="group" aria-labelledby="rp-barn-sug-t"></div>
               <label class="en-campo en-rot"><span>Regra (opcional)</span><input id="rp-barn-regra" type="text" maxlength="60" autocomplete="off" placeholder="Ex.: de terça a quinta"></label>
@@ -934,7 +934,7 @@
         <!-- a aba Bares: o QR da mesa, a lista dos bares com a foto e o cadastro de quem tem um bar -->
         <section class="rt rt-cheia com-abas" data-rt="bares" data-aba="bares" aria-labelledby="rp-bs-t" hidden>
           <div class="d-cab d-cab-aba"><h3 class="d-titulo" id="rp-bs-t" tabindex="-1">Bares</h3></div>
-          <p class="ev-lede">Bebeu no bar? Peça o seu Drink: ele busca você na porta e leva você e o seu carro pra casa.</p>
+          <p class="ev-lede">Nos bares parceiros, os Drinks já ficam lá esperando. Bebeu? Peça o seu: ele encontra você na porta e leva você e o seu carro pra casa.</p>
           <button type="button" class="bs-qr" data-rp="bar-camera">
             <span class="bs-qr-ic" aria-hidden="true"><svg><use href="#i-qr"/></svg></span>
             <span><b>Aponte para o QR Code da mesa</b><small>A câmera acha o bar na hora</small></span>
@@ -973,14 +973,14 @@
             </ul>
             <div class="bar-ben-cartao bv-ben" id="rp-bv-ben-box">
               <span class="bar-ben-ic" aria-hidden="true"><svg><use href="#i-cupom"/></svg></span>
-              <p><small>Quem volta de Drink ganha</small><b id="rp-bv-ben"></b><small id="rp-bv-regra"></small></p>
+              <p><small>Benefício do bar</small><b id="rp-bv-ben"></b><small id="rp-bv-regra"></small></p>
             </div>
             <button type="button" class="t-botao bv-pedir" data-rp="bar-solicitar">Solicite o seu Drink</button>
             <a class="t-bt bar-ir" id="rp-bv-ir" href="#" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#i-navegar"/></svg>Como chegar</a>
             <p class="d-sec bv-como-t">Como funciona</p>
             <ol class="bv-passos">
-              <li><b>Peça pelo app, aqui no bar</b><small>O embarque já fica na porta do bar</small></li>
-              <li><b>O Drink chega de bike ou patinete</b><small>Confere o código, fotografa o carro e guarda a bike dobrada no porta-malas</small></li>
+              <li><b>Peça pelo app, aqui no bar</b><small>O embarque já fica na porta do bar, e o pedido vale o benefício</small></li>
+              <li><b>Os Drinks já ficam no bar</b><small>Um deles encontra você na porta, confere o código, fotografa o carro e guarda a bike dobrada no porta-malas</small></li>
               <li><b>Leva você e o seu carro pra casa</b><small>Você paga pelo Pix, direto para o motorista, e mostra o código do recibo no bar para ganhar o benefício</small></li>
             </ol>
           </div>
@@ -1963,28 +1963,28 @@
   <p class="vira-txt" id="vira-txt">O Drink é feito para usar na vertical. Nada se perde: se tiver corrida, ela continua rolando.</p>
 </div>
 
-<script src="vendor/maplibre-gl.js?v=70"></script>
-<script src="vendor/leaflet.js?v=70"></script>
-<script src="vendor/qrcode.js?v=70"></script>
-<script src="../app-nucleo.js?v=70"></script>
-<script src="config-servidor.js?v=70"></script>
-<script src="servicos.js?v=70"></script>
-<script src="rede.js?v=70"></script>
-<script src="mapa-estilo.js?v=70"></script>
-<script src="mapa.js?v=70"></script>
-<script src="carros.js?v=70"></script>
-<script src="cadastro-motorista.js?v=70"></script>
-<script src="servidor.js?v=70"></script>
-<script src="perfil.js?v=70"></script>
-<script src="pix.js?v=70"></script>
-<script src="avisos.js?v=70"></script>
-<script src="sms.js?v=70"></script>
-<script src="eventos.js?v=70"></script>
-<script src="agenda.js?v=70"></script>
-<script src="leitor.js?v=70"></script>
-<script src="bares.js?v=70"></script>
-<script src="passageiro.js?v=70"></script>
-<script src="motorista.js?v=70"></script>
-<script src="app.js?v=70"></script>
+<script src="vendor/maplibre-gl.js?v=71"></script>
+<script src="vendor/leaflet.js?v=71"></script>
+<script src="vendor/qrcode.js?v=71"></script>
+<script src="../app-nucleo.js?v=71"></script>
+<script src="config-servidor.js?v=71"></script>
+<script src="servicos.js?v=71"></script>
+<script src="rede.js?v=71"></script>
+<script src="mapa-estilo.js?v=71"></script>
+<script src="mapa.js?v=71"></script>
+<script src="carros.js?v=71"></script>
+<script src="cadastro-motorista.js?v=71"></script>
+<script src="servidor.js?v=71"></script>
+<script src="perfil.js?v=71"></script>
+<script src="pix.js?v=71"></script>
+<script src="avisos.js?v=71"></script>
+<script src="sms.js?v=71"></script>
+<script src="eventos.js?v=71"></script>
+<script src="agenda.js?v=71"></script>
+<script src="leitor.js?v=71"></script>
+<script src="bares.js?v=71"></script>
+<script src="passageiro.js?v=71"></script>
+<script src="motorista.js?v=71"></script>
+<script src="app.js?v=71"></script>
 </body>
 </html>
