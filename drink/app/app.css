@@ -902,6 +902,16 @@ html.deitado .vira {
 .en-apagar-txt { margin: 0; font-size: .92em; line-height: 1.5; color: var(--a-texto-2); }
 .en-apagar-bts { display: grid; gap: .6em; justify-items: center; }
 
+/* ---------- o navegador não guarda a conta (v69) ---------- */
+.en-guarda-aviso {
+  display: grid; grid-template-columns: auto minmax(0, 1fr); gap: .6em; align-items: start; margin: .6em 0 0; padding: .75em .9em;
+  border-radius: var(--r-m); background: rgba(255, 107, 94, .1); box-shadow: inset 0 0 0 1px rgba(255, 107, 94, .35);
+  font-size: max(12.5px, .82em); line-height: 1.45; color: #FFB4AC; text-align: left;
+}
+.en-guarda-aviso[hidden] { display: none; }
+.en-guarda-aviso svg { width: 1.25em; height: 1.25em; margin-top: .1em; fill: none; stroke: #FF6B5E; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+html[data-tema="claro"] .en-tela:not(.boas) .en-guarda-aviso { background: rgba(179, 38, 30, .07); box-shadow: inset 0 0 0 1px rgba(179, 38, 30, .3); color: #8C1D18; }
+
 /* ---------- levar e trazer a conta (v68) ---------- */
 .en-levar-cod {
   margin: 0; padding: .55em .5em; border-radius: var(--r-m); background: var(--a-card-2); text-align: center;
