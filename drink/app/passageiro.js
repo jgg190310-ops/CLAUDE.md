@@ -805,7 +805,9 @@
       modoBusca = 'destino';
       if (modo === 'bar') {
         // "onde estou agora": o endereço do GPS (que não é o nome do bar)
-        const aqui = l.gps && pos ? { ...(ultimoEndereco ? ultimoEndereco.lugar : { nome: 'Endereço do bar', bairro: '' }), lat: pos.lat, lon: pos.lon, gps: true } : { ...lugar, noMapa: Boolean(l.noMapa) };
+        // o nome do bar sem a unidade; a rua da unidade fica como endereço (vai no QR e na vitrine)
+        const aqui = l.gps && pos ? { ...(ultimoEndereco ? ultimoEndereco.lugar : { nome: 'Endereço do bar', bairro: '' }), lat: pos.lat, lon: pos.lon, gps: true }
+          : { ...lugar, nome: l.rua && nome !== base ? l.rua : nome, nomeBar: base, noMapa: Boolean(l.noMapa) };
         painelBar.lugarEscolhido(aqui);
         ir('bar-novo');
         return;
