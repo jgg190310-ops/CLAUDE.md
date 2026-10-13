@@ -608,6 +608,7 @@
     if (conta) {
       banco.atual = fluxo.celular;
       salvar();
+      guardarDeVez();
       entrarNoApp(conta, 'entra');
       avisar(fluxo.modo === 'criar' ? `Esse número já tem conta. Oi de novo, ${primeiro(conta)}!` : `Oi de novo, ${primeiro(conta)}!`);
       return;
@@ -638,6 +639,7 @@
     };
     banco.usuarios[u.celular] = u;
     banco.atual = u.celular;
+    guardarDeVez();
     salvar();
     // quem chegou pelo QR de um evento (ou do balcão de um bar) vai direto pedir a volta
     const convite = window.Drink.Eventos.convite();
@@ -1174,6 +1176,117 @@
     voltarParaBoas('Conta apagada. Nada dela ficou neste aparelho.');
   }
 
+  /* ---------- levar a conta para outro aparelho (v68) ---------- */
+  // A conta mora no aparelho. No iPhone, o Safari e o app instalado na tela de início guardam tudo separado, e remover o
+  // ícone apaga o que o app guardou: sem servidor de contas, a conta viaja cifrada pelo ntfy. O código de 8 letras gera
+  // o canal e a chave (o ntfy só vê o pacote cifrado), o pacote fica lá 12 horas, e só entra no outro aparelho depois de
+  // ele confirmar o mesmo celular com o código de cadastro.
+  const LETRAS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  const PEDACO = 3200;
+  const limparCod = (s) => String(s || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+  const ntfyRaiz = () => String(window.Drink.servicos.cfg.ntfy).replace(/\/$/, '');
+  async function chavesConta(cod) {
+    const c = limparCod(cod);
+    const canal = (await R.resumo(`drink-conta-canal:${c}`)).replace(/[^A-Za-z0-9]/g, '').slice(0, 28);
+    return { topico: `drk-conta-${canal}`, chave: await R.resumo(`drink-conta-chave:${c}`) };
+  }
+  // pede ao navegador para não apagar o que o Drink guardou quando faltar espaço
+  function guardarDeVez() {
+    try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {}); } catch (e) { /* sem suporte */ }
+  }
+  let codigoLevado = '';
+  async function levarConta(b) {
+    const u = eu();
+    if (!u) return;
+    if (emCorrida()) { fecharFolha(false); avisar('Tem uma corrida acontecendo. Termina ela antes de levar a conta.'); return; }
+    fecharFolha(false);
+    codigoLevado = '';
+    $('#en-levar-cod').textContent = '';
+    $('#en-levar-cod').hidden = true;
+    $('#en-levar-txt').textContent = 'Gerando o código…';
+    $('#en-levar-cel').textContent = `mesmo celular (+55 ${formatarCel(u.celular)})`;
+    $('#en-levar-copiar').hidden = true;
+    abrirFolha('en-levar', b);
+    const cod = Array.from(crypto.getRandomValues(new Uint8Array(8)), (n) => LETRAS[n % LETRAS.length]).join('');
+    try {
+      const { topico, chave } = await chavesConta(cod);
+      const env = JSON.stringify(await R.cifrar(chave, { v: 1, celular: u.celular, u, em: Date.now() }));
+      const n = Math.ceil(env.length / PEDACO);
+      if (n > 60) throw new Error('grande');
+      for (let i = 0; i < n; i += 1) {
+        const r = await fetch(`${ntfyRaiz()}/${topico}`, { method: 'POST', body: JSON.stringify({ c: 'conta', i, n, d: env.slice(i * PEDACO, (i + 1) * PEDACO) }) });
+        if (!r.ok) throw new Error(`publicar ${r.status}`);
+      }
+      codigoLevado = cod;
+      $('#en-levar-cod').textContent = `${cod.slice(0, 4)}-${cod.slice(4)}`;
+      $('#en-levar-cod').hidden = false;
+      const ate = new Date(Date.now() + 12 * 3600000);
+      const hora = ate.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+      $('#en-levar-txt').textContent = `Vale até ${hora}${ate.getDate() !== new Date().getDate() ? ' de amanhã' : ''}, só para a conta do +55 ${formatarCel(u.celular)}. A conta continua aqui também.`;
+      $('#en-levar-copiar').hidden = false;
+    } catch (e) {
+      $('#en-levar-txt').textContent = 'Não deu para gerar o código agora. Confere a internet e tenta de novo.';
+    }
+  }
+  function copiarCodigoConta() {
+    if (!codigoLevado) return;
+    const txt = `${codigoLevado.slice(0, 4)}-${codigoLevado.slice(4)}`;
+    const ok = () => avisar('Código copiado.');
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(ok, () => avisar(`O código é ${txt}.`));
+    else avisar(`O código é ${txt}.`);
+  }
+  function abrirTrazer(b) {
+    $('#en-trazer-cod').value = '';
+    $('#en-trazer-erro').hidden = true;
+    abrirFolha('en-trazer', b);
+  }
+  $('#en-trazer-cod').addEventListener('input', (e) => {
+    const c = limparCod(e.target.value).slice(0, 8);
+    e.target.value = c.length > 4 ? `${c.slice(0, 4)}-${c.slice(4)}` : c;
+    $('#en-trazer-erro').hidden = true;
+  });
+  $('#form-trazer').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const c = limparCod($('#en-trazer-cod').value);
+    if (c.length !== 8) { mostrarErro('#en-trazer-erro', 'O código tem 8 letras e números, como ABCD-2345.'); $('#en-trazer-cod').focus(); return; }
+    if (!fluxo.celular) { mostrarErro('#en-trazer-erro', 'Entra primeiro com o seu celular.'); return; }
+    const bt = $('#en-trazer-bt');
+    bt.disabled = true;
+    bt.textContent = 'Buscando a conta…';
+    try {
+      const { topico, chave } = await chavesConta(c);
+      const r = await fetch(`${ntfyRaiz()}/${topico}/json?poll=1&since=12h`);
+      if (!r.ok) throw new Error(`ler ${r.status}`);
+      const partes = new Map();
+      let n = 0;
+      (await r.text()).split('\n').forEach((linha) => {
+        try {
+          const p = JSON.parse(JSON.parse(linha).message);
+          if (p && p.c === 'conta' && Number.isInteger(p.i) && Number.isInteger(p.n) && typeof p.d === 'string') { partes.set(p.i, p.d); n = p.n; }
+        } catch (x) { /* linha que não é da conta */ }
+      });
+      if (!n || partes.size < n) { mostrarErro('#en-trazer-erro', 'Não achei nenhuma conta com esse código. Confere as letras ou gera um código novo no outro aparelho (cada um vale 12 horas).'); return; }
+      let pacote = null;
+      try { pacote = await R.decifrar(chave, JSON.parse(Array.from({ length: n }, (_, i) => partes.get(i)).join(''))); } catch (x) { pacote = null; }
+      if (!pacote || pacote.v !== 1 || !pacote.u || typeof pacote.u !== 'object') { mostrarErro('#en-trazer-erro', 'Esse código não abriu nenhuma conta. Gera um código novo no outro aparelho.'); return; }
+      // só a conta do celular que acabou de ser confirmado com o código de cadastro
+      if (pacote.celular !== fluxo.celular) { mostrarErro('#en-trazer-erro', `Esse código é da conta de outro celular. Volta e entra com o número dessa conta.`); return; }
+      const u = { ...pacote.u, celular: fluxo.celular };
+      banco.usuarios[u.celular] = u;
+      banco.atual = u.celular;
+      salvar();
+      guardarDeVez();
+      fecharFolha(false);
+      entrarNoApp(u, 'entra');
+      avisar(`Pronto, ${primeiro(u)}! A sua conta veio com tudo.`);
+    } catch (x) {
+      mostrarErro('#en-trazer-erro', 'Não deu para buscar a conta agora. Confere a internet e tenta de novo.');
+    } finally {
+      bt.disabled = false;
+      bt.textContent = 'Trazer a conta';
+    }
+  });
+
   /* ---------- acompanhar a volta de alguém pelo link ---------- */
   function abrirAcompanhar(id, chave) {
     abertura.hidden = true;
@@ -1238,6 +1351,7 @@
     avisar('Pronto! O Drink está na sua tela de início.');
   });
   function instalar(origem) {
+    $('#en-inst-nota').hidden = !(ehIOS && eu());
     if (pedidoInstalar) {
       const pedido = pedidoInstalar;
       pedidoInstalar = null;
@@ -1274,6 +1388,9 @@
     termos: (b) => abrirTermos(b),
     dados: (b) => abrirDados(b),
     apagar: (b) => pedirApagar(b),
+    levar: (b) => levarConta(b),
+    'levar-copiar': copiarCodigoConta,
+    trazer: (b) => abrirTrazer(b),
     'apagar-sim': apagarConta,
   };
   app.addEventListener('click', (e) => {

@@ -61,7 +61,7 @@
   <meta name="format-detection" content="telephone=no">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="../icon.svg" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="../icon-180.png?v=67">
+  <link rel="apple-touch-icon" href="../icon-180.png?v=68">
   <meta property="og:type" content="website">
   <meta property="og:locale" content="pt_BR">
   <meta property="og:title" content="Drink · o app">
@@ -73,17 +73,17 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&display=swap">
-  <link rel="stylesheet" href="../app-telas.css?v=67">
-  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=67">
-  <link rel="stylesheet" href="vendor/leaflet.css?v=67">
-  <link rel="stylesheet" href="app.css?v=67">
-  <link rel="stylesheet" href="visual.css?v=67">
-  <link rel="stylesheet" href="tema.css?v=67">
-  <link rel="stylesheet" href="ritmo.css?v=67">
-  <link rel="stylesheet" href="perfil.css?v=67">
-  <link rel="stylesheet" href="jornada.css?v=67">
-  <link rel="stylesheet" href="agenda.css?v=67">
-  <link rel="stylesheet" href="bares.css?v=67">
+  <link rel="stylesheet" href="../app-telas.css?v=68">
+  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=68">
+  <link rel="stylesheet" href="vendor/leaflet.css?v=68">
+  <link rel="stylesheet" href="app.css?v=68">
+  <link rel="stylesheet" href="visual.css?v=68">
+  <link rel="stylesheet" href="tema.css?v=68">
+  <link rel="stylesheet" href="ritmo.css?v=68">
+  <link rel="stylesheet" href="perfil.css?v=68">
+  <link rel="stylesheet" href="jornada.css?v=68">
+  <link rel="stylesheet" href="agenda.css?v=68">
+  <link rel="stylesheet" href="bares.css?v=68">
 </head>
 <body>
 <svg class="sprite" aria-hidden="true" focusable="false">
@@ -364,6 +364,7 @@
           </div>
           <h2 class="en-t" id="nome-t" tabindex="-1">Como a gente te chama?</h2>
           <p class="en-sub" id="nome-sub">É assim que o motorista vai te chamar na porta do bar.</p>
+          <button type="button" class="en-trazer-link" data-app="trazer"><svg aria-hidden="true"><use href="#i-celular"/></svg><span>Já tem conta em outro aparelho? <b>Trazer a conta</b></span></button>
           <div class="en-duplo">
             <label class="en-campo en-rot"><span>Nome</span><input id="en-nome" name="nome" autocomplete="given-name" autocapitalize="words" maxlength="30" aria-describedby="en-nome-erro"></label>
             <label class="en-campo en-rot"><span>Sobrenome</span><input id="en-sobrenome" name="sobrenome" autocomplete="family-name" autocapitalize="words" maxlength="40"></label>
@@ -795,7 +796,8 @@
             <li class="en-tema-li"><div class="en-tema"><svg aria-hidden="true"><use href="#i-lua"/></svg><span><b>Aparência</b><small data-tema-legenda>Sempre escuro</small></span></div><div class="en-tema-ops" role="radiogroup" aria-label="Aparência do app"><button type="button" role="radio" data-tema-opcao="escuro" aria-checked="true">Escuro</button><button type="button" role="radio" data-tema-opcao="claro" aria-checked="false">Claro</button><button type="button" role="radio" data-tema-opcao="auto" aria-checked="false">Automático</button></div></li>
             <li><button type="button" data-app="dados"><svg aria-hidden="true"><use href="#i-perfil"/></svg><span><b>Seus dados</b><small>Nome e e-mail dos recibos</small></span></button></li>
             <li><button type="button" data-app="termos"><svg aria-hidden="true"><use href="#i-escudo"/></svg><span><b>Termos e privacidade</b><small>As regras e o que o Drink faz com os seus dados</small></span></button></li>
-            <li><button type="button" class="en-sair" data-app="sair"><svg aria-hidden="true"><use href="#i-sair"/></svg><span><b>Sair da conta</b><small>A conta continua salva neste aparelho</small></span></button></li>
+            <li><button type="button" data-app="levar"><svg aria-hidden="true"><use href="#i-celular"/></svg><span><b>Levar a conta para outro aparelho</b><small>Um código traz tudo para o app instalado ou um celular novo</small></span></button></li>
+          <li><button type="button" class="en-sair" data-app="sair"><svg aria-hidden="true"><use href="#i-sair"/></svg><span><b>Sair da conta</b><small>A conta continua salva neste aparelho</small></span></button></li>
             <li><button type="button" class="en-apagar" data-app="apagar"><svg aria-hidden="true"><use href="#i-lixo"/></svg><span><b>Apagar minha conta</b><small>Apaga a conta e tudo dela neste aparelho</small></span></button></li>
           </ul>
           <p class="en-assina"><svg viewBox="0 0 1000 1000" role="img" aria-label="Drink"><use href="#i-marca"/></svg><span>O motorista da vez · Belo Horizonte</span></p>
@@ -1700,6 +1702,7 @@
           <li class="en-tema-li"><div class="en-tema"><svg aria-hidden="true"><use href="#i-lua"/></svg><span><b>Aparência</b><small data-tema-legenda>Sempre escuro</small></span></div><div class="en-tema-ops" role="radiogroup" aria-label="Aparência do app"><button type="button" role="radio" data-tema-opcao="escuro" aria-checked="true">Escuro</button><button type="button" role="radio" data-tema-opcao="claro" aria-checked="false">Claro</button><button type="button" role="radio" data-tema-opcao="auto" aria-checked="false">Automático</button></div></li>
           <li><button type="button" data-app="dados"><svg aria-hidden="true"><use href="#i-perfil"/></svg><span><b>Seus dados</b><small>Nome e e-mail dos recibos</small></span></button></li>
           <li><button type="button" data-app="termos"><svg aria-hidden="true"><use href="#i-escudo"/></svg><span><b>Termos e privacidade</b><small>As regras e o que o Drink faz com os seus dados</small></span></button></li>
+          <li><button type="button" data-app="levar"><svg aria-hidden="true"><use href="#i-celular"/></svg><span><b>Levar a conta para outro aparelho</b><small>Um código traz tudo para o app instalado ou um celular novo</small></span></button></li>
           <li><button type="button" class="en-sair" data-app="sair"><svg aria-hidden="true"><use href="#i-sair"/></svg><span><b>Sair da conta</b><small>A conta continua salva neste aparelho</small></span></button></li>
           <li><button type="button" class="en-apagar" data-app="apagar"><svg aria-hidden="true"><use href="#i-lixo"/></svg><span><b>Apagar minha conta</b><small>Apaga a conta e tudo dela neste aparelho</small></span></button></li>
         </ul>
@@ -1752,6 +1755,7 @@
             <li><b>"Me avise quando tiver Drink perto"</b> faz o seu celular ouvir, por no máximo 3 horas, o canal da sua região (uns 5 km). O motorista que fica online manda para a região dele um aviso sem nome e sem posição.</li>
             <li><b>O link da viagem</b> que você compartilha leva a chave no próprio link: só quem recebe consegue ver.</li>
             <li><b>Mapa, busca e rotas</b> usam serviços abertos: OpenFreeMap para o mapa (dados do OpenStreetMap), Photon e Nominatim para a busca (o texto que você digita e, para achar onde você está, a sua posição), ViaCEP quando você busca por CEP (só o CEP) e OSRM para as rotas (os pontos de saída e de chegada).</li>
+            <li><b>Levar a conta para outro aparelho</b>: só quando você pede. A conta vai cifrada pelo ntfy, que não vê o conteúdo; a chave é o código de 8 letras, que só aparece na sua tela. O pacote some sozinho em 12 horas e só abre no aparelho que confirmar o mesmo celular.</li>
             <li><b>Avisos no celular</b> passam pelo ntfy e pelo serviço de notificações do seu celular (Apple ou Google) e dizem só o tipo do aviso, como "o motorista chegou".</li>
             <li><b>O código por e-mail</b> vai pelo EmailJS, que manda o e-mail para o endereço que você digitou. A mensagem tem só o código e o seu número.</li>
             <li><b>O código por SMS</b>, quando está ligado, manda o seu número ao Firebase (Google) só para enviar a mensagem.</li>
@@ -1799,6 +1803,37 @@
           <p class="en-dados-nota" id="en-dados-cel-nota">O celular é a sua conta. Para usar outro número, crie uma conta com ele.</p>
           <p class="en-erro" id="en-dados-erro" role="alert" hidden></p>
           <button type="submit" class="t-botao">Salvar</button>
+        </form>
+      </section>
+
+      <!-- v68: levar a conta para outro aparelho (o app instalado no iPhone guarda tudo separado do Safari) -->
+      <section class="d-sobre" id="en-levar" aria-labelledby="en-levar-t" hidden>
+        <div class="d-sobre-cab">
+          <span class="d-sobre-ic" aria-hidden="true"><svg><use href="#i-celular"/></svg></span>
+          <div><h4 id="en-levar-t" tabindex="-1">Levar a conta para outro aparelho</h4><small>O app instalado, outro navegador ou um celular novo</small></div>
+          <button type="button" class="d-fechar" data-app="fechar" aria-label="Fechar"><svg aria-hidden="true"><use href="#i-fechar"/></svg></button>
+        </div>
+        <p class="en-levar-cod" id="en-levar-cod" aria-live="polite"></p>
+        <p class="en-apagar-txt" id="en-levar-txt" role="status">Gerando o código…</p>
+        <ol class="en-inst">
+          <li><span>1</span><p>No outro aparelho, abre o Drink e toca em <b>Já tenho conta</b>.</p></li>
+          <li><span>2</span><p>Entra com o <b id="en-levar-cel">mesmo celular</b> e confirma o código que chegar.</p></li>
+          <li><span>3</span><p>Toca em <b>Trazer a conta</b> e digita o código daqui.</p></li>
+        </ol>
+        <button type="button" class="t-botao" id="en-levar-copiar" data-app="levar-copiar" hidden>Copiar o código</button>
+      </section>
+
+      <section class="d-sobre" id="en-trazer" aria-labelledby="en-trazer-t" hidden>
+        <div class="d-sobre-cab">
+          <span class="d-sobre-ic" aria-hidden="true"><svg><use href="#i-celular"/></svg></span>
+          <div><h4 id="en-trazer-t" tabindex="-1">Trazer a sua conta</h4><small>Com o código do outro aparelho</small></div>
+          <button type="button" class="d-fechar" data-app="fechar" aria-label="Fechar"><svg aria-hidden="true"><use href="#i-fechar"/></svg></button>
+        </div>
+        <form class="en-trazer-form" id="form-trazer" novalidate>
+          <label class="en-campo en-rot"><span>Código · 8 letras e números</span><input id="en-trazer-cod" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" maxlength="11" placeholder="ABCD-2345" aria-describedby="en-trazer-erro"></label>
+          <p class="en-erro" id="en-trazer-erro" role="alert" hidden></p>
+          <button type="submit" class="t-botao" id="en-trazer-bt">Trazer a conta</button>
+          <p class="en-apagar-txt">No aparelho onde a conta está: <b>Perfil › Levar a conta para outro aparelho</b>. O código vale 12 horas.</p>
         </form>
       </section>
 
@@ -1902,6 +1937,7 @@
           <li><span>2</span><p>Desce a lista e escolhe <b>Adicionar à Tela de Início</b>.</p></li>
           <li><span>3</span><p>Toca em <b>Adicionar</b>. O limão aparece junto dos seus apps.</p></li>
         </ol>
+        <p class="en-inst-nota" id="en-inst-nota" hidden>No iPhone, o app instalado começa sem a sua conta. Depois de instalar, entra com o seu celular e toca em <b>Trazer a conta</b>. <button type="button" class="en-link" data-app="levar">Gerar o código da minha conta</button></p>
         <ol class="en-inst" id="en-inst-outro" hidden>
           <li><span>1</span><p>No Chrome, toca no menu <b>⋮</b>, lá em cima.</p></li>
           <li><span>2</span><p>Escolhe <b>Instalar app</b> ou <b>Adicionar à tela inicial</b>.</p></li>
@@ -1925,28 +1961,28 @@
   <p class="vira-txt" id="vira-txt">O Drink é feito para usar na vertical. Nada se perde: se tiver corrida, ela continua rolando.</p>
 </div>
 
-<script src="vendor/maplibre-gl.js?v=67"></script>
-<script src="vendor/leaflet.js?v=67"></script>
-<script src="vendor/qrcode.js?v=67"></script>
-<script src="../app-nucleo.js?v=67"></script>
-<script src="config-servidor.js?v=67"></script>
-<script src="servicos.js?v=67"></script>
-<script src="rede.js?v=67"></script>
-<script src="mapa-estilo.js?v=67"></script>
-<script src="mapa.js?v=67"></script>
-<script src="carros.js?v=67"></script>
-<script src="cadastro-motorista.js?v=67"></script>
-<script src="servidor.js?v=67"></script>
-<script src="perfil.js?v=67"></script>
-<script src="pix.js?v=67"></script>
-<script src="avisos.js?v=67"></script>
-<script src="sms.js?v=67"></script>
-<script src="eventos.js?v=67"></script>
-<script src="agenda.js?v=67"></script>
-<script src="leitor.js?v=67"></script>
-<script src="bares.js?v=67"></script>
-<script src="passageiro.js?v=67"></script>
-<script src="motorista.js?v=67"></script>
-<script src="app.js?v=67"></script>
+<script src="vendor/maplibre-gl.js?v=68"></script>
+<script src="vendor/leaflet.js?v=68"></script>
+<script src="vendor/qrcode.js?v=68"></script>
+<script src="../app-nucleo.js?v=68"></script>
+<script src="config-servidor.js?v=68"></script>
+<script src="servicos.js?v=68"></script>
+<script src="rede.js?v=68"></script>
+<script src="mapa-estilo.js?v=68"></script>
+<script src="mapa.js?v=68"></script>
+<script src="carros.js?v=68"></script>
+<script src="cadastro-motorista.js?v=68"></script>
+<script src="servidor.js?v=68"></script>
+<script src="perfil.js?v=68"></script>
+<script src="pix.js?v=68"></script>
+<script src="avisos.js?v=68"></script>
+<script src="sms.js?v=68"></script>
+<script src="eventos.js?v=68"></script>
+<script src="agenda.js?v=68"></script>
+<script src="leitor.js?v=68"></script>
+<script src="bares.js?v=68"></script>
+<script src="passageiro.js?v=68"></script>
+<script src="motorista.js?v=68"></script>
+<script src="app.js?v=68"></script>
 </body>
 </html>
