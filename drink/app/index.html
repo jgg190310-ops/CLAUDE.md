@@ -61,7 +61,7 @@
   <meta name="format-detection" content="telephone=no">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="../icon.svg" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="../icon-180.png?v=72">
+  <link rel="apple-touch-icon" href="../icon-180.png?v=73">
   <meta property="og:type" content="website">
   <meta property="og:locale" content="pt_BR">
   <meta property="og:title" content="Drink · o app">
@@ -73,17 +73,16 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&display=swap">
-  <link rel="stylesheet" href="../app-telas.css?v=72">
-  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=72">
-  <link rel="stylesheet" href="vendor/leaflet.css?v=72">
-  <link rel="stylesheet" href="app.css?v=72">
-  <link rel="stylesheet" href="visual.css?v=72">
-  <link rel="stylesheet" href="tema.css?v=72">
-  <link rel="stylesheet" href="ritmo.css?v=72">
-  <link rel="stylesheet" href="perfil.css?v=72">
-  <link rel="stylesheet" href="jornada.css?v=72">
-  <link rel="stylesheet" href="agenda.css?v=72">
-  <link rel="stylesheet" href="bares.css?v=72">
+  <link rel="stylesheet" href="../app-telas.css?v=73">
+  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=73">
+  <link rel="stylesheet" href="app.css?v=73">
+  <link rel="stylesheet" href="visual.css?v=73">
+  <link rel="stylesheet" href="tema.css?v=73">
+  <link rel="stylesheet" href="ritmo.css?v=73">
+  <link rel="stylesheet" href="perfil.css?v=73">
+  <link rel="stylesheet" href="jornada.css?v=73">
+  <link rel="stylesheet" href="agenda.css?v=73">
+  <link rel="stylesheet" href="bares.css?v=73">
 </head>
 <body>
 <svg class="sprite" aria-hidden="true" focusable="false">
@@ -276,9 +275,9 @@
               <linearGradient id="boas-some" x1="0" y1="0" x2="0" y2="1"><stop offset=".6" stop-color="#0A0B0F" stop-opacity="0"/><stop offset=".84" stop-color="#0A0B0F"/></linearGradient>
               <linearGradient id="boas-topo" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0A0B0F" stop-opacity=".9"/><stop offset=".22" stop-color="#0A0B0F" stop-opacity="0"/></linearGradient>
             </defs>
-            <rect width="390" height="520" fill="#15171C"/>
-            <g class="boas-quadras"><path d="M-20 50H420M-20 112H420M-20 190H420M-20 262H420M-20 340H420M-20 420H420M20 -20V560M70 -20V560M140 -20V560M200 -20V560M250 -20V560M300 -20V560M360 -20V560"/></g>
-            <g class="boas-ruas"><path d="M-40 470L420 10M-60 260L230 -20M110 520L420 220"/></g>
+            <rect x="-400" width="1190" height="520" fill="#15171C"/>
+            <g class="boas-quadras"><path d="M-400 50H800M-400 112H800M-400 190H800M-400 262H800M-400 340H800M-400 420H800M-330 -20V560M-260 -20V560M-200 -20V560M-140 -20V560M-80 -20V560M-30 -20V560M20 -20V560M70 -20V560M140 -20V560M200 -20V560M250 -20V560M300 -20V560M360 -20V560M420 -20V560M470 -20V560M540 -20V560M600 -20V560M660 -20V560M730 -20V560"/></g>
+            <g class="boas-ruas"><path d="M-130 560L520 -90M-371 560L230 -20M110 520L647 0"/></g>
             <rect width="390" height="520" fill="url(#boas-brilho)"/>
             <path class="boas-rota-luz" d="M300 118V190H150V262H260V300"/>
             <path class="boas-rota" id="boas-rota" d="M300 118V190H150V262H260V300"/>
@@ -286,8 +285,8 @@
             <g class="boas-fim" transform="translate(260 300)"><circle r="19"/><use href="#i-casa" x="-10" y="-10" width="20" height="20"/></g>
             <g class="boas-anda"><circle r="15"/><use href="#i-bike" x="-9" y="-9" width="18" height="18"/><animateMotion dur="5.5s" repeatCount="indefinite" keyPoints="0;1" keyTimes="0;1" calcMode="linear"><mpath href="#boas-rota"/></animateMotion></g>
             <g class="boas-parado" transform="translate(150 226)"><circle r="15"/><use href="#i-bike" x="-9" y="-9" width="18" height="18"/></g>
-            <rect width="390" height="520" fill="url(#boas-topo)"/>
-            <rect width="390" height="520" fill="url(#boas-some)"/>
+            <rect x="-400" width="1190" height="520" fill="url(#boas-topo)"/>
+            <rect x="-400" width="1190" height="520" fill="url(#boas-some)"/>
           </svg>
           <svg class="boas-marca" viewBox="0 0 1000 1000"><use href="#i-marca"/></svg>
         </div>
@@ -1251,10 +1250,10 @@
           <button type="button" class="en-link rp-agenda-rec" id="rp-agenda-rec" data-rp-folha="rp-rec" hidden>Repete toda semana · ver ou parar</button>
         </section>
 
-        <section class="d-sobre" id="rp-rec" aria-labelledby="rp-rec-t" hidden>
+        <section class="d-sobre" id="rp-rec" aria-labelledby="rp-repete-t" hidden>
           <div class="d-sobre-cab">
             <span class="d-sobre-ic" aria-hidden="true"><svg><use href="#i-repetir"/></svg></span>
-            <div><h4 id="rp-rec-t" tabindex="-1">Voltas que repetem</h4><small>O mesmo caminho, no mesmo dia e hora, toda semana</small></div>
+            <div><h4 id="rp-repete-t" tabindex="-1">Voltas que repetem</h4><small>O mesmo caminho, no mesmo dia e hora, toda semana</small></div>
             <button type="button" class="d-fechar" data-rp-fechar aria-label="Fechar"><svg aria-hidden="true"><use href="#i-fechar"/></svg></button>
           </div>
           <ul class="rp-rec-lista" id="rp-rec-lista"></ul>
@@ -1763,7 +1762,7 @@
             <li><b>O código por SMS</b>, quando está ligado, manda o seu número ao Firebase (Google) só para enviar a mensagem.</li>
           </ul>
           <h5>Documentos de quem dirige</h5>
-          <p>O app confere o formato do CPF e da CNH, a idade, a categoria, a validade e o tempo de habilitação. Quando a verificação pela equipe está ligada, ao tocar em Começar a dirigir a selfie, a foto da CNH, a certidão e os dados do cadastro vão, por conexão segura, para o servidor do Drink (Supabase), num arquivo fechado que só a equipe de verificação abre. A equipe confere e aprova ou recusa com o motivo. O passageiro recebe só o nome, o rosto e a nota.</p>
+          <p>O app confere o formato do CPF e da CNH, a idade, a categoria, a validade e o tempo de habilitação. Quando a verificação pela equipe está ligada, ao tocar em Começar a dirigir a selfie, a foto da CNH, a certidão e os dados do cadastro vão, por conexão segura, para o servidor do Drink (Supabase), num arquivo fechado que só a equipe de verificação abre. A equipe confere e aprova ou recusa com o motivo. Nas voltas que saem de um bar parceiro, o celular do motorista aprovado manda ao servidor o bar, a corrida e o código do recibo, para o bar conferir o benefício. O passageiro recebe só o nome, o rosto e a nota.</p>
           <h5>Seus direitos</h5>
           <p>Você vê e corrige os seus dados no próprio app. Em "Apagar minha conta", o app apaga a conta e tudo o que ela guardou neste aparelho. O que passou pelo ntfy estava cifrado e some sozinho em poucas horas.</p>
         </div>
@@ -1963,28 +1962,35 @@
   <p class="vira-txt" id="vira-txt">O Drink é feito para usar na vertical. Nada se perde: se tiver corrida, ela continua rolando.</p>
 </div>
 
-<script src="vendor/maplibre-gl.js?v=72"></script>
-<script src="vendor/leaflet.js?v=72"></script>
-<script src="vendor/qrcode.js?v=72"></script>
-<script src="../app-nucleo.js?v=72"></script>
-<script src="config-servidor.js?v=72"></script>
-<script src="servicos.js?v=72"></script>
-<script src="rede.js?v=72"></script>
-<script src="mapa-estilo.js?v=72"></script>
-<script src="mapa.js?v=72"></script>
-<script src="carros.js?v=72"></script>
-<script src="cadastro-motorista.js?v=72"></script>
-<script src="servidor.js?v=72"></script>
-<script src="perfil.js?v=72"></script>
-<script src="pix.js?v=72"></script>
-<script src="avisos.js?v=72"></script>
-<script src="sms.js?v=72"></script>
-<script src="eventos.js?v=72"></script>
-<script src="agenda.js?v=72"></script>
-<script src="leitor.js?v=72"></script>
-<script src="bares.js?v=72"></script>
-<script src="passageiro.js?v=72"></script>
-<script src="motorista.js?v=72"></script>
-<script src="app.js?v=72"></script>
+<script src="vendor/maplibre-gl.js?v=73"></script>
+<script>
+  // o mapa reserva (Leaflet) só baixa no celular sem WebGL: os outros não gastam os 140 KB dele
+  (function () {
+    var gl = null;
+    try { var c = document.createElement('canvas'); gl = c.getContext('webgl2') || c.getContext('webgl'); } catch (e) { gl = null; }
+    if (!gl) document.write('<link rel="stylesheet" href="vendor/leaflet.css?v=73"><script src="vendor/leaflet.js?v=73"><\/script>');
+  }());
+</script>
+<script src="vendor/qrcode.js?v=73"></script>
+<script src="../app-nucleo.js?v=73"></script>
+<script src="config-servidor.js?v=73"></script>
+<script src="servicos.js?v=73"></script>
+<script src="rede.js?v=73"></script>
+<script src="mapa-estilo.js?v=73"></script>
+<script src="mapa.js?v=73"></script>
+<script src="carros.js?v=73"></script>
+<script src="cadastro-motorista.js?v=73"></script>
+<script src="servidor.js?v=73"></script>
+<script src="perfil.js?v=73"></script>
+<script src="pix.js?v=73"></script>
+<script src="avisos.js?v=73"></script>
+<script src="sms.js?v=73"></script>
+<script src="eventos.js?v=73"></script>
+<script src="agenda.js?v=73"></script>
+<script src="leitor.js?v=73"></script>
+<script src="bares.js?v=73"></script>
+<script src="passageiro.js?v=73"></script>
+<script src="motorista.js?v=73"></script>
+<script src="app.js?v=73"></script>
 </body>
 </html>

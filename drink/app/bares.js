@@ -353,6 +353,8 @@
         mudou = true;
       }
       if (bar.beneficio === 'Um chope de cortesia na próxima visita') { bar.beneficio = SUGESTOES[0]; mudou = true; }
+      // v73: o segredo do bar (para conferir os códigos no servidor) para os bares cadastrados antes
+      if (!bar.segredo) { bar.segredo = R.idAleatorio(24); op.salvar(); }
       // a vitrine leva o nome certo na próxima vez que o painel estiver aberto
       if (mudou) { bar.vitrineEm = 0; op.salvar(); }
     }
@@ -393,6 +395,39 @@
     const voltasNum = (n) => `${n} ${n === 1 ? 'volta' : 'voltas'}`;
 
     /* ---------- conferir o código do recibo (e marcar o benefício como usado) ---------- */
+    // com o servidor ligado, o código só vale se um motorista aprovado confirmou a volta (quem tem só o QR da mesa não
+    // consegue inventar uma); sem servidor, vale a lista de voltas que chegou neste celular
+    const SV = window.Drink.servidor;
+    let conferindo = false;
+    async function conferirNoServidor(b, cod, res) {
+      if (conferindo) return;
+      conferindo = true;
+      const bt = q('#rp-barp-conf button[type="submit"]');
+      bt.disabled = true;
+      res.textContent = 'Conferindo com o Drink…';
+      let r = null;
+      try { r = await SV.conferirVolta(b.id, b.segredo, cod); } catch (e) { r = { resultado: 'rede' }; } finally { conferindo = false; bt.disabled = false; }
+      const local = b.voltas.filter((v) => v.cupom === cod).sort((x, y) => y.t - x.t)[0];
+      const quem = local ? `${local.cliente} voltou` : 'A volta saiu';
+      const quando = (t) => `${dataCurta(new Date(t).getTime())} às ${hhmm(new Date(t))}`;
+      const resultado = r && r.resultado;
+      if (resultado === 'vale') {
+        if (local) local.usado = Date.now();
+        op.salvar();
+        const ben = beneficioTxt(b.beneficio);
+        res.textContent = `Vale: ${quem} de Drink em ${quando(r.criado)}, confirmada pelo motorista${ben ? `. Benefício: ${benCurto(ben)}` : ''}. Marcado como usado.`;
+        res.classList.add('ok');
+        q('#rp-barp-cod').value = '';
+        desenharVoltas(b);
+        relatorio(b);
+        return;
+      }
+      if (resultado === 'usado') { res.textContent = `Esse código já foi usado em ${quando(r.usado)}.`; res.classList.add('aviso'); return; }
+      if (resultado === 'segredo') { res.textContent = 'Os códigos deste bar são conferidos em outro celular. Confira por lá, ou fale com o Drink.'; res.classList.add('erro'); return; }
+      if (resultado === 'rede') { res.textContent = 'Sem conexão para conferir com o Drink. Tenta de novo em instantes.'; res.classList.add('aviso'); return; }
+      res.textContent = `O código ${cod} não tem volta confirmada por um motorista do Drink nos últimos 30 dias. Sem essa confirmação, o benefício não vale.`;
+      res.classList.add('erro');
+    }
     function conferir() {
       const b = meu();
       const res = q('#rp-barp-conf-res');
@@ -401,6 +436,7 @@
       res.className = 'bar-conf-res';
       if (!b) return;
       if (!/^\d{4}$/.test(cod)) { res.textContent = 'O código do recibo tem 4 números.'; res.classList.add('erro'); q('#rp-barp-cod').focus(); return; }
+      if (SV && SV.ligado() && b.segredo) { conferirNoServidor(b, cod, res); return; }
       const achados = b.voltas.filter((v) => v.cupom === cod && v.t >= Date.now() - 30 * DIA).sort((x, y) => y.t - x.t);
       if (!achados.length) { res.textContent = `O código ${cod} não está nas voltas dos últimos 30 dias. Confira o número no recibo do cliente.`; res.classList.add('erro'); return; }
       const v = achados.find((x) => !x.usado);
@@ -652,7 +688,8 @@
       if (!/^\d{2}:\d{2}$/.test(fecha)) { erroForm('Coloca a hora que o bar costuma fechar.', q('#rp-barn-fecha')); return; }
       const u = eu();
       u.bar = {
-        id: R.idAleatorio(12), chave: R.novaChave(), nome, lugar: { ...r.lugar }, beneficio, regra: benEscrito ? regra : '', fecha,
+        // segredo: só neste celular (não vai no QR); é com ele que o bar confere os códigos no servidor
+        id: R.idAleatorio(12), chave: R.novaChave(), segredo: R.idAleatorio(24), nome, lugar: { ...r.lugar }, beneficio, regra: benEscrito ? regra : '', fecha,
         criado: Date.now(), voltas: [], aberto: null, foto: r.foto || '', fotoId: '',
       };
       if (u.bar.foto) u.bar.fotoId = await idDaFoto(u.bar.foto);

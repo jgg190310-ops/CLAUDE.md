@@ -711,7 +711,11 @@
             valor: numero(msg.valor) && msg.valor > 0 ? msg.valor : p.valor, km: numero(msg.km) && msg.km > 0 ? msg.km : p.km,
             msgs: [], fotos: 0, avaliacao: null, paguei: false, ultimo: null,
             evento: limparEvento(msg.evento, p.ev),
-            bar: msg.bar && typeof msg.bar.nome === 'string' ? { nome: texto(msg.bar.nome, 60) } : null,
+            bar: msg.bar && typeof msg.bar.nome === 'string' ? {
+              nome: texto(msg.bar.nome, 60),
+              id: typeof msg.bar.id === 'string' && /^[\w-]{16}$/.test(msg.bar.id) ? msg.bar.id : '',
+              cupom: /^\d{4}$/.test(String(msg.bar.cupom)) ? String(msg.bar.cupom) : '',
+            } : null,
             peloBar: msg.peloBar && typeof msg.peloBar.bar === 'string' ? { bar: texto(msg.peloBar.bar, 60) } : null,
           };
           if (aceito.simulada) Object.assign(corrida, { simulada: true, simCodigo: p.codigo, linha: p.linha || null });
@@ -1082,11 +1086,22 @@
       grupos[passo].classList.add('on');
       q('#rm-guia-bt').textContent = passo < GUIA.length - 1 ? 'Próximo passo' : 'Começar a viagem';
     }
+    // saiu da porta de um bar parceiro: a volta confirmada no servidor (com o cadastro aprovado) é o que vale o
+    // benefício do bar; o cliente sozinho, só com o QR da mesa, não consegue inventar uma volta
+    function confirmarVoltaDoBar(c, tentativa = 0) {
+      const u = eu();
+      const v = u && u.verificacao;
+      if (!c || c.simulada || !c.bar || !c.bar.id || !c.bar.cupom || c.barConfirmado || !SV || !SV.ligado() || !v || v.estado !== 'aprovado') return;
+      SV.confirmarVolta(v, { bar: c.bar.id, corrida: c.id, cupom: c.bar.cupom })
+        .then((ok) => { if (ok) { c.barConfirmado = Date.now(); if (corrida === c) salvarCorrida(); } })
+        .catch(() => { if (tentativa < 3) setTimeout(() => confirmarVoltaDoBar(c, tentativa + 1), 20000 * (tentativa + 1)); });
+    }
     function proximoPasso() {
       if (passo < GUIA.length - 1) { passo += 1; mostrarPasso(); return; }
       corrida.etapa = 'viagem';
       enviar({ tipo: 'etapa', etapa: 'malas' });
       enviar({ tipo: 'etapa', etapa: 'viagem' });
+      confirmarVoltaDoBar(corrida);
       avisarAoVivo(true);
       clearInterval(posTimer);
       if (corrida.peloBar) { enviarPosicao(true); posTimer = setInterval(() => enviarPosicao(true), 45000); }

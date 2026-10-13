@@ -4,7 +4,8 @@ Com o servidor ligado:
 
 - o cadastro de cada motorista (selfie, foto da CNH, certidão e dados) vai para a equipe do Drink;
 - o motorista só fica online depois que alguém da equipe aprova no **painel** (`/drink/admin/`);
-- os relatos de problema dos passageiros ficam guardados no painel.
+- os relatos de problema dos passageiros ficam guardados no painel;
+- o benefício dos bares parceiros (o chope por conta da casa) só vale para volta confirmada por um motorista aprovado. Quem tem só o QR da mesa não consegue inventar uma volta.
 
 Sem o servidor, o app continua funcionando como antes.
 
@@ -23,6 +24,8 @@ São uns 15 minutos, e o plano grátis do Supabase basta para começar.
 1. No projeto, abra **SQL Editor** > **New query**.
 2. Cole todo o conteúdo de `drink/servidor/supabase.sql`.
 3. Toque em **Run**. Pode rodar de novo quando quiser: não apaga nada.
+
+Se você já tinha rodado uma versão antiga do arquivo, rode de novo: a versão nova cria as tabelas das voltas dos bares (`voltas_bar` e `bares_segredo`).
 
 O e-mail da equipe que pode aprovar motoristas está no final do arquivo (`drinksuportemdv@gmail.com`). Para pôr mais gente, rode:
 `insert into admins values ('outro@email.com');`
@@ -66,4 +69,5 @@ A chave **anon** pode ficar no código. O banco só deixa o app *enviar* cadastr
 | Cadastro do motorista (nome, CPF, CNH, Pix) | tabela `motoristas_cadastro` | só a equipe |
 | Selfie, foto da CNH, certidão | bucket fechado `documentos` | só a equipe, por link que vale 10 minutos |
 | Relatos de problema | tabela `relatos` | só a equipe |
+| Voltas dos bares (bar, corrida, código do recibo, motorista) | tabela `voltas_bar` | só a equipe; o bar só confere um código por vez, com o segredo dele |
 | Passageiros, corridas, mensagens | continuam no celular e no canal cifrado | ninguém no servidor |

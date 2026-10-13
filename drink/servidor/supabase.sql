@@ -5,6 +5,7 @@
 -- O que fica aqui:
 --   motoristas_cadastro  o cadastro de quem quer dirigir, para a equipe aprovar (os arquivos vão para o bucket "documentos")
 --   relatos              os problemas relatados pelos passageiros
+--   voltas_bar           as voltas que saíram de bar parceiro, confirmadas pelo motorista (libera o benefício do bar)
 --   admins               os e-mails da equipe que podem entrar no painel do Drink
 -- O app (chave pública, papel "anon") só consegue ENVIAR: não lê cadastro nem documento de ninguém. Quem envia um
 -- cadastro guarda um segredo no celular e, com ele, consulta só o próprio resultado (função status_cadastro).
@@ -98,6 +99,89 @@ drop policy if exists "a equipe resolve" on public.relatos;
 create policy "a equipe resolve" on public.relatos for update to authenticated using (public.eh_admin()) with check (public.eh_admin());
 grant insert on public.relatos to anon;
 grant select, update on public.relatos to authenticated;
+
+-- as voltas dos bares parceiros -------------------------------------------------------------------------------------
+-- O benefício do bar (o chope por conta da casa) só vale para volta confirmada por um motorista APROVADO: quem tem
+-- só o QR da mesa não consegue inventar uma volta. O motorista confirma com o segredo do cadastro dele, e o bar
+-- confere o código do recibo com um segredo do bar que fica só no celular do dono (o primeiro que conferir fica).
+create table if not exists public.bares_segredo (
+  bar text primary key check (bar ~ '^[A-Za-z0-9_-]{16}$'),
+  segredo_hash text not null check (segredo_hash ~ '^[0-9a-f]{64}$'),
+  criado timestamptz not null default now()
+);
+alter table public.bares_segredo enable row level security;
+
+create table if not exists public.voltas_bar (
+  bar text not null check (bar ~ '^[A-Za-z0-9_-]{16}$'),
+  corrida text not null check (corrida ~ '^[A-Za-z0-9_-]{16,32}$'),
+  cupom text not null check (cupom ~ '^[0-9]{4}$'),
+  motorista uuid not null references public.motoristas_cadastro (id),
+  criado timestamptz not null default now(),
+  usado timestamptz,
+  primary key (bar, corrida)
+);
+create index if not exists voltas_bar_cupom on public.voltas_bar (bar, cupom, criado desc);
+alter table public.voltas_bar enable row level security;
+drop policy if exists "a equipe vê as voltas" on public.voltas_bar;
+create policy "a equipe vê as voltas" on public.voltas_bar for select to authenticated using (public.eh_admin());
+grant select on public.voltas_bar to authenticated;
+
+-- o motorista aprovado confirma a volta que saiu da porta do bar
+create or replace function public.confirmar_volta(p_id uuid, p_segredo text, p_bar text, p_corrida text, p_cupom text)
+returns boolean
+language plpgsql security definer set search_path = public, extensions
+as $$
+begin
+  if not exists (
+    select 1 from public.motoristas_cadastro c
+    where c.id = p_id and c.estado = 'aprovado' and c.segredo_hash = encode(extensions.digest(p_segredo, 'sha256'), 'hex')
+  ) then
+    return false;
+  end if;
+  insert into public.voltas_bar (bar, corrida, cupom, motorista) values (p_bar, p_corrida, p_cupom, p_id)
+  on conflict (bar, corrida) do nothing;
+  return true;
+end
+$$;
+revoke all on function public.confirmar_volta(uuid, text, text, text, text) from public;
+grant execute on function public.confirmar_volta(uuid, text, text, text, text) to anon, authenticated;
+
+-- o bar confere o código do recibo: 'vale' (e já fica usado), 'usado', 'nao' ou 'segredo' (outro aparelho é o dono)
+create or replace function public.conferir_volta(p_bar text, p_segredo text, p_cupom text)
+returns table (resultado text, criado timestamptz, usado timestamptz)
+language plpgsql security definer set search_path = public, extensions
+as $$
+declare
+  h text;
+  v public.voltas_bar%rowtype;
+begin
+  if p_segredo is null or char_length(p_segredo) < 20 or p_cupom !~ '^[0-9]{4}$' then
+    return query select 'nao'::text, null::timestamptz, null::timestamptz;
+    return;
+  end if;
+  h := encode(extensions.digest(p_segredo, 'sha256'), 'hex');
+  insert into public.bares_segredo (bar, segredo_hash) values (p_bar, h) on conflict (bar) do nothing;
+  if not exists (select 1 from public.bares_segredo b where b.bar = p_bar and b.segredo_hash = h) then
+    return query select 'segredo'::text, null::timestamptz, null::timestamptz;
+    return;
+  end if;
+  select * into v from public.voltas_bar x
+  where x.bar = p_bar and x.cupom = p_cupom and x.criado > now() - interval '30 days'
+  order by (x.usado is null) desc, x.criado desc limit 1;
+  if not found then
+    return query select 'nao'::text, null::timestamptz, null::timestamptz;
+    return;
+  end if;
+  if v.usado is not null then
+    return query select 'usado'::text, v.criado, v.usado;
+    return;
+  end if;
+  update public.voltas_bar set usado = now() where bar = v.bar and corrida = v.corrida;
+  return query select 'vale'::text, v.criado, now();
+end
+$$;
+revoke all on function public.conferir_volta(text, text, text) from public;
+grant execute on function public.conferir_volta(text, text, text) to anon, authenticated;
 
 -- os arquivos: selfie, foto da CNH e certidão, num bucket fechado --------------------------------------------------
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
