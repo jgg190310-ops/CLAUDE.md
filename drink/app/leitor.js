@@ -10,7 +10,7 @@
     if (!jsqrPromessa) {
       jsqrPromessa = new Promise((ok, falha) => {
         const s = document.createElement('script');
-        s.src = 'vendor/jsqr.js?v=65';
+        s.src = 'vendor/jsqr.js?v=66';
         s.onload = () => (window.jsQR ? ok(window.jsQR) : falha(new Error('o leitor não carregou')));
         s.onerror = () => { jsqrPromessa = null; falha(new Error('o leitor não carregou')); };
         document.head.appendChild(s);

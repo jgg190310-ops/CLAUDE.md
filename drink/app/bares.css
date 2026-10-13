@@ -161,6 +161,10 @@ html[data-tema="claro"] .app .rp-bar-aqui { box-shadow: inset 0 0 0 1px rgba(61,
 .app .bs-sit.aberto { background: rgba(210, 255, 60, .14); color: var(--lima-tx); }
 .app .bs-vazio { margin: 0; padding: var(--e4); border-radius: var(--r-g); border: 1px dashed var(--a-linha); font-size: max(13px, .86em); line-height: 1.45; color: var(--a-texto-2); text-align: center; }
 .app [data-rt="bares"] .bar-cartao { margin-top: var(--e5); }
+/* v66: os cartões da aba Bares (QR, busca, filtros, lista, "Tem um bar?") na mesma margem dos lados do título */
+.app [data-rt="bares"] > :is(.bs-qr, .bs-busca, .bs-filtros, .bs-lista, .bs-vazio, .bar-cartao) {
+  width: auto; margin-left: var(--g); margin-right: var(--g);
+}
 
 /* a página de um bar */
 .app .rt[data-rt="bar-ver"] { padding: 0; overflow-y: auto; }

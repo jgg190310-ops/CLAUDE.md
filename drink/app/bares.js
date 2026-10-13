@@ -920,8 +920,8 @@
       q('#rp-bv-hoje-t').textContent = b.aberto ? 'aberto até' : (b.fecha ? 'costuma fechar' : 'horário');
       q('#rp-bv-dist').textContent = ref ? S.textoKm(S.distancia(ref, b) / 1000) : '--';
       const n = b.voltas || 0;
-      q('#rp-bv-voltas').textContent = String(n);
-      q('#rp-bv-voltas-t').textContent = n === 1 ? 'volta hoje' : 'voltas hoje';
+      q('#rp-bv-voltas').textContent = n ? String(n) : '1ª';
+      q('#rp-bv-voltas-t').textContent = n ? (n === 1 ? 'volta hoje' : 'voltas hoje') : 'volta da noite é sua';
       q('#rp-bv-ir').href = comoChegar(b);
       const fav = ehFav(b.id);
       q('#rp-bv-fav').setAttribute('aria-pressed', String(fav));
