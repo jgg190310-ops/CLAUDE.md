@@ -341,7 +341,22 @@
     let republicar = 0;
     let redesenho = 0;
 
-    const meu = () => { const u = eu(); return u && u.bar && u.bar.id ? u.bar : null; };
+    // v72: o bar cadastrado pela busca de uma rede com várias unidades vinha com o endereço no nome ("Bar do Lopes ·
+    // Rua Antônio de Albuquerque, 969"): separa uma vez, o nome para a fachada e a rua para o endereço
+    // e a sugestão antiga do chope ("na próxima visita") vira a de agora (v71), que o dono pediu para todos os bares
+    function separarNome(bar) {
+      let mudou = false;
+      const i = bar.nome.indexOf(' · ');
+      if (i >= 2 && bar.lugar && bar.lugar.nome === bar.nome && /\d/.test(bar.nome.slice(i))) {
+        bar.lugar.nome = bar.nome.slice(i + 3).trim();
+        bar.nome = bar.nome.slice(0, i).trim();
+        mudou = true;
+      }
+      if (bar.beneficio === 'Um chope de cortesia na próxima visita') { bar.beneficio = SUGESTOES[0]; mudou = true; }
+      // a vitrine leva o nome certo na próxima vez que o painel estiver aberto
+      if (mudou) { bar.vitrineEm = 0; op.salvar(); }
+    }
+    const meu = () => { const u = eu(); if (!u || !u.bar || !u.bar.id) return null; if (typeof u.bar.nome === 'string') separarNome(u.bar); return u.bar; };
     const aberto = (b) => Boolean(b && b.aberto && b.aberto.ate > Date.now());
     const daNoite = (b) => b.voltas.filter((v) => v.t >= inicioDaNoite());
     const daSemana = (b) => b.voltas.filter((v) => v.t >= Date.now() - 7 * DIA);
@@ -565,7 +580,7 @@
       if (!rascunho) return;
       rascunho.lugar = { nome: texto(l.nome, 80) || 'Bar', bairro: texto(l.bairro, 40), lat: l.lat, lon: l.lon };
       // um lugar com nome (da busca) já preenche o nome do bar; o endereço do GPS ou do ponto no mapa, não
-      if (!l.gps && !l.noMapa && !q('#rp-barn-nome').value.trim() && l.nome) q('#rp-barn-nome').value = texto(l.nome, 60);
+      if (!l.gps && !l.noMapa && !q('#rp-barn-nome').value.trim() && l.nome) q('#rp-barn-nome').value = texto(l.nomeBar || l.nome, 60);
       q('#rp-barn-erro').hidden = true;
     }
     function desenharForm() {
