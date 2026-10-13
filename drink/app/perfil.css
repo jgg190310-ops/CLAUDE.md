@@ -141,7 +141,7 @@ html[data-tema="claro"] .app .rp-bu-resumo > div + div { border-color: var(--a-l
 .app .rt[data-rt="chegou"] > .t-fim { margin: var(--e5) 0 0; padding-top: 0; }
 .app .rt[data-rt="chegou"] > .t-recibo { margin-top: var(--e5); }
 .app .rt[data-rt="chegou"] .d-avaliar {
-  display: grid; justify-items: center; gap: .35em; margin: var(--e5) var(--g) 0; font-size: 1em; text-align: center;
+  display: grid; justify-content: stretch; justify-items: center; gap: .35em; margin: var(--e5) var(--g) 0; font-size: 1em; text-align: center;
 }
 .app .rp-aval-av { width: 3em; height: 3em; box-shadow: 0 0 0 .16em var(--a-bg), 0 0 0 .3em var(--lima-tx); }
 .app .rt[data-rt="chegou"] #rp-aval-t { margin: .2em 0 0; font-size: 1.05em; font-weight: 640; }
@@ -150,7 +150,8 @@ html[data-tema="claro"] .app .rp-bu-resumo > div + div { border-color: var(--a-l
 .app .rt[data-rt="chegou"] .d-estrelas svg { width: 2em; height: 2em; }
 .app .rt[data-rt="chegou"] .d-estrelas button.on { color: #F2C94C; }
 .app .rt[data-rt="chegou"] .d-estrelas button:active { transform: scale(.9); }
-.app .rt[data-rt="chegou"] .d-tags { margin: var(--e2) var(--g) 0; gap: .45em; }
+.app .rt[data-rt="chegou"] .d-tags { margin: var(--e2) var(--g) 0; gap: .45em; justify-content: center; }
+.app .rt[data-rt="chegou"] .rp-comentario { flex: none; margin: var(--e4) var(--g) 0; }
 .app .rt[data-rt="chegou"] .d-tags button { min-height: 36px; padding: .45em .9em; font-size: max(12.5px, .8em); }
 .app .rp-gorjeta-t { flex: none; margin: var(--e5) var(--g) var(--e2); font-size: max(12.5px, .82em); font-weight: 600; color: var(--a-texto-2); text-align: center; }
 .app .rt[data-rt="chegou"] .d-gorjeta { margin: 0 var(--g); }

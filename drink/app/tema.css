@@ -174,7 +174,7 @@ html[data-tema="claro"] .app .rm-off-topo .en-menu-bt { background: rgba(14, 13,
 
 /* faixas de simulação e de conexão */
 html[data-tema="claro"] .app .app-rede { background: #0E0D12; color: #F4F4F7; }
-/* nas boas-vindas (sempre escuras) o botão continua limão; no cartão azul de ganhos, o link continua limão */
+/* nas boas-vindas (sempre escuras) o botão continua limão; no cartão escuro de ganhos, o link continua limão */
 html[data-tema="claro"] .app .boas .t-botao { background: #D2FF3C; color: #0A0B0F; }
 html[data-tema="claro"] .app .boas .en-instalar-link { color: #D2FF3C; }
 .app :is(.ma-ganhos, .d-saldo) .rm-ganhos-ver, .app :is(.ma-ganhos, .d-saldo) em { color: #D2FF3C; }
