@@ -146,7 +146,7 @@ html[data-tema="claro"] .app .rp-bu-resumo > div + div { border-color: var(--a-l
 .app .rp-aval-av { width: 3em; height: 3em; box-shadow: 0 0 0 .16em var(--a-bg), 0 0 0 .3em var(--lima-tx); }
 .app .rt[data-rt="chegou"] #rp-aval-t { margin: .2em 0 0; font-size: 1.05em; font-weight: 640; }
 .app .rt[data-rt="chegou"] .d-estrelas { gap: .2em; }
-.app .rt[data-rt="chegou"] .d-estrelas button { width: 2.9em; height: 2.9em; color: var(--a-card-2); transition: transform .12s, color .12s; }
+.app .rt[data-rt="chegou"] .d-estrelas button { width: 2.9em; height: 2.9em; color: #666A7A; transition: transform .12s, color .12s; }
 .app .rt[data-rt="chegou"] .d-estrelas svg { width: 2em; height: 2em; }
 .app .rt[data-rt="chegou"] .d-estrelas button.on { color: #F2C94C; }
 .app .rt[data-rt="chegou"] .d-estrelas button:active { transform: scale(.9); }
@@ -168,7 +168,7 @@ html[data-tema="claro"] .app .rp-mot-elogios span, html[data-tema="claro"] .app 
 html[data-tema="claro"] .app .rp-mot-docs em { background: rgba(130, 190, 0, .16); }
 html[data-tema="claro"] .app .rp-mot-nota-rodape { background: rgba(46, 60, 242, .07); color: #2A3399; }
 html[data-tema="claro"] .app .rp-mot-nota .t-estrela, html[data-tema="claro"] .app .rt[data-rt="chegou"] .d-estrelas button.on { color: #C99A00; }
-html[data-tema="claro"] .app .rt[data-rt="chegou"] .d-estrelas button { color: #D9D6CE; }
+html[data-tema="claro"] .app .rt[data-rt="chegou"] .d-estrelas button { color: #857F73; }
 html[data-tema="claro"] .app .rt[data-rt="chegou"] .d-estrelas button.on { color: #E0A800; }
 html[data-tema="claro"] .app .en-veic-tipos [aria-checked="true"] { background: #0E0D12; color: #FFFFFF; }
 

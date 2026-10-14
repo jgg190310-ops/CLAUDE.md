@@ -968,7 +968,7 @@ input[type="range"]:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 2px var(
 .rodape-marca { display: grid; gap: 12px; justify-items: start; }
 .rodape-marca p { color: var(--luz-3); font-weight: 600; }
 .rodape-nav { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 24px; align-content: start; }
-.rodape-nav a { font-size: .98rem; font-weight: 700; text-decoration: none; color: var(--luz-2); transition: color .2s; }
+.rodape-nav a { display: inline-flex; align-items: center; min-height: 44px; font-size: .98rem; font-weight: 700; text-decoration: none; color: var(--luz-2); transition: color .2s; }
 .rodape-nav a:hover { color: var(--lima); }
 .rodape-legal { display: grid; gap: 10px; align-content: start; font-size: .88rem; color: var(--luz-3); }
 .rodape-gigante {
@@ -1098,7 +1098,7 @@ input[type="range"]:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 2px var(
   .planta { padding: 18px 12px 12px; }
   .planta-svg .chamadas { display: none; }
   .planta-svg .cota-t { font-size: 5.6px; }
-  .specs dd { font-size: 1.7rem; white-space: nowrap; }
+  .specs dd { font-size: clamp(1.3rem, 6.4vw, 1.7rem); }
   .seg label { padding: 0 8px; font-size: .86rem; }
   .carta { padding: 22px 20px 14px; }
   .tabela td { font-size: 1.7rem; }
@@ -1239,3 +1239,8 @@ section.onda {
 .mais-link .i { flex: none; width: 18px; height: 18px; stroke-width: 2.6; transition: transform .2s; }
 .mais-link:hover .i { transform: translateX(3px); }
 .ev-pontos .mais-link { color: var(--lima); }
+
+/* v74: a coluna do texto nunca passa da tela, nem com a letra reserva (mais larga) antes da fonte chegar */
+.dobra-grade > *, .dobra-texto > * { min-width: 0; max-width: 100%; }
+.dobra-texto h2 { overflow-wrap: anywhere; }
+@media (max-width: 480px) { .dobra-texto h2 .sem-quebra { white-space: normal; } }
