@@ -106,7 +106,7 @@ html[data-tema="claro"] .app button.rp-dica-inst { background: rgba(61, 102, 0, 
 .app .rm-fim-nota { display: grid; justify-items: center; gap: .3em; margin-top: var(--e2); }
 .app .rm-fim-nota[hidden] { display: none; }
 .app .rm-fim-estrelas { display: flex; gap: .15em; margin: 0; }
-.app .rm-fim-estrelas svg { width: 1.5em; height: 1.5em; color: var(--a-card-2); }
+.app .rm-fim-estrelas svg { width: 1.5em; height: 1.5em; color: #666A7A; }
 .app .rm-fim-estrelas svg.on { color: #F2C94C; }
 .app .rm-fim-quem { margin: 0; font-size: max(12.5px, .82em); color: var(--a-texto-2); }
 .app .rm-fim-nota ul { display: flex; flex-wrap: wrap; justify-content: center; gap: .35em; margin: .2em 0 0; padding: 0; list-style: none; }
@@ -139,7 +139,7 @@ html[data-tema="claro"] .app .rp-rec-tempo li.total { border-color: var(--a-linh
 html[data-tema="claro"] .app .rm-fim-resumo > div + div { border-color: var(--a-linha); }
 html[data-tema="claro"] .app .rm-fim-nota li { background: rgba(130, 190, 0, .16); color: #2F4F00; }
 html[data-tema="claro"] .app .rm-fim-estrelas svg.on { color: #E0A800; }
-html[data-tema="claro"] .app .rm-fim-estrelas svg { color: #D9D6CE; }
+html[data-tema="claro"] .app .rm-fim-estrelas svg { color: #857F73; }
 
 /* ---------- celular baixo ---------- */
 @container (max-height: 760px) {

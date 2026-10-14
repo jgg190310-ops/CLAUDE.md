@@ -494,6 +494,42 @@
     calcular();
   }
 
+  /* ---------- página de eventos: quantos Drinks e quanto o evento paga no máximo ---------- */
+  function montarCalcEvento() {
+    const conv = $('#pe-conv');
+    if (!conv) return;
+    const tipos = $$('#pe-tipos .chip');
+    const tetos = $$('#pe-tetos .chip');
+    // começa no que a página marcou (a página de um evento já vem com o tipo e o número de convidados dele)
+    const marcado = (lista, campo, padrao) => { const b = lista.find((x) => x.getAttribute('aria-pressed') === 'true'); return b ? Number(b.dataset[campo]) : padrao; };
+    let taxa = marcado(tipos, 'taxa', 0.35); // parte dos convidados que foi de carro (a mesma conta do app)
+    let teto = marcado(tetos, 'teto', 80);
+    const reais = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
+    function calcular() {
+      const c = Number(conv.value);
+      const carros = Math.max(1, Math.round((c * taxa) / 2.2));
+      const n = Math.ceil(carros / 3);
+      $('#pe-conv-out').textContent = c.toLocaleString('pt-BR');
+      $('#pe-num').textContent = n;
+      $('#pe-num-txt').textContent = n === 1 ? 'Drink de plantão' : 'Drinks de plantão';
+      // uma volta típica em BH: uns 8 km, à 1h da manhã (bandeira 2) = R$ 63,60
+      const tipica = 63.6;
+      const linhas = [`<li><span>Carros para levar</span><span>cerca de ${carros}</span></li>`];
+      if (teto) {
+        linhas.push(`<li><span>O evento paga, no máximo</span><span>${reais(carros * teto)}</span></li>`);
+        linhas.push(`<li><span>Numa noite típica (voltas de 8 km de madrugada)</span><span>uns ${reais(carros * Math.min(teto, tipica))}</span></li>`);
+      } else {
+        linhas.push('<li><span>Para o evento</span><span>R$ 0, cada um paga a sua</span></li>');
+      }
+      $('#pe-conta').innerHTML = linhas.join('');
+    }
+    const escolher = (lista, b, cb) => { lista.forEach((x) => x.setAttribute('aria-pressed', String(x === b))); cb(); calcular(); };
+    tipos.forEach((b) => b.addEventListener('click', () => escolher(tipos, b, () => { taxa = Number(b.dataset.taxa); })));
+    tetos.forEach((b) => b.addEventListener('click', () => escolher(tetos, b, () => { teto = Number(b.dataset.teto); })));
+    conv.addEventListener('input', calcular);
+    calcular();
+  }
+
   /* ---------- seja um Drink: ganho em odômetro ---------- */
   function odometro(el, texto) {
     const chars = Array.from(texto);
@@ -577,6 +613,7 @@
   montarCalculadora();
   montarVistoria();
   montarEventos();
+  montarCalcEvento();
   montarMotorista();
   montarDialogos();
   montarFaixas();

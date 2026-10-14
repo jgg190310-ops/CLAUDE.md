@@ -378,7 +378,14 @@ body {
 /* a espera, na tela do código do motorista */
 .rm-espera { margin: -.1em 0 .5em; font-size: .78em; color: var(--a-texto-2); text-align: center; }
 .rm-espera:empty { display: none; }
-.app .rm-avaliar { margin-top: .9em; }
+.app .rm-avaliar { margin-top: .9em; flex-wrap: wrap; }
+/* v74: as estrelas que o motorista dá para o passageiro: 44 px para o dedo e visíveis quando vazias (3:1 no fundo) */
+.app #rm-estrelas { gap: 0; }
+.app #rm-estrelas button { width: 44px; height: 44px; color: #666A7A; }
+.app #rm-estrelas svg { width: 1.7em; height: 1.7em; }
+.app #rm-estrelas button.on { color: #F2C94C; }
+html[data-tema="claro"] .app #rm-estrelas button { color: #857F73; }
+html[data-tema="claro"] .app #rm-estrelas button.on { color: #E0A800; }
 /* a alça das folhas: é por ela (e pelo cabeçalho) que o dedo arrasta a folha para baixo */
 .d-alca { position: absolute; top: 0; left: 0; right: 0; height: 1.9em; touch-action: none; }
 .app .d-sobre-cab { touch-action: none; }
