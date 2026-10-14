@@ -151,7 +151,7 @@ main .pg-hero .rotulo::before { content: ""; width: 9px; height: 9px; border-rad
 .pg-conv-drink .i { width: 54px; height: 54px; padding: 6px; border-radius: 10px; background: #FFF3E2; color: #1B1320; stroke-width: 1.8; }
 .pg-conv-drink b { display: block; font-size: .95rem; line-height: 1.2; color: var(--lima); }
 .pg-conv-drink span { display: block; margin-top: 3px; font-size: .8rem; line-height: 1.35; color: rgba(255, 243, 226, .8); }
-.pg-conv-adesivo { right: 2%; bottom: -36px; rotate: 9deg; background: var(--lima); }
+.pg-conv-adesivo { top: -34px; bottom: auto; right: -2%; rotate: 9deg; background: var(--lima); }
 .pg-conv-adesivo .i { width: 52px; height: 52px; }
 .pg-tipos-mais { margin-top: 28px; }
 /* a calculadora: o teto por volta */
