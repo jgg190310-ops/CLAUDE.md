@@ -1,5 +1,6 @@
 Bricolage Grotesque: Copyright 2022 The Bricolage Grotesque Project Authors (https://github.com/ateliertriay/bricolage)
 Caveat Brush: Copyright 2015 Impallari Type (www.impallari.com)
+Bodoni Moda: Copyright 2020 The Bodoni Moda Project Authors (https://github.com/indestructible-type/Bodoni)
 
 This Font Software is licensed under the SIL Open Font License, Version 1.1.
 This license is copied below, and is also available with a FAQ at:
