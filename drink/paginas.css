@@ -1,4 +1,4 @@
-/* Drink — páginas do site para motoristas (motoristas/) e para bares (bares/). Usa as cores, a tipografia e os
+/* Drink — páginas do site para motoristas (motoristas/), para bares (bares/) e para festas e eventos (eventos/). Usa as cores, a tipografia e os
    componentes de drink.css; aqui ficam só as peças próprias destas páginas. */
 
 /* ---------- topo de cada página: cobalto, título enorme e uma peça do app ao lado ---------- */
@@ -10,6 +10,7 @@
   --fundo: var(--cobalto);
 }
 .pg-bares .pg-hero { background: radial-gradient(70% 60% at 76% 40%, #3D2A8C, transparent 70%), #24166B; --fundo: #24166B; }
+.pg-eventos .pg-hero { background: radial-gradient(70% 60% at 76% 40%, #B3207A, transparent 70%), #5A0E44; --fundo: #5A0E44; }
 .pg-hero-in { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr); gap: clamp(32px, 5vw, 72px); align-items: center; }
 .pg-hero-texto { display: grid; gap: 26px; justify-items: start; }
 .pg-titulo { font-size: clamp(3.8rem, 9.4vw, 9.6rem); }
@@ -132,6 +133,38 @@ main .pg-hero .rotulo::before { content: ""; width: 9px; height: 9px; border-rad
 
 .pg-final { padding-top: var(--secao); }
 
+/* ---------- festas e eventos ---------- */
+/* o convite de casamento com o QR do Drink */
+.pg-convite {
+  display: grid; justify-items: center; gap: 6px; width: min(100%, 340px); padding: 34px 26px 26px; border-radius: 18px;
+  background: #FFF8EE; color: #2B2230; text-align: center; rotate: -3deg;
+  box-shadow: 0 50px 90px -40px rgba(30, 0, 20, .85), inset 0 0 0 10px #FFF8EE, inset 0 0 0 11px rgba(43, 34, 48, .25);
+}
+.pg-conv-tipo { font-size: .76rem; font-weight: 800; letter-spacing: .22em; text-transform: uppercase; color: #74445A; }
+.pg-conv-nome { font-family: var(--f-mao, "Caveat Brush", cursive); font-size: 3rem; line-height: 1; color: #2B2230; }
+.pg-conv-data { font-weight: 700; font-size: .95rem; }
+.pg-conv-lugar { font-size: .86rem; color: #6B5B66; }
+.pg-conv-drink {
+  display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 12px; align-items: center; margin-top: 16px; padding: 12px 14px;
+  border-radius: 14px; background: #1B1320; color: #FFF3E2; text-align: left;
+}
+.pg-conv-drink .i { width: 54px; height: 54px; padding: 6px; border-radius: 10px; background: #FFF3E2; color: #1B1320; stroke-width: 1.8; }
+.pg-conv-drink b { display: block; font-size: .95rem; line-height: 1.2; color: var(--lima); }
+.pg-conv-drink span { display: block; margin-top: 3px; font-size: .8rem; line-height: 1.35; color: rgba(255, 243, 226, .8); }
+.pg-conv-adesivo { right: 2%; bottom: -36px; rotate: 9deg; background: var(--lima); }
+.pg-conv-adesivo .i { width: 52px; height: 52px; }
+.pg-tipos-mais { margin-top: 28px; }
+/* a calculadora: o teto por volta */
+.pe-rot { font-weight: 800; font-size: 1rem; }
+.pg-quantos-ex { width: 100%; max-width: 460px; padding: 18px 20px; border-radius: var(--raio); background: rgba(14, 13, 18, .08); }
+.pg-quantos-ex li span:first-child { color: var(--tinta); }
+/* o painel do evento: as contas das voltas */
+.pg-contas-lista { display: grid; gap: 2px; }
+.pg-contas-lista li { display: flex; justify-content: space-between; align-items: center; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--linha); }
+.pg-contas-lista b { display: block; font-size: 1.02rem; }
+.pg-contas-lista small { font-size: .82rem; color: var(--luz-2); }
+.pg-contas-lista em { flex: none; font-style: normal; font-weight: 800; font-variant-numeric: tabular-nums; color: var(--lima); }
+
 /* ---------- celular e tablet ---------- */
 @media (max-width: 1100px) {
   .pg-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -147,6 +180,11 @@ main .pg-hero .rotulo::before { content: ""; width: 9px; height: 9px; border-rad
   .pg-cards { grid-template-columns: minmax(0, 1fr); }
   .pg-hero .acoes, .pg-hero .acoes .btn, .pg-final .acoes, .pg-final .acoes .btn, .pg-duas .acoes, .pg-duas .acoes .btn { width: 100%; }
   .pg-qr-mesa { right: 0; }
+  .pg-conv-nome { font-size: 2.5rem; }
+  .pg-graf-resumo li b { font-size: 1.35rem; }
+  .pg-contas .pg-graf-resumo li b { font-size: 1.15rem; white-space: nowrap; }
+  .pg-conv-adesivo { top: -30px; bottom: auto; right: -2px; padding: 12px 12px 10px; font-size: .95rem; }
+  .pg-conv-adesivo .i { width: 40px; height: 40px; }
   .pg-graf-resumo b { font-size: 1.6rem; }
   .pg-barras { height: 160px; gap: 6px; }
 }

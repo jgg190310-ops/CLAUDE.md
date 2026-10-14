@@ -1244,3 +1244,8 @@ section.onda {
 .dobra-grade > *, .dobra-texto > * { min-width: 0; max-width: 100%; }
 .dobra-texto h2 { overflow-wrap: anywhere; }
 @media (max-width: 480px) { .dobra-texto h2 .sem-quebra { white-space: normal; } }
+/* v74: celular estreito (320 px): os números da faixa em uma coluna, sem passar da tela */
+@media (max-width: 360px) {
+  .faixa-in { grid-template-columns: minmax(0, 1fr); }
+  .faixa-in li, .faixa-in li:nth-child(3) { padding-inline: 0; border-left: 0; }
+}
