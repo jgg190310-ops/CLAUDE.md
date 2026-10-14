@@ -3,8 +3,8 @@
   'use strict';
 
   var INICIO = new Date('2026-10-31T23:00:00-03:00').getTime();
-  var DRINKS = new Date('2026-11-01T02:30:00-03:00').getTime();
-  var FIM = new Date('2026-11-01T07:00:00-03:00').getTime();
+  var DRINKS = new Date('2026-11-01T01:30:00-03:00').getTime();
+  var FIM = new Date('2026-11-01T08:00:00-03:00').getTime();
   var APP = 'https://jgg190310-ops.github.io/CLAUDE.md/drink/app/';
 
   /* ---------- contagem ---------- */
@@ -30,7 +30,7 @@
     if (agora >= INICIO) {
       caixa.classList.add('agora');
       titulo.textContent = agora < DRINKS
-        ? 'Está acontecendo agora. Os Drinks chegam às 02:30.'
+        ? 'Está acontecendo agora. Os Drinks chegam à 01:30.'
         : 'Os Drinks estão na porta. Lê o QR e vai pra casa.';
       return;
     }
