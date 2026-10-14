@@ -500,8 +500,10 @@
     if (!conv) return;
     const tipos = $$('#pe-tipos .chip');
     const tetos = $$('#pe-tetos .chip');
-    let taxa = 0.35; // parte dos convidados que foi de carro (a mesma conta do app)
-    let teto = 80;
+    // começa no que a página marcou (a página de um evento já vem com o tipo e o número de convidados dele)
+    const marcado = (lista, campo, padrao) => { const b = lista.find((x) => x.getAttribute('aria-pressed') === 'true'); return b ? Number(b.dataset[campo]) : padrao; };
+    let taxa = marcado(tipos, 'taxa', 0.35); // parte dos convidados que foi de carro (a mesma conta do app)
+    let teto = marcado(tetos, 'teto', 80);
     const reais = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
     function calcular() {
       const c = Number(conv.value);
