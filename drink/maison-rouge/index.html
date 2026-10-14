@@ -3,419 +3,206 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Maison Rouge com Drink de plantão</title>
-  <meta name="description" content="Na Maison Rouge, os motoristas do Drink ficam de plantão na porta e cada convidado volta para casa no próprio carro.">
-  <meta name="theme-color" content="#2E3CF2">
+  <title>Maison Rouge · a volta é da Drink</title>
+  <meta name="description" content="Maison Rouge, sábado, 31 de outubro, 23h, no Postin, Olhos d’Água. 300 convidados e uma regra só: quem bebe não dirige. Os motoristas da Drink ficam de plantão na porta e levam você e o seu carro pra casa.">
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#0A0607">
   <link rel="icon" href="../icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="../icon-180.png">
   <meta property="og:type" content="website">
   <meta property="og:locale" content="pt_BR">
-  <meta property="og:title" content="Maison Rouge · open bar liberado, a volta também">
-  <meta property="og:description" content="Na Maison Rouge, os motoristas do Drink ficam de plantão na porta e cada convidado volta para casa no próprio carro.">
+  <meta property="og:title" content="Maison Rouge · a volta é da Drink">
+  <meta property="og:description" content="Sábado, 31 de outubro, 23h, no Postin. Bebe tranquilo: a Drink leva você e o seu carro pra casa.">
   <meta property="og:url" content="https://jgg190310-ops.github.io/CLAUDE.md/drink/maison-rouge/">
   <meta property="og:image" content="https://jgg190310-ops.github.io/CLAUDE.md/drink/og.png">
-  <meta property="og:image:width" content="1200">
-  <meta property="og:image:height" content="630">
   <meta name="twitter:card" content="summary_large_image">
+  <link rel="preload" href="../fontes/bodoni-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="../fontes/bricolage-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="../fontes/fontes.css">
-  <link rel="stylesheet" href="../app-telas.css">
-  <link rel="stylesheet" href="../drink.css">
-  <link rel="stylesheet" href="../paginas.css">
-  <meta name="robots" content="noindex">
+  <link rel="stylesheet" href="mr.css">
+  <script>document.documentElement.className += " js";</script>
 </head>
-<body class="pg pg-eventos pg-maison-rouge">
-<a class="pular" href="#conteudo">Pular para o conteúdo</a>
+<body class="mr">
+<a class="mr-pular" href="#conteudo">Pular para o conteúdo</a>
 
-<svg class="sprite" aria-hidden="true" focusable="false">
-  <defs>
-    <symbol id="i-seta" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
-    <symbol id="i-baixo" viewBox="0 0 24 24"><path d="M12 5v14M6 13l6 6 6-6"/></symbol>
-    <symbol id="i-escudo" viewBox="0 0 24 24"><path d="M12 3l7 3v5.2c0 4.4-3 8.1-7 9.8-4-1.7-7-5.4-7-9.8V6z"/><path d="M9 12l2.2 2.2L15.5 10"/></symbol>
-    <symbol id="i-relogio" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol>
-    <symbol id="i-bike" viewBox="0 0 24 24"><circle cx="5.5" cy="16.5" r="3.5"/><circle cx="18.5" cy="16.5" r="3.5"/><path d="M5.5 16.5L9 9.5h6.5l3 7M9 9.5l3.5 7h-7M13.5 6.5h2.5l-.5 3"/></symbol>
-    <symbol id="i-patinete" viewBox="0 0 24 24"><circle cx="5" cy="18" r="2.5"/><circle cx="19" cy="18" r="2.5"/><path d="M7.5 17.5h8.8l2.2-2M19 15.5L16 4.5M13.5 4.5h4.8"/></symbol>
-    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0113 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></symbol>
-    <symbol id="i-casa" viewBox="0 0 24 24"><path d="M4 11l8-6.5 8 6.5v8.5a.5.5 0 01-.5.5H15v-5.5H9V20H4.5a.5.5 0 01-.5-.5z"/></symbol>
-    <symbol id="i-compartilhar" viewBox="0 0 24 24"><circle cx="17.5" cy="5.5" r="2.5"/><circle cx="6.5" cy="12" r="2.5"/><circle cx="17.5" cy="18.5" r="2.5"/><path d="M8.7 10.8l6.6-4M8.7 13.2l6.6 4"/></symbol>
-    <symbol id="i-estrela" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.8l-5.2 2.7 1-5.8-4.2-4.1 5.8-.8z" style="fill:currentColor;stroke:none"/></symbol>
-    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
-    <symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 8h3.2l1.8-2.5h6L16.8 8H20v11H4z"/><circle cx="12" cy="13.2" r="3.3"/></symbol>
-    <symbol id="i-chave" viewBox="0 0 24 24"><circle cx="8" cy="15.5" r="4"/><path d="M10.9 12.6L19 4.5M15.5 8l2.5 2.5M13.5 10l2 2"/></symbol>
-    <symbol id="i-ajuda" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v5.5M12 16.3v.2"/></symbol>
-    <symbol id="i-capacete" viewBox="0 0 24 24"><path d="M4 16.5a8 8 0 0116 0V18H4z"/><path d="M12 8.5v4M8.5 10l1.8 3M15.5 10l-1.8 3"/></symbol>
-    <symbol id="i-cnh" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="11" r="2"/><path d="M5.5 16c.6-1.5 1.7-2.3 3-2.3s2.4.8 3 2.3M14 10h4M14 13h3"/></symbol>
-    <symbol id="i-rota" viewBox="0 0 24 24"><circle cx="6" cy="18" r="2"/><circle cx="18" cy="6" r="2"/><path d="M8 18h7a3 3 0 000-6H9a3 3 0 010-6h7"/></symbol>
-    <symbol id="i-calendario" viewBox="0 0 24 24"><rect x="4" y="5.5" width="16" height="14.5" rx="2"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/></symbol>
-    <symbol id="i-pessoas" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3.5 19c.8-3 3-4.5 5.5-4.5s4.7 1.5 5.5 4.5"/><circle cx="17" cy="9" r="2.3"/><path d="M16.3 14.2c2.1.2 3.6 1.6 4.2 4.1"/></symbol>
-    <symbol id="i-carteira" viewBox="0 0 24 24"><path d="M5 8V6.5A1.5 1.5 0 016.5 5H17v3"/><rect x="4" y="8" width="16" height="11" rx="2"/><path d="M15.5 13.5h1.5"/></symbol>
-    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
-    <symbol id="i-fechar" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
-    <symbol id="i-mais" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
-    <symbol id="i-mensagem" viewBox="0 0 24 24"><path d="M4.5 5h15v10.5H10l-5.5 4z"/></symbol>
-    <symbol id="i-lua" viewBox="0 0 24 24"><path d="M19.5 14.5A7.5 7.5 0 019.5 4.5a7.5 7.5 0 1010 10z"/></symbol>
-    <symbol id="i-qr" viewBox="0 0 24 24"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h2v2h-2zM18 14h2v2h-2zM14 18h2v2h-2zM18 18h2v2h-2z"/></symbol>
-    <symbol id="i-sinal" viewBox="0 0 24 24"><path d="M4 19v-2M9.3 19v-5M14.6 19v-8M20 19V6" style="stroke-width:3"/></symbol>
-    <symbol id="i-bat" viewBox="0 0 28 24"><rect x="2" y="7" width="21" height="10" rx="3"/><rect x="4.5" y="9.5" width="13" height="5" rx="1.2" style="fill:currentColor;stroke:none"/><path d="M25.5 10.5v3"/></symbol>
-    <symbol id="i-busca" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L20 20"/></symbol>
-    <symbol id="i-voltar" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></symbol>
-    <symbol id="i-maleta" viewBox="0 0 24 24"><rect x="3.5" y="7.5" width="17" height="12" rx="2"/><path d="M9 7.5V6a1.5 1.5 0 011.5-1.5h3A1.5 1.5 0 0115 6v1.5M3.5 12.5h17"/></symbol>
-    <symbol id="i-expandir" viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></symbol>
-    <symbol id="i-recomecar" viewBox="0 0 24 24"><path d="M4.5 12a7.5 7.5 0 107.5-7.5H7.5"/><path d="M10 2L7.5 4.5 10 7"/></symbol>
-    <symbol id="i-celular" viewBox="0 0 24 24"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M10.5 18.5h3"/></symbol>
-    <symbol id="i-cartao" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10h18M6.5 14.5h4"/></symbol>
-    <symbol id="i-toque" viewBox="0 0 24 24"><circle cx="12" cy="12" r="2.5"/><circle cx="12" cy="12" r="6.5" style="stroke-dasharray:2 2.6"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2"/></symbol>
-    <symbol id="i-mapa" viewBox="0 0 24 24"><path d="M9 4.5L3.5 6.5v13l5.5-2 6 2 5.5-2v-13l-5.5 2z"/><path d="M9 4.5v13M15 6.5v13"/></symbol>
-    <symbol id="i-perfil" viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.5"/><path d="M5 19.5c1-3.6 3.8-5.5 7-5.5s6 1.9 7 5.5"/></symbol>
-    <symbol id="i-cupom" viewBox="0 0 24 24"><path d="M4 7.5A1.5 1.5 0 015.5 6h13A1.5 1.5 0 0120 7.5V10a2 2 0 000 4v2.5a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 014 16.5V14a2 2 0 000-4z"/><path d="M14.5 6.5v11" style="stroke-dasharray:2 2.2"/></symbol>
-    <symbol id="i-carro" viewBox="0 0 24 24"><path d="M3.5 15.5v-3l2-4.6a2 2 0 011.8-1.2h9.4a2 2 0 011.8 1.2l2 4.6v3a1 1 0 01-1 1h-1"/><path d="M8.3 16.5h7.4M5.5 12h13"/><circle cx="6.5" cy="16.5" r="1.8"/><circle cx="17.5" cy="16.5" r="1.8"/></symbol>
-    <symbol id="i-limao" viewBox="0 0 32 32"><circle cx="16" cy="16" r="15.2" style="fill:var(--limao-casca, #8CD62A);stroke:none"/><circle cx="16" cy="16" r="12.9" style="fill:var(--limao-miolo, #F3FFC4);stroke:none"/><path style="fill:var(--limao-polpa, #D2FF3C);stroke:none" d="M16.14 14.11L16.83 4.63A11.4 11.4 0 0 1 23.45 7.37L17.24 14.56ZM17.44 14.76L24.63 8.55A11.4 11.4 0 0 1 27.37 15.17L17.89 15.86ZM17.89 16.14L27.37 16.83A11.4 11.4 0 0 1 24.63 23.45L17.44 17.24ZM17.24 17.44L23.45 24.63A11.4 11.4 0 0 1 16.83 27.37L16.14 17.89ZM15.86 17.89L15.17 27.37A11.4 11.4 0 0 1 8.55 24.63L14.76 17.44ZM14.56 17.24L7.37 23.45A11.4 11.4 0 0 1 4.63 16.83L14.11 16.14ZM14.11 15.86L4.63 15.17A11.4 11.4 0 0 1 7.37 8.55L14.56 14.76ZM14.76 14.56L8.55 7.37A11.4 11.4 0 0 1 15.17 4.63L15.86 14.11Z"/></symbol>
-    <!-- a marca: o limão partido ao meio na diagonal (cinco gomos, o corte entre dois deles) e "drink" do outro lado do corte. A palavra segue a cor do texto -->
-    <g id="marca-meio"><defs><radialGradient id="marca-casca" gradientUnits="userSpaceOnUse" cx="586.7" cy="500" r="370"><stop offset=".84" stop-color="#B4EA4A"/><stop offset=".9" stop-color="#7CC123"/><stop offset="1" stop-color="#3F7D0E"/></radialGradient><radialGradient id="marca-polpa" gradientUnits="userSpaceOnUse" cx="586.7" cy="500" r="296"><stop offset="0" stop-color="#F6FFC4"/><stop offset=".4" stop-color="#E6FD6E"/><stop offset=".82" stop-color="#CDF22B"/><stop offset="1" stop-color="#B7E01B"/></radialGradient></defs><path fill="url(#marca-casca)" d="M586.7,130A370 370 0 0 0 586.7,870Z"/><path fill="#F3FBD6" d="M586.7,190A310 310 0 0 0 586.7,810Z"/><path fill="url(#marca-polpa)" stroke="url(#marca-polpa)" stroke-width="30" stroke-linejoin="round" d="M563.7,219.9L558.1,220.5L552.5,221.1L546.9,221.8L541.4,222.7L535.8,223.6L530.3,224.7L524.8,225.9L519.4,227.2L513.9,228.6L508.5,230.1L503.1,231.7L497.8,233.4L492.5,235.2L487.2,237.2L482,239.2L476.8,241.4L471.7,243.6L466.6,246L563.7,414.2ZM426.7,269L422.1,272.2L417.6,275.5L413.2,279L408.8,282.5L404.5,286.1L400.2,289.8L396.1,293.5L392,297.4L388,301.3L384,305.3L380.2,309.4L376.4,313.6L372.7,317.8L369.1,322.1L365.6,326.5L362.2,330.9L358.9,335.5L355.6,340.1L523.8,437.2ZM332.6,379.9L330.3,385L328,390.1L325.9,395.3L323.8,400.6L321.9,405.8L320.1,411.1L318.4,416.5L316.7,421.9L315.2,427.3L313.8,432.7L312.5,438.2L311.4,443.7L310.3,449.2L309.3,454.7L308.5,460.3L307.7,465.8L307.1,471.4L306.6,477L500.8,477ZM306.6,523L307.1,528.6L307.7,534.2L308.5,539.7L309.3,545.3L310.3,550.8L311.4,556.3L312.5,561.8L313.8,567.3L315.2,572.7L316.7,578.1L318.4,583.5L320.1,588.9L321.9,594.2L323.8,599.4L325.9,604.7L328,609.9L330.3,615L332.6,620.1L500.8,523ZM355.6,659.9L358.9,664.5L362.2,669.1L365.6,673.5L369.1,677.9L372.7,682.2L376.4,686.4L380.2,690.6L384,694.7L388,698.7L392,702.6L396.1,706.5L400.2,710.2L404.5,713.9L408.8,717.5L413.2,721L417.6,724.5L422.1,727.8L426.7,731L523.8,562.8ZM466.6,754L471.7,756.4L476.8,758.6L482,760.8L487.2,762.8L492.5,764.8L497.8,766.6L503.1,768.3L508.5,769.9L513.9,771.4L519.4,772.8L524.8,774.1L530.3,775.3L535.8,776.4L541.4,777.3L546.9,778.2L552.5,778.9L558.1,779.5L563.7,780.1L563.7,585.8Z"/><g fill="#FFFFF0" fill-opacity=".45"><ellipse cx="556.1" cy="319.1" rx="6" ry="17" transform="rotate(-9.6 556.1 319.1)"/><ellipse cx="533" cy="299.9" rx="6" ry="17" transform="rotate(-15 533 299.9)"/><ellipse cx="522.7" cy="328" rx="6" ry="17" transform="rotate(-20.4 522.7 328)"/><ellipse cx="560.8" cy="384.5" rx="6" ry="17" transform="rotate(-12.6 560.8 384.5)"/><ellipse cx="546.4" cy="376.1" rx="6" ry="17" transform="rotate(-18 546.4 376.1)"/><ellipse cx="469.7" cy="358.6" rx="6" ry="17" transform="rotate(-39.6 469.7 358.6)"/><ellipse cx="440.1" cy="353.5" rx="6" ry="17" transform="rotate(-45 440.1 353.5)"/><ellipse cx="445.3" cy="383" rx="6" ry="17" transform="rotate(-50.4 445.3 383)"/><ellipse cx="506.5" cy="412.8" rx="6" ry="17" transform="rotate(-42.6 506.5 412.8)"/><ellipse cx="489.9" cy="412.9" rx="6" ry="17" transform="rotate(-48 489.9 412.9)"/><ellipse cx="414.7" cy="436" rx="6" ry="17" transform="rotate(-69.6 414.7 436)"/><ellipse cx="386.5" cy="446.4" rx="6" ry="17" transform="rotate(-75 386.5 446.4)"/><ellipse cx="405.7" cy="469.4" rx="6" ry="17" transform="rotate(-80.4 405.7 469.4)"/><ellipse cx="473.7" cy="464.6" rx="6" ry="17" transform="rotate(-72.6 473.7 464.6)"/><ellipse cx="459.3" cy="472.9" rx="6" ry="17" transform="rotate(-78 459.3 472.9)"/><ellipse cx="405.7" cy="530.6" rx="6" ry="17" transform="rotate(-99.6 405.7 530.6)"/><ellipse cx="386.5" cy="553.6" rx="6" ry="17" transform="rotate(-105 386.5 553.6)"/><ellipse cx="414.7" cy="564" rx="6" ry="17" transform="rotate(-110.4 414.7 564)"/><ellipse cx="471.1" cy="525.8" rx="6" ry="17" transform="rotate(-102.6 471.1 525.8)"/><ellipse cx="462.8" cy="540.2" rx="6" ry="17" transform="rotate(-108 462.8 540.2)"/><ellipse cx="445.3" cy="617" rx="6" ry="17" transform="rotate(-129.6 445.3 617)"/><ellipse cx="440.1" cy="646.5" rx="6" ry="17" transform="rotate(-135 440.1 646.5)"/><ellipse cx="469.7" cy="641.4" rx="6" ry="17" transform="rotate(-140.4 469.7 641.4)"/><ellipse cx="499.5" cy="580.1" rx="6" ry="17" transform="rotate(-132.6 499.5 580.1)"/><ellipse cx="499.5" cy="596.8" rx="6" ry="17" transform="rotate(-138 499.5 596.8)"/><ellipse cx="522.7" cy="672" rx="6" ry="17" transform="rotate(-159.6 522.7 672)"/><ellipse cx="533" cy="700.1" rx="6" ry="17" transform="rotate(-165 533 700.1)"/><ellipse cx="556.1" cy="680.9" rx="6" ry="17" transform="rotate(-170.4 556.1 680.9)"/><ellipse cx="551.3" cy="613" rx="6" ry="17" transform="rotate(-162.6 551.3 613)"/><ellipse cx="559.6" cy="627.4" rx="6" ry="17" transform="rotate(-168 559.6 627.4)"/></g><path fill="none" stroke="#E9FFB0" stroke-opacity=".6" stroke-width="9" stroke-linecap="round" d="M286.2,326.5A347 347 0 0 1 423.8,193.6"/></g>
-    <g id="marca-letras"><path style="fill:currentColor;stroke:none" d="M631.6 190.1Q631.6 219.2 646 230.8Q660.3 242.3 697.8 242.3Q735.7 242.3 750 230.8Q764.4 219.3 764.4 190.1V179.1H631.6ZM783.3 190.5Q783.3 229.6 762.5 248.2Q741.7 266.7 697.8 266.7Q654.2 266.7 633.4 248.2Q612.7 229.6 612.7 190.5V155.9H783.3ZM693.3 368.1Q691 377 684.6 383.3Q678.3 389.6 659.3 398.9L612.7 422.1V397.3L655.8 377Q674.2 368.2 679.5 361.2Q684.8 354.1 684.8 342.8V320.7H612.7V297.5H783.3V345.1Q783.3 373.2 770.6 388.2Q758 403.2 734 403.2Q717 403.2 706.3 394Q695.7 384.8 693.3 368.1ZM764.4 320.7H703.8V346Q703.8 362.6 711.2 370.7Q718.6 378.8 734 378.8Q748.7 378.8 756.5 370.2Q764.4 361.6 764.4 345.1ZM783.3 445.1V539.9H763.9V504.1H632.1V539.9H612.7V445.1H632.1V480.9H763.9V445.1ZM783.3 579V608.3L642.8 665.9H783.3V688.2H612.7V658.9L753.2 601.3H612.7V579ZM783.3 719.7V742.9H707.4L783.3 815.1V842.2L713.6 775.7L612.7 844.1V816.2L698.2 760.5L679.4 742.9H612.7V719.7Z"/></g>
-    <symbol id="i-marca" viewBox="0 0 1000 1000"><g><use href="#marca-meio"/><use href="#marca-letras"/></g></symbol>
-    <symbol id="i-copo" viewBox="0 0 24 24"><path d="M3.5 6.5h17L12 14.5z"/><path d="M7.4 10h9.2"/><path d="M12 14.5v5.3M8.2 19.8h7.6"/><path d="M13.6 6.5a3.4 3.4 0 0 1 6.8 0"/><path d="M17 6.5V4.4M17 6.5l-1.5-1.3M17 6.5l1.5-1.3" style="stroke-width:1.2"/></symbol>
-
-    <!-- riscos de caneta: setas das anotações, círculo e sublinhado nos títulos -->
-    <symbol id="seta-desce" viewBox="0 0 90 70"><path pathLength="1" d="M6 8C34 2 66 14 74 52M74 52L62 42M74 52L82 38"/></symbol>
-    <symbol id="seta-sobe" viewBox="0 0 90 70"><path pathLength="1" d="M8 60C24 58 54 52 72 18M72 18L58 22M72 18L76 32"/></symbol>
-    <symbol id="seta-volta" viewBox="0 0 90 70"><path pathLength="1" d="M84 10C56 2 18 12 14 50M14 50L8 36M14 50L28 42"/></symbol>
-    <symbol id="risco-roda" viewBox="0 0 200 70" preserveAspectRatio="none"><path pathLength="1" d="M22 14C64 3 150 2 186 18 204 30 186 58 110 64 46 69 4 56 8 34 12 16 58 8 104 7"/></symbol>
-    <symbol id="risco-sub" viewBox="0 0 200 20" preserveAspectRatio="none"><path pathLength="1" d="M4 12C46 6 104 4 196 8M28 17C80 13 136 12 184 14"/></symbol>
-
-    <!-- mapa de Belo Horizonte, estilizado: quadras em grade cortadas por avenidas diagonais -->
-    <pattern id="ruas" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M0 .5H20M.5 0V20" fill="none" stroke="#1B1A30" stroke-width="1.6"/></pattern>
-    <symbol id="mapa" viewBox="0 0 280 320" preserveAspectRatio="xMidYMid slice">
-      <rect width="280" height="320" fill="#0F0E1B"/>
-      <rect width="280" height="320" fill="url(#ruas)"/>
-      <path d="M190 20l50-8 20 46-56 16z" fill="#14282C"/>
-      <path d="M18 196l40-8 12 36-42 10z" fill="#14282C"/>
-      <path d="M-40-10L300 330M310 0L-10 320" fill="none" stroke="#29274A" stroke-width="7"/>
-      <path d="M0 170H280M140 0V320" fill="none" stroke="#23213F" stroke-width="5"/>
-      <circle cx="140" cy="170" r="14" fill="#14282C" stroke="#29274A" stroke-width="5"/>
-      <text x="160" y="148" fill="#77739C" font-family="Bricolage Grotesque, sans-serif" font-size="7.5" font-weight="700" letter-spacing="1.1">SAVASSI</text>
-      <text x="170" y="238" fill="#77739C" font-family="Bricolage Grotesque, sans-serif" font-size="7.5" font-weight="700" letter-spacing="1.1">FUNCIONÁRIOS</text>
-      <text x="92" y="306" fill="#77739C" font-family="Bricolage Grotesque, sans-serif" font-size="7.5" font-weight="700" letter-spacing="1.1">BURITIS</text>
-    </symbol>
-
-    <!-- serra do curral, o horizonte de BH -->
-    <symbol id="serra-corpo" viewBox="0 0 1440 120" preserveAspectRatio="none"><path d="M0 96C60 92 92 84 130 86L170 74 205 80 240 66 268 71 300 58 336 64 372 50 402 57 438 44 470 52 505 41 540 49 575 38 610 47 646 42 690 55 730 48 770 60 812 54 856 66 900 60 948 72 996 67 1044 79 1092 74 1140 84 1196 80 1250 90 1310 86 1370 94 1440 92V120H0Z"/></symbol>
-
-    <!-- carro visto de cima, em traço -->
-    <symbol id="carro-topo" viewBox="0 0 160 260">
-      <g fill="none" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="30" y="14" width="100" height="232" rx="38"/>
-        <path d="M44 86Q80 72 116 86L109 114Q80 106 51 114Z"/>
-        <rect x="50" y="120" width="60" height="62" rx="10"/>
-        <path d="M51 188Q80 194 109 188L114 208Q80 216 46 208Z"/>
-        <path d="M30 100h-9v12h9M130 100h9v12h-9"/>
-        <path d="M25 52v28M25 182v28M135 52v28M135 182v28" stroke-width="5"/>
-        <path d="M46 26q-6 6-7 14M114 26q6 6 7 14M64 20h32M42 234q6 5 16 5M118 234q-6 5-16 5"/>
-      </g>
-    </symbol>
-
-    <!-- bike dobrada, com as mesmas medidas do desenho técnico -->
-    <symbol id="bike-dobrada" viewBox="0 20 82 84">
-      <g fill="none" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="24" cy="80" r="20"/>
-        <circle cx="32" cy="80" r="20" stroke-dasharray="3 2.5"/>
-        <path d="M56 82L24 80L51 52M56 82L49 40M53.3 66L75 61L53 56L56 44M53 56L32 80M56 44L42.2 73M36.6 71l11.3 4.1M12 56h34"/>
-        <circle cx="56" cy="82" r="8.5"/>
-        <path d="M51.3 53.8l-2-14M40.3 39.3c5-2.5 13-3 20-1"/>
-        <rect x="14" y="48" width="30" height="8" rx="2" style="stroke:var(--sodio, #D2FF3C)"/>
-      </g>
-    </symbol>
-
-    <!-- patinete dobrado, com as mesmas medidas do desenho técnico -->
-    <symbol id="pat-dobrado" viewBox="0 64 120 38">
-      <g fill="none" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="14" cy="89" r="11"/>
-        <circle cx="106" cy="89" r="11"/>
-        <rect x="22" y="84" width="66" height="6" rx="2"/>
-        <path d="M1.5 89A12.5 12.5 0 0 1 24.8 82.75M88 86l16.5-8M106 89l-2.4-19M103.6 70L19.2 77.4M18.9 85.4l.7-16"/>
-      </g>
-    </symbol>
-
-  </defs>
-</svg>
-
-<header class="topo" id="topo">
-  <div class="topo-in">
-    <a class="marca" href="../" aria-label="Drink, página inicial">
-      <svg class="marca-logo" viewBox="0 0 1000 1000" aria-hidden="true"><use href="#i-marca"/></svg>
-    </a>
-    <nav class="nav" aria-label="Páginas">
-      <a href="../">O Drink</a>
-      <a href="../motoristas/">Seja um Drink</a>
-      <a href="../bares/">Para bares</a>
-      <a href="../#preco">Preço</a>
-      <a href="../#seguranca">Segurança</a>
-      <a href="../eventos/" aria-current="page">Para eventos</a>
-    </nav>
-    <a class="btn btn-sodio btn-p topo-cta" href="../app/"><svg class="i" aria-hidden="true"><use href="#i-celular"/></svg>Abrir<span class="cta-longo">&nbsp;o app</span></a>
-    <button class="menu-btn" id="menu-btn" type="button" aria-expanded="false" aria-controls="menu">
-      <svg class="i" aria-hidden="true"><use href="#i-menu"/></svg><span class="sr">Abrir o menu</span>
-    </button>
-  </div>
+<header class="mr-topo">
+  <a class="mr-marca" href="../" aria-label="Drink, página inicial"><img src="../marca/drink-camisa-escura.svg" alt="" width="160" height="59"></a>
+  <p class="mr-topo-x" aria-hidden="true">×</p>
+  <p class="mr-topo-casa">Maison Rouge</p>
+  <a class="mr-bt mr-bt-lima mr-topo-bt" href="../app/">Abrir o app</a>
 </header>
-
-<div class="menu" id="menu" hidden>
-  <nav class="menu-nav" aria-label="Menu">
-    <a href="../">O Drink</a>
-    <a href="../motoristas/">Seja um Drink</a>
-    <a href="../bares/">Para bares</a>
-    <a href="../#preco">Preço</a>
-    <a href="../#seguranca">Segurança</a>
-    <a href="../eventos/" aria-current="page">Para eventos</a>
-  </nav>
-  <a class="btn btn-sodio btn-cheio" href="../app/">Abrir o app</a>
-</div>
 
 <main id="conteudo">
 
-  <!-- ================= topo ================= -->
-  <section class="pg-hero" data-secao="topo" aria-labelledby="pg-titulo">
-    <div class="wrap pg-hero-in">
-      <div class="pg-hero-texto">
-        <p class="rotulo rotulo-lima">Para festas e eventos</p>
-        <h1 class="hero-titulo pg-titulo" id="pg-titulo"><span>Open bar</span><span>liberado.</span><em>A volta também.</em></h1>
-        <p class="hero-lede">Casamento, formatura, festa da empresa, aniversário. Os motoristas do Drink ficam de plantão na porta e cada convidado volta para casa no próprio carro. Se você quiser, o evento paga as voltas, até o teto que escolher.</p>
-        <div class="acoes">
-          <a class="btn btn-sodio" href="../app/?aba=eventos"><svg class="i" aria-hidden="true"><use href="#i-calendario"/></svg>Criar o meu evento</a>
-          <a class="btn btn-vidro" href="#quantos">Quantos Drinks preciso?<svg class="i" aria-hidden="true"><use href="#i-baixo"/></svg></a>
-        </div>
-        <ul class="hero-fatos">
-          <li><svg class="i" aria-hidden="true"><use href="#i-pessoas"/></svg><span><b>Drinks de plantão</b><small>na porta, na hora de ir embora</small></span></li>
-          <li><svg class="i" aria-hidden="true"><use href="#i-qr"/></svg><span><b>QR no convite</b><small>e nas mesas, sem digitar endereço</small></span></li>
-          <li><svg class="i" aria-hidden="true"><use href="#i-carteira"/></svg><span><b>Teto por volta</b><small>o evento paga até onde quiser</small></span></li>
-        </ul>
+  <!-- ================= a abertura: a cortina vermelha ================= -->
+  <section class="mr-hero" aria-labelledby="mr-titulo">
+    <div class="mr-cortina" aria-hidden="true"></div>
+    <div class="mr-hero-in">
+      <p class="mr-sobre"><span>A Drink apresenta</span><span>a volta da</span></p>
+      <h1 class="mr-titulo" id="mr-titulo"><span class="mr-maison">Maison</span><span class="mr-rouge">Rouge</span></h1>
+      <p class="mr-quando">
+        <span><b>Sábado</b> 31 de outubro</span>
+        <span class="mr-ponto" aria-hidden="true">◆</span>
+        <span><b>23h</b> portas abertas</span>
+        <span class="mr-ponto" aria-hidden="true">◆</span>
+        <span><b>Postin</b> Olhos d’Água · BH</span>
+      </p>
+      <p class="mr-frase">A noite é de vocês. <em>A volta é nossa.</em></p>
+      <p class="mr-lede">300 convidados, muito brinde e uma regra só: quem bebe não dirige. Os motoristas da Drink ficam de plantão na porta do Postin e levam você e o seu carro pra casa.</p>
+
+      <div class="mr-contagem" id="mr-contagem" role="timer" aria-live="off">
+        <p class="mr-contagem-t" id="mr-contagem-t">A noite começa em</p>
+        <ol class="mr-contagem-n" id="mr-contagem-n">
+          <li><b data-c="d">--</b><span>dias</span></li>
+          <li><b data-c="h">--</b><span>horas</span></li>
+          <li><b data-c="m">--</b><span>min</span></li>
+          <li><b data-c="s">--</b><span>seg</span></li>
+        </ol>
       </div>
-      <div class="pg-hero-arte" aria-hidden="true">
-        <div class="pg-convite">
-          <p class="pg-conv-tipo">Festa</p>
-          <p class="pg-conv-nome">Maison Rouge</p>
-          <p class="pg-conv-data">Sábado, 31 de outubro · 23h</p>
-          <p class="pg-conv-lugar">Postin · Olhos d’Água</p>
-          <div class="pg-conv-drink">
-            <svg class="i"><use href="#i-qr"/></svg>
-            <p><b>Drink de plantão na porta</b><span>Leia o QR e volte para casa no seu carro.</span></p>
-          </div>
-        </div>
-        <div class="pg-qr-mesa pg-conv-adesivo"><svg class="i"><use href="#i-limao"/></svg><span>Bebeu?<br>A gente dirige.</span></div>
+
+      <div class="mr-acoes">
+        <a class="mr-bt mr-bt-ouro" href="#volta">Guardar o QR da volta</a>
+        <a class="mr-bt mr-bt-linha" href="#roteiro">O roteiro da noite</a>
       </div>
     </div>
   </section>
 
-  <!-- ================= para quem ================= -->
-  <section class="pg-ganha claro" id="tipos" data-secao="tipos" aria-labelledby="tipos-titulo">
-    <div class="wrap">
-      <div class="cab">
-        <p class="rotulo">Para quem é</p>
-        <h2 id="tipos-titulo">Toda festa tem <span class="destaque">quem veio de carro.</span></h2>
-        <p class="lede">Com o Drink de plantão, ninguém precisa escolher entre brindar e voltar dirigindo. E você não se preocupa com quem pegou a chave depois da meia-noite.</p>
-      </div>
-      <ul class="pg-cards pg-cards-claro">
-        <li><svg class="i" aria-hidden="true"><use href="#i-estrela"/></svg><b>Casamento</b><span>Os padrinhos brindam até o fim. O QR vai no convite ou na mesa, e os noivos podem pagar a volta de todo mundo.</span></li>
-        <li><svg class="i" aria-hidden="true"><use href="#i-pessoas"/></svg><b>Formatura</b><span>Turma grande, festa longa. A comissão escolhe se a formatura paga as voltas ou se cada um paga a sua.</span></li>
-        <li><svg class="i" aria-hidden="true"><use href="#i-maleta"/></svg><b>Festa da empresa</b><span>Confraternização sem risco para o time. A empresa paga as voltas e recebe a conta de cada uma, com data, hora e valor.</span></li>
-        <li><svg class="i" aria-hidden="true"><use href="#i-copo"/></svg><b>Aniversário e festa particular</b><span>Chácara, sítio ou salão de festas: os amigos voltam no próprio carro e o carro não fica dormindo na rua.</span></li>
-        <li><svg class="i" aria-hidden="true"><use href="#i-sinal"/></svg><b>Show e festival</b><span>Na saída, todo mundo ao mesmo tempo. Os Drinks já estão por perto, com o embarque marcado no portão.</span></li>
-        <li><svg class="i" aria-hidden="true"><use href="#i-limao"/></svg><b>Bar e restaurante</b><span>Para todas as noites, o seu bar vira parceiro: selo do limão no app, QR na mesa e painel das voltas.</span></li>
-      </ul>
-      <p class="pg-tipos-mais"><a class="mais-link" href="../bares/">Tenho um bar ou restaurante<svg class="i" aria-hidden="true"><use href="#i-seta"/></svg></a></p>
-    </div>
+  <!-- ================= os números ================= -->
+  <section class="mr-numeros" aria-label="A noite em números">
+    <ul>
+      <li><b>300</b><span>convidados</span></li>
+      <li><b>23h</b><span>portas abertas</span></li>
+      <li><b>8</b><span>motoristas Drink de plantão</span></li>
+      <li><b>1</b><span>regra: quem bebe não dirige</span></li>
+    </ul>
   </section>
 
-  <!-- ================= como funciona ================= -->
-  <section class="dobra pg-passos" id="como" data-secao="como" aria-labelledby="como-titulo">
-    <div class="wrap pg-duas">
-      <div class="cab">
-        <p class="rotulo">Como funciona</p>
-        <h2 id="como-titulo">Você cria. <span class="destaque">O app cuida.</span></h2>
-        <p class="lede">Tudo pela aba Eventos do app, no celular de quem organiza. Sem contrato, sem mensalidade.</p>
-        <div class="acoes">
-          <a class="btn btn-sodio" href="../app/?aba=eventos"><svg class="i" aria-hidden="true"><use href="#i-calendario"/></svg>Criar o meu evento</a>
-        </div>
-      </div>
-      <ol class="mot-caminho pg-caminho">
-        <li><b>Crie o evento</b><span>Tipo, dia, horário, endereço e número de convidados. O app já diz quantos Drinks o evento precisa.</span></li>
-        <li><b>Escolha quem paga a volta</b><span>O evento paga cada volta até o teto que você definir (R$ 60, 80, 100 ou 150), ou cada convidado paga a sua.</span></li>
-        <li><b>Mande o QR</b><span>No convite, nas mesas ou no telão. O convidado lê com a câmera e o app abre com o embarque no lugar da festa.</span></li>
-        <li><b>Chame os Drinks</b><span>Perto da hora de ir embora, toque em “Chamar Drinks agora”: os motoristas perto recebem o aviso e vão para a porta.</span></li>
-        <li><b>Acerte pelo Pix</b><span>Cada volta paga pelo evento chega como conta no app. Você paga cada Drink pelo Pix e encerra o evento.</span></li>
+  <!-- ================= o roteiro ================= -->
+  <section class="mr-secao mr-roteiro" id="roteiro" aria-labelledby="roteiro-t">
+    <div class="mr-in">
+      <p class="mr-rotulo">Le programme</p>
+      <h2 id="roteiro-t">O roteiro <em>da noite</em></h2>
+      <ol class="mr-linha">
+        <li class="mr-revela">
+          <time>23:00</time>
+          <div><b>Portas abertas</b><p>Chegou de carro? Estaciona e pode esquecer a chave no bolso: a volta já está resolvida.</p></div>
+        </li>
+        <li class="mr-revela">
+          <time>00:00</time>
+          <div><b>A noite esquenta</b><p>Brinda à vontade. Hoje ninguém precisa ser o motorista da vez.</p></div>
+        </li>
+        <li class="mr-revela mr-linha-drink">
+          <time>02:30</time>
+          <div><b>Os Drinks chegam</b><p>Os motoristas da Drink ficam de plantão na porta do Postin, de camisa da Drink, prontos para levar a galera.</p></div>
+        </li>
+        <li class="mr-revela mr-linha-drink">
+          <time>03:00</time>
+          <div><b>Hora de voltar</b><p>Até o fim da festa. Lê o QR, pede o seu Drink e encontra o motorista na saída. Ele confere o código, fotografa o carro e assume o volante.</p></div>
+        </li>
+        <li class="mr-revela">
+          <time>Em casa</time>
+          <div><b>Bonne nuit</b><p>Carro na garagem, chave na sua mão. O motorista guarda a bike e segue para a próxima volta.</p></div>
+        </li>
       </ol>
     </div>
   </section>
 
-  <!-- ================= quantos Drinks ================= -->
-  <section class="eventos pg-quantos" id="quantos" data-secao="quantos" aria-labelledby="quantos-titulo">
-    <div class="wrap eventos-grade">
-      <div class="eventos-texto">
-        <p class="rotulo">Quanto custa</p>
-        <h2 id="quantos-titulo">Faça a conta <span class="destaque">antes da festa.</span></h2>
-        <p class="lede">Cada volta custa o que marca o taxímetro do Drink: R$ 25 de saída e R$ 3,50 por km, com +20% da meia-noite às 5h. Se o evento paga, ele paga no máximo o teto de cada volta; o que passar, o convidado completa pelo Pix.</p>
-        <ul class="conta pg-quantos-ex" aria-label="Exemplos de volta">
-          <li><span>Volta de 5 km, às 23h</span><span>R$ 42,50</span></li>
-          <li><span>Volta de 8 km, às 23h</span><span>R$ 53,00</span></li>
-          <li><span>Volta de 8 km, à 1h (bandeira 2)</span><span>R$ 63,60</span></li>
-          <li><span>Volta de 15 km, à 1h (bandeira 2)</span><span>R$ 93,00</span></li>
-        </ul>
-      </div>
-      <div class="calc calc-ev" id="pe-calc">
-        <h3>Quantos Drinks a Maison Rouge precisa?</h3>
-        <div class="chips" id="pe-tipos" role="group" aria-label="Tipo de evento">
-          <button type="button" class="chip" data-taxa="0.35" aria-pressed="false">Casamento</button>
-          <button type="button" class="chip" data-taxa="0.3" aria-pressed="false">Formatura</button>
-          <button type="button" class="chip" data-taxa="0.3" aria-pressed="false">Empresa</button>
-          <button type="button" class="chip" data-taxa="0.3" aria-pressed="true">Festa</button>
-          <button type="button" class="chip" data-taxa="0.2" aria-pressed="false">Show</button>
-        </div>
-        <div class="faixa-campo">
-          <label for="pe-conv">Convidados</label>
-          <output id="pe-conv-out" for="pe-conv">300</output>
-          <input type="range" id="pe-conv" min="30" max="1000" step="10" value="300">
-        </div>
-        <p class="pe-rot" id="pe-teto-t">O evento paga até, por volta</p>
-        <div class="chips" id="pe-tetos" role="group" aria-labelledby="pe-teto-t">
-          <button type="button" class="chip" data-teto="0" aria-pressed="false">Nada</button>
-          <button type="button" class="chip" data-teto="60" aria-pressed="false">R$ 60</button>
-          <button type="button" class="chip" data-teto="80" aria-pressed="true">R$ 80</button>
-          <button type="button" class="chip" data-teto="100" aria-pressed="false">R$ 100</button>
-          <button type="button" class="chip" data-teto="150" aria-pressed="false">R$ 150</button>
-        </div>
-        <p class="ev-num" aria-live="polite"><span class="ev-num-n" id="pe-num">11</span><span id="pe-num-txt">Drinks de plantão</span></p>
-        <ul class="conta" id="pe-conta"></ul>
-        <p class="nota">Estimativa: parte dos convidados vai de carro, cerca de 2 pessoas por carro, e cada Drink faz 3 voltas por noite. O custo de verdade é o das voltas que acontecerem.</p>
-        <a class="btn btn-sodio btn-cheio" href="../app/?aba=eventos">Criar o meu evento no app</a>
-      </div>
+  <!-- ================= como voltar ================= -->
+  <section class="mr-secao mr-como" aria-labelledby="como-t">
+    <div class="mr-in">
+      <p class="mr-rotulo">Le retour</p>
+      <h2 id="como-t">Voltar é <em>simples assim</em></h2>
+      <ol class="mr-passos">
+        <li class="mr-revela"><span class="mr-num">I</span><b>Lê o QR</b><p>Com a câmera do celular, na hora de ir embora. Não precisa instalar nada.</p></li>
+        <li class="mr-revela"><span class="mr-num">II</span><b>O motorista te encontra</b><p>Na porta do Postin. Ele te passa um código de 4 números: é como você sabe que é o Drink certo.</p></li>
+        <li class="mr-revela"><span class="mr-num">III</span><b>Você vai junto, no seu carro</b><p>No banco do passageiro ou no de trás. Em casa, você paga pelo Pix, direto para o motorista.</p></li>
+      </ol>
     </div>
   </section>
 
-  <!-- ================= painel ================= -->
-  <section class="pg-painel escuro" id="painel" data-secao="painel" aria-labelledby="painel-titulo">
-    <div class="wrap pg-duas">
-      <div class="cab">
-        <p class="rotulo">O painel de quem organiza</p>
-        <h2 id="painel-titulo">Cada volta, <span class="destaque">uma conta clara.</span></h2>
-        <p class="lede">Durante a festa, o app mostra cada volta que o evento pagou: o primeiro nome do convidado, para onde ele foi, o horário, o valor e o motorista. No fim, você paga cada Drink pelo Pix ali mesmo e encerra o evento.</p>
+  <!-- ================= o QR ================= -->
+  <section class="mr-secao mr-volta" id="volta" aria-labelledby="volta-t">
+    <div class="mr-in mr-volta-in">
+      <div class="mr-volta-txt">
+        <p class="mr-rotulo">Gardez-le</p>
+        <h2 id="volta-t">O QR <em>da sua volta</em></h2>
+        <p>Aponte a câmera na hora de ir embora. Tira um print desta página: o mesmo QR vai estar na porta e no bar da festa.</p>
+        <a class="mr-bt mr-bt-lima" href="../app/">Abrir o app da Drink</a>
       </div>
-      <div class="pg-grafico pg-contas" role="img" aria-label="Exemplo do painel da Maison Rouge: 4 voltas pagas, R$ 254,80 no total">
-        <p class="pg-graf-cab"><b>Maison Rouge</b><span>exemplo</span></p>
-        <ul class="pg-contas-lista" aria-hidden="true">
-          <li><span><b>Marina</b><small>00:42 · para Sion · Rafael S.</small></span><em>R$ 49,80</em></li>
-          <li><span><b>Thiago</b><small>01:05 · para Buritis · Bruno L.</small></span><em>R$ 80,00</em></li>
-          <li><span><b>Carla</b><small>01:18 · para Funcionários · Rafael S.</small></span><em>R$ 45,00</em></li>
-          <li><span><b>Diego</b><small>01:31 · para Pampulha · Ana C.</small></span><em>R$ 80,00</em></li>
-        </ul>
-        <ul class="pg-graf-resumo" aria-hidden="true">
-          <li><b>4</b><span>voltas pagas</span></li>
-          <li><b>R$ 254,80</b><span>a pagar pelo Pix</span></li>
-          <li><b>3</b><span>Drinks na festa</span></li>
-        </ul>
-      </div>
+      <figure class="mr-qr-moldura">
+        <div class="mr-qr" id="mr-qr" role="img" aria-label="QR code que abre o app da Drink"></div>
+        <figcaption>Maison Rouge · 31.10</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ================= o preço ================= -->
+  <section class="mr-secao mr-preco" aria-labelledby="preco-t">
+    <div class="mr-in">
+      <p class="mr-rotulo">La carte</p>
+      <h2 id="preco-t">Quanto custa <em>voltar</em></h2>
+      <p class="mr-preco-regra">R$ 25 de saída + R$ 3,50 por km. Da meia-noite às 5h, a bandeira 2 soma 20%. Você paga pelo Pix, direto para o motorista, e a gorjeta é só se quiser.</p>
+      <table class="mr-carta">
+        <caption class="mr-sr">Exemplos de volta depois da meia-noite</caption>
+        <thead><tr><th scope="col">Volta depois da meia-noite</th><th scope="col">Valor</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">5 km</th><td>R$ 51,00</td></tr>
+          <tr><th scope="row">10 km</th><td>R$ 72,00</td></tr>
+          <tr><th scope="row">15 km</th><td>R$ 93,00</td></tr>
+          <tr><th scope="row">20 km</th><td>R$ 114,00</td></tr>
+        </tbody>
+      </table>
+      <p class="mr-nota">O valor da sua volta aparece no app antes de você pedir.</p>
+    </div>
+  </section>
+
+  <!-- ================= segurança ================= -->
+  <section class="mr-secao mr-seguro" aria-labelledby="seguro-t">
+    <div class="mr-in">
+      <p class="mr-rotulo">En toute confiance</p>
+      <h2 id="seguro-t">Seu carro <em>em boas mãos</em></h2>
+      <ul class="mr-cartoes">
+        <li class="mr-revela"><b>Motoristas conferidos</b><p>CNH há 2 anos ou mais e antecedentes criminais sem pendências.</p></li>
+        <li class="mr-revela"><b>Código de segurança</b><p>O motorista só assume o volante depois de conferir o seu código no app.</p></li>
+        <li class="mr-revela"><b>Vistoria com fotos</b><p>Os 4 lados e o painel, com data e hora, antes de sair. É a prova de como o carro estava.</p></li>
+        <li class="mr-revela"><b>Viagem ao vivo</b><p>Compartilhe o trajeto com quem quiser e use o botão de ajuda se precisar.</p></li>
+      </ul>
     </div>
   </section>
 
   <!-- ================= perguntas ================= -->
-  <section class="pg-faq claro" id="perguntas" data-secao="perguntas" aria-labelledby="faq-titulo">
-    <div class="wrap pg-duas">
-      <div class="cab">
-        <p class="rotulo">Perguntas</p>
-        <h2 id="faq-titulo">Ficou <span class="destaque">dúvida?</span></h2>
-      </div>
-      <div class="pg-perguntas">
-        <details class="pg-pergunta">
-          <summary>Precisa de contrato ou mensalidade?<svg class="i" aria-hidden="true"><use href="#i-mais"/></svg></summary>
-          <p>Não. Você cria o evento no app e paga só as voltas que o evento cobrir, depois da festa, pelo Pix para cada motorista.</p>
-        </details>
-        <details class="pg-pergunta">
-          <summary>O convidado precisa ter o app?<svg class="i" aria-hidden="true"><use href="#i-mais"/></svg></summary>
-          <p>Não precisa instalar nada. Ele lê o QR com a câmera do celular e o Drink abre no navegador, já com o embarque no lugar da festa e a parte que o evento paga.</p>
-        </details>
-        <details class="pg-pergunta">
-          <summary>Como funciona o teto por volta?<svg class="i" aria-hidden="true"><use href="#i-mais"/></svg></summary>
-          <p>Você escolhe quanto o evento paga em cada volta (R$ 60, 80, 100 ou 150). Se a volta custar menos, o evento paga só o que custou. Se custar mais, o convidado completa a diferença pelo Pix, direto para o motorista.</p>
-        </details>
-        <details class="pg-pergunta">
-          <summary>Dá para limitar quantas voltas o evento paga?<svg class="i" aria-hidden="true"><use href="#i-mais"/></svg></summary>
-          <p>Dá. Na hora de criar, você define o número de voltas pagas. O app avisa o convidado quando a cota acaba, e aí cada um paga a sua.</p>
-        </details>
-        <details class="pg-pergunta">
-          <summary>E se a festa for longe, numa chácara ou no Jardim Canadá?<svg class="i" aria-hidden="true"><use href="#i-mais"/></svg></summary>
-          <p>Avise com antecedência e crie o evento uns dias antes: os Drinks se organizam para estar por perto na hora da saída. Para lugares mais afastados, agendar as voltas garante o horário.</p>
-        </details>
-        <details class="pg-pergunta">
-          <summary>Quantos Drinks vão ficar de plantão?<svg class="i" aria-hidden="true"><use href="#i-mais"/></svg></summary>
-          <p>Depende do número de convidados e do tipo de festa. O app faz a conta quando você cria o evento, e a calculadora desta página dá uma ideia antes.</p>
-        </details>
-        <details class="pg-pergunta">
-          <summary>O motorista dirige qualquer carro?<svg class="i" aria-hidden="true"><use href="#i-mais"/></svg></summary>
-          <p>Dirige carro manual e automático. Ele confere o código do convidado, fotografa o carro na vistoria e guarda a bike ou o patinete dobrado no porta-malas.</p>
-        </details>
+  <section class="mr-secao mr-faq" aria-labelledby="faq-t">
+    <div class="mr-in">
+      <p class="mr-rotulo">Questions</p>
+      <h2 id="faq-t">Ficou <em>dúvida?</em></h2>
+      <div class="mr-perguntas">
+        <details><summary>Preciso instalar algum app?</summary><p>Não. O QR abre a Drink no navegador do celular. Se quiser, dá para instalar depois, direto do site.</p></details>
+        <details><summary>Eu vou junto no carro?</summary><p>Vai, sim: no banco do passageiro ou no de trás. E dá para pedir um Drink para um amigo e acompanhar a viagem pelo app.</p></details>
+        <details><summary>Meu carro é manual. Tem problema?</summary><p>Nenhum. Os motoristas da Drink dirigem carro manual e automático.</p></details>
+        <details><summary>E a bike do motorista?</summary><p>Ele chega de bike elétrica ou patinete dobrável e guarda no seu porta-malas, forrado com uma capa. Em casa, tira e segue para a próxima volta.</p></details>
+        <details><summary>E se eu vim de Uber?</summary><p>A Drink leva você no seu carro. Quem não veio de carro volta de táxi ou de aplicativo, como sempre.</p></details>
       </div>
     </div>
   </section>
 
-  <section class="final pg-final" aria-labelledby="final-titulo">
-    <div class="final-ceu" aria-hidden="true">
-      <svg class="sol"><use href="#i-limao"/></svg>
-      <svg class="serra serra-final"><use href="#serra-corpo"/></svg>
-    </div>
-    <div class="wrap final-in">
-      <p class="rotulo">Maison Rouge · domingo, 04:00</p>
-      <h2 id="final-titulo">Último brinde? <span class="destaque">Pode ir.</span></h2>
-      <p class="lede">Crie o evento, mande o QR no convite e deixe o Drink cuidar da volta de todo mundo.</p>
-      <div class="acoes">
-        <a class="btn btn-sodio" href="../app/?aba=eventos"><svg class="i" aria-hidden="true"><use href="#i-calendario"/></svg>Criar o meu evento</a>
-        <a class="btn btn-vidro" href="../bares/">Tenho um bar<svg class="i" aria-hidden="true"><use href="#i-seta"/></svg></a>
-      </div>
+  <!-- ================= o fim ================= -->
+  <section class="mr-final" aria-labelledby="final-t">
+    <div class="mr-cortina mr-cortina-baixa" aria-hidden="true"></div>
+    <div class="mr-in mr-final-in">
+      <p class="mr-rotulo">Maison Rouge · domingo, 04:00</p>
+      <h2 id="final-t">Bonne <em>nuit.</em></h2>
+      <p class="mr-frase">A festa é da Maison Rouge. <em>A volta é da Drink.</em></p>
+      <img class="mr-final-marca" src="../marca/drink-camisa-escura.svg" alt="Drink, motorista da vez" width="320" height="118">
     </div>
   </section>
 </main>
 
-<footer class="rodape">
-  <div class="wrap rodape-in">
-    <div class="rodape-marca">
-      <a class="marca" href="../" aria-label="Drink, página inicial"><svg class="marca-logo" viewBox="0 0 1000 1000" aria-hidden="true"><use href="#i-marca"/></svg></a>
-      <p>O motorista da vez.</p>
-    </div>
-    <nav class="rodape-nav" aria-label="Rodapé">
-      <a href="../">O Drink</a>
-      <a href="../#app">O app</a>
-      <a href="../#preco">Preço</a>
-      <a href="../#seguranca">Segurança</a>
-      <a href="../eventos/">Para eventos</a>
-      <a href="../motoristas/">Seja um Drink</a>
-      <a href="../bares/">Para bares</a>
-      <a href="../#perguntas">Perguntas</a>
-    </nav>
-    <div class="rodape-legal">
-      <p>Se beber, não dirija.</p>
-      <p>Venda de bebidas proibida para menores de 18 anos.</p>
-      <p>Protótipo. Preços, prazos e ganhos são exemplos. O app já funciona pelo navegador do celular; nas lojas, em breve.</p>
-    </div>
-  </div>
-  <p class="rodape-gigante" aria-hidden="true"><svg viewBox="0 0 1000 1000"><use href="#marca-meio"/><g><use href="#marca-letras"/></g></svg></p>
+<footer class="mr-rodape">
+  <p><b>Se beber, não dirija.</b> Venda de bebidas proibida para menores de 18 anos.</p>
+  <p><a href="../">Conheça a Drink</a> · <a href="../eventos/">Drink para festas e eventos</a></p>
 </footer>
 
-<dialog class="dlg" id="dlg-loja" aria-labelledby="dlg-loja-t">
-  <form method="dialog" class="dlg-in">
-    <p class="rotulo">Sem loja, sem fila</p>
-    <h2 id="dlg-loja-t">O Drink instala direto do site</h2>
-    <p>Abre o app no celular e toca em <b>Instalar o app</b>. No iPhone é pelo Safari: <b>Compartilhar</b> e depois <b>Adicionar à Tela de Início</b>. No Android, o Chrome pergunta sozinho.</p>
-    <div class="dlg-qr">
-      <svg viewBox="-2 -2 37 37" role="img" aria-label="Código QR com o endereço do app"><rect x="-2" y="-2" width="37" height="37" rx="2.4"/><path d="M0 0h7v1h-7zM9 0h4v1h-4zM16 0h1v1h-1zM18 0h2v1h-2zM22 0h3v1h-3zM26 0h7v1h-7zM0 1h1v1h-1zM6 1h1v1h-1zM10 1h2v1h-2zM15 1h1v1h-1zM18 1h1v1h-1zM20 1h2v1h-2zM26 1h1v1h-1zM32 1h1v1h-1zM0 2h1v1h-1zM2 2h3v1h-3zM6 2h1v1h-1zM8 2h1v1h-1zM11 2h2v1h-2zM14 2h1v1h-1zM16 2h1v1h-1zM18 2h2v1h-2zM21 2h2v1h-2zM24 2h1v1h-1zM26 2h1v1h-1zM28 2h3v1h-3zM32 2h1v1h-1zM0 3h1v1h-1zM2 3h3v1h-3zM6 3h1v1h-1zM8 3h3v1h-3zM18 3h1v1h-1zM22 3h3v1h-3zM26 3h1v1h-1zM28 3h3v1h-3zM32 3h1v1h-1zM0 4h1v1h-1zM2 4h3v1h-3zM6 4h1v1h-1zM8 4h1v1h-1zM10 4h1v1h-1zM13 4h6v1h-6zM21 4h1v1h-1zM23 4h1v1h-1zM26 4h1v1h-1zM28 4h3v1h-3zM32 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM8 5h1v1h-1zM11 5h2v1h-2zM17 5h1v1h-1zM20 5h2v1h-2zM24 5h1v1h-1zM26 5h1v1h-1zM32 5h1v1h-1zM0 6h7v1h-7zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM20 6h1v1h-1zM22 6h1v1h-1zM24 6h1v1h-1zM26 6h7v1h-7zM8 7h1v1h-1zM11 7h2v1h-2zM14 7h1v1h-1zM16 7h1v1h-1zM18 7h4v1h-4zM23 7h2v1h-2zM0 8h1v1h-1zM2 8h5v1h-5zM9 8h1v1h-1zM11 8h1v1h-1zM13 8h2v1h-2zM17 8h1v1h-1zM19 8h2v1h-2zM26 8h5v1h-5zM2 9h4v1h-4zM7 9h1v1h-1zM9 9h5v1h-5zM17 9h4v1h-4zM22 9h3v1h-3zM26 9h2v1h-2zM29 9h2v1h-2zM1 10h2v1h-2zM4 10h4v1h-4zM13 10h3v1h-3zM17 10h1v1h-1zM22 10h1v1h-1zM25 10h2v1h-2zM28 10h1v1h-1zM30 10h2v1h-2zM0 11h4v1h-4zM5 11h1v1h-1zM7 11h1v1h-1zM9 11h1v1h-1zM11 11h3v1h-3zM17 11h2v1h-2zM21 11h1v1h-1zM24 11h1v1h-1zM26 11h1v1h-1zM28 11h5v1h-5zM3 12h1v1h-1zM5 12h3v1h-3zM12 12h1v1h-1zM14 12h3v1h-3zM22 12h1v1h-1zM25 12h1v1h-1zM27 12h3v1h-3zM0 13h2v1h-2zM3 13h1v1h-1zM8 13h1v1h-1zM10 13h1v1h-1zM12 13h2v1h-2zM15 13h1v1h-1zM18 13h2v1h-2zM21 13h1v1h-1zM23 13h1v1h-1zM26 13h2v1h-2zM29 13h1v1h-1zM31 13h2v1h-2zM0 14h1v1h-1zM2 14h1v1h-1zM4 14h3v1h-3zM10 14h2v1h-2zM14 14h4v1h-4zM24 14h3v1h-3zM30 14h2v1h-2zM1 15h2v1h-2zM4 15h2v1h-2zM10 15h3v1h-3zM15 15h1v1h-1zM21 15h2v1h-2zM25 15h2v1h-2zM29 15h2v1h-2zM0 16h3v1h-3zM4 16h1v1h-1zM6 16h2v1h-2zM9 16h7v1h-7zM17 16h1v1h-1zM20 16h1v1h-1zM25 16h1v1h-1zM27 16h2v1h-2zM30 16h1v1h-1zM32 16h1v1h-1zM1 17h1v1h-1zM4 17h1v1h-1zM7 17h4v1h-4zM13 17h2v1h-2zM16 17h1v1h-1zM18 17h3v1h-3zM22 17h3v1h-3zM26 17h2v1h-2zM29 17h2v1h-2zM1 18h1v1h-1zM5 18h2v1h-2zM9 18h8v1h-8zM18 18h1v1h-1zM20 18h1v1h-1zM25 18h4v1h-4zM30 18h2v1h-2zM2 19h1v1h-1zM4 19h2v1h-2zM9 19h1v1h-1zM11 19h6v1h-6zM19 19h5v1h-5zM25 19h1v1h-1zM27 19h6v1h-6zM0 20h1v1h-1zM3 20h1v1h-1zM5 20h2v1h-2zM9 20h1v1h-1zM11 20h1v1h-1zM13 20h1v1h-1zM15 20h1v1h-1zM18 20h3v1h-3zM24 20h2v1h-2zM27 20h1v1h-1zM29 20h1v1h-1zM31 20h2v1h-2zM0 21h1v1h-1zM2 21h3v1h-3zM8 21h1v1h-1zM10 21h1v1h-1zM12 21h1v1h-1zM14 21h4v1h-4zM19 21h3v1h-3zM23 21h1v1h-1zM26 21h1v1h-1zM30 21h1v1h-1zM32 21h1v1h-1zM0 22h1v1h-1zM2 22h1v1h-1zM4 22h1v1h-1zM6 22h5v1h-5zM12 22h1v1h-1zM18 22h1v1h-1zM21 22h1v1h-1zM26 22h2v1h-2zM29 22h3v1h-3zM0 23h1v1h-1zM3 23h1v1h-1zM8 23h2v1h-2zM16 23h1v1h-1zM21 23h3v1h-3zM26 23h1v1h-1zM29 23h2v1h-2zM0 24h1v1h-1zM2 24h3v1h-3zM6 24h4v1h-4zM11 24h1v1h-1zM14 24h1v1h-1zM16 24h2v1h-2zM23 24h9v1h-9zM8 25h2v1h-2zM12 25h3v1h-3zM16 25h2v1h-2zM19 25h2v1h-2zM22 25h1v1h-1zM24 25h1v1h-1zM28 25h1v1h-1zM30 25h1v1h-1zM32 25h1v1h-1zM0 26h7v1h-7zM9 26h2v1h-2zM13 26h1v1h-1zM15 26h1v1h-1zM17 26h1v1h-1zM20 26h1v1h-1zM22 26h3v1h-3zM26 26h1v1h-1zM28 26h1v1h-1zM30 26h1v1h-1zM0 27h1v1h-1zM6 27h1v1h-1zM8 27h2v1h-2zM12 27h1v1h-1zM15 27h1v1h-1zM17 27h2v1h-2zM20 27h5v1h-5zM28 27h5v1h-5zM0 28h1v1h-1zM2 28h3v1h-3zM6 28h1v1h-1zM8 28h1v1h-1zM11 28h1v1h-1zM13 28h1v1h-1zM16 28h1v1h-1zM19 28h2v1h-2zM22 28h1v1h-1zM24 28h6v1h-6zM31 28h2v1h-2zM0 29h1v1h-1zM2 29h3v1h-3zM6 29h1v1h-1zM8 29h2v1h-2zM11 29h1v1h-1zM13 29h1v1h-1zM15 29h1v1h-1zM18 29h4v1h-4zM23 29h1v1h-1zM25 29h1v1h-1zM28 29h5v1h-5zM0 30h1v1h-1zM2 30h3v1h-3zM6 30h1v1h-1zM8 30h2v1h-2zM15 30h2v1h-2zM20 30h2v1h-2zM23 30h2v1h-2zM26 30h2v1h-2zM29 30h2v1h-2zM0 31h1v1h-1zM6 31h1v1h-1zM9 31h1v1h-1zM11 31h2v1h-2zM15 31h1v1h-1zM18 31h1v1h-1zM21 31h1v1h-1zM25 31h1v1h-1zM28 31h3v1h-3zM0 32h7v1h-7zM8 32h4v1h-4zM14 32h2v1h-2zM17 32h1v1h-1zM24 32h1v1h-1zM27 32h1v1h-1zM30 32h2v1h-2z"/></svg>
-      <p><b>Tá no computador?</b> Aponta a câmera do celular para o código e o app abre lá.</p>
-    </div>
-    <div class="acoes">
-      <a class="btn btn-sodio" href="../app/">Abrir o app</a>
-      <button class="btn btn-vidro" value="ok">Fechar</button>
-    </div>
-    <button class="dlg-x" value="fechar" aria-label="Fechar"><svg class="i" aria-hidden="true"><use href="#i-fechar"/></svg></button>
-  </form>
-</dialog>
-
-<script src="../app-nucleo.js"></script>
-<script src="../drink.js"></script>
+<script src="../app/vendor/qrcode.js"></script>
+<script src="mr.js"></script>
 </body>
 </html>
