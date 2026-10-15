@@ -14,3 +14,12 @@ window.DRINK_AUTORIZACAO = {
   x: 'kxpP-ZF88nj1yMz2VFHA9PnzeUL3e7ZROx_pw7o5EU0',
   y: 'rYY4aRRh6bTxbgssNW-lxkJzOpM4sZKN_ROnOQGJzCg',
 };
+
+/* O Google (o mesmo mapa e os mesmos endereços que o pessoal conhece da Uber): com a chave, o mapa, a busca, o
+   endereço de onde a pessoa está e a rota passam a ser do Google. A chave é do Google Cloud (console.cloud.google.com),
+   com as APIs Maps JavaScript, Places (New), Geocoding e Routes ligadas, e restrita ao site do Drink (ela fica à vista
+   no site, como em todo site com mapa do Google: a restrição é que impede outro site de usar). Passo a passo em
+   drink/servidor/LEIA-ME.md. Vazio = o app segue no OpenStreetMap, como antes. */
+window.DRINK_GOOGLE = {
+  chave: '',
+};

@@ -161,12 +161,337 @@
       if (x.status === 200) (0, eval)(x.responseText);
     } catch (e) { /* sem rede: fica sem mapa */ }
   }
-  function criar(el, opcoes = {}) {
+  function criarLivre(el, opcoes = {}) {
     if (temWebGL()) {
       try { return criarGL(el, opcoes); } catch (e) { el.innerHTML = ''; }
     }
     garantirLeaflet();
     return criarLeaflet(el, opcoes);
+  }
+  function criar(el, opcoes = {}) {
+    return comGoogle() ? criarComGoogle(el, opcoes) : criarLivre(el, opcoes);
+  }
+
+  /* ---------- o mapa do Google (com a chave do Drink em config-servidor.js) ---------- */
+  // ("semChave" só serve para testar: o Google abre o mapa com a marca d'água de desenvolvimento)
+  const comGoogle = () => Boolean(cfg.google && (cfg.google.chave || cfg.google.semChave) && cfg.google.mapa !== false);
+  let googlePromessa = null;
+  let googleFalhou = false;
+  function carregarGoogle() {
+    if (googlePromessa) return googlePromessa;
+    googlePromessa = new Promise((ok, falha) => {
+      if (window.google && window.google.maps && window.google.maps.Map) { ok(); return; }
+      const prazo = setTimeout(() => falha(new Error('o mapa do Google demorou')), 12000);
+      // a chave recusada (sem a API ligada, de outro site, sem cobrança) chega aqui, até depois do mapa aberto
+      window.gm_authFailure = () => {
+        clearTimeout(prazo);
+        googleFalhou = true;
+        falha(new Error('a chave do Google foi recusada'));
+        window.dispatchEvent(new Event('drink-google-falhou'));
+      };
+      window.drinkGooglePronto = () => { clearTimeout(prazo); ok(); };
+      const u = new URL(cfg.googleMapsJs);
+      if (cfg.google.chave) u.searchParams.set('key', cfg.google.chave);
+      [['v', 'weekly'], ['language', 'pt-BR'], ['region', 'BR'], ['loading', 'async'], ['callback', 'drinkGooglePronto']].forEach(([k, v]) => u.searchParams.set(k, v));
+      const sc = document.createElement('script');
+      sc.src = u.href;
+      sc.async = true;
+      sc.onerror = () => { clearTimeout(prazo); falha(new Error('sem o mapa do Google')); };
+      document.head.appendChild(sc);
+    });
+    return googlePromessa;
+  }
+  // começa a baixar já, enquanto a abertura do app passa
+  if (comGoogle()) carregarGoogle().catch(() => {});
+
+  // o Google chega pela rede depois que a tela abre: até lá (e se a chave falhar), esta mesma interface guarda o
+  // que o app pediu (pontos, rota, vista) e entrega ao mapa que ficar de pé, o do Google ou o de sempre
+  function criarComGoogle(el, opcoes) {
+    let motor = null;
+    const est = { pontos: new Map(), rota: null, grupos: {}, bares: null, folga: null, seguir: null, vista: null, mover: [], arrastar: [] };
+    function usar(m) {
+      motor = m;
+      if (est.folga !== null) m.folga(est.folga);
+      est.mover.forEach((fn) => m.aoMover(fn));
+      est.arrastar.forEach((fn) => m.aoArrastar(fn));
+      if (est.seguir) m.seguir(est.seguir);
+      est.pontos.forEach(([p, ic], nome) => m.ponto(nome, p, ic, 0));
+      if (est.rota) m.rota(est.rota);
+      Object.entries(est.grupos).forEach(([n, [l, d]]) => m.grupo(n, l, d));
+      if (est.bares) m.bares(...est.bares);
+      if (est.vista) m[est.vista[0]](...est.vista[1]);
+      el.dispatchEvent(new CustomEvent('drink-mapa-pronto', { detail: { google: Boolean(m.google) } }));
+    }
+    function reserva() {
+      if (motor && !motor.google) return;
+      if (motor) motor.destruir();
+      el.innerHTML = '';
+      el.classList.remove('mapa-google');
+      usar(criarLivre(el, opcoes));
+    }
+    if (googleFalhou) reserva();
+    else carregarGoogle().then(() => { try { usar(criarGoogle(el, opcoes)); } catch (e) { reserva(); } }, reserva);
+    window.addEventListener('drink-google-falhou', () => { if (motor && motor.google) reserva(); });
+    const api = {
+      get mapa() { return motor && motor.mapa; },
+      get google() { return Boolean(motor && motor.google); },
+      folga(x) { est.folga = x; if (motor) motor.folga(x); },
+      aoMover(fn) { est.mover.push(fn); if (motor) motor.aoMover(fn); },
+      parado: () => (motor ? motor.parado() : true),
+      aoArrastar(fn) { est.arrastar.push(fn); if (motor) motor.aoArrastar(fn); },
+      ponto(nome, p, icone, ms) {
+        if (!p) { api.tirar(nome); return; }
+        const antes = est.pontos.get(nome);
+        est.pontos.set(nome, [p, icone || (antes && antes[1])]);
+        if (motor) motor.ponto(nome, p, icone, ms);
+      },
+      tirar(nome) { est.pontos.delete(nome); if (motor) motor.tirar(nome); },
+      tem: (nome) => est.pontos.has(nome),
+      rota(linha) { est.rota = linha && linha.length >= 2 ? linha : null; if (motor) motor.rota(linha); },
+      semRota() { est.rota = null; if (motor) motor.semRota(); },
+      online(lista) { api.grupo('online', lista, (q) => ICONE.online(q.veic)); },
+      pedidos(lista) { api.grupo('pedidos', lista, () => ICONE.pedido()); },
+      grupo(nome, lista, desenho) { est.grupos[nome] = [lista, desenho]; if (motor) motor.grupo(nome, lista, desenho); },
+      bares(lista, desenho) { est.bares = [lista, desenho]; if (motor) motor.bares(lista, desenho); },
+      enquadrar(...a) { est.vista = ['enquadrar', a]; if (motor) motor.enquadrar(...a); },
+      centrar(...a) { if (!a[0]) return; est.vista = ['centrar', a]; if (motor) motor.centrar(...a); },
+      meio: () => (motor ? motor.meio() : { lat: (opcoes.centro || BH).lat, lon: (opcoes.centro || BH).lon }),
+      seguir(nome) { est.seguir = nome; if (motor) motor.seguir(nome); },
+      ajustar() { if (motor) motor.ajustar(); },
+      limpar() {
+        [...est.pontos.keys()].forEach((n) => { if (n !== 'voce') est.pontos.delete(n); });
+        est.rota = null; est.grupos = {}; est.bares = null; est.vista = null;
+        if (motor) motor.limpar();
+      },
+    };
+    return api;
+  }
+
+  function criarGoogle(el, { centro = BH, zoom = 15 } = {}) {
+    const g = window.google.maps;
+    const estilo = () => ESTILO.google(temaAtual());
+    const fundo = () => (ESTILO.CORES[temaAtual()] || ESTILO.COR).chao;
+    el.classList.add('mapa-google');
+    el.classList.remove('mapa-gl', 'mapa-imagens');
+    const mapa = new g.Map(el, {
+      center: { lat: centro.lat, lng: centro.lon }, zoom: Math.round(zoom), minZoom: 4, maxZoom: 20,
+      disableDefaultUI: true, clickableIcons: false, gestureHandling: 'greedy', keyboardShortcuts: false,
+      styles: estilo(), backgroundColor: fundo(),
+    });
+    el.mapaGoogle = mapa;
+    const ouvintes = [];
+    const ouvir = (alvo, ev, fn) => { ouvintes.push(g.event.addListener(alvo, ev, fn)); };
+    const aoTema = () => { mapa.setOptions({ styles: estilo(), backgroundColor: fundo() }); aplicarRota(); };
+    window.addEventListener('drink-tema', aoTema);
+
+    const memoria = memoriaDaVista(el);
+    let vigia = null;
+    let medirFolga = () => 0;
+    let seguir = null;
+    let andando = false;
+    const folga = () => Math.max(0, medirFolga() || 0);
+    ouvir(mapa, 'bounds_changed', () => { andando = true; });
+    ouvir(mapa, 'idle', () => { andando = false; levantarMarca(); });
+    ouvir(mapa, 'dragstart', () => memoria.esquecer());
+    const aoPincar = (e) => { if (e.touches && e.touches.length > 1) memoria.esquecer(); };
+    const aoRodar = () => memoria.esquecer();
+    el.addEventListener('touchstart', aoPincar, { passive: true });
+    el.addEventListener('wheel', aoRodar, { passive: true });
+    const tamanho = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(() => memoria.conferir()) : null;
+    if (tamanho) tamanho.observe(el);
+
+    // a marca e os créditos do Google ficam sempre à vista: sobem junto com a folha de baixo (como o "padding"
+    // dos mapas do Google nos apps de celular), em vez de ficarem escondidos embaixo dela
+    function levantarMarca() {
+      const base = el.querySelector('.gm-style');
+      if (!base) return;
+      const f = Math.round(folga());
+      [...base.children].forEach((filho) => {
+        if (filho.style.position === 'absolute' && filho.style.bottom === '0px' && !filho.querySelector('canvas, img[role="presentation"]')) {
+          filho.style.transform = f ? `translateY(-${f}px)` : '';
+        }
+      });
+    }
+
+    function pintar(caixa, icone) {
+      const chave = `${icone.classe}|${icone.html}`;
+      if (caixa.dataset.chave === chave) return;
+      caixa.dataset.chave = chave;
+      caixa.innerHTML = `<div class="mk ${icone.classe}" style="width:${icone.tam}px;height:${icone.tam}px">${icone.html}</div>`;
+    }
+    // os marcadores do app são HTML (os mesmos dos outros mapas), presos ao mapa por uma camada do Google
+    class Marca extends g.OverlayView {
+      constructor(p, icone, decorativo) {
+        super();
+        this.p = p;
+        this.caixa = document.createElement('div');
+        this.caixa.className = 'mk-caixa mk-g';
+        this.decorativo = decorativo;
+        if (decorativo) this.caixa.setAttribute('aria-hidden', 'true');
+        else g.OverlayView.preventMapHitsAndGesturesFrom(this.caixa);
+        pintar(this.caixa, icone);
+        this.setMap(mapa);
+      }
+      onAdd() { this.getPanes()[this.decorativo ? 'overlayLayer' : 'overlayMouseTarget'].appendChild(this.caixa); }
+      draw() {
+        const pr = this.getProjection();
+        const pt = pr && pr.fromLatLngToDivPixel(new g.LatLng(this.p.lat, this.p.lon));
+        if (pt) this.caixa.style.transform = `translate(${pt.x}px, ${pt.y}px) translate(-50%, -50%)`;
+      }
+      onRemove() { this.caixa.remove(); }
+      lugar(p) { this.p = p; this.draw(); }
+      onde() { return this.p; }
+      remove() { this.setMap(null); }
+    }
+    const pontos = {};
+    const tweens = {};
+    const alvos = {};
+    const grupos = { online: [], pedidos: [], bares: [] };
+    function mover(nome, p, ms = 900) {
+      const m = pontos[nome];
+      const de = m.onde();
+      const alvo = `${p.lat},${p.lon}`;
+      if (tweens[nome] && alvos[nome] === alvo) return;
+      alvos[nome] = alvo;
+      if (tweens[nome]) cancelAnimationFrame(tweens[nome]);
+      if (reduzirMovimento() || !ms || S.distancia(de, p) > 2000) { m.lugar({ lat: p.lat, lon: p.lon }); return; }
+      const t0 = performance.now();
+      const passo = (agora) => {
+        const t = Math.min(1, (agora - t0) / ms);
+        m.lugar({ lat: de.lat + (p.lat - de.lat) * t, lon: de.lon + (p.lon - de.lon) * t });
+        if (t < 1) tweens[nome] = requestAnimationFrame(passo); else delete tweens[nome];
+      };
+      tweens[nome] = requestAnimationFrame(passo);
+    }
+
+    let linhaRota = null;
+    let linhas = [];
+    function aplicarRota() {
+      linhas.forEach((l) => l.setMap(null));
+      linhas = [];
+      if (!linhaRota) return;
+      const path = linhaRota.map(([lat, lon]) => ({ lat, lng: lon }));
+      // escuro: a rota em limão com borda escura; claro: a rota escura com um halo limão
+      const claro = temaAtual() === 'claro';
+      linhas = [
+        new g.Polyline({ path, map: mapa, clickable: false, zIndex: 1, strokeColor: claro ? '#C2F23A' : '#0E0D12', strokeOpacity: claro ? 0.9 : 0.6, strokeWeight: claro ? 11 : 10 }),
+        new g.Polyline({ path, map: mapa, clickable: false, zIndex: 2, strokeColor: claro ? '#0E0D12' : '#D2FF3C', strokeOpacity: 1, strokeWeight: 5 }),
+      ];
+    }
+    let anel = null;
+    function aplicarPrecisao(a) {
+      if (!a) { if (anel) { anel.setMap(null); anel = null; } return; }
+      const op = { center: { lat: a.lat, lng: a.lon }, radius: a.precisao };
+      if (anel) { anel.setOptions(op); return; }
+      anel = new g.Circle({ ...op, map: mapa, clickable: false, fillColor: '#5B67FF', fillOpacity: 0.13, strokeColor: '#8D97FF', strokeOpacity: 0.5, strokeWeight: 1 });
+    }
+
+    // o ponto que fica "dy" pixels abaixo de p, no zoom z (para descontar a folha que cobre o mapa)
+    function deslocar(p, z, dy) {
+      const pr = mapa.getProjection();
+      const ll = new g.LatLng(p.lat, p.lon);
+      if (!pr || !dy) return ll;
+      const pt = pr.fromLatLngToPoint(ll);
+      return pr.fromPointToLatLng(new g.Point(pt.x, pt.y + dy / 2 ** z));
+    }
+    const animar = () => !reduzirMovimento();
+    function centrarAgora(p, zoomPedido) {
+      const z = Math.round(zoomPedido || Math.max(mapa.getZoom(), 15));
+      const c = deslocar(p, z, folga() / 2);
+      if (mapa.getZoom() !== z) mapa.setZoom(z);
+      if (animar()) mapa.panTo(c); else mapa.setCenter(c);
+    }
+
+    const api = {
+      mapa,
+      google: true,
+      folga(x) {
+        medirFolga = cobre(el, x);
+        vigia = vigiarFolha(x, folga, { folhaMudou() { memoria.folhaMudou(); levantarMarca(); } }, vigia);
+        levantarMarca();
+      },
+      aoMover(fn) { ouvir(mapa, 'idle', fn); },
+      parado: () => !andando,
+      aoArrastar(fn) { ouvir(mapa, 'dragstart', fn); },
+      ponto(nome, p, icone, ms) {
+        if (!p) { api.tirar(nome); return; }
+        if (ANEL.includes(nome)) aplicarPrecisao(comAnel(p));
+        if (pontos[nome]) { mover(nome, p, ms); if (icone) pintar(pontos[nome].caixa, icone); return; }
+        pontos[nome] = new Marca({ lat: p.lat, lon: p.lon }, icone || ICONE.voce(), true);
+        if (seguir === nome) api.centrar(p);
+      },
+      tirar(nome) {
+        if (ANEL.includes(nome)) aplicarPrecisao(null);
+        if (tweens[nome]) { cancelAnimationFrame(tweens[nome]); delete tweens[nome]; }
+        if (pontos[nome]) { pontos[nome].remove(); delete pontos[nome]; }
+      },
+      tem: (nome) => Boolean(pontos[nome]),
+      rota(linha) { linhaRota = linha && linha.length >= 2 ? linha : null; aplicarRota(); },
+      semRota() { linhaRota = null; aplicarRota(); },
+      online(lista) { api.grupo('online', lista, (q) => ICONE.online(q.veic)); },
+      pedidos(lista) { api.grupo('pedidos', lista, () => ICONE.pedido()); },
+      grupo(nome, lista, desenho) {
+        grupos[nome].forEach((m) => m.remove());
+        grupos[nome] = (lista || []).map((p) => { const q = espalhar(p); return new Marca(q, desenho(q), true); });
+      },
+      bares(lista, desenho) {
+        grupos.bares.forEach((m) => m.remove());
+        grupos.bares = (lista || []).map((p) => new Marca(p, desenho(p), false));
+      },
+      enquadrar(lista, { maxZoom = 16 } = {}) {
+        const pegar = typeof lista === 'function' ? lista : () => lista;
+        const fazer = () => {
+          const pts = (pegar() || []).filter(Boolean);
+          if (pts.length === 1) { centrarAgora(pts[0], maxZoom); return; }
+          if (!pts.length) return;
+          const alto = el.clientHeight || 600;
+          const livre = alto - folga();
+          const topo = Math.round(Math.min(96, Math.max(14, livre * 0.2)));
+          const baixo = Math.max(40, Math.min(folga() + 36, alto - topo - 70));
+          const caixa = new g.LatLngBounds();
+          pts.forEach((p) => caixa.extend({ lat: p.lat, lng: p.lon }));
+          // o Google não tem "zoom máximo" no enquadrar: o teto vale só até o mapa parar
+          mapa.setOptions({ maxZoom: Math.round(maxZoom) });
+          mapa.fitBounds(caixa, { top: topo, bottom: baixo, left: 44, right: 44 });
+          g.event.addListenerOnce(mapa, 'idle', () => mapa.setOptions({ maxZoom: 20 }));
+        };
+        memoria.guardar(fazer);
+        fazer();
+      },
+      centrar(p, zoom) {
+        if (!p) return;
+        const z = zoom || Math.max(mapa.getZoom() + 1, 15);
+        memoria.guardar(() => centrarAgora(p, z));
+        centrarAgora(p, z);
+      },
+      meio() {
+        const c = mapa.getCenter();
+        const ll = deslocar({ lat: c.lat(), lon: c.lng() }, mapa.getZoom(), -folga() / 2);
+        return { lat: ll.lat(), lon: ll.lng() };
+      },
+      seguir(nome) { seguir = nome; },
+      ajustar() { levantarMarca(); },
+      limpar() {
+        Object.keys(pontos).forEach((n) => { if (n !== 'voce') api.tirar(n); });
+        api.semRota();
+        api.online([]);
+        api.pedidos([]);
+        api.bares([]);
+        memoria.esquecer();
+      },
+      // a chave falhou depois do mapa aberto: sai tudo para o mapa de sempre entrar no lugar
+      destruir() {
+        ouvintes.forEach((o) => o.remove());
+        window.removeEventListener('drink-tema', aoTema);
+        el.removeEventListener('touchstart', aoPincar);
+        el.removeEventListener('wheel', aoRodar);
+        if (tamanho) tamanho.disconnect();
+        if (vigia) vigia.disconnect();
+        Object.values(tweens).forEach((t) => cancelAnimationFrame(t));
+        delete el.mapaGoogle;
+      },
+    };
+    return api;
   }
 
   /* ---------- mapa vetorial (MapLibre) ---------- */
@@ -562,5 +887,5 @@
     return api;
   }
 
-  window.Drink.mapa = { criar, ICONE };
+  window.Drink.mapa = { criar, ICONE, comGoogle };
 }());
