@@ -322,6 +322,8 @@
   }
   const idDaFoto = async (d) => (await R.resumo(d)).replace(/[^\w-]/g, '').slice(0, 12);
   const ateTxt = (b) => (b.ate > Date.now() ? `aberto até ${hhmm(new Date(b.ate))}` : 'fechado agora');
+  // o dia de BH (o toISOString é o dia de Londres: depois das 21h, a planilha saía com a data de amanhã)
+  const diaLocal = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   const voltasTxt = (n) => (n ? `${n} ${n === 1 ? 'volta' : 'voltas'} de Drink hoje` : 'nenhuma volta de Drink ainda hoje');
   // como chegar: o app de mapas do celular (o Drink só leva de volta; quem vai é você, no seu carro)
   const comoChegar = (b) => `https://www.google.com/maps/dir/?api=1&destination=${b.lat},${b.lon}`;
@@ -473,7 +475,7 @@
           v.usado ? `${new Date(v.usado).toLocaleDateString('pt-BR')} ${hhmm(new Date(v.usado))}` : '',
         ]));
       const csv = `\ufeff${linhas.map((l) => l.map(cel).join(';')).join('\r\n')}\r\n`;
-      const nome = `voltas-${b.nome.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'bar'}-${new Date().toISOString().slice(0, 10)}.csv`;
+      const nome = `voltas-${b.nome.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'bar'}-${diaLocal()}.csv`;
       const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
       const a = document.createElement('a');
       a.href = url;

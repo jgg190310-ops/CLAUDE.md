@@ -61,7 +61,7 @@
   <meta name="format-detection" content="telephone=no">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="../icon.svg" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="../icon-180.png?v=74">
+  <link rel="apple-touch-icon" href="../icon-180.png?v=75">
   <meta property="og:type" content="website">
   <meta property="og:locale" content="pt_BR">
   <meta property="og:title" content="Drink · o app">
@@ -71,17 +71,17 @@
   <meta name="twitter:card" content="summary_large_image">
   <link rel="preload" href="fontes/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="../fontes/bricolage-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="../fontes/fontes.css?v=74">
-  <link rel="stylesheet" href="../app-telas.css?v=74">
-  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=74">
-  <link rel="stylesheet" href="app.css?v=74">
-  <link rel="stylesheet" href="visual.css?v=74">
-  <link rel="stylesheet" href="tema.css?v=74">
-  <link rel="stylesheet" href="ritmo.css?v=74">
-  <link rel="stylesheet" href="perfil.css?v=74">
-  <link rel="stylesheet" href="jornada.css?v=74">
-  <link rel="stylesheet" href="agenda.css?v=74">
-  <link rel="stylesheet" href="bares.css?v=74">
+  <link rel="stylesheet" href="../fontes/fontes.css?v=75">
+  <link rel="stylesheet" href="../app-telas.css?v=75">
+  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=75">
+  <link rel="stylesheet" href="app.css?v=75">
+  <link rel="stylesheet" href="visual.css?v=75">
+  <link rel="stylesheet" href="tema.css?v=75">
+  <link rel="stylesheet" href="ritmo.css?v=75">
+  <link rel="stylesheet" href="perfil.css?v=75">
+  <link rel="stylesheet" href="jornada.css?v=75">
+  <link rel="stylesheet" href="agenda.css?v=75">
+  <link rel="stylesheet" href="bares.css?v=75">
 </head>
 <body>
 <svg class="sprite" aria-hidden="true" focusable="false">
@@ -568,7 +568,12 @@
             <div class="d-radar" aria-hidden="true"><span></span><span></span><span></span><svg><use href="#i-bike"/></svg></div>
             <h3 class="d-titulo" id="rp-bu-t" tabindex="-1">Procurando um Drink</h3>
             <p class="t-sub" id="rp-bu-sub">O pedido foi para os Drinks online por perto.</p>
+            <div class="rp-fila" id="rp-fila" role="status" hidden>
+              <b class="rp-fila-pos" id="rp-fila-pos">1º</b>
+              <p><span id="rp-fila-txt">O próximo Drink que ficar livre é seu.</span><small id="rp-fila-det"></small></p>
+            </div>
             <div class="ma-barra rt-prazo" aria-hidden="true"><span id="rp-prazo"></span></div>
+            <p class="rp-bu-dica" id="rp-bu-dica" hidden><svg aria-hidden="true"><use href="#i-sino"/></svg>Deixa esta tela aberta: o celular toca e vibra quando um Drink aceitar.</p>
             <dl class="rp-bu-resumo" aria-label="O seu pedido">
               <div><dt><span class="t-bol" aria-hidden="true"></span>De</dt><dd id="rp-bu-de">—</dd></div>
               <div><dt><span class="t-bol t-bol-fim" aria-hidden="true"></span>Para</dt><dd id="rp-bu-para">—</dd></div>
@@ -1383,6 +1388,15 @@
               <p><b id="rm-verif-t">Documentos em análise</b><small id="rm-verif-sub"></small></p>
               <button type="button" class="t-bt" id="rm-verif-bt" data-rm="cadastro" hidden>Corrigir e enviar de novo</button>
             </div>
+            <div class="rm-verif rm-autoriza" id="rm-autoriza" role="status" hidden>
+              <p><b id="rm-autoriza-t">Falta a autorização do Drink</b><small id="rm-autoriza-sub"></small></p>
+              <button type="button" class="t-bt" data-rm="pedir-autorizacao">Pedir autorização</button>
+              <div class="rm-autoriza-colar">
+                <label class="sr" for="rm-autoriza-link">Link da autorização</label>
+                <input type="url" id="rm-autoriza-link" placeholder="Cola aqui o link do Drink" autocomplete="off" inputmode="url">
+                <button type="button" class="t-bt" data-rm="usar-autorizacao">Usar</button>
+              </div>
+            </div>
             <small class="rm-off-sub" id="rm-off-sub">Fica online pra receber pedidos de verdade perto de você. Deixa o app aberto e a tela ligada.</small>
             <ul class="rm-pronto" id="rm-pronto" data-treino="nao" aria-label="Antes de ficar online">
               <li data-pronto="gps"><svg aria-hidden="true"><use href="#i-mira"/></svg><span>GPS</span><b id="rm-pronto-gps">…</b></li>
@@ -1961,35 +1975,36 @@
   <p class="vira-txt" id="vira-txt">O Drink é feito para usar na vertical. Nada se perde: se tiver corrida, ela continua rolando.</p>
 </div>
 
-<script src="vendor/maplibre-gl.js?v=74"></script>
+<script src="vendor/maplibre-gl.js?v=75"></script>
 <script>
   // o mapa reserva (Leaflet) só baixa no celular sem WebGL: os outros não gastam os 140 KB dele
   (function () {
     var gl = null;
     try { var c = document.createElement('canvas'); gl = c.getContext('webgl2') || c.getContext('webgl'); } catch (e) { gl = null; }
-    if (!gl) document.write('<link rel="stylesheet" href="vendor/leaflet.css?v=74"><script src="vendor/leaflet.js?v=74"><\/script>');
+    if (!gl) document.write('<link rel="stylesheet" href="vendor/leaflet.css?v=75"><script src="vendor/leaflet.js?v=75"><\/script>');
   }());
 </script>
-<script src="vendor/qrcode.js?v=74"></script>
-<script src="../app-nucleo.js?v=74"></script>
-<script src="config-servidor.js?v=74"></script>
-<script src="servicos.js?v=74"></script>
-<script src="rede.js?v=74"></script>
-<script src="mapa-estilo.js?v=74"></script>
-<script src="mapa.js?v=74"></script>
-<script src="carros.js?v=74"></script>
-<script src="cadastro-motorista.js?v=74"></script>
-<script src="servidor.js?v=74"></script>
-<script src="perfil.js?v=74"></script>
-<script src="pix.js?v=74"></script>
-<script src="avisos.js?v=74"></script>
-<script src="sms.js?v=74"></script>
-<script src="eventos.js?v=74"></script>
-<script src="agenda.js?v=74"></script>
-<script src="leitor.js?v=74"></script>
-<script src="bares.js?v=74"></script>
-<script src="passageiro.js?v=74"></script>
-<script src="motorista.js?v=74"></script>
-<script src="app.js?v=74"></script>
+<script src="vendor/qrcode.js?v=75"></script>
+<script src="../app-nucleo.js?v=75"></script>
+<script src="config-servidor.js?v=75"></script>
+<script src="servicos.js?v=75"></script>
+<script src="rede.js?v=75"></script>
+<script src="mapa-estilo.js?v=75"></script>
+<script src="mapa.js?v=75"></script>
+<script src="carros.js?v=75"></script>
+<script src="cadastro-motorista.js?v=75"></script>
+<script src="servidor.js?v=75"></script>
+<script src="credencial.js?v=75"></script>
+<script src="perfil.js?v=75"></script>
+<script src="pix.js?v=75"></script>
+<script src="avisos.js?v=75"></script>
+<script src="sms.js?v=75"></script>
+<script src="eventos.js?v=75"></script>
+<script src="agenda.js?v=75"></script>
+<script src="leitor.js?v=75"></script>
+<script src="bares.js?v=75"></script>
+<script src="passageiro.js?v=75"></script>
+<script src="motorista.js?v=75"></script>
+<script src="app.js?v=75"></script>
 </body>
 </html>

@@ -1293,3 +1293,24 @@ html[data-tema="claro"] .app button.en-trazer-link { background: rgba(61, 102, 0
 .app .rm-verif .t-bt { justify-self: start; padding: 0 1.1em; }
 html[data-tema="claro"] .app .rm-verif { background: rgba(120, 160, 0, .1); box-shadow: inset 0 0 0 1px rgba(90, 120, 0, .4); }
 html[data-tema="claro"] .app .rm-verif.recusado { background: rgba(214, 58, 32, .08); box-shadow: inset 0 0 0 1.5px rgba(214, 58, 32, .4); }
+
+/* v75: a autorização do Drink (sem servidor): pedir pelo WhatsApp ou colar o link que voltou */
+.app .rm-autoriza-colar { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: .5em; }
+.app .rm-autoriza-colar input { min-width: 0; min-height: 44px; padding: 0 .9em; border: 1px solid var(--a-linha); border-radius: 999px; background: var(--a-card); color: var(--luz); font: inherit; font-size: max(16px, .9em); }
+.app .rm-autoriza-colar input::placeholder { color: var(--a-texto-3); }
+.app .rm-autoriza-colar .t-bt { min-height: 44px; }
+
+/* v75: a fila (festa, bar, noite cheia): a posição grande, o resto embaixo */
+.app .rp-fila { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: .9em; width: 100%; margin: .2em 0 .9em; padding: .85em 1em; border-radius: var(--r-m, 14px); background: rgba(210, 255, 60, .08); box-shadow: inset 0 0 0 1px rgba(210, 255, 60, .35); text-align: left; }
+.app .rp-fila[hidden] { display: none; }
+.app .rp-fila-pos { min-width: 1.6em; font-family: var(--f-marca); font-size: 2.4em; font-weight: 800; line-height: 1; letter-spacing: -.02em; text-align: center; color: var(--lima-tx, #D2FF3C); }
+.app .rp-fila p { display: grid; gap: .25em; margin: 0; }
+.app .rp-fila span { font-weight: 650; color: var(--luz); }
+.app .rp-fila small { font-size: max(12.5px, .82em); line-height: 1.45; color: var(--a-texto-2); }
+.app .na-fila .rt-prazo { display: none; }
+html[data-tema="claro"] .app .rp-fila { background: rgba(120, 160, 0, .1); box-shadow: inset 0 0 0 1px rgba(90, 120, 0, .4); }
+html[data-tema="claro"] .app .rp-fila-pos { color: #3F5A00; }
+.app .rp-bu-dica { display: flex; align-items: center; gap: .5em; margin: 0 0 .8em; font-size: max(12.5px, .82em); color: var(--a-texto-2); }
+.app .rp-bu-dica[hidden] { display: none; }
+.app .rp-bu-dica svg { flex: none; width: 1.2em; height: 1.2em; fill: none; stroke: var(--lima-tx, #D2FF3C); stroke-width: 2; }
+html[data-tema="claro"] .app .rp-bu-dica svg { stroke: #3F5A00; }

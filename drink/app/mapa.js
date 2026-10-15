@@ -178,6 +178,7 @@
       container: el, style: ESTILO.vetorial(cfg, temaAtual()), center: [centro.lon, centro.lat], zoom: zGL(zoom), pitch: inclinar ? INCLINACAO : 0,
       minZoom: 3, maxZoom: 19, maxPitch: 60, attributionControl: false, dragRotate: false, pitchWithRotate: false,
       touchPitch: false, renderWorldCopies: false, fadeDuration: 160, refreshExpiredTiles: false,
+      locale: { 'Map.Title': 'Mapa', 'Marker.Title': 'Ponto no mapa' },
     });
     mapa.touchZoomRotate.disableRotation();
     mapa.keyboard.disableRotation();
@@ -240,11 +241,17 @@
       caixa.dataset.chave = chave;
       caixa.innerHTML = `<div class="mk ${icone.classe}" style="width:${icone.tam}px;height:${icone.tam}px">${icone.html}</div>`;
     }
-    function marcador(p, icone) {
+    // o MapLibre faz de cada marcador um botão "Map marker" (em inglês, com foco e sem ação): aqui nenhum é botão.
+    // Os que só desenham (você, o motorista, os pedidos) somem para o leitor de tela, que lê o mesmo nos textos da
+    // tela; o do bar guarda o botão de dentro, que é o que abre o bar
+    function marcador(p, icone, { decorativo = true } = {}) {
       const caixa = document.createElement('div');
       caixa.className = 'mk-caixa';
       pintar(caixa, icone);
-      return new gl.Marker({ element: caixa, anchor: 'center' }).setLngLat([p.lon, p.lat]).addTo(mapa);
+      const mk = new gl.Marker({ element: caixa, anchor: 'center' }).setLngLat([p.lon, p.lat]).addTo(mapa);
+      ['role', 'tabindex', 'aria-label'].forEach((a) => caixa.removeAttribute(a));
+      if (decorativo) caixa.setAttribute('aria-hidden', 'true');
+      return mk;
     }
     // move o marcador devagar até o ponto novo
     // desliza até o ponto novo; o motorista desliza o tempo entre duas posições (anda sem parar, não pula)
@@ -347,11 +354,7 @@
       bares(lista, desenho) {
         grupos.bares.forEach((m) => m.remove());
         // o toque é o botão de dentro: o marcador em volta não pode ser outro botão (leitor de tela e teclado)
-        grupos.bares = (lista || []).map((p) => {
-          const mk = marcador(p, desenho(p));
-          ['role', 'tabindex', 'aria-label'].forEach((a) => mk.getElement().removeAttribute(a));
-          return mk;
-        });
+        grupos.bares = (lista || []).map((p) => marcador(p, desenho(p), { decorativo: false }));
       },
       // mostra todos os pontos dados, deixando livre o espaço da folha de baixo. A lista pode ser uma função:
       // quando a vista é refeita, os pontos são os de agora (o motorista andou)

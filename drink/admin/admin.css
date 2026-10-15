@@ -82,3 +82,18 @@ code { padding: .1em .35em; border-radius: 6px; background: var(--card-2); font-
 @media (max-width: 560px) { .pn-mot-cab { flex-wrap: wrap; } .pn-estado { margin-left: 0; } }
 .pn-docs figure > a.pn-botao { justify-self: start; align-self: start; }
 .pn-docs figure { align-content: start; }
+
+/* autorizar motoristas (sem servidor) */
+.az-cartao { max-width: 560px; }
+.az-validade { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 16px; padding: 0; border: 0; }
+.az-validade legend { margin-bottom: 6px; padding: 0; font-size: .9rem; color: var(--texto-2); }
+.az-validade label { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 14px; border: 1px solid var(--linha); border-radius: 999px; background: var(--card-2); cursor: pointer; }
+.az-validade label:has(input:checked) { border-color: var(--lima); background: rgba(210, 255, 60, .12); }
+.az-validade small { color: var(--texto-2); }
+.az-pronto { display: grid; gap: 4px; }
+.az-pronto[hidden] { display: none; }
+.az-pronto h2 { font-size: 1.3rem; color: var(--ok); }
+.az-bts { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 8px; }
+.az-bts a.pn-botao { text-decoration: none; }
+.az-mais { margin-top: 18px; padding-top: 12px; border-top: 1px solid var(--linha); color: var(--texto-2); }
+.az-mais summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; }

@@ -71,3 +71,34 @@ A chave **anon** pode ficar no código. O banco só deixa o app *enviar* cadastr
 | Relatos de problema | tabela `relatos` | só a equipe |
 | Voltas dos bares (bar, corrida, código do recibo, motorista) | tabela `voltas_bar` | só a equipe; o bar só confere um código por vez, com o segredo dele |
 | Passageiros, corridas, mensagens | continuam no celular e no canal cifrado | ninguém no servidor |
+
+## Autorizar motoristas (vale com ou sem o Supabase)
+
+Desde a versão 75, **nenhum motorista fica online sem a autorização do Drink**, e o app do passageiro recusa o aceite
+de quem não tem. A autorização é uma assinatura digital feita com a **chave do Drink** (o arquivo `chave-do-drink.json`,
+que fica só com o dono do Drink — não mande para ninguém e guarde uma cópia).
+
+1. O motorista abre o app, toca em **Pedir autorização** e manda o link pelo WhatsApp.
+2. Você abre o link no celular ou no computador: cai em `drink/admin/autorizar.html`. Na primeira vez, a página pede
+   o arquivo da chave; depois ela fica guardada naquele aparelho.
+3. Confira os documentos do motorista, ajuste o nome e o celular, escolha por quanto tempo vale e toque em **Autorizar**.
+4. Mande o link que aparece (o botão já abre o WhatsApp dele). Ele toca no link e já pode ficar online. Se ele usa o
+   app instalado na tela de início, ele cola o link na caixa da autorização, dentro do app.
+
+Para tirar um motorista antes do prazo, por enquanto é preciso trocar a chave do Drink (todos pedem de novo). Por isso,
+para quem ainda está começando, prefira prazos curtos (2 dias ou 1 mês).
+
+## Servidor próprio de mensagens (ntfy) — para eventos grandes
+
+As mensagens do app passam pelo ntfy.sh, que é gratuito mas tem limite **por internet**: 60 envios de uma vez (depois
+1 a cada 5 segundos) e 30 conexões abertas. Numa festa com dezenas de convidados no mesmo Wi-Fi, esse limite estoura.
+O app já espera e tenta de novo, mas o certo para eventos grandes é ter um ntfy só do Drink:
+
+1. Contrate um servidor pequeno (qualquer VPS de 1 GB, uns R$ 25 a R$ 40 por mês) com um domínio, por exemplo
+   `avisos.seudominio.com.br`.
+2. Instale o ntfy (https://docs.ntfy.sh/install/) e, no arquivo de configuração, aumente os limites:
+   `visitor-request-limit-burst: 1000`, `visitor-request-limit-replenish: "1s"`, `visitor-subscription-limit: 500`
+   e `behind-proxy: true` se ele estiver atrás de um proxy.
+3. No app, troque `ntfy: 'https://ntfy.sh'` em `drink/app/servicos.js` pelo endereço novo e publique.
+
+Enquanto isso não existe, peça aos convidados para usar o **4G** na hora de pedir a volta.
