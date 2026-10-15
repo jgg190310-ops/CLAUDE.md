@@ -1347,3 +1347,7 @@ html[data-tema="claro"] .app .rp-pronta-passos button.feito svg { color: #3F5A00
 .app .rm-apoio b { font-weight: 650; color: var(--luz); }
 .app .rm-apoio small { font-size: max(12.5px, .82em); line-height: 1.45; color: var(--a-texto-2); }
 .app .rm-apoio .t-bt { justify-self: start; min-height: 44px; padding: 0 1.2em; }
+
+/* a marca do Google embaixo dos resultados que vieram dele */
+.app .rp-google { margin: .4em 0 0; font-size: .78em; color: var(--a-texto-2); text-align: right; }
+.app .rp-google[hidden] { display: none; }

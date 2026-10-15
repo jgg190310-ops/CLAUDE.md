@@ -789,6 +789,7 @@
       q('#rp-res-t').textContent = lista.length ? 'Salvos e recentes' : 'Dá para buscar por';
       q('#rp-dicas').hidden = lista.length > 0;
       q('#rp-resultados').innerHTML = lista.map((l, i) => linhaLugar(l, i, l.icone)).join('');
+      q('#rp-google').hidden = true;
     }
     function buscarAgora() {
       const texto = q('#rp-busca').value.trim();
@@ -815,12 +816,15 @@
           q('#rp-res-t').textContent = !lista.length ? (modoBusca === 'bar' ? 'Não achei. Toca em "Escolher no mapa" e marca a porta do bar.' : 'Não achei esse lugar. Tenta outro nome ou escolhe no mapa.')
             : (algumBate ? 'Resultados' : `Não achei "${texto}" no mapa. Parecidos:`);
           q('#rp-resultados').innerHTML = lista.map((l, i) => linhaLugar(l, i, l.icone)).join('');
+          // o que veio do Google leva a marca dele (regra do Google para a busca fora do mapa)
+          q('#rp-google').hidden = !lista.some((l) => l.google);
           completarEnderecos(lista);
         } catch (e) {
           if (e.name === 'AbortError') return;
           achados = parceiros;
           q('#rp-res-t').textContent = parceiros.length ? 'Bares do Drink' : 'A busca não respondeu. Confere a internet, ou escolhe no mapa.';
           q('#rp-resultados').innerHTML = parceiros.map((l, i) => linhaLugar(l, i, l.icone)).join('');
+          q('#rp-google').hidden = true;
         }
       }, 380);
     }
