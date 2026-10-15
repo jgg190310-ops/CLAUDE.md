@@ -14,6 +14,8 @@
   const EV = window.Drink.Eventos;
 
   const PRAZO_BUSCA = 3 * 60 * 1000;
+  // a autorização do Drink: o passageiro só aceita motorista com credencial assinada pelo Drink
+  const CR = window.Drink.credencial;
   const VEICULOS = { qualquer: 'Tanto faz', bike: 'Bike', patinete: 'Patinete' };
   const TAGS = {
     boas: window.Drink.perfil.ELOGIOS,
@@ -1026,8 +1028,60 @@
 
     let pedindo = false;
     let guiaPedir = false;
+    /* ---------- o alerta com o app aberto (sem instalar, sem aviso do sistema) ---------- */
+    // No iPhone, o aviso com o app fechado só chega com o Drink instalado na tela de início. Para quem só leu o QR:
+    // a tela fica acesa enquanto espera, e o celular toca e vibra quando um Drink aceita, chega perto e chega.
+    let somP = null;
+    let travaP = null;
+    const esperandoDrink = () => Boolean(corrida && !corrida.simulada && ['buscando', 'a-caminho', 'chegou'].includes(corrida.etapa));
+    async function manterTelaAcesa() {
+      if (!esperandoDrink()) { soltarTela(); return; }
+      try {
+        if ('wakeLock' in navigator && !travaP && document.visibilityState === 'visible') {
+          travaP = await navigator.wakeLock.request('screen');
+          travaP.addEventListener('release', () => { travaP = null; });
+        }
+      } catch (e) { /* sem trava: a dica pede para deixar a tela aberta */ }
+    }
+    function soltarTela() { if (travaP) { travaP.release().catch(() => {}); travaP = null; } }
+    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') manterTelaAcesa(); });
+    // no toque de pedir: o navegador só deixa tocar som depois de um toque da pessoa
+    function prepararAlerta() {
+      try {
+        if (!somP) somP = new (window.AudioContext || window.webkitAudioContext)();
+        if (somP.state === 'suspended') somP.resume();
+      } catch (e) { /* sem som */ }
+    }
+    const TONS = { aceite: [660, 880, 1175], perto: [880, 1175], chegou: [1175, 880, 1175, 880] };
+    function alertar(tipo) {
+      if (corrida && corrida.simulada) return;
+      try {
+        if (somP) {
+          if (somP.state === 'suspended') somP.resume();
+          const t = somP.currentTime;
+          (TONS[tipo] || TONS.perto).forEach((f, i) => {
+            const o = somP.createOscillator();
+            const g = somP.createGain();
+            o.frequency.value = f;
+            g.gain.setValueAtTime(0.0001, t + i * 0.2);
+            g.gain.exponentialRampToValueAtTime(0.3, t + i * 0.2 + 0.02);
+            g.gain.exponentialRampToValueAtTime(0.0001, t + i * 0.2 + 0.18);
+            o.connect(g).connect(somP.destination);
+            o.start(t + i * 0.2);
+            o.stop(t + i * 0.2 + 0.2);
+          });
+        }
+      } catch (e) { /* sem som */ }
+      try { if (navigator.vibrate) navigator.vibrate(tipo === 'chegou' ? [300, 120, 300, 120, 300] : [220, 100, 220]); } catch (e) { /* sem vibrar */ }
+    }
+    function desenharDicaTela() {
+      const d = q('#rp-bu-dica');
+      if (d) d.hidden = !(corrida && !corrida.simulada) || avisos().estado() === 'ligado';
+    }
+
     async function pedir() {
       if (pedindo) return;
+      prepararAlerta();
       pedindo = true;
       try { await pedirAgora(); } finally { pedindo = false; }
     }
@@ -1101,11 +1155,27 @@
         // o pedido aberto só diz que é de um evento e até quanto ele paga (o nome vai cifrado, depois do aceite)
         ev: evento ? { teto: evento.teto } : undefined,
       };
+      corrida.pedido = pedido;
+      corrida.expira = pedido.expira;
+      salvarCorrida();
       ir('buscando');
+      desenharFila();
+      desenharDicaTela();
+      manterTelaAcesa();
       q('#rp-bu-sub').textContent = `O pedido foi para os Drinks online perto ${embarque.bairro ? `de ${embarque.bairro}` : 'de você'}.`;
       try {
         await canal.publicar(R.topico.pedidos(), pedido);
       } catch (e) {
+        // a central cheia (muita gente pedindo ao mesmo tempo, na mesma rede): o pedido vai pela fila de envio,
+        // que espera e tenta de novo, e a busca continua
+        if (e && e.status === 429) {
+          R.fila.mandar(R.topico.pedidos(), pedido, { troca: `pedido-${corrida.id}`, validade: PRAZO_BUSCA });
+          R.fila.mandar(R.topico.regiao(embarque), pedido, { validade: PRAZO_BUSCA });
+          q('#rp-bu-sub').textContent = 'Muita gente pedindo ao mesmo tempo: o pedido sai em alguns segundos. Se der, usa o 4G em vez do Wi-Fi.';
+          avisos().definir('passageiro', [R.topico.aviso(corrida.id, 'p')]);
+          contarPrazo(agora + PRAZO_BUSCA);
+          return;
+        }
         encerrar();
         ir('ninguem');
         q('#rp-ni-t').textContent = 'Sem conexão com a central';
@@ -1124,10 +1194,96 @@
         if (!corrida || corrida.etapa !== 'buscando') return;
         const falta = ate - Date.now();
         barra.style.width = `${Math.max(0, Math.min(100, (1 - falta / total) * 100))}%`;
+        // na fila, o pedido é renovado antes de fechar (o motorista nunca o vê sumir)
+        if (falta <= 30000 && podeFicarNaFila()) { renovarNaFila(); return; }
         if (falta <= 0) { semMotorista(); return; }
+        if (corrida.fila) desenharFila();
         agendar(passo, 1000);
       };
       passo();
+    }
+
+    /* ---------- a fila (festa, bar, noite cheia) ---------- */
+    // Quando ninguém aceita em 3 min mas tem Drink trabalhando (ou é a saída de um evento ou de um bar), o pedido não
+    // morre: fica na fila, renovado a cada 3 min, por até 90 min. A passageira vê a posição (os pedidos abertos de
+    // antes dela, ali perto) e o motorista que fica livre vê primeiro quem está esperando há mais tempo.
+    const FILA_MAX = 90 * 60000;
+    function podeFicarNaFila() {
+      const c = corrida;
+      if (!c || c.simulada || !c.pedido || Date.now() - c.t0 > FILA_MAX) return false;
+      return Boolean(c.fila || naCidade > 0 || pertoAgora.length || c.evento || c.bar || c.peloBar);
+    }
+    let outrosPedidos = new Map();
+    let assFila = null;
+    function ouvirFila() {
+      if (assFila || !corrida || corrida.simulada) return;
+      outrosPedidos = new Map();
+      // os pedidos abertos e os fechados da cidade (é o mesmo canal que os motoristas ouvem)
+      assFila = R.canal.assinar([R.topico.pedidos(), R.topico.fechados()], async (m) => {
+        if (!m || m.v !== 1 || typeof m.id !== 'string' || !corrida || m.id === corrida.id) return;
+        if (m.tipo === 'pedido' && Number.isFinite(m.t) && Number.isFinite(m.expira) && ponto(m.de)) {
+          const ja = outrosPedidos.get(m.id);
+          outrosPedidos.set(m.id, { t: m.t, expira: Math.max(m.expira, ja ? ja.expira : 0), de: m.de, fecho: m.fecho });
+        } else if (m.tipo === 'fechado' && outrosPedidos.has(m.id)) {
+          const o = outrosPedidos.get(m.id);
+          if (typeof m.segredo === 'string' && m.segredo.length <= 64 && (await R.resumo(m.segredo)) === o.fecho) outrosPedidos.delete(m.id);
+        }
+        if (corrida && corrida.fila) desenharFila();
+      }, { desde: '95m' });
+    }
+    function pararFila() {
+      if (assFila) { assFila.fechar(); assFila = null; }
+      outrosPedidos = new Map();
+    }
+    // quantos pedidos abertos, feitos antes do meu, saem de até 2 km de onde eu estou
+    function posicaoNaFila() {
+      const c = corrida;
+      if (!c) return 1;
+      const agora = Date.now();
+      let antes = 0;
+      outrosPedidos.forEach((o, id) => {
+        if (o.expira < agora - 30000) { outrosPedidos.delete(id); return; }
+        if (o.t < c.t0 && S.distancia(o.de, c.embarque) <= 2000) antes += 1;
+      });
+      return antes + 1;
+    }
+    function desenharFila() {
+      const c = corrida;
+      const caixa = q('#rp-fila');
+      const tela = q('#passageiro section.rt[data-rt="buscando"]');
+      const naFila = Boolean(c && c.fila);
+      tela.classList.toggle('na-fila', naFila);
+      caixa.hidden = !naFila;
+      if (!naFila) return;
+      q('#rp-bu-t').textContent = 'Você está na fila';
+      const posicao = posicaoNaFila();
+      const drinks = pertoAgora.length;
+      const espera = Math.max(1, Math.floor((Date.now() - c.t0) / 60000));
+      q('#rp-fila-pos').textContent = posicao === 1 ? '1º' : `${posicao}º`;
+      q('#rp-fila-txt').textContent = posicao === 1 ? 'O próximo Drink que ficar livre é seu.' : `${posicao - 1} ${posicao === 2 ? 'pedido' : 'pedidos'} na sua frente, aqui perto.`;
+      q('#rp-fila-det').textContent = `Esperando há ${espera} min${drinks ? ` · ${drinks} ${drinks === 1 ? 'Drink' : 'Drinks'} por perto` : ''}. Pode deixar o celular no bolso: ele toca quando um Drink aceitar.`;
+      q('#rp-bu-sub').textContent = 'Os Drinks estão levando outras pessoas. Quando um ficar livre, ele vê primeiro quem está esperando há mais tempo.';
+    }
+    async function renovarNaFila() {
+      const c = corrida;
+      if (!c || c.etapa !== 'buscando') return;
+      const primeira = !c.fila;
+      c.fila = true;
+      c.renovacoes = (c.renovacoes || 0) + 1;
+      const agora = Date.now();
+      c.pedido = { ...c.pedido, expira: agora + PRAZO_BUSCA, fila: true };
+      c.expira = c.pedido.expira;
+      salvarCorrida();
+      ouvirFila();
+      desenharFila();
+      if (primeira) {
+        notificar('Você entrou na fila', 'Nenhum Drink livre agora. O pedido continua aberto e o celular toca quando alguém aceitar.');
+        if (atual === 'buscando') q('#rp-bu-t').focus({ preventScroll: true });
+      }
+      R.fila.mandar(R.topico.pedidos(), c.pedido, { troca: `pedido-${c.id}`, validade: PRAZO_BUSCA });
+      // o aviso no celular de quem está perto: ao entrar na fila e depois a cada uns 10 min (não vira barulho)
+      if (primeira || c.renovacoes % 3 === 0) R.fila.mandar(R.topico.regiao(c.embarque), c.pedido, { validade: PRAZO_BUSCA });
+      contarPrazo(c.expira);
     }
     function semMotorista() {
       if (!corrida || corrida.etapa !== 'buscando') return;
@@ -1146,6 +1302,8 @@
     }
     function encerrar() {
       if (corrida && !corrida.simulada) avisos().definir('passageiro', []);
+      pararFila();
+      soltarTela();
       limparTimers();
       pararSim();
       clearInterval(rastreioTimer);
@@ -1169,8 +1327,17 @@
         if (msg.tipo === 'aceite') enviar({ tipo: 'recusado' }, { chave, pub: env.k });
         return;
       }
+      // o aceite só vale de um motorista que o Drink autorizou: a credencial é do Drink e quem aceitou tem a chave de
+      // dentro dela. O nome que aparece é o que o Drink assinou (ninguém se passa por outro motorista)
+      if (msg.tipo === 'aceite' && !corrida.motorista && CR && CR.ligada()) {
+        const d = await CR.conferirAceite(msg.cred, msg.prova, corrida.id, env.k);
+        if (!corrida || corrida.motorista) return;
+        if (!d) { enviar({ tipo: 'recusado', motivo: 'sem-autorizacao' }, { chave, pub: env.k }); return; }
+        if (msg.motorista && d.nome) msg.motorista.nome = CR.nomeCurto(d.nome);
+      }
       tratar(msg, env.k, chave);
       salvarCorrida();
+      manterTelaAcesa();
     }
 
     function tratar(msg, k, chave) {
@@ -1190,6 +1357,7 @@
           c.etapa = 'a-caminho';
           c.aceiteEm = Date.now();
           limparTimers();
+          pararFila();
           const u = eu();
           enviar({
             tipo: 'confirmado',
@@ -1206,6 +1374,7 @@
           avisarMotorista('confirmado');
           publicarFechado();
           notificar(`${primeiroNome(c.motorista.nome)} aceitou`, 'O Drink está indo até você.');
+          alertar('aceite');
           ir('caminho');
           break;
         }
@@ -1220,6 +1389,7 @@
           if (c.etapa === 'a-caminho' && !c.avisouPerto) {
             c.avisouPerto = true;
             notificar(`${nome} está chegando`, 'Uns 2 minutos. Vai saindo para encontrar o Drink.');
+            alertar('perto');
             if (!document.hidden) op.avisar(`${nome} está chegando: uns 2 minutos.`);
             if (atual === 'caminho') mostrarCaminho();
           }
@@ -1232,6 +1402,7 @@
             c.chegouEm = ponto(msg.pos) && S.distancia(msg.pos, c.embarque) <= 350 ? Date.now() : 0;
             if (ponto(msg.pos)) c.pos = { lat: msg.pos.lat, lon: msg.pos.lon, t: Date.now() };
             notificar(`${nome} chegou`, 'Confere o código antes de entregar a chave.');
+            alertar('chegou');
             if (atual === 'caminho') mostrarCaminho();
             vigiarEspera();
           } else if (msg.etapa === 'vistoria') {
@@ -2525,9 +2696,14 @@
           avisos().definir('passageiro', [R.topico.aviso(c.id, 'p')]);
           const tela = { buscando: 'buscando', 'a-caminho': 'caminho', chegou: 'caminho', preparo: 'preparo', viagem: 'viagem', chegada: 'chegou', pagando: 'pix' }[c.etapa] || 'inicio';
           if (c.etapa === 'buscando') {
-            if (Date.now() > c.t0 + PRAZO_BUSCA) { semMotorista(); return; }
+            const ate = c.expira || c.t0 + PRAZO_BUSCA;
             ir('buscando', { foco: false });
-            contarPrazo(c.t0 + PRAZO_BUSCA);
+            desenharDicaTela();
+            manterTelaAcesa();
+            if (c.fila) { ouvirFila(); desenharFila(); }
+            // reaberto depois do prazo: volta para a fila (se ainda dá) ou mostra que ninguém aceitou
+            if (Date.now() > ate) { if (podeFicarNaFila()) renovarNaFila(); else semMotorista(); return; }
+            contarPrazo(ate);
             return;
           }
           if (c.compartilhada) ligarRastreio();

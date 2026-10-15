@@ -7,11 +7,12 @@
   <meta name="robots" content="noindex, nofollow">
   <meta name="theme-color" content="#0E0D12">
   <link rel="icon" href="../icon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="admin.css?v=1">
+  <link rel="stylesheet" href="admin.css?v=2">
 </head>
 <body>
 <header class="pn-topo">
   <a class="pn-marca" href="../" aria-label="Site do Drink"><img src="../icon.svg" alt="" width="32" height="32"><span>drink <small>painel</small></span></a>
+  <a class="pn-link" href="autorizar.html">Autorizar motoristas</a>
   <p class="pn-quem" id="pn-quem" hidden><span id="pn-email"></span><button type="button" class="pn-link" id="pn-sair">Sair</button></p>
 </header>
 
@@ -19,6 +20,7 @@
   <section class="pn-cartao pn-aviso" id="pn-sem-servidor" hidden>
     <h1>O servidor ainda não está ligado</h1>
     <p>Preencha a <b>url</b> e a <b>chave</b> do projeto no Supabase em <code>drink/app/config-servidor.js</code>. O passo a passo está em <code>drink/servidor/LEIA-ME.md</code>.</p>
+    <p>Enquanto isso, quem dirige precisa da autorização do Drink: <a class="pn-link" href="autorizar.html">Autorizar motoristas</a>.</p>
   </section>
 
   <section class="pn-cartao pn-login" id="pn-login" hidden aria-labelledby="pn-login-t">
@@ -74,7 +76,7 @@
 </dialog>
 
 <p class="pn-toast" id="pn-toast" role="status" hidden></p>
-<script src="../app/config-servidor.js?v=1"></script>
+<script src="../app/config-servidor.js?v=75"></script>
 <script src="admin.js?v=1"></script>
 </body>
 </html>

@@ -6,3 +6,11 @@ window.DRINK_SERVIDOR = {
   url: '',
   chave: '',
 };
+
+/* A chave pública do Drink: com ela, o app só deixa ficar online (e o passageiro só aceita) o motorista que o Drink
+   autorizou, mesmo sem o servidor. Quem autoriza é o painel (drink/admin/autorizar.html), com a chave privada, que
+   fica só com o dono do Drink. Vazio = sem essa trava. */
+window.DRINK_AUTORIZACAO = {
+  x: 'kxpP-ZF88nj1yMz2VFHA9PnzeUL3e7ZROx_pw7o5EU0',
+  y: 'rYY4aRRh6bTxbgssNW-lxkJzOpM4sZKN_ROnOQGJzCg',
+};

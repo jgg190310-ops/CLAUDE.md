@@ -1543,6 +1543,19 @@
     avisarFalha(txt);
   });
 
+  /* ---------- a autorização do motorista que chegou pelo link ---------- */
+  async function guardarCredencial(cred) {
+    const u = eu();
+    if (!u) { avisar('Entra com o seu celular (o mesmo do cadastro de motorista) e toca no link da autorização de novo.'); return; }
+    if (motorista) { motorista.receberCredencial(cred); return; }
+    const r = await window.Drink.credencial.aceitarCredencial(cred, u);
+    if (!r.ok) { avisar(r.erro); return; }
+    u.credencial = cred;
+    u.autorizadoAte = r.dados.ate;
+    salvar();
+    avisar(`Pronto! O Drink autorizou você até ${new Date(r.dados.ate).toLocaleDateString('pt-BR')}. Entra como motorista e fica online.`);
+  }
+
   /* ---------- começo ---------- */
   const busca = new URLSearchParams(location.search);
   if (busca.get('acompanhar')) {
@@ -1569,6 +1582,12 @@
     // novo: o app abre direto na página do bar, com o "Solicite o seu Drink"
     else { B.guardarAqui(barLido, true); avisoConvite = `Você está no ${barLido.nome}. O Drink busca você na porta.`; }
     try { history.replaceState(null, '', location.pathname); } catch (e) { /* ok */ }
+  }
+  // a autorização do Drink para o motorista (o link que o painel gera): #credencial=...
+  let credChegou = '';
+  if (location.hash.startsWith('#credencial=')) {
+    credChegou = location.hash.slice('#credencial='.length);
+    try { history.replaceState(null, '', location.pathname + location.search); } catch (e) { /* ok */ }
   }
   const u = eu();
   if (u && (convite || barLido) && u.papel !== 'passageiro' && !u.corridaMotorista) { u.papel = 'passageiro'; salvar(); }
@@ -1598,5 +1617,13 @@
     // se abrir a conta falhar, a abertura sai do mesmo jeito e o erro aparece
     setTimeout(() => avisarFalha(e.message || e), 2500);
   }
+  if (credChegou) setTimeout(() => guardarCredencial(credChegou), 2700);
+  // com o app já aberto na aba, tocar no link só troca o # do endereço (a página não recarrega)
+  window.addEventListener('hashchange', () => {
+    if (!location.hash.startsWith('#credencial=')) return;
+    const cred = location.hash.slice('#credencial='.length);
+    try { history.replaceState(null, '', location.pathname + location.search); } catch (e) { /* ok */ }
+    guardarCredencial(cred);
+  });
   abrir(Boolean(u));
 }());

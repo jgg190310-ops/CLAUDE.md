@@ -31,6 +31,28 @@
   };
   const MIN = 60000;
   const redondo = (v) => Math.round(v * 100) / 100;
+  // o motorista que pode reservar: aprovado no servidor (quando ele está ligado) e com a autorização do Drink
+  // true (sem a trava), os dados da credencial (autorizado) ou null (recusar)
+  async function motoristaAutorizado(msg, id, k) {
+    const CR = window.Drink.credencial;
+    if (!CR || !CR.ligada()) return true;
+    return CR.conferirAceite(msg.cred, msg.prova, id, k);
+  }
+  async function naoPodeDirigir(u) {
+    const SV = window.Drink.servidor;
+    if (SV && SV.ligado() && !(u.verificacao && u.verificacao.estado === 'aprovado')) return 'Para reservar, o seu cadastro precisa estar aprovado pela equipe do Drink.';
+    const CR = window.Drink.credencial;
+    if (CR && CR.ligada()) {
+      const r = u.credencial ? await CR.aceitarCredencial(u.credencial, u) : null;
+      if (!r || !r.ok) return 'Antes de reservar, o Drink precisa autorizar você. Pede a autorização na tela do motorista.';
+    }
+    return '';
+  }
+  async function provaDoAceite(u, id, k) {
+    const CR = window.Drink.credencial;
+    if (!CR || !CR.ligada() || !u.credencial) return {};
+    try { return { cred: u.credencial, prova: await CR.provar(id, k) }; } catch (e) { return {}; }
+  }
   const primeiro = (nome) => String(nome || '').trim().split(' ')[0] || 'O Drink';
   const ponto = (p) => Boolean(p) && Number.isFinite(p.lat) && Number.isFinite(p.lon);
 
@@ -277,6 +299,12 @@
       if (ag.motorista && !doEscolhido) {
         if (msg.tipo === 'aceite') mandar(ag, { tipo: 'recusado' }, { chave, pub: env.k });
         return;
+      }
+      // o aceite só vale de um motorista que o Drink autorizou (e o nome é o que o Drink assinou)
+      if (msg.tipo === 'aceite' && !ag.motorista) {
+        const ok = await motoristaAutorizado(msg, ag.id, env.k);
+        if (!ok) { mandar(ag, { tipo: 'recusado', motivo: 'sem-autorizacao' }, { chave, pub: env.k }); return; }
+        if (ok !== true && msg.motorista && ok.nome) msg.motorista.nome = window.Drink.credencial.nomeCurto(ok.nome);
       }
       await tratar(ag, msg, env.k, chave, meta);
       ctx.salvar();
@@ -581,6 +609,9 @@
       const a = (abertas || []).find((x) => x.id === id);
       if (!a) return;
       if (!u.motoristaOk || !u.pix) { ctx.avisar('Para reservar, termina o cadastro de motorista e a chave Pix.'); return; }
+      // reservar vale o mesmo que ficar online: só quem a equipe aprovou e o Drink autorizou (antes, passava qualquer um)
+      const barrado = await naoPodeDirigir(u);
+      if (barrado) { ctx.avisar(barrado); return; }
       if (a.veic !== 'qualquer' && a.veic !== (u.veiculo || 'bike')) { ctx.avisar(`Essa volta pede ${a.veic === 'patinete' ? 'patinete' : 'bike'}. Troca o veículo de hoje no menu, se tiver.`); return; }
       const par = await R.novoPar();
       const chave = await R.chaveComum(par.privada, a.pub);
@@ -589,7 +620,7 @@
       ctx.salvar();
       ouvir(r);
       R.fila.mandar(R.topico.corrida(a.id), await envM(chave, par.pub, {
-        tipo: 'aceite', agendada: true,
+        tipo: 'aceite', agendada: true, ...(await provaDoAceite(u, a.id, par.pub)),
         motorista: {
           nome: ctx.nomeCurto(u), nota: ctx.nota(u), corridas: u.totalCorridas || 0, veiculo: u.veiculo || 'bike', foto: false, ...PF.doMotorista(u),
           pix: { chave: u.pix.chave, nome: [u.nome, u.sobrenome].filter(Boolean).join(' '), cidade: 'BELO HORIZONTE' },
@@ -644,7 +675,7 @@
         case 'recusado':
           if (r.estado !== 'reservada') return;
           tirar(r.id);
-          ctx.avisar('Outro Drink reservou essa volta antes.');
+          ctx.avisar(msg.motivo === 'sem-autorizacao' ? 'A reserva não valeu: falta a autorização do Drink para você.' : 'Outro Drink reservou essa volta antes.');
           break;
         case 'cancelado': {
           if (!['reservada', 'confirmada'].includes(r.estado)) return;

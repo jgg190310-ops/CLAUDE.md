@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Autorizar motoristas · Drink</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#0E0D12">
+  <link rel="icon" href="../icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="admin.css?v=2">
+</head>
+<body>
+<header class="pn-topo">
+  <a class="pn-marca" href="../" aria-label="Site do Drink"><img src="../icon.svg" alt="" width="32" height="32"><span>drink <small>painel</small></span></a>
+  <a class="pn-link" href="./">Cadastros</a>
+</header>
+
+<main class="pn-main" id="conteudo">
+  <!-- sem a chave: guardar neste aparelho -->
+  <section class="pn-cartao" id="az-sem-chave" hidden aria-labelledby="az-sem-t">
+    <h1 id="az-sem-t">Guarde a chave do Drink</h1>
+    <p class="pn-sub">É ela que autoriza os motoristas. Abra o arquivo <b>chave-do-drink.json</b> ou cole o que está dentro dele. Ela fica só neste aparelho: não mande para ninguém.</p>
+    <label class="pn-campo"><span>Arquivo da chave</span><input type="file" id="az-arquivo" accept=".json,.txt,application/json,text/plain"></label>
+    <label class="pn-campo"><span>Ou cole a chave</span><textarea id="az-colar" rows="4" spellcheck="false" autocomplete="off"></textarea></label>
+    <p class="pn-erro" id="az-chave-erro" role="alert" hidden></p>
+    <button type="button" class="pn-botao" id="az-guardar">Guardar a chave</button>
+  </section>
+
+  <!-- com a chave: autorizar -->
+  <section class="pn-cartao az-cartao" id="az-autorizar" hidden aria-labelledby="az-t">
+    <h1 id="az-t">Autorizar motorista</h1>
+    <p class="pn-sub">O motorista toca em <b>Pedir autorização</b> no app e manda o link para você. Confira os documentos dele, preencha e toque em <b>Autorizar</b>: ele recebe outro link e já pode ficar online. Quem não tem autorização não fica online, e o app do passageiro recusa o aceite.</p>
+    <form id="az-form" novalidate>
+      <label class="pn-campo"><span>Pedido do motorista (o link que ele mandou)</span><textarea id="az-pedido" rows="3" spellcheck="false" autocomplete="off" required></textarea></label>
+      <label class="pn-campo"><span>Nome que o passageiro vê</span><input type="text" id="az-nome" maxlength="40" autocomplete="off" required></label>
+      <label class="pn-campo"><span>Celular do motorista (com DDD)</span><input type="tel" id="az-cel" inputmode="numeric" autocomplete="off" required></label>
+      <fieldset class="az-validade">
+        <legend>Vale por</legend>
+        <label><input type="radio" name="az-dias" value="2"> 2 dias</label>
+        <label><input type="radio" name="az-dias" value="30"> 1 mês</label>
+        <label><input type="radio" name="az-dias" value="180" checked> 6 meses</label>
+        <label><input type="radio" name="az-dias" value="365"> 1 ano</label>
+      </fieldset>
+      <p class="pn-erro" id="az-erro" role="alert" hidden></p>
+      <button type="submit" class="pn-botao" id="az-ok">Autorizar</button>
+    </form>
+
+    <div class="az-pronto" id="az-pronto" hidden>
+      <h2 tabindex="-1" id="az-pronto-t">Autorizado</h2>
+      <p class="pn-sub" id="az-pronto-sub"></p>
+      <label class="pn-campo"><span>Link para o motorista</span><textarea id="az-link" rows="3" readonly></textarea></label>
+      <div class="az-bts">
+        <a class="pn-botao" id="az-whats" target="_blank" rel="noopener">Mandar pelo WhatsApp</a>
+        <button type="button" class="pn-botao pn-botao-2" id="az-copiar">Copiar o link</button>
+      </div>
+      <button type="button" class="pn-link" id="az-outro">Autorizar outro motorista</button>
+    </div>
+
+    <details class="az-mais">
+      <summary>A chave deste aparelho</summary>
+      <p class="pn-sub">Para autorizar de outro celular ou computador, abra esta página lá e guarde o mesmo arquivo da chave.</p>
+      <button type="button" class="pn-link" id="az-esquecer">Tirar a chave deste aparelho</button>
+    </details>
+  </section>
+</main>
+
+<p class="pn-toast" id="pn-toast" role="status" hidden></p>
+<script src="../app/config-servidor.js?v=75"></script>
+<script src="autorizar.js?v=1"></script>
+</body>
+</html>

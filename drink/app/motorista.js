@@ -276,6 +276,7 @@
         desenharBares();
         desenharVerificacao();
         conferirVerificacao();
+        desenharAutorizacao();
       },
       agendadas() {
         AGM.desenhar();
@@ -392,6 +393,58 @@
     }
     setInterval(() => { if (atual === 'off') conferirVerificacao(); }, 60000);
 
+    /* ---------- a autorização do Drink (sem servidor): a credencial assinada ---------- */
+    // Sem ela, ninguém fica online nem reserva volta: o app do passageiro também recusa o aceite de quem não tem
+    const CR = window.Drink.credencial;
+    const precisaCredencial = () => Boolean(CR && CR.ligada() && !treino);
+    let credOk = null; // a última conferência: { cred, ok }
+    async function autorizado(u) {
+      if (!precisaCredencial()) return true;
+      if (!u || !u.credencial) return false;
+      if (credOk && credOk.cred === u.credencial) return credOk.ok;
+      const r = await CR.aceitarCredencial(u.credencial, u);
+      credOk = { cred: u.credencial, ok: Boolean(r.ok) };
+      return credOk.ok;
+    }
+    async function desenharAutorizacao() {
+      const box = q('#rm-autoriza');
+      if (!box) return;
+      const u = eu();
+      const ok = await autorizado(u);
+      box.hidden = ok;
+      if (ok) return;
+      const venceu = Boolean(u && u.credencial);
+      q('#rm-autoriza-t').textContent = venceu ? 'A sua autorização venceu' : 'Falta a autorização do Drink';
+      q('#rm-autoriza-sub').textContent = 'Toca no botão e manda o pedido para o Drink pelo WhatsApp. Quando ele autorizar, você recebe um link: toca nele ou cola aqui embaixo.';
+    }
+    async function pedirAutorizacao() {
+      const u = eu();
+      if (!u) return;
+      try {
+        const link = CR.linkDoPainel(await CR.pedido(u));
+        const texto = `Oi! Sou ${[u.nome, u.sobrenome].filter(Boolean).join(' ')} e quero dirigir pelo Drink. O meu pedido de autorização: ${link}`;
+        if (navigator.share) {
+          try { await navigator.share({ title: 'Autorização do Drink', text: texto }); return; } catch (e) { if (e && e.name === 'AbortError') return; }
+        }
+        window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`, '_blank', 'noopener');
+      } catch (e) { op.avisar('Não deu pra preparar o pedido. Usa o Chrome ou o Safari atualizados.'); }
+    }
+    // a credencial que chega: pelo link (o app abre com #credencial=) ou colada na caixa
+    async function receberCredencial(bruto) {
+      const u = eu();
+      const cred = String(bruto || '').trim().replace(/^.*#credencial=/, '');
+      if (!u || !cred) return false;
+      const r = await CR.aceitarCredencial(cred, u);
+      if (!r.ok) { op.avisar(r.erro); return false; }
+      u.credencial = cred;
+      u.autorizadoAte = r.dados.ate;
+      op.salvar();
+      credOk = { cred, ok: true };
+      op.avisar(`Pronto! O Drink autorizou você até ${new Date(r.dados.ate).toLocaleDateString('pt-BR')}. Já pode ficar online.`);
+      desenharAutorizacao();
+      return true;
+    }
+
     /* ---------- ficar online ---------- */
     async function ficarOnline() {
       const u = eu();
@@ -404,6 +457,11 @@
         alerta(!v ? 'Antes de ficar online, mande os seus documentos para a equipe do Drink conferir.'
           : (v.estado === 'recusado' ? 'O seu cadastro foi recusado. Corrija o que a equipe pediu e envie de novo.' : 'O seu cadastro ainda está em análise. Você recebe um aviso quando for aprovado.'));
         conferirVerificacao();
+        return;
+      }
+      if (!(await autorizado(u))) {
+        desenharAutorizacao();
+        alerta('Antes de ficar online, o Drink precisa autorizar você. Toca em "Pedir autorização" aqui em cima.');
         return;
       }
       if (!u.pix || !u.pix.chave) { op.editarPix('Antes de ficar online, cadastra a chave Pix onde você recebe.'); return; }
@@ -517,7 +575,14 @@
       if (recebido.tipo === 'fechado') { if (typeof recebido.id === 'string') fecharPedido(recebido); return; }
       if (recebido.tipo === 'chamado') { receberChamado(recebido); return; }
       const msg = recebido.tipo === 'pedido' ? limparPedido(recebido) : null;
-      if (!msg || Date.now() > msg.expira || pedidos.has(msg.id)) return;
+      if (!msg || Date.now() > msg.expira) return;
+      // o mesmo pedido de novo: é a passageira na fila, renovando (o pedido continua aberto, sem tocar de novo)
+      const ja = pedidos.get(msg.id);
+      if (ja) {
+        if (msg.pub === ja.pub && msg.fecho === ja.fecho && msg.expira > ja.expira) { ja.expira = msg.expira; ja.fila = true; }
+        if (atual === 'online') desenharPedidos();
+        return;
+      }
       const u = eu();
       if (msg.veic !== 'qualquer' && msg.veic !== (u.veiculo || 'bike')) return;
       pedidos.set(msg.id, { ...msg, chegou: Date.now() });
@@ -540,7 +605,12 @@
     }
     const pertoChamado = (c) => (pos ? `${S.textoKm((S.distancia(pos, c.de) * 1.3) / 1000)} de você · ` : '');
     const pertoPedido = (p) => (pos ? `${S.textoKm((S.distancia(pos, p.de) * 1.3) / 1000)} de você · ` : '');
-    const prazoPedido = (p, agora) => { const seg = Math.max(0, Math.round((p.expira - agora) / 1000)); return seg > 60 ? `aberto por mais ${Math.ceil(seg / 60)} min` : 'fechando'; };
+    const prazoPedido = (p, agora) => {
+      const espera = Math.floor((agora - p.t) / 60000);
+      if (espera >= 3) return `na fila há ${espera} min`;
+      const seg = Math.max(0, Math.round((p.expira - agora) / 1000));
+      return seg > 60 ? `aberto por mais ${Math.ceil(seg / 60)} min` : 'fechando';
+    };
     function htmlChamado(c) {
       const perto = pertoChamado(c);
       const det = [c.drinks ? `precisa de ${c.drinks} ${c.drinks === 1 ? 'Drink' : 'Drinks'}` : '', c.teto ? `o evento paga até ${brl0(c.teto)} por volta` : 'cada convidado paga a sua'].filter(Boolean).join(' · ');
@@ -558,8 +628,10 @@
       [...chamados.keys()].forEach((id) => { if (agora > chamados.get(id).expira) chamados.delete(id); });
       const chamando = [...chamados.values()].filter(dentro);
       const todos = [...pedidos.values()];
-      // do mais perto para o mais longe (sem GPS ainda, do mais novo para o mais antigo)
-      const lista = todos.filter(dentro).sort((a, b) => (pos ? S.distancia(pos, a.de) - S.distancia(pos, b.de) : b.t - a.t));
+      // do mais perto para o mais longe, de quilômetro em quilômetro; no mesmo quilômetro (a porta de uma festa), quem
+      // pediu antes vem antes: é a fila andando
+      const kmDe = (p) => (pos ? Math.round(S.distancia(pos, p.de) / 1000) : 0);
+      const lista = todos.filter(dentro).sort((a, b) => kmDe(a) - kmDe(b) || a.t - b.t);
       const km = raio();
       $$('#rm-raio [data-raio]', raiz).forEach((b) => b.setAttribute('aria-checked', String(Number(b.dataset.raio) === km)));
       const longe = todos.length - lista.length;
@@ -633,6 +705,7 @@
         tipo: 'aceite',
         motorista: { nome: nomeCurto(u), nota: nota(u), corridas: u.totalCorridas || 0, veiculo: u.veiculo || 'bike', foto: Boolean(u.selfieEnvio), ...window.Drink.perfil.doMotorista(u) },
         pos: pos ? { lat: pos.lat, lon: pos.lon } : null,
+        ...(await provaDoAceite(id, par.pub)),
       });
       avisos().mandar(R.topico.aviso(id, 'p'), 'aceite');
       regioesAssinadas = '';
@@ -640,6 +713,12 @@
       agendar(() => {
         if (aceito && aceito.id === id && !corrida) { desistir(); op.avisar('O passageiro não confirmou. Voltando pros pedidos.'); }
       }, 60000);
+    }
+    // a credencial e a assinatura deste aceite: o passageiro confere que o Drink autorizou quem aceitou
+    async function provaDoAceite(id, k) {
+      const u = eu();
+      if (!precisaCredencial() || !u || !u.credencial) return {};
+      try { return { cred: u.credencial, prova: await CR.provar(id, k) }; } catch (e) { return {}; }
     }
     function desistir() {
       if (aceito && aceito.simulada) { fimSimulacao('Simulação encerrada.'); return; }
@@ -735,7 +814,7 @@
           break;
         }
         case 'recusado':
-          if (aceito && !corrida) { desistir(); op.avisar('Outro Drink pegou essa corrida.'); }
+          if (aceito && !corrida) { desistir(); op.avisar(msg.motivo === 'sem-autorizacao' ? 'O app do passageiro não aceitou: falta a autorização do Drink para você.' : 'Outro Drink pegou essa corrida.'); }
           break;
         case 'codigo-ok': {
           if (!corrida || corrida.etapa !== 'codigo') return;
@@ -1667,6 +1746,8 @@
       if (ds.notaP) { if (corrida) { corrida.notaPassageiro = Number(ds.notaP); desenharNotaPassageiro(); salvarCorrida(); } return; }
       if (ds.rapida) { mandarMsg(ds.rapida); return; }
       const acoes = {
+        'pedir-autorizacao': pedirAutorizacao,
+        'usar-autorizacao': () => { const c = q('#rm-autoriza-link'); receberCredencial(c.value).then((ok) => { if (ok) c.value = ''; }); },
         online: () => { if (online) { ouvirPedidos(); ir('online'); } else ficarOnline(); },
         offline: ficarOffline,
         centralizar: () => {
@@ -1792,7 +1873,7 @@
     function preencher() { desenharGanhos(); }
 
     return {
-      abrir, voltar, sair, preencher, ficarOffline, simular, definirTreino,
+      abrir, voltar, sair, preencher, ficarOffline, simular, definirTreino, receberCredencial,
       telaAtual: () => atual, online: () => online, corridaAtiva: () => Boolean(corrida),
     };
   }

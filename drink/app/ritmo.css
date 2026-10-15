@@ -285,3 +285,12 @@ html[data-tema="claro"] .app .ev-como li::before { background: #FFFFFF; box-shad
 .app .d-sobre-cab small { font-size: max(12.5px, .8em); }
 .app .en-menu-ganhos small { font-size: max(11.5px, .7em); }
 .app .d-hist .d-hist-vazio button { min-height: var(--toque); }
+
+/* v75: alvos de toque de 44px em qualquer tela, até a de 320 px. O botão de ajuda, na viagem, é o que mais importa:
+   ele cresce de verdade; o fechar continua um círculo pequeno, mas o toque pega 44 px em volta dele */
+.app .rt-sos { min-height: 44px; }
+.app .d-fechar::after { inset: auto; top: 50%; left: 50%; width: max(44px, 100%); height: max(44px, 100%); transform: translate(-50%, -50%); }
+/* seis abas em 320 px: "Eventos" e "Carteira" quase se encostavam */
+@media (max-width: 359px) {
+  .app .d-abas button { font-size: 10.5px; letter-spacing: -.01em; }
+}
