@@ -470,6 +470,9 @@ html[data-tema="claro"] .app #rm-estrelas button.on { color: #E0A800; }
 .mk-mot { border-radius: 50%; background: var(--lima); box-shadow: 0 0 0 6px rgba(210, 255, 60, .25), 0 6px 14px rgba(0, 0, 0, .55); }
 .mk-mot svg { width: 62%; height: 62%; fill: none; stroke: var(--tinta); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .mk-caixa { pointer-events: none; }
+/* no mapa do Google, cada marcador fica solto na camada dele e anda pelo translate */
+.mk-g { position: absolute; left: 0; top: 0; will-change: transform; }
+.mapa-google .gm-style { font-family: inherit; }
 .mk-on { border-radius: 50%; background: #1B2042; border: 2px solid var(--lima-tx); box-shadow: 0 3px 9px rgba(0, 0, 0, .55); }
 .mk-on svg { width: 66%; height: 66%; fill: none; stroke: var(--lima-tx); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
 .mk-ped i { background: var(--rosa); border: 3px solid var(--tinta); box-shadow: 0 0 0 5px rgba(255, 111, 177, .25), 0 4px 10px rgba(0, 0, 0, .5); }
@@ -1344,3 +1347,7 @@ html[data-tema="claro"] .app .rp-pronta-passos button.feito svg { color: #3F5A00
 .app .rm-apoio b { font-weight: 650; color: var(--luz); }
 .app .rm-apoio small { font-size: max(12.5px, .82em); line-height: 1.45; color: var(--a-texto-2); }
 .app .rm-apoio .t-bt { justify-self: start; min-height: 44px; padding: 0 1.2em; }
+
+/* a marca do Google embaixo dos resultados que vieram dele */
+.app .rp-google { margin: .4em 0 0; font-size: .78em; color: var(--a-texto-2); text-align: right; }
+.app .rp-google[hidden] { display: none; }

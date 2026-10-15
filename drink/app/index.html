@@ -61,7 +61,7 @@
   <meta name="format-detection" content="telephone=no">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="../icon.svg" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="../icon-180.png?v=76">
+  <link rel="apple-touch-icon" href="../icon-180.png?v=77">
   <meta property="og:type" content="website">
   <meta property="og:locale" content="pt_BR">
   <meta property="og:title" content="Drink · o app">
@@ -71,17 +71,17 @@
   <meta name="twitter:card" content="summary_large_image">
   <link rel="preload" href="fontes/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="../fontes/bricolage-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="../fontes/fontes.css?v=76">
-  <link rel="stylesheet" href="../app-telas.css?v=76">
-  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=76">
-  <link rel="stylesheet" href="app.css?v=76">
-  <link rel="stylesheet" href="visual.css?v=76">
-  <link rel="stylesheet" href="tema.css?v=76">
-  <link rel="stylesheet" href="ritmo.css?v=76">
-  <link rel="stylesheet" href="perfil.css?v=76">
-  <link rel="stylesheet" href="jornada.css?v=76">
-  <link rel="stylesheet" href="agenda.css?v=76">
-  <link rel="stylesheet" href="bares.css?v=76">
+  <link rel="stylesheet" href="../fontes/fontes.css?v=77">
+  <link rel="stylesheet" href="../app-telas.css?v=77">
+  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=77">
+  <link rel="stylesheet" href="app.css?v=77">
+  <link rel="stylesheet" href="visual.css?v=77">
+  <link rel="stylesheet" href="tema.css?v=77">
+  <link rel="stylesheet" href="ritmo.css?v=77">
+  <link rel="stylesheet" href="perfil.css?v=77">
+  <link rel="stylesheet" href="jornada.css?v=77">
+  <link rel="stylesheet" href="agenda.css?v=77">
+  <link rel="stylesheet" href="bares.css?v=77">
 </head>
 <body>
 <svg class="sprite" aria-hidden="true" focusable="false">
@@ -523,6 +523,7 @@
             <li><svg aria-hidden="true"><use href="#i-mapa"/></svg><span><b>Bairro</b><small>Savassi, Pampulha, Buritis</small></span></li>
           </ul>
           <ul class="d-lista rt-lista" id="rp-resultados" aria-live="polite"></ul>
+          <p class="rp-google" id="rp-google" hidden>Resultados do Google Maps</p>
           <button type="button" class="rt-linha-bt" data-rp="no-mapa"><svg aria-hidden="true"><use href="#i-mapa"/></svg>Escolher no mapa</button>
         </section>
 
@@ -1991,37 +1992,37 @@
   <p class="vira-txt" id="vira-txt">O Drink é feito para usar na vertical. Nada se perde: se tiver corrida, ela continua rolando.</p>
 </div>
 
-<script src="vendor/maplibre-gl.js?v=76"></script>
+<script src="vendor/maplibre-gl.js?v=77"></script>
 <script>
   // o mapa reserva (Leaflet) só baixa no celular sem WebGL: os outros não gastam os 140 KB dele
   (function () {
     var gl = null;
     try { var c = document.createElement('canvas'); gl = c.getContext('webgl2') || c.getContext('webgl'); } catch (e) { gl = null; }
-    if (!gl) document.write('<link rel="stylesheet" href="vendor/leaflet.css?v=76"><script src="vendor/leaflet.js?v=76"><\/script>');
+    if (!gl) document.write('<link rel="stylesheet" href="vendor/leaflet.css?v=77"><script src="vendor/leaflet.js?v=77"><\/script>');
   }());
 </script>
-<script src="vendor/qrcode.js?v=76"></script>
-<script src="../app-nucleo.js?v=76"></script>
-<script src="config-servidor.js?v=76"></script>
-<script src="servicos.js?v=76"></script>
-<script src="rede.js?v=76"></script>
-<script src="mapa-estilo.js?v=76"></script>
-<script src="mapa.js?v=76"></script>
-<script src="carros.js?v=76"></script>
-<script src="cadastro-motorista.js?v=76"></script>
-<script src="servidor.js?v=76"></script>
-<script src="credencial.js?v=76"></script>
-<script src="apoio.js?v=76"></script>
-<script src="perfil.js?v=76"></script>
-<script src="pix.js?v=76"></script>
-<script src="avisos.js?v=76"></script>
-<script src="sms.js?v=76"></script>
-<script src="eventos.js?v=76"></script>
-<script src="agenda.js?v=76"></script>
-<script src="leitor.js?v=76"></script>
-<script src="bares.js?v=76"></script>
-<script src="passageiro.js?v=76"></script>
-<script src="motorista.js?v=76"></script>
-<script src="app.js?v=76"></script>
+<script src="vendor/qrcode.js?v=77"></script>
+<script src="../app-nucleo.js?v=77"></script>
+<script src="config-servidor.js?v=77"></script>
+<script src="servicos.js?v=77"></script>
+<script src="rede.js?v=77"></script>
+<script src="mapa-estilo.js?v=77"></script>
+<script src="mapa.js?v=77"></script>
+<script src="carros.js?v=77"></script>
+<script src="cadastro-motorista.js?v=77"></script>
+<script src="servidor.js?v=77"></script>
+<script src="credencial.js?v=77"></script>
+<script src="apoio.js?v=77"></script>
+<script src="perfil.js?v=77"></script>
+<script src="pix.js?v=77"></script>
+<script src="avisos.js?v=77"></script>
+<script src="sms.js?v=77"></script>
+<script src="eventos.js?v=77"></script>
+<script src="agenda.js?v=77"></script>
+<script src="leitor.js?v=77"></script>
+<script src="bares.js?v=77"></script>
+<script src="passageiro.js?v=77"></script>
+<script src="motorista.js?v=77"></script>
+<script src="app.js?v=77"></script>
 </body>
 </html>

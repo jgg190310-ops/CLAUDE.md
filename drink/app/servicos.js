@@ -37,8 +37,14 @@
     // o servidor (Supabase) para a verificação dos motoristas e os relatos: { url, chave }. Vem de config-servidor.js
     supabase: null,
     googleUrl: 'https://places.googleapis.com',
+    // com a chave do Google (config-servidor.js), o mapa, o endereço de onde a pessoa está e a rota também são do
+    // Google: o mapa e os endereços que o pessoal conhece da Uber. Sem ela, tudo segue no OpenStreetMap
+    googleMapsJs: 'https://maps.googleapis.com/maps/api/js',
+    googleGeoUrl: 'https://maps.googleapis.com',
+    googleRotasUrl: 'https://routes.googleapis.com',
   };
   try { Object.assign(cfg, JSON.parse(localStorage.getItem('drink-servicos') || '{}')); } catch (e) { /* sem ajuste */ }
+  if (!cfg.google && window.DRINK_GOOGLE && window.DRINK_GOOGLE.chave) cfg.google = { ...window.DRINK_GOOGLE };
 
   const BH = { lat: -19.9245, lon: -43.9352 };           // Praça Sete
   const CAIXA = [-44.22, -20.12, -43.78, -19.68];        // Grande BH: oeste, sul, leste, norte
@@ -549,7 +555,8 @@
       const [geral, locais, doGoogle] = await Promise.all([
         buscaPhoton(q, ref, sinal),
         porNome ? buscaPhoton(q, ref, sinal, { osm_tag: 'amenity', limit: 12, location_bias_scale: 0.1 }).catch(semFalha) : [],
-        porNome ? buscaGoogle(e.q || texto, ref, sinal).catch(semFalha) : [],
+        // endereço com número também: é onde o Google mais acerta (o OpenStreetMap não tem o número de muitas casas)
+        buscaGoogle(porNome ? (e.q || texto) : texto, ref, sinal).catch(semFalha),
       ]);
       const doOsm = [...geral, ...locais].map(lugarDe);
       // o mesmo lugar nas duas bases: fica o do Google (com o endereço mais completo)
@@ -613,10 +620,37 @@
     const rua = [ruaNome, numero].filter(Boolean).join(', ');
     return { nome: rua || nomeLugar || bairro || 'Ponto no mapa', detalhe: bairro || '', rua, bairro: bairro || '', lat: p.lat, lon: p.lon, numero: numero || '', ehRua: false, ruaNome: ruaNome || '' };
   }
+  // com a chave: o endereço do Google (a casa com número quando o ponto está nela; senão, só a rua)
+  async function enderecoGoogle(p) {
+    const c = cfg.google;
+    if (!c || !c.chave) return null;
+    const u = new URL(`${cfg.googleGeoUrl}/maps/api/geocode/json`);
+    u.searchParams.set('latlng', `${p.lat.toFixed(6)},${p.lon.toFixed(6)}`);
+    u.searchParams.set('language', 'pt-BR');
+    u.searchParams.set('result_type', 'street_address|premise|route');
+    u.searchParams.set('key', c.chave);
+    const ctl = new AbortController();
+    const prazo = setTimeout(() => ctl.abort(), 8000);
+    try {
+      const r = await fetch(u, { signal: ctl.signal });
+      const j = await r.json();
+      const x = j && j.status === 'OK' && (j.results || [])[0];
+      if (!x) return null;
+      const parte = (tipo) => ((x.address_components || []).find((a) => (a.types || []).includes(tipo)) || {}).long_name || '';
+      const ruaNome = parte('route');
+      if (!ruaNome) return null;
+      const bairro = [parte('sublocality_level_1'), parte('sublocality'), parte('neighborhood')].find((b) => b && !ehRegional(b)) || parte('administrative_area_level_2');
+      const ponto = x.geometry && x.geometry.location ? { lat: x.geometry.location.lat, lon: x.geometry.location.lng } : p;
+      const exato = x.geometry && ['ROOFTOP', 'RANGE_INTERPOLATED'].includes(x.geometry.location_type);
+      const numero = exato && distancia(p, ponto) <= PERTO_DA_CASA + 10 ? parte('street_number') : '';
+      return montarEndereco(p, ruaNome, numero, bairro, ruaNome);
+    } catch (e) { return null; } finally { clearTimeout(prazo); }
+  }
   async function endereco(p) {
     const k = `${p.lat.toFixed(4)},${p.lon.toFixed(4)}`;
     if (cacheEndereco.has(k)) return cacheEndereco.get(k);
-    let res = null;
+    let res = await enderecoGoogle(p);
+    if (res) { cacheEndereco.set(k, res); return res; }
     // o Nominatim procura pela linha das ruas de verdade (não pelo meio delas), por isso acerta mais a rua
     try {
       const x = await nominatim('reverse', { lat: p.lat.toFixed(6), lon: p.lon.toFixed(6), zoom: 18 });
@@ -643,10 +677,40 @@
 
   /* ---------- rota (OSRM), com estimativa se o serviço falhar ---------- */
   const cacheRota = new Map();
+  // a linha da rota do Google vem codificada (o formato "encoded polyline" deles)
+  function decodificarLinha(txt) {
+    const pts = [];
+    let i = 0; let lat = 0; let lon = 0;
+    const ler = () => { let r = 0; let s = 0; let b; do { b = txt.charCodeAt(i++) - 63; r |= (b & 31) << s; s += 5; } while (b >= 32); return r & 1 ? ~(r >> 1) : r >> 1; };
+    while (i < txt.length) { lat += ler(); lon += ler(); pts.push([lat / 1e5, lon / 1e5]); }
+    return pts;
+  }
+  // com a chave: a rota de carro do Google (a mesma conta de tempo dos apps de corrida)
+  async function rotaGoogle(a, b) {
+    const c = cfg.google;
+    if (!c || !c.chave) return null;
+    const ctl = new AbortController();
+    const prazo = setTimeout(() => ctl.abort(), 9000);
+    try {
+      const ll = (p) => ({ location: { latLng: { latitude: p.lat, longitude: p.lon } } });
+      const r = await fetch(`${cfg.googleRotasUrl}/directions/v2:computeRoutes`, {
+        method: 'POST', signal: ctl.signal,
+        headers: { 'Content-Type': 'application/json', 'X-Goog-Api-Key': c.chave, 'X-Goog-FieldMask': 'routes.distanceMeters,routes.duration,routes.polyline.encodedPolyline' },
+        body: JSON.stringify({ origin: ll(a), destination: ll(b), travelMode: 'DRIVE', routingPreference: 'TRAFFIC_UNAWARE', languageCode: 'pt-BR', units: 'METRIC' }),
+      });
+      if (!r.ok) return null;
+      const rt = ((await r.json()).routes || [])[0];
+      if (!rt || !rt.polyline || !rt.polyline.encodedPolyline) return null;
+      const linha = decodificarLinha(rt.polyline.encodedPolyline);
+      if (linha.length < 2) return null;
+      return { km: (rt.distanceMeters || 0) / 1000, min: (parseFloat(rt.duration) || 0) / 60, linha, estimada: false };
+    } catch (e) { return null; } finally { clearTimeout(prazo); }
+  }
   async function rota(a, b) {
     const k = [a.lat, a.lon, b.lat, b.lon].map((x) => x.toFixed(4)).join(',');
     if (cacheRota.has(k)) return cacheRota.get(k);
-    let res;
+    let res = await rotaGoogle(a, b);
+    if (res) { cacheRota.set(k, res); return res; }
     try {
       const u = `${cfg.osrm}/route/v1/driving/${a.lon.toFixed(6)},${a.lat.toFixed(6)};${b.lon.toFixed(6)},${b.lat.toFixed(6)}?overview=full&geometries=geojson`;
       const ctl = new AbortController();

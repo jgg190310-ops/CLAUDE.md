@@ -232,5 +232,43 @@
     };
   }
 
-  window.Drink.estiloMapa = { vetorial, imagens, COR, CORES };
+  // o mapa do Google (quando o Drink tem a chave), no mesmo desenho: chão grafite (ou papel, no claro), ruas
+  // limpas, sem os anúncios de loja; ficam as referências que ajudam a achar o embarque (parques, hospitais, metrô)
+  function google(tema) {
+    const c = CORES[tema] || ESCURO;
+    const r = (featureType, elementType, stylers) => ({ featureType, elementType, stylers });
+    return [
+      r(undefined, 'geometry', [{ color: c.chao }]),
+      r(undefined, 'labels.text.fill', [{ color: c.nomeRua }]),
+      r(undefined, 'labels.text.stroke', [{ color: c.chao }, { weight: 3 }]),
+      r(undefined, 'labels.icon', [{ saturation: -60 }, { lightness: tema === 'claro' ? 10 : -25 }]),
+      r('administrative', 'geometry', [{ visibility: 'off' }]),
+      r('administrative.locality', 'labels.text.fill', [{ color: c.nomeCidade }]),
+      r('administrative.neighborhood', 'labels.text.fill', [{ color: c.nomeBairro }]),
+      r('landscape.man_made', 'geometry', [{ color: c.predio }]),
+      r('landscape.natural', 'geometry', [{ color: c.bairro }]),
+      r('poi', 'all', [{ visibility: 'off' }]),
+      r('poi.park', 'all', [{ visibility: 'on' }]),
+      r('poi.park', 'geometry', [{ color: c.verde }]),
+      r('poi.park', 'labels.text.fill', [{ color: c.nomeParque }]),
+      r('poi.medical', 'labels', [{ visibility: 'on' }]),
+      r('poi.medical', 'labels.text.fill', [{ color: c.nomeHospital }]),
+      r('poi.sports_complex', 'labels', [{ visibility: 'on' }]),
+      r('poi.sports_complex', 'labels.text.fill', [{ color: c.nomeLugar }]),
+      r('road', 'geometry.fill', [{ color: c.rua }]),
+      r('road', 'geometry.stroke', [{ visibility: 'off' }]),
+      r('road.arterial', 'geometry.fill', [{ color: c.ruaMedia }]),
+      r('road.highway', 'geometry.fill', [{ color: c.avenida }]),
+      r('road.highway.controlled_access', 'geometry.fill', [{ color: c.rodovia }]),
+      r('road', 'labels.text.fill', [{ color: c.nomeRua }]),
+      r('road.local', 'labels.text.fill', [{ color: c.numero }]),
+      r('transit', 'all', [{ visibility: 'off' }]),
+      r('transit.station.rail', 'labels', [{ visibility: 'on' }]),
+      r('transit.station.rail', 'labels.text.fill', [{ color: c.nomeMetro }]),
+      r('water', 'geometry', [{ color: c.agua }]),
+      r('water', 'labels.text.fill', [{ color: c.nomeAgua }]),
+    ].map((x) => Object.fromEntries(Object.entries(x).filter(([, v]) => v !== undefined)));
+  }
+
+  window.Drink.estiloMapa = { vetorial, imagens, google, COR, CORES };
 }());
