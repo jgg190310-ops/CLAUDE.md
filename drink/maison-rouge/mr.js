@@ -69,7 +69,7 @@
   var confete = document.getElementById('mr-confete');
   var parado = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (confete && !parado) {
-    var cores = ['#FF2D55', '#FF4FD8', '#D2FF3C', '#3DF2FF', '#FFD23F'];
+    var cores = ['#E5383B', '#FFFFFF', '#C1121F', '#8E0E14'];
     for (var i = 0; i < 26; i += 1) {
       var pedaco = document.createElement('i');
       pedaco.style.left = (Math.random() * 100).toFixed(1) + '%';
