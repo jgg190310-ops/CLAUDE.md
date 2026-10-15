@@ -55,11 +55,14 @@ create table if not exists public.motoristas_cadastro (
   revisado_por text
 );
 create index if not exists motoristas_cadastro_estado on public.motoristas_cadastro (estado, criado desc);
+-- v76: a chave pública do celular do motorista (vem com o cadastro) e a autorização do Drink (o painel assina ao aprovar)
+alter table public.motoristas_cadastro add column if not exists chave_pub text check (chave_pub is null or chave_pub ~ '^[A-Za-z0-9_-]{80,100}$');
+alter table public.motoristas_cadastro add column if not exists credencial text check (credencial is null or char_length(credencial) <= 2000);
 alter table public.motoristas_cadastro enable row level security;
 
 drop policy if exists "o app envia o cadastro" on public.motoristas_cadastro;
 create policy "o app envia o cadastro" on public.motoristas_cadastro for insert to anon
-  with check (estado = 'em_analise' and motivo is null and revisado_em is null and revisado_por is null);
+  with check (estado = 'em_analise' and motivo is null and revisado_em is null and revisado_por is null and credencial is null);
 drop policy if exists "a equipe vê os cadastros" on public.motoristas_cadastro;
 create policy "a equipe vê os cadastros" on public.motoristas_cadastro for select to authenticated using (public.eh_admin());
 drop policy if exists "a equipe aprova ou recusa" on public.motoristas_cadastro;
@@ -69,11 +72,12 @@ grant insert on public.motoristas_cadastro to anon;
 grant select, update on public.motoristas_cadastro to authenticated;
 
 -- quem enviou consulta só o próprio resultado, com o segredo que ficou no celular
+drop function if exists public.status_cadastro(uuid, text);
 create or replace function public.status_cadastro(p_id uuid, p_segredo text)
-returns table (estado text, motivo text, revisado_em timestamptz)
+returns table (estado text, motivo text, revisado_em timestamptz, credencial text)
 language sql stable security definer set search_path = public, extensions
 as $$
-  select c.estado, c.motivo, c.revisado_em from public.motoristas_cadastro c
+  select c.estado, c.motivo, c.revisado_em, c.credencial from public.motoristas_cadastro c
   where c.id = p_id and c.segredo_hash = encode(extensions.digest(p_segredo, 'sha256'), 'hex')
 $$;
 revoke all on function public.status_cadastro(uuid, text) from public;

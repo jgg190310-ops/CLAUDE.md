@@ -655,6 +655,40 @@
         return `<button type="button" data-rp-salvar="${tipo}"><svg aria-hidden="true"><use href="#${icone}"/></svg><span><b>${titulo}</b><small>Adicionar</small></span></button>`;
       };
       q('#rp-atalhos').innerHTML = item('casa', 'i-casa', 'Casa') + item('trabalho', 'i-maleta', 'Trabalho');
+      desenharPronta();
+    }
+
+    /* ---------- a volta pronta: casa e carro salvos na chegada, um toque na saída ---------- */
+    // Às 4h30, quem nunca usou o Drink passaria por destino, carro, placa e câmbio. Na chegada (no evento, no bar ou
+    // na primeira vez), o app pede só isso; depois, o início mostra "Volta pra casa", que já abre o preço.
+    function desenharPronta() {
+      const u = eu();
+      const caixa = q('#rp-pronta');
+      if (!caixa || !u) return;
+      const casa = u.locais && u.locais.casa;
+      const carro = carroPronto(u.carro);
+      const chegando = Boolean(EV.convite() || BAR.aqui() || !(u.voltas && u.voltas.length));
+      const longeDeCasa = casa && (!pos || S.distancia(pos, casa) > 800);
+      const pronta = Boolean(casa && carro && longeDeCasa && !corrida);
+      const preparar = !pronta && chegando && !(casa && carro) && !corrida;
+      caixa.hidden = !(pronta || preparar);
+      q('#rp-pronta-prep').hidden = !preparar;
+      // o preparo já tem a casa: os atalhos voltam quando a volta fica pronta
+      q('#rp-atalhos').hidden = preparar;
+      q('#rp-pronta-ir').hidden = !pronta;
+      const passo = (sel, feito, txt) => {
+        const bt = q(sel);
+        bt.classList.toggle('feito', feito);
+        bt.querySelector('small').textContent = feito ? txt : 'Adicionar';
+        bt.querySelector('use').setAttribute('href', feito ? '#i-check' : bt.id === 'rp-pronta-casa' ? '#i-casa' : '#i-carro');
+      };
+      if (preparar) {
+        passo('#rp-pronta-casa', Boolean(casa), casa ? (casa.bairro || casa.nome) : '');
+        passo('#rp-pronta-carro', carro, carro ? `${nomeCarro(u.carro)} · ${CARROS.placa.formatar(u.carro.placa)}` : '');
+      }
+      if (pronta) {
+        q('#rp-pronta-ir-sub').textContent = `${casa.bairro || casa.nome} · no seu ${nomeCarro(u.carro)}`;
+      }
     }
 
     // os últimos destinos (das voltas de verdade), para pedir de novo com um toque
@@ -2530,6 +2564,7 @@
         'confirmar-no-mapa': () => { if (meioLugar) escolherLugar(meioLugar); },
         cancelar,
         simular,
+        'pronta-carro': () => { q('#rp-carro-erro').hidden = true; abrirFolha('rp-carro'); },
         'ver-simulacao': () => {
           modoBusca = 'destino';
           ir('destino');
@@ -2663,6 +2698,7 @@
       op.avisar(`Carro salvo: ${nomeCarro(eu().carro)}, placa ${CARROS.placa.formatar(conferida.placa)}.`);
       if (atual === 'opcoes') mostrarOpcoes();
       if (atual === 'perfil') desenharPerfil();
+      if (atual === 'inicio') desenharPronta();
     });
     q('#rp-contato-form').addEventListener('submit', (e) => {
       e.preventDefault();

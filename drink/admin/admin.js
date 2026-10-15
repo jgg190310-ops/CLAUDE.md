@@ -195,10 +195,10 @@
   }
 
   /* ---------- aprovar e recusar ---------- */
-  async function revisar(id, estado, motivo) {
+  async function revisar(id, estado, motivo, extra = {}) {
     const r = await api(`/rest/v1/motoristas_cadastro?id=eq.${encodeURIComponent(id)}`, {
       method: 'PATCH', cab: { Prefer: 'return=representation' },
-      body: { estado, motivo: motivo || null, revisado_em: new Date().toISOString(), revisado_por: sessao.email },
+      body: { estado, motivo: motivo || null, revisado_em: new Date().toISOString(), revisado_por: sessao.email, ...extra },
     });
     if (!Array.isArray(r) || !r.length) throw new Error('sem permissão');
     const i = cadastros.findIndex((m) => m.id === id);
@@ -207,7 +207,15 @@
   }
   async function aprovar(id) {
     const m = cadastros.find((x) => x.id === id);
-    try { await revisar(id, 'aprovado'); toast(`Cadastro de ${m ? m.nome : 'motorista'} aprovado. O app libera o online na próxima conferência.`); } catch (e) {
+    // com a chave do Drink neste aparelho, a autorização sai junto com a aprovação (sem link, sem segundo passo)
+    let credencial = null;
+    if (m && m.chave_pub && window.DrinkChave) credencial = await window.DrinkChave.assinar({ chavePub: m.chave_pub, nome: m.nome, celular: m.celular });
+    try {
+      await revisar(id, 'aprovado', null, credencial ? { credencial } : {});
+      toast(credencial
+        ? `${m ? m.nome : 'Motorista'} aprovado e autorizado por 6 meses. O app libera o online na próxima conferência.`
+        : `Cadastro de ${m ? m.nome : 'motorista'} aprovado. Falta a autorização: faça em Autorizar motoristas (a chave do Drink não está neste aparelho).`);
+    } catch (e) {
       if (sessao) toast('Não deu para aprovar. O seu e-mail está na lista da equipe (tabela admins)?');
     }
   }

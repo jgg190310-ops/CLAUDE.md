@@ -36,6 +36,26 @@
   }
   const soDigitos = (s) => String(s || '').replace(/\D/g, '').replace(/^55(?=\d{10,11}$)/, '');
 
+  // os motoristas que o Drink bloqueou antes do prazo (drink/app/bloqueados.json, publicado pelo painel). Lido da rede a
+  // cada 5 min; sem internet, vale a última lista que chegou
+  const BLOQ = 'drink-bloqueados';
+  let bloq = null;
+  async function bloqueados() {
+    if (bloq && Date.now() - bloq.t < 5 * 60000) return bloq.lista;
+    let lista = null;
+    try {
+      const r = await fetch(new URL('bloqueados.json', document.baseURI || location.href).href, { cache: 'no-cache' });
+      if (r.ok) {
+        const j = await r.json();
+        lista = Array.isArray(j && j.bloqueados) ? j.bloqueados.map((x) => (x && typeof x.p === 'string' ? x.p : '')).filter(Boolean) : [];
+        try { localStorage.setItem(BLOQ, JSON.stringify(lista)); } catch (e) { /* ok */ }
+      }
+    } catch (e) { /* sem rede */ }
+    if (!lista) { try { lista = JSON.parse(localStorage.getItem(BLOQ) || '[]'); } catch (e) { lista = []; } }
+    bloq = { t: Date.now(), lista: Array.isArray(lista) ? lista : [] };
+    return bloq.lista;
+  }
+
   // a credencial: "dados.assinatura", os dados em base64 (v, p = chave pública do motorista, n = nome, c = celular,
   // a = até quando vale, em ms). Devolve os dados se a assinatura é do Drink e ainda vale; senão, null
   async function conferir(cred) {
@@ -47,6 +67,7 @@
       if (!ok) return null;
       const d = lerB64(dados);
       if (!d || d.v !== 1 || typeof d.p !== 'string' || !(Number(d.a) > Date.now())) return null;
+      if ((await bloqueados()).includes(d.p)) return null;
       return { pub: d.p, nome: String(d.n || '').slice(0, 40), celular: soDigitos(d.c), ate: Number(d.a) };
     } catch (e) { return null; }
   }
@@ -70,6 +91,7 @@
     return par;
   }
 
+  const minhaPub = async () => (await meuPar()).pub;
   // o pedido de autorização: o que o motorista manda para o Drink (o painel lê e assina)
   async function pedido(u) {
     const p = await meuPar();
@@ -84,7 +106,7 @@
   // a credencial que chegou pelo link: só vale se é do Drink, é da chave deste celular e do número da conta
   async function aceitarCredencial(cred, u) {
     const d = await conferir(cred);
-    if (!d) return { erro: 'Esse link de autorização não vale (ou já venceu). Pede um novo para o Drink.' };
+    if (!d) return { erro: 'Essa autorização não vale: venceu ou foi bloqueada pelo Drink. Fala com o Drink.' };
     const p = await meuPar();
     if (d.pub !== p.pub) return { erro: 'Essa autorização foi feita para outro celular. Pede para o Drink de novo, por este aparelho.' };
     if (d.celular && soDigitos(u.celular) && d.celular !== soDigitos(u.celular)) return { erro: 'Essa autorização é de outro número de celular.' };
@@ -114,5 +136,5 @@
   }
 
   window.Drink = window.Drink || {};
-  window.Drink.credencial = { ligada, conferir, pedido, linkDoPainel, aceitarCredencial, provar, conferirAceite, nomeCurto, b64u };
+  window.Drink.credencial = { ligada, conferir, pedido, linkDoPainel, aceitarCredencial, provar, conferirAceite, nomeCurto, minhaPub, b64u };
 })();

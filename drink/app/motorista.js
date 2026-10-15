@@ -292,6 +292,7 @@
         desenharPedidos();
         ouvirBares();
         desenharBares();
+        desenharApoio();
       },
       buscar() { mostrarBuscar(); },
       codigo() {
@@ -366,6 +367,18 @@
       bt.hidden = Boolean(v && v.estado === 'em_analise');
       bt.textContent = !v ? 'Enviar os documentos' : 'Corrigir e enviar de novo';
     }
+    // a autorização que veio junto com a aprovação (o painel assinou ao aprovar): sem link, sem segundo passo
+    async function guardarCredencialDoServidor(cred) {
+      const u = eu();
+      if (!u || !CR || !CR.ligada() || u.credencial === cred) return;
+      const r = await CR.aceitarCredencial(cred, u);
+      if (!r.ok) return;
+      u.credencial = cred;
+      u.autorizadoAte = r.dados.ate;
+      op.salvar();
+      credOk = { cred, ok: true, t: Date.now() };
+      desenharAutorizacao();
+    }
     let conferindo = false;
     async function conferirVerificacao() {
       const u = eu();
@@ -382,6 +395,7 @@
           if (st.estado === 'aprovado') {
             notificar('Cadastro aprovado no Drink', 'Pode ficar online e receber pedidos.', 'drink-verif');
             op.avisar('Cadastro aprovado! Pode ficar online quando quiser.');
+            if (st.credencial) guardarCredencialDoServidor(st.credencial);
           } else if (st.estado === 'recusado') {
             notificar('Cadastro do Drink', `Precisa corrigir: ${st.motivo || 'veja no app'}`, 'drink-verif');
           }
@@ -393,6 +407,67 @@
     }
     setInterval(() => { if (atual === 'off') conferirVerificacao(); }, 60000);
 
+    /* ---------- o carro de apoio da equipe: "Me busca" ---------- */
+    // Com o código da equipe guardado (o link #equipe= que o carro de apoio manda), o online mostra "Me busca": a
+    // posição vai cifrada para o carro de apoio, que avisa quando está indo
+    const AP = window.Drink.apoio;
+    let apoio = null; // { eq, desde, ass, timer, quem }
+    function desenharApoio() {
+      const box = q('#rm-apoio');
+      if (!box) return;
+      const u = eu();
+      box.hidden = !(u && u.equipe && AP && !treino && !corrida && !aceito);
+      if (box.hidden) return;
+      const esperando = Boolean(apoio && apoio.desde);
+      q('#rm-apoio-bt').hidden = esperando;
+      q('#rm-apoio-voltei').hidden = !esperando;
+      q('#rm-apoio-t').textContent = !esperando ? 'Carro de apoio' : (apoio.quem ? `${apoio.quem} está indo` : 'Carro de apoio avisado');
+      q('#rm-apoio-txt').textContent = !esperando ? 'Deixou o cliente longe? O carro de apoio da equipe te busca.'
+        : (apoio.quem ? 'Fica onde você está: ele vê a sua posição no mapa.' : `Pedido às ${hhmm(new Date(apoio.desde))}. Fica por perto: quando alguém sair para te buscar, aparece aqui.`);
+    }
+    async function pedirApoio() {
+      const u = eu();
+      if (!u || !u.equipe || !AP) return;
+      if (!pos) { try { pos = await S.gps.agora(15000); } catch (e) { op.avisar('Sem a sua localização, o carro de apoio não te acha. Libera o GPS e toca de novo.'); return; } }
+      if (!u.idMotorista) { u.idMotorista = R.idAleatorio(9); op.salvar(); }
+      try {
+        const eq = await AP.equipe(u.equipe);
+        const desde = Date.now();
+        const mandar = () => AP.publicar(eq, { tipo: 'busca', d: u.idMotorista, nome: nomeCurto(u), veic: u.veiculo || 'bike', pos: pos ? { lat: pos.lat, lon: pos.lon } : null, desde });
+        await mandar();
+        if (apoio && apoio.ass) apoio.ass.fechar();
+        apoio = { eq, desde, quem: '' };
+        apoio.ass = AP.ouvir(eq, (m) => {
+          if (!apoio || m.d !== u.idMotorista || m.t < apoio.desde) return;
+          if (m.tipo === 'indo') { apoio.quem = String(m.quem || 'O carro de apoio').slice(0, 30); tocar(); notificar('Carro de apoio a caminho', `${apoio.quem} está indo te buscar.`, 'drink-apoio'); desenharApoio(); }
+          if (m.tipo === 'peguei') fimApoio('Bom trabalho! O carro de apoio marcou que te pegou.');
+        });
+        // a posição nova a cada 2 min (a bike pode estar andando até um ponto melhor)
+        apoio.timer = setInterval(() => { mandar().catch(() => {}); }, 120000);
+        op.avisar('Carro de apoio avisado. Fica por perto.');
+      } catch (e) { op.avisar('Não deu para avisar o carro de apoio. Confere a internet e tenta de novo.'); }
+      desenharApoio();
+    }
+    function fimApoio(txt) {
+      if (apoio) { clearInterval(apoio.timer); if (apoio.ass) apoio.ass.fechar(); }
+      apoio = null;
+      if (txt) op.avisar(txt);
+      desenharApoio();
+    }
+    async function cancelarApoio() {
+      const u = eu();
+      if (apoio && apoio.eq && u) AP.publicar(apoio.eq, { tipo: 'voltei', d: u.idMotorista }).catch(() => {});
+      fimApoio('Avisado: você já voltou.');
+    }
+    function guardarEquipe(codigo) {
+      const u = eu();
+      if (!u || !AP || !AP.codigoValido(codigo)) return false;
+      u.equipe = AP.limparCodigo(codigo);
+      op.salvar();
+      desenharApoio();
+      return true;
+    }
+
     /* ---------- a autorização do Drink (sem servidor): a credencial assinada ---------- */
     // Sem ela, ninguém fica online nem reserva volta: o app do passageiro também recusa o aceite de quem não tem
     const CR = window.Drink.credencial;
@@ -401,9 +476,10 @@
     async function autorizado(u) {
       if (!precisaCredencial()) return true;
       if (!u || !u.credencial) return false;
-      if (credOk && credOk.cred === u.credencial) return credOk.ok;
+      // a conferência vale 5 min: um bloqueio do Drink pega o motorista na próxima vez que ele for ficar online
+      if (credOk && credOk.cred === u.credencial && Date.now() - credOk.t < 5 * 60000) return credOk.ok;
       const r = await CR.aceitarCredencial(u.credencial, u);
-      credOk = { cred: u.credencial, ok: Boolean(r.ok) };
+      credOk = { cred: u.credencial, ok: Boolean(r.ok), t: Date.now() };
       return credOk.ok;
     }
     async function desenharAutorizacao() {
@@ -414,7 +490,7 @@
       box.hidden = ok;
       if (ok) return;
       const venceu = Boolean(u && u.credencial);
-      q('#rm-autoriza-t').textContent = venceu ? 'A sua autorização venceu' : 'Falta a autorização do Drink';
+      q('#rm-autoriza-t').textContent = venceu ? 'A sua autorização não vale mais' : 'Falta a autorização do Drink';
       q('#rm-autoriza-sub').textContent = 'Toca no botão e manda o pedido para o Drink pelo WhatsApp. Quando ele autorizar, você recebe um link: toca nele ou cola aqui embaixo.';
     }
     async function pedirAutorizacao() {
@@ -439,7 +515,7 @@
       u.credencial = cred;
       u.autorizadoAte = r.dados.ate;
       op.salvar();
-      credOk = { cred, ok: true };
+      credOk = { cred, ok: true, t: Date.now() };
       op.avisar(`Pronto! O Drink autorizou você até ${new Date(r.dados.ate).toLocaleDateString('pt-BR')}. Já pode ficar online.`);
       desenharAutorizacao();
       return true;
@@ -1746,6 +1822,8 @@
       if (ds.notaP) { if (corrida) { corrida.notaPassageiro = Number(ds.notaP); desenharNotaPassageiro(); salvarCorrida(); } return; }
       if (ds.rapida) { mandarMsg(ds.rapida); return; }
       const acoes = {
+        apoio: pedirApoio,
+        'apoio-voltei': cancelarApoio,
         'pedir-autorizacao': pedirAutorizacao,
         'usar-autorizacao': () => { const c = q('#rm-autoriza-link'); receberCredencial(c.value).then((ok) => { if (ok) c.value = ''; }); },
         online: () => { if (online) { ouvirPedidos(); ir('online'); } else ficarOnline(); },
@@ -1873,7 +1951,7 @@
     function preencher() { desenharGanhos(); }
 
     return {
-      abrir, voltar, sair, preencher, ficarOffline, simular, definirTreino, receberCredencial,
+      abrir, voltar, sair, preencher, ficarOffline, simular, definirTreino, receberCredencial, guardarEquipe,
       telaAtual: () => atual, online: () => online, corridaAtiva: () => Boolean(corrida),
     };
   }

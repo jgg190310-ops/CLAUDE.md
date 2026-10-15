@@ -471,9 +471,20 @@
     pedido.then(async (estado) => {
       if (fluxo.envio !== envio) return;
       if (estado !== 'ligado') {
+        // sem as notificações, o código vai por e-mail (antes, o cadastro seguia sem código nenhum: qualquer um
+        // entrava com o número de outra pessoa)
         pararDeOuvir();
-        avisar('Sem a permissão de notificações, seguimos sem o código.');
-        depoisDoCodigo();
+        if (temEmailJs()) {
+          fluxo.jeito = 'email';
+          irEn('celular');
+          desenharJeitos();
+          atualizarBotaoCel();
+          mostrarErro('#en-cel-erro', 'Sem as notificações liberadas, o código vai por e-mail. Põe o seu e-mail aqui embaixo.');
+          setTimeout(() => $('#en-cel-email').focus(), 350);
+        } else {
+          irEn('celular');
+          mostrarErro('#en-cel-erro', semJeitoTxt());
+        }
         return;
       }
       let foi = false;
@@ -815,6 +826,8 @@
       veiculo: u.veiculo === 'patinete' ? 'patinete' : 'bike', veiculo_desc: v ? PF.descrever({ tipo: u.veiculo, ...v }).slice(0, 80) : null,
       pix_tipo: u.pix ? u.pix.tipo : null, pix_chave: u.pix ? u.pix.chave : null,
     };
+    // a chave pública deste celular: ao aprovar, o painel já assina a autorização do Drink com ela
+    try { if (window.Drink.credencial.ligada()) dados.chave_pub = await window.Drink.credencial.minhaPub(); } catch (e) { /* sem a chave: autoriza pelo link */ }
     const r = await window.Drink.servidor.enviarCadastro(dados, arquivos);
     u.verificacao = { id: r.id, segredo: r.segredo, estado: 'em_analise', enviado: Date.now() };
     salvar();
@@ -1556,6 +1569,17 @@
     avisar(`Pronto! O Drink autorizou você até ${new Date(r.dados.ate).toLocaleDateString('pt-BR')}. Entra como motorista e fica online.`);
   }
 
+  // o código da equipe do carro de apoio
+  function guardarEquipe(codigo) {
+    const u = eu();
+    const AP = window.Drink.apoio;
+    if (!u) { avisar('Entra com o seu celular e toca no link da equipe de novo.'); return; }
+    if (!AP || !AP.codigoValido(codigo)) { avisar('Esse link da equipe veio pela metade. Pede de novo para o carro de apoio.'); return; }
+    if (motorista) motorista.guardarEquipe(codigo);
+    else { u.equipe = AP.limparCodigo(codigo); salvar(); }
+    avisar('Código da equipe guardado. Quando estiver online e longe, toca em "Me busca" e o carro de apoio vem.');
+  }
+
   /* ---------- começo ---------- */
   const busca = new URLSearchParams(location.search);
   if (busca.get('acompanhar')) {
@@ -1589,6 +1613,12 @@
     credChegou = location.hash.slice('#credencial='.length);
     try { history.replaceState(null, '', location.pathname + location.search); } catch (e) { /* ok */ }
   }
+  // o código da equipe do carro de apoio (o link que a página da equipe manda): #equipe=...
+  let equipeChegou = '';
+  if (location.hash.startsWith('#equipe=')) {
+    equipeChegou = decodeURIComponent(location.hash.slice('#equipe='.length));
+    try { history.replaceState(null, '', location.pathname + location.search); } catch (e) { /* ok */ }
+  }
   const u = eu();
   if (u && (convite || barLido) && u.papel !== 'passageiro' && !u.corridaMotorista) { u.papel = 'passageiro'; salvar(); }
   if (avisoConvite) setTimeout(() => avisar(u || !(convite || barLido) ? avisoConvite : (barLido ? `Você está no ${barLido.nome}. Entra com o seu celular para pedir a volta.` : `Convite do ${convite.nome} guardado. Entra com o seu celular para pedir a volta.`)), 2600);
@@ -1602,6 +1632,10 @@
   // o site manda quem quer dirigir direto para o treino (?treino=motorista), com ou sem conta
   if (busca.get('treino') === 'motorista') querTreino = true;
   if (['eventos', 'bares'].includes(busca.get('aba'))) querAba = busca.get('aba');
+  // o evento já preenchido (ev-nome, ev-data, ev-ini, ev-fim, ev-conv, ev-tipo, ev-paga): a aba Eventos abre no formulário
+  if (busca.get('aba') === 'eventos' && busca.get('ev-nome')) {
+    window.Drink.eventoModelo = { nome: busca.get('ev-nome'), data: busca.get('ev-data'), ini: busca.get('ev-ini'), fim: busca.get('ev-fim'), conv: busca.get('ev-conv'), tipo: busca.get('ev-tipo'), paga: busca.get('ev-paga'), teto: busca.get('ev-teto') };
+  }
   if (pedidoPapel || busca.has('treino') || busca.has('aba')) { try { history.replaceState(null, '', location.pathname); } catch (e) { /* ok */ } }
   mostrarInstalar();
   window.Drink.avisos.sincronizar();
@@ -1618,8 +1652,15 @@
     setTimeout(() => avisarFalha(e.message || e), 2500);
   }
   if (credChegou) setTimeout(() => guardarCredencial(credChegou), 2700);
+  if (equipeChegou) setTimeout(() => guardarEquipe(equipeChegou), credChegou ? 5200 : 2700);
   // com o app já aberto na aba, tocar no link só troca o # do endereço (a página não recarrega)
   window.addEventListener('hashchange', () => {
+    if (location.hash.startsWith('#equipe=')) {
+      const c = decodeURIComponent(location.hash.slice('#equipe='.length));
+      try { history.replaceState(null, '', location.pathname + location.search); } catch (e) { /* ok */ }
+      guardarEquipe(c);
+      return;
+    }
     if (!location.hash.startsWith('#credencial=')) return;
     const cred = location.hash.slice('#credencial='.length);
     try { history.replaceState(null, '', location.pathname + location.search); } catch (e) { /* ok */ }

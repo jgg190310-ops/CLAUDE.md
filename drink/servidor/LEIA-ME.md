@@ -85,8 +85,30 @@ que fica só com o dono do Drink — não mande para ninguém e guarde uma cópi
 4. Mande o link que aparece (o botão já abre o WhatsApp dele). Ele toca no link e já pode ficar online. Se ele usa o
    app instalado na tela de início, ele cola o link na caixa da autorização, dentro do app.
 
-Para tirar um motorista antes do prazo, por enquanto é preciso trocar a chave do Drink (todos pedem de novo). Por isso,
-para quem ainda está começando, prefira prazos curtos (2 dias ou 1 mês).
+**Bloquear um motorista antes do prazo:** na mesma página, em **Bloquear motorista**, toque em Bloquear (ou cole o
+link da autorização que você mandou para ele). A página monta a lista nova: toque em **Copiar a lista**, depois em
+**Abrir no GitHub**, apague o que está lá, cole e toque em **Commit changes**. Em 1 ou 2 minutos, o motorista não fica
+mais online e nenhum passageiro aceita o aceite dele.
+
+**Com o Supabase ligado:** se a chave do Drink estiver guardada no aparelho do painel, aprovar o cadastro já autoriza o
+motorista por 6 meses: não precisa do link.
+
+## Evento já preenchido (para mandar a quem organiza)
+
+Este link abre o app na aba Eventos com o formulário preenchido; quem organiza só escolhe o lugar e toca em Criar:
+
+`https://jgg190310-ops.github.io/CLAUDE.md/drink/app/?aba=eventos&ev-nome=Maison%20Rouge&ev-data=2026-10-31&ev-ini=23:00&ev-fim=05:00&ev-conv=300&ev-tipo=festa&ev-paga=convidado`
+
+Depois de criar, em **Convite** o app mostra o link do convite: com ele no QR da festa, o embarque já vem no lugar do
+evento. Na página da Maison Rouge, é só pôr o link em `CONVITE` no arquivo `drink/maison-rouge/mr.js`.
+
+## Carro de apoio
+
+Quem dirige o carro de apoio abre `https://jgg190310-ops.github.io/CLAUDE.md/drink/apoio/`, toca em **Criar um código
+novo**, coloca o nome do carro e entra. Em **Mandar o código para os motoristas**, manda o link pelo WhatsApp: cada
+motorista toca nele uma vez. Depois, quando o motorista deixa o cliente longe, ele toca em **Me busca** no app; o
+celular do carro de apoio toca e mostra quem está esperando, onde e há quanto tempo. **Estou indo** avisa o motorista;
+**Peguei** tira ele da lista. A posição vai cifrada com o código da equipe.
 
 ## Servidor próprio de mensagens (ntfy) — para eventos grandes
 

@@ -97,3 +97,16 @@ code { padding: .1em .35em; border-radius: 6px; background: var(--card-2); font-
 .az-bts a.pn-botao { text-decoration: none; }
 .az-mais { margin-top: 18px; padding-top: 12px; border-top: 1px solid var(--linha); color: var(--texto-2); }
 .az-mais summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; }
+.az-lista { display: grid; gap: 8px; margin: 0 0 14px; padding: 0; list-style: none; }
+.az-lista:empty { display: none; }
+.az-lista li { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 12px; background: var(--card-2); }
+.az-lista li div { display: grid; flex: 1; min-width: 0; }
+.az-lista small { color: var(--texto-2); }
+.az-lista li.bloq b { text-decoration: line-through; color: var(--texto-2); }
+.az-lista button { min-height: 44px; padding: 0 14px; border: 1px solid var(--linha); border-radius: 999px; background: none; color: var(--perigo); font-weight: 700; cursor: pointer; }
+.az-lista li.bloq button { color: var(--ok); }
+.az-publicar { display: grid; gap: 6px; margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--linha); }
+.az-publicar[hidden] { display: none; }
+.az-publicar h3 { margin: 0; font-size: 1.15rem; color: var(--alerta); }
+.az-passos { margin: 0 0 8px; padding-left: 20px; color: var(--texto-2); }
+.az-publicar a.pn-botao { text-decoration: none; }
