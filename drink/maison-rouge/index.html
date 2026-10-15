@@ -4,22 +4,22 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Maison Rouge · a volta é da Drink</title>
-  <meta name="description" content="Maison Rouge, sábado, 31 de outubro, 23h, no Postin, Olhos d’Água. 300 convidados e uma regra só: quem bebe não dirige. Os motoristas da Drink ficam de plantão na porta e levam você e o seu carro pra casa.">
+  <meta name="description" content="Maison Rouge, sábado, 31 de outubro, das 23h às 5h, no Postin, Olhos d’Água. Hoje ninguém é o motorista da vez: os motoristas da Drink ficam na porta e levam você e o seu carro pra casa.">
   <meta name="robots" content="noindex">
-  <meta name="theme-color" content="#0A0607">
+  <meta name="theme-color" content="#0C0614">
   <link rel="icon" href="../icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="../icon-180.png">
   <meta property="og:type" content="website">
   <meta property="og:locale" content="pt_BR">
-  <meta property="og:title" content="Maison Rouge · a volta é da Drink">
-  <meta property="og:description" content="Sábado, 31 de outubro, 23h, no Postin. Bebe tranquilo: a Drink leva você e o seu carro pra casa.">
+  <meta property="og:title" content="Maison Rouge · hoje ninguém é o motorista da vez">
+  <meta property="og:description" content="Sábado, 31/10, 23h, no Postin. Bebe, dança, brinda: a Drink leva você e o seu carro pra casa.">
   <meta property="og:url" content="https://jgg190310-ops.github.io/CLAUDE.md/drink/maison-rouge/">
   <meta property="og:image" content="https://jgg190310-ops.github.io/CLAUDE.md/drink/og.png">
   <meta name="twitter:card" content="summary_large_image">
-  <link rel="preload" href="../fontes/bodoni-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="../fontes/bricolage-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="../fontes/caveat-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="../fontes/fontes.css">
-  <link rel="stylesheet" href="mr.css">
+  <link rel="stylesheet" href="mr.css?v=2">
   <script>document.documentElement.className += " js";</script>
 </head>
 <body class="mr">
@@ -27,31 +27,57 @@
 
 <header class="mr-topo">
   <a class="mr-marca" href="../" aria-label="Drink, página inicial"><img src="../marca/drink-camisa-escura.svg" alt="" width="160" height="59"></a>
-  <p class="mr-topo-x" aria-hidden="true">×</p>
-  <p class="mr-topo-casa">Maison Rouge</p>
+  <p class="mr-topo-na"><span aria-hidden="true">na</span> <b>Maison Rouge</b></p>
   <a class="mr-bt mr-bt-lima mr-topo-bt" href="../app/">Abrir o app</a>
 </header>
 
 <main id="conteudo">
 
-  <!-- ================= a abertura: a cortina vermelha ================= -->
+  <!-- ================= a abertura: pista acesa ================= -->
   <section class="mr-hero" aria-labelledby="mr-titulo">
-    <div class="mr-cortina" aria-hidden="true"></div>
+    <div class="mr-luzes" aria-hidden="true"><i></i><i></i><i></i></div>
+    <div class="mr-confete" id="mr-confete" aria-hidden="true"></div>
+    <svg class="mr-globo" viewBox="0 0 200 260" aria-hidden="true" focusable="false">
+      <defs>
+        <pattern id="mr-espelhos" width="14" height="14" patternUnits="userSpaceOnUse">
+          <rect width="14" height="14" fill="#8C8899"/>
+          <rect x="1" y="1" width="12" height="12" fill="#D9D6E3"/>
+          <rect x="1" y="1" width="6" height="6" fill="#FFFFFF" opacity=".55"/>
+        </pattern>
+        <radialGradient id="mr-sombra" cx="35%" cy="32%" r="75%">
+          <stop offset="0" stop-color="#fff" stop-opacity=".0"/>
+          <stop offset=".55" stop-color="#2A1640" stop-opacity=".35"/>
+          <stop offset="1" stop-color="#0C0614" stop-opacity=".9"/>
+        </radialGradient>
+        <clipPath id="mr-bola"><circle cx="100" cy="160" r="80"/></clipPath>
+      </defs>
+      <line x1="100" y1="0" x2="100" y2="80" stroke="#D9D6E3" stroke-width="2"/>
+      <g clip-path="url(#mr-bola)">
+        <rect x="20" y="80" width="160" height="160" fill="url(#mr-espelhos)"/>
+        <rect class="mr-globo-cor" x="20" y="80" width="160" height="160"/>
+        <circle cx="100" cy="160" r="80" fill="url(#mr-sombra)"/>
+      </g>
+      <g class="mr-brilhos" fill="#fff">
+        <path d="M62 118l3 9 9 3-9 3-3 9-3-9-9-3 9-3z"/>
+        <path d="M128 182l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/>
+        <path d="M140 120l2 5 5 2-5 2-2 5-2-5-5-2 5-2z"/>
+      </g>
+    </svg>
+
     <div class="mr-hero-in">
-      <p class="mr-sobre"><span>A Drink apresenta</span><span>a volta da</span></p>
-      <h1 class="mr-titulo" id="mr-titulo"><span class="mr-maison">Maison</span><span class="mr-rouge">Rouge</span></h1>
-      <p class="mr-quando">
-        <span><b>Sábado</b> 31 de outubro</span>
-        <span class="mr-ponto" aria-hidden="true">◆</span>
-        <span><b>23h às 5h</b> a noite toda</span>
-        <span class="mr-ponto" aria-hidden="true">◆</span>
-        <span><b>Postin</b> Olhos d’Água · BH</span>
-      </p>
-      <p class="mr-frase">A noite é de vocês. <em>A volta é nossa.</em></p>
-      <p class="mr-lede">300 convidados, muito brinde e uma regra só: quem bebe não dirige. Os motoristas da Drink ficam de plantão na porta do Postin e levam você e o seu carro pra casa.</p>
+      <p class="mr-selo"><b>Sáb</b> 31.10</p>
+      <p class="mr-rabisco">a festa mais vermelha do ano</p>
+      <h1 class="mr-titulo" id="mr-titulo"><span>Maison</span> <span class="mr-rouge">Rouge</span></h1>
+      <p class="mr-frase">Hoje ninguém é<br> o <mark>motorista da vez</mark>.</p>
+      <p class="mr-lede">Bebe, dança, brinda até o fim. Na hora de ir embora, um motorista da Drink leva você <b>e o seu carro</b> pra casa.</p>
+      <ul class="mr-quando" aria-label="Quando e onde">
+        <li>Sábado, 31 de outubro</li>
+        <li>23h às 5h</li>
+        <li>Postin · Olhos d’Água</li>
+      </ul>
 
       <div class="mr-contagem" id="mr-contagem" role="timer" aria-live="off">
-        <p class="mr-contagem-t" id="mr-contagem-t">A noite começa em</p>
+        <p class="mr-contagem-t" id="mr-contagem-t">Falta pouco pro rolê</p>
         <ol class="mr-contagem-n" id="mr-contagem-n">
           <li><b data-c="d">--</b><span>dias</span></li>
           <li><b data-c="h">--</b><span>horas</span></li>
@@ -61,111 +87,144 @@
       </div>
 
       <div class="mr-acoes">
-        <a class="mr-bt mr-bt-ouro" href="#volta">Guardar o QR da volta</a>
-        <a class="mr-bt mr-bt-linha" href="#roteiro">O roteiro da noite</a>
+        <a class="mr-bt mr-bt-lima" href="#volta">Pegar meu QR da volta</a>
+        <a class="mr-bt mr-bt-linha" href="#como">Como funciona</a>
       </div>
     </div>
   </section>
 
-  <!-- ================= os números ================= -->
-  <section class="mr-numeros" aria-label="A noite em números">
-    <ul>
-      <li><b>300</b><span>convidados</span></li>
-      <li><b>6h</b><span>de festa, das 23h às&nbsp;5h</span></li>
-      <li><b>8</b><span>motoristas Drink de plantão</span></li>
-      <li><b>1</b><span>regra: quem bebe não dirige</span></li>
-    </ul>
-  </section>
-
-  <!-- ================= o roteiro ================= -->
-  <section class="mr-secao mr-roteiro" id="roteiro" aria-labelledby="roteiro-t">
-    <div class="mr-in">
-      <p class="mr-rotulo">Le programme</p>
-      <h2 id="roteiro-t">O roteiro <em>da noite</em></h2>
-      <ol class="mr-linha">
-        <li class="mr-revela">
-          <time>23:00</time>
-          <div><b>Portas abertas</b><p>Chegou de carro? Lê o QR e deixa a volta pronta: o endereço de casa e o carro, em 1 minuto. Na saída, é um toque só.</p></div>
-        </li>
-        <li class="mr-revela">
-          <time>00:00</time>
-          <div><b>A noite esquenta</b><p>Brinda à vontade. Hoje ninguém precisa ser o motorista da vez.</p></div>
-        </li>
-        <li class="mr-revela mr-linha-drink">
-          <time>01:30</time>
-          <div><b>Os Drinks chegam</b><p>Os motoristas da Drink ficam de plantão na porta do Postin, de camisa da Drink, até a última volta. Vai sair mais cedo? Já tem Drink esperando.</p></div>
-        </li>
-        <li class="mr-revela mr-linha-drink">
-          <time>04:30</time>
-          <div><b>A saideira</b><p>Entre 4h30 e 5h a festa acaba. Lê o QR e pede o seu Drink ainda lá dentro, uns 20 minutos antes de sair. Na porta, o motorista confere o código, fotografa o carro e assume o volante.</p></div>
-        </li>
-        <li class="mr-revela">
-          <time>Em casa</time>
-          <div><b>Bonne nuit</b><p>Carro na garagem, chave na sua mão. O motorista guarda a bike e segue para a próxima volta.</p></div>
-        </li>
-      </ol>
+  <!-- ================= a faixa que corre ================= -->
+  <div class="mr-faixa-moldura">
+  <div class="mr-faixa">
+    <p class="mr-sr">Quem bebe não dirige. A volta é com a gente.</p>
+    <div class="mr-faixa-rolo" aria-hidden="true">
+      <span>Quem bebe não dirige</span><span>A volta é com a gente</span><span>Seu carro dorme em casa</span><span>Brinda sem culpa</span>
+      <span>Quem bebe não dirige</span><span>A volta é com a gente</span><span>Seu carro dorme em casa</span><span>Brinda sem culpa</span>
     </div>
-  </section>
+  </div>
+  </div>
 
-  <!-- ================= como voltar ================= -->
-  <section class="mr-secao mr-como" aria-labelledby="como-t">
+  <!-- ================= como funciona ================= -->
+  <section class="mr-secao mr-como" id="como" aria-labelledby="como-t">
     <div class="mr-in">
-      <p class="mr-rotulo">Le retour</p>
-      <h2 id="como-t">Voltar é <em>simples assim</em></h2>
+      <p class="mr-rotulo">Como funciona</p>
+      <h2 id="como-t">Seu rolê em <span class="mr-neon-rosa">4 passos</span></h2>
       <ol class="mr-passos">
-        <li class="mr-revela"><span class="mr-num">I</span><b>Lê o QR</b><p>Com a câmera do celular, na hora de ir embora. Não precisa instalar nada.</p></li>
-        <li class="mr-revela"><span class="mr-num">II</span><b>O motorista te encontra</b><p>Na porta do Postin. Ele te passa um código de 4 números: é como você sabe que é o Drink certo.</p></li>
-        <li class="mr-revela"><span class="mr-num">III</span><b>Você vai junto, no seu carro</b><p>No banco do passageiro ou no de trás. Em casa, você paga pelo Pix, direto para o motorista.</p></li>
+        <li class="mr-revela mr-passo-1">
+          <span class="mr-num" aria-hidden="true">1</span>
+          <b>Chegou? Escaneia o QR</b>
+          <p>Na porta ou no bar. Salva o endereço de casa e o seu carro, em 1 minuto. Não precisa instalar nada.</p>
+        </li>
+        <li class="mr-revela mr-passo-2">
+          <span class="mr-num" aria-hidden="true">2</span>
+          <b>Curte sem culpa</b>
+          <p>Brinda, dança, pede mais um. Hoje a chave do carro fica no bolso a noite inteira.</p>
+        </li>
+        <li class="mr-revela mr-passo-3">
+          <span class="mr-num" aria-hidden="true">3</span>
+          <b>Bateu a hora? Um toque</b>
+          <p>Toca em <b>Volta pra casa</b> uns 20 minutos antes de sair. O celular toca quando o motorista aceitar.</p>
+        </li>
+        <li class="mr-revela mr-passo-4">
+          <span class="mr-num" aria-hidden="true">4</span>
+          <b>Acorda com o carro na garagem</b>
+          <p>O motorista confere o seu código, dirige o seu carro e você vai junto. Em casa, é Pix direto pra ele.</p>
+        </li>
       </ol>
     </div>
   </section>
 
-  <!-- ================= o QR ================= -->
+  <!-- ================= benefícios ================= -->
+  <!-- os benefícios combinados com a galera da festa: troque os textos abaixo pelos que forem fechados -->
+  <section class="mr-secao mr-beneficios" id="beneficios" aria-labelledby="beneficios-t">
+    <div class="mr-in">
+      <p class="mr-rotulo">Só pra quem volta de Drink</p>
+      <h2 id="beneficios-t">Voltou de Drink, <span class="mr-neon-lima">ganhou</span></h2>
+      <ul class="mr-adesivos">
+        <li class="mr-revela mr-adesivo-1">
+          <span class="mr-adesivo-tag">No bar</span>
+          <b>Brinde de boas-vindas</b>
+          <p>Mostrou a volta pronta no app, ganhou um shot por conta da casa.</p>
+        </li>
+        <li class="mr-revela mr-adesivo-2">
+          <span class="mr-adesivo-tag">Na volta</span>
+          <b>R$ 10 off na primeira volta</b>
+          <p>Primeira vez com a Drink? A sua volta da Maison Rouge sai com desconto.</p>
+        </li>
+        <li class="mr-revela mr-adesivo-3">
+          <span class="mr-adesivo-tag">No domingo</span>
+          <b>Sorteio da ressaca</b>
+          <p>Quem voltar de Drink concorre a um kit pós-festa, sorteado no domingo.</p>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ================= o QR: o ingresso da volta ================= -->
   <section class="mr-secao mr-volta" id="volta" aria-labelledby="volta-t">
     <div class="mr-in mr-volta-in">
       <div class="mr-volta-txt">
-        <p class="mr-rotulo">Gardez-le</p>
-        <h2 id="volta-t">O QR <em>da sua volta</em></h2>
-        <p>Lê na chegada e deixa a volta pronta (casa e carro): na saída, é só tocar em <b>Volta pra casa</b>. O mesmo QR vai estar na porta e no bar da festa.</p>
+        <p class="mr-rotulo">Guarda esse print</p>
+        <h2 id="volta-t">Seu passaporte <span class="mr-neon-rosa">da volta</span></h2>
+        <p>Escaneia na chegada e deixa a volta pronta. Na saída, é só tocar em <b>Volta pra casa</b>. O mesmo QR vai estar na porta e no bar.</p>
         <a class="mr-bt mr-bt-lima" href="../app/">Abrir o app da Drink</a>
       </div>
-      <figure class="mr-qr-moldura">
+      <figure class="mr-ingresso">
+        <div class="mr-ingresso-topo">
+          <span>Maison Rouge</span>
+          <span>31.10</span>
+        </div>
         <div class="mr-qr" id="mr-qr" role="img" aria-label="QR code que abre o app da Drink"></div>
-        <figcaption>Maison Rouge · 31.10</figcaption>
+        <figcaption><b>Volta pra casa</b> 1 pessoa + 1 carro</figcaption>
       </figure>
+    </div>
+  </section>
+
+  <!-- ================= a noite: o setlist ================= -->
+  <section class="mr-secao mr-roteiro" id="roteiro" aria-labelledby="roteiro-t">
+    <div class="mr-in mr-roteiro-in">
+      <div>
+        <p class="mr-rotulo">A noite</p>
+        <h2 id="roteiro-t">O setlist <span class="mr-neon-lima">da volta</span></h2>
+        <p class="mr-roteiro-nota">Os Drinks chegam à 01:30 e ficam na porta até a última volta. Vai sair mais cedo? Já tem gente esperando por você.</p>
+      </div>
+      <ol class="mr-setlist">
+        <li class="mr-revela"><time>23:00</time><span>Portas abertas: escaneia o QR e deixa a volta pronta</span></li>
+        <li class="mr-revela"><time>00:00</time><span>A pista esquenta. Hoje ninguém fica no refri</span></li>
+        <li class="mr-revela mr-setlist-drink"><time>01:30</time><span>Os Drinks chegam, de camisa da Drink, na porta</span></li>
+        <li class="mr-revela"><time>04:00</time><span>Vai embora? Pede o seu Drink 20 min antes</span></li>
+        <li class="mr-revela mr-setlist-drink"><time>04:30</time><span>A saideira. Fila no app, quem pediu antes vai antes</span></li>
+        <li class="mr-revela"><time>Bis</time><span>Você em casa, o carro na garagem</span></li>
+      </ol>
     </div>
   </section>
 
   <!-- ================= o preço ================= -->
   <section class="mr-secao mr-preco" aria-labelledby="preco-t">
     <div class="mr-in">
-      <p class="mr-rotulo">La carte</p>
-      <h2 id="preco-t">Quanto custa <em>voltar</em></h2>
-      <p class="mr-preco-regra">R$ 25 de saída + R$ 3,50 por km. Da meia-noite às 5h, a bandeira 2 soma 20%. Você paga pelo Pix, direto para o motorista, e a gorjeta é só se quiser.</p>
-      <table class="mr-carta">
-        <caption class="mr-sr">Exemplos de volta depois da meia-noite</caption>
-        <thead><tr><th scope="col">Volta depois da meia-noite</th><th scope="col">Valor</th></tr></thead>
-        <tbody>
-          <tr><th scope="row">5 km</th><td>R$ 51,00</td></tr>
-          <tr><th scope="row">10 km</th><td>R$ 72,00</td></tr>
-          <tr><th scope="row">15 km</th><td>R$ 93,00</td></tr>
-          <tr><th scope="row">20 km</th><td>R$ 114,00</td></tr>
-        </tbody>
-      </table>
-      <p class="mr-nota">O valor da sua volta aparece no app antes de você pedir.</p>
+      <p class="mr-rotulo">Quanto custa</p>
+      <h2 id="preco-t">Mais barato <span class="mr-neon-rosa">que a ressaca</span></h2>
+      <p class="mr-preco-regra">R$ 25 de saída + R$ 3,50 por km. Da meia-noite às 5h, a bandeira 2 soma 20%. Você paga pelo Pix, direto pro motorista, e o valor aparece no app antes de pedir.</p>
+      <ul class="mr-fichas" aria-label="Exemplos de volta depois da meia-noite">
+        <li><span>5 km</span><b>R$ 51</b></li>
+        <li><span>10 km</span><b>R$ 72</b></li>
+        <li><span>15 km</span><b>R$ 93</b></li>
+        <li><span>20 km</span><b>R$ 114</b></li>
+      </ul>
+      <p class="mr-lei"><b>Multa da Lei Seca: R$ 2.934,70</b> e 12 meses sem dirigir. A conta fecha rapidinho.</p>
     </div>
   </section>
 
   <!-- ================= segurança ================= -->
   <section class="mr-secao mr-seguro" aria-labelledby="seguro-t">
     <div class="mr-in">
-      <p class="mr-rotulo">En toute confiance</p>
-      <h2 id="seguro-t">Seu carro <em>em boas mãos</em></h2>
+      <p class="mr-rotulo">Pode relaxar</p>
+      <h2 id="seguro-t">Seu carro <span class="mr-neon-lima">em boas mãos</span></h2>
       <ul class="mr-cartoes">
-        <li class="mr-revela"><b>Motoristas conferidos</b><p>CNH há 2 anos ou mais e antecedentes criminais sem pendências.</p></li>
-        <li class="mr-revela"><b>Código de segurança</b><p>O motorista só assume o volante depois de conferir o seu código no app.</p></li>
-        <li class="mr-revela"><b>Vistoria com fotos</b><p>Os 4 lados e o painel, com data e hora, antes de sair. É a prova de como o carro estava.</p></li>
-        <li class="mr-revela"><b>Viagem ao vivo</b><p>Compartilhe o trajeto com quem quiser e use o botão de ajuda se precisar.</p></li>
+        <li class="mr-revela"><b>Motorista conferido</b><p>CNH há 2 anos ou mais e antecedentes criminais sem pendências.</p></li>
+        <li class="mr-revela"><b>Código secreto</b><p>Ele só pega o volante depois de conferir o seu código de 4 números no app.</p></li>
+        <li class="mr-revela"><b>Fotos do carro</b><p>Os 4 lados e o painel, com data e hora, antes de sair.</p></li>
+        <li class="mr-revela"><b>Viagem ao vivo</b><p>Compartilha o trajeto com quem quiser e tem botão de ajuda.</p></li>
       </ul>
     </div>
   </section>
@@ -173,27 +232,27 @@
   <!-- ================= perguntas ================= -->
   <section class="mr-secao mr-faq" aria-labelledby="faq-t">
     <div class="mr-in">
-      <p class="mr-rotulo">Questions</p>
-      <h2 id="faq-t">Ficou <em>dúvida?</em></h2>
+      <p class="mr-rotulo">Dúvidas</p>
+      <h2 id="faq-t">Bora tirar <span class="mr-neon-rosa">as dúvidas</span></h2>
       <div class="mr-perguntas">
-        <details><summary>Preciso instalar algum app?</summary><p>Não. O QR abre a Drink no navegador do celular. Se quiser, dá para instalar depois, direto do site.</p></details>
-        <details><summary>A festa acaba às 5h. Vai ter fila?</summary><p>São 8 motoristas de plantão desde a 01:30. Na saída pode ter espera, porque muita gente vai embora junto. Se nenhum Drink estiver livre, o seu pedido entra na fila e o app mostra a sua posição: quando um motorista fica livre, ele pega primeiro quem pediu antes. Por isso, pede o seu Drink uns 20 minutos antes de sair e deixa a tela aberta: o celular toca e vibra quando o motorista aceitar e quando ele chegar.</p></details>
-        <details><summary>O app não carregou. E agora?</summary><p>Usa o 4G em vez do Wi-Fi da festa. Com muita gente na mesma rede, a central pode demorar para responder.</p></details>
-        <details><summary>Eu vou junto no carro?</summary><p>Vai, sim: no banco do passageiro ou no de trás. E dá para pedir um Drink para um amigo e acompanhar a viagem pelo app.</p></details>
+        <details><summary>Preciso baixar algum app?</summary><p>Não. O QR abre a Drink no navegador do celular. Se curtir, dá para instalar depois, direto do site.</p></details>
+        <details><summary>A festa acaba às 5h. Vai ter fila?</summary><p>São 8 motoristas na porta desde a 01:30, mas na saída todo mundo vai embora junto. Se ninguém estiver livre, o seu pedido entra na fila e o app mostra a sua posição: quem pediu antes vai antes. Por isso, pede uns 20 minutos antes e deixa a tela aberta. O celular toca e vibra quando o motorista aceitar e quando ele chegar.</p></details>
+        <details><summary>O app não abriu. E agora?</summary><p>Desliga o Wi-Fi e usa o 4G. Com a festa inteira na mesma rede, a central pode demorar para responder.</p></details>
+        <details><summary>Eu vou junto no carro?</summary><p>Vai, sim: no banco do passageiro ou no de trás. Dá também para pedir um Drink para um amigo e acompanhar a viagem pelo app.</p></details>
         <details><summary>Meu carro é manual. Tem problema?</summary><p>Nenhum. Os motoristas da Drink dirigem carro manual e automático.</p></details>
-        <details><summary>E a bike do motorista?</summary><p>Ele chega de bike elétrica ou patinete dobrável e guarda no seu porta-malas, forrado com uma capa. Em casa, tira e segue para a próxima volta.</p></details>
-        <details><summary>E se eu vim de Uber?</summary><p>A Drink leva você no seu carro. Quem não veio de carro volta de táxi ou de aplicativo, como sempre.</p></details>
+        <details><summary>E a bike do motorista?</summary><p>Ele chega de bike elétrica ou patinete dobrável e guarda no seu porta-malas, com uma capa. Em casa, tira e volta pra festa.</p></details>
+        <details><summary>Vim de Uber. Serve pra mim?</summary><p>A Drink leva você no seu carro. Se você não veio de carro, a volta é de táxi ou aplicativo, como sempre.</p></details>
       </div>
     </div>
   </section>
 
   <!-- ================= o fim ================= -->
   <section class="mr-final" aria-labelledby="final-t">
-    <div class="mr-cortina mr-cortina-baixa" aria-hidden="true"></div>
+    <div class="mr-luzes mr-luzes-baixas" aria-hidden="true"><i></i><i></i><i></i></div>
     <div class="mr-in mr-final-in">
-      <p class="mr-rotulo">Maison Rouge · domingo, 05:00</p>
-      <h2 id="final-t">Bonne <em>nuit.</em></h2>
-      <p class="mr-frase">A festa é da Maison Rouge. <em>A volta é da Drink.</em></p>
+      <p class="mr-rabisco">bom rolê!</p>
+      <h2 id="final-t">A festa é sua.<br> <span class="mr-neon-lima">A volta é nossa.</span></h2>
+      <a class="mr-bt mr-bt-lima" href="#volta">Pegar meu QR da volta</a>
       <img class="mr-final-marca" src="../marca/drink-camisa-escura.svg" alt="Drink, motorista da vez" width="320" height="118">
     </div>
   </section>
@@ -205,6 +264,6 @@
 </footer>
 
 <script src="../app/vendor/qrcode.js"></script>
-<script src="mr.js"></script>
+<script src="mr.js?v=2"></script>
 </body>
 </html>
