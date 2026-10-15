@@ -58,10 +58,11 @@ h2 {
 }
 /* três canhões de luz que varrem a pista */
 .mr-luzes { position: absolute; inset: 0; z-index: -1; pointer-events: none; }
-.mr-luzes i { position: absolute; top: -20%; width: 70vmax; height: 70vmax; border-radius: 50%; filter: blur(60px); opacity: .55; mix-blend-mode: screen; }
-.mr-luzes i:nth-child(1) { left: -30vmax; background: radial-gradient(circle, rgba(255, 45, 85, .9), transparent 62%); animation: mr-varre 9s ease-in-out infinite alternate; }
-.mr-luzes i:nth-child(2) { right: -34vmax; background: radial-gradient(circle, rgba(255, 79, 216, .75), transparent 62%); animation: mr-varre 11s ease-in-out -3s infinite alternate-reverse; }
-.mr-luzes i:nth-child(3) { left: 10%; top: 40%; width: 50vmax; height: 50vmax; background: radial-gradient(circle, rgba(61, 242, 255, .35), transparent 62%); animation: mr-varre 13s ease-in-out -6s infinite alternate; }
+/* (o degradê já é macio: sem blur nem mistura de cores, que pesam no celular) */
+.mr-luzes i { position: absolute; top: -20%; width: 70vmax; height: 70vmax; border-radius: 50%; opacity: .5; will-change: transform; }
+.mr-luzes i:nth-child(1) { left: -30vmax; background: radial-gradient(circle, rgba(255, 45, 85, .75), rgba(255, 45, 85, 0) 65%); animation: mr-varre 9s ease-in-out infinite alternate; }
+.mr-luzes i:nth-child(2) { right: -34vmax; background: radial-gradient(circle, rgba(255, 79, 216, .6), rgba(255, 79, 216, 0) 65%); animation: mr-varre 11s ease-in-out -3s infinite alternate-reverse; }
+.mr-luzes i:nth-child(3) { left: 10%; top: 40%; width: 50vmax; height: 50vmax; background: radial-gradient(circle, rgba(61, 242, 255, .28), rgba(61, 242, 255, 0) 65%); animation: mr-varre 13s ease-in-out -6s infinite alternate; }
 @keyframes mr-varre { from { transform: translate3d(-6vw, 0, 0) scale(1); } to { transform: translate3d(8vw, 6vh, 0) scale(1.15); } }
 
 /* o globo espelhado, pendurado no canto e balançando */
@@ -80,7 +81,7 @@ h2 {
 
 /* o confete que cai (montado no mr.js) */
 .mr-confete { position: absolute; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
-.mr-confete i { position: absolute; top: -20px; width: 8px; height: 14px; border-radius: 2px; opacity: .9; animation: mr-cai linear infinite; }
+.mr-confete i { position: absolute; top: -20px; width: 8px; height: 14px; border-radius: 2px; opacity: .9; animation: mr-cai linear infinite; will-change: transform; }
 @keyframes mr-cai { from { transform: translate3d(0, -20px, 0) rotate(0); } to { transform: translate3d(var(--vento, 30px), 105vh, 0) rotate(720deg); } }
 
 .mr-hero-in { position: relative; max-width: 760px; }
@@ -123,7 +124,9 @@ h2 {
 .mr-acoes { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
 
 /* ---------- a faixa que corre ---------- */
-.mr-faixa { position: relative; z-index: 2; overflow: hidden; margin: -18px -4vw 0; padding: 14px 0; background: var(--lima); color: var(--noite); transform: rotate(-2.2deg); box-shadow: 0 10px 40px -12px rgba(210, 255, 60, .6); }
+/* a moldura recorta as pontas da faixa inclinada (sem rolagem para o lado) */
+.mr-faixa-moldura { position: relative; z-index: 2; overflow: hidden; margin-top: -40px; padding: 22px 0; }
+.mr-faixa { position: relative; overflow: hidden; width: 110%; margin: 0 -5%; padding: 14px 0; background: var(--lima); color: var(--noite); transform: rotate(-2.2deg); }
 .mr-faixa-rolo { display: flex; width: max-content; animation: mr-corre 22s linear infinite; }
 .mr-faixa-rolo span { padding: 0 18px; font-weight: 800; font-stretch: 78%; font-size: 1.35rem; text-transform: uppercase; white-space: nowrap; }
 .mr-faixa-rolo span::after { content: "✦"; margin-left: 36px; color: var(--rouge); }
