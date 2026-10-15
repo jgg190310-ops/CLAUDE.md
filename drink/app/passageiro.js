@@ -624,7 +624,7 @@
       },
       opcoes() { mostrarOpcoes(); },
       buscando() { resumoBusca(); },
-      caminho() { mostrarCaminho(); },
+      caminho() { mexeuNoMapa = false; mostrarCaminho(); },
       preparo() { mostrarPreparo(); },
       viagem() { mostrarViagem(); },
       chegou() { mostrarChegada(); },
@@ -1585,7 +1585,8 @@
       mapa.limpar();
       mapa.ponto('embarque', c.embarque, Mapa.ICONE.embarque());
       if (pos) mapa.ponto('voce', pos, Mapa.ICONE.voce());
-      atualizarChegando(true);
+      // arrastou o mapa para olhar: a foto, o "está chegando" e o "chegou" não puxam a vista de volta
+      atualizarChegando(!mexeuNoMapa);
     }
     // a nota e as corridas, como nos apps de corrida ("4,9 · 23 corridas"), ou "novo no Drink"
     function notaCorridas(m) {
