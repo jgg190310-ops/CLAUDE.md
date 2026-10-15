@@ -1,4 +1,4 @@
-/* Maison Rouge: contagem, QR da volta e entrada das seções ao rolar. */
+/* Maison Rouge: contagem, QR da volta, confete e entrada das seções ao rolar. */
 (function () {
   'use strict';
 
@@ -26,15 +26,15 @@
     if (agora >= FIM) {
       caixa.classList.remove('agora');
       caixa.classList.add('fim');
-      titulo.textContent = 'Merci pela noite. Todo mundo chegou em casa.';
+      titulo.textContent = 'Valeu pela noite! Todo mundo chegou em casa.';
       clearInterval(relogio);
       return;
     }
     if (agora >= INICIO) {
       caixa.classList.add('agora');
       titulo.textContent = agora < DRINKS
-        ? 'Está acontecendo agora. Os Drinks chegam à 01:30.'
-        : 'Os Drinks estão na porta. Lê o QR e vai pra casa.';
+        ? 'Está acontecendo agora! Os Drinks chegam à 01:30.'
+        : 'Os Drinks estão na porta. Escaneia o QR e bora pra casa.';
       return;
     }
     var falta = Math.floor((INICIO - agora) / 1000);
@@ -63,6 +63,23 @@
       var svg = alvo.querySelector('svg');
       if (svg) { svg.setAttribute('aria-hidden', 'true'); svg.setAttribute('focusable', 'false'); }
     } catch (e) { /* sem QR: o botão abaixo ainda abre o app */ }
+  }
+
+  /* ---------- confete na abertura (quem pediu menos movimento fica sem) ---------- */
+  var confete = document.getElementById('mr-confete');
+  var parado = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (confete && !parado) {
+    var cores = ['#FF2D55', '#FF4FD8', '#D2FF3C', '#3DF2FF', '#FFD23F'];
+    for (var i = 0; i < 26; i += 1) {
+      var pedaco = document.createElement('i');
+      pedaco.style.left = (Math.random() * 100).toFixed(1) + '%';
+      pedaco.style.background = cores[i % cores.length];
+      pedaco.style.animationDuration = (6 + Math.random() * 7).toFixed(1) + 's';
+      pedaco.style.animationDelay = (-Math.random() * 12).toFixed(1) + 's';
+      pedaco.style.setProperty('--vento', Math.round(Math.random() * 120 - 60) + 'px');
+      if (i % 3 === 0) { pedaco.style.width = '10px'; pedaco.style.height = '10px'; pedaco.style.borderRadius = '50%'; }
+      confete.appendChild(pedaco);
+    }
   }
 
   /* ---------- entrada ao rolar ---------- */
