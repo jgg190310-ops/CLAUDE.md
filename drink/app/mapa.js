@@ -292,6 +292,12 @@
     const folga = () => Math.max(0, medirFolga() || 0);
     ouvir(mapa, 'bounds_changed', () => { andando = true; });
     ouvir(mapa, 'idle', () => { andando = false; levantarMarca(); });
+    // a marca do Google entra depois do primeiro desenho (e volta a ser montada às vezes): confere de novo
+    ouvir(mapa, 'tilesloaded', () => levantarMarca());
+    let quadro = 0;
+    const montagem = typeof MutationObserver !== 'undefined'
+      ? new MutationObserver(() => { if (!quadro) quadro = requestAnimationFrame(() => { quadro = 0; levantarMarca(); }); }) : null;
+    if (montagem) montagem.observe(el, { childList: true, subtree: true });
     ouvir(mapa, 'dragstart', () => memoria.esquecer());
     const aoPincar = (e) => { if (e.touches && e.touches.length > 1) memoria.esquecer(); };
     const aoRodar = () => memoria.esquecer();
@@ -306,10 +312,10 @@
       const base = el.querySelector('.gm-style');
       if (!base) return;
       const f = Math.round(folga());
-      [...base.children].forEach((filho) => {
-        if (filho.style.position === 'absolute' && filho.style.bottom === '0px' && !filho.querySelector('canvas, img[role="presentation"]')) {
-          filho.style.transform = f ? `translateY(-${f}px)` : '';
-        }
+      // as caixas presas ao pé do mapa que têm a marca, os créditos ou os termos do Google
+      base.querySelectorAll('div[style*="bottom: 0px"]').forEach((caixa) => {
+        if (caixa.style.position !== 'absolute' || !caixa.querySelector('a[href*="maps.google.com/maps"], .gm-style-cc, a[href*="google.com/intl"], a[href*="/maps/@"]')) return;
+        caixa.style.transform = f ? `translateY(-${f}px)` : '';
       });
     }
 
@@ -387,12 +393,13 @@
     }
 
     // o ponto que fica "dy" pixels abaixo de p, no zoom z (para descontar a folha que cobre o mapa)
+    // (a conta de Mercator é feita aqui: logo que o mapa abre, o Google ainda não tem a projeção dele pronta)
     function deslocar(p, z, dy) {
-      const pr = mapa.getProjection();
-      const ll = new g.LatLng(p.lat, p.lon);
-      if (!pr || !dy) return ll;
-      const pt = pr.fromLatLngToPoint(ll);
-      return pr.fromPointToLatLng(new g.Point(pt.x, pt.y + dy / 2 ** z));
+      if (!dy) return new g.LatLng(p.lat, p.lon);
+      const sen = Math.min(0.9999, Math.max(-0.9999, Math.sin((p.lat * Math.PI) / 180)));
+      const y = (0.5 - Math.log((1 + sen) / (1 - sen)) / (4 * Math.PI)) * 256 + dy / 2 ** z;
+      const lat = (Math.atan(Math.sinh(Math.PI * (1 - (2 * y) / 256))) * 180) / Math.PI;
+      return new g.LatLng(lat, p.lon);
     }
     const animar = () => !reduzirMovimento();
     function centrarAgora(p, zoomPedido) {
@@ -486,6 +493,7 @@
         el.removeEventListener('touchstart', aoPincar);
         el.removeEventListener('wheel', aoRodar);
         if (tamanho) tamanho.disconnect();
+        if (montagem) montagem.disconnect();
         if (vigia) vigia.disconnect();
         Object.values(tweens).forEach((t) => cancelAnimationFrame(t));
         delete el.mapaGoogle;

@@ -124,3 +124,25 @@ O app já espera e tenta de novo, mas o certo para eventos grandes é ter um ntf
 3. No app, troque `ntfy: 'https://ntfy.sh'` em `drink/app/servicos.js` pelo endereço novo e publique.
 
 Enquanto isso não existe, peça aos convidados para usar o **4G** na hora de pedir a volta.
+
+## Mapa e endereços do Google (como na Uber)
+
+Sem chave, o app usa o OpenStreetMap: funciona, mas o mapa é mais simples e muita casa não tem número. Com a chave do
+Google, o mapa, a busca (inclusive "Rua X, 123"), o endereço de onde a pessoa está e a rota passam a ser do Google, nas
+cores do Drink. Se a chave falhar, o app volta sozinho para o OpenStreetMap.
+
+1. Entre em https://console.cloud.google.com com a conta Google do Drink e crie um projeto (por exemplo "Drink").
+2. Em **Faturamento**, ligue uma conta de faturamento (o Google pede cartão). Cada API tem uma cota grátis por mês
+   (no preço atual, perto de 10 mil mapas abertos, 10 mil endereços e 10 mil rotas; a busca, uns 5 mil). Em
+   **Orçamentos e alertas**, crie um alerta de R$ 50 para ser avisado antes de qualquer cobrança.
+3. Em **APIs e serviços > Biblioteca**, ative: **Maps JavaScript API**, **Places API (New)**, **Geocoding API** e
+   **Routes API**.
+4. Em **APIs e serviços > Credenciais**, toque em **Criar credenciais > Chave de API**. Abra a chave e restrinja:
+   - **Restrições de aplicativo**: "Sites" (referenciadores HTTP), com `https://jgg190310-ops.github.io/*`
+     (e o domínio próprio do Drink, quando tiver);
+   - **Restrições de API**: só as quatro APIs acima.
+5. Para nunca passar do grátis, em cada uma das quatro APIs abra **Cotas** e limite por dia (por exemplo: Maps
+   JavaScript 300, Places 150, Geocoding 300, Routes 300).
+6. Coloque a chave em `drink/app/config-servidor.js`, em `window.DRINK_GOOGLE = { chave: '...' }`, e publique (ou mande
+   a chave para quem cuida do app). A chave fica à vista no site, como em todo site com mapa do Google: quem impede
+   outro site de usar é a restrição do passo 4.
