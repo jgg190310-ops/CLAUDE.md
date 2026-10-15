@@ -15,6 +15,7 @@
   // taxa: parte dos convidados que foi de carro e vai precisar de um Drink (a mesma conta do site)
   const TIPOS = {
     casamento: { nome: 'Casamento', taxa: 0.35 },
+    festa: { nome: 'Festa', taxa: 0.3 },
     formatura: { nome: 'Formatura', taxa: 0.3 },
     empresa: { nome: 'Festa de empresa', taxa: 0.3 },
     bar: { nome: 'Bar ou restaurante', taxa: 0.25 },
@@ -261,6 +262,8 @@
       </button></li>`;
     }
     function lista() {
+      // o link com o evento preenchido abre direto o formulário (uma vez)
+      if (window.Drink.eventoModelo) { const m = window.Drink.eventoModelo; window.Drink.eventoModelo = null; novo(m); return; }
       const todos = eventos();
       const vivos = todos.filter((e) => situacao(e) !== 'acabou').sort((a, b) => janela(a).ini - janela(b).ini);
       const idos = todos.filter((e) => situacao(e) === 'acabou').sort((a, b) => janela(b).ini - janela(a).ini);
@@ -274,16 +277,25 @@
 
     /* ---------- o formulário de um evento novo ---------- */
     function hoje() { const d = new Date(); return `${d.getFullYear()}-${dois(d.getMonth() + 1)}-${dois(d.getDate())}`; }
-    function novo() {
-      rascunho = { tipo: 'casamento', paga: 'evento', teto: 80, voltas: 0, voltasMexidas: false, lugar: null };
-      q('#rp-evn-nome').value = '';
-      q('#rp-evn-data').value = hoje();
+    // m: o evento já preenchido (o link do Drink com ?aba=eventos&ev-nome=…): só falta quem organiza escolher o lugar
+    function novo(m) {
+      const p = m && typeof m === 'object' ? m : {};
+      const hora = (h, padrao) => (typeof h === 'string' && /^\d{2}:\d{2}$/.test(h) ? h : padrao);
+      const dia = typeof p.data === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(p.data) && p.data >= hoje() ? p.data : hoje();
+      rascunho = {
+        tipo: TIPOS[p.tipo] ? p.tipo : 'casamento', paga: p.paga === 'convidado' ? 'convidado' : 'evento',
+        teto: TETOS.includes(Number(p.teto)) ? Number(p.teto) : 80, voltas: 0, voltasMexidas: false, lugar: null,
+      };
+      q('#rp-evn-nome').value = texto(p.nome, 60);
+      q('#rp-evn-data').value = dia;
       q('#rp-evn-data').min = hoje();
-      q('#rp-evn-ini').value = '20:00';
-      q('#rp-evn-fim').value = '02:00';
-      q('#rp-evn-conv').value = '150';
+      q('#rp-evn-ini').value = hora(p.ini, '20:00');
+      q('#rp-evn-fim').value = hora(p.fim, '02:00');
+      const conv = Number(p.conv);
+      q('#rp-evn-conv').value = String(conv >= 20 && conv <= 1000 ? Math.round(conv / 10) * 10 : 150);
       q('#rp-evn-erro').hidden = true;
       op.ir('evento-novo');
+      if (m) setTimeout(() => op.avisar(`${texto(p.nome, 60) || 'O evento'} já veio preenchido. Falta escolher o lugar e tocar em Criar.`), 600);
     }
     function lugarEscolhido(l) {
       if (!rascunho) return;

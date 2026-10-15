@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Carro de apoio · Drink</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#0E0D12">
+  <link rel="icon" href="../icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../admin/admin.css?v=3">
+  <link rel="stylesheet" href="apoio.css?v=1">
+</head>
+<body>
+<header class="pn-topo">
+  <a class="pn-marca" href="../" aria-label="Site do Drink"><img src="../icon.svg" alt="" width="32" height="32"><span>drink <small>apoio</small></span></a>
+  <p class="ap-quem" id="ap-quem" hidden></p>
+</header>
+
+<main class="pn-main" id="conteudo">
+  <!-- o código da equipe -->
+  <section class="pn-cartao" id="ap-entrar" aria-labelledby="ap-entrar-t">
+    <h1 id="ap-entrar-t">Carro de apoio</h1>
+    <p class="pn-sub">Os motoristas que deixaram o cliente em casa tocam em <b>Me busca</b> no app. Aqui aparece quem está esperando, onde e há quanto tempo. Tudo cifrado com o código da equipe.</p>
+    <form id="ap-form" novalidate>
+      <label class="pn-campo"><span>Código da equipe</span><input id="ap-codigo" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="16" placeholder="Ex.: MR31OUT7"></label>
+      <label class="pn-campo"><span>Nome deste carro (o motorista vê)</span><input id="ap-nome" type="text" maxlength="30" autocomplete="off" placeholder="Carro 1"></label>
+      <p class="pn-erro" id="ap-erro" role="alert" hidden></p>
+      <div class="az-bts">
+        <button type="submit" class="pn-botao">Entrar</button>
+        <button type="button" class="pn-botao pn-botao-2" id="ap-novo">Criar um código novo</button>
+      </div>
+    </form>
+  </section>
+
+  <section id="ap-painel" hidden aria-labelledby="ap-t">
+    <div class="ap-cab">
+      <h1 id="ap-t" tabindex="-1">Esperando o carro de apoio</h1>
+      <p class="pn-sub" id="ap-resumo">Ninguém esperando agora. Quando um motorista pedir, o celular toca.</p>
+    </div>
+    <ul class="ap-lista" id="ap-lista" aria-live="polite"></ul>
+    <details class="ap-equipe">
+      <summary>Mandar o código para os motoristas</summary>
+      <p class="pn-sub">Cada motorista toca no link uma vez: o app guarda o código e passa a mostrar <b>Me busca</b> quando ele está online.</p>
+      <label class="pn-campo"><span>Link da equipe</span><textarea id="ap-link" rows="2" readonly></textarea></label>
+      <div class="az-bts">
+        <a class="pn-botao" id="ap-whats" target="_blank" rel="noopener">Mandar pelo WhatsApp</a>
+        <button type="button" class="pn-botao pn-botao-2" id="ap-copiar">Copiar o link</button>
+      </div>
+      <button type="button" class="pn-link" id="ap-sair">Sair desta equipe</button>
+    </details>
+  </section>
+</main>
+
+<p class="pn-toast" id="pn-toast" role="status" hidden></p>
+<script src="../app/apoio.js?v=1"></script>
+<script src="pagina.js?v=1"></script>
+</body>
+</html>

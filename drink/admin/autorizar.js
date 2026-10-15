@@ -45,7 +45,83 @@
   function mostrar() {
     $('#az-sem-chave').hidden = Boolean(privada);
     $('#az-autorizar').hidden = !privada;
-    if (privada) lerPedidoDoLink();
+    $('#az-bloquear').hidden = !privada;
+    if (privada) { lerPedidoDoLink(); carregarBloqueados(); }
+  }
+
+  /* ---------- bloquear (antes do prazo) ---------- */
+  // quem este aparelho autorizou fica numa lista, para bloquear com um toque; a lista publicada é o arquivo
+  // drink/app/bloqueados.json, que os apps leem da rede
+  const HIST = 'drink-painel-autorizados';
+  const historico = () => { try { const l = JSON.parse(localStorage.getItem(HIST) || '[]'); return Array.isArray(l) ? l : []; } catch (e) { return []; } };
+  function lembrar(a) {
+    const l = historico().filter((x) => x.pub !== a.pub);
+    l.unshift(a);
+    try { localStorage.setItem(HIST, JSON.stringify(l.slice(0, 200))); } catch (e) { /* ok */ }
+    desenharLista();
+  }
+  let publicados = null; // a lista que está no ar
+  let bloqueio = [];     // a lista com as mudanças daqui
+  async function carregarBloqueados() {
+    if (publicados) return;
+    try {
+      const r = await fetch(new URL('../app/bloqueados.json', location.href).href, { cache: 'no-cache' });
+      const j = r.ok ? await r.json() : null;
+      publicados = Array.isArray(j && j.bloqueados) ? j.bloqueados.filter((x) => x && typeof x.p === 'string') : [];
+    } catch (e) { publicados = []; }
+    bloqueio = publicados.map((x) => ({ ...x }));
+    desenharLista();
+  }
+  const bloqueado = (pub) => bloqueio.some((x) => x.p === pub);
+  function desenharLista() {
+    const ul = $('#az-lista');
+    if (!ul) return;
+    const vistos = new Set();
+    const itens = [...historico(), ...bloqueio.filter((x) => !historico().some((h) => h.pub === x.p)).map((x) => ({ nome: x.n || 'Motorista', cel: '', pub: x.p, ate: 0 }))]
+      .filter((a) => !vistos.has(a.pub) && vistos.add(a.pub));
+    ul.innerHTML = '';
+    itens.forEach((a) => {
+      const li = document.createElement('li');
+      const b = bloqueado(a.pub);
+      li.className = b ? 'bloq' : '';
+      const info = document.createElement('div');
+      const nome = document.createElement('b');
+      nome.textContent = a.nome;
+      const det = document.createElement('small');
+      det.textContent = b ? 'Bloqueado' : [a.cel, a.ate ? `até ${new Date(a.ate).toLocaleDateString('pt-BR')}` : ''].filter(Boolean).join(' · ');
+      info.append(nome, det);
+      const bt = document.createElement('button');
+      bt.type = 'button';
+      bt.textContent = b ? 'Desbloquear' : 'Bloquear';
+      bt.setAttribute('aria-label', `${b ? 'Desbloquear' : 'Bloquear'} ${a.nome}`);
+      bt.addEventListener('click', () => trocarBloqueio(a.pub, a.nome));
+      li.append(info, bt);
+      ul.append(li);
+    });
+  }
+  function trocarBloqueio(pub, nome) {
+    if (bloqueado(pub)) bloqueio = bloqueio.filter((x) => x.p !== pub);
+    else bloqueio.push({ p: pub, n: String(nome || 'Motorista').slice(0, 40), t: new Date().toISOString().slice(0, 10) });
+    desenharLista();
+    mostrarPublicar();
+  }
+  function mostrarPublicar() {
+    const mudou = JSON.stringify((publicados || []).map((x) => x.p).sort()) !== JSON.stringify(bloqueio.map((x) => x.p).sort());
+    $('#az-publicar').hidden = !mudou;
+    $('#az-pub-json').value = `${JSON.stringify({ v: 1, bloqueados: bloqueio }, null, 2)}\n`;
+    if (mudou) $('#az-pub-t').focus();
+  }
+  function bloquearPeloLink() {
+    erro('#az-bl-erro', '');
+    const bruto = $('#az-bl-link').value.trim().replace(/^.*#credencial=/, '');
+    const [dados] = bruto.split('.');
+    let d = null;
+    try { d = JSON.parse(new TextDecoder().decode(b64u.para(dados))); } catch (e) { d = null; }
+    if (!d || typeof d.p !== 'string') { erro('#az-bl-erro', 'Cole o link da autorização (o que tem #credencial=).'); return; }
+    if (bloqueado(d.p)) { erro('#az-bl-erro', `${d.n || 'Esse motorista'} já está na lista de bloqueados.`); return; }
+    trocarBloqueio(d.p, d.n);
+    $('#az-bl-link').value = '';
+    toast(`${d.n || 'Motorista'} bloqueado. Falta publicar a lista.`);
   }
   async function guardar(texto) {
     erro('#az-chave-erro', '');
@@ -100,6 +176,7 @@
     const ass = b64u.de(await sub.sign(ASS, privada, txt(dados)));
     const link = `${new URL('../app/', location.href).href}#credencial=${dados}.${ass}`;
     $('#az-link').value = link;
+    lembrar({ nome, cel, pub: d.p, ate, t: Date.now() });
     const quando = new Date(ate).toLocaleDateString('pt-BR');
     $('#az-pronto-sub').textContent = `${nome} pode dirigir pelo Drink até ${quando}. Mande o link para ele: é só tocar e o app guarda a autorização.`;
     $('#az-whats').href = `https://wa.me/55${cel}?text=${encodeURIComponent(`Pronto, ${nome.split(' ')[0]}! Você está autorizado no Drink até ${quando}. Toca neste link (se usa o app instalado, copia e cola no app): ${link}`)}`;
@@ -132,6 +209,10 @@
     toast('A chave saiu deste aparelho.');
   });
   window.addEventListener('hashchange', () => { if (privada) lerPedidoDoLink(); });
+  $('#az-bl-ok').addEventListener('click', bloquearPeloLink);
+  $('#az-pub-copiar').addEventListener('click', async () => {
+    try { await navigator.clipboard.writeText($('#az-pub-json').value); toast('Lista copiada. Agora abra no GitHub e cole.'); } catch (e) { $('#az-pub-json').select(); toast('Selecionei a lista: copie e cole no GitHub.'); }
+  });
 
   if (!sub || !pub.x) {
     $('#az-sem-chave').hidden = false;

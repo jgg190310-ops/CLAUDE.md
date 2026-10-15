@@ -134,6 +134,11 @@
    ========================================================================================================== */
 .app .rm-off .ma-ganhos { top: calc(var(--topo) + 6.6em); }
 .app .rm-off-topo { padding: .6em .6em .6em .65em; }
+/* a folha não sobe por baixo dos ganhos: com o aviso da autorização (ou dos documentos) ela fica alta, e o botão
+   redondo ia parar em cima da barra de cima; a folha para abaixo do botão e o resto rola dentro dela */
+.app .rm-off > .rm-off-folha { max-height: calc(100% - var(--topo) - 21.5em); }
+.app .rm-off-topo > div { min-width: 0; }
+.app .rm-off-topo small { display: block; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 
 /* ==========================================================================================================
    celular baixo: as folhas mais enxutas para o mapa continuar aparecendo
@@ -158,6 +163,7 @@
   .app .rm-off-cab .d-titulo { font-size: 1.7em; }
   .app .rm-off-cab .ma-status { width: 2.6em; height: 2.6em; }
   .app .rm-go { width: 5.4em; height: 5.4em; margin-bottom: .8em; }
+  .app .rm-off > .rm-off-folha { max-height: calc(100% - var(--topo) - 20.5em); }
   .app .rt[data-rt="inicio"] > .rt-folha { margin-bottom: calc(5.3em + var(--base)); }
   .app .d-abas { padding-top: .25em; padding-bottom: .3em; }
 }

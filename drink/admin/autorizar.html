@@ -7,7 +7,7 @@
   <meta name="robots" content="noindex, nofollow">
   <meta name="theme-color" content="#0E0D12">
   <link rel="icon" href="../icon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="admin.css?v=2">
+  <link rel="stylesheet" href="admin.css?v=3">
 </head>
 <body>
 <header class="pn-topo">
@@ -62,10 +62,33 @@
       <button type="button" class="pn-link" id="az-esquecer">Tirar a chave deste aparelho</button>
     </details>
   </section>
+  <!-- bloquear: tirar a autorização antes do prazo -->
+  <section class="pn-cartao az-cartao" id="az-bloquear" hidden aria-labelledby="az-bl-t">
+    <h2 id="az-bl-t">Bloquear motorista</h2>
+    <p class="pn-sub">Bloqueado, o motorista não fica mais online e o app do passageiro recusa o aceite dele, mesmo com a autorização dentro do prazo.</p>
+    <ul class="az-lista" id="az-lista" aria-live="polite"></ul>
+    <label class="pn-campo"><span>Ou cole o link da autorização que você mandou para ele</span><textarea id="az-bl-link" rows="2" spellcheck="false" autocomplete="off"></textarea></label>
+    <p class="pn-erro" id="az-bl-erro" role="alert" hidden></p>
+    <button type="button" class="pn-botao pn-botao-perigo" id="az-bl-ok">Bloquear este link</button>
+
+    <div class="az-publicar" id="az-publicar" hidden>
+      <h3 tabindex="-1" id="az-pub-t">Falta publicar a lista</h3>
+      <ol class="az-passos">
+        <li>Toque em <b>Copiar a lista</b>.</li>
+        <li>Toque em <b>Abrir no GitHub</b>, apague tudo o que está lá, cole e toque em <b>Commit changes</b>.</li>
+        <li>Em 1 ou 2 minutos o bloqueio vale em todos os celulares.</li>
+      </ol>
+      <label class="pn-campo"><span>A lista de bloqueados</span><textarea id="az-pub-json" rows="5" readonly spellcheck="false"></textarea></label>
+      <div class="az-bts">
+        <button type="button" class="pn-botao" id="az-pub-copiar">Copiar a lista</button>
+        <a class="pn-botao pn-botao-2" id="az-pub-github" target="_blank" rel="noopener" href="https://github.com/jgg190310-ops/CLAUDE.md/edit/claude/youthful-pascal-lhclrk/drink/app/bloqueados.json">Abrir no GitHub</a>
+      </div>
+    </div>
+  </section>
 </main>
 
 <p class="pn-toast" id="pn-toast" role="status" hidden></p>
 <script src="../app/config-servidor.js?v=75"></script>
-<script src="autorizar.js?v=1"></script>
+<script src="autorizar.js?v=2"></script>
 </body>
 </html>

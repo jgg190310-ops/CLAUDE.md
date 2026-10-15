@@ -61,7 +61,7 @@
   <meta name="format-detection" content="telephone=no">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="../icon.svg" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="../icon-180.png?v=75">
+  <link rel="apple-touch-icon" href="../icon-180.png?v=76">
   <meta property="og:type" content="website">
   <meta property="og:locale" content="pt_BR">
   <meta property="og:title" content="Drink · o app">
@@ -71,17 +71,17 @@
   <meta name="twitter:card" content="summary_large_image">
   <link rel="preload" href="fontes/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="../fontes/bricolage-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="../fontes/fontes.css?v=75">
-  <link rel="stylesheet" href="../app-telas.css?v=75">
-  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=75">
-  <link rel="stylesheet" href="app.css?v=75">
-  <link rel="stylesheet" href="visual.css?v=75">
-  <link rel="stylesheet" href="tema.css?v=75">
-  <link rel="stylesheet" href="ritmo.css?v=75">
-  <link rel="stylesheet" href="perfil.css?v=75">
-  <link rel="stylesheet" href="jornada.css?v=75">
-  <link rel="stylesheet" href="agenda.css?v=75">
-  <link rel="stylesheet" href="bares.css?v=75">
+  <link rel="stylesheet" href="../fontes/fontes.css?v=76">
+  <link rel="stylesheet" href="../app-telas.css?v=76">
+  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=76">
+  <link rel="stylesheet" href="app.css?v=76">
+  <link rel="stylesheet" href="visual.css?v=76">
+  <link rel="stylesheet" href="tema.css?v=76">
+  <link rel="stylesheet" href="ritmo.css?v=76">
+  <link rel="stylesheet" href="perfil.css?v=76">
+  <link rel="stylesheet" href="jornada.css?v=76">
+  <link rel="stylesheet" href="agenda.css?v=76">
+  <link rel="stylesheet" href="bares.css?v=76">
 </head>
 <body>
 <svg class="sprite" aria-hidden="true" focusable="false">
@@ -482,6 +482,16 @@
               <svg aria-hidden="true"><use href="#i-copo"/></svg>
               <p><b id="rp-bar-aqui-t">Bar</b><small id="rp-bar-aqui-sub"></small></p>
               <button type="button" class="d-fechar" data-rp="sair-bar" aria-label="Não estou mais nesse bar"><svg aria-hidden="true"><use href="#i-fechar"/></svg></button>
+            </div>
+            <div class="rp-pronta" id="rp-pronta" hidden>
+              <div class="rp-pronta-prep" id="rp-pronta-prep">
+                <p class="rp-pronta-t"><b>Deixa a volta pronta</b><small>Na saída é um toque só. Leva 1 minuto agora.</small></p>
+                <ul class="rp-pronta-passos">
+                  <li><button type="button" id="rp-pronta-casa" data-rp-salvar="casa"><svg aria-hidden="true"><use href="#i-casa"/></svg><span><b>Casa</b><small>Adicionar</small></span></button></li>
+                  <li><button type="button" id="rp-pronta-carro" data-rp="pronta-carro"><svg aria-hidden="true"><use href="#i-carro"/></svg><span><b>Carro e placa</b><small>Adicionar</small></span></button></li>
+                </ul>
+              </div>
+              <button type="button" class="rp-pronta-ir" id="rp-pronta-ir" data-rp-local="casa" hidden><svg aria-hidden="true"><use href="#i-casa"/></svg><span><b>Volta pra casa</b><small id="rp-pronta-ir-sub"></small></span><svg class="rp-pronta-seta" aria-hidden="true"><use href="#i-seta"/></svg></button>
             </div>
             <div class="d-atalhos" id="rp-atalhos"></div>
             <div class="rp-recentes" id="rp-recentes" role="group" aria-label="Voltar para um lugar recente" hidden></div>
@@ -1012,6 +1022,7 @@
             <p class="rt-rot" id="rp-evn-tipo-t">Tipo</p>
             <div class="ev-chips" role="radiogroup" aria-labelledby="rp-evn-tipo-t">
               <button type="button" role="radio" aria-checked="true" data-ev-tipo="casamento">Casamento</button>
+              <button type="button" role="radio" aria-checked="false" data-ev-tipo="festa">Festa</button>
               <button type="button" role="radio" aria-checked="false" data-ev-tipo="formatura">Formatura</button>
               <button type="button" role="radio" aria-checked="false" data-ev-tipo="empresa">Festa de empresa</button>
               <button type="button" role="radio" aria-checked="false" data-ev-tipo="bar">Bar ou restaurante</button>
@@ -1454,6 +1465,11 @@
             <p class="rm-vazio" id="rm-vazio">Nenhum pedido agora. Quando chegar um, o celular toca e vibra.</p>
             <p class="rm-longe" id="rm-longe" hidden></p>
             <p class="rm-bares" id="rm-bares" hidden></p>
+            <div class="rm-apoio" id="rm-apoio" role="status" hidden>
+              <p><b id="rm-apoio-t">Carro de apoio</b><small id="rm-apoio-txt">Deixou o cliente longe? O carro de apoio da equipe te busca.</small></p>
+              <button type="button" class="t-bt" id="rm-apoio-bt" data-rm="apoio">Me busca</button>
+              <button type="button" class="t-bt" id="rm-apoio-voltei" data-rm="apoio-voltei" hidden>Já voltei</button>
+            </div>
             <button type="button" class="rm-agd-bt" data-rm="agendadas" data-agd-bt data-treino="nao"><svg aria-hidden="true"><use href="#i-calendario"/></svg><span><b>Voltas agendadas</b><small data-agd-resumo>Reserve as voltas de mais tarde</small></span><svg class="en-treino-seta" aria-hidden="true"><use href="#i-seta"/></svg></button>
             <button type="button" class="t-bt rm-offline" data-rm="offline">Ficar offline</button>
           </div>
@@ -1975,36 +1991,37 @@
   <p class="vira-txt" id="vira-txt">O Drink é feito para usar na vertical. Nada se perde: se tiver corrida, ela continua rolando.</p>
 </div>
 
-<script src="vendor/maplibre-gl.js?v=75"></script>
+<script src="vendor/maplibre-gl.js?v=76"></script>
 <script>
   // o mapa reserva (Leaflet) só baixa no celular sem WebGL: os outros não gastam os 140 KB dele
   (function () {
     var gl = null;
     try { var c = document.createElement('canvas'); gl = c.getContext('webgl2') || c.getContext('webgl'); } catch (e) { gl = null; }
-    if (!gl) document.write('<link rel="stylesheet" href="vendor/leaflet.css?v=75"><script src="vendor/leaflet.js?v=75"><\/script>');
+    if (!gl) document.write('<link rel="stylesheet" href="vendor/leaflet.css?v=76"><script src="vendor/leaflet.js?v=76"><\/script>');
   }());
 </script>
-<script src="vendor/qrcode.js?v=75"></script>
-<script src="../app-nucleo.js?v=75"></script>
-<script src="config-servidor.js?v=75"></script>
-<script src="servicos.js?v=75"></script>
-<script src="rede.js?v=75"></script>
-<script src="mapa-estilo.js?v=75"></script>
-<script src="mapa.js?v=75"></script>
-<script src="carros.js?v=75"></script>
-<script src="cadastro-motorista.js?v=75"></script>
-<script src="servidor.js?v=75"></script>
-<script src="credencial.js?v=75"></script>
-<script src="perfil.js?v=75"></script>
-<script src="pix.js?v=75"></script>
-<script src="avisos.js?v=75"></script>
-<script src="sms.js?v=75"></script>
-<script src="eventos.js?v=75"></script>
-<script src="agenda.js?v=75"></script>
-<script src="leitor.js?v=75"></script>
-<script src="bares.js?v=75"></script>
-<script src="passageiro.js?v=75"></script>
-<script src="motorista.js?v=75"></script>
-<script src="app.js?v=75"></script>
+<script src="vendor/qrcode.js?v=76"></script>
+<script src="../app-nucleo.js?v=76"></script>
+<script src="config-servidor.js?v=76"></script>
+<script src="servicos.js?v=76"></script>
+<script src="rede.js?v=76"></script>
+<script src="mapa-estilo.js?v=76"></script>
+<script src="mapa.js?v=76"></script>
+<script src="carros.js?v=76"></script>
+<script src="cadastro-motorista.js?v=76"></script>
+<script src="servidor.js?v=76"></script>
+<script src="credencial.js?v=76"></script>
+<script src="apoio.js?v=76"></script>
+<script src="perfil.js?v=76"></script>
+<script src="pix.js?v=76"></script>
+<script src="avisos.js?v=76"></script>
+<script src="sms.js?v=76"></script>
+<script src="eventos.js?v=76"></script>
+<script src="agenda.js?v=76"></script>
+<script src="leitor.js?v=76"></script>
+<script src="bares.js?v=76"></script>
+<script src="passageiro.js?v=76"></script>
+<script src="motorista.js?v=76"></script>
+<script src="app.js?v=76"></script>
 </body>
 </html>

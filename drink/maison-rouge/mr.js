@@ -5,7 +5,10 @@
   var INICIO = new Date('2026-10-31T23:00:00-03:00').getTime();
   var DRINKS = new Date('2026-11-01T01:30:00-03:00').getTime();
   var FIM = new Date('2026-11-01T08:00:00-03:00').getTime();
-  var APP = 'https://jgg190310-ops.github.io/CLAUDE.md/drink/app/';
+  // o convite do evento (o link que o app gera em Eventos > Maison Rouge > Convite). Com ele, o embarque já vem no
+  // Postin e os pedidos saem como da festa. Vazio: o QR abre o app.
+  var CONVITE = '';
+  var APP = CONVITE || 'https://jgg190310-ops.github.io/CLAUDE.md/drink/app/';
 
   /* ---------- contagem ---------- */
   var caixa = document.getElementById('mr-contagem');
@@ -49,6 +52,7 @@
   relogio = setInterval(tique, 1000);
 
   /* ---------- QR da volta ---------- */
+  if (CONVITE) Array.prototype.forEach.call(document.querySelectorAll('a[href="../app/"]'), function (a) { a.href = CONVITE; });
   var alvo = document.getElementById('mr-qr');
   if (alvo && typeof window.qrcode === 'function') {
     try {
