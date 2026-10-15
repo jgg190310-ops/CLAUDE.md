@@ -667,14 +667,16 @@
       if (!caixa || !u) return;
       const casa = u.locais && u.locais.casa;
       const carro = carroPronto(u.carro);
-      const chegando = Boolean(EV.convite() || BAR.aqui() || !(u.voltas && u.voltas.length));
+      // o preparo é para quem chegou a uma festa ou a um bar (pelo convite ou pelo QR do balcão): é lá que a volta
+      // de madrugada precisa estar pronta. Fora disso, o início fica como sempre (com mais mapa livre)
+      const chegando = Boolean(EV.convite() || BAR.aqui());
       const longeDeCasa = casa && (!pos || S.distancia(pos, casa) > 800);
       const pronta = Boolean(casa && carro && longeDeCasa && !corrida);
       const preparar = !pronta && chegando && !(casa && carro) && !corrida;
       caixa.hidden = !(pronta || preparar);
       q('#rp-pronta-prep').hidden = !preparar;
-      // o preparo já tem a casa: os atalhos voltam quando a volta fica pronta
-      q('#rp-atalhos').hidden = preparar;
+      // o cartão fica no lugar da linha Casa/Trabalho (a folha não cresce: o mapa continua com o mesmo espaço)
+      q('#rp-atalhos').hidden = preparar || pronta;
       q('#rp-pronta-ir').hidden = !pronta;
       const passo = (sel, feito, txt) => {
         const bt = q(sel);
