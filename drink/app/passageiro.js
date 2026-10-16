@@ -227,6 +227,12 @@
       if (!e) return;
       const sit = EV.situacao(e);
       Object.keys(EV.TEMAS).forEach((t) => box.classList.toggle(`ev-tema-${t}`, t === EV.temaDe(e)));
+      // a festa parceira aparece com a logo dela no lugar do ícone
+      const ic = EV.iconeDe(e);
+      const logo = q('#rp-evento-logo');
+      if (ic && !ic.startsWith('data:')) logo.src = ic; else logo.removeAttribute('src');
+      logo.hidden = !logo.hasAttribute('src');
+      q('#rp-evento-ic').toggleAttribute('hidden', !logo.hidden);
       q('#rp-evento-t').textContent = e.nome;
       q('#rp-evento-sub').textContent = sit === 'antes'
         ? `Começa ${EV.quandoTxt(e)}. ${e.paga === 'evento' ? 'A volta por conta do evento' : 'O Drink saindo de lá'} vale a partir daí.`
