@@ -23,8 +23,14 @@
   };
   const TETOS = [60, 80, 100, 150];
   // a cor do convite: a do Drink ou a da festa (vai no link, então o convidado também vê)
-  const TEMAS = { drink: 'Drink', vermelho: 'Vermelho', dourado: 'Dourado', azul: 'Azul' };
-  const temaDe = (e) => (e && TEMAS[e.tema] ? e.tema : 'drink');
+  const TEMAS = { drink: 'Drink', maison: 'Maison Rouge', vermelho: 'Vermelho', dourado: 'Dourado', azul: 'Azul' };
+  // as festas parceiras já vêm com a cara delas no app: a cor e a logo (quem organiza não precisa subir nada)
+  const LOGOS = { maison: { logo: 'logos/maison-rouge.png?v=1', icone: 'logos/maison-rouge-casa.png?v=1' } };
+  // o evento com o nome da festa parceira já nasce com a cara dela (o convite antigo, sem cor no link, também)
+  const temaPadrao = (e) => (e && /maison\s*rouge/i.test(e.nome || '') ? 'maison' : 'drink');
+  const temaDe = (e) => (e && TEMAS[e.tema] ? e.tema : temaPadrao(e));
+  const logoDe = (e) => (e && e.logo) || (LOGOS[temaDe(e)] ? LOGOS[temaDe(e)].logo : '');
+  const iconeDe = (e) => (e && e.logo) || (LOGOS[temaDe(e)] ? LOGOS[temaDe(e)].icone : '');
   const GUARDADO = 'drink-convite';
   const HORA = 3600000;
   // a volta só sai por conta do evento se o embarque for no lugar do evento
@@ -98,8 +104,8 @@
     // curto de propósito: quanto menor o link, maiores os quadradinhos do QR, mais fácil de ler na mesa
     const dados = [2, e.id, e.chave, e.nome, e.tipo, e.data, e.inicio, e.fim, e.lugar.nome, e.lugar.bairro || '',
       cinco(e.lugar.lat), cinco(e.lugar.lon), paga ? e.teto : 0, paga ? e.voltas : 0];
-    // a cor só entra quando não é a do Drink: os convites antigos continuam com o mesmo link
-    if (temaDe(e) !== 'drink') dados.push(temaDe(e));
+    // a cor só entra quando não é a de sempre do evento: os convites antigos continuam com o mesmo link
+    if (temaDe(e) !== temaPadrao(e)) dados.push(temaDe(e));
     const u = new URL('./', location.href);
     u.search = `?evento=${e.id}`;
     u.hash = paraB64(JSON.stringify(dados));
@@ -123,7 +129,7 @@
       paga: pagaEvento ? 'evento' : 'convidado',
       teto: pagaEvento ? Math.min(Math.round(teto), 1000) : 0,
       voltas: pagaEvento ? Math.min(Math.round(voltas), 2000) : 0,
-      tema: typeof d[14] === 'string' && TEMAS[d[14]] ? d[14] : 'drink',
+      tema: typeof d[14] === 'string' && TEMAS[d[14]] ? d[14] : temaPadrao({ nome }),
     };
     return Number.isFinite(janela(e).ini) ? e : null;
   }
@@ -261,7 +267,7 @@
         const falta = totalAPagar(e);
         resumo = `${n} ${n === 1 ? 'volta' : 'voltas'} · ${falta ? `${brl(falta)} a pagar` : 'tudo pago'}`;
       }
-      const ic = e.logo ? `<img src="${esc(e.logo)}" alt="">` : '<svg><use href="#i-festa"/></svg>';
+      const ic = iconeDe(e) ? `<img src="${esc(iconeDe(e))}" alt="">` : '<svg><use href="#i-festa"/></svg>';
       return `<li><button type="button" class="ev-cartao ev-tema-${temaDe(e)}" data-ev-abrir="${esc(e.id)}">
         <span class="ev-cartao-ic" aria-hidden="true">${ic}</span>
         <span class="ev-cartao-txt"><b>${esc(e.nome)}</b><small>${esc(quandoTxt(e))}</small><small>${esc(e.lugar.bairro || e.lugar.nome)} · ${esc(resumo)}</small></span>
@@ -403,12 +409,15 @@
       Object.keys(TEMAS).forEach((t) => cartao.classList.toggle(`ev-tema-${t}`, t === tema));
       $$('[data-ev-tema]', raiz).forEach((b) => b.setAttribute('aria-checked', String(b.dataset.evTema === tema)));
       const img = q('#rp-evp-logo');
-      if (e.logo) { img.src = e.logo; img.alt = `Logo de ${e.nome}`; } else { img.removeAttribute('src'); img.alt = ''; }
-      img.hidden = !e.logo;
+      const logo = logoDe(e);
+      if (logo) { img.src = logo; img.alt = `Logo de ${e.nome}`; } else { img.removeAttribute('src'); img.alt = ''; }
+      img.hidden = !logo;
+      // a logo pronta da festa já traz o nome: o nome escrito embaixo dela sai, para não repetir
+      cartao.classList.toggle('ev-logo-pronta', Boolean(logo) && !e.logo);
       // (num <svg>, "hidden" só vale como atributo)
-      q('#rp-evp-marca').toggleAttribute('hidden', Boolean(e.logo));
-      q('#rp-evp-com').hidden = !e.logo;
-      q('#rp-evp-logo-bt').textContent = e.logo ? 'Trocar a logo' : 'Pôr a logo';
+      q('#rp-evp-marca').toggleAttribute('hidden', Boolean(logo));
+      q('#rp-evp-com').hidden = !logo;
+      q('#rp-evp-logo-bt').textContent = logo ? 'Trocar a logo' : 'Pôr a logo';
       q('#rp-evp-logo-tirar').hidden = !e.logo;
     }
     // a logo fica pequena (até 360 px) para caber no aparelho: PNG com fundo transparente; se ainda ficar grande, WebP
@@ -643,7 +652,7 @@
         copiar: () => { if (aberto) op.copiar(linkConvite(aberto), 'Link do convite copiado.'); },
         imprimir,
         logo: () => { const i = q('#rp-evp-logo-in'); i.value = ''; i.click(); },
-        'logo-tirar': () => { if (!aberto) return; delete aberto.logo; op.salvar(); desenharVisual(); lista(); op.avisar('Logo tirada do convite.'); },
+        'logo-tirar': () => { if (!aberto) return; delete aberto.logo; op.salvar(); desenharVisual(); lista(); op.avisar(logoDe(aberto) ? `Voltou a logo da ${TEMAS[temaDe(aberto)]}.` : 'Logo tirada do convite.'); },
         chamar,
         encerrar,
         apagar,
@@ -663,7 +672,7 @@
   }
 
   window.Drink.Eventos = {
-    TIPOS, TETOS, TEMAS, temaDe, estimar, janela, situacao, quandoTxt, rotulo, linkConvite, lerConvite, guardarConvite, esquecerConvite,
+    TIPOS, TETOS, TEMAS, temaDe, logoDe, iconeDe, estimar, janela, situacao, quandoTxt, rotulo, linkConvite, lerConvite, guardarConvite, esquecerConvite,
     convite, cobre, topico, mandar, abrir, voltasUsadas, ouvir, limparConta, criar, PERTO_DO_EVENTO,
   };
 }());
