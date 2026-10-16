@@ -61,7 +61,7 @@
   <meta name="format-detection" content="telephone=no">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="../icon.svg" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="../icon-180.png?v=77">
+  <link rel="apple-touch-icon" href="../icon-180.png?v=78">
   <meta property="og:type" content="website">
   <meta property="og:locale" content="pt_BR">
   <meta property="og:title" content="Drink · o app">
@@ -71,17 +71,17 @@
   <meta name="twitter:card" content="summary_large_image">
   <link rel="preload" href="fontes/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="../fontes/bricolage-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="../fontes/fontes.css?v=77">
-  <link rel="stylesheet" href="../app-telas.css?v=77">
-  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=77">
-  <link rel="stylesheet" href="app.css?v=77">
-  <link rel="stylesheet" href="visual.css?v=77">
-  <link rel="stylesheet" href="tema.css?v=77">
-  <link rel="stylesheet" href="ritmo.css?v=77">
-  <link rel="stylesheet" href="perfil.css?v=77">
-  <link rel="stylesheet" href="jornada.css?v=77">
-  <link rel="stylesheet" href="agenda.css?v=77">
-  <link rel="stylesheet" href="bares.css?v=77">
+  <link rel="stylesheet" href="../fontes/fontes.css?v=78">
+  <link rel="stylesheet" href="../app-telas.css?v=78">
+  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=78">
+  <link rel="stylesheet" href="app.css?v=78">
+  <link rel="stylesheet" href="visual.css?v=78">
+  <link rel="stylesheet" href="tema.css?v=78">
+  <link rel="stylesheet" href="ritmo.css?v=78">
+  <link rel="stylesheet" href="perfil.css?v=78">
+  <link rel="stylesheet" href="jornada.css?v=78">
+  <link rel="stylesheet" href="agenda.css?v=78">
+  <link rel="stylesheet" href="bares.css?v=78">
 </head>
 <body>
 <svg class="sprite" aria-hidden="true" focusable="false">
@@ -1078,16 +1078,34 @@
             <p class="ev-quando-txt"><span id="rp-evp-quando"></span> <em class="ev-sit" id="rp-evp-sit"></em></p>
             <div class="ev-bloco ev-bloco-convite">
             <div class="ev-cartao-qr" id="rp-evp-cartao">
-              <svg class="ev-cq-marca" viewBox="0 0 1000 1000" role="img" aria-label="Drink"><use href="#i-marca"/></svg>
+              <img class="ev-cq-logo" id="rp-evp-logo" alt="" hidden>
+              <svg class="ev-cq-marca" id="rp-evp-marca" viewBox="0 0 1000 1000" role="img" aria-label="Drink"><use href="#i-marca"/></svg>
               <p class="ev-cq-nome" id="rp-evp-cartao-nome">Evento</p>
               <div class="ev-qr" id="rp-evp-qr"></div>
               <p class="ev-cq-t">Bebeu? Volta de <b>Drink</b>.</p>
               <p class="ev-cq-sub" id="rp-evp-qr-sub"></p>
+              <p class="ev-cq-com" id="rp-evp-com" hidden><span>com</span><svg viewBox="0 0 1000 1000" role="img" aria-label="Drink"><use href="#i-marca"/></svg></p>
             </div>
             <div class="ev-bts">
               <button type="button" class="t-bt" data-ev="compartilhar"><svg aria-hidden="true"><use href="#i-compartilhar"/></svg>Mandar o convite</button>
               <button type="button" class="t-bt" data-ev="copiar"><svg aria-hidden="true"><use href="#i-copiar"/></svg>Copiar o link</button>
               <button type="button" class="t-bt" data-ev="imprimir"><svg aria-hidden="true"><use href="#i-qr"/></svg>Imprimir o QR</button>
+            </div>
+            <div class="ev-visual">
+              <p class="rt-rot" id="rp-evp-tema-t">Cor do convite</p>
+              <div class="ev-chips ev-temas" role="radiogroup" aria-labelledby="rp-evp-tema-t">
+                <button type="button" role="radio" aria-checked="true" data-ev-tema="drink"><i class="ev-amostra" aria-hidden="true"></i>Drink</button>
+                <button type="button" role="radio" aria-checked="false" data-ev-tema="vermelho"><i class="ev-amostra" aria-hidden="true"></i>Vermelho</button>
+                <button type="button" role="radio" aria-checked="false" data-ev-tema="dourado"><i class="ev-amostra" aria-hidden="true"></i>Dourado</button>
+                <button type="button" role="radio" aria-checked="false" data-ev-tema="azul"><i class="ev-amostra" aria-hidden="true"></i>Azul</button>
+              </div>
+              <p class="rt-rot">Logo do evento</p>
+              <div class="ev-logo-bts">
+                <button type="button" class="t-bt" data-ev="logo"><svg aria-hidden="true"><use href="#i-camera"/></svg><span id="rp-evp-logo-bt">Pôr a logo</span></button>
+                <button type="button" class="t-bt" data-ev="logo-tirar" id="rp-evp-logo-tirar" hidden>Tirar a logo</button>
+              </div>
+              <input type="file" id="rp-evp-logo-in" accept="image/png,image/jpeg,image/webp,image/svg+xml" tabindex="-1" aria-hidden="true" hidden>
+              <small class="ev-visual-nota">A logo aparece no QR e na impressão. A cor vai junto no convite: quem escanear vê o evento nela.</small>
             </div>
             </div>
             <div class="ev-bloco ev-bloco-conta">
@@ -1992,37 +2010,37 @@
   <p class="vira-txt" id="vira-txt">O Drink é feito para usar na vertical. Nada se perde: se tiver corrida, ela continua rolando.</p>
 </div>
 
-<script src="vendor/maplibre-gl.js?v=77"></script>
+<script src="vendor/maplibre-gl.js?v=78"></script>
 <script>
   // o mapa reserva (Leaflet) só baixa no celular sem WebGL: os outros não gastam os 140 KB dele
   (function () {
     var gl = null;
     try { var c = document.createElement('canvas'); gl = c.getContext('webgl2') || c.getContext('webgl'); } catch (e) { gl = null; }
-    if (!gl) document.write('<link rel="stylesheet" href="vendor/leaflet.css?v=77"><script src="vendor/leaflet.js?v=77"><\/script>');
+    if (!gl) document.write('<link rel="stylesheet" href="vendor/leaflet.css?v=78"><script src="vendor/leaflet.js?v=78"><\/script>');
   }());
 </script>
-<script src="vendor/qrcode.js?v=77"></script>
-<script src="../app-nucleo.js?v=77"></script>
-<script src="config-servidor.js?v=77"></script>
-<script src="servicos.js?v=77"></script>
-<script src="rede.js?v=77"></script>
-<script src="mapa-estilo.js?v=77"></script>
-<script src="mapa.js?v=77"></script>
-<script src="carros.js?v=77"></script>
-<script src="cadastro-motorista.js?v=77"></script>
-<script src="servidor.js?v=77"></script>
-<script src="credencial.js?v=77"></script>
-<script src="apoio.js?v=77"></script>
-<script src="perfil.js?v=77"></script>
-<script src="pix.js?v=77"></script>
-<script src="avisos.js?v=77"></script>
-<script src="sms.js?v=77"></script>
-<script src="eventos.js?v=77"></script>
-<script src="agenda.js?v=77"></script>
-<script src="leitor.js?v=77"></script>
-<script src="bares.js?v=77"></script>
-<script src="passageiro.js?v=77"></script>
-<script src="motorista.js?v=77"></script>
-<script src="app.js?v=77"></script>
+<script src="vendor/qrcode.js?v=78"></script>
+<script src="../app-nucleo.js?v=78"></script>
+<script src="config-servidor.js?v=78"></script>
+<script src="servicos.js?v=78"></script>
+<script src="rede.js?v=78"></script>
+<script src="mapa-estilo.js?v=78"></script>
+<script src="mapa.js?v=78"></script>
+<script src="carros.js?v=78"></script>
+<script src="cadastro-motorista.js?v=78"></script>
+<script src="servidor.js?v=78"></script>
+<script src="credencial.js?v=78"></script>
+<script src="apoio.js?v=78"></script>
+<script src="perfil.js?v=78"></script>
+<script src="pix.js?v=78"></script>
+<script src="avisos.js?v=78"></script>
+<script src="sms.js?v=78"></script>
+<script src="eventos.js?v=78"></script>
+<script src="agenda.js?v=78"></script>
+<script src="leitor.js?v=78"></script>
+<script src="bares.js?v=78"></script>
+<script src="passageiro.js?v=78"></script>
+<script src="motorista.js?v=78"></script>
+<script src="app.js?v=78"></script>
 </body>
 </html>

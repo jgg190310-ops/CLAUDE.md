@@ -226,6 +226,7 @@
       box.hidden = !e;
       if (!e) return;
       const sit = EV.situacao(e);
+      Object.keys(EV.TEMAS).forEach((t) => box.classList.toggle(`ev-tema-${t}`, t === EV.temaDe(e)));
       q('#rp-evento-t').textContent = e.nome;
       q('#rp-evento-sub').textContent = sit === 'antes'
         ? `Começa ${EV.quandoTxt(e)}. ${e.paga === 'evento' ? 'A volta por conta do evento' : 'O Drink saindo de lá'} vale a partir daí.`
