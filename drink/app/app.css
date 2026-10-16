@@ -1209,6 +1209,47 @@ html[data-tema="claro"] .app button.en-trazer-link { background: rgba(61, 102, 0
 .rp-op-ev { margin: -.2em 0 .1em; padding: .55em .8em; border-radius: .9em; background: rgba(210, 255, 60, .08); color: var(--lima-tx); font-size: .8em; font-weight: 700; text-wrap: pretty; }
 .rp-op-ev.fora { background: var(--a-card); color: var(--a-texto-2); }
 
+/* a cor e a logo do evento (cartão do QR, lista de eventos e o aviso do convidado) */
+.ev-cq-logo { display: block; width: auto; max-width: 9em; height: auto; max-height: 6em; object-fit: contain; }
+.ev-cq-logo[hidden], .ev-cq-com[hidden], .ev-cq-marca[hidden] { display: none; }
+.ev-cq-com { display: flex; align-items: center; gap: .35em; margin-top: .2em; font-size: .68em; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--tinta-2); }
+.ev-cq-com svg { width: 3.4em; height: 3.4em; color: currentColor; overflow: visible; }
+.ev-cartao-qr.ev-tema-vermelho, .ev-cartao-qr.ev-tema-dourado, .ev-cartao-qr.ev-tema-azul { color: #F6F1EE; }
+.ev-cartao-qr.ev-tema-vermelho { --ev-cor: #E5383B; background: radial-gradient(120% 90% at 50% 0%, #4A070C 0%, #170507 55%, #060404 100%); }
+.ev-cartao-qr.ev-tema-dourado { --ev-cor: #D9B26F; background: radial-gradient(120% 90% at 50% 0%, #3A2C12 0%, #15110A 55%, #070605 100%); }
+.ev-cartao-qr.ev-tema-azul { --ev-cor: #6E9BFF; background: radial-gradient(120% 90% at 50% 0%, #10224D 0%, #0A1024 55%, #05070D 100%); }
+.ev-cartao-qr:is(.ev-tema-vermelho, .ev-tema-dourado, .ev-tema-azul) :is(.ev-cq-nome, .ev-cq-sub, .ev-cq-com) { color: rgba(246, 241, 238, .78); }
+.ev-cartao-qr:is(.ev-tema-vermelho, .ev-tema-dourado, .ev-tema-azul) .ev-cq-nome { color: var(--ev-cor); letter-spacing: .2em; }
+.ev-cartao-qr:is(.ev-tema-vermelho, .ev-tema-dourado, .ev-tema-azul) .ev-cq-t b { box-shadow: inset 0 -.26em 0 var(--ev-cor); }
+.ev-cartao-qr:is(.ev-tema-vermelho, .ev-tema-dourado, .ev-tema-azul) .ev-cq-marca { color: #F6F1EE; }
+/* no fundo escuro, o QR fica num quadro claro (a câmera precisa do contraste) */
+.ev-cartao-qr:is(.ev-tema-vermelho, .ev-tema-dourado, .ev-tema-azul) .ev-qr { padding: .7em; border-radius: .8em; background: #fff; box-shadow: 0 0 0 2px var(--ev-cor); }
+.ev-visual { display: grid; gap: .55em; margin: 1em 1.2em 0; }
+.ev-visual .rt-rot { margin-top: .3em; }
+.ev-amostra { display: inline-block; width: .95em; height: .95em; margin-right: .45em; border-radius: 50%; vertical-align: -.12em; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .25); }
+[data-ev-tema="drink"] .ev-amostra { background: var(--lima); }
+[data-ev-tema="vermelho"] .ev-amostra { background: #C1121F; }
+[data-ev-tema="dourado"] .ev-amostra { background: #D9B26F; }
+[data-ev-tema="azul"] .ev-amostra { background: #3F6FE0; }
+.ev-logo-bts { display: flex; flex-wrap: wrap; gap: .5em; }
+.ev-logo-bts .t-bt { height: 2.9em; padding: 0 1em; }
+.ev-logo-bts .t-bt[hidden] { display: none; }
+.ev-visual-nota { color: var(--a-texto-2); font-size: .8em; text-wrap: pretty; }
+.ev-cartao-ic img { width: 100%; height: 100%; border-radius: 50%; object-fit: contain; background: #0A0707; }
+.ev-cartao.ev-tema-vermelho .ev-cartao-ic { box-shadow: 0 0 0 2px #C1121F; }
+.ev-cartao.ev-tema-dourado .ev-cartao-ic { box-shadow: 0 0 0 2px #D9B26F; }
+.ev-cartao.ev-tema-azul .ev-cartao-ic { box-shadow: 0 0 0 2px #3F6FE0; }
+.ev-cartao.ev-tema-vermelho .ev-cartao-ic svg { stroke: #EF5257; }
+.ev-cartao.ev-tema-dourado .ev-cartao-ic svg { stroke: #D9B26F; }
+.ev-cartao.ev-tema-azul .ev-cartao-ic svg { stroke: #7FA6FF; }
+/* o aviso do convidado no início, na cor do evento */
+.rp-evento.ev-tema-vermelho { border-color: transparent; background: linear-gradient(135deg, rgba(193, 18, 31, .32), rgba(193, 18, 31, .08)); box-shadow: inset 0 0 0 1px rgba(229, 56, 59, .55); }
+.rp-evento.ev-tema-dourado { border-color: transparent; background: linear-gradient(135deg, rgba(217, 178, 111, .28), rgba(217, 178, 111, .06)); box-shadow: inset 0 0 0 1px rgba(217, 178, 111, .55); }
+.rp-evento.ev-tema-azul { border-color: transparent; background: linear-gradient(135deg, rgba(63, 111, 224, .3), rgba(63, 111, 224, .07)); box-shadow: inset 0 0 0 1px rgba(110, 155, 255, .55); }
+.rp-evento.ev-tema-vermelho > svg { stroke: #EF5257; }
+.rp-evento.ev-tema-dourado > svg { stroke: #D9B26F; }
+.rp-evento.ev-tema-azul > svg { stroke: #7FA6FF; }
+
 /* imprimir o QR do convite: só o cartão, grande, no meio da folha */
 @media print {
   body.imprimindo-convite * { visibility: hidden !important; }
@@ -1218,6 +1259,12 @@ html[data-tema="claro"] .app button.en-trazer-link { background: rgba(61, 102, 0
     border: 2px solid #0E0D12; border-radius: 12px; background: #fff; color: #0E0D12; font-size: 18pt;
   }
   body.imprimindo-convite .ev-qr { width: 9cm; }
+  /* com a cor do evento, a folha sai com o fundo dele (o QR continua num quadro branco) */
+  body.imprimindo-convite .ev-cartao-qr:is(.ev-tema-vermelho, .ev-tema-dourado, .ev-tema-azul) { border: 0; color: #F6F1EE; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body.imprimindo-convite .ev-cartao-qr.ev-tema-vermelho { background: radial-gradient(120% 90% at 50% 0%, #4A070C 0%, #170507 55%, #060404 100%); }
+  body.imprimindo-convite .ev-cartao-qr.ev-tema-dourado { background: radial-gradient(120% 90% at 50% 0%, #3A2C12 0%, #15110A 55%, #070605 100%); }
+  body.imprimindo-convite .ev-cartao-qr.ev-tema-azul { background: radial-gradient(120% 90% at 50% 0%, #10224D 0%, #0A1024 55%, #05070D 100%); }
+  body.imprimindo-convite .ev-cq-logo { max-width: 6cm; max-height: 4cm; }
 }
 
 /* eventos no app do motorista */
