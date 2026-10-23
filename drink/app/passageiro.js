@@ -193,6 +193,7 @@
       aj.hidden = !(pos || (embarqueManual && embarque));
       // localização aproximada: o Ajustar fica em destaque
       aj.classList.toggle('forte', aproximado());
+      desenharParceiro();
     }
     async function atualizarEmbarque() {
       if (!pos || embarqueManual) return;
@@ -258,6 +259,7 @@
         mostrarEmbarque();
       }
       conviteAplicado = '';
+      desenharParceiro();
       op.avisar('Pronto, você saiu do convite do evento.');
     }
     /* ---------- bar parceiro: quem leu o QR do balcão ---------- */
@@ -291,12 +293,36 @@
         mostrarEmbarque();
       }
       barAplicado = '';
+      desenharParceiro();
       op.avisar('Pronto: o embarque volta a ser onde você está.');
     }
 
     /* ---------- os bares parceiros (a vitrine aberta) ---------- */
     let vitrine = null;
     let bares = [];
+
+    /* ---------- a Drink sai dos bares e eventos parceiros ---------- */
+    // Os motoristas ficam nos bares e nas festas parceiras: a volta só sai de um deles (pelo QR da mesa, pelo convite
+    // do evento ou pelo GPS na porta de um bar parceiro aberto). Fora disso, o início mostra onde a Drink está.
+    const SO_PARCEIROS = !S.cfg.livre;
+    function origemParceira(l) {
+      if (!SO_PARCEIROS || peloBar) return { tipo: 'livre' };
+      if (!l) return null;
+      const b = BAR.aqui();
+      if (BAR.saiDoBar(b, l)) return { tipo: 'bar', nome: b.nome };
+      const e = EV.convite();
+      if (e && EV.situacao(e) !== 'acabou' && S.distancia(l, e.lugar) <= EV.PERTO_DO_EVENTO) return { tipo: 'evento', nome: e.nome };
+      const perto = bares.find((x) => x.aberto && S.distancia(l, x) <= BAR.PERTO_DO_BAR);
+      return perto ? { tipo: 'bar', nome: perto.nome } : null;
+    }
+    const FORA_TXT = 'A Drink sai dos bares e eventos parceiros. Escaneie o QR da mesa ou do convite para pedir a sua volta.';
+    function desenharParceiro() {
+      const fora = SO_PARCEIROS && !corrida && !origemParceira(embarque);
+      const sec = q('#passageiro section.rt[data-rt="inicio"]');
+      if (sec) sec.classList.toggle('rp-fora', fora);
+      const box = q('#rp-parceiros');
+      if (box) box.hidden = !fora;
+    }
     // ao vivo só nas telas que mostram os bares (o início com o mapa, a aba Bares e a página do bar);
     // nas outras, a lista guardada basta (a busca de destino usa ela)
     const TELAS_COM_BARES = ['inicio', 'bares', 'bar-ver'];
@@ -318,6 +344,7 @@
         q('#rp-bares-linha-t').textContent = perto.length === 1 ? '1 bar parceiro aberto agora' : `${perto.length} bares parceiros abertos agora`;
         q('#rp-bares-linha-sub').textContent = perto.slice(0, 2).map((b) => b.nome).join(' · ') + (perto.length > 2 ? ` e mais ${perto.length - 2}` : '');
       }
+      desenharParceiro();
     }
     // "Solicite o seu Drink" na página do bar: o embarque vai para a porta dele e falta só o destino
     function solicitarNoBar(b) {
@@ -497,7 +524,7 @@
       // já tem Drink perto: o aviso cumpriu o papel
       if (nPerto > 0 && esperaAtiva()) { pararEspera(); op.avisar('Tem Drink online perto de você agora.'); }
       const on = esperaAtiva();
-      bt.hidden = nPerto > 0 && !on;
+      bt.hidden = SO_PARCEIROS || (nPerto > 0 && !on);
       // sem Drink perto, dá para ver como funciona numa simulação
       q('#rp-ver-sim').hidden = nPerto > 0;
       bt.setAttribute('aria-pressed', String(on));
@@ -1134,6 +1161,8 @@
     }
     async function pedirAgora() {
       const u = eu();
+      // a volta só sai de um bar ou evento parceiro (é lá que os motoristas ficam)
+      if (!origemParceira(embarque)) { op.avisar(FORA_TXT); ir('inicio'); return; }
       if (!peloBar && AG.pendente()) { abrirFolha('rp-pend'); return; }
       // a primeira volta: antes de pedir, três passos do que vai acontecer (quem nunca viu estranha o patinete)
       if (!peloBar && !u.guiaVisto) { guiaPedir = true; abrirFolha('rp-guia'); return; }
@@ -2551,6 +2580,7 @@
           centrarEmMim();
         },
         'quero-agendar': () => {
+          if (!origemParceira(embarque)) { op.avisar(FORA_TXT); return; }
           if (AG.pendente()) { abrirFolha('rp-pend'); return; }
           if (AG.ativa()) { op.avisar('Você já tem uma volta agendada. Ela está aqui; para marcar outra, cancela esta antes.'); abrirFolha('rp-agenda'); return; }
           modoBusca = 'destino';

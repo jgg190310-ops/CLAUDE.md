@@ -1209,6 +1209,16 @@ html[data-tema="claro"] .app button.en-trazer-link { background: rgba(61, 102, 0
 .rp-op-ev { margin: -.2em 0 .1em; padding: .55em .8em; border-radius: .9em; background: rgba(210, 255, 60, .08); color: var(--lima-tx); font-size: .8em; font-weight: 700; text-wrap: pretty; }
 .rp-op-ev.fora { background: var(--a-card); color: var(--a-texto-2); }
 
+/* fora de um bar ou evento parceiro: o início mostra onde a Drink está (e não deixa pedir de qualquer lugar) */
+.rp-parceiros { display: grid; gap: .7em; padding: .85em .9em; border-radius: var(--r-m, 16px); background: rgba(210, 255, 60, .07); box-shadow: inset 0 0 0 1px rgba(210, 255, 60, .32); }
+.rp-parceiros[hidden] { display: none; }
+.rp-parceiros-t { display: grid; gap: .2em; margin: 0; }
+.rp-parceiros-t b { font-size: max(15px, 1em); font-weight: 800; color: var(--luz); }
+.rp-parceiros-t small { font-size: max(12.5px, .82em); color: var(--a-texto-2); text-wrap: pretty; }
+.rp-parceiros-bts { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: .5em; }
+.rp-parceiros-bts .t-bt { justify-content: center; }
+.rt[data-rt="inicio"].rp-fora :is(.rp-busca-linha, #rp-atalhos, #rp-recentes, #rp-pronta-ir) { display: none; }
+
 /* a cor e a logo do evento (cartão do QR, lista de eventos e o aviso do convidado) */
 .ev-cq-logo { display: block; width: auto; max-width: 9em; height: auto; max-height: 6em; object-fit: contain; }
 .ev-cq-logo[hidden], .ev-cq-com[hidden], .ev-cq-marca[hidden] { display: none; }
