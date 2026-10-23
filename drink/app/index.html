@@ -61,7 +61,7 @@
   <meta name="format-detection" content="telephone=no">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="../icon.svg" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="../icon-180.png?v=80">
+  <link rel="apple-touch-icon" href="../icon-180.png?v=81">
   <meta property="og:type" content="website">
   <meta property="og:locale" content="pt_BR">
   <meta property="og:title" content="Drink · o app">
@@ -71,17 +71,17 @@
   <meta name="twitter:card" content="summary_large_image">
   <link rel="preload" href="fontes/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="../fontes/bricolage-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="../fontes/fontes.css?v=80">
-  <link rel="stylesheet" href="../app-telas.css?v=80">
-  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=80">
-  <link rel="stylesheet" href="app.css?v=80">
-  <link rel="stylesheet" href="visual.css?v=80">
-  <link rel="stylesheet" href="tema.css?v=80">
-  <link rel="stylesheet" href="ritmo.css?v=80">
-  <link rel="stylesheet" href="perfil.css?v=80">
-  <link rel="stylesheet" href="jornada.css?v=80">
-  <link rel="stylesheet" href="agenda.css?v=80">
-  <link rel="stylesheet" href="bares.css?v=80">
+  <link rel="stylesheet" href="../fontes/fontes.css?v=81">
+  <link rel="stylesheet" href="../app-telas.css?v=81">
+  <link rel="stylesheet" href="vendor/maplibre-gl.css?v=81">
+  <link rel="stylesheet" href="app.css?v=81">
+  <link rel="stylesheet" href="visual.css?v=81">
+  <link rel="stylesheet" href="tema.css?v=81">
+  <link rel="stylesheet" href="ritmo.css?v=81">
+  <link rel="stylesheet" href="perfil.css?v=81">
+  <link rel="stylesheet" href="jornada.css?v=81">
+  <link rel="stylesheet" href="agenda.css?v=81">
+  <link rel="stylesheet" href="bares.css?v=81">
 </head>
 <body>
 <svg class="sprite" aria-hidden="true" focusable="false">
@@ -466,6 +466,13 @@
           <div class="t-folha rt-folha">
             <h3 class="d-titulo d-ola" id="rp-ola" tabindex="-1"><span class="rp-saudacao">Boa noite</span>, <span data-en-primeiro>você</span></h3>
             <div class="d-local rp-local"><svg aria-hidden="true"><use href="#i-pin"/></svg><span id="rp-local">Procurando você no mapa…</span><button type="button" class="rp-ajustar" id="rp-ajustar" data-rp="ajustar-embarque" aria-label="Ajustar o embarque no mapa" hidden>Ajustar</button></div>
+            <div class="rp-parceiros" id="rp-parceiros" role="status" hidden>
+              <p class="rp-parceiros-t"><b>A Drink está nos bares e eventos parceiros</b><small>Os motoristas já ficam lá esperando. Está num deles? Escaneie o QR da mesa ou do convite e peça a sua volta.</small></p>
+              <div class="rp-parceiros-bts">
+                <button type="button" class="t-botao" data-rp="bar-camera">Escanear o QR</button>
+                <button type="button" class="t-bt" data-rp-aba="bares">Ver os bares</button>
+              </div>
+            </div>
             <div class="rp-busca-linha">
               <button type="button" class="d-busca" data-rp-ir="destino"><svg aria-hidden="true"><use href="#i-busca"/></svg>Para onde?</button>
               <button type="button" class="rp-quando" id="rp-quando" data-rp="quero-agendar"><svg aria-hidden="true"><use href="#i-calendario"/></svg><span>Agendar</span></button>
@@ -2012,37 +2019,37 @@
   <p class="vira-txt" id="vira-txt">O Drink é feito para usar na vertical. Nada se perde: se tiver corrida, ela continua rolando.</p>
 </div>
 
-<script src="vendor/maplibre-gl.js?v=80"></script>
+<script src="vendor/maplibre-gl.js?v=81"></script>
 <script>
   // o mapa reserva (Leaflet) só baixa no celular sem WebGL: os outros não gastam os 140 KB dele
   (function () {
     var gl = null;
     try { var c = document.createElement('canvas'); gl = c.getContext('webgl2') || c.getContext('webgl'); } catch (e) { gl = null; }
-    if (!gl) document.write('<link rel="stylesheet" href="vendor/leaflet.css?v=80"><script src="vendor/leaflet.js?v=80"><\/script>');
+    if (!gl) document.write('<link rel="stylesheet" href="vendor/leaflet.css?v=81"><script src="vendor/leaflet.js?v=81"><\/script>');
   }());
 </script>
-<script src="vendor/qrcode.js?v=80"></script>
-<script src="../app-nucleo.js?v=80"></script>
-<script src="config-servidor.js?v=80"></script>
-<script src="servicos.js?v=80"></script>
-<script src="rede.js?v=80"></script>
-<script src="mapa-estilo.js?v=80"></script>
-<script src="mapa.js?v=80"></script>
-<script src="carros.js?v=80"></script>
-<script src="cadastro-motorista.js?v=80"></script>
-<script src="servidor.js?v=80"></script>
-<script src="credencial.js?v=80"></script>
-<script src="apoio.js?v=80"></script>
-<script src="perfil.js?v=80"></script>
-<script src="pix.js?v=80"></script>
-<script src="avisos.js?v=80"></script>
-<script src="sms.js?v=80"></script>
-<script src="eventos.js?v=80"></script>
-<script src="agenda.js?v=80"></script>
-<script src="leitor.js?v=80"></script>
-<script src="bares.js?v=80"></script>
-<script src="passageiro.js?v=80"></script>
-<script src="motorista.js?v=80"></script>
-<script src="app.js?v=80"></script>
+<script src="vendor/qrcode.js?v=81"></script>
+<script src="../app-nucleo.js?v=81"></script>
+<script src="config-servidor.js?v=81"></script>
+<script src="servicos.js?v=81"></script>
+<script src="rede.js?v=81"></script>
+<script src="mapa-estilo.js?v=81"></script>
+<script src="mapa.js?v=81"></script>
+<script src="carros.js?v=81"></script>
+<script src="cadastro-motorista.js?v=81"></script>
+<script src="servidor.js?v=81"></script>
+<script src="credencial.js?v=81"></script>
+<script src="apoio.js?v=81"></script>
+<script src="perfil.js?v=81"></script>
+<script src="pix.js?v=81"></script>
+<script src="avisos.js?v=81"></script>
+<script src="sms.js?v=81"></script>
+<script src="eventos.js?v=81"></script>
+<script src="agenda.js?v=81"></script>
+<script src="leitor.js?v=81"></script>
+<script src="bares.js?v=81"></script>
+<script src="passageiro.js?v=81"></script>
+<script src="motorista.js?v=81"></script>
+<script src="app.js?v=81"></script>
 </body>
 </html>
