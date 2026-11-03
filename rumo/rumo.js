@@ -22,7 +22,7 @@ function lerValor(s) {
   s = String(s || '').trim().replace(/[^\d,.\-]/g, '');
   if (!s) return NaN;
   if (s.includes(',')) s = s.replace(/\./g, '').replace(',', '.');
-  else if ((s.match(/\./g) || []).length > 1 || /^\d{1,3}\.\d{3}$/.test(s)) s = s.replace(/\./g, '');
+  else if ((s.match(/\./g) || []).length > 1 || /^-?\d{1,3}\.\d{3}$/.test(s)) s = s.replace(/\./g, '');
   return Math.round(parseFloat(s) * 100) / 100;
 }
 
@@ -86,6 +86,7 @@ const IC = {
   presente: '<rect x="4" y="9" width="16" height="11" rx="1.5"/><path d="M12 9v11M4 13.5h16M12 9C10.5 5.5 7 5.5 7 7.8 7 9 9 9 12 9zm0 0c1.5-3.5 5-3.5 5-1.2C17 9 15 9 12 9z"/>',
   banco: '<path d="M3.5 9.5 12 4.5l8.5 5M5.5 10.5v7M9.8 10.5v7M14.2 10.5v7M18.5 10.5v7M3.5 20h17"/>',
   cofre: '<rect x="3.5" y="5" width="17" height="13.5" rx="2.2"/><circle cx="12" cy="11.8" r="3"/><path d="M6.5 18.5V20M17.5 18.5V20"/>',
+  cartao: '<rect x="3" y="5.5" width="18" height="13" rx="2.2"/><path d="M3 10h18M7 15h3"/>',
   notas: '<rect x="3" y="6.5" width="18" height="11" rx="1.6"/><circle cx="12" cy="12" r="2.6"/><path d="M6 9.5v.01M18 14.5v.01"/>',
   manha: '<circle cx="12" cy="12" r="3.8"/><path d="M12 3.5v2M12 18.5v2M3.5 12h2M18.5 12h2M6 6l1.4 1.4M16.6 16.6 18 18M6 18l1.4-1.4M16.6 7.4 18 6"/>',
   tarde: '<path d="M3.5 18.5h17M7 18.5a5 5 0 0 1 10 0M12 7.5v2.5M5.6 11.6l1.6 1.1M18.4 11.6l-1.6 1.1"/>',
@@ -129,6 +130,7 @@ const TIPOS_CONTA = {
   poupanca: { nome: 'Reserva / poupança', ic: 'cofre' },
   investimento: { nome: 'Investimento', ic: 'grafico' },
   carteira: { nome: 'Dinheiro vivo', ic: 'notas' },
+  cartao: { nome: 'Cartão de crédito', ic: 'cartao' },
 };
 const CORES = ['#0F5C66', '#7B3FD0', '#E06A12', '#1C7A45', '#C63B54', '#2A6FD6', '#B98410', '#4A5560'];
 const AREAS = ['Pessoal', 'Trabalho', 'Estudos', 'Casa', 'Dinheiro', 'Saúde'];
@@ -146,6 +148,7 @@ function vazio() {
     v: 1, exemplo: false, boasVindas: false, passos: true,
     perfil: { nome: '', meta: 20, rendimento: 10, tema: 'sistema' },
     contas: [], lanc: [], fixas: [], orcamento: {}, tarefas: [], habitos: [],
+    conexao: { url: '', chave: '', itens: [], ultima: null },
   };
 }
 function rng(seed) { return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
@@ -221,6 +224,8 @@ function migrar(s) {
   const out = { ...base, ...s, perfil: { ...base.perfil, ...(s.perfil || {}) } };
   for (const k of ['contas', 'lanc', 'fixas', 'tarefas', 'habitos']) if (!Array.isArray(out[k])) out[k] = [];
   if (!out.orcamento || typeof out.orcamento !== 'object') out.orcamento = {};
+  out.conexao = { ...base.conexao, ...(s.conexao || {}) };
+  if (!Array.isArray(out.conexao.itens)) out.conexao.itens = [];
   // quem abriu a primeira versão caiu direto no exemplo: pergunta uma vez como quer começar
   if (s.exemplo && !('boasVindas' in s)) out.boasVindas = true;
   return out;
@@ -739,6 +744,7 @@ function graficoMeses() {
 function dinExtrato() {
   return `<section class="bloco">
     <div class="busca"><label class="sr" for="busca-ex">Buscar no extrato</label>${ic('busca')}<input id="busca-ex" type="search" placeholder="Buscar em todos os meses: mercado, Uber, aluguel…" value="${esc(ui.busca)}" autocomplete="off"></div>
+    <div class="extrato-acoes"><button class="topo-link" type="button" data-a="importar-extrato">${ic('subir')}Importar extrato</button>${S.conexao.itens.length ? `<button class="topo-link" type="button" data-a="banco-sync"><span data-status-banco>${statusConexaoTxt()}</span></button>` : `<button class="topo-link" type="button" data-a="conexao">Conectar banco</button>`}</div>
     <div id="extrato-lista">${listaExtrato()}</div>
   </section>`;
 }
@@ -790,7 +796,15 @@ function dinContas() {
           <span class="item-txt"><span class="item-t">${esc(c.nome)}</span><span class="item-m"><span>${t.nome}</span></span></span>
           <span class="valor ${s < 0 ? 'neg' : ''}">${din(s)}</span></button></li>`;
       }).join('')}</ul>
-      <button class="btn btn-sec largo" type="button" data-a="nova-conta">${ic('mais')}Adicionar conta</button>
+      <div class="botoes">
+        <button class="btn btn-sec" type="button" data-a="nova-conta">${ic('mais')}Adicionar conta</button>
+        <button class="btn btn-sec" type="button" data-a="importar-extrato">${ic('subir')}Importar extrato</button>
+      </div>
+      <button class="conexao-cta" type="button" data-a="conexao">
+        <span class="conexao-ic">${ic('rotina')}</span>
+        <span class="item-txt"><span class="item-t">${S.conexao.itens.length ? 'Conexão automática ligada' : 'Ligar a conexão automática'}</span><span class="item-m"><span data-status-banco>${S.conexao.itens.length ? statusConexaoTxt() : 'O extrato do banco entra sozinho, pelo Open Finance'}</span></span></span>
+        ${ic('dir')}
+      </button>
     </section>
   </div>`;
 }
@@ -897,7 +911,8 @@ dlg.addEventListener('submit', e => {
   e.preventDefault();
   if (!aoEnviar) return;
   const f = e.target, ok = aoEnviar(new FormData(f), f);
-  if (ok !== false) fechar();
+  if (ok instanceof Promise || ok === false) return;
+  fechar();
 });
 function confirmar(titulo, texto, botao, fn) {
   folha(titulo, `<p class="calmo">${texto}</p>`, {
@@ -1099,6 +1114,13 @@ function formAjustes() {
     <p class="miudo">O rendimento entra só na conta do “primeiro milhão”. Para comparar: o Tesouro Selic costuma render perto da taxa Selic do momento.</p>
     <fieldset class="campo"><legend>Aparência</legend><div class="seg">${radios('tema', [['sistema', 'Igual ao celular'], ['claro', 'Claro'], ['escuro', 'Escuro']], p.tema)}</div></fieldset>
     <div class="ajuste-grupo">
+      <p class="eyebrow">Banco</p>
+      <div class="botoes">
+        <button class="btn btn-sec" type="button" data-a="conexao">${ic('rotina')}Conexão automática${S.conexao.itens.length ? ' (ligada)' : ''}</button>
+        <button class="btn btn-sec" type="button" data-a="importar-extrato">${ic('subir')}Importar extrato</button>
+      </div>
+    </div>
+    <div class="ajuste-grupo">
       <p class="eyebrow">Seus dados</p>
       <p class="miudo">Tudo fica guardado só neste aparelho, nada vai para a internet. Faça um backup de vez em quando e guarde o arquivo no Drive ou no e-mail.</p>
       <div class="botoes">
@@ -1131,6 +1153,360 @@ function aplicarTema(t = S.perfil.tema) {
   try { localStorage.setItem('rumo:tema', t); } catch (e) { /* tudo bem */ }
 }
 
+/* ---------- extrato do banco: arquivo (OFX/CSV) e conexão automática (Pluggy) ---------- */
+const PG_CAT_S = [
+  [/groceries|supermarket|supermercado/, 'mercado'],
+  [/eating out|restaurant|food|delivery|alimenta|restaurante|bakery/, 'comida'],
+  [/transport|taxi|ride|fuel|gas station|parking|toll|combust|public transport|vehicle/, 'transporte'],
+  [/rent|housing|aluguel|moradia|condominium/, 'moradia'],
+  [/utilit|electric|water|internet|telecom|phone|mobile|energia/, 'contas'],
+  [/health|pharmac|gym|fitness|hospital|doctor|dentist|saude|farm|wellness/, 'saude'],
+  [/streaming|digital services|subscription|assinatura|software/, 'assinaturas'],
+  [/education|school|course|educa|university|books/, 'educacao'],
+  [/entertainment|leisure|travel|lazer|viage|tourism|hotel|airline|games|events/, 'lazer'],
+  [/shopping|clothing|electronics|compras|vestu|department/, 'compras'],
+];
+const PG_CAT_E = [[/salary|salar|payroll|wage/, 'salario'], [/investment|interest|yield|rendim|juros|dividend|income from/, 'rendimentos']];
+const ehFatura = d => /pagamento.{0,12}fatura|pgto.{0,6}fatura|fatura.{0,6}cart|pagamento.{0,6}cartao|credit card payment/.test(norm(d));
+function catDe(hint, desc, tipo) {
+  const porDesc = sugerirCat(desc, tipo); if (porDesc) return porDesc;
+  const h = norm(hint);
+  if (h) for (const [re, k] of tipo === 'entrada' ? PG_CAT_E : PG_CAT_S) if (re.test(h)) return k;
+  return tipo === 'entrada' ? 'outros_e' : 'outros';
+}
+function limparDesc(d) {
+  d = String(d || '').replace(/\s+/g, ' ').trim();
+  if (d.length > 3 && d === d.toUpperCase() && /[A-Z]/.test(d)) d = d.toLowerCase().replace(/(^|[\s\-*/.])(\p{L})/gu, (m, a, b) => a + b.toUpperCase());
+  return d.slice(0, 80);
+}
+/* lança no Rumo o que veio do banco, sem repetir.
+   lista: [{ ext, data, valor (positivo), tipo: 'entrada'|'saida', desc, catHint }] */
+function importarLancamentos(contaId, lista, { saldoBanco = null, manterSaldo = false } = {}) {
+  const c = contaPor(contaId); if (!c) return { novos: 0, repetidos: 0 };
+  const exts = new Set(S.lanc.filter(l => l.ext).map(l => l.ext));
+  const cartao = S.contas.find(x => x.tipo === 'cartao' && x.id !== contaId);
+  let novos = 0, repetidos = 0, liquido = 0;
+  const usados = new Set();
+  for (const x of lista.slice().sort((a, b) => a.data.localeCompare(b.data))) {
+    if (x.ext && exts.has(x.ext)) { repetidos++; continue; }
+    // lançado à mão antes? mesmo valor, mesma conta, até 2 dias de diferença
+    const manual = S.lanc.find(l => !l.ext && !usados.has(l.id) && l.conta === contaId && Math.abs(l.valor - x.valor) < .005 && Math.abs(difDias(l.data, x.data)) <= 2 && (l.tipo === x.tipo || (l.tipo === 'transf' && x.tipo === 'saida')));
+    if (manual) { manual.ext = x.ext; usados.add(manual.id); repetidos++; continue; }
+    const l = { id: uid(), tipo: x.tipo, valor: x.valor, desc: x.desc, conta: contaId, data: x.data, ext: x.ext, origem: 'banco' };
+    if (x.tipo === 'saida' && c.tipo !== 'cartao' && cartao && ehFatura(x.desc)) { l.tipo = 'transf'; l.destino = cartao.id; l.cat = null; }
+    else l.cat = catDe(x.catHint, x.desc, x.tipo);
+    S.lanc.push(l); if (x.ext) exts.add(x.ext); novos++;
+    if (l.data <= hoje()) liquido += l.tipo === 'entrada' ? l.valor : -l.valor;
+  }
+  if (saldoBanco != null && Number.isFinite(saldoBanco)) c.saldoInicial = Math.round(((c.saldoInicial || 0) + (saldoBanco - saldo(contaId))) * 100) / 100;
+  else if (manterSaldo) c.saldoInicial = Math.round(((c.saldoInicial || 0) - liquido) * 100) / 100;
+  return { novos, repetidos };
+}
+
+/* ---- arquivo ---- */
+function dataDe(s) {
+  s = String(s || '').trim();
+  let m = s.match(/^(\d{4})-?(\d{2})-?(\d{2})/); if (m) return `${m[1]}-${m[2]}-${m[3]}`;
+  m = s.match(/^(\d{1,2})[/.-](\d{1,2})[/.-](\d{2,4})/); if (m) { const y = m[3].length === 2 ? '20' + m[3] : m[3]; return `${y}-${pad(m[2])}-${pad(m[1])}`; }
+  return null;
+}
+function lerOFX(txt) {
+  const tag = (b, t) => { const m = b.match(new RegExp(`<${t}>([^<\\r\\n]*)`, 'i')); return m ? m[1].trim() : ''; };
+  const cartao = /<CCSTMTRS>/i.test(txt);
+  const itens = [];
+  for (const b of txt.split(/<STMTTRN>/i).slice(1)) {
+    const bloco = b.split(/<\/STMTTRN>/i)[0];
+    const v = lerValor(tag(bloco, 'TRNAMT')), data = dataDe(tag(bloco, 'DTPOSTED'));
+    if (!Number.isFinite(v) || !v || !data) continue;
+    const desc = tag(bloco, 'MEMO') || tag(bloco, 'NAME') || 'Lançamento';
+    const fit = tag(bloco, 'FITID');
+    itens.push({ data, v, desc, id: fit });
+  }
+  const bal = txt.match(/<LEDGERBAL>[\s\S]*?<BALAMT>([^<\r\n]*)/i);
+  const org = (txt.match(/<ORG>([^<\r\n]*)/i) || [])[1] || '';
+  return { itens, cartao, saldo: bal ? lerValor(bal[1]) : null, banco: org.trim(), sinalGasto: -1 };
+}
+function linhasCSV(txt, sep) {
+  const out = []; let campo = '', linha = [], aspas = false;
+  for (let i = 0; i < txt.length; i++) {
+    const ch = txt[i];
+    if (aspas) { if (ch === '"') { if (txt[i + 1] === '"') { campo += '"'; i++; } else aspas = false; } else campo += ch; }
+    else if (ch === '"') aspas = true;
+    else if (ch === sep) { linha.push(campo); campo = ''; }
+    else if (ch === '\n' || ch === '\r') { if (ch === '\r' && txt[i + 1] === '\n') i++; linha.push(campo); if (linha.some(x => x.trim())) out.push(linha); linha = []; campo = ''; }
+    else campo += ch;
+  }
+  linha.push(campo); if (linha.some(x => x.trim())) out.push(linha);
+  return out;
+}
+function lerCSV(txt) {
+  txt = txt.replace(/^﻿/, '');
+  const prim = txt.split(/\r?\n/)[0] || '';
+  const sep = (prim.match(/;/g) || []).length > (prim.match(/,/g) || []).length ? ';' : (prim.includes('\t') && !prim.includes(',') ? '\t' : ',');
+  const ls = linhasCSV(txt, sep); if (ls.length < 2) return null;
+  // acha a linha de cabeçalho nas primeiras 10
+  let hi = ls.slice(0, 10).findIndex(l => l.some(c => /^(data|date|dt)/.test(norm(c).trim())));
+  if (hi < 0) hi = 0;
+  const cab = ls[hi].map(c => norm(c).trim());
+  const col = re => cab.findIndex(c => re.test(c));
+  const cD = col(/^(data|date|dt)/), cV = col(/^(valor|amount|value|quantia|montante)/), cDesc = col(/descri|title|histor|lancamento|estabelec|memo|detalhe|nome/), cId = col(/^(identificador|id)$/);
+  const cE = col(/^(credito|entrada)/), cS = col(/^(debito|saida)/);
+  if (cD < 0 || (cV < 0 && cE < 0 && cS < 0)) return null;
+  const itens = [];
+  for (const l of ls.slice(hi + 1)) {
+    const data = dataDe(l[cD]); if (!data) continue;
+    let v;
+    if (cV >= 0) v = lerValor(l[cV]);
+    else { const e = lerValor(l[cE]), s2 = lerValor(l[cS]); v = (Number.isFinite(e) ? Math.abs(e) : 0) - (Number.isFinite(s2) ? Math.abs(s2) : 0); }
+    if (!Number.isFinite(v) || !v) continue;
+    itens.push({ data, v, desc: cDesc >= 0 ? l[cDesc] : 'Lançamento', id: cId >= 0 ? l[cId] : '' });
+  }
+  // fatura de cartão (ex.: Nubank "date,title,amount"): compras vêm positivas
+  const cartao = cab.includes('title') && cab.includes('amount');
+  return { itens, cartao, saldo: null, banco: '', sinalGasto: cartao ? 1 : -1 };
+}
+function paraLista(arq, inverter) {
+  const sinal = inverter ? -arq.sinalGasto : arq.sinalGasto;
+  return arq.itens.map((x, i) => {
+    const gasto = Math.sign(x.v) === sinal;
+    const desc = limparDesc(x.desc);
+    return { ext: 'arq:' + (x.id ? x.id : `${x.data}|${x.v}|${norm(desc)}|${arq.itens.slice(0, i).filter(y => y.data === x.data && y.v === x.v && y.desc === x.desc).length}`), data: x.data, valor: Math.abs(Math.round(x.v * 100) / 100), tipo: gasto ? 'saida' : 'entrada', desc, catHint: '' };
+  });
+}
+let arqAtual = null;
+function formImportar() {
+  arqAtual = null;
+  const corpo = `
+    <p class="calmo">No app do seu banco, procure <b>Extrato</b> e depois <b>Exportar</b> ou <b>Compartilhar</b>. Escolha <b>OFX</b> se tiver; CSV também serve. No Nubank: no extrato da conta, toque em exportar; no cartão, peça a fatura em CSV.</p>
+    <label class="arquivo"><input type="file" id="arq-extrato" accept=".ofx,.qfx,.csv,.txt,text/csv,application/x-ofx" data-a-file="extrato"><span>${ic('subir')}<b>Escolher o arquivo do extrato</b><small>OFX ou CSV</small></span></label>
+    <div id="arq-prev"></div>`;
+  folha('Importar extrato', corpo, {
+    rodape: `<footer class="folha-pe"><button class="btn largo" type="submit" id="arq-ok" disabled>Importar</button></footer>`,
+    enviar(fd) {
+      if (!arqAtual) { erro('Escolha o arquivo do extrato primeiro.'); return false; }
+      let contaId = fd.get('conta');
+      const lista = paraLista(arqAtual, fd.get('inverter') === '1');
+      if (!lista.length) { erro('Não achei lançamentos nesse arquivo.'); return false; }
+      const modo = fd.get('saldo') || 'manter';
+      let res;
+      const antes = JSON.stringify(S);
+      const saldoHoje = lerValor(fd.get('saldoHoje'));
+      const novaConta = contaId === 'nova' || S.exemplo;
+      if (S.exemplo) { const perfil = S.perfil, conexao = S.conexao; S = vazio(); S.perfil = perfil; S.conexao = conexao; contaId = 'nova'; }
+      {
+        if (contaId === 'nova') {
+          const nome = String(fd.get('nomeNova') || '').trim() || arqAtual.banco || (arqAtual.cartao ? 'Cartão de crédito' : 'Conta do banco');
+          const c = { id: uid(), nome, tipo: arqAtual.cartao ? 'cartao' : 'corrente', cor: CORES[S.contas.length % CORES.length], saldoInicial: 0 };
+          S.contas.push(c); contaId = c.id;
+        }
+        const opc = modo === 'banco' ? { saldoBanco: arqAtual.cartao ? -Math.abs(arqAtual.saldo) : arqAtual.saldo }
+          : novaConta ? (Number.isFinite(saldoHoje) ? { saldoBanco: arqAtual.cartao ? -Math.abs(saldoHoje) : saldoHoje } : { manterSaldo: false })
+          : { manterSaldo: modo === 'manter' };
+        res = importarLancamentos(contaId, lista, opc);
+      }
+      salvar();
+      toast(res.novos ? `${res.novos} ${res.novos === 1 ? 'lançamento importado' : 'lançamentos importados'}${res.repetidos ? `, ${res.repetidos} já estavam no Rumo` : ''}` : 'Nada novo: tudo isso já estava no Rumo.', res.novos ? () => { S = JSON.parse(antes); salvar(); render(); } : null);
+      irPara('dinheiro', { din: 'extrato', busca: '' });
+    },
+  });
+}
+function prevImportar(arq) {
+  const f = $('#folha-form');
+  const inverter = $('[name=inverter]', f)?.checked;
+  const lista = paraLista(arq, inverter);
+  const ent = lista.filter(x => x.tipo === 'entrada'), sai = lista.filter(x => x.tipo === 'saida');
+  const datas = lista.map(x => x.data).sort();
+  const exts = new Set(S.lanc.filter(l => l.ext).map(l => l.ext));
+  const ja = lista.filter(x => exts.has(x.ext)).length;
+  const sel = $('[name=conta]', f)?.value;
+  const contas = S.exemplo ? [] : S.contas;
+  $('#arq-prev').innerHTML = lista.length ? `
+    <div class="arq-resumo">
+      <p><b>${lista.length} lançamentos</b> de ${rotDia(datas[0]).toLowerCase()} a ${rotDia(datas[datas.length - 1]).toLowerCase()}${ja ? `, ${ja} já estão no Rumo` : ''}.</p>
+      <p class="miudo">${ent.length} ${ent.length === 1 ? 'entrada' : 'entradas'} (${din(ent.reduce((a, x) => a + x.valor, 0))}) · ${sai.length} ${sai.length === 1 ? 'gasto' : 'gastos'} (${din(sai.reduce((a, x) => a + x.valor, 0))})</p>
+    </div>
+    <ul class="lista arq-lista">${lista.slice().sort((a, b) => b.data.localeCompare(a.data)).slice(0, 6).map(x => { const info = x.tipo === 'entrada' ? CAT_E[catDe('', x.desc, 'entrada')] : CAT_S[catDe('', x.desc, 'saida')]; return `<li class="item">${chipCat(info)}<span class="item-txt"><span class="item-t">${esc(x.desc)}</span><span class="item-m"><span>${rotDia(x.data)} · ${info.nome}</span></span></span><span class="valor ${x.tipo === 'entrada' ? 'pos' : ''}">${x.tipo === 'entrada' ? '+ ' : '− '}${din(x.valor)}</span></li>`; }).join('')}</ul>
+    ${lista.length > 6 ? `<p class="miudo">e mais ${lista.length - 6}. As categorias são separadas pela descrição, e você pode mudar qualquer uma depois.</p>` : ''}
+    <label class="checa"><input type="checkbox" name="inverter" value="1" ${inverter ? 'checked' : ''} data-a-prev><span>Os gastos estão aparecendo como entradas (inverter)</span></label>
+    <label class="campo"><span>Lançar na conta</span><select name="conta" data-a-prev>
+      ${contas.map(c => `<option value="${c.id}" ${c.id === sel ? 'selected' : ''}>${esc(c.nome)}</option>`).join('')}
+      <option value="nova" ${sel === 'nova' || !contas.length ? 'selected' : ''}>Criar conta nova</option>
+    </select></label>
+    ${S.exemplo ? '<p class="aviso-mini">O exemplo vai ser apagado para entrar o seu extrato de verdade.</p>' : ''}
+    <label class="campo campo-nova" ${(sel && sel !== 'nova') || (!sel && contas.length) ? 'hidden' : ''}><span>Nome da conta nova</span><input name="nomeNova" value="${esc(arq.banco || (arq.cartao ? 'Cartão de crédito' : ''))}" placeholder="Ex.: Nubank"></label>
+    ${arq.saldo == null ? `<label class="campo campo-nova campo-valor" ${(sel && sel !== 'nova') || (!sel && contas.length) ? 'hidden' : ''}><span>Saldo de hoje nessa conta</span><span class="valor-in"><span aria-hidden="true">R$</span><input name="saldoHoje" inputmode="decimal" placeholder="0,00"></span></label>` : ''}
+    <fieldset class="campo campo-saldo" ${arq.saldo == null && (!contas.length || sel === 'nova') ? 'hidden' : ''}><legend>Saldo da conta</legend>
+      ${arq.saldo != null ? `<label class="checa"><input type="radio" name="saldo" value="banco" checked><span>Usar o saldo que veio no arquivo: <b>${din(arq.saldo)}</b></span></label>` : ''}
+      <label class="checa"><input type="radio" name="saldo" value="manter" ${arq.saldo == null ? 'checked' : ''}><span>Manter o saldo que já está no Rumo (o saldo que cadastrei já inclui esses lançamentos)</span></label>
+      <label class="checa"><input type="radio" name="saldo" value="somar"><span>Somar os lançamentos ao saldo</span></label>
+    </fieldset>`
+    : '<p class="folha-erro">Não achei lançamentos nesse arquivo. Confira se é o extrato em OFX ou CSV.</p>';
+  const ok = $('#arq-ok'); ok.disabled = !lista.length; ok.textContent = lista.length ? `Importar ${lista.length - ja} ${lista.length - ja === 1 ? 'lançamento' : 'lançamentos'}` : 'Importar';
+}
+function lerArquivoExtrato(file) {
+  const fr = new FileReader();
+  fr.onload = () => {
+    let txt = String(fr.result || '');
+    if (/�/.test(txt)) { const fr2 = new FileReader(); fr2.onload = () => processar(String(fr2.result || '')); fr2.readAsText(file, 'windows-1252'); return; }
+    processar(txt);
+  };
+  function processar(txt) {
+    const arq = /<OFX>|OFXHEADER/i.test(txt) ? lerOFX(txt) : lerCSV(txt);
+    if (!arq) { $('#arq-prev').innerHTML = '<p class="folha-erro">Não reconheci esse arquivo. Use o extrato em OFX ou em CSV (planilha) exportado pelo banco.</p>'; arqAtual = null; $('#arq-ok').disabled = true; return; }
+    arqAtual = arq; prevImportar(arq);
+    $('.arquivo b', dlg).textContent = file.name;
+  }
+  fr.readAsText(file, 'utf-8');
+}
+
+/* ---- conexão automática (Open Finance pela Pluggy, através do seu servidor) ---- */
+let sincronizando = false;
+async function chamar(caminho, corpo) {
+  const c = S.conexao;
+  let r;
+  try {
+    r = await fetch(c.url.replace(/\/+$/, '') + caminho, { method: 'POST', headers: { 'content-type': 'application/json', 'x-rumo-chave': c.chave }, body: JSON.stringify(corpo || {}) });
+  } catch (e) { throw new Error('Não consegui falar com o servidor. Confira o endereço e a internet.'); }
+  let j = {}; try { j = await r.json(); } catch (e) { /* resposta vazia */ }
+  if (!r.ok) throw new Error(j.erro || `O servidor respondeu com erro ${r.status}.`);
+  return j;
+}
+function ligarConta(banco, a) {
+  const tipo = a.tipo === 'CREDIT' ? 'cartao' : /saving|poupan/i.test(a.subtipo || '') ? 'poupanca' : 'corrente';
+  const ligadas = new Set(S.conexao.itens.flatMap(i => Object.values(i.contas || {})));
+  const nb = norm(banco).split(' ')[0];
+  const existente = S.contas.find(c => !ligadas.has(c.id) && c.tipo === tipo && nb && norm(c.nome).includes(nb));
+  if (existente) return existente.id;
+  const nome = `${banco || 'Banco'}${tipo === 'cartao' ? ' · cartão' : tipo === 'poupanca' ? ' · poupança' : ''}`;
+  const c = { id: uid(), nome, tipo, cor: CORES[S.contas.length % CORES.length], saldoInicial: 0 };
+  S.contas.push(c);
+  return c.id;
+}
+async function sincronizar({ silencioso = false } = {}) {
+  const c = S.conexao;
+  if (!c?.url || !c.chave || !c.itens.length || sincronizando) return;
+  sincronizando = true; renderConexaoStatus();
+  try {
+    const desde = c.ultima ? addDias(c.ultima.slice(0, 10), -7) : addDias(hoje(), -90);
+    const r = await chamar('/sync', { itens: c.itens.map(i => i.id), desde });
+    let novos = 0; const erros = [];
+    if (S.exemplo) { const perfil = S.perfil; S = vazio(); S.perfil = perfil; S.conexao = c; } // dados reais chegando: o exemplo sai
+    for (const it of r.itens || []) {
+      const reg = c.itens.find(i => i.id === it.id); if (!reg) continue;
+      reg.banco = it.banco || reg.banco; reg.status = it.status || (it.erro ? 'ERRO' : reg.status); reg.atualizado = it.atualizado || reg.atualizado; reg.erro = it.erro || '';
+      if (it.erro) erros.push(`${reg.banco || 'Banco'}: ${it.erro}`);
+      reg.contas = reg.contas || {};
+      const contas = (it.contas || []).slice().sort((a, b) => (a.tipo === 'CREDIT') - (b.tipo === 'CREDIT'));
+      for (const a of contas) if (!reg.contas[a.id] || !contaPor(reg.contas[a.id])) reg.contas[a.id] = ligarConta(reg.banco, a);
+      for (const a of contas) {
+        const cartao = a.tipo === 'CREDIT';
+        let lista = (a.txs || []).filter(t => t.status !== 'PENDING' && t.data).map(t => {
+          const saida = t.tipo ? t.tipo === 'DEBIT' : t.valor < 0;
+          return { ext: 'pg:' + t.id, data: t.data, valor: Math.abs(Math.round(t.valor * 100) / 100), tipo: saida ? 'saida' : 'entrada', desc: limparDesc(t.desc), catHint: t.cat };
+        }).filter(x => x.valor > 0);
+        if (cartao) lista = lista.filter(x => !(x.tipo === 'entrada' && /pagamento|pgto|pag fat/.test(norm(x.desc))));
+        const saldoBanco = typeof a.saldo === 'number' ? (cartao ? -Math.abs(a.saldo) : a.saldo) : null;
+        novos += importarLancamentos(reg.contas[a.id], lista, { saldoBanco }).novos;
+      }
+    }
+    c.ultima = new Date().toISOString();
+    salvar(); render();
+    if (erros.length) toast(erros[0]);
+    else if (novos || !silencioso) toast(novos ? `${novos} ${novos === 1 ? 'lançamento novo' : 'lançamentos novos'} do banco` : 'Tudo em dia com o banco');
+  } catch (e) { if (!silencioso) toast(e.message); }
+  finally { sincronizando = false; renderConexaoStatus(); }
+}
+function haQuanto(isoTs) {
+  if (!isoTs) return 'nunca';
+  const m = Math.round((Date.now() - new Date(isoTs).getTime()) / 6e4);
+  if (m < 1) return 'agora'; if (m < 60) return `há ${m} min`;
+  const h = Math.round(m / 60); if (h < 24) return `há ${h} h`;
+  const d = Math.round(h / 24); return `há ${d} ${d === 1 ? 'dia' : 'dias'}`;
+}
+function statusConexaoTxt() {
+  const c = S.conexao;
+  if (!c?.itens?.length) return '';
+  return sincronizando ? 'Atualizando com o banco…' : `Banco atualizado ${haQuanto(c.ultima)}`;
+}
+function renderConexaoStatus() { $$('[data-status-banco]').forEach(el => { el.textContent = statusConexaoTxt(); }); }
+function carregarPluggy() {
+  if (window.PluggyConnect) return Promise.resolve();
+  return new Promise((ok, falha) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdn.pluggy.ai/pluggy-connect/latest/pluggy-connect.js';
+    s.onload = () => window.PluggyConnect ? ok() : falha(new Error('O botão da Pluggy não carregou.'));
+    s.onerror = () => falha(new Error('Não consegui carregar o botão da Pluggy. Use o ID da conexão abaixo.'));
+    document.head.appendChild(s);
+  });
+}
+async function conectarBanco() {
+  try {
+    const { accessToken } = await chamar('/connect-token', {});
+    await carregarPluggy();
+    fechar();
+    const pc = new window.PluggyConnect({
+      connectToken: accessToken,
+      onSuccess: d => { const item = d?.item || d; if (item?.id) adicionarItem(item.id, item.connector?.name); },
+      onError: e => toast(e?.message ? `A conexão não deu certo: ${e.message}` : 'A conexão não deu certo. Tente de novo.'),
+    });
+    await pc.init();
+  } catch (e) { erro(e.message); }
+}
+function adicionarItem(id, banco) {
+  id = String(id || '').trim();
+  if (!/^[\w-]{8,64}$/.test(id)) { erro('Esse ID não parece certo. Ele tem letras, números e traços, como 3f1c2a9e-….'); return false; }
+  if (!S.conexao.itens.some(i => i.id === id)) S.conexao.itens.push({ id, banco: banco || '', contas: {}, status: '' });
+  salvar();
+  fechar();
+  toast('Banco conectado. Buscando os lançamentos…');
+  sincronizar();
+  return true;
+}
+function formConexao() {
+  const c = S.conexao;
+  const pronto = c.url && c.chave;
+  const passos = `
+    <ol class="passos-txt">
+      <li>Crie sua conta grátis no <b>Meu Pluggy</b> (meu.pluggy.ai) e conecte seus bancos lá. Ele abre o app de cada banco para você autorizar.</li>
+      <li>No painel da Pluggy (dashboard.pluggy.ai), crie uma aplicação e copie o <b>Client ID</b> e o <b>Client Secret</b>.</li>
+      <li>Coloque o servidor do Rumo no ar com essas chaves. O passo a passo está no arquivo <b>rumo/servidor/LEIA-ME.md</b> do seu repositório.</li>
+      <li>Cole abaixo o endereço do servidor e a senha que você criou.</li>
+    </ol>`;
+  const corpo = `
+    <p class="calmo">O Rumo busca sozinho o saldo e o extrato das suas contas pelo Open Finance, toda vez que você abre o app.</p>
+    ${pronto ? '' : passos}
+    ${pronto && c.itens.length ? `<ul class="lista">${c.itens.map(i => `<li class="item"><span class="conta-ic" style="--c:var(--accent)">${ic('banco')}</span><span class="item-txt"><span class="item-t">${esc(i.banco || 'Banco')}</span><span class="item-m"><span class="pill ${i.erro ? 'out' : 'ok'}">${i.erro ? esc(i.erro) : `${Object.keys(i.contas || {}).length} ${Object.keys(i.contas || {}).length === 1 ? 'conta' : 'contas'}`}</span></span></span><button class="btn btn-mini btn-sec" type="button" data-a="item-remover" data-id="${esc(i.id)}">Remover</button></li>`).join('')}</ul>
+      <p class="miudo" data-status-banco>${statusConexaoTxt()}</p>` : ''}
+    ${pronto ? `<div class="botoes">
+        <button class="btn" type="button" data-a="banco-conectar">${ic('mais')}${c.itens.length ? 'Conectar outro banco' : 'Conectar meu banco'}</button>
+        ${c.itens.length ? `<button class="btn btn-sec" type="button" data-a="banco-sync">${ic('rotina')}Atualizar agora</button>` : ''}
+      </div>
+      <details class="detalhe"><summary>Já tenho o ID da conexão</summary>
+        <p class="miudo">Se o botão da Pluggy não abrir, copie o ID do item no painel da Pluggy (em Items) e cole aqui.</p>
+        <div class="rapido"><input id="item-id" placeholder="ID do item" autocomplete="off"><button class="rapido-ok" type="button" data-a="item-add">Adicionar</button></div>
+      </details>` : ''}
+    <details class="detalhe" ${pronto ? '' : 'open'}><summary>Servidor</summary>
+      <label class="campo"><span>Endereço do servidor</span><input name="url" inputmode="url" value="${esc(c.url)}" placeholder="https://rumo-banco.SEU-USUARIO.workers.dev"></label>
+      <label class="campo"><span>Senha do servidor</span><input name="chave" type="password" value="${esc(c.chave)}" placeholder="A RUMO_CHAVE que você criou" autocomplete="off"></label>
+      <button class="btn btn-sec" type="submit">Salvar e testar</button>
+      ${pronto ? '<button class="btn btn-perigo-sec" type="button" data-a="conexao-desligar">Desligar a conexão</button>' : ''}
+    </details>
+    <p class="miudo">Seus dados passam pela Pluggy e pelo seu servidor, e o Rumo só lê: não faz Pix nem pagamento. A autorização vence (em geral em até 12 meses) e você renova pelo app do banco.</p>`;
+  folha('Conexão com o banco', corpo, {
+    rodape: '',
+    async enviar(fd) {
+      const url = String(fd.get('url') || '').trim(), chave = String(fd.get('chave') || '').trim();
+      if (!/^https:\/\/[^\s/]+/.test(url)) { erro('O endereço precisa começar com https://'); return false; }
+      if (chave.length < 8) { erro('A senha do servidor tem pelo menos 8 caracteres.'); return false; }
+      S.conexao.url = url; S.conexao.chave = chave; salvar();
+      const botao = $('#folha-form [type=submit]'); botao.disabled = true; botao.textContent = 'Testando…';
+      try { await chamar('/ping', {}); toast('Servidor ligado. Agora conecte seu banco.'); formConexao(); }
+      catch (e) { botao.disabled = false; botao.textContent = 'Salvar e testar'; erro(e.message); }
+      return false;
+    },
+  });
+}
+
 /* ---------- arquivos ---------- */
 function baixar(nome, conteudo, tipo) {
   const url = URL.createObjectURL(new Blob([conteudo], { type: tipo }));
@@ -1153,7 +1529,7 @@ function importar(arq) {
       const d = JSON.parse(fr.result);
       if (!d || typeof d !== 'object' || !Array.isArray(d.lanc) || !Array.isArray(d.tarefas)) throw new Error('formato');
       fechar();
-      mudar(() => { S = migrar(d); }, 'Backup restaurado');
+      mudar(() => { const chave = S.conexao?.chave; S = migrar(d); if (!S.conexao.chave && chave) S.conexao.chave = chave; }, 'Backup restaurado');
     } catch (e) { erro('Esse arquivo não é um backup do Rumo. Escolha o arquivo rumo-backup que você baixou.'); }
   };
   fr.readAsText(arq);
@@ -1223,12 +1599,12 @@ const ACOES = {
   'confirmar-ok': () => { const fn = confirmarFn; confirmarFn = null; fechar(); fn?.(); },
   'zerar-exemplo': () => confirmar('Começar do zero?', 'O exemplo some e o Rumo fica vazio, pronto para as suas contas, tarefas e hábitos.', 'Apagar o exemplo', () => {
     const nome = S.perfil.nome, tema = S.perfil.tema;
-    mudar(() => { S = vazio(); S.perfil.nome = nome; S.perfil.tema = tema; }, 'Pronto. Comece cadastrando sua conta do banco.');
+    mudar(() => { const cx = S.conexao; S = vazio(); S.conexao = { ...cx, ultima: null, itens: cx.itens.map(i => ({ ...i, contas: {} })) }; S.perfil.nome = nome; S.perfil.tema = tema; }, 'Pronto. Comece cadastrando sua conta do banco.');
     irPara('hoje');
   }),
   'apagar-tudo': () => confirmar('Apagar tudo?', 'Contas, lançamentos, tarefas e hábitos deste aparelho serão apagados e o Rumo fica vazio. Você pode desfazer logo depois.', 'Apagar tudo', () => {
     const nome = S.perfil.nome, tema = S.perfil.tema;
-    mudar(() => { S = vazio(); S.perfil.nome = nome; S.perfil.tema = tema; }, 'Tudo apagado. O Rumo está vazio.');
+    mudar(() => { const cx = S.conexao; S = vazio(); S.conexao = { ...cx, ultima: null, itens: cx.itens.map(i => ({ ...i, contas: {} })) }; S.perfil.nome = nome; S.perfil.tema = tema; }, 'Tudo apagado. O Rumo está vazio.');
     irPara('hoje');
   }),
   'apagar-parte': b => {
@@ -1236,15 +1612,22 @@ const ACOES = {
     const info = {
       tarefas: [`Apagar as ${S.tarefas.length} tarefas?`, 'Contas, gastos e hábitos continuam como estão.', () => { S.tarefas = []; }, 'Tarefas apagadas'],
       habitos: [`Apagar os ${S.habitos.length} hábitos?`, 'O histórico de cada hábito também sai. Tarefas e dinheiro continuam como estão.', () => { S.habitos = []; }, 'Hábitos apagados'],
-      dinheiro: ['Apagar todo o dinheiro?', `Saem ${S.contas.length} contas, ${S.lanc.length} lançamentos, ${S.fixas.length} contas fixas e os limites. Tarefas e hábitos continuam.`, () => { S.contas = []; S.lanc = []; S.fixas = []; S.orcamento = {}; }, 'Dinheiro apagado'],
+      dinheiro: ['Apagar todo o dinheiro?', `Saem ${S.contas.length} contas, ${S.lanc.length} lançamentos, ${S.fixas.length} contas fixas e os limites. Tarefas e hábitos continuam.`, () => { S.contas = []; S.lanc = []; S.fixas = []; S.orcamento = {}; S.conexao.ultima = null; S.conexao.itens.forEach(i => { i.contas = {}; }); }, 'Dinheiro apagado'],
     }[v];
     if (!info) return;
     confirmar(info[0], `${info[1]} Você pode desfazer logo depois.`, 'Apagar', () => {
       mudar(() => { info[2](); if (!S.contas.length && !S.tarefas.length && !S.habitos.length) { S.exemplo = false; S.passos = true; } }, info[3]);
     });
   },
+  'importar-extrato': () => formImportar(),
+  conexao: () => formConexao(),
+  'banco-conectar': () => conectarBanco(),
+  'banco-sync': () => { fechar(); sincronizar(); },
+  'item-add': () => adicionarItem($('#item-id', dlg)?.value),
+  'item-remover': b => { S.conexao.itens = S.conexao.itens.filter(i => i.id !== b.dataset.id); salvar(); formConexao(); toast('Banco removido do Rumo. Os lançamentos que já vieram ficam. Para cancelar de vez, revogue a autorização no app do banco.'); },
+  'conexao-desligar': () => confirmar('Desligar a conexão?', 'O Rumo para de buscar os lançamentos sozinho. O que já veio do banco continua aqui.', 'Desligar', () => { mudar(() => { S.conexao = { url: '', chave: '', itens: [], ultima: null }; }, 'Conexão desligada'); }),
   'passos-ocultar': () => mudar(() => { S.passos = false; }, 'Primeiros passos escondidos'),
-  exportar: () => { baixar(`rumo-backup-${hoje()}.json`, JSON.stringify(S, null, 1), 'application/json'); toast('Backup baixado'); },
+  exportar: () => { baixar(`rumo-backup-${hoje()}.json`, JSON.stringify({ ...S, conexao: { ...S.conexao, chave: '' } }, null, 1), 'application/json'); toast('Backup baixado'); },
   csv: () => { if (!S.lanc.length) { toast('Ainda não há lançamentos para exportar.'); return; } exportarCSV(); toast('Planilha baixada. Abre no Excel e no Google Planilhas.'); },
   tar: b => { ui.tar = b.dataset.v; render(); },
   din: b => { ui.din = b.dataset.v; render(); },
@@ -1262,6 +1645,14 @@ document.addEventListener('click', e => {
 });
 document.addEventListener('change', e => {
   if (e.target.matches('[data-a-file="importar"]') && e.target.files[0]) importar(e.target.files[0]);
+  if (e.target.matches('[data-a-file="extrato"]') && e.target.files[0]) lerArquivoExtrato(e.target.files[0]);
+  if (e.target.matches('[data-a-prev]') && arqAtual) {
+    if (e.target.name === 'conta') {
+      $$('.campo-nova', dlg).forEach(n => { n.hidden = e.target.value !== 'nova'; });
+      const cs = $('.campo-saldo', dlg); if (cs && arqAtual.saldo == null) cs.hidden = e.target.value === 'nova';
+    }
+    else prevImportar(arqAtual);
+  }
 });
 document.addEventListener('submit', e => {
   const bv = e.target.closest('[data-form="bv"]');
@@ -1298,10 +1689,16 @@ document.addEventListener('keydown', e => {
 let diaVisto = hoje();
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible' && hoje() !== diaVisto) { diaVisto = hoje(); ui.dia = diaVisto; ui.mes = mesDe(diaVisto); render(); }
+  if (document.visibilityState === 'visible') autoSync();
 });
 try { navigator.storage?.persist?.(); } catch (e) { /* opcional */ }
 
 salvar();
 ui.aba = ABAS.includes(location.hash.slice(1)) ? location.hash.slice(1) : 'hoje';
 render();
+function autoSync() {
+  const c = S.conexao; if (!c?.itens?.length || S.boasVindas) return;
+  if (!c.ultima || Date.now() - new Date(c.ultima).getTime() > 30 * 6e4) sincronizar({ silencioso: true });
+}
+autoSync();
 })();

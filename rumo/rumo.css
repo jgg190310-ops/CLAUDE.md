@@ -670,3 +670,32 @@ body.modo-bv .fab, body.modo-bv .abas, body.modo-bv .trilho .nav-i:not(.nav-ajus
 .passo-n .ic { width: 14px; height: 14px; stroke-width: 2.6; }
 .passos .feita .passo-n { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
 .passos .feita .item-t { text-decoration: none; }
+
+/* ---------- extrato do banco ---------- */
+.arquivo { position: relative; display: block; cursor: pointer; }
+.arquivo input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; }
+.arquivo span { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 22px 16px; border: 1.5px dashed var(--line-2); border-radius: 16px; text-align: center; color: var(--ink-2); transition: border-color .15s, background .15s; }
+.arquivo span .ic { width: 24px; height: 24px; color: var(--ink); margin-bottom: 4px; }
+.arquivo b { color: var(--ink); font-weight: 600; overflow-wrap: anywhere; }
+.arquivo small { font-size: .8rem; color: var(--ink-3); }
+.arquivo:hover span, .arquivo input:focus-visible + span { border-color: var(--ink); background: var(--bg); }
+#arq-prev { display: flex; flex-direction: column; gap: 14px; }
+#arq-prev:empty { display: none; }
+.arq-resumo { display: flex; flex-direction: column; gap: 2px; padding: 12px 14px; border-radius: 12px; background: var(--bg); }
+.arq-lista .item { padding: 8px 0; }
+.checa { display: flex; align-items: flex-start; gap: 10px; font-size: .9rem; color: var(--ink-2); cursor: pointer; padding: 4px 0; }
+.checa input { width: 18px; height: 18px; margin: 1px 0 0; accent-color: var(--ink); flex: none; }
+.checa b { color: var(--ink); }
+.conexao-cta { display: flex; align-items: center; gap: 14px; width: 100%; text-align: left; padding: 14px; border-radius: 16px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); }
+.conexao-cta:hover { border-color: var(--line-2); }
+.conexao-cta > .ic { color: var(--ink-3); width: 18px; height: 18px; }
+.conexao-ic { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; background: var(--ink); color: var(--bg); flex: none; }
+.conexao-ic .ic { width: 18px; height: 18px; }
+.extrato-acoes { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 4px 12px; margin-top: -4px; }
+.extrato-acoes .topo-link { padding-left: 0; gap: 6px; }
+.detalhe { border-top: 1px solid var(--line); padding-top: 12px; display: flex; flex-direction: column; }
+.detalhe summary { cursor: pointer; font-weight: 500; color: var(--ink-2); font-size: .9rem; }
+.detalhe[open] > :not(summary) { margin-top: 12px; }
+.detalhe .btn + .btn { margin-top: 8px; }
+.passos-txt { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 8px; color: var(--ink-2); font-size: .9rem; }
+.passos-txt b { color: var(--ink); font-weight: 600; }
