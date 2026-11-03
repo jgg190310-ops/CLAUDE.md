@@ -1550,7 +1550,7 @@ function formConexao() {
         <div class="rapido"><input id="item-id" placeholder="ID do item" autocomplete="off"><button class="rapido-ok" type="button" data-a="item-add">Adicionar</button></div>
       </details>` : ''}
     <details class="detalhe" ${pronto ? '' : 'open'}><summary>Servidor</summary>
-      <label class="campo"><span>Endereço do servidor</span><input name="url" inputmode="url" value="${esc(c.url)}" placeholder="https://rumo-banco.SEU-USUARIO.workers.dev"></label>
+      <label class="campo"><span>Endereço do servidor</span><input name="url" inputmode="url" value="${esc(c.url || 'https://rumo-banco.jgg190310.workers.dev')}" placeholder="https://rumo-banco.jgg190310.workers.dev"></label>
       <label class="campo"><span>Senha do servidor</span><input name="chave" type="password" value="${esc(c.chave)}" placeholder="A RUMO_CHAVE que você criou" autocomplete="off"></label>
       <button class="btn btn-sec" type="submit">Salvar e testar</button>
       ${pronto ? '<button class="btn btn-perigo-sec" type="button" data-a="conexao-desligar">Desligar a conexão</button>' : ''}
