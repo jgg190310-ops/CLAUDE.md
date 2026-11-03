@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Rumo</title>
+  <meta name="description" content="Rumo: suas tarefas, gastos, contas do banco e rotina num lugar só.">
+  <meta name="theme-color" content="#F1F4F3" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0B1315" media="(prefers-color-scheme: dark)">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon-180.png">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Rumo">
+  <script>
+    try { var t = localStorage.getItem('rumo:tema'); if (t === 'claro') document.documentElement.dataset.theme = 'light'; else if (t === 'escuro') document.documentElement.dataset.theme = 'dark'; } catch (e) {}
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,400..700;1,400&family=Schibsted+Grotesk:wght@500..800&display=swap">
+  <link rel="stylesheet" href="rumo.css?v=1">
+</head>
+<body>
+<a class="pular" href="#v">Pular para o conteúdo</a>
+
+<div class="app">
+  <nav class="trilho" aria-label="Seções">
+    <a class="marca" href="#hoje" data-a="ir" data-aba="hoje">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" class="marca-bg"/><path d="M16 5.5 20 16h-8z" class="marca-n"/><path d="M12 16h8l-4 10.5z" class="marca-s"/></svg>
+      <span>Rumo</span>
+    </a>
+    <a href="#hoje" class="nav-i" data-a="ir" data-nav data-aba="hoje"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="m15.4 8.6-2.2 4.6-4.6 2.2 2.2-4.6z"/></svg><span>Hoje</span></a>
+    <a href="#tarefas" class="nav-i" data-a="ir" data-nav data-aba="tarefas"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="17" height="17" rx="4.5"/><path d="m8 12.2 2.8 2.8L16.2 9"/></svg><span>Tarefas</span></a>
+    <a href="#dinheiro" class="nav-i" data-a="ir" data-nav data-aba="dinheiro"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V7a2 2 0 0 1 2-2h11v3"/><rect x="3.5" y="8" width="17" height="11.5" rx="2.2"/><path d="M15.5 13.7h1.8"/></svg><span>Dinheiro</span></a>
+    <a href="#rotina" class="nav-i" data-a="ir" data-nav data-aba="rotina"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 11a7.5 7.5 0 0 1 13.4-4.2L19.5 9"/><path d="M19.5 4.5V9H15"/><path d="M19.5 13a7.5 7.5 0 0 1-13.4 4.2L4.5 15"/><path d="M4.5 19.5V15H9"/></svg><span>Rotina</span></a>
+    <button class="nav-i nav-ajustes" type="button" data-a="ajustes"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7.5h9M17 7.5h3M4 16.5h3M11 16.5h9"/><circle cx="15" cy="7.5" r="2.2"/><circle cx="9" cy="16.5" r="2.2"/></svg><span>Ajustes</span></button>
+    <p class="trilho-dica">Atalhos: <kbd>N</kbd> anota, <kbd>1</kbd>–<kbd>4</kbd> trocam de aba.</p>
+  </nav>
+
+  <div class="principal">
+    <header class="topo">
+      <a class="marca" href="#hoje" data-a="ir" data-aba="hoje">
+        <svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" class="marca-bg"/><path d="M16 5.5 20 16h-8z" class="marca-n"/><path d="M12 16h8l-4 10.5z" class="marca-s"/></svg>
+        <span>Rumo</span>
+      </a>
+      <button class="ic-btn" type="button" data-a="ajustes" aria-label="Ajustes"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7.5h9M17 7.5h3M4 16.5h3M11 16.5h9"/><circle cx="15" cy="7.5" r="2.2"/><circle cx="9" cy="16.5" r="2.2"/></svg></button>
+    </header>
+    <main id="v" class="tela" tabindex="-1">
+      <noscript><p>O Rumo precisa de JavaScript ligado para funcionar.</p></noscript>
+    </main>
+  </div>
+
+  <nav class="abas" aria-label="Seções">
+    <a href="#hoje" data-a="ir" data-nav data-aba="hoje"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="m15.4 8.6-2.2 4.6-4.6 2.2 2.2-4.6z"/></svg><span>Hoje</span></a>
+    <a href="#tarefas" data-a="ir" data-nav data-aba="tarefas"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="17" height="17" rx="4.5"/><path d="m8 12.2 2.8 2.8L16.2 9"/></svg><span>Tarefas</span></a>
+    <a href="#dinheiro" data-a="ir" data-nav data-aba="dinheiro"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V7a2 2 0 0 1 2-2h11v3"/><rect x="3.5" y="8" width="17" height="11.5" rx="2.2"/><path d="M15.5 13.7h1.8"/></svg><span>Dinheiro</span></a>
+    <a href="#rotina" data-a="ir" data-nav data-aba="rotina"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 11a7.5 7.5 0 0 1 13.4-4.2L19.5 9"/><path d="M19.5 4.5V9H15"/><path d="M19.5 13a7.5 7.5 0 0 1-13.4 4.2L4.5 15"/><path d="M4.5 19.5V15H9"/></svg><span>Rotina</span></a>
+  </nav>
+
+  <button class="fab" id="fab" type="button" data-a="fab" aria-label="Adicionar">
+    <svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+    <span id="fab-txt">Adicionar</span>
+  </button>
+</div>
+
+<dialog id="folha" class="folha-dlg"></dialog>
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+<script src="rumo.js?v=1"></script>
+</body>
+</html>
