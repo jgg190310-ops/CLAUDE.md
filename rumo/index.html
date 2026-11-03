@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Rumo</title>
   <meta name="description" content="Rumo: suas tarefas, gastos, contas do banco e rotina num lugar só.">
-  <meta name="theme-color" content="#F1F4F3" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#0B1315" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#F4F4F1" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0B0D0C" media="(prefers-color-scheme: dark)">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="icon-180.png">
@@ -19,8 +19,8 @@
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,400..700;1,400&family=Schibsted+Grotesk:wght@500..800&display=swap">
-  <link rel="stylesheet" href="rumo.css?v=1">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400..700&family=Instrument+Serif:ital@0;1&display=swap">
+  <link rel="stylesheet" href="rumo.css?v=2">
 </head>
 <body>
 <a class="pular" href="#v">Pular para o conteúdo</a>
@@ -45,7 +45,7 @@
         <svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" class="marca-bg"/><path d="M16 5.5 20 16h-8z" class="marca-n"/><path d="M12 16h8l-4 10.5z" class="marca-s"/></svg>
         <span>Rumo</span>
       </a>
-      <button class="ic-btn" type="button" data-a="ajustes" aria-label="Ajustes"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7.5h9M17 7.5h3M4 16.5h3M11 16.5h9"/><circle cx="15" cy="7.5" r="2.2"/><circle cx="9" cy="16.5" r="2.2"/></svg></button>
+      <button class="avatar" id="avatar" type="button" data-a="ajustes" aria-label="Ajustes"></button>
     </header>
     <main id="v" class="tela" tabindex="-1">
       <noscript><p>O Rumo precisa de JavaScript ligado para funcionar.</p></noscript>
@@ -68,6 +68,6 @@
 <dialog id="folha" class="folha-dlg"></dialog>
 <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 
-<script src="rumo.js?v=1"></script>
+<script src="rumo.js?v=2"></script>
 </body>
 </html>

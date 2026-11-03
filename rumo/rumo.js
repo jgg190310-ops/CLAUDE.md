@@ -330,10 +330,44 @@ const vazioBox = (titulo, texto, botao, acao) => `<div class="vazio"><p class="v
 
 function bannerExemplo() {
   return `<div class="aviso" role="note">
-    <p><strong>Isto é um exemplo.</strong> Os números, tarefas e hábitos abaixo são inventados para você ver o Rumo funcionando.</p>
-    <button class="btn btn-escuro" type="button" data-a="zerar-exemplo">Apagar o exemplo e começar</button>
+    <span class="aviso-ponto" aria-hidden="true"></span>
+    <p><strong>Modo exemplo.</strong> Os dados abaixo são fictícios.</p>
+    <button class="aviso-btn" type="button" data-a="zerar-exemplo">Começar do zero</button>
   </div>`;
 }
+/* valor com os centavos à parte, para o número grande */
+function dinGrande(v) {
+  const partes = BRL.formatToParts(v || 0);
+  let ini = '', cent = '';
+  let depois = false;
+  for (const p of partes) { if (p.type === 'decimal') depois = true; if (depois) cent += p.value; else ini += p.value; }
+  return `${esc(ini)}<span class="cent">${esc(cent)}</span>`;
+}
+function seriePatrimonio(dias) {
+  const t = hoje(), delta = {};
+  for (const l of S.lanc) { if (l.tipo === 'transf') continue; delta[l.data] = (delta[l.data] || 0) + (l.tipo === 'entrada' ? l.valor : -l.valor); }
+  let acc = patrimonio();
+  for (const [d, v] of Object.entries(delta)) if (d > t) acc -= v;
+  const out = []; let d = t;
+  for (let k = 0; k < dias; k++) { out.unshift({ d, v: acc }); acc -= delta[d] || 0; d = addDias(d, -1); }
+  return out;
+}
+function sparkline(serie, W = 600, H = 96) {
+  const vs = serie.map(p => p.v), min = Math.min(...vs), max = Math.max(...vs), amp = max - min || 1;
+  const x = k => (k / (serie.length - 1)) * W, y = v => 6 + (H - 12) * (1 - (v - min) / amp);
+  const pts = serie.map((p, k) => `${x(k).toFixed(1)},${y(p.v).toFixed(1)}`);
+  const ult = serie[serie.length - 1];
+  return `<svg class="spark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true">
+    <defs><linearGradient id="spark-g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--hero-linha)" stop-opacity=".28"/><stop offset="1" stop-color="var(--hero-linha)" stop-opacity="0"/></linearGradient></defs>
+    <path d="M${pts.join(' L')} L${W},${H} L0,${H} Z" fill="url(#spark-g)"/>
+    <polyline points="${pts.join(' ')}" fill="none" stroke="var(--hero-linha)" stroke-width="1.6" vector-effect="non-scaling-stroke" stroke-linejoin="round"/>
+    <circle cx="${x(serie.length - 1)}" cy="${y(ult.v)}" r="3.2" fill="var(--hero-linha)" vector-effect="non-scaling-stroke"/>
+  </svg>`;
+}
+function topoBloco(titulo, cont, link) {
+  return `<header class="bloco-topo"><h2>${titulo}${cont != null && cont !== '' ? `<span class="cont">${cont}</span>` : ''}</h2>${link || ''}</header>`;
+}
+const linkIr = (txt, aba, din) => `<button class="topo-link" type="button" data-a="ir" data-aba="${aba}"${din ? ` data-din="${din}"` : ''}>${txt}${ic('dir')}</button>`;
 
 /* ===== Hoje ===== */
 function viewHoje() {
@@ -343,24 +377,24 @@ function viewHoje() {
   const tars = tarefasHoje(), pl = placarDia(t);
   const total = tars.length + pl.total, feitos = tars.filter(x => x.feita).length + pl.feitos;
   const frase = total === 0 ? 'Nada marcado para hoje ainda.'
-    : feitos === total ? `Tudo feito: ${total} de ${total}. Dia ganho.`
-    : `Você fez ${feitos} de ${total} coisas de hoje.`;
+    : feitos === total ? `Tudo feito hoje. ${total} de ${total}.`
+    : `${feitos} de ${total} coisas feitas hoje.`;
   return `
   <section class="cabeca">
     <div class="cabeca-txt">
       <p class="eyebrow">${DIAS[d.getDay()]}, ${d.getDate()} de ${MESES[d.getMonth()]}</p>
-      <h1>${saud}${nome ? `, ${esc(nome)}` : ''}.</h1>
+      <h1 tabindex="-1">${saud}${nome ? `, ${esc(nome)}` : ''}</h1>
       <p class="sub">${frase}${!nome ? ` <button class="link" type="button" data-a="ajustes">Como quer ser chamado?</button>` : ''}</p>
     </div>
-    <div class="placar" aria-label="${feitos} de ${total} feitos hoje">${anel(total ? feitos / total : 0, 76, 8)}<span>${total ? Math.round(100 * feitos / total) : 0}<small>%</small></span></div>
+    <div class="placar" aria-label="${feitos} de ${total} feitos hoje">${anel(total ? feitos / total : 0, 64, 4)}<span>${feitos}<small>/${total}</small></span></div>
   </section>
+  ${heroHoje()}
   <div class="grade-hoje">
     <div class="col">
       ${blocoTarefasHoje(tars)}
       ${blocoRotinaHoje()}
     </div>
     <div class="col">
-      ${blocoDinheiroHoje()}
       ${blocoVencer()}
       ${blocoMilhao()}
     </div>
@@ -370,32 +404,33 @@ function viewHoje() {
 function itemTarefa(x, mostrarData = true) {
   const t = hoje(), atras = !x.feita && x.data && x.data < t;
   const meta = [];
-  if (mostrarData && x.data) meta.push(atras ? `<span class="tag out">${ic('alerta')}Era para ${rotDia(x.data).toLowerCase()}</span>` : `<span>${rotDia(x.data)}</span>`);
+  if (mostrarData && x.data) meta.push(atras ? `<span class="tag out">Atrasada · ${rotDia(x.data).toLowerCase()}</span>` : `<span>${rotDia(x.data)}</span>`);
   if (x.area) meta.push(`<span>${esc(x.area)}</span>`);
   if (x.nota) meta.push(`<span class="nota">${esc(x.nota)}</span>`);
   return `<li class="item tarefa${x.feita ? ' feita' : ''}">
     <button class="chk" type="button" data-a="tarefa-ok" data-id="${x.id}" aria-pressed="${x.feita}" aria-label="${x.feita ? 'Desmarcar' : 'Marcar como feita'}: ${esc(x.titulo)}">${ic('check')}</button>
     <button class="item-corpo" type="button" data-a="tarefa-edit" data-id="${x.id}">
-      <span class="item-t">${x.prio === 1 && !x.feita ? `<span class="prio" title="Prioridade alta">${ic('bandeira')}<span class="sr">Prioridade alta:</span></span>` : ''}${esc(x.titulo)}</span>
+      <span class="item-t">${esc(x.titulo)}</span>
       ${meta.length ? `<span class="item-m">${meta.join('<i>·</i>')}</span>` : ''}
     </button>
+    ${x.prio === 1 && !x.feita ? `<span class="prio" title="Prioridade alta"><span class="sr">Prioridade alta</span></span>` : ''}
   </li>`;
 }
 function formRapido(id, ph, comQuando) {
   return `<form class="rapido" data-form="tarefa-rapida" autocomplete="off">
+    <span class="rapido-ic" aria-hidden="true">${ic('mais')}</span>
     <label class="sr" for="${id}">Nova tarefa</label>
     <input id="${id}" name="titulo" placeholder="${ph}" maxlength="140" enterkeyhint="done">
-    ${comQuando ? `<label class="sr" for="${id}-q">Quando</label><select id="${id}-q" name="quando"><option value="0">Hoje</option><option value="1">Amanhã</option><option value="7">Daqui a 1 semana</option><option value="">Sem data</option></select>` : '<input type="hidden" name="quando" value="0">'}
-    <button class="btn btn-ic" type="submit" aria-label="Adicionar tarefa">${ic('mais')}</button>
+    ${comQuando ? `<label class="sr" for="${id}-q">Quando</label><select id="${id}-q" name="quando"><option value="0">Hoje</option><option value="1">Amanhã</option><option value="7">Em 1 semana</option><option value="">Sem data</option></select>` : '<input type="hidden" name="quando" value="0">'}
+    <button class="rapido-ok" type="submit">Adicionar</button>
   </form>`;
 }
 function blocoTarefasHoje(tars) {
   const pend = tars.filter(x => !x.feita).length;
   return `<section class="bloco">
-    <header class="bloco-topo"><h2>Para fazer hoje</h2><span class="contador">${pend ? `${pend} ${pend === 1 ? 'pendente' : 'pendentes'}` : 'em dia'}</span></header>
-    ${tars.length ? `<ul class="lista">${tars.map(x => itemTarefa(x)).join('')}</ul>` : `<p class="calmo">Nenhuma tarefa para hoje. Anote abaixo o que precisa sair do papel.</p>`}
-    ${formRapido('rap-hoje', 'Adicionar tarefa para hoje', false)}
-    <button class="mais-link" type="button" data-a="ir" data-aba="tarefas">Ver todas as tarefas ${ic('dir')}</button>
+    ${topoBloco('Para fazer hoje', pend || '', linkIr('Todas', 'tarefas'))}
+    ${tars.length ? `<ul class="lista">${tars.map(x => itemTarefa(x)).join('')}</ul>` : `<p class="calmo">Nenhuma tarefa para hoje.</p>`}
+    ${formRapido('rap-hoje', 'Nova tarefa para hoje', false)}
   </section>`;
 }
 function itemHabito(h, dia, compacto) {
@@ -404,9 +439,9 @@ function itemHabito(h, dia, compacto) {
     <button class="chk chk-q" type="button" data-a="habito-ok" data-id="${h.id}" data-dia="${dia}" aria-pressed="${feito}" ${futuro ? 'disabled' : ''} aria-label="${feito ? 'Desmarcar' : 'Marcar'}: ${esc(h.nome)}">${ic('check')}</button>
     <button class="item-corpo" type="button" data-a="habito-edit" data-id="${h.id}">
       <span class="item-t">${esc(h.nome)}</span>
-      <span class="item-m">${h.hora ? `<span>${h.hora.replace(':', 'h')}</span>` : ''}${!compacto ? `<span>${diasTxt(h.dias)}</span>` : ''}</span>
+      <span class="item-m">${h.hora ? `<span>${h.hora.replace(':', 'h')}</span>` : ''}${!compacto ? `${h.hora ? '<i>·</i>' : ''}<span>${diasTxt(h.dias)}</span>` : ''}</span>
     </button>
-    ${seq > 1 ? `<span class="seq" title="${seq} vezes seguidas">${ic('fogo')}${seq}</span>` : ''}
+    ${seq > 1 ? `<span class="seq" title="${seq} vezes seguidas">${seq}<small>${seq === 1 ? 'dia' : 'dias'}</small></span>` : ''}
   </li>`;
 }
 function diasTxt(d) {
@@ -422,54 +457,72 @@ function habitosPorPeriodo(dia, compacto) {
   return ordem.map(p => {
     const g = hs.filter(h => (h.periodo || 'dia') === p).sort((a, b) => (a.hora || '99').localeCompare(b.hora || '99'));
     if (!g.length) return '';
-    return `<div class="periodo"><p class="periodo-t">${ic(PERIODOS[p].ic)}${PERIODOS[p].nome}</p><ul class="lista">${g.map(h => itemHabito(h, dia, compacto)).join('')}</ul></div>`;
+    return `<div class="periodo"><p class="periodo-t">${PERIODOS[p].nome}</p><ul class="lista">${g.map(h => itemHabito(h, dia, compacto)).join('')}</ul></div>`;
   }).join('');
 }
 function blocoRotinaHoje() {
   const t = hoje(), pl = placarDia(t);
   return `<section class="bloco">
-    <header class="bloco-topo"><h2>Rotina de hoje</h2><span class="contador">${pl.total ? `${pl.feitos} de ${pl.total}` : ''}</span></header>
-    ${S.habitos.length ? (pl.total ? habitosPorPeriodo(t, true) : '<p class="calmo">Nenhum hábito marcado para hoje. Dia de descanso.</p>')
+    ${topoBloco('Rotina de hoje', pl.total ? `${pl.feitos}/${pl.total}` : '', S.habitos.length ? linkIr('Semana', 'rotina') : '')}
+    ${S.habitos.length ? (pl.total ? habitosPorPeriodo(t, true) : '<p class="calmo">Nenhum hábito marcado para hoje.</p>')
       : vazioBox('Monte sua rotina', 'Hábitos pequenos, repetidos todo dia, são o que muda a vida. Comece com um.', 'Criar hábito', 'novo-habito')}
-    ${S.habitos.length ? `<button class="mais-link" type="button" data-a="ir" data-aba="rotina">Ver a semana ${ic('dir')}</button>` : ''}
   </section>`;
 }
-function blocoDinheiroHoje() {
-  if (!S.contas.length) return `<section class="bloco">${vazioBox('Cadastre sua conta do banco', 'Coloque o saldo de hoje de cada conta. A partir daí o Rumo acompanha cada real que entra e sai.', 'Adicionar conta', 'nova-conta')}</section>`;
+function heroHoje() {
+  if (!S.contas.length) return `<section class="hero hero-vazio">
+    <p class="hero-rot">Patrimônio</p>
+    <p class="hero-valor">R$ 0<span class="cent">,00</span></p>
+    <p class="hero-txt">Cadastre suas contas com o saldo de hoje. A partir daí o Rumo acompanha cada real que entra e sai.</p>
+    <button class="btn btn-claro" type="button" data-a="nova-conta">${ic('mais')}Adicionar conta do banco</button>
+  </section>`;
   const ym = mesDe(hoje()), r = resumoMes(ym), P = patrimonio(), meta = (S.perfil.meta || 0) / 100;
-  const taxa = r.taxa, pct = taxa == null ? 0 : Math.max(0, taxa);
+  const serie = seriePatrimonio(90), var30 = P - serie[Math.max(0, serie.length - 31)].v;
+  const pct = r.taxa == null ? 0 : Math.max(0, r.taxa);
   let msg;
-  if (taxa == null) msg = 'Ainda não entrou dinheiro este mês. Quando entrar, você vê aqui quanto conseguiu guardar.';
-  else if (taxa >= meta) msg = `Você guardou <strong>${Math.round(taxa * 100)}%</strong> do que entrou. Meta de ${S.perfil.meta}% batida.`;
-  else if (taxa > 0) msg = `Você guardou <strong>${Math.round(taxa * 100)}%</strong> do que entrou. Faltam ${din0(meta * r.entradas - r.sobra)} para a meta de ${S.perfil.meta}%.`;
-  else msg = `Este mês saiu <strong>${din0(-r.sobra)}</strong> a mais do que entrou.`;
-  return `<section class="bloco bloco-din">
-    <header class="bloco-topo"><h2>Seu dinheiro</h2><button class="contador link" type="button" data-a="ir" data-aba="dinheiro" data-din="contas">${S.contas.length} ${S.contas.length === 1 ? 'conta' : 'contas'}</button></header>
-    <p class="eyebrow">Somando todas as contas</p>
-    <p class="grande ${P < 0 ? 'neg' : ''}">${din(P)}</p>
-    <div class="trio">
-      <div><span class="eyebrow">Entrou em ${rotMesC(ym)}</span><b class="pos">${din0(r.entradas)}</b></div>
-      <div><span class="eyebrow">Saiu</span><b class="neg">${din0(r.saidas)}</b></div>
-      <div><span class="eyebrow">Sobrou</span><b class="${r.sobra < 0 ? 'neg' : ''}">${din0(r.sobra)}</b></div>
+  if (r.taxa == null) msg = 'Ainda não entrou dinheiro este mês.';
+  else if (r.taxa >= meta) msg = `Meta de ${S.perfil.meta}% batida`;
+  else if (r.taxa > 0) msg = `Faltam ${din0(meta * r.entradas - r.sobra)} para a meta de ${S.perfil.meta}%`;
+  else msg = `Saiu ${din0(-r.sobra)} a mais do que entrou`;
+  return `<section class="hero">
+    <div class="hero-grade">
+      <div class="hero-esq">
+        <div class="hero-topo">
+          <p class="hero-rot">Patrimônio</p>
+          ${linkIr(`${S.contas.length} ${S.contas.length === 1 ? 'conta' : 'contas'}`, 'dinheiro', 'contas').replace('topo-link', 'hero-link')}
+        </div>
+        <p class="hero-valor ${P < 0 ? 'neg' : ''}">${dinGrande(P)}</p>
+        <p class="hero-var"><span class="${var30 >= 0 ? 'sobe' : 'desce'}">${var30 >= 0 ? '+' : '−'} ${din(Math.abs(var30))}</span> nos últimos 30 dias</p>
+        <div class="hero-graf">${sparkline(serie)}</div>
+      </div>
+      <div class="hero-dir">
+        <p class="hero-rot">${MESES[Number(ym.slice(5, 7)) - 1].replace(/^./, c => c.toUpperCase())}</p>
+        <dl class="hero-mes">
+          <div><dt>Entrou</dt><dd>${din0(r.entradas)}</dd></div>
+          <div><dt>Saiu</dt><dd>${din0(r.saidas)}</dd></div>
+          <div><dt>Sobrou</dt><dd class="${r.sobra < 0 ? 'desce' : ''}">${din0(r.sobra)}</dd></div>
+        </dl>
+        <div class="hero-meta">
+          <div class="hero-meta-topo"><span>Guardou <b>${r.taxa == null ? '—' : Math.round(r.taxa * 100) + '%'}</b></span><span>${msg}</span></div>
+          <div class="meta-barra" role="img" aria-label="Guardou ${Math.round(pct * 100)}% de uma meta de ${S.perfil.meta}%">
+            <span class="meta-fill" style="width:${Math.min(100, pct * 100)}%"></span>
+            <span class="meta-marca" style="left:${Math.min(100, meta * 100)}%"></span>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="meta-barra" role="img" aria-label="Guardou ${Math.round(pct * 100)}% de ${S.perfil.meta}%">
-      <span class="meta-fill" style="width:${Math.min(100, pct * 100)}%"></span>
-      <span class="meta-marca" style="left:${Math.min(100, meta * 100)}%"></span>
-    </div>
-    <p class="calmo">${msg}</p>
   </section>`;
 }
 function blocoVencer() {
-  if (!S.fixas.length) return `<section class="bloco"><header class="bloco-topo"><h2>Contas a vencer</h2></header>${vazioBox('Nenhuma conta fixa', 'Cadastre aluguel, luz, internet e o que mais vence todo mês. O Rumo avisa antes do vencimento.', 'Adicionar conta fixa', 'nova-fixa')}</section>`;
+  if (!S.fixas.length) return `<section class="bloco">${topoBloco('Contas a vencer')}${vazioBox('Nenhuma conta fixa', 'Cadastre aluguel, luz, internet e o que mais vence todo mês. O Rumo avisa antes do vencimento.', 'Adicionar conta fixa', 'nova-fixa')}</section>`;
   const ym = mesDe(hoje());
   const lista = S.fixas.map(f => ({ f, s: statusFixa(f, ym) })).filter(x => !x.s.paga && x.s.d <= 10).sort((a, b) => a.s.d - b.s.d);
   const pagas = S.fixas.filter(f => statusFixa(f, ym).paga).length;
   return `<section class="bloco">
-    <header class="bloco-topo"><h2>Contas a vencer</h2><span class="contador">${pagas} de ${S.fixas.length} pagas</span></header>
+    ${topoBloco('Contas a vencer', `${pagas}/${S.fixas.length} pagas`, linkIr('Mês', 'dinheiro', 'fixas'))}
     ${lista.length ? `<ul class="lista">${lista.map(({ f, s }) => itemFixa(f, s, ym)).join('')}</ul>` : '<p class="calmo">Nada vence nos próximos 10 dias.</p>'}
-    <button class="mais-link" type="button" data-a="ir" data-aba="dinheiro" data-din="fixas">Ver contas do mês ${ic('dir')}</button>
   </section>`;
 }
+
 function itemFixa(f, s, ym) {
   const info = CAT_S[f.cat] || CAT_S.outros;
   return `<li class="item">
@@ -478,9 +531,9 @@ function itemFixa(f, s, ym) {
       <span class="item-t">${esc(f.desc)}</span>
       <span class="item-m"><span class="pill ${s.cls}">${s.rot}</span></span>
     </button>
-    <span class="valor">${din(f.valor)}</span>
+    <span class="fixa-dir"><span class="valor">${din(f.valor)}</span>
     ${s.paga ? `<button class="btn btn-mini btn-sec" type="button" data-a="fixa-desfazer" data-id="${f.id}" data-ym="${ym}">Desfazer</button>`
-      : `<button class="btn btn-mini" type="button" data-a="fixa-pagar" data-id="${f.id}" data-ym="${ym}">Paguei</button>`}
+      : `<button class="btn btn-mini" type="button" data-a="fixa-pagar" data-id="${f.id}" data-ym="${ym}">Paguei</button>`}</span>
   </li>`;
 }
 function blocoMilhao() {
@@ -500,7 +553,7 @@ function blocoMilhao() {
   else if (p.a0 <= 0) txt = `Nos últimos meses não sobrou dinheiro. Só com o que você tem hoje rendendo ${taxa}% ao ano, o milhão chega em ${anosTxt(p.m1)}. Guardando ${din0(300)} por mês, em ${anosTxt(p.m2)}.`;
   else txt = `Guardando ${din0(p.a0)} por mês, como na média dos últimos meses, você chega ao primeiro milhão em <strong>${anosTxt(p.m1)}</strong>. Com ${din0(300)} a mais por mês, em <strong>${anosTxt(p.m2)}</strong>.`;
   return `<section class="bloco bloco-milhao">
-    <header class="bloco-topo"><h2>Rumo ao primeiro milhão</h2></header>
+    ${topoBloco('Rumo ao primeiro milhão')}
     <p class="calmo">${txt}</p>
     <div class="grafico" role="img" aria-label="Projeção do patrimônio em 20 anos: ${din0(ultimo)} no ritmo atual">
     <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet">
@@ -547,7 +600,7 @@ function viewTarefas() {
   const feitasSemana = S.tarefas.filter(x => x.feita && x.feitaEm && difDias(t, x.feitaEm) < 7).length;
   return `
   <section class="cabeca cabeca-p">
-    <div class="cabeca-txt"><p class="eyebrow">Tarefas</p><h1>O que precisa sair do papel</h1>
+    <div class="cabeca-txt"><p class="eyebrow">Tarefas</p><h1 tabindex="-1">O que precisa sair do papel</h1>
     <p class="sub">${pend.length} ${pend.length === 1 ? 'pendente' : 'pendentes'} · ${feitasSemana} ${feitasSemana === 1 ? 'feita' : 'feitas'} nos últimos 7 dias</p></div>
   </section>
   <section class="bloco">
@@ -568,7 +621,7 @@ function viewDinheiro() {
   else corpo = { geral: dinGeral, extrato: dinExtrato, contas: dinContas, fixas: dinFixas }[ui.din]();
   return `
   <section class="cabeca cabeca-p">
-    <div class="cabeca-txt"><p class="eyebrow">Dinheiro</p><h1>Para onde vai cada real</h1></div>
+    <div class="cabeca-txt"><p class="eyebrow">Dinheiro</p><h1 tabindex="-1">Para onde vai cada real</h1></div>
   </section>
   <div class="barra-din">
     <div class="seg" role="tablist" aria-label="Seções do dinheiro">
@@ -603,20 +656,19 @@ function dinGeral() {
   const taxaTxt = r.taxa == null ? '—' : `${Math.round(r.taxa * 100)}%`;
   return `
   <div class="grade-2">
-    <section class="bloco">
-      <div class="trio trio-grande">
-        <div><span class="eyebrow">Entrou</span><b class="pos">${din0(r.entradas)}</b></div>
-        <div><span class="eyebrow">Saiu</span><b class="neg">${din0(r.saidas)}</b></div>
-        <div><span class="eyebrow">Sobrou</span><b class="${r.sobra < 0 ? 'neg' : ''}">${din0(r.sobra)}</b></div>
-      </div>
-      <div class="taxa-linha">
-        <div><span class="eyebrow">Quanto você guardou</span><b class="taxa ${r.taxa != null && r.taxa * 100 >= meta ? 'pos' : ''}">${taxaTxt}</b><span class="calmo"> do que entrou · meta ${meta}%</span></div>
-        ${ehAtual && r.saidas > 0 ? `<div class="ritmo"><span class="eyebrow">Gasto por dia</span><b>${din0(r.saidas / dPass)}</b><span class="calmo"> · no ritmo, ${din0(r.saidas / dPass * dMes)} no mês</span></div>` : ''}
-      </div>
-      ${graficoMeses()}
+    <section class="hero hero-mes-din">
+      <p class="hero-rot">Sobrou em ${MESES[Number(ui.mes.slice(5, 7)) - 1]}</p>
+      <p class="hero-valor ${r.sobra < 0 ? 'neg' : ''}">${dinGrande(r.sobra)}</p>
+      <dl class="hero-mes">
+        <div><dt>Entrou</dt><dd>${din0(r.entradas)}</dd></div>
+        <div><dt>Saiu</dt><dd>${din0(r.saidas)}</dd></div>
+        <div><dt>Guardou</dt><dd class="${r.taxa != null && r.taxa * 100 >= meta ? 'sobe' : ''}">${taxaTxt}<small> meta ${meta}%</small></dd></div>
+      </dl>
+      ${ehAtual && r.saidas > 0 ? `<p class="hero-txt">Gasto médio de ${din0(r.saidas / dPass)} por dia. Nesse ritmo, o mês fecha com ${din0(r.saidas / dPass * dMes)} de gastos.</p>` : ''}
+      <div class="hero-barras">${graficoMeses()}</div>
     </section>
     <section class="bloco">
-      <header class="bloco-topo"><h2>Gastos por categoria</h2><button class="btn btn-mini btn-sec" type="button" data-a="orcamento">Limites</button></header>
+      ${topoBloco('Gastos por categoria', '', '<button class="topo-link" type="button" data-a="orcamento">Limites</button>')}
       ${todas.length ? `<ul class="cats">${linhas}</ul><p class="miudo">A marca na barra é o limite que você definiu para o mês.</p>` : '<p class="calmo">Nenhum gasto neste mês.</p>'}
     </section>
   </div>`;
@@ -680,15 +732,15 @@ function dinContas() {
   const meses = gastoMedio ? reserva / gastoMedio : null;
   return `
   <div class="grade-2">
-    <section class="bloco">
-      <p class="eyebrow">Patrimônio</p>
-      <p class="grande ${P < 0 ? 'neg' : ''}">${din(P)}</p>
-      ${P > 0 ? `<div class="pilha" role="img" aria-label="Divisão do patrimônio por tipo de conta">${porTipo.filter(x => x.v > 0).map((x, k) => `<span style="flex:${x.v};--k:${k}" class="pilha-${x.k}"></span>`).join('')}</div>
+    <section class="hero">
+      <p class="hero-rot">Patrimônio</p>
+      <p class="hero-valor ${P < 0 ? 'neg' : ''}">${dinGrande(P)}</p>
+      ${P > 0 ? `<div class="pilha" role="img" aria-label="Divisão do patrimônio por tipo de conta">${porTipo.filter(x => x.v > 0).map(x => `<span style="flex:${x.v}" class="pilha-${x.k}"></span>`).join('')}</div>
       <ul class="pilha-leg">${porTipo.map(x => `<li><i class="pilha-${x.k}"></i>${TIPOS_CONTA[x.k].nome}<b>${din(x.v)}</b></li>`).join('')}</ul>` : ''}
-      ${meses != null ? `<div class="reserva"><span class="eyebrow">Reserva de emergência</span><p><b>${meses.toFixed(1).replace('.', ',')} ${meses >= 1 && meses < 2 ? 'mês' : 'meses'}</b> do seu custo de vida guardados. ${meses >= 6 ? 'O recomendado é de 6 meses: você já tem.' : `O recomendado é 6 meses (${din0(gastoMedio * 6)}).`}</p></div>` : ''}
+      ${meses != null ? `<div class="reserva"><p class="hero-rot">Reserva de emergência</p><p><b>${meses.toFixed(1).replace('.', ',')} ${meses >= 1 && meses < 2 ? 'mês' : 'meses'}</b> do seu custo de vida guardados. ${meses >= 6 ? 'O recomendado é 6 meses, e você já tem.' : `O recomendado é 6 meses (${din0(gastoMedio * 6)}).`}</p></div>` : ''}
     </section>
     <section class="bloco">
-      <header class="bloco-topo"><h2>Suas contas</h2><button class="btn btn-mini btn-sec" type="button" data-a="nova-transf">${ic('setas')}Transferir</button></header>
+      ${topoBloco('Suas contas', '', `<button class="topo-link" type="button" data-a="nova-transf">Transferir</button>`)}
       <ul class="lista">${S.contas.map(c => {
         const s = saldo(c.id), t = TIPOS_CONTA[c.tipo] || TIPOS_CONTA.corrente;
         return `<li class="item"><button class="item-corpo item-lanc" type="button" data-a="conta-edit" data-id="${c.id}">
@@ -723,7 +775,7 @@ function viewRotina() {
   const melhor = S.habitos.map(h => ({ h, s: sequencia(h) })).sort((a, b) => b.s - a.s)[0];
   return `
   <section class="cabeca cabeca-p">
-    <div class="cabeca-txt"><p class="eyebrow">Rotina</p><h1>O que você faz todo dia</h1>
+    <div class="cabeca-txt"><p class="eyebrow">Rotina</p><h1 tabindex="-1">O que você faz todo dia</h1>
     <p class="sub">${melhor && melhor.s > 1 ? `Maior sequência agora: ${esc(melhor.h.nome).toLowerCase()}, ${melhor.s} vezes seguidas.` : 'Repetir é o que faz a rotina virar hábito.'}</p></div>
   </section>
   <section class="bloco">
@@ -746,7 +798,7 @@ function viewRotina() {
       : vazioBox('Nenhum hábito ainda', 'Sugestões para começar: acordar no mesmo horário, anotar os gastos do dia, ler 10 páginas, treinar.', 'Criar hábito', 'novo-habito')}
   </section>
   ${S.habitos.length ? `<section class="bloco">
-    <header class="bloco-topo"><h2>Últimas 4 semanas</h2></header>
+    ${topoBloco('Últimas 4 semanas')}
     <div class="mapa-wrap"><table class="mapa">
       <thead><tr><th scope="col"><span class="sr">Hábito</span></th><th scope="col" class="mapa-dias" colspan="28"><span>há 4 semanas</span><span>hoje</span></th><th scope="col">30 dias</th></tr></thead>
       <tbody>${S.habitos.map(h => {
@@ -767,6 +819,8 @@ function render() {
   $('#v').innerHTML = (S.exemplo ? bannerExemplo() : '') + VIEWS[ui.aba]();
   $('#fab').setAttribute('aria-label', FAB[ui.aba]);
   $('#fab-txt').textContent = FAB[ui.aba];
+  const ini = S.perfil.nome.trim().charAt(0).toUpperCase();
+  $('#avatar').innerHTML = ini ? `<span>${esc(ini)}</span>` : ic('ajustes');
   aplicarTema();
 }
 function irPara(aba, extra = {}) {
