@@ -1,0 +1,89 @@
+name: Servidor do Rumo (Cloudflare)
+
+# Coloca no ar o rumo/servidor/worker.js na Cloudflare e guarda as chaves nele.
+# Roda sozinho quando o servidor muda, ou à mão em Actions → "Servidor do Rumo" → Run workflow.
+# As chaves ficam nos secrets do repositório (Settings → Secrets and variables → Actions):
+#   CLOUDFLARE_API_TOKEN   token da Cloudflare com o modelo "Edit Cloudflare Workers"
+#   PLUGGY_CLIENT_ID       Client ID da aplicação na Pluggy
+#   PLUGGY_CLIENT_SECRET   Client Secret da aplicação na Pluggy
+#   RUMO_CHAVE             a senha que o app Rumo manda para o servidor
+#   CLOUDFLARE_ACCOUNT_ID  (opcional) só se o token tiver acesso a mais de uma conta
+
+on:
+  push:
+    branches:
+      - claude/youthful-pascal-lhclrk
+      - main
+    paths:
+      - 'rumo/servidor/**'
+      - '.github/workflows/rumo-servidor.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: rumo-servidor
+  cancel-in-progress: false
+
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      PLUGGY_CLIENT_ID: ${{ secrets.PLUGGY_CLIENT_ID }}
+      PLUGGY_CLIENT_SECRET: ${{ secrets.PLUGGY_CLIENT_SECRET }}
+      RUMO_CHAVE: ${{ secrets.RUMO_CHAVE }}
+    steps:
+      - name: Confere se as chaves estão nos secrets
+        id: chaves
+        run: |
+          falta=""
+          [ -n "$CLOUDFLARE_API_TOKEN" ] || falta="$falta CLOUDFLARE_API_TOKEN"
+          [ -n "$PLUGGY_CLIENT_ID" ] || falta="$falta PLUGGY_CLIENT_ID"
+          [ -n "$PLUGGY_CLIENT_SECRET" ] || falta="$falta PLUGGY_CLIENT_SECRET"
+          [ -n "$RUMO_CHAVE" ] || falta="$falta RUMO_CHAVE"
+          if [ -n "$falta" ]; then
+            echo "::notice::O servidor do Rumo não foi publicado: faltam os secrets$falta (Settings → Secrets and variables → Actions)."
+            echo "pronto=nao" >> "$GITHUB_OUTPUT"
+          else
+            echo "pronto=sim" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@v4
+        if: steps.chaves.outputs.pronto == 'sim'
+
+      - uses: actions/setup-node@v4
+        if: steps.chaves.outputs.pronto == 'sim'
+        with:
+          node-version: '20'
+
+      - name: Publica o worker rumo-banco
+        if: steps.chaves.outputs.pronto == 'sim'
+        working-directory: rumo/servidor
+        run: |
+          set -o pipefail
+          npx --yes wrangler@3 deploy 2>&1 | tee "$RUNNER_TEMP/deploy.log"
+
+      - name: Guarda as chaves no worker
+        if: steps.chaves.outputs.pronto == 'sim'
+        working-directory: rumo/servidor
+        run: |
+          printf '%s' "$PLUGGY_CLIENT_ID" | npx --yes wrangler@3 secret put PLUGGY_CLIENT_ID
+          printf '%s' "$PLUGGY_CLIENT_SECRET" | npx --yes wrangler@3 secret put PLUGGY_CLIENT_SECRET
+          printf '%s' "$RUMO_CHAVE" | npx --yes wrangler@3 secret put RUMO_CHAVE
+
+      - name: Testa o servidor
+        if: steps.chaves.outputs.pronto == 'sim'
+        working-directory: rumo/servidor
+        run: |
+          url=$(grep -o 'https://[a-z0-9.-]*workers\.dev' "$RUNNER_TEMP/deploy.log" | head -1 || true)
+          [ -n "$url" ] || url="https://rumo-banco.jgg190310.workers.dev"
+          sleep 5
+          resp=$(curl -sS -X POST "$url/ping" -H "x-rumo-chave: $RUMO_CHAVE" -H 'content-type: application/json' -d '{}' || true)
+          echo "Endereço: $url"
+          echo "Resposta: $resp"
+          echo "### Servidor do Rumo" >> "$GITHUB_STEP_SUMMARY"
+          echo "Endereço: $url" >> "$GITHUB_STEP_SUMMARY"
+          echo "Teste: $resp" >> "$GITHUB_STEP_SUMMARY"

@@ -1723,9 +1723,10 @@ document.addEventListener('submit', e => {
   if (bv) {
     e.preventDefault();
     const nome = String(new FormData(bv).get('nome') || '').trim(), modo = e.submitter?.value || 'zero';
-    const tema = S.perfil.tema;
+    const tema = S.perfil.tema, conexao = S.conexao;
     S = modo === 'exemplo' ? exemplo() : vazio();
     S.boasVindas = false; S.perfil.nome = nome; S.perfil.tema = tema;
+    if (conexao?.chave) S.conexao = conexao;
     irPara('hoje');
     salvar().then(() => {
       if (falhouSalvar || armaz.privado) return; // o aviso já aparece no topo
@@ -1767,9 +1768,22 @@ function autoSync() {
   ui.aba = ABAS.includes(location.hash.slice(1)) ? location.hash.slice(1) : 'hoje';
   S = await carregar();
   await conferirArmazenamento();
+  // link pronto da conexão: .../rumo/?ligar=SENHA (a senha sai da barra de endereço na hora)
+  const lig = new URLSearchParams(location.search).get('ligar');
+  let abrirConexao = false;
+  if (lig) {
+    history.replaceState(null, '', location.pathname + location.hash);
+    if (/^[\w-]{16,128}$/.test(lig)) {
+      S.conexao.chave = lig;
+      if (!S.conexao.url) S.conexao.url = 'https://rumo-banco.jgg190310.workers.dev';
+      abrirConexao = true;
+    }
+  }
   pronto = true;
-  if (!S.boasVindas) await salvar(); // regrava nas duas cópias (e testa se o navegador deixa)
+  if (!S.boasVindas || abrirConexao) await salvar(); // regrava nas duas cópias (e testa se o navegador deixa)
+  if (abrirConexao && !S.boasVindas) { ui.aba = 'dinheiro'; ui.din = 'contas'; }
   render();
+  if (abrirConexao && !S.boasVindas) formConexao();
   autoSync();
 })();
 })();
