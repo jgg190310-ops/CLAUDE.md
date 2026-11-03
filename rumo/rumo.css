@@ -671,6 +671,10 @@ body.modo-bv .fab, body.modo-bv .abas, body.modo-bv .trilho .nav-i:not(.nav-ajus
 .passos .feita .passo-n { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
 .passos .feita .item-t { text-decoration: none; }
 
+/* ---------- aviso de que não está salvando ---------- */
+.alerta-armaz { background: var(--neg-soft); color: var(--ink); border-radius: 14px; padding: 12px 14px; font-size: .88rem; line-height: 1.45; }
+.alerta-armaz b { color: var(--neg); }
+
 /* ---------- extrato do banco ---------- */
 .arquivo { position: relative; display: block; cursor: pointer; }
 .arquivo input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; }

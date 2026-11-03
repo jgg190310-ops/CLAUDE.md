@@ -230,16 +230,79 @@ function migrar(s) {
   if (s.exemplo && !('boasVindas' in s)) out.boasVindas = true;
   return out;
 }
-function carregar() {
-  try { const raw = localStorage.getItem(KEY); if (raw) return migrar(JSON.parse(raw)); } catch (e) { /* segue com o exemplo */ }
+/* ---------- onde fica guardado ----------
+   Duas cópias: IndexedDB (espaço grande, separado) e localStorage (rápido).
+   O localStorage deste endereço é dividido com os outros apps do site (Drink,
+   OSHelp): quando as fotos deles enchem os ~5 MB, o Safari recusa gravar ali,
+   e o IndexedDB continua guardando. Ao abrir, vale a cópia mais nova. */
+const armaz = { ls: null, idb: null, privado: false, ultimo: 0 };
+let bancoIDB = null;
+function abrirIDB() {
+  if (bancoIDB) return bancoIDB;
+  bancoIDB = new Promise((ok, falha) => {
+    if (!('indexedDB' in window)) { falha(new Error('sem IndexedDB')); return; }
+    let r;
+    try { r = indexedDB.open('rumo', 1); } catch (e) { falha(e); return; }
+    r.onupgradeneeded = () => { if (!r.result.objectStoreNames.contains('estado')) r.result.createObjectStore('estado'); };
+    r.onsuccess = () => ok(r.result);
+    r.onerror = () => falha(r.error || new Error('IndexedDB'));
+    r.onblocked = () => falha(new Error('IndexedDB bloqueado'));
+  });
+  bancoIDB.catch(() => { bancoIDB = null; });
+  return bancoIDB;
+}
+async function idbLer() {
+  const db = await abrirIDB();
+  return new Promise((ok, falha) => {
+    const g = db.transaction('estado', 'readonly').objectStore('estado').get(KEY);
+    g.onsuccess = () => ok(g.result ?? null); g.onerror = () => falha(g.error);
+  });
+}
+async function idbGravar(txt) {
+  const db = await abrirIDB();
+  return new Promise((ok, falha) => {
+    const tx = db.transaction('estado', 'readwrite');
+    tx.objectStore('estado').put(txt, KEY); // texto, não Blob: o Safari em aba privada falha calado com Blob
+    tx.oncomplete = () => ok(); tx.onerror = () => falha(tx.error); tx.onabort = () => falha(tx.error || new Error('abortado'));
+  });
+}
+const comPrazo = (p, ms) => Promise.race([p, new Promise((_, f) => setTimeout(() => f(new Error('demorou')), ms))]);
+function lerJSON(raw) { try { const d = raw ? JSON.parse(raw) : null; return d && typeof d === 'object' ? d : null; } catch (e) { return null; } }
+async function carregar() {
+  let deLS = null, deIDB = null;
+  try { deLS = lerJSON(localStorage.getItem(KEY)); } catch (e) { /* bloqueado */ }
+  try { deIDB = lerJSON(await comPrazo(idbLer(), 2000)); } catch (e) { /* sem IndexedDB */ }
+  const melhor = [deLS, deIDB].filter(Boolean).sort((a, b) => (b.salvoEm || 0) - (a.salvoEm || 0))[0];
+  if (melhor) return migrar(melhor);
   const novo = vazio(); novo.boasVindas = true;
   return novo;
 }
-let S = carregar();
-let falhouSalvar = false;
+let S = vazio(); S.boasVindas = true;
+let pronto = false, falhouSalvar = false, filaIDB = Promise.resolve();
 function salvar() {
-  try { localStorage.setItem(KEY, JSON.stringify(S)); falhouSalvar = false; }
-  catch (e) { if (!falhouSalvar) toast('Este aparelho não deixou salvar. Exporte um backup em Ajustes.'); falhouSalvar = true; }
+  if (!pronto) return Promise.resolve();
+  S.salvoEm = Date.now();
+  const txt = JSON.stringify(S);
+  try { localStorage.setItem(KEY, txt); armaz.ls = true; } catch (e) { armaz.ls = false; }
+  filaIDB = filaIDB.then(() => idbGravar(txt)).then(() => { armaz.idb = true; }, () => { armaz.idb = false; }).then(() => {
+    const falhou = !armaz.ls && !armaz.idb;
+    if (falhou && !falhouSalvar) { toast('O navegador não deixou guardar. O que você anotar pode sumir ao fechar.'); render(); }
+    if (!falhou) armaz.ultimo = Date.now();
+    if (falhouSalvar && !falhou) render();
+    falhouSalvar = falhou;
+  });
+  return filaIDB;
+}
+async function conferirArmazenamento() {
+  // aba privada do Safari: a pasta de arquivos do site não abre ("unknown transient reason")
+  try { if (navigator.storage?.getDirectory) await navigator.storage.getDirectory(); }
+  catch (e) { if (/unknown transient reason/i.test(String(e?.message))) armaz.privado = true; }
+  try { if (navigator.storage?.persist) await navigator.storage.persist(); } catch (e) { /* opcional */ }
+}
+function avisoArmazenamento() {
+  if (armaz.privado) return `<div class="alerta-armaz" role="alert"><b>Aba privada.</b> O Safari apaga tudo o que você anotar quando esta aba fechar. Abra o Rumo numa aba normal ou instale na tela de início.</div>`;
+  if (falhouSalvar) return `<div class="alerta-armaz" role="alert"><b>Não está salvando.</b> O navegador recusou guardar os seus dados neste aparelho. No iPhone, veja em Ajustes › Safari se “Bloquear Todos os Cookies” está desligado e se não é uma aba privada. Até lá, baixe um backup em Ajustes.</div>`;
+  return '';
 }
 function mudar(fn, msg, comDesfazer = true) {
   const antes = JSON.stringify(S);
@@ -875,8 +938,9 @@ function render() {
   const ini = S.perfil.nome.trim().charAt(0).toUpperCase();
   $('#avatar').innerHTML = ini ? `<span>${esc(ini)}</span>` : ic('ajustes');
   document.body.classList.toggle('modo-bv', !!S.boasVindas);
-  if (S.boasVindas) { $('#v').innerHTML = viewBoasVindas(); aplicarTema(); return; }
-  $('#v').innerHTML = (S.exemplo ? bannerExemplo() : '') + VIEWS[ui.aba]();
+  if (!pronto) return;
+  if (S.boasVindas) { $('#v').innerHTML = avisoArmazenamento() + viewBoasVindas(); aplicarTema(); return; }
+  $('#v').innerHTML = avisoArmazenamento() + (S.exemplo ? bannerExemplo() : '') + VIEWS[ui.aba]();
   $('#fab').setAttribute('aria-label', FAB[ui.aba]);
   $('#fab-txt').textContent = FAB[ui.aba];
   aplicarTema();
@@ -1122,7 +1186,7 @@ function formAjustes() {
     </div>
     <div class="ajuste-grupo">
       <p class="eyebrow">Seus dados</p>
-      <p class="miudo">Tudo fica guardado só neste aparelho, nada vai para a internet. Faça um backup de vez em quando e guarde o arquivo no Drive ou no e-mail.</p>
+      <p class="miudo">Tudo fica guardado só neste navegador, deste aparelho. ${falhouSalvar ? '<b class="neg">Agora o navegador não está deixando salvar.</b>' : armaz.ultimo ? `Último salvamento: ${haQuanto(new Date(armaz.ultimo).toISOString())}.` : ''} No iPhone, o Safari e o Rumo instalado na tela de início guardam separado: use sempre o mesmo. Faça um backup de vez em quando e guarde o arquivo no Drive ou no e-mail.</p>
       <div class="botoes">
         <button class="btn btn-sec" type="button" data-a="exportar">${ic('baixar')}Baixar backup</button>
         <label class="btn btn-sec">${ic('subir')}Restaurar backup<input type="file" accept="application/json,.json" data-a-file="importar" hidden></label>
@@ -1662,8 +1726,11 @@ document.addEventListener('submit', e => {
     const tema = S.perfil.tema;
     S = modo === 'exemplo' ? exemplo() : vazio();
     S.boasVindas = false; S.perfil.nome = nome; S.perfil.tema = tema;
-    salvar(); irPara('hoje');
-    toast(modo === 'exemplo' ? 'Exemplo carregado. Para apagar, toque em Começar do zero.' : 'Tudo pronto. Siga os primeiros passos.');
+    irPara('hoje');
+    salvar().then(() => {
+      if (falhouSalvar || armaz.privado) return; // o aviso já aparece no topo
+      toast(modo === 'exemplo' ? 'Exemplo carregado. Para apagar, toque em Começar do zero.' : 'Tudo pronto e salvo neste aparelho.');
+    });
     return;
   }
   const f = e.target.closest('[data-form="tarefa-rapida"]');
@@ -1691,14 +1758,18 @@ document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible' && hoje() !== diaVisto) { diaVisto = hoje(); ui.dia = diaVisto; ui.mes = mesDe(diaVisto); render(); }
   if (document.visibilityState === 'visible') autoSync();
 });
-try { navigator.storage?.persist?.(); } catch (e) { /* opcional */ }
-
-salvar();
-ui.aba = ABAS.includes(location.hash.slice(1)) ? location.hash.slice(1) : 'hoje';
-render();
 function autoSync() {
-  const c = S.conexao; if (!c?.itens?.length || S.boasVindas) return;
+  const c = S.conexao; if (!pronto || !c?.itens?.length || S.boasVindas) return;
   if (!c.ultima || Date.now() - new Date(c.ultima).getTime() > 30 * 6e4) sincronizar({ silencioso: true });
 }
-autoSync();
+
+(async () => {
+  ui.aba = ABAS.includes(location.hash.slice(1)) ? location.hash.slice(1) : 'hoje';
+  S = await carregar();
+  await conferirArmazenamento();
+  pronto = true;
+  if (!S.boasVindas) await salvar(); // regrava nas duas cópias (e testa se o navegador deixa)
+  render();
+  autoSync();
+})();
 })();
