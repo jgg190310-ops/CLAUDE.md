@@ -637,3 +637,36 @@ kbd { font: 500 .72rem var(--f-body); border: 1px solid var(--line-2); border-ra
 .trio > div { display: flex; flex-direction: column; gap: 2px; min-width: 0; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
 .trio .eyebrow { text-transform: none; letter-spacing: 0; font-size: .78rem; }
 .trio b { font: 400 1.5rem/1.1 var(--f-display); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* ---------- boas-vindas ---------- */
+body.modo-bv .fab, body.modo-bv .abas, body.modo-bv .trilho .nav-i:not(.nav-ajustes), body.modo-bv .trilho-dica { display: none; }
+.bv { width: 100%; max-width: 520px; margin: clamp(8px, 6vh, 72px) auto 0; display: flex; flex-direction: column; gap: 12px; }
+.bv-marca { width: 52px; height: 52px; margin-bottom: 10px; }
+.bv h1 { font: 400 clamp(2.3rem, 1.8rem + 2.6vw, 3.2rem)/1.02 var(--f-display); letter-spacing: -.01em; outline: none; }
+.bv .sub { margin-bottom: 14px; }
+.bv-form { display: flex; flex-direction: column; gap: 18px; }
+.bv-op { display: flex; flex-direction: column; gap: 10px; }
+.bv-b {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 4px; text-align: left;
+  padding: 18px 20px; border-radius: 18px; border: 1px solid var(--line-2); background: var(--surface); color: var(--ink);
+  transition: border-color .15s, transform .1s, background .15s;
+}
+.bv-b:hover { border-color: var(--ink-3); }
+.bv-b:active { transform: scale(.99); }
+.bv-b b { font: 400 1.5rem/1.1 var(--f-display); }
+.bv-b small { font-size: .88rem; color: var(--ink-2); }
+.bv-prim { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.bv-prim:hover { border-color: var(--ink); background: color-mix(in srgb, var(--ink) 88%, var(--bg)); }
+.bv-prim small { color: color-mix(in srgb, var(--bg) 72%, transparent); }
+
+/* ---------- primeiros passos ---------- */
+.passos-barra { background: var(--trilha); height: 4px; }
+.passos-barra .meta-fill { background: var(--accent); }
+.passos-lista .item { gap: 14px; }
+.passo-n {
+  width: 26px; height: 26px; border-radius: 50%; flex: none; display: grid; place-items: center;
+  border: 1.5px solid var(--line-2); font-size: .78rem; font-weight: 600; color: var(--ink-2); font-variant-numeric: tabular-nums;
+}
+.passo-n .ic { width: 14px; height: 14px; stroke-width: 2.6; }
+.passos .feita .passo-n { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.passos .feita .item-t { text-decoration: none; }

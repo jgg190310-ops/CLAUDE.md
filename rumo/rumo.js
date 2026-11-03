@@ -143,7 +143,7 @@ const PRIO = { 1: 'Alta', 2: 'Normal', 3: 'Baixa' };
 /* ---------- estado ---------- */
 function vazio() {
   return {
-    v: 1, exemplo: false,
+    v: 1, exemplo: false, boasVindas: false, passos: true,
     perfil: { nome: '', meta: 20, rendimento: 10, tema: 'sistema' },
     contas: [], lanc: [], fixas: [], orcamento: {}, tarefas: [], habitos: [],
   };
@@ -221,11 +221,14 @@ function migrar(s) {
   const out = { ...base, ...s, perfil: { ...base.perfil, ...(s.perfil || {}) } };
   for (const k of ['contas', 'lanc', 'fixas', 'tarefas', 'habitos']) if (!Array.isArray(out[k])) out[k] = [];
   if (!out.orcamento || typeof out.orcamento !== 'object') out.orcamento = {};
+  // quem abriu a primeira versão caiu direto no exemplo: pergunta uma vez como quer começar
+  if (s.exemplo && !('boasVindas' in s)) out.boasVindas = true;
   return out;
 }
 function carregar() {
   try { const raw = localStorage.getItem(KEY); if (raw) return migrar(JSON.parse(raw)); } catch (e) { /* segue com o exemplo */ }
-  return exemplo();
+  const novo = vazio(); novo.boasVindas = true;
+  return novo;
 }
 let S = carregar();
 let falhouSalvar = false;
@@ -369,6 +372,44 @@ function topoBloco(titulo, cont, link) {
 }
 const linkIr = (txt, aba, din) => `<button class="topo-link" type="button" data-a="ir" data-aba="${aba}"${din ? ` data-din="${din}"` : ''}>${txt}${ic('dir')}</button>`;
 
+/* ===== Boas-vindas ===== */
+function viewBoasVindas() {
+  return `<section class="bv">
+    <svg class="bv-marca" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" class="marca-bg"/><path d="M16 5.5 20 16h-8z" class="marca-n"/><path d="M12 16h8l-4 10.5z" class="marca-s"/></svg>
+    <p class="eyebrow">Bem-vindo ao Rumo</p>
+    <h1 tabindex="-1">Tarefas, dinheiro e rotina, num lugar só.</h1>
+    <p class="sub">Tudo o que você anotar fica guardado só neste aparelho.</p>
+    <form class="bv-form" data-form="bv" autocomplete="off">
+      <label class="campo"><span>Como quer ser chamado?</span><input id="bv-nome" name="nome" maxlength="30" value="${esc(S.perfil.nome)}" placeholder="Seu nome (opcional)"></label>
+      <div class="bv-op">
+        <button class="bv-b bv-prim" type="submit" name="modo" value="zero"><b>Começar do zero</b><small>O app abre vazio, pronto para as suas contas, tarefas e hábitos.</small></button>
+        <button class="bv-b" type="submit" name="modo" value="exemplo"><b>Ver com um exemplo</b><small>Dados fictícios para conhecer o app. Dá para apagar depois com um toque.</small></button>
+      </div>
+    </form>
+  </section>`;
+}
+function blocoPassos() {
+  if (S.exemplo || S.passos === false) return '';
+  const passos = [
+    [S.contas.length, 'nova-conta', 'Cadastre sua conta do banco', 'Com o saldo de hoje, olhando no app do banco'],
+    [S.fixas.length, 'nova-fixa', 'Adicione as contas de todo mês', 'Aluguel, luz, internet, academia'],
+    [S.lanc.length, 'novo-gasto', 'Anote seu primeiro gasto', 'Na hora em que gastar, leva 5 segundos'],
+    [S.tarefas.length, 'nova-tarefa', 'Escreva o que precisa fazer', 'Tirar da cabeça já é metade do caminho'],
+    [S.habitos.length, 'novo-habito', 'Crie o primeiro hábito', 'Algo pequeno, para repetir todo dia'],
+  ];
+  const feitos = passos.filter(p => p[0]).length;
+  if (feitos === passos.length) return '';
+  return `<section class="bloco passos">
+    ${topoBloco('Primeiros passos', `${feitos} de ${passos.length}`, '<button class="topo-link" type="button" data-a="passos-ocultar">Esconder</button>')}
+    <div class="meta-barra passos-barra" aria-hidden="true"><span class="meta-fill" style="width:${feitos / passos.length * 100}%"></span></div>
+    <ol class="lista passos-lista">${passos.map(([ok, a, t, sub], i) => `<li class="item${ok ? ' feita' : ''}">
+      <span class="passo-n" aria-hidden="true">${ok ? ic('check') : i + 1}</span>
+      ${ok ? `<span class="item-corpo"><span class="item-t">${t}</span><span class="item-m"><span>Feito</span></span></span>` : `<button class="item-corpo" type="button" data-a="${a}"><span class="item-t">${t}</span><span class="item-m"><span>${sub}</span></span></button>`}
+      ${ok ? '' : `<button class="btn btn-mini btn-sec" type="button" data-a="${a}" aria-label="${t}">Fazer</button>`}
+    </li>`).join('')}</ol>
+  </section>`;
+}
+
 /* ===== Hoje ===== */
 function viewHoje() {
   const t = hoje(), d = parse(t), h = new Date().getHours();
@@ -388,7 +429,8 @@ function viewHoje() {
     </div>
     <div class="placar" aria-label="${feitos} de ${total} feitos hoje">${anel(total ? feitos / total : 0, 64, 4)}<span>${feitos}<small>/${total}</small></span></div>
   </section>
-  ${heroHoje()}
+  ${blocoPassos()}
+  ${S.contas.length || S.exemplo || S.passos === false ? heroHoje() : ''}
   <div class="grade-hoje">
     <div class="col">
       ${blocoTarefasHoje(tars)}
@@ -816,11 +858,13 @@ const VIEWS = { hoje: viewHoje, tarefas: viewTarefas, dinheiro: viewDinheiro, ro
 const FAB = { hoje: 'Adicionar', tarefas: 'Nova tarefa', dinheiro: 'Anotar gasto', rotina: 'Novo hábito' };
 function render() {
   $$('[data-a="ir"][data-nav]').forEach(a => a.setAttribute('aria-current', a.dataset.aba === ui.aba ? 'page' : 'false'));
+  const ini = S.perfil.nome.trim().charAt(0).toUpperCase();
+  $('#avatar').innerHTML = ini ? `<span>${esc(ini)}</span>` : ic('ajustes');
+  document.body.classList.toggle('modo-bv', !!S.boasVindas);
+  if (S.boasVindas) { $('#v').innerHTML = viewBoasVindas(); aplicarTema(); return; }
   $('#v').innerHTML = (S.exemplo ? bannerExemplo() : '') + VIEWS[ui.aba]();
   $('#fab').setAttribute('aria-label', FAB[ui.aba]);
   $('#fab-txt').textContent = FAB[ui.aba];
-  const ini = S.perfil.nome.trim().charAt(0).toUpperCase();
-  $('#avatar').innerHTML = ini ? `<span>${esc(ini)}</span>` : ic('ajustes');
   aplicarTema();
 }
 function irPara(aba, extra = {}) {
@@ -1064,7 +1108,13 @@ function formAjustes() {
       </div>
       <div class="botoes">
         ${S.exemplo ? '<button class="btn btn-perigo-sec" type="button" data-a="zerar-exemplo">Apagar o exemplo</button>' : ''}
-        <button class="btn btn-perigo-sec" type="button" data-a="apagar-tudo">Apagar tudo</button>
+        <button class="btn btn-perigo-sec" type="button" data-a="apagar-tudo">Apagar tudo e começar do zero</button>
+      </div>
+      <p class="miudo">Ou apague só uma parte:</p>
+      <div class="botoes">
+        <button class="btn btn-sec" type="button" data-a="apagar-parte" data-v="tarefas">Só as tarefas</button>
+        <button class="btn btn-sec" type="button" data-a="apagar-parte" data-v="habitos">Só os hábitos</button>
+        <button class="btn btn-sec" type="button" data-a="apagar-parte" data-v="dinheiro">Só o dinheiro</button>
       </div>
     </div>`;
   folha('Ajustes', corpo, {
@@ -1176,9 +1226,24 @@ const ACOES = {
     mudar(() => { S = vazio(); S.perfil.nome = nome; S.perfil.tema = tema; }, 'Pronto. Comece cadastrando sua conta do banco.');
     irPara('hoje');
   }),
-  'apagar-tudo': () => confirmar('Apagar tudo?', 'Contas, lançamentos, tarefas e hábitos deste aparelho serão apagados. Se quiser guardar, baixe um backup antes.', 'Apagar tudo', () => {
-    mudar(() => { S = vazio(); }, 'Tudo apagado');
+  'apagar-tudo': () => confirmar('Apagar tudo?', 'Contas, lançamentos, tarefas e hábitos deste aparelho serão apagados e o Rumo fica vazio. Você pode desfazer logo depois.', 'Apagar tudo', () => {
+    const nome = S.perfil.nome, tema = S.perfil.tema;
+    mudar(() => { S = vazio(); S.perfil.nome = nome; S.perfil.tema = tema; }, 'Tudo apagado. O Rumo está vazio.');
+    irPara('hoje');
   }),
+  'apagar-parte': b => {
+    const v = b.dataset.v;
+    const info = {
+      tarefas: [`Apagar as ${S.tarefas.length} tarefas?`, 'Contas, gastos e hábitos continuam como estão.', () => { S.tarefas = []; }, 'Tarefas apagadas'],
+      habitos: [`Apagar os ${S.habitos.length} hábitos?`, 'O histórico de cada hábito também sai. Tarefas e dinheiro continuam como estão.', () => { S.habitos = []; }, 'Hábitos apagados'],
+      dinheiro: ['Apagar todo o dinheiro?', `Saem ${S.contas.length} contas, ${S.lanc.length} lançamentos, ${S.fixas.length} contas fixas e os limites. Tarefas e hábitos continuam.`, () => { S.contas = []; S.lanc = []; S.fixas = []; S.orcamento = {}; }, 'Dinheiro apagado'],
+    }[v];
+    if (!info) return;
+    confirmar(info[0], `${info[1]} Você pode desfazer logo depois.`, 'Apagar', () => {
+      mudar(() => { info[2](); if (!S.contas.length && !S.tarefas.length && !S.habitos.length) { S.exemplo = false; S.passos = true; } }, info[3]);
+    });
+  },
+  'passos-ocultar': () => mudar(() => { S.passos = false; }, 'Primeiros passos escondidos'),
   exportar: () => { baixar(`rumo-backup-${hoje()}.json`, JSON.stringify(S, null, 1), 'application/json'); toast('Backup baixado'); },
   csv: () => { if (!S.lanc.length) { toast('Ainda não há lançamentos para exportar.'); return; } exportarCSV(); toast('Planilha baixada. Abre no Excel e no Google Planilhas.'); },
   tar: b => { ui.tar = b.dataset.v; render(); },
@@ -1199,6 +1264,17 @@ document.addEventListener('change', e => {
   if (e.target.matches('[data-a-file="importar"]') && e.target.files[0]) importar(e.target.files[0]);
 });
 document.addEventListener('submit', e => {
+  const bv = e.target.closest('[data-form="bv"]');
+  if (bv) {
+    e.preventDefault();
+    const nome = String(new FormData(bv).get('nome') || '').trim(), modo = e.submitter?.value || 'zero';
+    const tema = S.perfil.tema;
+    S = modo === 'exemplo' ? exemplo() : vazio();
+    S.boasVindas = false; S.perfil.nome = nome; S.perfil.tema = tema;
+    salvar(); irPara('hoje');
+    toast(modo === 'exemplo' ? 'Exemplo carregado. Para apagar, toque em Começar do zero.' : 'Tudo pronto. Siga os primeiros passos.');
+    return;
+  }
   const f = e.target.closest('[data-form="tarefa-rapida"]');
   if (!f) return;
   e.preventDefault();
@@ -1214,7 +1290,7 @@ document.addEventListener('input', e => {
 });
 window.addEventListener('hashchange', () => irPara(location.hash.slice(1)));
 document.addEventListener('keydown', e => {
-  if (dlg.open || e.target.closest('input, textarea, select') || e.metaKey || e.ctrlKey || e.altKey) return;
+  if (S.boasVindas || dlg.open || e.target.closest('input, textarea, select') || e.metaKey || e.ctrlKey || e.altKey) return;
   if (e.key === 'n') { e.preventDefault(); ACOES.fab(); }
   const k = { 1: 'hoje', 2: 'tarefas', 3: 'dinheiro', 4: 'rotina' }[e.key]; if (k) irPara(k);
 });
