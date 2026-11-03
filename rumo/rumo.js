@@ -1187,6 +1187,7 @@ function formAjustes() {
     <div class="ajuste-grupo">
       <p class="eyebrow">Seus dados</p>
       <p class="miudo">Tudo fica guardado só neste navegador, deste aparelho. ${falhouSalvar ? '<b class="neg">Agora o navegador não está deixando salvar.</b>' : armaz.ultimo ? `Último salvamento: ${haQuanto(new Date(armaz.ultimo).toISOString())}.` : ''} No iPhone, o Safari e o Rumo instalado na tela de início guardam separado: use sempre o mesmo. Faça um backup de vez em quando e guarde o arquivo no Drive ou no e-mail.</p>
+      <button class="btn largo" type="button" data-a="levar">${ic('dir')}Levar meus dados para o Safari</button>
       <div class="botoes">
         <button class="btn btn-sec" type="button" data-a="exportar">${ic('baixar')}Baixar backup</button>
         <label class="btn btn-sec">${ic('subir')}Restaurar backup<input type="file" accept="application/json,.json" data-a-file="importar" hidden></label>
@@ -1572,6 +1573,52 @@ function formConexao() {
 }
 
 /* ---------- arquivos ---------- */
+/* ---------- levar os dados para outro navegador por um link ----------
+   Os dados vão comprimidos depois do # do link: essa parte nunca sai do
+   aparelho (o navegador não manda o # para o site). */
+const b64url = bytes => { let s = ''; for (let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000)); return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); };
+const deB64url = s => { const t = atob(s.replace(/-/g, '+').replace(/_/g, '/')); const out = new Uint8Array(t.length); for (let i = 0; i < t.length; i++) out[i] = t.charCodeAt(i); return out; };
+async function empacotar(obj) {
+  const bytes = new TextEncoder().encode(JSON.stringify(obj));
+  if (window.CompressionStream) {
+    try { const z = new Uint8Array(await new Response(new Blob([bytes]).stream().pipeThrough(new CompressionStream('deflate-raw'))).arrayBuffer()); return 'z' + b64url(z); } catch (e) { /* sem compressão */ }
+  }
+  return 'j' + b64url(bytes);
+}
+async function desempacotar(s) {
+  const tipo = s[0], bytes = deB64url(s.slice(1));
+  const txt = tipo === 'z' ? await new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).text() : new TextDecoder().decode(bytes);
+  return JSON.parse(txt);
+}
+const BASE_APP = 'https://jgg190310-ops.github.io/CLAUDE.md/rumo/';
+async function formLevar() {
+  const resumo = `${S.tarefas.length} tarefas, ${S.habitos.length} hábitos, ${S.contas.length} contas e ${S.lanc.length} lançamentos`;
+  folha('Levar para o Safari', `<p class="calmo">Gerando o link com os seus dados…</p>`, { rodape: '' });
+  const pacote = await empacotar({ ...S, boasVindas: false, conexao: { ...S.conexao, chave: '' } });
+  const link = `${BASE_APP}#dados=${pacote}`;
+  const safari = 'x-safari-' + link;
+  folha('Levar para o Safari', `
+    <p class="calmo">Este link leva <b>${resumo}</b>${S.perfil.nome ? ` de ${esc(S.perfil.nome)}` : ''}. Abra no Safari e confirme: tudo fica salvo lá.</p>
+    <a class="btn largo" href="${esc(safari)}">${ic('dir')}Abrir no Safari</a>
+    <button class="btn btn-sec largo" type="button" data-a="levar-copiar">${ic('baixar')}Copiar o link</button>
+    <label class="campo"><span>O link (se o copiar não funcionar, toque e segure para selecionar tudo)</span><textarea id="levar-link" rows="4" readonly>${esc(link)}</textarea></label>
+    <p class="miudo">Os seus dados vão dentro do próprio link e não passam por servidor nenhum. Não mande esse link para outras pessoas: quem abrir vê tudo. A senha da conexão com o banco não vai junto.</p>`, { rodape: '' });
+}
+async function receberDados(pacote) {
+  let d;
+  try { d = await desempacotar(pacote); if (!d || !Array.isArray(d.lanc) || !Array.isArray(d.tarefas)) throw new Error('formato'); }
+  catch (e) { toast('Esse link de dados está incompleto. Copie o link inteiro de novo.'); return; }
+  const temAqui = !S.boasVindas && !S.exemplo && (S.tarefas.length || S.contas.length || S.habitos.length || S.lanc.length);
+  const resumo = `${d.tarefas.length} tarefas, ${(d.habitos || []).length} hábitos, ${(d.contas || []).length} contas e ${d.lanc.length} lançamentos`;
+  folha('Trazer os seus dados', `
+    <p class="calmo">Chegaram <b>${resumo}</b>${d.perfil?.nome ? ` de ${esc(d.perfil.nome)}` : ''}.</p>
+    ${temAqui ? '<p class="aviso-mini">Este navegador já tem dados do Rumo. Eles serão trocados pelos que chegaram. Se quiser guardar os daqui, baixe um backup antes.</p>' : ''}`, {
+    rodape: `<footer class="folha-pe duplo"><button class="btn btn-sec" type="button" data-a="fechar">Agora não</button><button class="btn" type="button" data-a="receber-ok">Trazer e salvar aqui</button></footer>`,
+  });
+  recebidos = d;
+}
+let recebidos = null;
+
 function baixar(nome, conteudo, tipo) {
   const url = URL.createObjectURL(new Blob([conteudo], { type: tipo }));
   const a = document.createElement('a'); a.href = url; a.download = nome; document.body.appendChild(a); a.click(); a.remove();
@@ -1690,6 +1737,24 @@ const ACOES = {
   'item-add': () => adicionarItem($('#item-id', dlg)?.value),
   'item-remover': b => { S.conexao.itens = S.conexao.itens.filter(i => i.id !== b.dataset.id); salvar(); formConexao(); toast('Banco removido do Rumo. Os lançamentos que já vieram ficam. Para cancelar de vez, revogue a autorização no app do banco.'); },
   'conexao-desligar': () => confirmar('Desligar a conexão?', 'O Rumo para de buscar os lançamentos sozinho. O que já veio do banco continua aqui.', 'Desligar', () => { mudar(() => { S.conexao = { url: '', chave: '', itens: [], ultima: null }; }, 'Conexão desligada'); }),
+  levar: () => formLevar(),
+  'levar-copiar': async () => {
+    const t = $('#levar-link', dlg); if (!t) return;
+    try { await navigator.clipboard.writeText(t.value); toast('Link copiado. Cole na barra do Safari.'); }
+    catch (e) { t.focus(); t.select(); toast('Não deu para copiar sozinho. O link está selecionado: toque em Copiar.'); }
+  },
+  'receber-ok': async () => {
+    const d = recebidos; recebidos = null; if (!d) return;
+    const chave = S.conexao?.chave, tema = S.perfil.tema;
+    fechar();
+    S = migrar(d); S.boasVindas = false;
+    if (!S.conexao.chave && chave) S.conexao.chave = chave;
+    if (!S.perfil.tema) S.perfil.tema = tema;
+    ui.aba = 'hoje'; history.replaceState(null, '', location.pathname + '#hoje');
+    render();
+    await salvar();
+    toast(falhouSalvar ? 'Os dados chegaram, mas este navegador não está deixando salvar.' : 'Pronto. Seus dados estão salvos neste navegador.');
+  },
   'passos-ocultar': () => mudar(() => { S.passos = false; }, 'Primeiros passos escondidos'),
   exportar: () => { baixar(`rumo-backup-${hoje()}.json`, JSON.stringify({ ...S, conexao: { ...S.conexao, chave: '' } }, null, 1), 'application/json'); toast('Backup baixado'); },
   csv: () => { if (!S.lanc.length) { toast('Ainda não há lançamentos para exportar.'); return; } exportarCSV(); toast('Planilha baixada. Abre no Excel e no Google Planilhas.'); },
@@ -1747,7 +1812,10 @@ document.addEventListener('submit', e => {
 document.addEventListener('input', e => {
   if (e.target.id === 'busca-ex') { ui.busca = e.target.value; $('#extrato-lista').innerHTML = listaExtrato(); }
 });
-window.addEventListener('hashchange', () => irPara(location.hash.slice(1)));
+window.addEventListener('hashchange', () => {
+  if (location.hash.startsWith('#dados=')) { const p = location.hash.slice(7); history.replaceState(null, '', location.pathname + '#hoje'); receberDados(p); return; }
+  irPara(location.hash.slice(1));
+});
 document.addEventListener('keydown', e => {
   if (S.boasVindas || dlg.open || e.target.closest('input, textarea, select') || e.metaKey || e.ctrlKey || e.altKey) return;
   if (e.key === 'n') { e.preventDefault(); ACOES.fab(); }
@@ -1765,6 +1833,9 @@ function autoSync() {
 }
 
 (async () => {
+  // link com os dados vindos de outro navegador: .../rumo/#dados=...
+  let pacoteRecebido = null;
+  if (location.hash.startsWith('#dados=')) { pacoteRecebido = location.hash.slice(7); history.replaceState(null, '', location.pathname + location.search + '#hoje'); }
   ui.aba = ABAS.includes(location.hash.slice(1)) ? location.hash.slice(1) : 'hoje';
   S = await carregar();
   await conferirArmazenamento();
@@ -1784,6 +1855,7 @@ function autoSync() {
   if (abrirConexao && !S.boasVindas) { ui.aba = 'dinheiro'; ui.din = 'contas'; }
   render();
   if (abrirConexao && !S.boasVindas) formConexao();
+  if (pacoteRecebido) await receberDados(pacoteRecebido);
   autoSync();
 })();
 })();
