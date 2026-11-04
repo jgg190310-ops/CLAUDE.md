@@ -450,9 +450,11 @@ function viewBoasVindas() {
     <form class="bv-form" data-form="bv" autocomplete="off">
       <label class="campo"><span>Como quer ser chamado?</span><input id="bv-nome" name="nome" maxlength="30" value="${esc(S.perfil.nome)}" placeholder="Seu nome (opcional)"></label>
       <div class="bv-op">
-        <button class="bv-b bv-prim" type="submit" name="modo" value="zero"><b>Começar do zero</b><small>O app abre vazio, pronto para as suas contas, tarefas e hábitos.</small></button>
+        ${instalado() ? '<button class="bv-b bv-prim" type="button" data-a="trazer"><b>Trazer meus dados do Safari</b><small>Já usa o Rumo no Safari? No Safari, abra Ajustes › Levar meus dados e digite o código aqui.</small></button>' : ''}
+        <button class="bv-b ${instalado() ? '' : 'bv-prim'}" type="submit" name="modo" value="zero"><b>Começar do zero</b><small>O app abre vazio, pronto para as suas contas, tarefas e hábitos.</small></button>
         <button class="bv-b" type="submit" name="modo" value="exemplo"><b>Ver com um exemplo</b><small>Dados fictícios para conhecer o app. Dá para apagar depois com um toque.</small></button>
       </div>
+      ${instalado() ? '' : '<button class="bv-trazer" type="button" data-a="trazer">Já usa o Rumo em outro lugar? <b>Trazer meus dados</b></button>'}
     </form>
   </section>`;
 }
@@ -1186,8 +1188,12 @@ function formAjustes() {
     </div>
     <div class="ajuste-grupo">
       <p class="eyebrow">Seus dados</p>
-      <p class="miudo">Tudo fica guardado só neste navegador, deste aparelho. ${falhouSalvar ? '<b class="neg">Agora o navegador não está deixando salvar.</b>' : armaz.ultimo ? `Último salvamento: ${haQuanto(new Date(armaz.ultimo).toISOString())}.` : ''} No iPhone, o Safari e o Rumo instalado na tela de início guardam separado: use sempre o mesmo. Faça um backup de vez em quando e guarde o arquivo no Drive ou no e-mail.</p>
-      <button class="btn largo" type="button" data-a="levar">${ic('dir')}Levar meus dados para o Safari</button>
+      <p class="miudo">Tudo fica guardado só neste navegador, deste aparelho. ${falhouSalvar ? '<b class="neg">Agora o navegador não está deixando salvar.</b>' : armaz.ultimo ? `Último salvamento: ${haQuanto(new Date(armaz.ultimo).toISOString())}.` : ''} ${instalado() ? 'Você está no Rumo da tela de início, que guarda separado do Safari.' : 'No iPhone, o Safari e o Rumo da tela de início guardam separado.'} Faça um backup de vez em quando e guarde o arquivo no Drive ou no e-mail.</p>
+      <div class="botoes">
+        <button class="btn" type="button" data-a="levar">${ic('dir')}Levar meus dados</button>
+        <button class="btn btn-sec" type="button" data-a="trazer">${ic('baixar')}Trazer meus dados</button>
+      </div>
+      <p class="miudo">Para passar tudo do Safari para o app da tela de início (ou para outro celular): <b>Levar</b> aqui, <b>Trazer</b> lá.</p>
       <div class="botoes">
         <button class="btn btn-sec" type="button" data-a="exportar">${ic('baixar')}Baixar backup</button>
         <label class="btn btn-sec">${ic('subir')}Restaurar backup<input type="file" accept="application/json,.json" data-a-file="importar" hidden></label>
@@ -1591,23 +1597,119 @@ async function desempacotar(s) {
   return JSON.parse(txt);
 }
 const BASE_APP = 'https://jgg190310-ops.github.io/CLAUDE.md/rumo/';
+/* Código de 8 letras (como no Drink): os dados vão cifrados pelo ntfy.sh, que só
+   vê o pacote embaralhado e apaga em 12 horas. O código gera o canal e a chave
+   e só aparece na tela de quem pediu. É o jeito de levar os dados do Safari para
+   o Rumo da tela de início, que no iPhone guarda tudo separado e não abre por link. */
+const NTFY = () => String(window.RUMO_NTFY || 'https://ntfy.sh').replace(/\/$/, '');
+const LETRAS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789', PEDACO = 3200;
+const limparCod = s => String(s || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+const fmtCod = c => `${c.slice(0, 4)}-${c.slice(4)}`;
+const instalado = () => { try { return matchMedia('(display-mode: standalone)').matches || navigator.standalone === true; } catch (e) { return false; } };
+const ehIOS = () => /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+async function sha(txt) { return new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(txt))); }
+async function chavesCodigo(cod) {
+  const c = limparCod(cod);
+  const topico = 'rumo-' + [...await sha('rumo-canal:' + c)].map(x => x.toString(16).padStart(2, '0')).join('').slice(0, 28);
+  const k = await crypto.subtle.importKey('raw', await sha('rumo-chave:' + c), 'AES-GCM', false, ['encrypt', 'decrypt']);
+  return { topico, k };
+}
+async function enviarPorCodigo(obj) {
+  const cod = Array.from(crypto.getRandomValues(new Uint8Array(8)), n => LETRAS[n % LETRAS.length]).join('');
+  const { topico, k } = await chavesCodigo(cod);
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const ct = new Uint8Array(await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, k, new TextEncoder().encode(await empacotar(obj))));
+  const tudo = new Uint8Array(12 + ct.length); tudo.set(iv); tudo.set(ct, 12);
+  const env = b64url(tudo), n = Math.ceil(env.length / PEDACO);
+  if (n > 60) throw new Error('grande');
+  for (let i = 0; i < n; i++) {
+    const r = await fetch(`${NTFY()}/${topico}`, { method: 'POST', body: JSON.stringify({ c: 'rumo', i, n, d: env.slice(i * PEDACO, (i + 1) * PEDACO) }) });
+    if (!r.ok) throw new Error('publicar ' + r.status);
+  }
+  return cod;
+}
+async function buscarPorCodigo(cod) {
+  const { topico, k } = await chavesCodigo(cod);
+  let r;
+  try { r = await fetch(`${NTFY()}/${topico}/json?poll=1&since=12h`); } catch (e) { throw new Error('Sem internet agora. Confira a conexão e tente de novo.'); }
+  if (!r.ok) throw new Error('Não deu para buscar agora. Tente de novo em um minuto.');
+  const partes = new Map(); let n = 0;
+  for (const linha of (await r.text()).split('\n')) {
+    try { const p = JSON.parse(JSON.parse(linha).message); if (p?.c === 'rumo' && Number.isInteger(p.i) && Number.isInteger(p.n) && typeof p.d === 'string') { partes.set(p.i, p.d); n = p.n; } } catch (e) { /* outra linha */ }
+  }
+  if (!n || partes.size < n) throw new Error('Não achei dados com esse código. Confira as letras ou gere um código novo (cada um vale 12 horas).');
+  try {
+    const b = deB64url(Array.from({ length: n }, (_, i) => partes.get(i)).join(''));
+    const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: b.slice(0, 12) }, k, b.slice(12));
+    return await desempacotar(new TextDecoder().decode(pt));
+  } catch (e) { throw new Error('Esse código não abriu os dados. Gere um código novo e tente de novo.'); }
+}
+const resumoDe = d => `${d.tarefas.length} ${d.tarefas.length === 1 ? 'tarefa' : 'tarefas'}, ${(d.habitos || []).length} hábitos, ${(d.contas || []).length} contas e ${d.lanc.length} lançamentos`;
+const dadosParaLevar = () => ({ ...S, boasVindas: false, conexao: { ...S.conexao, chave: '' } });
 async function formLevar() {
-  const resumo = `${S.tarefas.length} tarefas, ${S.habitos.length} hábitos, ${S.contas.length} contas e ${S.lanc.length} lançamentos`;
-  folha('Levar para o Safari', `<p class="calmo">Gerando o link com os seus dados…</p>`, { rodape: '' });
-  const pacote = await empacotar({ ...S, boasVindas: false, conexao: { ...S.conexao, chave: '' } });
-  const link = `${BASE_APP}#dados=${pacote}`;
-  const safari = 'x-safari-' + link;
-  folha('Levar para o Safari', `
-    <p class="calmo">Este link leva <b>${resumo}</b>${S.perfil.nome ? ` de ${esc(S.perfil.nome)}` : ''}. Abra no Safari e confirme: tudo fica salvo lá.</p>
-    <a class="btn largo" href="${esc(safari)}">${ic('dir')}Abrir no Safari</a>
-    <button class="btn btn-sec largo" type="button" data-a="levar-copiar">${ic('baixar')}Copiar o link</button>
-    <label class="campo"><span>O link (se o copiar não funcionar, toque e segure para selecionar tudo)</span><textarea id="levar-link" rows="4" readonly>${esc(link)}</textarea></label>
-    <p class="miudo">Os seus dados vão dentro do próprio link e não passam por servidor nenhum. Não mande esse link para outras pessoas: quem abrir vê tudo. A senha da conexão com o banco não vai junto.</p>`, { rodape: '' });
+  folha('Levar meus dados', `<p class="calmo">Gerando o código…</p>`, { rodape: '' });
+  const obj = dadosParaLevar();
+  const link = `${BASE_APP}#dados=${await empacotar(obj)}`;
+  let cod = null;
+  try { cod = await enviarPorCodigo(obj); } catch (e) { cod = null; }
+  const ate = new Date(Date.now() + 12 * 3600e3).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  const guiaInstalar = ehIOS() && !instalado() ? `
+    <p class="eyebrow">Para usar como app no iPhone</p>
+    <ol class="passos-txt">
+      <li>Aqui no Safari, toque em <b>Compartilhar</b> (o quadrado com a seta) e em <b>Adicionar à Tela de Início</b>.</li>
+      <li>Abra o Rumo pelo ícone novo na tela de início.</li>
+      <li>Toque em <b>Trazer meus dados</b> e digite o código acima.</li>
+    </ol>` : `
+    <ol class="passos-txt">
+      <li>Abra o Rumo onde você quer os dados: o app da tela de início, outro navegador ou um celular novo.</li>
+      <li>Toque em <b>Trazer meus dados</b> (na tela de boas-vindas ou em Ajustes) e digite o código.</li>
+    </ol>`;
+  folha('Levar meus dados', `
+    <p class="calmo">Vão <b>${resumoDe(obj)}</b>${S.perfil.nome ? ` de ${esc(S.perfil.nome)}` : ''}. Tudo continua aqui também.</p>
+    ${cod ? `<div class="codigo-caixa"><span class="eyebrow">Seu código</span><p class="codigo" id="levar-cod">${fmtCod(cod)}</p><button class="btn btn-sec" type="button" data-a="levar-copiar-cod">Copiar código</button><p class="miudo">Vale até ${ate}.</p></div>${guiaInstalar}`
+      : '<p class="aviso-mini">Não deu para gerar o código agora (precisa de internet). Use o link abaixo.</p>'}
+    <details class="detalhe" ${cod ? '' : 'open'}><summary>Ou leve por um link (para o Safari ou outro navegador)</summary>
+      <a class="btn largo" href="${esc('x-safari-' + link)}">${ic('dir')}Abrir no Safari</a>
+      <button class="btn btn-sec largo" type="button" data-a="levar-copiar">Copiar o link</button>
+      <textarea id="levar-link" rows="3" readonly aria-label="Link com os seus dados">${esc(link)}</textarea>
+      <p class="miudo">O link também pode ser colado em Trazer meus dados.</p>
+    </details>
+    <p class="miudo">Os dados vão cifrados: o serviço que leva o código (ntfy.sh) só vê tudo embaralhado e apaga em 12 horas. Não mande o código nem o link para ninguém. A senha da conexão com o banco não vai junto.</p>`, { rodape: '' });
+}
+function formTrazer() {
+  folha('Trazer meus dados', `
+    <p class="calmo">No Rumo onde os seus dados estão (no Safari, por exemplo), abra <b>Ajustes › Levar meus dados</b> e digite aqui o código que aparecer.</p>
+    <label class="campo"><span>Código (ou o link)</span><input id="trazer-cod" name="cod" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="ABCD-2345" autofocus></label>`, {
+    rodape: `<footer class="folha-pe"><button class="btn largo" type="submit" id="trazer-ok">Trazer meus dados</button></footer>`,
+    async enviar(fd) {
+      const v = String(fd.get('cod') || '').trim();
+      const botao = $('#trazer-ok'); botao.disabled = true; botao.textContent = 'Buscando…';
+      try {
+        let d;
+        if (v.includes('#dados=')) d = await desempacotar(v.split('#dados=')[1].trim());
+        else {
+          const c = limparCod(v);
+          if (c.length !== 8) throw new Error('O código tem 8 letras e números, como ABCD-2345.');
+          d = await buscarPorCodigo(c);
+        }
+        if (!d || !Array.isArray(d.lanc) || !Array.isArray(d.tarefas)) throw new Error('Esses dados vieram incompletos. Gere um código novo.');
+        confirmarRecebidos(d);
+      } catch (e) { botao.disabled = false; botao.textContent = 'Trazer meus dados'; erro(e.message || 'Não deu certo. Tente de novo.'); }
+    },
+  });
+  $('#trazer-cod', dlg).addEventListener('input', e => {
+    if (e.target.value.includes('#')) return;
+    const c = limparCod(e.target.value).slice(0, 8);
+    e.target.value = c.length > 4 ? fmtCod(c) : c;
+  });
 }
 async function receberDados(pacote) {
   let d;
   try { d = await desempacotar(pacote); if (!d || !Array.isArray(d.lanc) || !Array.isArray(d.tarefas)) throw new Error('formato'); }
   catch (e) { toast('Esse link de dados está incompleto. Copie o link inteiro de novo.'); return; }
+  confirmarRecebidos(d);
+}
+function confirmarRecebidos(d) {
   const temAqui = !S.boasVindas && !S.exemplo && (S.tarefas.length || S.contas.length || S.habitos.length || S.lanc.length);
   const resumo = `${d.tarefas.length} tarefas, ${(d.habitos || []).length} hábitos, ${(d.contas || []).length} contas e ${d.lanc.length} lançamentos`;
   folha('Trazer os seus dados', `
@@ -1738,6 +1840,11 @@ const ACOES = {
   'item-remover': b => { S.conexao.itens = S.conexao.itens.filter(i => i.id !== b.dataset.id); salvar(); formConexao(); toast('Banco removido do Rumo. Os lançamentos que já vieram ficam. Para cancelar de vez, revogue a autorização no app do banco.'); },
   'conexao-desligar': () => confirmar('Desligar a conexão?', 'O Rumo para de buscar os lançamentos sozinho. O que já veio do banco continua aqui.', 'Desligar', () => { mudar(() => { S.conexao = { url: '', chave: '', itens: [], ultima: null }; }, 'Conexão desligada'); }),
   levar: () => formLevar(),
+  trazer: () => formTrazer(),
+  'levar-copiar-cod': async () => {
+    const t = $('#levar-cod', dlg)?.textContent; if (!t) return;
+    try { await navigator.clipboard.writeText(t); toast('Código copiado.'); } catch (e) { toast(`O código é ${t}.`); }
+  },
   'levar-copiar': async () => {
     const t = $('#levar-link', dlg); if (!t) return;
     try { await navigator.clipboard.writeText(t.value); toast('Link copiado. Cole na barra do Safari.'); }

@@ -671,6 +671,14 @@ body.modo-bv .fab, body.modo-bv .abas, body.modo-bv .trilho .nav-i:not(.nav-ajus
 .passos .feita .passo-n { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
 .passos .feita .item-t { text-decoration: none; }
 
+/* ---------- levar e trazer os dados ---------- */
+.codigo-caixa { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 18px 16px; border-radius: 18px; background: var(--bg); border: 1px solid var(--line); text-align: center; }
+.codigo { font: 400 clamp(2.4rem, 2rem + 3vw, 3rem)/1 var(--f-display); letter-spacing: .08em; font-variant-numeric: tabular-nums; user-select: all; -webkit-user-select: all; }
+.bv-trazer { align-self: flex-start; border: 0; background: none; padding: 6px 0; color: var(--ink-2); font-size: .9rem; text-align: left; }
+.bv-trazer b { color: var(--ink); font-weight: 600; text-decoration: underline; text-decoration-color: var(--line-2); text-underline-offset: 3px; }
+#trazer-cod { font: 400 1.8rem var(--f-display); letter-spacing: .08em; text-align: center; text-transform: uppercase; }
+#levar-link { width: 100%; border-radius: 12px; border: 1px solid var(--line-2); background: var(--surface); padding: 10px 12px; font-size: .8rem; color: var(--ink-2); resize: none; }
+
 /* ---------- aviso de que não está salvando ---------- */
 .alerta-armaz { background: var(--neg-soft); color: var(--ink); border-radius: 14px; padding: 12px 14px; font-size: .88rem; line-height: 1.45; }
 .alerta-armaz b { color: var(--neg); }
