@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Casa na Feiticeira em 3D</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Casa na Feiticeira · 3D. A tela é o modelo; tudo que flutua por cima é vidro (Liquid Glass feito em CSS). */
+:root{
+  --ink:#0c1411;          /* mata à noite */
+  --cal:#f6f1e7;          /* cal / texto */
+  --luz:#ffcf8a;          /* luz quente das luminárias: estado ativo */
+  --cimento:#2a9d88;      /* cimento queimado verde */
+  --tijolo:#c9824f;       /* tijolo */
+  --muted:rgba(246,241,231,.74);
+  --fd:"Bricolage Grotesque",ui-sans-serif,system-ui,-apple-system,sans-serif;
+  --fb:"Figtree",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --spring:cubic-bezier(.3,1.5,.5,1);
+  color-scheme:dark;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--ink);font-family:var(--fb);color:var(--cal);-webkit-user-select:none;user-select:none;touch-action:none;-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+:focus-visible{outline:2px solid var(--luz);outline-offset:3px}
+canvas{display:block;width:100%;height:100%;touch-action:none}
+svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+/* ---------- Liquid Glass ---------- */
+.lg{position:relative;isolation:isolate;color:var(--cal);
+  background:linear-gradient(180deg,rgba(255,255,255,.15),rgba(255,255,255,.04)),rgba(20,26,23,.30);
+  -webkit-backdrop-filter:blur(22px) saturate(1.9);backdrop-filter:blur(22px) saturate(1.9);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.45),inset 0 0 0 1px rgba(255,255,255,.08),inset 0 -10px 18px -12px rgba(255,255,255,.22),0 14px 34px -14px rgba(0,0,0,.6),0 2px 6px -2px rgba(0,0,0,.3)}
+.lg::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:-1;background:radial-gradient(130% 90% at 18% -10%,rgba(255,255,255,.26),rgba(255,255,255,0) 52%)}
+.lg::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;padding:1px;
+  background:linear-gradient(140deg,rgba(255,255,255,.85),rgba(255,255,255,.14) 26%,rgba(255,255,255,0) 50%,rgba(255,255,255,.06) 72%,rgba(255,255,255,.5));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);mask-composite:exclude}
+.lg.dim{background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(255,255,255,.02)),rgba(12,18,15,.55)}
+.press{transition:transform .35s var(--spring),background-color .2s,color .2s}
+.press:active{transform:scale(.94)}
+@media (prefers-reduced-transparency:reduce){.lg{background:rgba(16,22,19,.92);-webkit-backdrop-filter:none;backdrop-filter:none}}
+.lens{background:rgba(255,255,255,.92)!important;color:var(--ink)!important;box-shadow:0 3px 10px -2px rgba(0,0,0,.35),inset 0 1px 0 #fff}
+.warm{background:var(--luz)!important;color:var(--ink)!important;box-shadow:0 0 22px -4px rgba(255,207,138,.8),inset 0 1px 0 rgba(255,255,255,.7)}
+
+/* ---------- HUD ---------- */
+#vig{position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,rgba(0,0,0,0) 60%,rgba(4,10,7,.35) 100%)}
+#fade{position:fixed;inset:0;background:#050806;opacity:0;pointer-events:none;transition:opacity .45s ease;z-index:15}
+#fade.on{opacity:1}
+#top{position:fixed;top:0;left:0;right:0;padding:calc(14px + env(safe-area-inset-top)) 16px 0;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;pointer-events:none;z-index:5}
+#top > *{pointer-events:auto}
+#tleft{display:flex;gap:8px;align-items:center;min-width:0}
+.pill{height:44px;border-radius:22px;padding:0 16px;display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:15px;white-space:nowrap}
+#back{padding:0 16px 0 10px}
+#where{min-width:0;max-width:52vw}
+#where .dot{width:8px;height:8px;border-radius:50%;background:var(--luz);box-shadow:0 0 10px var(--luz);flex:none}
+#room{font-family:var(--fd);font-weight:700;font-size:16px;letter-spacing:-.01em;overflow:hidden;text-overflow:ellipsis}
+.seg{display:flex;gap:2px;padding:4px;border-radius:24px}
+.seg button{height:36px;padding:0 13px;border-radius:18px;display:flex;align-items:center;gap:7px;font-size:14px;font-weight:600;white-space:nowrap;color:var(--muted)}
+.seg button:hover{color:var(--cal)}
+#hint{position:fixed;left:50%;top:calc(72px + env(safe-area-inset-top));transform:translateX(-50%);padding:10px 16px;border-radius:16px;font-size:13.5px;font-weight:500;pointer-events:none;z-index:5;text-align:center;max-width:calc(100vw - 32px);transition:opacity .4s}
+#cross{position:fixed;left:50%;top:50%;width:6px;height:6px;margin:-3px 0 0 -3px;border-radius:50%;background:rgba(246,241,231,.85);box-shadow:0 0 0 2px rgba(0,0,0,.25);pointer-events:none}
+#bar{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom));transform:translateX(-50%);display:flex;align-items:center;gap:4px;padding:5px;border-radius:28px;max-width:calc(100vw - 16px);z-index:5}
+#bar .seg{padding:0;background:rgba(0,0,0,.16);border-radius:22px}
+#bar .seg button{height:44px;width:44px;padding:0;justify-content:center;border-radius:22px}
+.tb{height:44px;padding:0 14px;border-radius:22px;display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;white-space:nowrap}
+.tb:hover{background:rgba(255,255,255,.08)}
+.vsep{width:1px;height:26px;background:rgba(255,255,255,.18);flex:none;margin:0 2px}
+#mini{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom));width:236px;border-radius:24px;padding:12px 12px 8px;z-index:4}
+#mini .t,#menu .t{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);font-weight:600;margin:0 4px 6px}
+.mapsvg{width:100%;height:auto;display:block}
+.mz rect{fill:rgba(255,255,255,.06);stroke:rgba(255,255,255,.32);stroke-width:.07;cursor:pointer;transition:fill .2s}
+.mz:hover rect{fill:rgba(255,207,138,.3)}
+.mz.on rect{fill:rgba(255,207,138,.9);stroke:var(--luz)}
+.mz text{fill:var(--cal);font-size:.62px;font-family:var(--fb);font-weight:600;text-anchor:middle;pointer-events:none}
+.mz.on text{fill:var(--ink);font-weight:700}
+.me{fill:var(--luz);stroke:#fff;stroke-width:.12}
+.cone{fill:rgba(255,207,138,.35)}
+#menu{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom));transform:translateX(-50%);width:min(580px,calc(100vw - 20px));border-radius:28px;padding:18px;max-height:calc(100vh - 170px);overflow:auto;z-index:6}
+#menu h3{font-family:var(--fd);font-size:20px;font-weight:700;letter-spacing:-.02em;margin:0 4px 12px}
+#menuGrid{display:grid;grid-template-columns:1.15fr 1fr;gap:14px;align-items:start}
+#menuList{display:grid;gap:2px}
+#menuList button{text-align:left;padding:10px 12px;border-radius:14px;font-size:15px;font-weight:500;display:flex;justify-content:space-between;align-items:center}
+#menuList button:hover{background:rgba(255,255,255,.1)}
+#menuList button span{color:var(--muted);font-size:12px}
+#joy{position:fixed;width:124px;height:124px;border-radius:50%;display:none;pointer-events:none;transform:translate(-50%,-50%);z-index:4}
+#knob{position:absolute;left:50%;top:50%;width:52px;height:52px;margin:-26px 0 0 -26px;border-radius:50%;background:rgba(255,255,255,.85);box-shadow:0 4px 14px rgba(0,0,0,.35),inset 0 1px 0 #fff}
+#photoBtn{position:fixed;left:50%;bottom:calc(86px + env(safe-area-inset-bottom));transform:translateX(-50%);height:58px;padding:0 18px 0 7px;border-radius:29px;display:flex;align-items:center;gap:12px;font-size:15px;font-weight:700;animation:pop .45s var(--spring);z-index:5;text-align:left}
+#photoBtn img{width:62px;height:44px;object-fit:cover;border-radius:22px}
+#photoBtn small{display:block;font-size:12.5px;font-weight:500;color:var(--muted)}
+@keyframes pop{from{transform:translateX(-50%) translateY(10px) scale(.9);opacity:0}to{transform:translateX(-50%);opacity:1}}
+
+/* tour guiado */
+#tourCard{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom));transform:translateX(-50%);width:min(520px,calc(100vw - 20px));border-radius:30px;padding:16px 16px 14px 20px;z-index:6}
+#tcTop{display:flex;justify-content:space-between;align-items:center;gap:10px}
+#tcStep{font-size:12.5px;font-weight:600;color:var(--luz);letter-spacing:.02em;font-variant-numeric:tabular-nums}
+#tcRoom{font-family:var(--fd);font-size:26px;font-weight:800;letter-spacing:-.03em;line-height:1.05;margin-top:2px;text-wrap:balance}
+#tcText{font-size:15px;line-height:1.45;color:var(--muted);margin-top:6px;min-height:2.9em}
+#tcBar{height:3px;border-radius:2px;background:rgba(255,255,255,.16);margin:12px 0 12px;overflow:hidden}
+#tcBar i{display:block;height:100%;width:0;background:var(--luz);border-radius:2px}
+#tcCtl{display:flex;gap:6px;align-items:center}
+.cb{width:44px;height:44px;border-radius:22px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.08)}
+.cb:hover{background:rgba(255,255,255,.16)}
+.cta{height:44px;padding:0 16px;border-radius:22px;display:inline-flex;align-items:center;gap:8px;font-size:14.5px;font-weight:700;white-space:nowrap}
+.cta.solid{background:var(--cal);color:var(--ink)}
+.cta.ghost{background:rgba(255,255,255,.1)}
+#tcCtl .sp{flex:1}
+#tcX{position:absolute;top:12px;right:12px}
+
+/* maquete */
+#dollCard{position:fixed;left:50%;bottom:calc(86px + env(safe-area-inset-bottom));transform:translateX(-50%);padding:10px 18px;border-radius:20px;font-size:14px;font-weight:500;z-index:5;white-space:nowrap;pointer-events:none}
+#dollLabel{position:fixed;padding:7px 13px;border-radius:16px;font-size:13.5px;font-weight:700;pointer-events:none;transform:translate(-50%,-130%);z-index:5;white-space:nowrap}
+
+/* galeria de fotos reais */
+#gal{position:fixed;inset:0;z-index:30;background:rgba(5,9,7,.94);display:flex;align-items:center;justify-content:center}
+#galImg{max-width:100%;max-height:100%;object-fit:contain}
+#galTop{position:fixed;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:calc(16px + env(safe-area-inset-top)) 16px 0}
+#galInfo{padding:12px 18px;border-radius:24px;max-width:calc(100vw - 96px)}
+#galRoom{font-family:var(--fd);font-size:20px;font-weight:800;letter-spacing:-.02em}
+#galCap{font-size:13.5px;color:var(--muted);margin-top:2px}
+.ib{width:48px;height:48px;border-radius:24px;display:flex;align-items:center;justify-content:center;flex:none}
+.gnav{position:fixed;top:50%;margin-top:-24px}#galP{left:14px}#galN{right:14px}
+#galDots{position:fixed;bottom:calc(22px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);display:flex;gap:6px;padding:9px 12px;border-radius:14px}
+#galDots i{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.35)}#galDots i.on{background:var(--luz)}
+
+/* abertura */
+#start{position:fixed;inset:0;z-index:20;display:flex;align-items:flex-end;justify-content:center;padding:0 12px calc(16px + env(safe-area-inset-bottom));background:var(--ink)}
+#start .bgp{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(.8) saturate(1.05)}
+#start .shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(6,12,9,.35),rgba(6,12,9,0) 30%,rgba(6,12,9,.2) 60%,rgba(6,12,9,.7))}
+#start .card{position:relative;width:min(560px,100%);border-radius:34px;padding:26px 24px 22px}
+#start .eyebrow{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--luz)}
+#start h1{font-family:var(--fd);font-size:clamp(32px,5vw,44px);font-weight:800;letter-spacing:-.04em;line-height:.98;margin-top:8px;text-wrap:balance}
+#start .sub{color:var(--muted);font-size:15.5px;margin:10px 0 18px;line-height:1.45;max-width:46ch}
+#howto{display:grid;grid-template-columns:1fr 1fr;gap:10px 16px;margin-bottom:20px}
+#howto div{display:flex;gap:10px;align-items:flex-start;font-size:14px;line-height:1.35}
+#howto b{display:block;font-weight:700}
+#howto span{color:var(--muted)}
+#howto svg{color:var(--luz);margin-top:1px}
+kbd{font-family:var(--fb);font-size:12px;background:rgba(255,255,255,.12);border-radius:6px;padding:1px 6px;box-shadow:inset 0 -1px 0 rgba(255,255,255,.15)}
+#startBtns{display:flex;gap:8px;flex-wrap:wrap}
+#startBtns .cta{height:52px;padding:0 22px;border-radius:26px;font-size:16px;flex:1 1 auto;justify-content:center}
+#go:disabled{opacity:.55}
+#start .fine{font-size:12.5px;color:var(--muted);margin-top:14px}
+
+@media (max-width:760px){
+  .seg button .t,.tb .t{display:none}
+  #modes button{padding:0 11px}
+  #mini{display:none}
+  #menuGrid{grid-template-columns:1fr}
+  #howto{grid-template-columns:1fr}
+  #where{max-width:40vw}
+  #tcRoom{font-size:23px}
+  #tcText{font-size:14px}
+}
+@media (max-width:380px){ #back .t{display:none} #back{padding:0 12px} }
+@media (prefers-reduced-motion:reduce){ .press,.press:active{transition:none;transform:none} #photoBtn{animation:none} }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="vig"></div>
+<div id="fade"></div>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-sunrise" viewBox="0 0 24 24"><path d="M3 18h18M6.5 18a5.5 5.5 0 0 1 11 0M12 4v4M5 9.5l1.6 1.6M19 9.5l-1.6 1.6M9 6l3-2.5L15 6"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></symbol>
+  <symbol id="i-sunset" viewBox="0 0 24 24"><path d="M3 18h18M6.5 18a5.5 5.5 0 0 1 11 0M12 3.5v4M5 9.5l1.6 1.6M19 9.5l-1.6 1.6M9 5l3 2.5L15 5"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></symbol>
+  <symbol id="i-bulb" viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2V16h5v-.1c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"/></symbol>
+  <symbol id="i-map" viewBox="0 0 24 24"><rect x="3.5" y="4" width="17" height="16" rx="2"/><path d="M3.5 12h9M12.5 4v16M12.5 9h8"/></symbol>
+  <symbol id="i-cam" viewBox="0 0 24 24"><path d="M4 8h3l2-2.5h6L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="i-left" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></symbol>
+  <symbol id="i-right" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></symbol>
+  <symbol id="i-walk" viewBox="0 0 24 24"><circle cx="13" cy="4.5" r="1.8"/><path d="M9.5 21l2.5-6.5 3 3V21M8 12.5l2.5-4 3.5 1 2 3.5M12 14.5l1-5"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2.5 12s3.5-6.5 9.5-6.5S21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13l10.5-6.5z"/></symbol>
+  <symbol id="i-pause" viewBox="0 0 24 24"><path d="M8.5 5.5v13M15.5 5.5v13"/></symbol>
+  <symbol id="i-house" viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5M5.5 9.5V20h13V9.5M10 20v-5.5h4V20"/></symbol>
+  <symbol id="i-route" viewBox="0 0 24 24"><circle cx="6" cy="18" r="2.2"/><circle cx="18" cy="6" r="2.2"/><path d="M8.2 18H15a3 3 0 0 0 0-6H9a3 3 0 0 1 0-6h6.8"/></symbol>
+  <symbol id="i-tap" viewBox="0 0 24 24"><path d="M9 11V5.5a1.5 1.5 0 0 1 3 0V11M12 10V8.5a1.5 1.5 0 0 1 3 0V11M15 10.5a1.5 1.5 0 0 1 3 0V15c0 3.5-2.4 6-6 6-2.3 0-3.8-1-5-2.8L5 15a1.4 1.4 0 0 1 2.2-1.7L9 15"/></symbol>
+</svg>
+
+<div id="top">
+  <div id="tleft">
+    <button id="back" class="lg pill press" hidden aria-label="Voltar às fotos"><svg class="i"><use href="#i-left"/></svg><span class="t">Fotos</span></button>
+    <div id="where" class="lg pill"><span class="dot"></span><span id="room">Pátio</span></div>
+  </div>
+  <div id="modes" class="lg seg" role="group" aria-label="Modo" hidden>
+    <button data-mode="walk" class="press lens" aria-label="Andar"><svg class="i"><use href="#i-walk"/></svg><span class="t">Andar</span></button>
+    <button data-mode="tour" class="press" aria-label="Tour guiado"><svg class="i"><use href="#i-route"/></svg><span class="t">Tour</span></button>
+    <button data-mode="doll" class="press" aria-label="Maquete"><svg class="i"><use href="#i-house"/></svg><span class="t">Maquete</span></button>
+  </div>
+</div>
+<div id="hint" class="lg" hidden></div>
+<div id="cross" hidden></div>
+<div id="bar" class="lg" hidden>
+  <div class="seg" role="group" aria-label="Horário do dia">
+    <button data-t="0" class="press" aria-label="Manhã" title="Manhã"><svg class="i"><use href="#i-sunrise"/></svg></button>
+    <button data-t="1" class="press lens" aria-label="Dia" title="Dia"><svg class="i"><use href="#i-sun"/></svg></button>
+    <button data-t="2" class="press" aria-label="Pôr do sol" title="Pôr do sol"><svg class="i"><use href="#i-sunset"/></svg></button>
+    <button data-t="3" class="press" aria-label="Noite" title="Noite"><svg class="i"><use href="#i-moon"/></svg></button>
+  </div>
+  <span class="vsep"></span>
+  <button id="bLights" class="tb press warm" aria-label="Luzes acesas"><svg class="i"><use href="#i-bulb"/></svg><span class="t">Luzes</span></button>
+  <button id="bRooms" class="tb press" aria-label="Ambientes"><svg class="i"><use href="#i-map"/></svg><span class="t">Ambientes</span></button>
+</div>
+<div id="mini" class="lg" hidden><div class="t"><span>Você está aqui</span><span>toque para ir</span></div><svg class="mapsvg" id="miniSvg"></svg></div>
+<div id="menu" class="lg" hidden><h3>Ir para um ambiente</h3><div id="menuGrid"><svg class="mapsvg" id="menuSvg"></svg><div id="menuList"></div></div></div>
+<div id="joy" class="lg"><div id="knob"></div></div>
+<button id="photoBtn" class="lg press" hidden><img id="pbImg" alt=""><span><span id="pbT">Ver foto real</span><small id="pbS"></small></span></button>
+
+<div id="tourCard" class="lg" hidden>
+  <div id="tcTop"><span id="tcStep">1 de 10</span></div>
+  <div id="tcRoom">Chegada</div>
+  <p id="tcText"></p>
+  <div id="tcBar"><i></i></div>
+  <div id="tcCtl">
+    <button id="tcPrev" class="cb press" aria-label="Parada anterior"><svg class="i"><use href="#i-left"/></svg></button>
+    <button id="tcPlay" class="cb press" aria-label="Pausar"><svg class="i"><use href="#i-pause"/></svg></button>
+    <button id="tcNext" class="cb press" aria-label="Próxima parada"><svg class="i"><use href="#i-right"/></svg></button>
+    <span class="sp"></span>
+    <button id="tcPhotos" class="cta ghost press"><svg class="i"><use href="#i-cam"/></svg>Fotos</button>
+    <button id="tcExplore" class="cta solid press"><svg class="i"><use href="#i-walk"/></svg>Andar daqui</button>
+  </div>
+</div>
+<div id="dollCard" class="lg" hidden>Gire com o dedo e toque num ambiente para entrar</div>
+<div id="dollLabel" class="lg" hidden></div>
+
+<div id="gal" hidden><img id="galImg" alt=""><div id="galTop"><div id="galInfo" class="lg dim"><div id="galRoom"></div><div id="galCap"></div></div><button id="galX" class="ib lg dim press" aria-label="Fechar"><svg class="i"><use href="#i-x"/></svg></button></div><button id="galP" class="ib gnav lg dim press" aria-label="Anterior"><svg class="i"><use href="#i-left"/></svg></button><button id="galN" class="ib gnav lg dim press" aria-label="Próxima"><svg class="i"><use href="#i-right"/></svg></button><div id="galDots" class="lg dim"></div></div>
+
+<div id="start">
+  <img class="bgp" src="fotos/p3d.jpg" alt="">
+  <div class="shade"></div>
+  <div class="card lg">
+    <div class="eyebrow"><svg class="i"><use href="#i-house"/></svg>Modelo 3D da casa</div>
+    <h1>Ande pela Casa na Feiticeira</h1>
+    <p class="sub">Veja onde fica cada ambiente, mude a hora do dia e abra a foto real de cada lugar.</p>
+    <div id="howto"></div>
+    <div id="startBtns">
+      <button id="goTour" class="cta solid press" disabled><svg class="i"><use href="#i-route"/></svg>Tour guiado</button>
+      <button id="go" class="cta ghost press" disabled><svg class="i"><use href="#i-walk"/></svg>Montando a casa…</button>
+    </div>
+    <p class="fine">Modelo ilustrativo feito a partir das 37 fotos do anúncio.</p>
+  </div>
+</div>
+
