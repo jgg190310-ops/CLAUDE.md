@@ -151,7 +151,7 @@ const TOUR=[
 ];
 const HOLD=7.5; const tour={i:-1,t:0,playing:true,phase:'hold',glide:null};
 function tourStop(){ tour.phase='idle'; }
-function tourUI(){ const s=TOUR[tour.i]; $('tcStep').textContent=(tour.i+1)+' de '+TOUR.length; $('tcRoom').textContent=s.n; $('tcText').textContent=s.t; $('tcPlay').innerHTML=ico(tour.playing?'pause':'play'); $('tcPlay').setAttribute('aria-label',tour.playing?'Pausar':'Continuar'); $('tcPrev').disabled=tour.i===0; $('tcPrev').style.opacity=tour.i===0?.4:1; }
+function tourUI(){ const s=TOUR[tour.i]; $('tcStep').textContent='Parada '+String(tour.i+1).padStart(2,'0')+' / '+TOUR.length; $('tcRoom').textContent=s.n; $('tcText').textContent=s.t; $('tcPlay').innerHTML=ico(tour.playing?'pause':'play'); $('tcPlay').setAttribute('aria-label',tour.playing?'Pausar':'Continuar'); $('tcPrev').disabled=tour.i===0; $('tcPrev').style.opacity=tour.i===0?.4:1; }
 function tourGo(i, how){ i=Math.max(0,Math.min(TOUR.length-1,i)); const s=TOUR[i], prev=tour.i; tour.i=i; tourUI();
   const P=s.p; if (how!=='fade' && i===prev+1 && s.glide && prev>=0){ const pts=[new T.Vector3(pos.x,0,pos.z)].concat(s.glide.map(q=>new T.Vector3(q[0],0,q[1]))).concat([new T.Vector3(P[0],0,P[1])]);
       const curve=new T.CatmullRomCurve3(pts,false,'centripetal'); const len=curve.getLength(); tour.glide={curve,y0:yaw,y1:P[2],p0:pitch,p1:P[3],dur:Math.max(2.2,Math.min(6,len/1.7)),t:0}; tour.phase='glide'; }
@@ -176,14 +176,16 @@ function dollFrame(){ if (innerWidth/innerHeight<.85){ doll.theta=Math.PI/2+.32;
 function dollPos(){ const s=Math.sin(doll.phi); return new T.Vector3(doll.tgt.x+doll.r*s*Math.sin(doll.theta), doll.r*Math.cos(doll.phi), doll.tgt.z+doll.r*s*Math.cos(doll.theta)); }
 const dollLabels=document.createElement('div'); dollLabels.hidden=true; document.body.appendChild(dollLabels);
 const DL=[['sala','Sala de TV',-5.2,-2.6],['lareira','Lareira',0,-2],['jantar','Jantar',5.2,-3.2],['cozinha','Cozinha',3.2,3.9],['q1','Quarto 1',-5.8,8],['q2','Quarto 2',-5.8,12],['banheiro','Banheiro',-.2,7.2],['q3','Quarto 3',-.2,12.6],['externa','Pátio',12.8,0],['chegada','Chegada',21,0]];
-const dlEls=DL.map(([k,n,x,z])=>{ const b=document.createElement('button'); b.className='lg pill press'; b.style.cssText='position:fixed;left:0;top:0;height:'+(isTouch?30:36)+'px;padding:0 '+(isTouch?11:14)+'px;font-size:'+(isTouch?12.5:13.5)+'px;z-index:5;will-change:transform'; b.textContent=n; b.onclick=e=>{ e.stopPropagation(); enterRoom(k); }; dollLabels.appendChild(b); return {b,v:new T.Vector3(x,1.2,z)}; });
+const RNO={chegada:'01',externa:'02',jantar:'03',cozinha:'04',lareira:'05',sala:'06',q1:'07',q2:'08',q3:'09',banheiro:'10',lavabo:'11'};
+const dlEls=DL.map(([k,n,x,z])=>{ const b=document.createElement('button'); b.className='lg pill press'; b.style.cssText='position:fixed;left:0;top:0;height:'+(isTouch?30:36)+'px;padding:0 '+(isTouch?11:14)+'px;font-size:'+(isTouch?12.5:13.5)+'px;z-index:5;will-change:transform'; b.innerHTML='<span style="font-family:var(--fm);font-size:11px;color:var(--tijolo);font-weight:600">'+RNO[k]+'</span>'+n; b.style.gap='7px'; b.onclick=e=>{ e.stopPropagation(); enterRoom(k); }; dollLabels.appendChild(b); return {b,v:new T.Vector3(x,1.2,z)}; });
 function updateDollLabels(){ const w=innerWidth, h=innerHeight; for (const d of dlEls){ const p=d.v.clone().project(camera); const vis=p.z<1 && Math.abs(p.x)<1.05 && Math.abs(p.y)<1.05; d.b.style.display=vis?'':'none'; if (vis) d.b.style.transform='translate('+((p.x*.5+.5)*w-d.b.offsetWidth/2).toFixed(1)+'px,'+((-p.y*.5+.5)*h-d.b.offsetHeight/2).toFixed(1)+'px)'; } }
 function enterRoom(k){ const r=PH[k]; if (!r) return; placeAt(r.tp[0],r.tp[1],r.tp[2],r.tp[3]); setMode('walk'); }
 function enterAt(x,z){ const dx=x-camera.position.x, dz=z-camera.position.z; placeAt(x,z,Math.atan2(-dx,-dz),-.08); setMode('walk'); }
 
+const ZNO={'Chegada':'01','Pátio':'02','Mesa de jantar':'03','Cozinha':'04','Lareira e rede':'05','Sala de TV':'06','Quarto 1':'07','Quarto 2':'08','Quarto 3':'09','Banheiro':'10','Jardim':'02','Varanda gourmet':'03','Espaço de trabalho':'··','Corredor dos quartos':'··'};
 // ---------- input ----------
 const keys={}; const menu=ui.menu;
-spots.forEach(s=>{ const b=document.createElement('button'); b.innerHTML=s[0]+'<span>ir</span>'; b.onclick=()=>{ goSpot(s); }; $('menuList').appendChild(b); });
+spots.forEach(s=>{ const b=document.createElement('button'); b.innerHTML='<span style="color:inherit;font-size:inherit"><em>'+(ZNO[s[0]]||'01')+'</em>'+s[0]+'</span><span>ir</span>'; b.onclick=()=>{ goSpot(s); }; $('menuList').appendChild(b); });
 function goSpot(s){ menu.hidden=true; $('bRooms').classList.remove('lens'); if (mode!=='walk'){ placeAt(s[1],s[2],s[3],s[4]); setMode('walk'); } else fadeTo(()=>{ placeAt(s[1],s[2],s[3],s[4]); }); }
 const MZ=[['Sala de TV',-8,-2.15,-6,.85,1],['Lareira',-2.15,2.5,-6,1.2,2],['Jantar',2.5,8,-6,.5,3],['Cozinha',-2.2,8,1.2,6,4],['Quarto 1',-8,-3.6,6,10,5],['Quarto 2',-8,-3.6,10,14,6],['Banheiro',-2.4,2,6,8.6,9],['Trabalho',-2.4,2,8.6,11.3,7],['Quarto 3',-2.4,2,11.3,14,8],['Pátio',8,17,-7,7,0],['Jardim',8,17,7,14,10]];
 function drawMap(svg){ svg.setAttribute('viewBox','-9 -7.5 27 22'); svg.innerHTML = MZ.map(([n,x0,x1,z0,z1,si])=>`<g class="mz" data-si="${si}" data-n="${n}"><rect x="${x0}" y="${z0}" width="${x1-x0}" height="${z1-z0}" rx=".3"/><text x="${(x0+x1)/2}" y="${(z0+z1)/2+.22}">${n}</text></g>`).join('') + '<path class="cone" d="M0 0"/><circle class="me" r=".42"/>';
@@ -309,7 +311,7 @@ function frame(){ requestAnimationFrame(frame); if (paused || document.hidden) {
   sky.position.copy(camera.position); stars.position.copy(camera.position);
   envTimer -= dt; const tdist = cur.sun.distanceTo(target.sun) + Math.abs(cur.sunI-target.sunI); if (envTimer<=0 && (tdist>.01 || envLast<0)){ envTimer=.35; envLast=1; updateEnv(); }
   grassU.uTime.value=t;
-  labelT-=dt; if (labelT<=0){ labelT=.15; $('room').textContent = mode==='doll' ? 'Maquete' : zoneAt(pos.x,pos.z); updateMaps(); }
+  labelT-=dt; if (labelT<=0){ labelT=.15; const zn=zoneAt(pos.x,pos.z); const ts = mode==='tour' && tour.i>=0 ? TOUR[tour.i] : null; $('room').textContent = mode==='doll' ? 'Maquete' : ts ? ts.n : zn; $('rno').textContent = mode==='doll' ? '3D' : ts ? (ts.n==='Jardim'?'02':RNO[ts.k]) : (ZNO[zn]||'··'); updateMaps(); }
   renderer.render(scene,camera);
   // adaptive quality: if the phone struggles, render fewer pixels
   if (started && !perfDone){ perfN++; perfT+=dt; if (perfN>=90){ const ms=perfT/perfN*1000; if (ms>24 && curDPR>1){ curDPR=Math.max(1,curDPR-.35); renderer.setPixelRatio(curDPR); perfN=0; perfT=0; } else if (ms<15 && curDPR<maxDPR){ curDPR=Math.min(maxDPR,curDPR+.25); renderer.setPixelRatio(curDPR); perfDone=true; } else perfDone=true; } }

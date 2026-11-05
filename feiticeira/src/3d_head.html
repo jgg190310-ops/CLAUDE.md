@@ -5,18 +5,19 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>Casa na Feiticeira em 3D</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 /* Casa na Feiticeira · 3D. A tela é o modelo; tudo que flutua por cima é vidro (Liquid Glass feito em CSS). */
 :root{
-  --ink:#0c1411;          /* mata à noite */
+  --ink:#0b2723;          /* cimento queimado verde */
   --cal:#f6f1e7;          /* cal / texto */
   --luz:#ffcf8a;          /* luz quente das luminárias: estado ativo */
   --cimento:#2a9d88;      /* cimento queimado verde */
-  --tijolo:#c9824f;       /* tijolo */
+  --tijolo:#d47a45;       /* tijolo: números */
   --muted:rgba(246,241,231,.74);
-  --fd:"Bricolage Grotesque",ui-sans-serif,system-ui,-apple-system,sans-serif;
-  --fb:"Figtree",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --fd:"Archivo",ui-sans-serif,system-ui,-apple-system,sans-serif;
+  --fb:"Archivo",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --fm:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,monospace;
   --spring:cubic-bezier(.3,1.5,.5,1);
   color-scheme:dark;
 }
@@ -55,7 +56,8 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
 #back{padding:0 16px 0 10px}
 #where{min-width:0;max-width:52vw}
 #where .dot{width:8px;height:8px;border-radius:50%;background:var(--luz);box-shadow:0 0 10px var(--luz);flex:none}
-#room{font-family:var(--fd);font-weight:700;font-size:16px;letter-spacing:-.01em;overflow:hidden;text-overflow:ellipsis}
+#room{font-family:var(--fd);font-stretch:125%;font-weight:800;font-size:14.5px;text-transform:uppercase;letter-spacing:.01em;overflow:hidden;text-overflow:ellipsis}
+#rno{font-family:var(--fm);font-size:12px;font-weight:600;color:var(--tijolo)}
 .seg{display:flex;gap:2px;padding:4px;border-radius:24px}
 .seg button{height:36px;padding:0 13px;border-radius:18px;display:flex;align-items:center;gap:7px;font-size:14px;font-weight:600;white-space:nowrap;color:var(--muted)}
 .seg button:hover{color:var(--cal)}
@@ -78,7 +80,8 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
 .me{fill:var(--luz);stroke:#fff;stroke-width:.12}
 .cone{fill:rgba(255,207,138,.35)}
 #menu{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom));transform:translateX(-50%);width:min(580px,calc(100vw - 20px));border-radius:28px;padding:18px;max-height:calc(100vh - 170px);overflow:auto;z-index:6}
-#menu h3{font-family:var(--fd);font-size:20px;font-weight:700;letter-spacing:-.02em;margin:0 4px 12px}
+#menu h3{font-family:var(--fd);font-stretch:125%;font-size:19px;font-weight:900;text-transform:uppercase;margin:0 4px 12px}
+#menuList button em{font-style:normal;font-family:var(--fm);font-size:11.5px;color:var(--tijolo);margin-right:10px}
 #menuGrid{display:grid;grid-template-columns:1.15fr 1fr;gap:14px;align-items:start}
 #menuList{display:grid;gap:2px}
 #menuList button{text-align:left;padding:10px 12px;border-radius:14px;font-size:15px;font-weight:500;display:flex;justify-content:space-between;align-items:center}
@@ -94,11 +97,11 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
 /* tour guiado */
 #tourCard{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom));transform:translateX(-50%);width:min(520px,calc(100vw - 20px));border-radius:30px;padding:16px 16px 14px 20px;z-index:6}
 #tcTop{display:flex;justify-content:space-between;align-items:center;gap:10px}
-#tcStep{font-size:12.5px;font-weight:600;color:var(--luz);letter-spacing:.02em;font-variant-numeric:tabular-nums}
-#tcRoom{font-family:var(--fd);font-size:26px;font-weight:800;letter-spacing:-.03em;line-height:1.05;margin-top:2px;text-wrap:balance}
+#tcStep{font-family:var(--fm);font-size:11.5px;font-weight:600;color:var(--tijolo);letter-spacing:.1em;text-transform:uppercase;font-variant-numeric:tabular-nums}
+#tcRoom{font-family:var(--fd);font-stretch:125%;font-size:28px;font-weight:900;text-transform:uppercase;letter-spacing:-.02em;line-height:.92;margin-top:6px;text-wrap:balance}
 #tcText{font-size:15px;line-height:1.45;color:var(--muted);margin-top:6px;min-height:2.9em}
 #tcBar{height:3px;border-radius:2px;background:rgba(255,255,255,.16);margin:12px 0 12px;overflow:hidden}
-#tcBar i{display:block;height:100%;width:0;background:var(--luz);border-radius:2px}
+#tcBar i{display:block;height:100%;width:0;background:var(--tijolo);border-radius:2px}
 #tcCtl{display:flex;gap:6px;align-items:center}
 .cb{width:44px;height:44px;border-radius:22px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.08)}
 .cb:hover{background:rgba(255,255,255,.16)}
@@ -117,8 +120,8 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
 #galImg{max-width:100%;max-height:100%;object-fit:contain}
 #galTop{position:fixed;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:calc(16px + env(safe-area-inset-top)) 16px 0}
 #galInfo{padding:12px 18px;border-radius:24px;max-width:calc(100vw - 96px)}
-#galRoom{font-family:var(--fd);font-size:20px;font-weight:800;letter-spacing:-.02em}
-#galCap{font-size:13.5px;color:var(--muted);margin-top:2px}
+#galRoom{font-family:var(--fd);font-stretch:125%;font-size:20px;font-weight:900;text-transform:uppercase;letter-spacing:-.01em}
+#galCap{font-size:13.5px;color:var(--muted);margin-top:4px}
 .ib{width:48px;height:48px;border-radius:24px;display:flex;align-items:center;justify-content:center;flex:none}
 .gnav{position:fixed;top:50%;margin-top:-24px}#galP{left:14px}#galN{right:14px}
 #galDots{position:fixed;bottom:calc(22px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);display:flex;gap:6px;padding:9px 12px;border-radius:14px}
@@ -129,8 +132,8 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
 #start .bgp{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(.8) saturate(1.05)}
 #start .shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(6,12,9,.35),rgba(6,12,9,0) 30%,rgba(6,12,9,.2) 60%,rgba(6,12,9,.7))}
 #start .card{position:relative;width:min(560px,100%);border-radius:34px;padding:26px 24px 22px}
-#start .eyebrow{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--luz)}
-#start h1{font-family:var(--fd);font-size:clamp(32px,5vw,44px);font-weight:800;letter-spacing:-.04em;line-height:.98;margin-top:8px;text-wrap:balance}
+#start .eyebrow{display:flex;align-items:center;gap:8px;font-family:var(--fm);font-size:11.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--tijolo)}
+#start h1{font-family:var(--fd);font-stretch:125%;font-size:clamp(30px,5vw,46px);font-weight:900;text-transform:uppercase;letter-spacing:-.025em;line-height:.88;margin-top:10px;text-wrap:balance}
 #start .sub{color:var(--muted);font-size:15.5px;margin:10px 0 18px;line-height:1.45;max-width:46ch}
 #howto{display:grid;grid-template-columns:1fr 1fr;gap:10px 16px;margin-bottom:20px}
 #howto div{display:flex;gap:10px;align-items:flex-start;font-size:14px;line-height:1.35}
@@ -141,7 +144,7 @@ kbd{font-family:var(--fb);font-size:12px;background:rgba(255,255,255,.12);border
 #startBtns{display:flex;gap:8px;flex-wrap:wrap}
 #startBtns .cta{height:52px;padding:0 22px;border-radius:26px;font-size:16px;flex:1 1 auto;justify-content:center}
 #go:disabled{opacity:.55}
-#start .fine{font-size:12.5px;color:var(--muted);margin-top:14px}
+#start .fine{font-family:var(--fm);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:14px}
 
 @media (max-width:760px){
   .seg button .t,.tb .t{display:none}
@@ -184,7 +187,7 @@ kbd{font-family:var(--fb);font-size:12px;background:rgba(255,255,255,.12);border
 <div id="top">
   <div id="tleft">
     <button id="back" class="lg pill press" hidden aria-label="Voltar às fotos"><svg class="i"><use href="#i-left"/></svg><span class="t">Fotos</span></button>
-    <div id="where" class="lg pill"><span class="dot"></span><span id="room">Pátio</span></div>
+    <div id="where" class="lg pill"><span id="rno">02</span><span id="room">Pátio</span></div>
   </div>
   <div id="modes" class="lg seg" role="group" aria-label="Modo" hidden>
     <button data-mode="walk" class="press lens" aria-label="Andar"><svg class="i"><use href="#i-walk"/></svg><span class="t">Andar</span></button>
@@ -234,7 +237,7 @@ kbd{font-family:var(--fb);font-size:12px;background:rgba(255,255,255,.12);border
   <div class="shade"></div>
   <div class="card lg">
     <div class="eyebrow"><svg class="i"><use href="#i-house"/></svg>Modelo 3D da casa</div>
-    <h1>Ande pela Casa na Feiticeira</h1>
+    <h1>Ande pela casa na Feiticeira</h1>
     <p class="sub">Veja onde fica cada ambiente, mude a hora do dia e abra a foto real de cada lugar.</p>
     <div id="howto"></div>
     <div id="startBtns">
