@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>prévia · Apresentação comercial</title>
+<style>
+/* prévia — apresentação comercial. Slides de 1600×900, para exportar em PDF.
+   Papel claro, tinta quase preta e um amarelo-mostarda como única cor.
+   Instrument Serif nos títulos, Instrument Sans no resto. */
+@font-face{font-family:"IS";src:url(fonts/instrument-serif-latin-400-normal.woff2)}
+@font-face{font-family:"IS";font-style:italic;src:url(fonts/instrument-serif-latin-400-italic.woff2)}
+@font-face{font-family:"ISans";font-weight:400;src:url(fonts/instrument-sans-latin-400-normal.woff2)}
+@font-face{font-family:"ISans";font-weight:500;src:url(fonts/instrument-sans-latin-500-normal.woff2)}
+@font-face{font-family:"ISans";font-weight:600;src:url(fonts/instrument-sans-latin-600-normal.woff2)}
+@page{size:1600px 900px;margin:0}
+:root{--papel:#f4f1ea;--papel2:#e9e4d8;--tinta:#141210;--sub:#6a6358;--fio:rgba(20,18,16,.14);--mos:#e2ad3b;--mos2:#b8841c;--esc:#161412}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#888}
+body{font-family:"ISans",system-ui,sans-serif;color:var(--tinta);-webkit-font-smoothing:antialiased}
+.s{width:1600px;height:900px;position:relative;overflow:hidden;background:var(--papel);page-break-after:always;break-after:page;padding:88px 104px}
+.s.dk{background:var(--esc);color:#f4f1ea}
+h1,h2,h3{font-family:"IS",Georgia,serif;font-weight:400;letter-spacing:-.02em;line-height:.98}
+h1 em,h2 em,h3 em{font-style:italic;color:var(--mos2)}
+.dk h1 em,.dk h2 em,.dk h3 em{color:var(--mos)}
+h2{font-size:84px;max-width:15ch}
+.k{font-size:15px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--sub)}
+.dk .k{color:rgba(244,241,234,.55)}
+.lead{font-size:26px;line-height:1.45;color:var(--sub);max-width:36ch;margin-top:26px}
+.dk .lead{color:rgba(244,241,234,.72)}
+/* marca */
+.logo{display:flex;align-items:center;gap:14px;font-family:"IS";font-style:italic;font-size:44px;letter-spacing:-.01em}
+.logo i{width:34px;height:34px;display:block;position:relative;border:2.5px solid currentColor}
+.logo i::after{content:"";position:absolute;top:0;right:0;bottom:0;width:50%;background:var(--mos)}
+.mark{position:absolute;top:56px;right:104px;font-size:28px}
+.mark i{width:24px;height:24px;border-width:2px}
+.pg{position:absolute;left:104px;bottom:52px;font-size:14px;font-weight:600;letter-spacing:.14em;color:var(--sub)}
+.dk .pg{color:rgba(244,241,234,.45)}
+/* comparador estático */
+.ba{position:relative;overflow:hidden;background:var(--papel2)}
+.ba img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.ba img.d{clip-path:inset(0 0 0 var(--p,50%))}
+.ba .ln{position:absolute;top:0;bottom:0;left:var(--p,50%);width:3px;margin-left:-1.5px;background:#fff;box-shadow:0 0 16px rgba(0,0,0,.35)}
+.ba .ln::after{content:"‹ ›";position:absolute;top:50%;left:50%;width:58px;height:58px;margin:-29px 0 0 -29px;border-radius:29px;background:#fff;color:var(--tinta);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:600;letter-spacing:6px;box-shadow:0 8px 20px -8px rgba(0,0,0,.5)}
+.ba .t{position:absolute;bottom:16px;height:34px;padding:0 13px;display:flex;align-items:center;font-size:13px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;background:rgba(244,241,234,.94);color:var(--tinta)}
+.ba .t.a{left:16px}.ba .t.b{right:16px;background:var(--tinta);color:#fff}
+/* 1 · capa */
+.cover{display:grid;grid-template-columns:1fr 760px;gap:72px;padding:0}
+.cover .l{padding:88px 0 80px 104px;display:flex;flex-direction:column}
+.cover h1{font-size:118px;margin-top:auto}
+.cover .lead{font-size:27px}
+.cover .ft{margin-top:44px;font-size:14px;color:var(--sub);letter-spacing:.02em}
+.cover .ba{height:900px}
+/* 2 · problema */
+.trio{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-top:72px;border-top:2px solid var(--tinta)}
+.trio div{padding:28px 32px 0 0}
+.trio div+div{padding-left:32px;border-left:1px solid var(--fio)}
+.trio b{display:block;font-family:"IS";font-weight:400;font-size:62px;line-height:1;color:var(--mos2)}
+.trio h3{font-size:40px;margin-top:22px}
+.trio p{font-size:20px;line-height:1.5;color:var(--sub);margin-top:12px}
+.quote{position:absolute;right:104px;bottom:96px;font-family:"IS";font-style:italic;font-size:34px;max-width:22ch;text-align:right;line-height:1.15}
+/* 3 · serviços */
+.svc{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;margin-top:44px}
+.svc article{background:#fff;box-shadow:inset 0 0 0 1px var(--fio)}
+.svc .ba{height:262px}
+.svc .tx{padding:24px 26px 28px}
+.svc .n{font-size:14px;font-weight:600;letter-spacing:.16em;color:var(--mos2)}
+.svc h3{font-size:38px;margin-top:8px}
+.svc p{font-size:18.5px;line-height:1.5;color:var(--sub);margin-top:10px}
+.page{height:262px;background:var(--esc);display:flex;align-items:center;justify-content:center;position:relative}
+.phone{width:140px;height:240px;border-radius:24px;background:#f4f1ea;box-shadow:0 0 0 6px #2a2622;overflow:hidden;position:relative;margin-top:0}
+.phone img{width:100%;height:118px;object-fit:cover}
+.phone .bars{padding:10px 12px}
+.phone .bars i{display:block;height:7px;background:#d9d3c6;margin-top:7px;border-radius:2px}
+.phone .bars i:first-child{width:80%;height:12px;background:#141210}
+.phone .bars i:nth-child(2){width:60%}
+.phone .btn{position:absolute;left:12px;right:12px;bottom:14px;height:22px;background:var(--mos)}
+/* 4 · caso */
+.case{display:grid;grid-template-columns:520px 1fr;gap:64px;height:100%}
+.case .stats{margin-top:40px;border-top:1px solid rgba(244,241,234,.2)}
+.case .stats div{display:flex;justify-content:space-between;padding:16px 0;border-bottom:1px solid rgba(244,241,234,.14);font-size:20px}
+.case .stats span{color:rgba(244,241,234,.6)}
+.case .grid{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:16px;margin:-88px -104px -88px 0;height:900px;padding:0}
+.case .grid .ba:first-child{grid-row:1/3}
+.case .note{margin-top:28px;font-size:15px;color:rgba(244,241,234,.5);line-height:1.5;max-width:46ch}
+/* 5 · como funciona */
+.steps{display:grid;grid-template-columns:repeat(4,1fr);margin-top:72px;border-top:2px solid var(--tinta)}
+.steps div{padding:30px 30px 0 0;position:relative}
+.steps div+div{padding-left:30px;border-left:1px solid var(--fio)}
+.steps b{display:block;font-family:"IS";font-weight:400;font-size:96px;line-height:.85}
+.steps h3{font-size:38px;margin-top:26px}
+.steps p{font-size:19.5px;line-height:1.5;color:var(--sub);margin-top:12px}
+.steps .on b{color:var(--mos2)}
+.foot{position:absolute;left:104px;right:104px;bottom:96px;display:flex;gap:16px;align-items:center;font-size:20px;color:var(--sub)}
+.foot b{color:var(--tinta);font-weight:600}
+.dot{width:12px;height:12px;border-radius:6px;background:var(--mos);flex:none}
+/* 6 · para quem */
+.who{display:grid;grid-template-columns:1fr 1fr;gap:0;margin-top:60px;border-top:2px solid var(--tinta)}
+.who div{padding:28px 40px 30px 0;border-bottom:1px solid var(--fio)}
+.who div:nth-child(even){padding-left:40px;border-left:1px solid var(--fio)}
+.who h3{font-size:42px;display:flex;justify-content:space-between;align-items:baseline}
+.who h3 small{font-family:"ISans";font-size:13px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--mos2)}
+.who p{font-size:20px;line-height:1.5;color:var(--sub);margin-top:10px;max-width:44ch}
+/* 7 · pacotes */
+.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:56px}
+.plans article{padding:32px 32px 30px;background:#fff;box-shadow:inset 0 0 0 1px var(--fio);display:flex;flex-direction:column}
+.plans article.hl{background:var(--esc);color:#f4f1ea;box-shadow:none}
+.plans .k{color:var(--mos2)}.plans .hl .k{color:var(--mos)}
+.plans h3{font-size:52px;margin-top:10px}
+.plans .for{font-size:18px;color:var(--sub);margin-top:8px}.plans .hl .for{color:rgba(244,241,234,.6)}
+.plans ul{list-style:none;margin-top:24px;border-top:1px solid var(--fio)}
+.plans .hl ul{border-color:rgba(244,241,234,.18)}
+.plans li{font-size:19px;padding:12px 0;border-bottom:1px solid var(--fio);display:flex;gap:12px}
+.plans .hl li{border-color:rgba(244,241,234,.12)}
+.plans li::before{content:"";width:8px;height:8px;margin-top:9px;background:var(--mos);flex:none}
+.plans .pr{margin-top:auto;padding-top:22px;font-family:"IS";font-size:30px}
+/* 8 · transparência */
+.tr{display:grid;grid-template-columns:1fr 660px;gap:72px;align-items:center;height:100%}
+.tr .ba{height:660px}
+.badge{position:absolute;top:18px;left:18px;height:38px;padding:0 14px;display:flex;align-items:center;gap:9px;background:rgba(244,241,234,.95);font-size:14px;font-weight:600;letter-spacing:.1em;text-transform:uppercase}
+.badge::before{content:"";width:10px;height:10px;border-radius:5px;background:var(--mos)}
+.rules{list-style:none;margin-top:36px;border-top:1px solid var(--fio)}
+.rules li{display:grid;grid-template-columns:44px 1fr;padding:16px 0;border-bottom:1px solid var(--fio);font-size:21px;line-height:1.45}
+.rules li b{font-family:"IS";font-weight:400;font-size:28px;color:var(--mos2)}
+/* 9 · fecho */
+.end{display:flex;flex-direction:column;justify-content:center;align-items:flex-start;padding-right:860px}
+.end .ba{position:absolute;top:0;right:0;bottom:0;width:760px}
+.end h2{font-size:118px;max-width:11ch}
+.end .lead{font-size:28px;max-width:40ch}
+.cta{margin-top:48px;display:flex;gap:20px;align-items:center}
+.cta b{height:72px;padding:0 34px;display:flex;align-items:center;background:var(--mos);color:var(--tinta);font-size:22px;font-weight:600}
+.cta span{font-size:20px;color:rgba(244,241,234,.6)}
+.end .big{position:absolute;right:-60px;bottom:-110px;width:560px;height:560px;border:14px solid rgba(244,241,234,.06)}
+.end .big::after{content:"";position:absolute;top:0;right:0;bottom:0;width:50%;background:rgba(226,173,59,.12)}
+@media screen{ body{padding:24px 0} .s{margin:0 auto 24px;box-shadow:0 10px 40px -10px rgba(0,0,0,.5)} }
+@media print{ html,body{background:none} }
+</style>
+</head>
+<body>
+
+<!-- 1 · capa -->
+<section class="s cover">
+  <div class="l">
+    <div class="logo"><i></i>prévia</div>
+    <h1>Quem compra imóvel compra <em>o que imagina</em>.</h1>
+    <p class="lead">Nós mostramos isso antes da visita: o imóvel vazio, antigo ou em obra, pronto e mobiliado, na mesma foto.</p>
+    <p class="ft">Imagens ilustrativas feitas com inteligência artificial, sempre identificadas.</p>
+  </div>
+  <div class="ba" style="--p:44%"><img src="img/antes-sala.jpg" alt=""><img class="d" src="img/depois-sala.jpg" alt=""><div class="ln"></div><span class="t a">Hoje</span><span class="t b">Prévia</span></div>
+</section>
+
+<!-- 2 · o problema -->
+<section class="s">
+  <div class="logo mark"><i></i>prévia</div>
+  <span class="k">O problema</span>
+  <h2>Imóvel vazio não <em>conta história</em>.</h2>
+  <div class="trio">
+    <div><b>01</b><h3>Parece menor</h3><p>Sem móveis, o olho não tem escala. O cliente não sabe se a cama cabe, onde fica a mesa, se o sofá passa.</p></div>
+    <div><b>02</b><h3>Obra assusta</h3><p>Piso manchado, entulho e fio solto fazem o comprador ver trabalho e custo, não a casa que aquilo pode virar.</p></div>
+    <div><b>03</b><h3>Foto fraca filtra mal</h3><p>O anúncio perde o interessado certo antes da visita, e a visita vira explicação em vez de decisão.</p></div>
+  </div>
+  <p class="quote">“Imagina aqui uma mesa para oito…” não deveria depender da imaginação de ninguém.</p>
+  <span class="pg">02</span>
+</section>
+
+<!-- 3 · o que entregamos -->
+<section class="s">
+  <div class="logo mark"><i></i>prévia</div>
+  <span class="k">O que entregamos</span>
+  <h2>Três jeitos de <em>mostrar o depois</em>.</h2>
+  <div class="svc">
+    <article><div class="ba" style="--p:50%"><img src="img/antes-quarto3.jpg" alt=""><img class="d" src="img/depois-quarto3.jpg" alt=""><div class="ln"></div></div>
+      <div class="tx"><span class="n">01 · MOBÍLIA VIRTUAL</span><h3>Vazio vira casa</h3><p>A foto real do ambiente, com móveis, tapete, luz e decoração, sem mudar paredes, janelas ou piso.</p></div></article>
+    <article><div class="ba" style="--p:50%"><img src="img/antes-compra.jpg" alt=""><img class="d" src="img/depois-saleta.jpg" alt=""><div class="ln"></div></div>
+      <div class="tx"><span class="n">02 · REFORMA VIRTUAL</span><h3>Obra vira pronto</h3><p>Para imóvel de leilão ou antigo: piso recuperado, entulho fora e o ambiente montado, antes da obra começar.</p></div></article>
+    <article><div class="page"><div class="phone"><img src="img/pronto-sala.jpg" alt=""><div class="bars"><i></i><i></i><i></i><i></i></div><span class="btn"></span></div></div>
+      <div class="tx"><span class="n">03 · PÁGINA DO IMÓVEL</span><h3>Um link que vende</h3><p>Site do imóvel com antes e depois de cada ambiente, planta e bairro, pronto para mandar no WhatsApp.</p></div></article>
+  </div>
+  <span class="pg">03</span>
+</section>
+
+<!-- 4 · caso real -->
+<section class="s dk">
+  <div class="case">
+    <div>
+      <span class="k">Caso real</span>
+      <h2 style="margin-top:14px">Apto <em>Luxemburgo</em>, BH</h2>
+      <p class="lead">Arrematado em leilão e reformado. Dez ambientes fotografados vazios ganharam a versão mobiliada, e tudo virou uma página para enviar aos compradores.</p>
+      <div class="stats"><div><span>Ambientes com antes e depois</span><b>10</b></div><div><span>Área</span><b>120 m²</b></div><div><span>Entregas</span><b>fotos, página e maquete 3D</b></div></div>
+      <p class="note">jgg190310-ops.github.io/apto-luxemburgo · Fotos da esquerda reais; mobília e reforma da direita ilustrativas, feitas por IA.</p>
+    </div>
+    <div class="grid">
+      <div class="ba" style="--p:46%"><img src="img/antes-estar.jpg" alt=""><img class="d" src="img/depois-estar.jpg" alt=""><div class="ln"></div><span class="t a">Antes</span><span class="t b">Depois</span></div>
+      <div class="ba" style="--p:50%"><img src="img/antes-banheiro.jpg" alt=""><img class="d" src="img/depois-banheiro.jpg" alt=""><div class="ln"></div></div>
+      <div class="ba" style="--p:50%"><img src="img/antes-compra.jpg" alt=""><img class="d" src="img/depois-saleta.jpg" alt=""><div class="ln"></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 5 · como funciona -->
+<section class="s">
+  <div class="logo mark"><i></i>prévia</div>
+  <span class="k">Como funciona</span>
+  <h2>Do celular do corretor ao <em>link pronto</em>.</h2>
+  <div class="steps">
+    <div><b>1</b><h3>Fotos</h3><p>Você manda as fotos do imóvel pelo WhatsApp, do jeito que ele está hoje. Celular resolve.</p></div>
+    <div><b>2</b><h3>Estilo</h3><p>Escolhemos juntos o público e o estilo: casal jovem, família, investidor, aluguel por temporada.</p></div>
+    <div><b>3</b><h3>Prévia</h3><p>Cada ambiente volta mobiliado, com o antes e o depois lado a lado para revisar.</p></div>
+    <div class="on"><b>4</b><h3>Publicação</h3><p>As fotos aprovadas vão para o anúncio e para a página do imóvel, com o seu contato.</p></div>
+  </div>
+  <div class="foot"><span class="dot"></span><span><b>Sem foto profissional, sem visita técnica.</b> O que muda é a foto, nunca a planta: paredes, janelas e piso continuam os reais.</span></div>
+  <span class="pg">05</span>
+</section>
+
+<!-- 6 · para quem -->
+<section class="s">
+  <div class="logo mark"><i></i>prévia</div>
+  <span class="k">Para quem</span>
+  <h2>Feito para quem <em>vende imóvel</em>.</h2>
+  <div class="who">
+    <div><h3>Corretores e imobiliárias <small>Anunciar</small></h3><p>Anúncio que se destaca no portal e chega na visita com o cliente já imaginando a mudança.</p></div>
+    <div><h3>Investidores de leilão <small>Revender</small></h3><p>Mostre o imóvel pronto enquanto a obra ainda acontece e comece a vender antes de terminar.</p></div>
+    <div><h3>Construtoras e reformas <small>Aprovar</small></h3><p>O cliente aprova o resultado em foto do próprio imóvel, antes de quebrar a primeira parede.</p></div>
+    <div><h3>Proprietários <small>Alugar</small></h3><p>Para vender ou alugar, inclusive por temporada: o imóvel aparece como dá vontade de morar.</p></div>
+  </div>
+  <span class="pg">06</span>
+</section>
+
+<!-- 7 · pacotes -->
+<section class="s">
+  <div class="logo mark"><i></i>prévia</div>
+  <span class="k">Pacotes</span>
+  <h2>Comece pelo que o imóvel <em>precisa</em>.</h2>
+  <div class="plans">
+    <article><span class="k">Fotos</span><h3>Essencial</h3><p class="for">Para turbinar um anúncio.</p>
+      <ul><li>Até 5 ambientes mobiliados</li><li>Antes e depois de cada foto</li><li>Arquivos prontos para o portal</li></ul><p class="pr">Sob consulta</p></article>
+    <article class="hl"><span class="k">Recomendado</span><h3>Completo</h3><p class="for">Para vender o imóvel inteiro.</p>
+      <ul><li>Até 10 ambientes, com reforma virtual</li><li>Página do imóvel com antes e depois</li><li>Botão de WhatsApp e prévia do link</li></ul><p class="pr">Sob consulta</p></article>
+    <article><span class="k">Lançamento</span><h3>Vitrine</h3><p class="for">Para obra, leilão e lançamento.</p>
+      <ul><li>Tudo do Completo</li><li>Maquete 3D a partir da planta</li><li>Atualizações ao longo da obra</li></ul><p class="pr">Sob consulta</p></article>
+  </div>
+  <div class="foot"><span class="dot"></span><span><b>O valor depende do número de ambientes e do prazo.</b> A primeira prévia, com três fotos, serve para você ver o resultado antes de fechar.</span></div>
+  <span class="pg">07</span>
+</section>
+
+<!-- 8 · transparência -->
+<section class="s">
+  <div class="tr">
+    <div>
+      <span class="k">Transparência</span>
+      <h2 style="margin-top:14px">Mostrar o potencial, <em>sem enganar</em>.</h2>
+      <ul class="rules">
+        <li><b>1</b><span>Toda foto alterada sai identificada: “mobília ilustrativa”, “reforma ilustrativa” ou “limpeza digital”.</span></li>
+        <li><b>2</b><span>A foto real vai sempre junto, no comparador de antes e depois.</span></li>
+        <li><b>3</b><span>Não mudamos o que é do imóvel: tamanho, paredes, janelas, vista e acabamentos que não existem.</span></li>
+      </ul>
+    </div>
+    <div class="ba" style="--p:52%"><img src="img/antes-sala.jpg" alt=""><img class="d" src="img/depois-sala.jpg" alt=""><div class="ln"></div><span class="badge">Mobília ilustrativa · IA</span><span class="t a">Foto real</span><span class="t b">Prévia</span></div>
+  </div>
+  <span class="pg">08</span>
+</section>
+
+<!-- 9 · fecho -->
+<section class="s dk end">
+  <div class="logo" style="font-size:40px;margin-bottom:56px"><i></i>prévia</div>
+  <h2>Mande 3 fotos. <em>Veja o depois.</em></h2>
+  <p class="lead">Escolha três ambientes de um imóvel que está à venda hoje. Devolvemos a prévia deles para você comparar com o anúncio atual.</p>
+  <div class="cta"><b>Pedir minha prévia</b><span>pelo WhatsApp</span></div>
+  <div class="ba" style="--p:48%"><img src="img/antes-quarto3.jpg" alt=""><img class="d" src="img/depois-quarto3.jpg" alt=""><div class="ln"></div><span class="t a">Hoje</span><span class="t b">Prévia</span></div>
+</section>
+
+</body>
+</html>
