@@ -51,13 +51,19 @@ const tMonst = (function(){ const S=256, c=document.createElement('canvas'); c.w
   g.globalCompositeOperation='source-atop'; const gr=g.createLinearGradient(0,0,S,0); gr.addColorStop(0,'#24481f'); gr.addColorStop(.5,'#4f8a3e'); gr.addColorStop(1,'#24481f'); g.fillStyle=gr; g.fillRect(0,0,S,S); g.strokeStyle='rgba(170,210,130,.6)'; g.lineWidth=3; g.beginPath(); g.moveTo(S/2,S); g.lineTo(S/2,S*.06); g.stroke();
   const t=new T.CanvasTexture(c); t.encoding=T.sRGBEncoding; return t; })();
 
+function alphaTex(w,h,f){ const c=document.createElement('canvas'); c.width=w; c.height=h; const g=c.getContext('2d'); const img=g.createImageData(w,h);
+  for (let y=0;y<h;y++) for (let x=0;x<w;x++){ const i=(y*w+x)*4; img.data[i]=img.data[i+1]=img.data[i+2]=0; img.data[i+3]=Math.max(0,Math.min(255,f(x/(w-1),y/(h-1))*255))|0; }
+  g.putImageData(img,0,0); const t=new T.CanvasTexture(c); t.wrapS=T.RepeatWrapping; t.wrapT=T.ClampToEdgeWrapping; return t; }
+const tAO = alphaTex(4,64,(x,y)=>Math.pow(1-y,2.2));
+const tBlob = alphaTex(64,64,(x,y)=>{ const dx=(x-.5)*2, dy=(y-.5)*2, r=Math.sqrt(dx*dx+dy*dy); return Math.max(0,1-r)*Math.max(0,1-r)*.9; });
+
 // ---------- materiais ----------
 const glowMats=[];
 function M(o){ const m=new T.MeshStandardMaterial({color:o.color?lin(o.color):new T.Color(1,1,1), map:o.map||null, roughness:o.r!==undefined?o.r:.8, metalness:o.m||0, transparent:!!o.tr, opacity:o.op!==undefined?o.op:1, side:o.side||T.FrontSide});
   if (o.em){ m.emissive=lin(o.em); m.emissiveIntensity=o.ei||1; glowMats.push({m,base:o.ei||1}); } if (o.tr) m.depthWrite=false; m.userData.tile=o.tile||1; if (o.alpha){ m.alphaTest=.5; m.transparent=false; } return m; }
 const mat = {
   ipe:M({map:tIpe,tile:1.3,r:.32}), taco:M({map:tTaco,tile:1.1,r:.36}), porc:M({map:tPorc,tile:1.8,r:.22}),
-  wall:M({map:tPlaster,tile:2,r:.92,color:'#ece4d7'}), facade:M({map:tFacade,tile:3,r:.95}), slab:M({color:'#bdb5a8',r:.9}), ceil:M({color:'#f4f0e8',r:.95}),
+  wall:M({map:tPlaster,tile:2,r:.9,color:'#f3eee6'}), cap:M({color:'#3a2f27',r:.7}), plinth:M({color:'#e6ded2',r:.85}), facade:M({map:tFacade,tile:3,r:.95}), slab:M({color:'#bdb5a8',r:.9}), ceil:M({color:'#f4f0e8',r:.95}),
   white:M({color:'#f3f1ec',r:.5}), frame:M({color:'#eceae4',r:.35,m:.2}), glass:M({color:'#dfeef2',r:.04,m:.1,tr:1,op:.18}), sill:M({map:tStone,tile:1,r:.3}),
   door:M({color:'#f2f0ea',r:.45}), oak:M({map:tOak,tile:1.2,r:.55}), oakD:M({map:tOak,tile:1.2,r:.5,color:'#b07a4a'}), cane:M({map:tCane,tile:.35,r:.75}),
   linen:M({map:tLinen,tile:.6,r:.95}), cushion:M({map:tLinen,tile:.5,r:.95,color:'#efe6d6'}), brownP:M({color:'#7b4a2e',r:.95}), terra:M({color:'#b0603a',r:.95}),
@@ -66,9 +72,9 @@ const mat = {
   mirror:M({color:'#cfd9dc',r:.03,m:.95}), pot:M({color:'#e9e1d4',r:.7}), terracottaPot:M({color:'#b9703f',r:.85}), leaf:M({map:tMonst,alpha:1,side:T.DoubleSide,r:.6}),
   trunk:M({color:'#6b5444',r:.95}), foliage:M({color:'#4b7a3a',r:.85}), grass:M({map:tGrass,tile:4,r:1}), asph:M({map:tAsph,tile:6,r:.95}), build:M({map:tBuild,tile:9,r:.85}),
   curtain:new T.MeshStandardMaterial({map:tLinen,color:lin('#f4efe6'),roughness:1,transparent:true,opacity:.82,side:T.DoubleSide,depthWrite:false}),
-  plafon:M({color:'#ffffff',em:'#fff1d6',ei:.2,r:.4}), lampShade:M({color:'#f3e6cf',em:'#ffc98a',ei:.15,r:.9})
+  plafon:M({color:'#ffffff',em:'#fff1d6',ei:.2,r:.4}), ao:new T.MeshBasicMaterial({map:tAO,color:0x2a1c12,side:T.DoubleSide,transparent:true,opacity:.42,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-2}), blob:new T.MeshBasicMaterial({map:tBlob,color:0x2a1c12,transparent:true,opacity:.55,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-3}), lampShade:M({color:'#f3e6cf',em:'#ffc98a',ei:.15,r:.9})
 };
-mat.curtain.userData.tile=.8;
+mat.curtain.userData.tile=.8; mat.ao.userData.tile=1; mat.blob.userData.tile=1;
 mat.glass.envMapIntensity=1.4; mat.mirror.envMapIntensity=1.5; mat.steel.envMapIntensity=1.2; mat.ipe.envMapIntensity=.55; mat.taco.envMapIntensity=.5; mat.porc.envMapIntensity=.5; mat.stone.envMapIntensity=.6;
 
 // ---------- geometria ----------
@@ -81,10 +87,10 @@ function B(x0,x1,y0,y1,z0,z1,m,o){ o=o||{}; if (x0>x1) [x0,x1]=[x1,x0]; if (y0>y
 function cyl(x,y,z,rt,rb,h,m,seg,parent){ const mesh=new T.Mesh(new T.CylinderGeometry(rt,rb,h,seg||20),m); mesh.position.set(x,y+h/2,z); mesh.castShadow=mesh.receiveShadow=true; (parent||scene).add(mesh); return mesh; }
 function floorRect(x0,x1,z0,z1,m,y){ const g=new T.PlaneGeometry(x1-x0,z1-z0); const uv=g.attributes.uv, s=m.userData.tile||1; for (let i=0;i<uv.count;i++) uv.setXY(i, (uv.getX(i)*(x1-x0)+x0)/s, (uv.getY(i)*(z1-z0)+z0)/s); const mesh=new T.Mesh(g,m); mesh.rotation.x=-Math.PI/2; mesh.position.set((x0+x1)/2,y||0,(z0+z1)/2); mesh.receiveShadow=true; scene.add(mesh); return mesh; }
 const group=(x,y,z,ry)=>{ const g=new T.Group(); g.position.set(x,y,z); g.rotation.y=ry||0; scene.add(g); return g; };
-const H=2.7;
+const H=2.5;
 // parede ao longo de x (axis 'x', c = z) ou de z (axis 'z', c = x), com vãos de porta e janela
 function wall(axis,c,s0,s1,t,ops,o){ o=o||{}; ops=(ops||[]).slice().sort((a,b)=>a.a-b.a); const c0=c-t/2, c1=c+t/2, m=o.m||mat.wall;
-  const P=(p0,p1,q0,q1,col)=> axis==='x' ? B(p0,p1,q0,q1,c0,c1,m,{col}) : B(c0,c1,q0,q1,p0,p1,m,{col});
+  const P=(p0,p1,q0,q1,col)=>{ const r = axis==='x' ? B(p0,p1,q0,q1,c0,c1,m,{col}) : B(c0,c1,q0,q1,p0,p1,m,{col}); if (q1>=H-1e-6){ if (axis==='x') B(p0,p1,H,H+.015,c0-.004,c1+.004,mat.cap,{cast:false}); else B(c0-.004,c1+.004,H,H+.015,p0,p1,mat.cap,{cast:false}); } return r; };
   let cur=s0; for (const p of ops){ if (p.a>cur) P(cur,p.a,0,H,true); const bot=p.bot||0, top=p.top||2.1; if (bot>0) P(p.a,p.b,0,bot,true); if (top<H) P(p.a,p.b,top,H,false);
     if (p.win) win(axis,c,t,p.a,p.b,bot,top,o.out); if (p.door) door(axis,c,t,p.a,p.b,p.door,p.hinge); cur=p.b; }
   if (cur<s1) P(cur,s1,0,H,true); }
@@ -125,11 +131,21 @@ function plant(x,z,s,kind){ const g=group(x,0,z,rnd()*6); cyl(0,0,0,.2*s,.15*s,.
     const st=new T.Mesh(new T.CylinderGeometry(.008,.01,hh,4),mat.foliage); st.position.set(Math.cos(a)*rr*.45,.38*s+hh/2,Math.sin(a)*rr*.45); st.rotation.z=(rnd()-.5)*.4; g.add(st); } return g; }
 function plafon(x,z,w){ const m=B(x-w/2,x+w/2,H-.06,H-.01,z-w/2,z+w/2,mat.plafon,{cast:false}); m.userData.ceil=true; return m; }
 
+function aoStrip(x0,x1,z0,z1,dir,w){ // faixa escura no chão junto à parede, esmaecendo para fora
+  let A,Bp,o; if (dir==='-z'){ A=[x0,z0]; Bp=[x1,z0]; o=[0,-w]; } else if (dir==='+z'){ A=[x0,z1]; Bp=[x1,z1]; o=[0,w]; } else if (dir==='-x'){ A=[x0,z0]; Bp=[x0,z1]; o=[-w,0]; } else { A=[x1,z0]; Bp=[x1,z1]; o=[w,0]; }
+  const y=.004, P=[A[0],y,A[1], Bp[0],y,Bp[1], Bp[0]+o[0],y,Bp[1]+o[1], A[0],y,A[1], Bp[0]+o[0],y,Bp[1]+o[1], A[0]+o[0],y,A[1]+o[1]], U=[0,1, 1,1, 1,0, 0,1, 1,0, 0,0];
+  const g=new T.BufferGeometry(); g.setAttribute('position',new T.Float32BufferAttribute(P,3)); g.setAttribute('uv',new T.Float32BufferAttribute(U,2)); g.setAttribute('normal',new T.Float32BufferAttribute([0,1,0,0,1,0,0,1,0,0,1,0,0,1,0,0,1,0],3));
+  const m=new T.Mesh(g,mat.ao); m.castShadow=m.receiveShadow=false; m.renderOrder=1; scene.add(m); }
+function shade(x,z,w,d,ry,op){ const m=new T.Mesh(new T.PlaneGeometry(w,d),mat.blob); m.rotation.x=-Math.PI/2; m.rotation.z=-(ry||0); m.position.set(x,.006,z); m.castShadow=m.receiveShadow=false; m.renderOrder=2; scene.add(m); }
+function contactShadows(){ for (const w of walls2D){ const lx=w.x1-w.x0, lz=w.z1-w.z0; if (lx>=lz){ aoStrip(w.x0,w.x1,w.z0,w.z1,'-z',.34); aoStrip(w.x0,w.x1,w.z0,w.z1,'+z',.34); } else { aoStrip(w.x0,w.x1,w.z0,w.z1,'-x',.34); aoStrip(w.x0,w.x1,w.z0,w.z1,'+x',.34); } }
+  for (const [x,z,w,d,ry] of [[2.15,10.6,3.0,1.3,0],[.75,11.85,.95,.95,0],[3.55,11.8,.95,.95,0],[2.15,11.85,1.5,1.0,0],[2.15,13.27,2.4,.6,0],[2.15,7.9,2.8,1.9,0],[6.95,7.1,1.6,1.4,0],[8.7,8.0,.9,3.2,0],[8.7,10.75,.9,2.6,0],[5.68,8.0,1.9,.5,0],[6.9,8.6,.9,.9,0],
+    [1.25,1.8,2.4,2.0,0],[.45,.72,.6,.6,0],[.45,2.9,.6,.6,0],[2.25,.45,1.6,.7,0],[3.67,1.62,.75,3.0,0],[7.9,1.1,2.3,1.25,0],[7.9,2.6,2.3,1.25,0],[6.0,.55,1.5,.8,0],[4.33,1.62,.75,3.0,0],[7.95,4.1,2.3,1.3,0],[6.95,6.08,4.2,.75,0],[5.16,4.0,.8,1.2,0],
+    [1.0,4.68,1.8,.8,0],[2.65,5.35,1.2,.75,0]]) shade(x,z,w,d,ry); }
+
 // ---------- a planta ----------
 function build(){
   // laje, piso de baixo e fachada
-  B(-.15,9.3,-.3,0,-.15,13.8,mat.slab,{cast:false});
-  B(-.1,9.25,-3.2,-.3,-.1,13.75,mat.facade);
+  B(-.45,9.6,-.55,0,-.45,14.1,mat.plinth,{cast:false});
   // pisos
   floorRect(.18,4.79,6.43,13.48,mat.ipe); floorRect(3.2,4.8,3.44,6.43,mat.ipe);
   floorRect(.18,4.0,.18,3.44,mat.taco); floorRect(4.0,8.97,.18,3.44,mat.taco); floorRect(4.8,8.97,3.44,6.43,mat.taco);
@@ -201,12 +217,8 @@ function build(){
   (function(x,z,ry){ const g=group(x,0,z,ry), o={parent:g}; B(-.18,.18,.2,.42,-.26,.26,mat.porcW,{parent:g,round:.08}); B(-.2,.2,.2,.8,.26,.32,mat.porcW,o); })(5.55,10.25,Math.PI);
   B(5.5,5.94,.8,.86,10.7,11.2,mat.stone);
 
-  // entorno: chão, rua, árvores e prédios vizinhos
-  floorRect(-60,70,-60,75,mat.grass,-3.2); floorRect(-4,13,14.2,22,mat.asph,-3.19); floorRect(-60,70,22,30,mat.asph,-3.19);
-  const treeG=new T.IcosahedronGeometry(1,1);
-  for (const [x,z,s] of [[-6.5,1,1.1],[-7,7.5,1.3],[-6.2,13.5,1.0],[15.5,0,1.2],[16,6.5,1.0],[15,13.5,1.3],[2,-7,1.2],[8,-7.5,1.0],[-4,-6,.9],[13,-6,1.1],[-9,20,1.3],[19,21,1.1]]){
-    cyl(x,-3.2,z,.12*s,.2*s,3.6*s,mat.trunk,8); for (let k=0;k<7;k++){ const b=new T.Mesh(treeG,mat.foliage); b.position.set(x+(rnd()-.5)*2*s,-3.2+3.6*s+rnd()*1.6*s,z+(rnd()-.5)*2*s); b.scale.setScalar((.9+rnd()*.7)*s); b.castShadow=true; b.receiveShadow=true; scene.add(b); } }
-  for (const [x,z,w,d,h] of [[-26,-8,10,12,24],[-27,14,11,10,17],[34,-4,11,10,30],[35,16,10,11,20],[4,-30,14,9,26],[-8,44,14,10,32],[20,44,12,11,22]]) B(x-w/2,x+w/2,-3.2,h,z-d/2,z+d/2,mat.build);
+  contactShadows();
+  const shadowCatch=new T.Mesh(new T.PlaneGeometry(80,80),new T.ShadowMaterial({opacity:.16})); shadowCatch.rotation.x=-Math.PI/2; shadowCatch.position.set(4.6,-.55,6.9); shadowCatch.receiveShadow=true; shadowCatch.userData.keep=true; scene.add(shadowCatch);
 }
 const ceilObjs=[];
 
@@ -224,30 +236,29 @@ function mergeStatic(){ scene.updateMatrixWorld(true); const groups=new Map(), k
   const empty=[]; scene.traverse(o=>{ if (o.isGroup && !o.children.length) empty.push(o); }); for (const o of empty) if (o.parent) o.parent.remove(o); }
 
 // ---------- luz: o sol nasce no leste (topo da planta) ----------
-const hemi=new T.HemisphereLight(0xdfe9ff,0x8a6a4a,.55); scene.add(hemi);
-const sun=new T.DirectionalLight(0xffffff,2.4); sun.castShadow=true; sun.shadow.mapSize.set(isTouch?2048:4096,isTouch?2048:4096); const sc=sun.shadow.camera; sc.left=-11; sc.right=11; sc.top=11; sc.bottom=-11; sc.near=1; sc.far=90; sun.shadow.bias=-.0003; sun.shadow.normalBias=.02; scene.add(sun); scene.add(sun.target); sun.target.position.set(4.6,0,6.8);
-const lamps=[]; for (const [x,z,i,d] of [[2.2,8.0,1.4,7],[2.2,11.4,1.4,7],[1.9,1.8,1.0,5],[6.6,1.8,1.0,5],[6.9,4.9,.9,5],[6.9,8.6,1.2,6],[6.9,10.8,.8,4],[4.0,4.9,.6,3.5],[1.6,4.2,.6,3],[1.6,5.7,.6,3],[.45,.72,.4,2.5],[.45,2.9,.4,2.5],[8.72,1.85,.4,2.5]]){ const l=new T.PointLight(lin('#ffcf9a'),0,d,2); l.position.set(x,z<4&&x<1||x>8.6?.9:H-.25,z); scene.add(l); lamps.push({l,base:i}); }
-const skyU={top:{value:new T.Color()},bot:{value:new T.Color()},sunDir:{value:new T.Vector3(0,1,0)},sunCol:{value:new T.Color()}};
+// luz de estúdio: céu suave, uma luz principal vinda do leste (topo da planta) e reflexos de um ambiente neutro
+const hemi=new T.HemisphereLight(lin('#fff6ea'),lin('#b8a48c'),.35); scene.add(hemi);
+const sun=new T.DirectionalLight(0xffffff,2); sun.castShadow=true; sun.shadow.mapSize.set(isTouch?2048:4096,isTouch?2048:4096); const sc=sun.shadow.camera; sc.left=-10; sc.right=10; sc.top=10; sc.bottom=-10; sc.near=1; sc.far=80; sun.shadow.bias=-.00025; sun.shadow.normalBias=.025; scene.add(sun); scene.add(sun.target); sun.target.position.set(4.6,0,6.9);
+const lamps=[]; for (const [x,z,i,d] of [[2.2,8.0,1.4,6],[2.2,11.4,1.5,6],[1.9,1.8,1.0,4.5],[6.6,1.8,1.0,4.5],[6.9,4.9,.9,4.5],[6.9,8.6,1.2,5.5],[6.9,10.8,.8,4],[4.0,4.9,.6,3.2],[1.6,4.2,.6,2.8],[1.6,5.7,.6,2.8],[.45,.72,.45,2.4],[.45,2.9,.45,2.4],[8.72,1.85,.45,2.4],[2.6,13.2,.5,3]]){ const l=new T.PointLight(lin('#ffc98e'),0,d,2); l.position.set(x,(x<1&&z<4)||x>8.6?.95:H-.3,z); scene.add(l); lamps.push({l,base:i}); }
+const skyU={top:{value:new T.Color()},bot:{value:new T.Color()},sunDir:{value:new T.Vector3(0,1,0)},sunCol:{value:new T.Color(0,0,0)}};
 const sky=new T.Mesh(new T.SphereGeometry(300,32,16),new T.ShaderMaterial({uniforms:skyU,side:T.BackSide,depthWrite:false,depthTest:false,fog:false,
   vertexShader:'varying vec3 vP; void main(){ vP=position; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }',
-  fragmentShader:'uniform vec3 top; uniform vec3 bot; uniform vec3 sunDir; uniform vec3 sunCol; varying vec3 vP; void main(){ vec3 d=normalize(vP); float h=clamp(d.y,0.0,1.0); vec3 c=mix(bot,top,pow(h,.55)); float s=max(dot(d,sunDir),0.0); c+=sunCol*(smoothstep(.9994,.9997,s)*2.0+pow(s,10.0)*.25); if (d.y<0.0) c=bot*.8; gl_FragColor=vec4(c,1.0); }'}));
-sky.renderOrder=-1; sky.userData.keep=true; scene.add(sky); scene.fog=new T.Fog(0xffffff,40,170);
-const pmrem=new T.PMREMGenerator(renderer); const envScene=new T.Scene(); const envBall=new T.Mesh(new T.SphereGeometry(10,24,12),new T.MeshBasicMaterial({side:T.BackSide,vertexColors:true}));
+  fragmentShader:'uniform vec3 top; uniform vec3 bot; varying vec3 vP; void main(){ vec3 d=normalize(vP); float h=clamp(d.y*.5+.5,0.0,1.0); gl_FragColor=vec4(mix(bot,top,smoothstep(.15,.9,h)),1.0); }'}));
+sky.renderOrder=-1; sky.userData.keep=true; scene.add(sky);
+const pmrem=new T.PMREMGenerator(renderer); let roomEnv=null; try{ if (T.RoomEnvironment) roomEnv=pmrem.fromScene(new T.RoomEnvironment(),.04).texture; }catch(_){ roomEnv=null; }
+const envScene=new T.Scene(); const envBall=new T.Mesh(new T.SphereGeometry(10,24,12),new T.MeshBasicMaterial({side:T.BackSide,vertexColors:true}));
 envBall.geometry.setAttribute('color',new T.Float32BufferAttribute(new Float32Array(envBall.geometry.attributes.position.count*3),3)); envScene.add(envBall); let envRT=null;
-function updateEnv(top,bot){ const P=envBall.geometry.attributes.position, Cc=envBall.geometry.attributes.color, tl=top.clone().convertSRGBToLinear(), bl=bot.clone().convertSRGBToLinear(), c=new T.Color();
+function updateEnv(top,bot){ if (!night && roomEnv){ scene.environment=roomEnv; return; } const P=envBall.geometry.attributes.position, Cc=envBall.geometry.attributes.color, tl=top.clone().convertSRGBToLinear(), bl=bot.clone().convertSRGBToLinear(), c=new T.Color();
   for (let i=0;i<P.count;i++){ const h=Math.max(0,P.getY(i)/10); c.copy(bl).lerp(tl,Math.pow(h,.55)); if (P.getY(i)<0) c.copy(bl).multiplyScalar(.45); Cc.setXYZ(i,c.r,c.g,c.b); } Cc.needsUpdate=true; const old=envRT; envRT=pmrem.fromScene(envScene,.04); scene.environment=envRT.texture; if (old) old.dispose(); }
-// hora → posição do sol. Leste = -z, norte = -x (Belo Horizonte, hemisfério sul: o sol passa pelo norte)
-const KEYS=[ // hora, céu alto, horizonte, cor do sol, força do sol, céu (hemi), exposição
-  [5.5,'#1c2640','#4a3a48','#ff9e6a',0,.12,1.15],[6.5,'#7aa2d4','#ffcfa0','#ffb070',1.6,.42,1.05],[8,'#5f99de','#f2e2cc','#ffe2b8',2.5,.45,.95],[12,'#3d86de','#d6e7f8','#fff6e8',2.6,.5,.92],
-  [16,'#4b8bd6','#f0dcc0','#ffe0b0',2.3,.45,.95],[17.6,'#5a6fa8','#ff9d62','#ff7a3a',1.4,.38,1.06],[18.6,'#1d2547','#6a4a5a','#ff7050',.15,.16,1.12],[21,'#060914','#151a2c','#7080b0',0,.08,1.2]];
-const sunDir=new T.Vector3(); let hour=8, night=0, lampF=0;
-function sunAt(h){ const t=(h-6)/12*Math.PI; const alt=Math.sin(Math.max(0.02,Math.min(Math.PI-.02,t)))*1.15; const az=Math.max(0,Math.min(Math.PI,t)); // 0 = leste, π/2 = norte, π = oeste
-  const hx=-Math.sin(az), hz=-Math.cos(az); sunDir.set(hx*Math.cos(alt), Math.sin(alt), hz*Math.cos(alt)).normalize(); return sunDir; }
-function setHour(h){ hour=h; let i=0; while (i<KEYS.length-2 && KEYS[i+1][0]<=h) i++; const a=KEYS[i], b=KEYS[i+1], k=Math.max(0,Math.min(1,(h-a[0])/(b[0]-a[0])));
-  const top=new T.Color(a[1]).lerp(new T.Color(b[1]),k), bot=new T.Color(a[2]).lerp(new T.Color(b[2]),k), sc=new T.Color(a[3]).lerp(new T.Color(b[3]),k), si=a[4]+(b[4]-a[4])*k, hi=a[5]+(b[5]-a[5])*k, ex=a[6]+(b[6]-a[6])*k;
-  const d=sunAt(h); sun.position.copy(sun.target.position).addScaledVector(d,40); sun.color.copy(sc).convertSRGBToLinear(); sun.intensity=si; hemi.intensity=hi; baseExp=ex;
-  skyU.top.value.copy(top); skyU.bot.value.copy(bot); skyU.sunDir.value.copy(d); skyU.sunCol.value.copy(sc); scene.fog.color.copy(bot).convertSRGBToLinear();
-  night = h<6.3 || h>18.2 ? 1 : (h>17.4 ? (h-17.4)/.8 : 0); envDirty=true; envTop=top; envBot=bot; }
+for (const k in mat){ const m=mat[k]; if (m && m.isMeshStandardMaterial) m.envMapIntensity=Math.min(m.envMapIntensity,.35); }
+mat.wall.envMapIntensity=.3; mat.ipe.envMapIntensity=.35; mat.taco.envMapIntensity=.3; mat.porc.envMapIntensity=.4; mat.glass.envMapIntensity=.9; mat.mirror.envMapIntensity=1; mat.steel.envMapIntensity=.8; mat.ipe.roughness=.45; mat.ipe.color.copy(lin('#e0c4b2')); mat.taco.roughness=.5;
+const sunDir=new T.Vector3(); let hour=9, night=0, lampF=0;
+function sunAt(){ return sunDir.set(-.42,.84,-.6).normalize(); }
+function setHour(h){ hour=h; night = (h>=18||h<6) ? 1 : 0;
+  const top=new T.Color(night?'#211c17':'#f2eee8'), bot=new T.Color(night?'#0e0b09':'#d9d1c6');
+  sun.position.copy(sun.target.position).addScaledVector(night?new T.Vector3(.5,.8,.35).normalize():sunAt(),40);
+  sun.color.copy(lin(night?'#8fa4d8':'#fff1dc')); sun.intensity=night?.12:2.4; hemi.intensity=night?.05:.3; baseExp=night?1.2:.8;
+  skyU.top.value.copy(top); skyU.bot.value.copy(bot); envDirty=true; envTop=top; envBot=bot; }
 let envDirty=true, envTop=null, envBot=null, envT=0, baseExp=1, expF=1;
 
 // ---------- ambientes ----------
@@ -261,16 +272,16 @@ const ROOMS=[
 const zoneOf=(x,z)=>{ if (z<3.44) return x<4 ? 'suite' : 'quarto'; if (z<6.43){ if (x<3.2) return 'banho'; if (x>4.8) return 'quarto3'; return null; } if (x<4.79) return 'sala'; return 'cozinha'; };
 
 // ---------- câmera: maquete (órbita) e dentro (olhar em volta) ----------
-const tgt=new T.Vector3(4.6,0,6.9), home=tgt.clone(), goalT=tgt.clone(); let goalR=22, sel=null; const orb={theta:-.42, phi:.6, r:22};
+const tgt=new T.Vector3(4.6,0,6.9), home=tgt.clone(), goalT=tgt.clone(); let goalR=22, sel=null, goalPhi=null, homePhi=.6; const orb={theta:-.42, phi:.6, r:22};
 let mode='doll', camAnim=null, eye=new T.Vector3(), yaw=0, pitch=0, walkTo=null, idle=0, walked=false;
 function dollPose(){ const s=Math.sin(orb.phi); return new T.Vector3(tgt.x+orb.r*s*Math.sin(orb.theta), orb.r*Math.cos(orb.phi), tgt.z+orb.r*s*Math.cos(orb.theta)); }
 const eul=new T.Euler(0,0,0,'YXZ'); const q=(y,p)=>{ eul.set(p,y,0,'YXZ'); return new T.Quaternion().setFromEuler(eul); };
 function anim(p1,q1,dur,done){ camAnim={p0:camera.position.clone(),q0:camera.quaternion.clone(),p1,q1,t:0,dur,done}; }
 const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
-function fitDoll(){ const a=innerAspect(); goalR = orb.r = a<.8 ? 25 : a<1.2 ? 21 : 18.5; orb.phi = a<.8 ? .55 : .66; }
+function fitDoll(){ const a=innerAspect(); goalR = orb.r = a<.8 ? 33 : a<1.2 ? 28 : 25; orb.phi = homePhi = a<.8 ? .52 : .66; }
 let homeR=22;
-function focus(id){ const r=ROOMS.find(x=>x.id===id); if (!r){ reset(); return; } sel=id; idle=0; goalT.set(r.l[0],0,r.l[1]); goalR=Math.max(9,homeR*.48); emit('room',r); }
-function reset(){ sel=null; goalT.copy(home); goalR=homeR; emit('room',null); }
+function focus(id){ const r=ROOMS.find(x=>x.id===id); if (!r){ reset(); return; } sel=id; idle=0; goalT.set(r.l[0],0,r.l[1]); goalR=Math.max(11,homeR*.5); goalPhi=.4; emit('room',r); }
+function reset(){ sel=null; goalT.copy(home); goalR=homeR; goalPhi=homePhi; emit('room',null); }
 function innerAspect(){ const r=canvas.getBoundingClientRect(); return r.width/Math.max(1,r.height); }
 function enterRoom(id){ const r=ROOMS.find(x=>x.id===id); if (!r) return; idle=0; walkTo=null; walked=false; cur=id; const p=new T.Vector3(r.eye[0],1.55,r.eye[1]); const lk=new T.Vector3(...r.look).sub(p); yaw=Math.atan2(-lk.x,-lk.z); pitch=Math.atan2(lk.y,Math.hypot(lk.x,lk.z));
   const wasDoll = mode==='doll'; mode='inside'; for (const c of ceilObjs) c.visible=true; eye.copy(p);
@@ -285,7 +296,7 @@ const ptrs=new Map(); let pinch=0;
 canvas.addEventListener('pointerdown',e=>{ ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY,x0:e.clientX,y0:e.clientY,t:performance.now(),m:0}); try{ canvas.setPointerCapture(e.pointerId); }catch(_){} idle=0; if (ptrs.size===2){ const [a,b]=[...ptrs.values()]; pinch=Math.hypot(a.x-b.x,a.y-b.y); } });
 canvas.addEventListener('pointermove',e=>{ const p=ptrs.get(e.pointerId); if (!p) return; const dx=e.clientX-p.x, dy=e.clientY-p.y; p.x=e.clientX; p.y=e.clientY; p.m=Math.max(p.m,Math.hypot(e.clientX-p.x0,e.clientY-p.y0)); if (camAnim) return;
   if (ptrs.size>=2){ const [a,b]=[...ptrs.values()]; const d=Math.hypot(a.x-b.x,a.y-b.y); if (mode==='doll' && pinch>0) orb.r=Math.max(10,Math.min(45,orb.r*pinch/d)); pinch=d; return; }
-  if (mode==='doll'){ orb.theta-=dx*.006; orb.phi=Math.max(.25,Math.min(1.3,orb.phi-dy*.004)); }
+  if (mode==='doll'){ orb.theta-=dx*.006; orb.phi=Math.max(.25,Math.min(1.3,orb.phi-dy*.004)); goalPhi=null; }
   else { const k=isTouch?.006:.0045; yaw+=dx*k; pitch=Math.max(-1.2,Math.min(1.0,pitch+dy*k)); } });
 function up(e){ const p=ptrs.get(e.pointerId); ptrs.delete(e.pointerId); if (ptrs.size<2) pinch=0; if (p && e.type==='pointerup' && p.m<8 && performance.now()-p.t<450) tapAt(e.clientX,e.clientY); }
 canvas.addEventListener('pointerup',up); canvas.addEventListener('pointercancel',up);
@@ -302,16 +313,16 @@ function updateLabels(){ const r=canvas.getBoundingClientRect(); const show=mode
 
 // ---------- laço ----------
 let running=true, last=performance.now(), cur=null, paused=false;
-function resize(){ const r=canvas.getBoundingClientRect(); renderer.setSize(r.width,r.height,false); camera.aspect=r.width/Math.max(1,r.height); camera.fov = camera.aspect<.8 ? 58 : 42; if (mode==='inside') camera.fov = camera.aspect<.8 ? 74 : 62; camera.updateProjectionMatrix(); }
-addEventListener('resize',()=>{ resize(); const a=innerAspect(); homeR = a<.8 ? 25 : a<1.2 ? 21 : 18.5; if (!sel) goalR=homeR; });
+function resize(){ const r=canvas.getBoundingClientRect(); renderer.setSize(r.width,r.height,false); camera.aspect=r.width/Math.max(1,r.height); camera.fov = camera.aspect<.8 ? 44 : 32; if (mode==='inside') camera.fov = camera.aspect<.8 ? 74 : 62; camera.updateProjectionMatrix(); }
+addEventListener('resize',()=>{ resize(); const a=innerAspect(); homeR = a<.8 ? 33 : a<1.2 ? 28 : 25; if (!sel) goalR=homeR; });
 const io=new IntersectionObserver(es=>{ running=es[0].isIntersecting; if (running){ last=performance.now(); requestAnimationFrame(frame); } },{threshold:0}); io.observe(canvas);
 let perfN=0, perfT=0, perfDone=false;
 function frame(now){ if (!running || document.hidden){ return; } requestAnimationFrame(frame); if (paused){ last=now; return; } const dt=Math.min(.05,(now-last)/1000); last=now; idle+=dt;
   if (camAnim){ camAnim.t+=dt/camAnim.dur; const e=ease(Math.min(1,camAnim.t)); camera.position.lerpVectors(camAnim.p0,camAnim.p1,e); camera.quaternion.copy(camAnim.q0).slerp(camAnim.q1,e); if (camAnim.t>=1){ const d=camAnim.done; camAnim=null; if (d) d(); } }
-  else if (mode==='doll'){ if (idle>5 && !reduce && !sel) orb.theta+=dt*.04; const k=Math.min(1,dt*2.6); tgt.lerp(goalT,k); orb.r+=(goalR-orb.r)*k; camera.position.copy(dollPose()); camera.lookAt(tgt); }
+  else if (mode==='doll'){ if (idle>5 && !reduce && !sel) orb.theta+=dt*.04; const k=Math.min(1,dt*2.6); tgt.lerp(goalT,k); orb.r+=(goalR-orb.r)*k; if (goalPhi!==null) orb.phi+=(goalPhi-orb.phi)*k; camera.position.copy(dollPose()); camera.lookAt(tgt); }
   else { if (walkTo){ const dx=walkTo.x-eye.x, dz=walkTo.z-eye.z, d=Math.hypot(dx,dz); if (d<.08) walkTo=null; else { const st=Math.min(d,dt*1.6); const nx=eye.x+dx/d*st, nz=eye.z+dz/d*st; if (blockedAt(nx,nz)) walkTo=null; else { eye.x=nx; eye.z=nz; walked=true; } } }
     camera.position.copy(eye); camera.quaternion.copy(q(yaw,pitch)); const z=zoneOf(eye.x,eye.z); if (walked && z!==cur && z!=='corr'){ cur=z; emit('room',ROOMS.find(r=>r.id===z)); } }
-  const fovT = mode==='inside' ? (camera.aspect<.8?74:62) : (camera.aspect<.8?58:42); if (Math.abs(camera.fov-fovT)>.05){ camera.fov+=(fovT-camera.fov)*Math.min(1,dt*3); camera.updateProjectionMatrix(); }
+  const fovT = mode==='inside' ? (camera.aspect<.8?74:62) : (camera.aspect<.8?44:32); if (Math.abs(camera.fov-fovT)>.05){ camera.fov+=(fovT-camera.fov)*Math.min(1,dt*3); camera.updateProjectionMatrix(); }
   expF+=((mode==='inside'?.78:1)-expF)*Math.min(1,dt*2.5); renderer.toneMappingExposure=baseExp*expF;
   lampF+=(night-lampF)*Math.min(1,dt*3); for (const L of lamps) L.l.intensity=L.base*lampF*1.6; for (const g of glowMats) g.m.emissiveIntensity=g.base+lampF*1.8;
   envT-=dt; if (envDirty && envT<=0 && envTop){ updateEnv(envTop,envBot); envDirty=false; envT=.25; }
