@@ -324,7 +324,7 @@ section.sec{padding:80px 0 0}
       <div class="btns" id="cBtns"><button class="pill" data-share><svg class="i"><use href="#i-share"/></svg>Enviar para alguém</button></div></div>
     <div><div class="sheet num"><div><span>Área privativa</span><b>120 m²</b></div><div><span>Quartos</span><b>3, sendo 1 suíte</b></div><div><span>Banheiros</span><b>3</b></div><div><span>Vagas</span><b>2 cobertas</b></div><div><span>Andar</span><b>1º</b></div><div><span>Valor</span><b>Sob consulta</b></div></div><div id="contactRows"></div></div>
   </div>
-  <p class="fine in" id="fine">As fotos da esquerda no antes e depois são reais; a mobília da direita foi gerada por inteligência artificial e é ilustrativa. Na foto tirada na compra, a reforma da direita também é ilustrativa; na foto do quarto com armário, o entulho e as marcas do piso foram removidos digitalmente. Fotos do book com decoração ilustrativa. Planta e maquete 3D ilustrativas. Informações sujeitas a confirmação documental e alteração sem aviso prévio.</p>
+  <p class="fine in" id="fine">As fotos da esquerda no antes e depois são reais; a mobília da direita foi gerada por inteligência artificial e é ilustrativa. Na foto dos dois quartos, tirada na compra, a reforma da direita também é ilustrativa. Nas fotos dos dois quartos e do quarto com armário, o entulho, os fios e as marcas do piso foram removidos digitalmente. Fotos do book com decoração ilustrativa. Planta e maquete 3D ilustrativas. Informações sujeitas a confirmação documental e alteração sem aviso prévio.</p>
   </div></section>
 </main>
 
@@ -368,7 +368,7 @@ addEventListener('resize',heroUpdate); heroUpdate();
 // ---------- antes e depois: um visor, dez ambientes ----------
 const BA=[ // [arquivo, nome, quando a foto real foi tirada]
   ['sala','Sala de estar','obra'],['estar','Estar e jantar','obra'],['janelas','Sala, junto às janelas','obra'],['corredor','Sala, vista para os quartos','obra'],
-  ['saleta','Dois quartos','compra'],['suite','Quarto de casal','obra'],['quarto','Quarto com escrivaninha','obra'],['quarto3','Quarto 3','obra'],
+  ['saleta','Dois quartos','compralimpa'],['suite','Quarto de casal','obra'],['quarto','Quarto com escrivaninha','obra'],['quarto3','Quarto 3','obra'],
   ['armario','Quarto com armário','limpa'],['banheiro','Banheiro','obra']];
 const cmp=$('cmp'); let p=50, drag=null, cur=-1;
 const set=(v,anim)=>{ p=Math.max(0,Math.min(100,v)); cmp.classList.toggle('anim',!!anim); cmp.style.setProperty('--p',p+'%'); cmp.setAttribute('aria-valuenow',Math.round(p)); };
@@ -377,11 +377,11 @@ $('thumbs').innerHTML=BA.map(([k,n],i)=>`<button role="tab" data-i="${i}" aria-l
 const tbs=[...$('thumbs').children];
 function show(i,anim){ i=(i+BA.length)%BA.length; if (i===cur) return; cur=i; const [k,n,w]=BA[i];
   const go=()=>{ $('baA').src='img/antes-'+k+'.jpg'; $('baD').src='img/depois-'+k+'.jpg';
-    $('baA').alt=n+', foto real '+(w==='compra'?'tirada na compra':w==='limpa'?'com entulho removido digitalmente':'sem móveis'); $('baD').alt=n+', '+(w==='compra'?'reforma e mobília ilustrativas':'mobília ilustrativa')+' feitas por IA';
+    $('baA').alt=n+', foto real '+(w==='compralimpa'?'da compra, com limpeza digital':w==='compra'?'tirada na compra':w==='limpa'?'com entulho removido digitalmente':'sem móveis'); $('baD').alt=n+', '+(w==='compra'||w==='compralimpa'?'reforma e mobília ilustrativas':'mobília ilustrativa')+' feitas por IA';
     cmp.setAttribute('aria-label',n+': comparar antes e depois'); cmp.classList.remove('swap'); if (anim!==false) sweep(); else set(50,false); };
   if (anim===false) go(); else { cmp.classList.add('swap'); setTimeout(go,180); }
   $('baName').textContent=n; $('baIdx').textContent=String(i+1).padStart(2,'0')+' / '+BA.length;
-  $('baNote').textContent= w==='compra' ? 'Foto real tirada na compra · reforma e móveis por IA' : w==='limpa' ? 'Foto real com limpeza digital · móveis por IA' : 'Foto real depois da obra · móveis por IA';
+  $('baNote').textContent= w==='compralimpa' ? 'Foto real da compra com limpeza digital · reforma e móveis por IA' : w==='compra' ? 'Foto real tirada na compra · reforma e móveis por IA' : w==='limpa' ? 'Foto real com limpeza digital · móveis por IA' : 'Foto real depois da obra · móveis por IA';
   tbs.forEach((b,j)=>{ b.classList.toggle('on',j===i); b.setAttribute('aria-selected',j===i); });
   tbs[i].scrollIntoView({block:'nearest',inline:'center',behavior:reduce?'auto':'smooth'});
   const nx=BA[(i+1)%BA.length][0]; new Image().src='img/antes-'+nx+'.jpg'; new Image().src='img/depois-'+nx+'.jpg'; }
