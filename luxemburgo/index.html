@@ -4,13 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Apto Luxemburgo · Belo Horizonte</title>
-<meta name="description" content="Apartamento reformado no Luxemburgo, BH: 120 m², 3 quartos (1 suíte), 3 banheiros e 2 vagas, com piso de ipê restaurado, a 600 m do Parque Tom Jobim. Faça a visita.">
-<meta name="theme-color" content="#f7f3ee">
+<meta name="description" content="Apartamento reformado no Luxemburgo, BH: 120 m², 3 quartos (1 suíte), 3 banheiros e 2 vagas, com piso de ipê restaurado, a 600 m do Parque Tom Jobim.">
+<meta name="theme-color" content="#f3eee6">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="pt_BR">
 <meta property="og:site_name" content="Apto Luxemburgo">
 <meta property="og:title" content="Apto Luxemburgo · 120 m², 3 quartos, BH">
-<meta property="og:description" content="Reformado, com piso de ipê restaurado e sol da manhã, a 600 m do Parque Tom Jobim. Faça a visita pelo celular.">
+<meta property="og:description" content="Reformado, com piso de ipê restaurado e sol da manhã, a 600 m do Parque Tom Jobim. Veja o antes e depois de cada ambiente.">
 <meta property="og:url" content="https://jgg190310-ops.github.io/apto-luxemburgo/">
 <meta property="og:image" content="https://jgg190310-ops.github.io/apto-luxemburgo/img/og.jpg">
 <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
@@ -18,217 +18,199 @@
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-/* Apto Luxemburgo · uma visita passo a passo: capa, os ambientes um por tela, a planta, a maquete 3D, o bairro e a visita.
-   Claro e arejado como o apartamento reformado. Instrument Serif nos títulos, Instrument Sans no resto.
-   Vidro nas barras e nos controles que ficam sobre as fotos e sobre o 3D. */
+/* Apto Luxemburgo — página de venda em formato de ficha de imóvel.
+   Papel claro, tinta escura, o tom do ipê como única cor. Fotos sem texto por cima;
+   números em tabela com fios finos; o antes e depois de cada ambiente é o centro da página. */
 :root{
-  --papel:#f7f3ee;   /* fundo */
-  --papel2:#ece5db;  /* fundo das imagens enquanto carregam */
-  --tinta:#2b231c;   /* texto */
-  --sub:#6e6053;     /* texto secundário */
-  --ipe:#8a4527;     /* madeira do piso: destaque */
-  --linha:rgba(43,35,28,.13);
+  --papel:#f3eee6; --papel2:#e9e2d6; --branco:#fbf9f5;
+  --tinta:#1d1813; --sub:#6b5f52; --fio:rgba(29,24,19,.14); --fio2:rgba(29,24,19,.28);
+  --ipe:#8a4527; --ipe2:#a85a35;
   --fd:"Instrument Serif",Georgia,"Times New Roman",serif;
   --fb:"Instrument Sans",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
-  --spring:cubic-bezier(.3,1.45,.5,1);
   --st:env(safe-area-inset-top); --sb:env(safe-area-inset-bottom);
+  --pad:20px; --max:1120px;
   color-scheme:light;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 [hidden]{display:none!important}
-html,body{height:100%;overflow:hidden;background:var(--papel);color:var(--tinta);font-family:var(--fb);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth;scroll-padding-top:104px;-webkit-text-size-adjust:100%}
+body{background:var(--papel);color:var(--tinta);font-family:var(--fb);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
 button,a{font:inherit;color:inherit;border:0;background:none;cursor:pointer;text-decoration:none}
 img{display:block;max-width:100%}
 :focus-visible{outline:2px solid var(--ipe);outline-offset:3px}
-svg.i{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
-h1,h2{font-family:var(--fd);font-weight:400;letter-spacing:-.01em;text-wrap:balance}
+svg.i{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.wrap{max-width:var(--max);margin:0 auto;padding:0 var(--pad)}
+.lbl{font-size:11.5px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--sub)}
+.num{font-variant-numeric:tabular-nums}
+h1,h2,h3{font-family:var(--fd);font-weight:400;letter-spacing:-.015em;text-wrap:balance}
 h1 em,h2 em{font-style:italic;color:var(--ipe)}
-.kicker{font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--ipe)}
 
-/* ---------- Liquid Glass ---------- */
-.lg{position:relative;isolation:isolate;color:var(--tinta);
-  background:linear-gradient(180deg,rgba(255,255,255,.78),rgba(255,255,255,.5)),rgba(247,243,238,.4);
-  -webkit-backdrop-filter:blur(20px) saturate(1.8);backdrop-filter:blur(20px) saturate(1.8);
-  box-shadow:inset 0 1px 0 #fff,inset 0 0 0 1px rgba(255,255,255,.5),0 14px 34px -18px rgba(40,26,14,.45),0 2px 6px -3px rgba(40,26,14,.2)}
-.lg::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;padding:1px;
-  background:linear-gradient(140deg,#fff,rgba(255,255,255,.2) 28%,rgba(255,255,255,0) 52%,rgba(255,255,255,.7));
-  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);mask-composite:exclude}
-.lg.dark{color:#fff;background:linear-gradient(180deg,rgba(255,255,255,.2),rgba(255,255,255,.05)),rgba(30,24,18,.25)}
-@media (prefers-reduced-transparency:reduce){.lg{background:rgba(255,255,255,.96);-webkit-backdrop-filter:none;backdrop-filter:none}.lg.dark{background:rgba(30,24,18,.9)}}
-.press{transition:transform .35s var(--spring),background-color .2s,color .2s,opacity .2s}
-.press:active{transform:scale(.95)}
-.on{background:var(--tinta)!important;color:#fff!important}
+/* ---------- cabeçalho ---------- */
+#hd{position:sticky;top:0;z-index:20;background:rgba(243,238,230,.92);-webkit-backdrop-filter:saturate(1.4) blur(14px);backdrop-filter:saturate(1.4) blur(14px);padding-top:var(--st);border-bottom:1px solid transparent;transition:border-color .3s}
+#hd.sc{border-bottom-color:var(--fio)}
+.hrow{display:flex;align-items:center;justify-content:space-between;height:52px}
+.brand{display:flex;align-items:baseline;gap:10px}
+.brand b{font-family:var(--fd);font-weight:400;font-size:22px;letter-spacing:-.01em}
+.brand span{font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--sub)}
+.hbtn{height:36px;padding:0 14px;border-radius:18px;display:inline-flex;align-items:center;gap:7px;font-size:14px;font-weight:600;box-shadow:inset 0 0 0 1px var(--fio2)}
+.hbtn:active{background:var(--papel2)}
+#nv{display:flex;gap:22px;overflow-x:auto;scrollbar-width:none;height:40px;align-items:stretch;margin:0 calc(var(--pad)*-1);padding:0 var(--pad);mask-image:linear-gradient(90deg,#000 88%,transparent)}
+#nv::-webkit-scrollbar{display:none}
+#nv a{display:flex;align-items:center;white-space:nowrap;font-size:14px;font-weight:500;color:var(--sub);border-bottom:2px solid transparent;transition:color .2s,border-color .2s}
+#nv a.on{color:var(--tinta);border-bottom-color:var(--ipe)}
 
-/* ---------- telas ---------- */
-#deck{position:fixed;inset:0;overflow:hidden}
-.step{position:absolute;inset:0;display:flex;flex-direction:column;opacity:0;visibility:hidden;transform:translateX(40px);transition:opacity .5s ease,transform .6s cubic-bezier(.2,.8,.2,1),visibility 0s linear .6s}
-.step.cur{opacity:1;visibility:visible;transform:none;transition:opacity .5s ease,transform .6s cubic-bezier(.2,.8,.2,1),visibility 0s}
-.step.past{transform:translateX(-40px)}
-.inner{flex:1;min-height:0;display:flex;flex-direction:column;padding:calc(66px + var(--st)) 16px calc(96px + var(--sb))}
+/* ---------- abertura ---------- */
+.intro{padding-top:28px;padding-bottom:22px}
+.intro .lbl{color:var(--ipe)}
+.intro h1{font-size:clamp(40px,9.6vw,84px);line-height:.98;margin:12px 0 0;max-width:14ch}
+.gal{position:relative}
+.strip{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;gap:8px;padding:0 max(var(--pad),calc((100% - var(--max))/2 + var(--pad)));scroll-padding:0 max(var(--pad),calc((100% - var(--max))/2 + var(--pad)))}
+.strip::-webkit-scrollbar{display:none}
+.strip figure{flex:0 0 calc(100% - 28px);scroll-snap-align:start;position:relative}
+.strip img{width:100%;aspect-ratio:4/5;object-fit:cover;background:var(--papel2);cursor:zoom-in}
+.strip figcaption{display:flex;justify-content:space-between;gap:12px;font-size:13px;color:var(--sub);padding-top:8px}
+.strip figcaption b{font-weight:600;color:var(--tinta)}
+.gctl{display:flex;align-items:center;justify-content:space-between;padding-top:4px}
+.dots{display:flex;gap:6px}
+.dots i{width:6px;height:6px;border-radius:3px;background:var(--fio2);transition:width .3s,background .3s}
+.dots i.on{width:18px;background:var(--tinta)}
+.arw{display:none;gap:6px}
+.arw button{width:40px;height:40px;border-radius:20px;display:flex;align-items:center;justify-content:center;box-shadow:inset 0 0 0 1px var(--fio2)}
 
-/* barra de cima */
-#top{position:fixed;top:calc(10px + var(--st));left:12px;right:12px;z-index:10;display:flex;justify-content:space-between;align-items:center;gap:10px;max-width:1100px;margin:0 auto;transition:opacity .4s}
-#top .name{height:44px;padding:0 16px;border-radius:22px;display:flex;align-items:center;font-family:var(--fd);font-size:21px}
-#top .idx{height:44px;padding:0 16px;border-radius:22px;display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600}
-#top .idx b{font-weight:600;color:var(--ipe);font-variant-numeric:tabular-nums}
+/* ficha */
+.spec{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--tinta);border-bottom:1px solid var(--fio);margin-top:28px}
+.spec div{padding:14px 0 12px;border-left:1px solid var(--fio);padding-left:10px}
+.spec div:first-child{border-left:0;padding-left:0}
+.spec b{display:block;font-family:var(--fd);font-weight:400;font-size:clamp(30px,8vw,46px);line-height:1}
+.spec b small{font-size:.5em;margin-left:1px}
+.spec span{display:block;font-size:12.5px;color:var(--sub);margin-top:6px}
+.lede{font-size:18px;line-height:1.55;margin-top:22px;max-width:40ch}
+.ticks{list-style:none;margin-top:18px;border-top:1px solid var(--fio)}
+.ticks li{display:flex;gap:14px;padding:12px 0;border-bottom:1px solid var(--fio);font-size:15px}
+.ticks li span{color:var(--sub);min-width:92px}
 
-/* barra de baixo */
-#nav{position:fixed;left:12px;right:12px;bottom:calc(12px + var(--sb));z-index:10;display:flex;align-items:center;gap:10px;padding:6px;border-radius:30px;max-width:640px;margin:0 auto;transition:transform .5s var(--spring),opacity .4s}
-#nav.off{transform:translateY(150%);opacity:0;pointer-events:none}
-#prev{width:48px;height:48px;border-radius:24px;display:flex;align-items:center;justify-content:center;flex:none}
-#prev:disabled{opacity:.3}
-#bars{flex:1;display:flex;gap:3px;min-width:0}
-#bars i{flex:1;height:4px;border-radius:2px;background:rgba(43,35,28,.15);transition:background .3s}
-#bars i.done{background:var(--ipe)}
-#next{height:48px;padding:0 18px 0 20px;border-radius:24px;display:flex;align-items:center;gap:8px;font-size:15px;font-weight:600;background:var(--tinta);color:#fff;white-space:nowrap;flex:none;max-width:62vw}
-#next span{overflow:hidden;text-overflow:ellipsis}
-
-/* capa */
-.cover{position:absolute;inset:0}
-.cover img{width:100%;height:100%;object-fit:cover}
-.cover .veil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(20,14,10,.25) 0%,rgba(20,14,10,0) 30%,rgba(20,14,10,.1) 50%,rgba(20,14,10,.75) 100%)}
-.coverBox{position:absolute;left:16px;right:16px;bottom:calc(20px + var(--sb));max-width:620px;margin:0 auto;color:#fff}
-.coverBox .kicker{color:#f2d3b6}
-.coverBox h1{font-size:clamp(60px,12vw,120px);line-height:.88;margin:10px 0 16px}
-.coverBox h1 em{color:#f2d3b6}
-.coverBox p{font-size:17px;line-height:1.5;max-width:34ch;opacity:.95}
-.chips{display:flex;flex-wrap:wrap;gap:6px;margin:16px 0 22px;list-style:none}
-.chips li{height:34px;padding:0 13px;border-radius:17px;display:flex;align-items:center;font-size:13.5px;font-weight:500}
-.start{height:58px;width:100%;border-radius:29px;display:flex;align-items:center;justify-content:center;gap:10px;font-size:17px;font-weight:600;background:#fff;color:var(--tinta);box-shadow:0 14px 30px -14px rgba(0,0,0,.5)}
-
-/* ambiente */
-.room{flex:1;min-height:0;display:grid;grid-template-rows:minmax(0,1fr) auto;gap:16px;max-width:1100px;width:100%;margin:0 auto}
-.room .ph{position:relative;border-radius:24px;overflow:hidden;background:var(--papel2);min-height:0}
-.room .ph img{width:100%;height:100%;object-fit:cover;transform:scale(1.04);transition:transform 6s ease-out}
-.step.cur .room .ph img{transform:scale(1)}
-.room .ph .tag{position:absolute;left:12px;top:12px;height:32px;padding:0 13px;border-radius:16px;display:flex;align-items:center;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
-.room .txt{padding:0 4px}
-.room h2{font-size:clamp(38px,6vw,60px);line-height:1;margin-top:6px}
-.room p{font-size:16px;line-height:1.5;color:var(--sub);margin-top:8px;max-width:52ch}
-
-/* planta */
-.plan{flex:1;min-height:0;display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:14px;max-width:1100px;width:100%;margin:0 auto}
-.plan h2,.nb h2,.visit h2,.maq h2{font-size:clamp(36px,6vw,58px);line-height:1;margin-top:6px}
-.plan .img{min-height:0;display:flex;align-items:center;justify-content:center}
-.plan .img img{max-height:100%;width:auto;border-radius:16px;background:#fff;padding:6px;box-shadow:0 20px 40px -26px rgba(60,40,20,.5)}
-.nums{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;list-style:none}
-.nums li{background:#fff;border-radius:16px;padding:10px 8px;text-align:center;box-shadow:inset 0 0 0 1px var(--linha)}
-.nums b{display:block;font-family:var(--fd);font-weight:400;font-size:30px;line-height:1;color:var(--ipe)}
-.nums span{display:block;font-size:12px;color:var(--sub);margin-top:4px}
-
-/* maquete */
-.maq{flex:1;min-height:0;display:grid;grid-template-rows:auto minmax(0,1fr);gap:12px;max-width:1100px;width:100%;margin:0 auto}
-.maq .head p{color:var(--sub);font-size:15px;margin-top:6px}
-.frame{position:relative;border-radius:24px;overflow:hidden;background:#e4ddd2;min-height:0}
-#c3d{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
-#labels3d{position:absolute;inset:0;pointer-events:none;transition:opacity .3s;z-index:2}
-#labels3d.off .lab{pointer-events:none}
-.lab{position:absolute;left:0;top:0;height:32px;padding:0 13px 0 6px;border-radius:16px;display:flex;align-items:center;gap:7px;font-size:13px;font-weight:600;white-space:nowrap;will-change:transform;pointer-events:auto}
-.lab b{font-size:10.5px;font-weight:600;width:22px;height:22px;border-radius:11px;display:flex;align-items:center;justify-content:center;background:var(--ipe);color:#fff}
-.lab.on{background:var(--tinta);color:#fff}
-.loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#e4ddd2;z-index:4;transition:opacity .5s;color:var(--sub);font-size:14px;text-align:center;padding:20px}
-.fTop{position:absolute;top:10px;right:10px;z-index:3;display:flex;gap:2px;padding:4px;border-radius:24px}
-.fTop button{height:38px;padding:0 13px;border-radius:19px;font-size:13.5px;font-weight:600;display:flex;align-items:center;gap:6px}
-.fReset{position:absolute;top:10px;left:10px;z-index:3;height:46px;padding:0 15px;border-radius:23px;font-size:13.5px;font-weight:600;display:flex;align-items:center;gap:7px}
-.zoom{position:absolute;right:10px;bottom:10px;z-index:3;display:flex;flex-direction:column;gap:2px;padding:4px;border-radius:24px;transition:opacity .3s}
-.zoom button{width:40px;height:40px;border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:22px;line-height:1}
-.hint3d{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);z-index:3;height:36px;padding:0 14px;border-radius:18px;display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;white-space:nowrap;transition:opacity .5s;pointer-events:none}
-.card{position:absolute;left:10px;right:10px;bottom:10px;z-index:4;display:flex;gap:12px;align-items:center;padding:8px;border-radius:24px;max-width:460px;margin:0 auto;transform:translateY(130%);transition:transform .45s var(--spring)}
-.card.show{transform:none}
-.card img{width:84px;height:84px;border-radius:17px;object-fit:cover;flex:none}
-.card .t{flex:1;min-width:0}
-.card small{font-size:11.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ipe)}
-.card b{display:block;font-family:var(--fd);font-weight:400;font-size:24px;line-height:1.05}
-.card span{display:block;font-size:13.5px;line-height:1.35;color:var(--sub);margin-top:2px}
-.card .x{width:38px;height:38px;border-radius:19px;display:flex;align-items:center;justify-content:center;flex:none;align-self:flex-start}
-
-/* foto em tela cheia */
-.room .ph{cursor:zoom-in}
-.room .ph .zm{position:absolute;right:12px;top:12px;width:36px;height:36px;border-radius:18px;display:flex;align-items:center;justify-content:center;pointer-events:none}
-#lb{position:fixed;inset:0;z-index:30;background:rgba(18,13,9,.94);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s}
-#lb.on{opacity:1;pointer-events:auto}
-#lb .sc{position:absolute;inset:0;overflow:auto;display:flex;align-items:center;justify-content:center;touch-action:pan-x pan-y pinch-zoom;-webkit-overflow-scrolling:touch}
-#lb img{max-width:100%;max-height:100%;object-fit:contain;transition:transform .35s}
-#lb.z img{max-width:none;max-height:none;width:200%;cursor:zoom-out}
-#lb .x{position:absolute;top:calc(12px + var(--st));right:12px;width:44px;height:44px;border-radius:22px;display:flex;align-items:center;justify-content:center;z-index:2}
-#lb .cap{position:absolute;left:12px;bottom:calc(14px + var(--sb));height:34px;padding:0 14px;border-radius:17px;display:flex;align-items:center;font-size:13.5px;font-weight:600;z-index:2}
-/* compartilhar e avisos */
-#top .rt{display:flex;gap:8px}
-#top .sh{width:44px;height:44px;border-radius:22px;display:flex;align-items:center;justify-content:center}
-#toast{position:fixed;left:50%;top:calc(66px + var(--st));z-index:40;transform:translate(-50%,-20px);opacity:0;height:40px;padding:0 16px;border-radius:20px;display:flex;align-items:center;font-size:14px;font-weight:600;transition:opacity .3s,transform .4s var(--spring);pointer-events:none;white-space:nowrap}
-#toast.on{opacity:1;transform:translate(-50%,0)}
-.swipe{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);height:34px;padding:0 14px;border-radius:17px;display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .4s}
-.swipe.on{opacity:1;animation:nudge 1.4s ease-in-out 2}
-@keyframes nudge{0%,100%{transform:translateX(-50%)}50%{transform:translateX(calc(-50% - 14px))}}
-.coverShare{position:absolute;top:calc(12px + var(--st));right:12px;z-index:2;height:40px;padding:0 14px;border-radius:20px;display:flex;align-items:center;gap:7px;font-size:13.5px;font-weight:600}
+/* ---------- seções ---------- */
+section.sec{padding:64px 0 8px}
+.shead{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;align-items:baseline;border-top:1px solid var(--tinta);padding-top:14px;margin-bottom:22px}
+.shead .n{font-family:var(--fd);font-size:20px;color:var(--ipe)}
+.shead h2{font-size:clamp(34px,8.4vw,60px);line-height:1;grid-column:1/-1}
+.shead p{grid-column:1/-1;color:var(--sub);font-size:15.5px;max-width:52ch;margin-top:8px}
 
 /* antes e depois */
-.ba{flex:1;min-height:0;display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:12px;max-width:1100px;width:100%;margin:0 auto}
-.ba h2{font-size:clamp(36px,6vw,58px);line-height:1;margin-top:6px}
-.ba .head p{color:var(--sub);font-size:15px;margin-top:6px}
-.stage{min-height:0;display:flex;justify-content:center;align-items:center;container-type:size}
-.cmp{position:relative;width:min(100cqw,133cqh);height:min(100cqh,100cqw);border-radius:24px;overflow:hidden;background:var(--papel2);touch-action:none;cursor:ew-resize;user-select:none;-webkit-user-select:none;--p:50%}
+.bas{display:grid;gap:40px}
+.ba h3{font-size:28px;line-height:1.05;display:flex;align-items:baseline;gap:10px}
+.ba h3 small{font-family:var(--fb);font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--ipe)}
+.ba .meta{display:flex;justify-content:space-between;gap:12px;font-size:12.5px;color:var(--sub);margin:10px 0 0}
+.cmp{position:relative;margin-top:12px;aspect-ratio:1/1;overflow:hidden;background:var(--papel2);touch-action:pan-y;user-select:none;-webkit-user-select:none;cursor:ew-resize;--p:50%}
 .cmp img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none;-webkit-user-drag:none}
 .cmp .dep{clip-path:inset(0 0 0 var(--p))}
-.cmp.anim .dep{transition:clip-path .9s cubic-bezier(.6,0,.2,1)}
-.cmp.anim .hnd{transition:left .9s cubic-bezier(.6,0,.2,1)}
-.cmp .lb{position:absolute;top:12px;height:32px;padding:0 13px;border-radius:16px;display:flex;align-items:center;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;z-index:4;cursor:pointer}
-.cmp .lb.a{left:12px}.cmp .lb.d{right:12px}
-.hnd{position:absolute;top:0;bottom:0;left:var(--p);width:2px;margin-left:-1px;background:#fff;box-shadow:0 0 12px rgba(0,0,0,.35);z-index:3;pointer-events:none}
-.hnd i{position:absolute;top:50%;left:50%;width:46px;height:46px;margin:-23px 0 0 -23px;border-radius:23px;display:flex;align-items:center;justify-content:center;gap:2px;color:var(--tinta)}
-.hnd i svg{width:16px;height:16px}
-.seg{display:flex;gap:2px;padding:4px;border-radius:24px;max-width:560px;width:100%;margin:0 auto;overflow-x:auto;scrollbar-width:none}
-.seg::-webkit-scrollbar{display:none}
-.seg button{flex:1 0 auto;height:40px;padding:0 11px;border-radius:20px;font-size:13.5px;font-weight:600;white-space:nowrap}
+.cmp.anim .dep{transition:clip-path 1.1s cubic-bezier(.65,0,.25,1)}
+.cmp.anim .hnd{transition:left 1.1s cubic-bezier(.65,0,.25,1)}
+.cmp .tg{position:absolute;bottom:10px;height:26px;padding:0 10px;display:flex;align-items:center;font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;background:rgba(251,249,245,.9);color:var(--tinta);z-index:3;cursor:pointer}
+.cmp .tg.a{left:10px}.cmp .tg.d{right:10px;background:var(--tinta);color:#fff}
+.hnd{position:absolute;top:0;bottom:0;left:var(--p);width:2px;margin-left:-1px;background:#fff;z-index:2;pointer-events:none;box-shadow:0 0 10px rgba(0,0,0,.25)}
+.hnd i{position:absolute;top:50%;left:50%;width:44px;height:44px;margin:-22px 0 0 -22px;border-radius:22px;background:#fff;color:var(--tinta);display:flex;align-items:center;justify-content:center;box-shadow:0 6px 18px -6px rgba(0,0,0,.45)}
+.hnd i svg{width:15px;height:15px}
+
+/* ambientes do book */
+.rooms{display:grid;gap:36px}
+.rm figure img{width:100%;aspect-ratio:4/5;object-fit:cover;background:var(--papel2);cursor:zoom-in}
+.rm figcaption{display:grid;grid-template-columns:auto 1fr;gap:2px 14px;padding-top:12px;border-bottom:1px solid var(--fio);padding-bottom:14px}
+.rm figcaption .n{font-family:var(--fd);font-size:18px;color:var(--ipe);padding-top:3px}
+.rm figcaption b{font-family:var(--fd);font-weight:400;font-size:28px;line-height:1.05}
+.rm figcaption p{grid-column:2;color:var(--sub);font-size:15px}
+
+/* planta e 3D */
+.plan{background:var(--branco);padding:14px;box-shadow:inset 0 0 0 1px var(--fio)}
+.plan img{margin:0 auto;max-height:78vh;width:auto;cursor:zoom-in}
+.open3d{margin-top:14px;width:100%;height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 18px;background:var(--tinta);color:#fff;font-size:15.5px;font-weight:600}
+.open3d span{display:flex;align-items:center;gap:10px}
 
 /* bairro */
-.nb{flex:1;min-height:0;display:grid;grid-template-rows:minmax(0,1fr) auto;gap:14px;max-width:1100px;width:100%;margin:0 auto}
-.nb .img{border-radius:24px;overflow:hidden;min-height:0}
-.nb .img img{width:100%;height:100%;object-fit:cover}
-.dist{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:12px}
-.dist li{background:#fff;border-radius:16px;padding:10px 12px;box-shadow:inset 0 0 0 1px var(--linha)}
-.dist b{display:block;font-size:14px;font-weight:600;color:var(--ipe)}
-.dist span{display:block;font-size:13.5px;line-height:1.35;margin-top:2px}
+.nbimg{width:100%;aspect-ratio:16/10;object-fit:cover;background:var(--papel2)}
+.dist{list-style:none;margin-top:14px;border-top:1px solid var(--fio)}
+.dist li{display:grid;grid-template-columns:118px 1fr;gap:14px;padding:13px 0;border-bottom:1px solid var(--fio);font-size:15px}
+.dist b{font-family:var(--fd);font-weight:400;font-size:22px;line-height:1.1;color:var(--ipe)}
 
 /* visita */
-.visit{flex:1;min-height:0;overflow-y:auto;max-width:720px;width:100%;margin:0 auto;padding-bottom:6px;-webkit-overflow-scrolling:touch}
-.rows{margin-top:18px}
-.row{display:flex;justify-content:space-between;gap:16px;padding:12px 2px;border-bottom:1px solid var(--linha);font-size:15.5px}
-.row:first-child{border-top:1px solid var(--linha)}
-.row span{color:var(--sub)}
-.contact{background:#fff;border-radius:22px;padding:18px 18px 16px;margin-top:20px;box-shadow:inset 0 0 0 1px var(--linha)}
-.contact b.h{display:block;font-family:var(--fd);font-weight:400;font-size:28px;line-height:1.05}
-.contact p{color:var(--sub);font-size:15px;margin:6px 0 10px}
-.crow{display:flex;justify-content:space-between;gap:16px;padding:10px 0;border-top:1px solid var(--linha);font-size:14.5px}
-.crow span:first-child{color:var(--sub)}
-.pill{height:48px;padding:0 20px;border-radius:24px;display:inline-flex;align-items:center;justify-content:center;gap:9px;font-size:15px;font-weight:600}
-.pill.ipe{background:var(--ipe);color:#fff}
-.pill.line{box-shadow:inset 0 0 0 1px var(--linha);background:#fff}
-.btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
-.fine{font-size:12px;line-height:1.6;color:var(--sub);margin-top:16px}
+.sheet{border-top:1px solid var(--fio)}
+.sheet div{display:flex;justify-content:space-between;gap:16px;padding:12px 0;border-bottom:1px solid var(--fio);font-size:15.5px}
+.sheet span{color:var(--sub)}
+.cta{margin-top:26px;background:var(--tinta);color:#fff;padding:24px var(--pad) 22px;margin-left:calc(var(--pad)*-1);margin-right:calc(var(--pad)*-1)}
+.cta h3{font-size:34px;line-height:1.02}
+.cta p{color:rgba(255,255,255,.72);font-size:15px;margin-top:8px;max-width:40ch}
+#contactRows .crow{display:flex;justify-content:space-between;gap:16px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.16);font-size:14.5px}
+#contactRows .crow span:first-child{color:rgba(255,255,255,.6)}
+.btns{display:flex;flex-direction:column;gap:8px;margin-top:18px}
+.pill{height:52px;display:flex;align-items:center;justify-content:center;gap:9px;font-size:15.5px;font-weight:600;background:#fff;color:var(--tinta)}
+.pill.wa{background:var(--ipe2);color:#fff}
+.pill.ln{background:none;color:#fff;box-shadow:inset 0 0 0 1px rgba(255,255,255,.35)}
+.fine{font-size:12px;line-height:1.6;color:var(--sub);padding:26px 0 calc(40px + var(--sb))}
 
-/* índice */
-#menuBg{position:fixed;inset:0;z-index:20;background:rgba(30,22,16,.28);opacity:0;pointer-events:none;transition:opacity .3s}
-#menuBg.on{opacity:1;pointer-events:auto}
-#menu{position:fixed;left:12px;right:12px;bottom:calc(12px + var(--sb));z-index:21;border-radius:28px;padding:14px;max-width:520px;margin:0 auto;transform:translateY(120%);transition:transform .45s var(--spring);max-height:80vh;overflow:auto}
-#menu.on{transform:none}
-#menu h3{font-family:var(--fd);font-weight:400;font-size:26px;padding:4px 8px 10px}
-#menu button{width:100%;display:flex;align-items:center;gap:12px;padding:10px 8px;border-radius:16px;text-align:left;font-size:16px;font-weight:500}
-#menu button:hover{background:rgba(43,35,28,.06)}
-#menu button em{font-style:normal;font-size:12px;font-weight:600;color:var(--ipe);width:26px;font-variant-numeric:tabular-nums}
-#menu button img{width:44px;height:44px;border-radius:12px;object-fit:cover;margin-left:auto}
-#menu button.cur{background:rgba(138,69,39,.1)}
+/* ---------- foto em tela cheia ---------- */
+#lb{position:fixed;inset:0;z-index:40;background:#0f0c09;opacity:0;pointer-events:none;transition:opacity .25s}
+#lb.on{opacity:1;pointer-events:auto}
+#lbSc{position:absolute;inset:0;overflow:auto;display:flex;align-items:center;justify-content:center;-webkit-overflow-scrolling:touch}
+#lbImg{max-width:100%;max-height:100%;object-fit:contain}
+#lb.z #lbImg{max-width:none;max-height:none;width:220%}
+#lb .x{position:absolute;top:calc(10px + var(--st));right:10px;width:44px;height:44px;border-radius:22px;background:rgba(255,255,255,.14);color:#fff;display:flex;align-items:center;justify-content:center}
+#lbCap{position:absolute;left:16px;right:70px;bottom:calc(16px + var(--sb));color:#fff;font-size:14px}
 
-@media (min-width:900px){
-  .inner{padding:calc(80px + var(--st)) 32px calc(110px + var(--sb))}
-  .room{grid-template-rows:none;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);align-items:end;gap:36px}
-  .room .txt{padding-bottom:20px}
-  .nb{grid-template-rows:none;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);align-items:center;gap:36px}
+/* ---------- maquete 3D em tela cheia ---------- */
+#m3d{position:fixed;inset:0;z-index:35;background:#e6dfd4;opacity:0;pointer-events:none;transition:opacity .3s}
+#m3d.on{opacity:1;pointer-events:auto}
+#c3d{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+#labels3d{position:absolute;inset:0;pointer-events:none;z-index:2}
+.lab{position:absolute;left:0;top:0;height:30px;padding:0 12px 0 5px;border-radius:15px;display:flex;align-items:center;gap:7px;font-size:13px;font-weight:600;white-space:nowrap;will-change:transform;pointer-events:auto;background:rgba(251,249,245,.94);box-shadow:0 4px 14px -6px rgba(0,0,0,.35)}
+.lab b{font-size:10.5px;font-weight:600;width:21px;height:21px;border-radius:11px;display:flex;align-items:center;justify-content:center;background:var(--ipe);color:#fff}
+.lab.on{background:var(--tinta);color:#fff}
+.m3top{position:absolute;top:calc(10px + var(--st));left:10px;right:10px;z-index:4;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.m3top .t{background:rgba(251,249,245,.94);height:44px;padding:0 16px;display:flex;align-items:center;font-family:var(--fd);font-size:20px}
+.m3b{height:44px;padding:0 14px;display:flex;align-items:center;gap:7px;font-size:14px;font-weight:600;background:rgba(251,249,245,.94)}
+.m3b.on{background:var(--tinta);color:#fff}
+.m3side{display:flex;gap:2px}
+#m3x{width:44px;padding:0;justify-content:center}
+.loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:3;color:var(--sub);font-size:14px;text-align:center;padding:24px;transition:opacity .5s}
+.zoom{position:absolute;right:10px;bottom:calc(10px + var(--sb));z-index:4;display:flex;flex-direction:column;gap:2px}
+.zoom button{width:44px;height:44px;font-size:22px;background:rgba(251,249,245,.94)}
+.hint3d{position:absolute;left:50%;bottom:calc(16px + var(--sb));transform:translateX(-50%);z-index:3;height:34px;padding:0 14px;display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;background:rgba(251,249,245,.94);white-space:nowrap;transition:opacity .5s;pointer-events:none}
+#reset{position:absolute;left:10px;top:calc(62px + var(--st));z-index:4}
+.card{position:absolute;left:10px;right:10px;bottom:calc(10px + var(--sb));z-index:5;display:flex;gap:12px;align-items:center;padding:8px;background:var(--branco);max-width:460px;margin:0 auto;transform:translateY(140%);transition:transform .4s cubic-bezier(.3,1.3,.5,1);box-shadow:0 14px 30px -14px rgba(0,0,0,.4)}
+.card.show{transform:none}
+.card img{width:84px;height:84px;object-fit:cover;flex:none;cursor:pointer}
+.card .t{flex:1;min-width:0}
+.card small{font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--ipe)}
+.card b{display:block;font-family:var(--fd);font-weight:400;font-size:23px;line-height:1.05}
+.card span{display:block;font-size:13.5px;line-height:1.35;color:var(--sub);margin-top:2px}
+.card .x{width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex:none;align-self:flex-start}
+
+#toast{position:fixed;left:50%;bottom:calc(24px + var(--sb));z-index:50;transform:translate(-50%,20px);opacity:0;height:42px;padding:0 18px;display:flex;align-items:center;font-size:14px;font-weight:600;background:var(--tinta);color:#fff;transition:opacity .3s,transform .3s;pointer-events:none}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+
+/* ---------- telas maiores ---------- */
+@media (min-width:760px){
+  :root{--pad:36px}
+  .intro{padding-top:56px;padding-bottom:34px;display:grid;grid-template-columns:1fr auto;align-items:end;gap:30px}
+  .strip figure{flex-basis:calc(50% - 4px)}
+  .arw{display:flex}
+  .lede{font-size:21px}
+  .top2{display:grid;grid-template-columns:1.2fr 1fr;gap:56px;align-items:start}
+  .top2 .lede{margin-top:28px}
+  .bas{grid-template-columns:1fr 1fr;gap:56px 36px}
+  .rooms{grid-template-columns:1fr 1fr;gap:56px 36px}
+  .rooms .rm:first-child{grid-column:1/-1}
+  .rooms .rm:first-child img{aspect-ratio:16/9}
+  .nbwrap{display:grid;grid-template-columns:1.3fr 1fr;gap:36px;align-items:start}
+  .nbwrap .dist{margin-top:0}
+  .visit{display:grid;grid-template-columns:1fr 1fr;gap:36px;align-items:start}
+  .cta{margin:0;padding:28px}
+  .btns{flex-direction:row;flex-wrap:wrap}.btns .pill{flex:1;min-width:180px}
 }
-@media (max-height:700px){ .room p{display:none} .coverBox p{display:none} }
-@media (prefers-reduced-motion:reduce){ .swipe.on{animation:none}  .step,.step.cur{transition:opacity .2s} .step{transform:none} .room .ph img{transform:none;transition:none} .press,.press:active{transition:none;transform:none} }
+@media (min-width:1100px){ .strip figure{flex-basis:calc(33.333% - 6px)} .bas{grid-template-columns:1fr 1fr 1fr} }
+@media (prefers-reduced-motion:reduce){ html{scroll-behavior:auto} .cmp.anim .dep,.cmp.anim .hnd{transition:none} }
 </style>
 </head>
 <body>
@@ -236,182 +218,196 @@ h1 em,h2 em{font-style:italic;color:var(--ipe)}
   <symbol id="i-l" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></symbol>
   <symbol id="i-r" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></symbol>
   <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
-  <symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></symbol>
+  <symbol id="i-share" viewBox="0 0 24 24"><path d="M12 15V3M8 7l4-4 4 4M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1"/></symbol>
+  <symbol id="i-cube" viewBox="0 0 24 24"><path d="M12 2.5 3.5 7v10l8.5 4.5 8.5-4.5V7z"/><path d="M3.5 7 12 11.5 20.5 7M12 11.5v10"/></symbol>
   <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></symbol>
   <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></symbol>
   <symbol id="i-back" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5M4 9h11a5 5 0 0 1 0 10h-3"/></symbol>
-  <symbol id="i-share" viewBox="0 0 24 24"><path d="M12 15V3M8 7l4-4 4 4M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1"/></symbol>
-  <symbol id="i-zoom" viewBox="0 0 24 24"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></symbol>
   <symbol id="i-rot" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v5h-5"/></symbol>
+  <symbol id="i-wa" viewBox="0 0 24 24"><path d="M4 20l1.3-4A8 8 0 1 1 8 18.7z"/><path d="M9 9.5c0 3 2.5 5.5 5.5 5.5l1-1.5-2-1-1 .8a4 4 0 0 1-1.8-1.8l.8-1-1-2z"/></symbol>
 </svg>
 
-<div id="deck">
-  <!-- 0 · capa -->
-  <section class="step cur" data-name="Início">
-    <div class="cover"><img src="img/pronto-sala.jpg" fetchpriority="high" alt="Sala e jantar integrados, com piso de ipê"><div class="veil"></div></div>
-    <button class="coverShare lg dark press" data-share aria-label="Compartilhar"><svg class="i"><use href="#i-share"/></svg>Compartilhar</button>
-    <div class="coverBox">
-      <span class="kicker">Luxemburgo · Belo Horizonte</span>
-      <h1>Apto <em>Luxemburgo</em></h1>
-      <p>Reformado, com o piso de ipê original restaurado e sol da manhã. A 600 metros do Parque Tom Jobim.</p>
-      <ul class="chips"><li class="lg dark">120 m²</li><li class="lg dark">3 quartos, 1 suíte</li><li class="lg dark">3 banheiros</li><li class="lg dark">2 vagas</li></ul>
-      <button class="start press" id="startBtn">Começar a visita<svg class="i"><use href="#i-r"/></svg></button>
-    </div>
-  </section>
-</div>
-
-<header id="top" style="opacity:0;pointer-events:none">
-  <button class="name lg press" id="homeBtn" aria-label="Voltar ao início">Apto Luxemburgo</button>
-  <div class="rt"><button class="sh lg press" data-share aria-label="Compartilhar"><svg class="i"><use href="#i-share"/></svg></button>
-  <button class="idx lg press" id="idxBtn" aria-label="Índice"><svg class="i"><use href="#i-list"/></svg><b id="stepNo">1/9</b></button></div>
+<header id="hd">
+  <div class="wrap">
+    <div class="hrow"><a class="brand" href="#topo" aria-label="Início"><b>Apto Luxemburgo</b><span>BH</span></a>
+      <button class="hbtn" data-share><svg class="i"><use href="#i-share"/></svg>Compartilhar</button></div>
+    <nav id="nv" aria-label="Seções"><a href="#antes-e-depois">Antes e depois</a><a href="#ambientes">Ambientes</a><a href="#planta">Planta e 3D</a><a href="#bairro">Bairro</a><a href="#visita">Visita</a></nav>
+  </div>
 </header>
 
-<nav id="nav" class="lg off" aria-label="Navegação da visita">
-  <button id="prev" class="press" aria-label="Voltar"><svg class="i"><use href="#i-l"/></svg></button>
-  <div id="bars"></div>
-  <button id="next" class="press"><span id="nextTxt">Próximo</span><svg class="i"><use href="#i-r"/></svg></button>
-</nav>
+<main id="topo">
+  <div class="wrap intro">
+    <div><span class="lbl">À venda · Luxemburgo, Belo Horizonte</span>
+    <h1>Piso de ipê, sol da manhã e <em>rua quieta</em></h1></div>
+  </div>
 
-<div id="lb" role="dialog" aria-label="Foto em tela cheia" aria-hidden="true"><div class="sc" id="lbSc"><img id="lbImg" alt=""></div><button class="x lg dark press" id="lbX" aria-label="Fechar"><svg class="i"><use href="#i-x"/></svg></button><span class="cap lg dark" id="lbCap"></span></div>
-<div id="toast" class="lg" role="status" aria-live="polite"></div>
-<div id="menuBg"></div>
-<div id="menu" class="lg" role="dialog" aria-label="Índice da visita"><h3>Índice</h3><div id="menuList"></div></div>
+  <div class="gal" aria-roledescription="galeria">
+    <div class="strip" id="strip"></div>
+    <div class="wrap gctl"><div class="dots" id="dots"></div><div class="arw"><button id="gP" aria-label="Foto anterior"><svg class="i"><use href="#i-l"/></svg></button><button id="gN" aria-label="Próxima foto"><svg class="i"><use href="#i-r"/></svg></button></div></div>
+  </div>
 
-<template id="tpl3d">
-  <div class="maq">
-    <div class="head"><span class="kicker">Maquete 3D</span><h2>Onde fica <em>cada coisa</em></h2><p>Arraste para girar. Toque num ambiente para ver a foto.</p></div>
-    <div class="frame">
-      <canvas id="c3d"></canvas>
-      <div id="labels3d"></div>
-      <div class="loading" id="loading">Montando a maquete…</div>
-      <button class="fReset lg press" id="reset" hidden><svg class="i"><use href="#i-back"/></svg>Ver tudo</button>
-      <div class="fTop lg" role="group" aria-label="Luz"><button class="press on" id="dia"><svg class="i"><use href="#i-sun"/></svg>Dia</button><button class="press" id="noite"><svg class="i"><use href="#i-moon"/></svg>Noite</button></div>
-      <div class="hint3d lg" id="hint3d"><svg class="i"><use href="#i-rot"/></svg>Arraste para girar</div>
-      <div class="card lg" id="card" aria-live="polite"><img id="cImg" alt=""><div class="t"><small id="cNo"></small><b id="cName"></b><span id="cTxt"></span></div><button class="x press" id="cX" aria-label="Fechar"><svg class="i"><use href="#i-x"/></svg></button></div>
-      <div class="zoom lg" id="zoomBox" hidden><button class="press" id="zIn" aria-label="Aproximar">+</button><button class="press" id="zOut" aria-label="Afastar">−</button></div>
+  <div class="wrap top2">
+    <div>
+      <div class="spec num"><div><b>120<small>m²</small></b><span>área privativa</span></div><div><b>3</b><span>quartos, 1 suíte</span></div><div><b>3</b><span>banheiros</span></div><div><b>2</b><span>vagas cobertas</span></div></div>
+    </div>
+    <div>
+      <p class="lede">Um apartamento de 1º andar reformado por inteiro, com o assoalho de ipê original restaurado e a luz da manhã entrando pelo leste. A 600 metros do Parque Tom Jobim.</p>
+      <ul class="ticks"><li><span>Piso</span>Ipê nas salas, tacos de madeira nos quartos</li><li><span>Sol</span>Manhã, face leste</li><li><span>Andar</span>1º andar</li><li><span>Reforma</span>Pintura, piso restaurado, iluminação e banheiros</li></ul>
     </div>
   </div>
-</template>
 
-<script defer src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script defer src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/geometries/RoundedBoxGeometry.js"></script>
-<script defer src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/environments/RoomEnvironment.js"></script>
-<script defer src="lux3d.js"></script>
+  <section class="sec" id="antes-e-depois"><div class="wrap">
+    <div class="shead"><span class="n">01</span><span class="lbl">A transformação</span><h2>Antes e <em>depois</em></h2><p>Cada ambiente em foto real, sem móveis, e a mesma foto mobiliada. Arraste a linha para comparar. Nas fotos da compra, a reforma e os móveis do lado direito são uma ilustração feita por IA.</p></div>
+    <div class="bas" id="bas"></div>
+  </div></section>
+
+  <section class="sec" id="ambientes"><div class="wrap">
+    <div class="shead"><span class="n">02</span><span class="lbl">O book do imóvel</span><h2>Os <em>ambientes</em></h2></div>
+    <div class="rooms" id="rooms"></div>
+  </div></section>
+
+  <section class="sec" id="planta"><div class="wrap">
+    <div class="shead"><span class="n">03</span><span class="lbl">120 m² bem divididos</span><h2>Planta e <em>maquete</em></h2><p>Sala e jantar integrados de frente para o leste, cozinha com área de serviço, três quartos e três banheiros.</p></div>
+    <div class="plan"><img src="img/planta.jpg" alt="Planta humanizada do apartamento" loading="lazy" data-zoom data-cap="Planta humanizada"></div>
+    <button class="open3d" id="open3d"><span><svg class="i"><use href="#i-cube"/></svg>Abrir a maquete 3D</span><svg class="i"><use href="#i-r"/></svg></button>
+  </div></section>
+
+  <section class="sec" id="bairro"><div class="wrap">
+    <div class="shead"><span class="n">04</span><span class="lbl">O bairro</span><h2>Rua quieta, <em>cidade perto</em></h2></div>
+    <div class="nbwrap"><img class="nbimg" src="img/parque.jpg" alt="Parque Mosteiro Tom Jobim" loading="lazy" data-zoom data-cap="Parque Mosteiro Tom Jobim">
+    <ul class="dist"><li><b>600 m</b><span>Parque Mosteiro Tom Jobim</span></li><li><b>até 1 km</b><span>Escolas, mercado e farmácia</span></li><li><b>5 min</b><span>de carro até a Contorno e a Raja Gabaglia</span></li><li><b>15 min</b><span>de carro até a Savassi e o Centro</span></li></ul></div>
+  </div></section>
+
+  <section class="sec" id="visita"><div class="wrap">
+    <div class="shead"><span class="n">05</span><span class="lbl">Ficha</span><h2>Agende <em>uma visita</em></h2></div>
+    <div class="visit">
+      <div class="sheet num"><div><span>Área privativa</span><b>120 m²</b></div><div><span>Quartos</span><b>3, sendo 1 suíte</b></div><div><span>Banheiros</span><b>3</b></div><div><span>Vagas</span><b>2 cobertas</b></div><div><span>Andar</span><b>1º</b></div><div><span>Sol</span><b>Manhã (leste)</b></div><div><span>Piso</span><b>Ipê e tacos de madeira</b></div><div><span>Valor</span><b>Sob consulta</b></div></div>
+      <div class="cta"><h3>Quer conhecer pessoalmente?</h3><p id="ctaTxt">Fale com quem enviou este link para combinar o dia da visita.</p><div id="contactRows"></div>
+        <div class="btns" id="cBtns"><button class="pill" data-share><svg class="i"><use href="#i-share"/></svg>Enviar para alguém</button></div></div>
+    </div>
+    <p class="fine" id="fine">Fotos dos ambientes com decoração ilustrativa. No antes e depois, as fotos da esquerda são reais e a mobília da direita foi gerada por inteligência artificial; nas fotos tiradas na compra, a reforma da direita também é ilustrativa. Planta e maquete 3D ilustrativas. Informações sujeitas a confirmação documental e alteração sem aviso prévio.</p>
+  </div></section>
+</main>
+
+<div id="lb" role="dialog" aria-modal="true" aria-label="Foto em tela cheia" aria-hidden="true"><div id="lbSc"><img id="lbImg" alt=""></div><button class="x" id="lbX" aria-label="Fechar"><svg class="i"><use href="#i-x"/></svg></button><p id="lbCap"></p></div>
+
+<div id="m3d" role="dialog" aria-modal="true" aria-label="Maquete 3D" aria-hidden="true">
+  <canvas id="c3d"></canvas>
+  <div id="labels3d"></div>
+  <div class="loading" id="loading">Montando a maquete…</div>
+  <div class="m3top"><span class="t">Maquete 3D</span><div class="m3side"><button class="m3b on" id="dia" aria-label="Luz do dia"><svg class="i"><use href="#i-sun"/></svg></button><button class="m3b" id="noite" aria-label="Luz da noite"><svg class="i"><use href="#i-moon"/></svg></button><button class="m3b" id="m3x" aria-label="Fechar a maquete"><svg class="i"><use href="#i-x"/></svg></button></div></div>
+  <button class="m3b" id="reset" hidden><svg class="i"><use href="#i-back"/></svg>Ver tudo</button>
+  <div class="hint3d" id="hint3d"><svg class="i"><use href="#i-rot"/></svg>Arraste para girar · toque num ambiente</div>
+  <div class="card" id="card" aria-live="polite"><img id="cImg" alt=""><div class="t"><small id="cNo"></small><b id="cName"></b><span id="cTxt"></span></div><button class="x" id="cX" aria-label="Fechar"><svg class="i"><use href="#i-x"/></svg></button></div>
+  <div class="zoom" id="zoomBox" hidden><button id="zIn" aria-label="Aproximar">+</button><button id="zOut" aria-label="Afastar">−</button></div>
+</div>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
 <script src="brand.js"></script>
 <script>
 (function(){
-const $ = id => document.getElementById(id);
-const B = window.BRAND;
+const $=id=>document.getElementById(id);
+const B=window.BRAND;
+const SITE='https://jgg190310-ops.github.io/apto-luxemburgo/';
 
-// ---------- as telas da visita ----------
-const ROOMS = [
-  ['pronto-sala','Sala e jantar','Integrados, sobre o assoalho de ipê restaurado. Duas janelas, sofá de linho e mesa para 8.'],
+// ---------- conteúdo ----------
+const BOOK=[ // fotos do book: o imóvel pronto e decorado
+  ['pronto-sala','Sala e jantar','Integrados, sobre o assoalho de ipê restaurado. Duas janelas e lugar para uma mesa de 8.'],
   ['pronto-cozinha','Cozinha','Bancada de pedra sob a janela, marcenaria clara e área de serviço ao fundo.'],
   ['pronto-suite','Suíte','O quarto que recebe o sol da manhã, com banheiro próprio.'],
-  ['pronto-quarto','Quarto','Duas camas de solteiro e escrivaninha junto à janela. Há ainda um terceiro quarto.'],
+  ['pronto-quarto','Quarto','Espaço para duas camas e escrivaninha junto à janela. Há ainda um terceiro quarto.'],
   ['pronto-banheiro','Banheiros','Bancada de pedra, espelho iluminado e box de vidro. São três banheiros.']];
-const STEPS = [{name:'Início', img:'pronto-sala'}];
-const deck = $('deck');
-function add(name, html, img, is3d){ const s=document.createElement('section'); s.className='step'; s.dataset.name=name; if (is3d) s.dataset.three='1'; s.innerHTML='<div class="inner">'+html+'</div>'; deck.appendChild(s); STEPS.push({name, img}); }
-ROOMS.forEach(([f,n,t],i)=> add(n, `<div class="room"><div class="ph" data-full="img/${f}.jpg" data-cap="${n}" role="button" tabindex="0" aria-label="Ver ${n} em tela cheia"><img data-src="img/${f}.jpg" alt="${n}" decoding="async"><span class="tag lg dark">${String(i+1).padStart(2,'0')} · Ambiente</span><span class="zm lg dark"><svg class="i"><use href="#i-zoom"/></svg></span>${i?'':'<span class="swipe lg dark" id="swipeHint"><svg class="i"><use href="#i-l"/></svg>Deslize para o lado<svg class="i"><use href="#i-r"/></svg></span>'}</div><div class="txt"><span class="kicker">${i+1} de ${ROOMS.length} ambientes</span><h2>${n}</h2><p>${t}</p></div></div>`, f));
-const BA=[['sala','Sala de estar'],['estar','Estar e jantar'],['suite','Suíte'],['quarto','Quarto']];
-add('Antes e depois', `<div class="ba"><div class="head"><span class="kicker">Antes e depois</span><h2>Vazio hoje, <em>pronto para morar</em></h2><p>Arraste a linha para comparar. As fotos são do apartamento vazio; a mobília foi gerada por IA.</p></div>
-  <div class="stage"><div class="cmp" id="cmp" role="slider" aria-label="Comparar antes e depois" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50" tabindex="0">
-    <img id="baA" data-src="img/antes-sala.jpg" alt="Antes: Sala de estar, sem móveis" decoding="async"><img class="dep" id="baD" data-src="img/depois-sala.jpg" alt="Depois: Sala de estar, com mobília gerada por IA" decoding="async">
-    <span class="lb a lg dark">Antes</span><span class="lb d lg dark">Depois · IA</span>
-    <div class="hnd"><i class="lg"><svg class="i"><use href="#i-l"/></svg><svg class="i"><use href="#i-r"/></svg></i></div></div></div>
-  <div class="seg lg" id="baSeg" role="group" aria-label="Ambiente">${BA.map(([k,n],i)=>`<button class="press${i?'':' on'}" data-k="${k}" data-n="${n}">${n}</button>`).join('')}</div></div>`, 'depois-sala');
-add('A planta', `<div class="plan"><div><span class="kicker">A planta</span><h2>120 m² <em>bem divididos</em></h2></div><div class="img"><img data-src="img/planta.jpg" alt="Planta humanizada do apartamento" decoding="async"></div><ul class="nums"><li><b>3</b><span>quartos</span></li><li><b>1</b><span>suíte</span></li><li><b>3</b><span>banheiros</span></li><li><b>2</b><span>vagas</span></li></ul></div>`, 'planta');
-add('Maquete 3D', $('tpl3d').innerHTML, '', true);
-add('O bairro', `<div class="nb"><div class="img"><img data-src="img/parque.jpg" alt="Parque Mosteiro Tom Jobim" decoding="async"></div><div><span class="kicker">O bairro</span><h2>Rua quieta, <em>cidade perto</em></h2><ul class="dist"><li><b>600 m</b><span>Parque Tom Jobim</span></li><li><b>até 1 km</b><span>Escolas, mercado e farmácia</span></li><li><b>5 min de carro</b><span>Contorno e Raja Gabaglia</span></li><li><b>15 min de carro</b><span>Savassi e Centro</span></li></ul></div></div>`, 'parque');
-add('Visita', `<div class="visit"><span class="kicker">Para terminar</span><h2>Agende <em>uma visita</em></h2>
-  <div class="rows"><div class="row"><span>Área privativa</span><b>120 m²</b></div><div class="row"><span>Quartos</span><b>3, sendo 1 suíte</b></div><div class="row"><span>Banheiros</span><b>3</b></div><div class="row"><span>Vagas</span><b>2 cobertas</b></div><div class="row"><span>Andar</span><b>1º</b></div><div class="row"><span>Sol</span><b>Manhã (leste)</b></div><div class="row"><span>Piso</span><b>Ipê e tacos de madeira</b></div></div>
-  <div class="contact"><b class="h">Valores sob consulta</b><p>Fale com quem enviou este link para combinar a visita.</p><div id="contactRows"></div><div class="btns" id="cBtns"><button class="pill line press" data-share><svg class="i"><use href="#i-share"/></svg>Compartilhar</button><button class="pill line press" id="again">Rever do início</button></div></div>
-  <p class="fine" id="fine">Fotos com decoração ilustrativa. No antes e depois, as fotos são do imóvel vazio e a mobília foi gerada por inteligência artificial. Maquete 3D e planta ilustrativas. Informações sujeitas a confirmação documental e alteração sem aviso prévio.</p></div>`, '');
+const BA=[ // [arquivo, nome, quando a foto da esquerda foi tirada]
+  ['sala','Sala de estar','obra'],['estar','Estar e jantar','obra'],['janelas','Sala, junto às janelas','obra'],['corredor','Sala, vista para os quartos','obra'],
+  ['saleta','Ambiente com saleta','compra'],['suite','Quarto de casal','obra'],['quarto','Quarto com escrivaninha','obra'],['quarto3','Quarto 3','obra'],
+  ['armario','Quarto com armário','compra'],['banheiro','Banheiro','obra']];
 
-const steps=[...deck.children]; let cur=0;
-$('bars').innerHTML = steps.slice(1).map(()=>'<i></i>').join('');
-$('menuList').innerHTML = STEPS.map((s,i)=>`<button class="press" data-i="${i}"><em>${i?String(i).padStart(2,'0'):''}</em>${s.name}${s.img?`<img src="img/t/${s.img}.jpg" alt="" loading="lazy">`:''}</button>`).join('');
+// galeria de abertura
+$('strip').innerHTML=BOOK.map(([f,n],i)=>`<figure><img src="img/${f}.jpg" alt="${n}" ${i?'loading="lazy"':'fetchpriority="high"'} decoding="async" data-zoom data-cap="${n}"><figcaption><b>${n}</b><span class="num">${i+1} / ${BOOK.length}</span></figcaption></figure>`).join('');
+$('dots').innerHTML=BOOK.map((_,i)=>`<i${i?'':' class="on"'}></i>`).join('');
+const strip=$('strip'), figs=[...strip.children];
+const gIdx=()=>{ const c=strip.scrollLeft+strip.clientWidth/2; let k=0,b=1e9; figs.forEach((f,i)=>{ const d=Math.abs(f.offsetLeft+f.offsetWidth/2-c); if (d<b){b=d;k=i;} }); return k; };
+strip.addEventListener('scroll',()=>{ const k=gIdx(); [...$('dots').children].forEach((d,i)=>d.classList.toggle('on',i===k)); },{passive:true});
+const gTo=k=>{ const f=figs[Math.max(0,Math.min(figs.length-1,k))]; strip.scrollTo({left:f.offsetLeft-(strip.clientWidth-f.offsetWidth)/2,behavior:'smooth'}); };
+$('gP').onclick=()=>gTo(gIdx()-1); $('gN').onclick=()=>gTo(gIdx()+1);
 
-const SLUG=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
-function warm(i){ for (let k=i-1;k<=i+2;k++){ const st=steps[k]; if (!st) continue; st.querySelectorAll('img[data-src]').forEach(im=>{ im.src=im.dataset.src; im.removeAttribute('data-src'); }); if (st.querySelector('.cmp') && !warm.ba){ warm.ba=1; BA.forEach(([k2])=>{ new Image().src='img/antes-'+k2+'.jpg'; new Image().src='img/depois-'+k2+'.jpg'; }); } } }
-function setHash(){ try{ history.replaceState(null,'', cur ? '#'+SLUG(STEPS[cur].name) : location.pathname+location.search); }catch(e){} }
-function hint(){ const h=$('swipeHint'); if (!h || hint.done || !matchMedia('(pointer:coarse)').matches) return; hint.done=1; setTimeout(()=>h.classList.add('on'),700); setTimeout(()=>h.classList.remove('on'),4200); }
-function go(i){ i=Math.max(0,Math.min(steps.length-1,i)); if (i===cur) return; warm(i); steps.forEach((s,k)=>{ s.classList.toggle('cur',k===i); s.classList.toggle('past',k<i); }); cur=i; ui(); setHash(); if (i===1) hint(); if (steps[i].dataset.three) start3d(); if (steps[i].querySelector('.cmp')) baSweep(); }
-function ui(){ const first=cur===0, last=cur===steps.length-1;
-  $('nav').classList.toggle('off', first); const t=$('top'); t.style.opacity=first?0:1; t.style.pointerEvents=first?'none':'auto';
-  $('stepNo').textContent=cur+'/'+(steps.length-1); [...$('bars').children].forEach((b,k)=>b.classList.toggle('done',k<cur));
-  $('prev').disabled=first; $('nextTxt').textContent = last ? 'Rever do início' : 'Próximo: '+STEPS[cur+1].name;
-  [...$('menuList').children].forEach((b,k)=>b.classList.toggle('cur',k===cur)); }
-$('startBtn').onclick=()=>go(1); $('prev').onclick=()=>go(cur-1); $('next').onclick=()=> cur===steps.length-1 ? go(0) : go(cur+1);
-$('homeBtn').onclick=()=>go(0);
-const menuOpen=v=>{ $('menu').classList.toggle('on',v); $('menuBg').classList.toggle('on',v); };
-$('idxBtn').onclick=()=>menuOpen(true); $('menuBg').onclick=()=>menuOpen(false);
-$('menuList').querySelectorAll('button').forEach(b=> b.onclick=()=>{ menuOpen(false); go(+b.dataset.i); });
-document.addEventListener('click',e=>{ if (e.target.id==='again') go(0); });
-addEventListener('keydown',e=>{ if (lb.classList.contains('on')) return; if ($('menu').classList.contains('on')){ if (e.key==='Escape') menuOpen(false); return; } if (e.key==='ArrowRight'){ e.preventDefault(); if (cur<steps.length-1) go(cur+1); } if (e.key==='ArrowLeft') go(cur-1); });
-// deslizar para o lado troca de tela (menos na maquete, onde o dedo gira o 3D)
-let sx=null, sy=0, st=0;
-deck.addEventListener('touchstart',e=>{ if (steps[cur].dataset.three || cur===0 || e.target.closest('.cmp')) { sx=null; return; } const t=e.touches[0]; sx=t.clientX; sy=t.clientY; st=Date.now(); },{passive:true});
-deck.addEventListener('touchend',e=>{ if (sx===null) return; const t=e.changedTouches[0], dx=t.clientX-sx, dy=t.clientY-sy; sx=null; if (Math.abs(dx)>60 && Math.abs(dx)>Math.abs(dy)*1.4 && Date.now()-st<600) go(cur+(dx<0?1:-1)); },{passive:true});
-ui(); warm(0);
+// antes e depois
+$('bas').innerHTML=BA.map(([k,n,w],i)=>`<article class="ba" id="ba-${k}"><h3><small>${String(i+1).padStart(2,'0')}</small>${n}</h3>
+  <div class="cmp" role="slider" tabindex="0" aria-label="${n}: comparar antes e depois" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">
+    <img src="img/antes-${k}.jpg" alt="${n}, foto real ${w==='compra'?'na compra':'sem móveis'}" loading="lazy" decoding="async"><img class="dep" src="img/depois-${k}.jpg" alt="${n}, ${w==='compra'?'reforma e mobília ilustrativas':'mobília ilustrativa'} feitas por IA" loading="lazy" decoding="async">
+    <span class="tg a">Antes</span><span class="tg d">Depois</span><div class="hnd"><i><svg class="i"><use href="#i-l"/></svg><svg class="i"><use href="#i-r"/></svg></i></div></div>
+  <p class="meta"><span>Foto real ${w==='compra'?'tirada na compra':'depois da obra, vazio'}</span><span>${w==='compra'?'Reforma e móveis por IA':'Móveis por IA'}</span></p></article>`).join('');
+document.querySelectorAll('.cmp').forEach(c=>{
+  let p=50, drag=null;
+  const set=(v,anim)=>{ p=Math.max(0,Math.min(100,v)); c.classList.toggle('anim',!!anim); c.style.setProperty('--p',p+'%'); c.setAttribute('aria-valuenow',Math.round(p)); };
+  const at=x=>{ const r=c.getBoundingClientRect(); set((x-r.left)/r.width*100,false); };
+  c.addEventListener('pointerdown',e=>{ if (e.target.classList.contains('tg')) return; drag={x:e.clientX,y:e.clientY,on:e.pointerType==='mouse'}; if (drag.on) at(e.clientX); });
+  c.addEventListener('pointermove',e=>{ if (!drag) return; if (!drag.on){ const dx=Math.abs(e.clientX-drag.x), dy=Math.abs(e.clientY-drag.y); if (dx>6 && dx>dy){ drag.on=true; try{ c.setPointerCapture(e.pointerId); }catch(_){} } else if (dy>8){ drag=null; return; } } if (drag.on) at(e.clientX); });
+  const end=e=>{ if (drag && !drag.on && e.type==='pointerup') at(e.clientX); drag=null; };
+  c.addEventListener('pointerup',end); c.addEventListener('pointercancel',()=>{ drag=null; });
+  c.querySelector('.tg.a').onclick=()=>set(100,true); c.querySelector('.tg.d').onclick=()=>set(0,true);
+  c.addEventListener('keydown',e=>{ if (e.key==='ArrowLeft'||e.key==='ArrowRight'){ e.preventDefault(); set(p+(e.key==='ArrowLeft'?-10:10),true); } });
+  c._sweep=()=>{ set(100,false); requestAnimationFrame(()=>requestAnimationFrame(()=>set(50,true))); };
+});
+// cada comparação se revela sozinha quando aparece na tela
+const io=new IntersectionObserver(es=>es.forEach(e=>{ if (e.isIntersecting){ e.target._sweep(); io.unobserve(e.target); } }),{threshold:.55});
+document.querySelectorAll('.cmp').forEach(c=>io.observe(c));
+
+// ambientes do book
+$('rooms').innerHTML=BOOK.map(([f,n,t],i)=>`<article class="rm"><figure><img src="img/${f}.jpg" alt="${n}" loading="lazy" decoding="async" data-zoom data-cap="${n}"><figcaption><span class="n">${String(i+1).padStart(2,'0')}</span><b>${n}</b><p>${t}</p></figcaption></figure></article>`).join('');
+
+// ---------- cabeçalho e seção atual ----------
+const hd=$('hd'); addEventListener('scroll',()=>hd.classList.toggle('sc',scrollY>8),{passive:true});
+const links=[...$('nv').querySelectorAll('a')];
+let navLock=0;
+const secIO=new IntersectionObserver(es=>es.forEach(e=>{ if (e.isIntersecting && Date.now()>navLock){ links.forEach(a=>{ const on=a.getAttribute('href')==='#'+e.target.id; a.classList.toggle('on',on); if (on) a.scrollIntoView({block:'nearest',inline:'nearest'}); }); } }),{rootMargin:'-45% 0px -50% 0px'});
+document.querySelectorAll('section.sec').forEach(s=>secIO.observe(s));
+const mark=id=>links.forEach(a=>a.classList.toggle('on',a.getAttribute('href')==='#'+id));
+links.forEach(a=>a.addEventListener('click',()=>{ navLock=Date.now()+1500; mark(a.getAttribute('href').slice(1)); }));
+addEventListener('scroll',()=>{ if (innerHeight+scrollY>=document.documentElement.scrollHeight-4) mark('visita'); },{passive:true});
 
 // ---------- compartilhar ----------
-const SITE='https://jgg190310-ops.github.io/apto-luxemburgo/';
 function toast(t){ const el=$('toast'); el.textContent=t; el.classList.add('on'); clearTimeout(toast.t); toast.t=setTimeout(()=>el.classList.remove('on'),2200); }
-async function share(){ const url=SITE+(cur?'#'+SLUG(STEPS[cur].name):''); const data={title:'Apto Luxemburgo · Belo Horizonte', text:'Apartamento reformado no Luxemburgo, BH: 120 m², 3 quartos, 2 vagas. Faça a visita:', url};
+async function share(){ const data={title:'Apto Luxemburgo · Belo Horizonte',text:'Apartamento reformado no Luxemburgo, BH: 120 m², 3 quartos, 2 vagas. Veja o antes e depois:',url:SITE};
   if (navigator.share){ try{ await navigator.share(data); }catch(e){} return; }
-  try{ await navigator.clipboard.writeText(url); toast('Link copiado'); }catch(e){ prompt('Copie o link:',url); } }
+  try{ await navigator.clipboard.writeText(SITE); toast('Link copiado'); }catch(e){ prompt('Copie o link:',SITE); } }
 document.addEventListener('click',e=>{ if (e.target.closest('[data-share]')) share(); });
 
 // ---------- foto em tela cheia ----------
-const lb=$('lb');
-function lbOpen(src,cap){ $('lbImg').src=src; $('lbImg').alt=cap; $('lbCap').textContent=cap; lb.classList.remove('z'); lb.classList.add('on'); lb.setAttribute('aria-hidden','false'); $('lbX').focus(); }
-function lbClose(){ lb.classList.remove('on','z'); lb.setAttribute('aria-hidden','true'); }
-deck.addEventListener('click',e=>{ const ph=e.target.closest('.ph[data-full]'); if (ph) lbOpen(ph.dataset.full, ph.dataset.cap); });
-deck.addEventListener('keydown',e=>{ const ph=e.target.closest&&e.target.closest('.ph[data-full]'); if (ph && (e.key==='Enter'||e.key===' ')){ e.preventDefault(); lbOpen(ph.dataset.full, ph.dataset.cap); } });
+const lb=$('lb'); let lastFocus=null;
+function lbOpen(src,cap){ lastFocus=document.activeElement; $('lbImg').src=src; $('lbImg').alt=cap; $('lbCap').textContent=cap; lb.classList.remove('z'); lb.classList.add('on'); lb.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden'; $('lbX').focus(); }
+function lbClose(){ lb.classList.remove('on','z'); lb.setAttribute('aria-hidden','true'); document.body.style.overflow=''; if (lastFocus) lastFocus.focus(); }
+document.addEventListener('click',e=>{ const im=e.target.closest('img[data-zoom]'); if (im) lbOpen(im.currentSrc||im.src, im.dataset.cap||im.alt); });
 $('lbX').onclick=lbClose; $('lbImg').onclick=e=>{ e.stopPropagation(); lb.classList.toggle('z'); };
 $('lbSc').onclick=e=>{ if (e.target===$('lbSc')) lbClose(); };
-addEventListener('keydown',e=>{ if (e.key==='Escape' && lb.classList.contains('on')) lbClose(); }, true);
 
-// ---------- antes e depois ----------
-const cmp=$('cmp'); let baP=50;
-const setP=(v,anim)=>{ baP=Math.max(0,Math.min(100,v)); cmp.classList.toggle('anim',!!anim); cmp.style.setProperty('--p',baP+'%'); cmp.setAttribute('aria-valuenow',Math.round(baP)); };
-function baSweep(){ setP(100,false); requestAnimationFrame(()=>requestAnimationFrame(()=>setP(50,true))); }
-let baDrag=false;
-const baAt=e=>{ const r=cmp.getBoundingClientRect(); setP((e.clientX-r.left)/r.width*100,false); };
-cmp.querySelector('.lb.a').addEventListener('pointerdown',e=>{ e.stopPropagation(); setP(100,true); });
-cmp.querySelector('.lb.d').addEventListener('pointerdown',e=>{ e.stopPropagation(); setP(0,true); });
-cmp.addEventListener('pointerdown',e=>{ baDrag=true; cmp.setPointerCapture(e.pointerId); baAt(e); });
-cmp.addEventListener('pointermove',e=>{ if (baDrag) baAt(e); });
-['pointerup','pointercancel'].forEach(t=>cmp.addEventListener(t,()=>{ baDrag=false; }));
-cmp.addEventListener('keydown',e=>{ if (e.key==='ArrowLeft'||e.key==='ArrowRight'){ e.preventDefault(); e.stopPropagation(); setP(baP+(e.key==='ArrowLeft'?-10:10),true); } });
-$('baSeg').querySelectorAll('button').forEach(b=> b.onclick=()=>{ $('baSeg').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));
-  const k=b.dataset.k, n=b.dataset.n; $('baA').src='img/antes-'+k+'.jpg'; $('baA').alt='Antes: '+n+', sem móveis'; $('baD').src='img/depois-'+k+'.jpg'; $('baD').alt='Depois: '+n+', com mobília gerada por IA'; baSweep(); });
-
-// ---------- maquete 3D ----------
-function start3d(){ const tryBoot=()=>{ if (window.Lux3DBoot && window.THREE){ window.Lux3DBoot(); } else setTimeout(tryBoot,120); }; setTimeout(tryBoot,350); }
+// ---------- maquete 3D (carrega só quando abre) ----------
+const m3d=$('m3d'); let libs=null;
+function loadScript(src){ return new Promise((ok,no)=>{ const s=document.createElement('script'); s.src=src; s.onload=ok; s.onerror=no; document.head.appendChild(s); }); }
+async function open3d(){ m3d.classList.add('on'); m3d.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden';
+  try{ if (!libs) libs=(async()=>{ await loadScript('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js'); await Promise.all([loadScript('https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/geometries/RoundedBoxGeometry.js'),loadScript('https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/environments/RoomEnvironment.js')]); await loadScript('lux3d.js'); })();
+    await libs; requestAnimationFrame(()=>window.Lux3DBoot && window.Lux3DBoot());
+  }catch(e){ $('loading').textContent='A maquete 3D não abriu neste aparelho. A planta e as fotos estão na página.'; } }
+function close3d(){ m3d.classList.remove('on'); m3d.setAttribute('aria-hidden','true'); document.body.style.overflow=''; }
+$('open3d').onclick=open3d; $('m3x').onclick=close3d;
+addEventListener('keydown',e=>{ if (e.key!=='Escape') return; if (lb.classList.contains('on')) lbClose(); else if (m3d.classList.contains('on')) close3d(); });
 function wire3d(){ const L=window.Lux3D; if (!L || wire3d.done) return; wire3d.done=true;
   $('loading').style.opacity=0; setTimeout(()=>{ const l=$('loading'); if (l) l.remove(); },500); $('zoomBox').hidden=false;
-  setTimeout(()=>{ $('hint3d').style.opacity=0; },3500);
+  setTimeout(()=>{ $('hint3d').style.opacity=0; },4000);
   L.on('room', r=>{ const c=$('card'); $('reset').hidden=!r; $('zoomBox').style.opacity=r?0:1; $('hint3d').style.opacity=0; if (!r){ c.classList.remove('show'); return; }
     $('cNo').textContent=r.no+' · Ambiente'; $('cName').textContent=r.n; $('cTxt').textContent=r.t; const im=$('cImg'); im.hidden=!r.photo; if (r.photo) im.src=r.photo; c.classList.add('show'); });
-  $('cImg').onclick=()=>{ const k=STEPS.findIndex(s=>s.name===$('cName').textContent); if (k>0) go(k); };
+  $('cImg').onclick=()=>lbOpen($('cImg').src,$('cName').textContent);
   $('cX').onclick=()=>L.reset(); $('reset').onclick=()=>L.reset();
   $('zIn').onclick=()=>L.zoom(.8); $('zOut').onclick=()=>L.zoom(1.25);
   const setLight=n=>{ L.setHour(n?20:9); $('dia').classList.toggle('on',!n); $('noite').classList.toggle('on',n); };
   $('dia').onclick=()=>setLight(false); $('noite').onclick=()=>setLight(true); }
 addEventListener('lux3d-ready',wire3d);
-setTimeout(()=>{ if (!window.THREE){ const l=$('loading'); if (l) l.textContent='A maquete 3D não abriu neste aparelho. As fotos e a planta estão nas outras telas.'; } },8000);
 
-// ---------- contato: só aparece quando o arquivo brand.js existe ----------
+// ---------- contato: aparece quando o arquivo brand.js existe ----------
 if (B){ $('contactRows').innerHTML=[['Corretor',B.corretor],['CRECI',B.creci],['Site',B.site],['Instagram',B.instagram]].filter(r=>r[1]).map(r=>`<div class="crow"><span>${r[0]}</span><span>${r[1]}</span></div>`).join('');
-  if (B.whatsapp) $('cBtns').insertAdjacentHTML('afterbegin',`<a class="pill ipe press" href="https://wa.me/${B.whatsapp.replace(/\D/g,'')}" target="_blank" rel="noopener">Agendar pelo WhatsApp</a>`);
+  if (B.whatsapp){ $('ctaTxt').textContent='Escolha o melhor dia e horário pelo WhatsApp.'; $('cBtns').insertAdjacentHTML('afterbegin',`<a class="pill wa" href="https://wa.me/${B.whatsapp.replace(/\D/g,'')}?text=${encodeURIComponent('Olá! Vi o Apto Luxemburgo e gostaria de agendar uma visita.')}" target="_blank" rel="noopener"><svg class="i"><use href="#i-wa"/></svg>Agendar pelo WhatsApp</a>`); }
   $('fine').textContent += ' Intermediação: '+B.corretor+' · '+B.creci+' · '+B.name+'.'; }
-// abrir direto numa tela pelo link (ex.: #antes-e-depois)
-function fromHash(){ const h=decodeURIComponent(location.hash.slice(1)); const k=h?STEPS.findIndex(s=>SLUG(s.name)===h):0; if (k>=0 && k!==cur) go(k); }
-addEventListener('hashchange',fromHash);
-fromHash();
 })();
 </script>
 </body>
