@@ -131,6 +131,25 @@ h1 em,h2 em{font-style:italic;color:var(--ipe)}
 .card span{display:block;font-size:13.5px;line-height:1.35;color:var(--sub);margin-top:2px}
 .card .x{width:38px;height:38px;border-radius:19px;display:flex;align-items:center;justify-content:center;flex:none;align-self:flex-start}
 
+/* antes e depois */
+.ba{flex:1;min-height:0;display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:12px;max-width:1100px;width:100%;margin:0 auto}
+.ba h2{font-size:clamp(36px,6vw,58px);line-height:1;margin-top:6px}
+.ba .head p{color:var(--sub);font-size:15px;margin-top:6px}
+.stage{min-height:0;display:flex;justify-content:center;align-items:center;container-type:size}
+.cmp{position:relative;width:min(100cqw,133cqh);height:min(100cqh,100cqw);border-radius:24px;overflow:hidden;background:var(--papel2);touch-action:none;cursor:ew-resize;user-select:none;-webkit-user-select:none;--p:50%}
+.cmp img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none;-webkit-user-drag:none}
+.cmp .dep{clip-path:inset(0 0 0 var(--p))}
+.cmp.anim .dep{transition:clip-path .9s cubic-bezier(.6,0,.2,1)}
+.cmp.anim .hnd{transition:left .9s cubic-bezier(.6,0,.2,1)}
+.cmp .lb{position:absolute;top:12px;height:32px;padding:0 13px;border-radius:16px;display:flex;align-items:center;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;z-index:2;pointer-events:none}
+.cmp .lb.a{left:12px}.cmp .lb.d{right:12px}
+.hnd{position:absolute;top:0;bottom:0;left:var(--p);width:2px;margin-left:-1px;background:#fff;box-shadow:0 0 12px rgba(0,0,0,.35);z-index:3;pointer-events:none}
+.hnd i{position:absolute;top:50%;left:50%;width:46px;height:46px;margin:-23px 0 0 -23px;border-radius:23px;display:flex;align-items:center;justify-content:center;gap:2px;color:var(--tinta)}
+.hnd i svg{width:16px;height:16px}
+.seg{display:flex;gap:2px;padding:4px;border-radius:24px;max-width:560px;width:100%;margin:0 auto;overflow-x:auto;scrollbar-width:none}
+.seg::-webkit-scrollbar{display:none}
+.seg button{flex:1 0 auto;height:40px;padding:0 11px;border-radius:20px;font-size:13.5px;font-weight:600;white-space:nowrap}
+
 /* bairro */
 .nb{flex:1;min-height:0;display:grid;grid-template-rows:minmax(0,1fr) auto;gap:14px;max-width:1100px;width:100%;margin:0 auto}
 .nb .img{border-radius:24px;overflow:hidden;min-height:0}
@@ -256,19 +275,26 @@ const STEPS = [{name:'Início', img:'pronto-sala'}];
 const deck = $('deck');
 function add(name, html, img, is3d){ const s=document.createElement('section'); s.className='step'; s.dataset.name=name; if (is3d) s.dataset.three='1'; s.innerHTML='<div class="inner">'+html+'</div>'; deck.appendChild(s); STEPS.push({name, img}); }
 ROOMS.forEach(([f,n,t],i)=> add(n, `<div class="room"><div class="ph"><img src="img/${f}.jpg" alt="${n}" decoding="async"><span class="tag lg dark">${String(i+1).padStart(2,'0')} · Ambiente</span></div><div class="txt"><span class="kicker">${i+1} de ${ROOMS.length} ambientes</span><h2>${n}</h2><p>${t}</p></div></div>`, f));
+const BA=[['sala','Sala de estar'],['estar','Estar e jantar'],['suite','Suíte'],['quarto','Quarto']];
+add('Antes e depois', `<div class="ba"><div class="head"><span class="kicker">Antes e depois</span><h2>Vazio hoje, <em>pronto para morar</em></h2><p>Arraste a linha para comparar. As fotos são do apartamento vazio; a mobília foi gerada por IA.</p></div>
+  <div class="stage"><div class="cmp" id="cmp" role="slider" aria-label="Comparar antes e depois" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50" tabindex="0">
+    <img id="baA" src="img/antes-sala.jpg" alt="Antes: Sala de estar, sem móveis" decoding="async"><img class="dep" id="baD" src="img/depois-sala.jpg" alt="Depois: Sala de estar, com mobília gerada por IA" decoding="async">
+    <span class="lb a lg dark">Antes</span><span class="lb d lg dark">Depois · IA</span>
+    <div class="hnd"><i class="lg"><svg class="i"><use href="#i-l"/></svg><svg class="i"><use href="#i-r"/></svg></i></div></div></div>
+  <div class="seg lg" id="baSeg" role="group" aria-label="Ambiente">${BA.map(([k,n],i)=>`<button class="press${i?'':' on'}" data-k="${k}" data-n="${n}">${n}</button>`).join('')}</div></div>`, 'depois-sala');
 add('A planta', `<div class="plan"><div><span class="kicker">A planta</span><h2>120 m² <em>bem divididos</em></h2></div><div class="img"><img src="img/planta.jpg" alt="Planta humanizada do apartamento" decoding="async"></div><ul class="nums"><li><b>3</b><span>quartos</span></li><li><b>1</b><span>suíte</span></li><li><b>3</b><span>banheiros</span></li><li><b>2</b><span>vagas</span></li></ul></div>`, 'planta');
 add('Maquete 3D', $('tpl3d').innerHTML, '', true);
 add('O bairro', `<div class="nb"><div class="img"><img src="img/parque.jpg" alt="Parque Mosteiro Tom Jobim" decoding="async"></div><div><span class="kicker">O bairro</span><h2>Rua quieta, <em>cidade perto</em></h2><ul class="dist"><li><b>600 m</b><span>Parque Tom Jobim</span></li><li><b>até 1 km</b><span>Escolas, mercado e farmácia</span></li><li><b>5 min de carro</b><span>Contorno e Raja Gabaglia</span></li><li><b>15 min de carro</b><span>Savassi e Centro</span></li></ul></div></div>`, 'parque');
 add('Visita', `<div class="visit"><span class="kicker">Para terminar</span><h2>Agende <em>uma visita</em></h2>
   <div class="rows"><div class="row"><span>Área privativa</span><b>120 m²</b></div><div class="row"><span>Quartos</span><b>3, sendo 1 suíte</b></div><div class="row"><span>Banheiros</span><b>3</b></div><div class="row"><span>Vagas</span><b>2 cobertas</b></div><div class="row"><span>Andar</span><b>1º</b></div><div class="row"><span>Sol</span><b>Manhã (leste)</b></div><div class="row"><span>Piso</span><b>Ipê e tacos de madeira</b></div></div>
   <div class="contact"><b class="h">Valores sob consulta</b><p>Fale com quem enviou este link para combinar a visita.</p><div id="contactRows"></div><div class="btns" id="cBtns"><button class="pill line press" id="again">Rever do início</button></div></div>
-  <p class="fine" id="fine">Fotos com decoração ilustrativa. Maquete 3D e planta ilustrativas. Informações sujeitas a confirmação documental e alteração sem aviso prévio.</p></div>`, '');
+  <p class="fine" id="fine">Fotos com decoração ilustrativa. No antes e depois, as fotos são do imóvel vazio e a mobília foi gerada por inteligência artificial. Maquete 3D e planta ilustrativas. Informações sujeitas a confirmação documental e alteração sem aviso prévio.</p></div>`, '');
 
 const steps=[...deck.children]; let cur=0;
 $('bars').innerHTML = steps.slice(1).map(()=>'<i></i>').join('');
 $('menuList').innerHTML = STEPS.map((s,i)=>`<button class="press" data-i="${i}"><em>${i?String(i).padStart(2,'0'):''}</em>${s.name}${s.img?`<img src="img/${s.img}.jpg" alt="" loading="lazy">`:''}</button>`).join('');
 
-function go(i){ i=Math.max(0,Math.min(steps.length-1,i)); if (i===cur) return; steps.forEach((s,k)=>{ s.classList.toggle('cur',k===i); s.classList.toggle('past',k<i); }); cur=i; ui(); if (steps[i].dataset.three) start3d(); }
+function go(i){ i=Math.max(0,Math.min(steps.length-1,i)); if (i===cur) return; steps.forEach((s,k)=>{ s.classList.toggle('cur',k===i); s.classList.toggle('past',k<i); }); cur=i; ui(); if (steps[i].dataset.three) start3d(); if (steps[i].querySelector('.cmp')) baSweep(); }
 function ui(){ const first=cur===0, last=cur===steps.length-1;
   $('nav').classList.toggle('off', first); const t=$('top'); t.style.opacity=first?0:1; t.style.pointerEvents=first?'none':'auto';
   $('stepNo').textContent=cur+'/'+(steps.length-1); [...$('bars').children].forEach((b,k)=>b.classList.toggle('done',k<cur));
@@ -283,9 +309,23 @@ document.addEventListener('click',e=>{ if (e.target.id==='again') go(0); });
 addEventListener('keydown',e=>{ if ($('menu').classList.contains('on')){ if (e.key==='Escape') menuOpen(false); return; } if (e.key==='ArrowRight'){ e.preventDefault(); if (cur<steps.length-1) go(cur+1); } if (e.key==='ArrowLeft') go(cur-1); });
 // deslizar para o lado troca de tela (menos na maquete, onde o dedo gira o 3D)
 let sx=null, sy=0, st=0;
-deck.addEventListener('touchstart',e=>{ if (steps[cur].dataset.three || cur===0) { sx=null; return; } const t=e.touches[0]; sx=t.clientX; sy=t.clientY; st=Date.now(); },{passive:true});
+deck.addEventListener('touchstart',e=>{ if (steps[cur].dataset.three || cur===0 || e.target.closest('.cmp')) { sx=null; return; } const t=e.touches[0]; sx=t.clientX; sy=t.clientY; st=Date.now(); },{passive:true});
 deck.addEventListener('touchend',e=>{ if (sx===null) return; const t=e.changedTouches[0], dx=t.clientX-sx, dy=t.clientY-sy; sx=null; if (Math.abs(dx)>60 && Math.abs(dx)>Math.abs(dy)*1.4 && Date.now()-st<600) go(cur+(dx<0?1:-1)); },{passive:true});
 ui();
+
+// ---------- antes e depois ----------
+const cmp=$('cmp'); let baP=50;
+const setP=(v,anim)=>{ baP=Math.max(0,Math.min(100,v)); cmp.classList.toggle('anim',!!anim); cmp.style.setProperty('--p',baP+'%'); cmp.setAttribute('aria-valuenow',Math.round(baP)); };
+function baSweep(){ setP(100,false); requestAnimationFrame(()=>requestAnimationFrame(()=>setP(50,true))); }
+let baDrag=false;
+const baAt=e=>{ const r=cmp.getBoundingClientRect(); setP((e.clientX-r.left)/r.width*100,false); };
+cmp.addEventListener('pointerdown',e=>{ baDrag=true; cmp.setPointerCapture(e.pointerId); baAt(e); });
+cmp.addEventListener('pointermove',e=>{ if (baDrag) baAt(e); });
+['pointerup','pointercancel'].forEach(t=>cmp.addEventListener(t,()=>{ baDrag=false; }));
+cmp.addEventListener('keydown',e=>{ if (e.key==='ArrowLeft'||e.key==='ArrowRight'){ e.preventDefault(); e.stopPropagation(); setP(baP+(e.key==='ArrowLeft'?-10:10),true); } });
+BA.forEach(([k])=>{ new Image().src='img/antes-'+k+'.jpg'; new Image().src='img/depois-'+k+'.jpg'; });
+$('baSeg').querySelectorAll('button').forEach(b=> b.onclick=()=>{ $('baSeg').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));
+  const k=b.dataset.k, n=b.dataset.n; $('baA').src='img/antes-'+k+'.jpg'; $('baA').alt='Antes: '+n+', sem móveis'; $('baD').src='img/depois-'+k+'.jpg'; $('baD').alt='Depois: '+n+', com mobília gerada por IA'; baSweep(); });
 
 // ---------- maquete 3D ----------
 function start3d(){ const tryBoot=()=>{ if (window.Lux3DBoot && window.THREE){ window.Lux3DBoot(); } else setTimeout(tryBoot,120); }; setTimeout(tryBoot,350); }
