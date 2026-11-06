@@ -1,0 +1,32 @@
+{
+  "expo": {
+    "name": "Apto Luxemburgo",
+    "slug": "apto-luxemburgo",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "br.com.aptoluxemburgo.book"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#0e0d0c",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false,
+      "package": "br.com.aptoluxemburgo.book"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-image",
+      "expo-font"
+    ],
+    "backgroundColor": "#0e0d0c"
+  }
+}
