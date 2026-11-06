@@ -96,13 +96,16 @@ h2 em,h1 em{font-style:italic;color:var(--ipe)}
 
 /* 3D */
 .frame{position:relative;border-radius:28px;overflow:hidden;aspect-ratio:16/10;background:#e4ddd2;box-shadow:0 30px 70px -40px rgba(60,40,20,.5)}
-#c3d{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+#c3d{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:pan-y}
 #labels3d{position:absolute;inset:0;pointer-events:none;transition:opacity .3s;z-index:2}
 .lab{position:absolute;left:0;top:0;height:32px;padding:0 13px 0 6px;border-radius:16px;display:flex;align-items:center;gap:7px;font-size:13px;font-weight:600;white-space:nowrap;will-change:transform;pointer-events:auto}
 .lab b{font-size:10.5px;font-weight:600;width:22px;height:22px;border-radius:11px;display:flex;align-items:center;justify-content:center;background:var(--ipe);color:#fff}
 .lab.on{background:#fff;color:var(--tinta)}
 .f-top{position:absolute;top:12px;right:12px;z-index:3;display:flex;gap:2px;padding:4px;border-radius:24px}
 .f-top button{height:38px;padding:0 14px;border-radius:19px;font-size:13.5px;font-weight:600;display:flex;align-items:center;gap:7px}
+.zoom{position:absolute;right:12px;bottom:12px;z-index:3;display:flex;flex-direction:column;gap:2px;padding:4px;border-radius:24px;transition:opacity .3s}
+.zoom button{width:40px;height:40px;border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:500;line-height:1}
+.card.show~.zoom{opacity:0;pointer-events:none}
 .f-reset{position:absolute;top:12px;left:12px;z-index:3;height:46px;padding:0 16px;border-radius:23px;font-size:13.5px;font-weight:600;display:flex;align-items:center;gap:7px}
 .card{position:absolute;left:12px;right:12px;bottom:12px;z-index:3;display:flex;gap:12px;align-items:center;padding:8px 8px 8px 8px;border-radius:24px;max-width:480px;margin:0 auto;transform:translateY(130%);transition:transform .45s var(--spring)}
 .card.show{transform:none}
@@ -200,7 +203,7 @@ h2 em,h1 em{font-style:italic;color:var(--ipe)}
       <p class="loc">Reformado, com o piso de ipê original restaurado e sol da manhã. A 600 metros do Parque Tom Jobim.</p>
     </div>
     <div class="cover">
-      <img src="img/pronto-sala.jpg" alt="Sala e jantar integrados, com piso de ipê, sofá de linho e mesa de madeira">
+      <img src="img/pronto-sala.jpg" fetchpriority="high" decoding="async" alt="Sala e jantar integrados, com piso de ipê, sofá de linho e mesa de madeira">
       <div class="btns"><a href="#fotos" class="pill lg press"><svg class="i"><use href="#i-cam"/></svg>Ver as fotos</a><a href="#tres-d" class="pill lg press"><svg class="i"><use href="#i-cube"/></svg>Ver em 3D</a></div>
     </div>
   </div>
@@ -234,15 +237,16 @@ h2 em,h1 em{font-style:italic;color:var(--ipe)}
         <div class="txt"><small id="cNo"></small><b id="cName"></b><span id="cTxt"></span></div>
         <button class="x press" id="cX" aria-label="Fechar"><svg class="i"><use href="#i-x"/></svg></button>
       </div>
+      <div class="zoom lg" id="zoomBox" hidden><button class="press" id="zIn" aria-label="Aproximar">+</button><button class="press" id="zOut" aria-label="Afastar">−</button></div>
     </div>
-    <div class="how"><span><svg class="i"><use href="#i-rot"/></svg>Arraste para girar</span><span><svg class="i"><use href="#i-tap"/></svg>Toque num ambiente</span></div>
+    <div class="how"><span><svg class="i"><use href="#i-rot"/></svg>Arraste para o lado para girar</span><span><svg class="i"><use href="#i-tap"/></svg>Toque num ambiente</span></div>
   </div>
 </section>
 
 <!-- ============ PLANTA ============ -->
 <section class="sec" id="planta">
   <div class="wrap plan">
-    <img src="img/planta.jpg" alt="Planta humanizada do apartamento" loading="lazy">
+    <img src="img/planta.jpg" alt="Planta humanizada do apartamento" loading="lazy" decoding="async">
     <div>
       <span class="kicker">Planta</span><h2 style="margin:10px 0 24px">120 m² <em>bem divididos</em></h2>
       <ul class="nums">
@@ -258,7 +262,7 @@ h2 em,h1 em{font-style:italic;color:var(--ipe)}
 <!-- ============ BAIRRO ============ -->
 <section class="sec band" id="bairro">
   <div class="wrap nb">
-    <img src="img/parque.jpg" alt="Caminho entre a mata no Parque Mosteiro Tom Jobim" loading="lazy">
+    <img src="img/parque.jpg" alt="Caminho entre a mata no Parque Mosteiro Tom Jobim" loading="lazy" decoding="async">
     <div>
       <span class="kicker">O bairro</span><h2 style="margin:10px 0 14px">Rua quieta, <em>cidade perto</em></h2>
       <p class="sub">O Luxemburgo é residencial e arborizado. O Parque Mosteiro Tom Jobim, com mata nativa e nascentes, fica a 600 metros.</p>
@@ -303,10 +307,10 @@ h2 em,h1 em{font-style:italic;color:var(--ipe)}
   <button id="lbN" class="ib lbn lg press" aria-label="Próxima"><svg class="i"><use href="#i-r"/></svg></button>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/geometries/RoundedBoxGeometry.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/environments/RoomEnvironment.js"></script>
-<script src="lux3d.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/geometries/RoundedBoxGeometry.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/environments/RoomEnvironment.js"></script>
+<script defer src="lux3d.js"></script>
 <script src="brand.js"></script>
 <script>
 (function(){
@@ -314,7 +318,7 @@ const $ = id => document.getElementById(id);
 
 // ---------- fotos ----------
 const PH=[['pronto-sala','Sala e jantar','Integrados, sobre o assoalho de ipê, com duas janelas.'],['pronto-cozinha','Cozinha','Bancada de pedra sob a janela e marcenaria clara.'],['pronto-suite','Suíte','Recebe o sol da manhã e tem banheiro próprio.'],['pronto-quarto','Quarto','Duas camas e escrivaninha junto à janela.'],['pronto-banheiro','Banheiro','Bancada de pedra, espelho iluminado e box de vidro.']];
-$('strip').innerHTML = PH.map(([f,n,t],i)=>`<button class="shot press" data-i="${i}"><span class="im"><img src="img/${f}.jpg" alt="${n}" loading="lazy"></span><b>${n}</b><span>${t}</span></button>`).join('');
+$('strip').innerHTML = PH.map(([f,n,t],i)=>`<button class="shot press" data-i="${i}"><span class="im"><img src="img/${f}.jpg" alt="${n}" loading="lazy" decoding="async"></span><b>${n}</b><span>${t}</span></button>`).join('');
 const strip=$('strip'); const by=d=>strip.scrollBy({left:d*(strip.querySelector('.shot').offsetWidth+14),behavior:'smooth'});
 $('sPrev').onclick=()=>by(-1); $('sNext').onclick=()=>by(1);
 strip.querySelectorAll('.shot').forEach(b=> b.onclick=()=>openLb(+b.dataset.i));
@@ -331,18 +335,19 @@ addEventListener('keydown',e=>{ if (lb.hidden) return; if (e.key==='Escape') clo
 // ---------- barra fixa ----------
 const bar=$('bar'); addEventListener('scroll',()=>bar.classList.toggle('show', scrollY>innerHeight*.6),{passive:true});
 
-// ---------- 3D: maquete com os ambientes ----------
-const L=window.Lux3D;
-if (L){
-  $('loading').style.opacity=0; setTimeout(()=>$('loading').remove(),500);
+// ---------- 3D: maquete com os ambientes (montada quando a seção se aproxima) ----------
+function wire3d(){ const L=window.Lux3D; if (!L || wire3d.done) return; wire3d.done=true;
+  $('loading').style.opacity=0; setTimeout(()=>{ const l=$('loading'); if (l) l.remove(); },500); $('zoomBox').hidden=false;
   let cur=null;
   L.on('room', r=>{ cur=r; const c=$('card'); $('reset').hidden=!r; if (!r){ c.classList.remove('show'); return; }
     $('cNo').textContent=r.no+' · Ambiente'; $('cName').textContent=r.n; $('cTxt').textContent=r.t; const im=$('cImg'); im.hidden=!r.photo; if (r.photo) im.src=r.photo; c.classList.add('show'); });
   $('cImg').onclick=()=>{ if (cur && cur.photo){ const i=PH.findIndex(p=>'img/'+p[0]+'.jpg'===cur.photo); if (i>=0) openLb(i); } };
   $('cX').onclick=()=>L.reset(); $('reset').onclick=()=>L.reset();
+  $('zIn').onclick=()=>L.zoom(.8); $('zOut').onclick=()=>L.zoom(1.25);
   const setLight=n=>{ L.setHour(n?20:9); $('dia').classList.toggle('on',!n); $('noite').classList.toggle('on',n); };
-  $('dia').onclick=()=>setLight(false); $('noite').onclick=()=>setLight(true);
-} else { $('loading').textContent='A maquete 3D não abriu neste navegador. As fotos e a planta estão nesta página.'; }
+  $('dia').onclick=()=>setLight(false); $('noite').onclick=()=>setLight(true); }
+addEventListener('lux3d-ready',wire3d); wire3d();
+addEventListener('load',()=>{ if (!window.THREE) $('loading').textContent='A maquete 3D não abriu neste navegador. As fotos e a planta estão nesta página.'; });
 
 // ---------- contato: só aparece quando o arquivo brand.js existe ----------
 const B=window.BRAND;

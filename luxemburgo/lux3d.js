@@ -1,6 +1,7 @@
 /* Apto Luxemburgo · modelo 3D ilustrativo feito a partir da planta humanizada do book.
    Coordenadas em metros: x para a direita da planta, z para baixo, y para cima. O leste fica no topo da planta (z negativo). */
 (function(){
+function boot(){
 const T = THREE, $ = id => document.getElementById(id);
 const canvas = $('c3d'); if (!canvas || !window.THREE) return;
 const isTouch = matchMedia('(pointer:coarse)').matches || navigator.maxTouchPoints > 0;
@@ -8,11 +9,11 @@ const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 // ---------- renderer ----------
 const renderer = new T.WebGLRenderer({canvas, antialias:true, powerPreference:'high-performance'});
-const maxDPR = Math.min(window.devicePixelRatio||1, 2); let dpr = Math.min(maxDPR, isTouch?1.6:2); renderer.setPixelRatio(dpr);
+const maxDPR = Math.min(window.devicePixelRatio||1, 2); let dpr = Math.min(maxDPR, isTouch?1.5:2); renderer.setPixelRatio(dpr);
 renderer.outputEncoding = T.sRGBEncoding; renderer.toneMapping = T.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.0;
-renderer.shadowMap.enabled = true; renderer.shadowMap.type = T.PCFSoftShadowMap;
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = T.PCFSoftShadowMap; renderer.shadowMap.autoUpdate = false; // nada se move: a sombra é calculada só quando a luz muda
 const scene = new T.Scene();
-const camera = new T.PerspectiveCamera(38, 1, .05, 500);
+const camera = new T.PerspectiveCamera(38, 1, .5, 400);
 let seed = 4286; const rnd = () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
 const C8 = v => Math.max(0, Math.min(255, v|0));
 const lin = hex => new T.Color(hex).convertSRGBToLinear();
@@ -145,7 +146,7 @@ function contactShadows(){ for (const w of walls2D){ const lx=w.x1-w.x0, lz=w.z1
 // ---------- a planta ----------
 function build(){
   // laje, piso de baixo e fachada
-  B(-.45,9.6,-.55,0,-.45,14.1,mat.plinth,{cast:false});
+  B(-.45,9.6,-.56,-.015,-.45,14.1,mat.plinth,{cast:false});
   // pisos
   floorRect(.18,4.79,6.43,13.48,mat.ipe); floorRect(3.2,4.8,3.44,6.43,mat.ipe);
   floorRect(.18,4.0,.18,3.44,mat.taco); floorRect(4.0,8.97,.18,3.44,mat.taco); floorRect(4.8,8.97,3.44,6.43,mat.taco);
@@ -258,7 +259,7 @@ function setHour(h){ hour=h; night = (h>=18||h<6) ? 1 : 0;
   const top=new T.Color(night?'#211c17':'#f2eee8'), bot=new T.Color(night?'#0e0b09':'#d9d1c6');
   sun.position.copy(sun.target.position).addScaledVector(night?new T.Vector3(.5,.8,.35).normalize():sunAt(),40);
   sun.color.copy(lin(night?'#8fa4d8':'#fff1dc')); sun.intensity=night?.12:2.4; hemi.intensity=night?.05:.3; baseExp=night?1.2:.8;
-  skyU.top.value.copy(top); skyU.bot.value.copy(bot); envDirty=true; envTop=top; envBot=bot; }
+  skyU.top.value.copy(top); skyU.bot.value.copy(bot); envDirty=true; envTop=top; envBot=bot; renderer.shadowMap.needsUpdate=true; }
 let envDirty=true, envTop=null, envBot=null, envT=0, baseExp=1, expF=1;
 
 // ---------- ambientes ----------
@@ -296,11 +297,11 @@ const ptrs=new Map(); let pinch=0;
 canvas.addEventListener('pointerdown',e=>{ ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY,x0:e.clientX,y0:e.clientY,t:performance.now(),m:0}); try{ canvas.setPointerCapture(e.pointerId); }catch(_){} idle=0; if (ptrs.size===2){ const [a,b]=[...ptrs.values()]; pinch=Math.hypot(a.x-b.x,a.y-b.y); } });
 canvas.addEventListener('pointermove',e=>{ const p=ptrs.get(e.pointerId); if (!p) return; const dx=e.clientX-p.x, dy=e.clientY-p.y; p.x=e.clientX; p.y=e.clientY; p.m=Math.max(p.m,Math.hypot(e.clientX-p.x0,e.clientY-p.y0)); if (camAnim) return;
   if (ptrs.size>=2){ const [a,b]=[...ptrs.values()]; const d=Math.hypot(a.x-b.x,a.y-b.y); if (mode==='doll' && pinch>0) orb.r=Math.max(10,Math.min(45,orb.r*pinch/d)); pinch=d; return; }
-  if (mode==='doll'){ orb.theta-=dx*.006; orb.phi=Math.max(.25,Math.min(1.3,orb.phi-dy*.004)); goalPhi=null; }
+  if (mode==='doll'){ orb.theta-=dx*.006; if (e.pointerType==='mouse'){ orb.phi=Math.max(.25,Math.min(1.3,orb.phi-dy*.004)); goalPhi=null; } }
   else { const k=isTouch?.006:.0045; yaw+=dx*k; pitch=Math.max(-1.2,Math.min(1.0,pitch+dy*k)); } });
 function up(e){ const p=ptrs.get(e.pointerId); ptrs.delete(e.pointerId); if (ptrs.size<2) pinch=0; if (p && e.type==='pointerup' && p.m<8 && performance.now()-p.t<450) tapAt(e.clientX,e.clientY); }
 canvas.addEventListener('pointerup',up); canvas.addEventListener('pointercancel',up);
-canvas.addEventListener('wheel',e=>{ if (mode!=='doll') return; e.preventDefault(); orb.r=Math.max(10,Math.min(45,orb.r*(1+e.deltaY*.0012))); idle=0; },{passive:false});
+canvas.addEventListener('wheel',e=>{ if (mode!=='doll' || !e.ctrlKey) return; e.preventDefault(); orb.r=Math.max(10,Math.min(45,orb.r*(1+e.deltaY*.0012))); idle=0; },{passive:false});
 const rc=new T.Raycaster(), ndc=new T.Vector2();
 function floorHit(cx,cy){ const r=canvas.getBoundingClientRect(); ndc.set((cx-r.left)/r.width*2-1, -((cy-r.top)/r.height)*2+1); rc.setFromCamera(ndc,camera); const o=rc.ray.origin, d=rc.ray.direction; if (d.y>=-.01) return null; const t=-o.y/d.y; const x=o.x+d.x*t, z=o.z+d.z*t; if (x<.25||x>8.95||z<.25||z>13.45||(x>4.79&&z>12.2)) return null; return new T.Vector3(x,0,z); }
 const blockedAt=(x,z)=>walls2D.some(w=>x>w.x0-.22&&x<w.x1+.22&&z>w.z0-.22&&z<w.z1+.22);
@@ -308,16 +309,18 @@ function tapAt(cx,cy){ const f=floorHit(cx,cy); if (!f){ if (mode==='doll') rese
 
 // ---------- etiquetas da maquete ----------
 const labelBox=$('labels3d'); const labelEls=ROOMS.map(r=>{ const b=document.createElement('button'); b.className='lab lg press'; b.innerHTML='<b>'+r.no+'</b>'+r.n; b.onclick=()=>focus(r.id); b.dataset.id=r.id; labelBox.appendChild(b); return {b,v:new T.Vector3(r.l[0],.9,r.l[1])}; });
-function updateLabels(){ const r=canvas.getBoundingClientRect(); const show=mode==='doll' && !camAnim; labelBox.style.opacity=show?1:0; labelBox.style.pointerEvents=show?'auto':'none'; if (!show) return;
-  for (const L of labelEls){ L.b.classList.toggle('on', L.b.dataset.id===sel); const p=L.v.clone().project(camera); const vis=p.z<1&&Math.abs(p.x)<1.1&&Math.abs(p.y)<1.1; L.b.style.display=vis?'':'none'; if (vis) L.b.style.transform='translate('+((p.x*.5+.5)*r.width-L.b.offsetWidth/2).toFixed(1)+'px,'+((-p.y*.5+.5)*r.height-L.b.offsetHeight/2).toFixed(1)+'px)'; } }
+let rectC=null; function updateLabels(){ const r=rectC||(rectC=canvas.getBoundingClientRect()); const show=mode==='doll' && !camAnim; if (labelBox._show!==show){ labelBox._show=show; labelBox.style.opacity=show?1:0; } labelBox.style.pointerEvents=show?'auto':'none'; if (!show) return;
+  for (const L of labelEls){ const on=L.b.dataset.id===sel; if (L.on!==on){ L.on=on; L.b.classList.toggle('on',on); L.w=0; } if (!L.w){ L.w=L.b.offsetWidth; L.h=L.b.offsetHeight; } const p=pv.copy(L.v).project(camera); const vis=p.z<1&&Math.abs(p.x)<1.1&&Math.abs(p.y)<1.1; if (L.vis!==vis){ L.vis=vis; L.b.style.display=vis?'':'none'; } if (vis) L.b.style.transform='translate3d('+((p.x*.5+.5)*r.width-L.w/2).toFixed(1)+'px,'+((-p.y*.5+.5)*r.height-L.h/2).toFixed(1)+'px,0)'; } }
+const pv=new T.Vector3(); if (document.fonts && document.fonts.ready) document.fonts.ready.then(()=>labelEls.forEach(L=>{ L.w=0; }));
 
 // ---------- laço ----------
 let running=true, last=performance.now(), cur=null, paused=false;
-function resize(){ const r=canvas.getBoundingClientRect(); renderer.setSize(r.width,r.height,false); camera.aspect=r.width/Math.max(1,r.height); camera.fov = camera.aspect<.8 ? 44 : 32; if (mode==='inside') camera.fov = camera.aspect<.8 ? 74 : 62; camera.updateProjectionMatrix(); }
+function resize(){ rectC=null; const r=canvas.getBoundingClientRect(); renderer.setSize(r.width,r.height,false); camera.aspect=r.width/Math.max(1,r.height); camera.fov = camera.aspect<.8 ? 44 : 32; if (mode==='inside') camera.fov = camera.aspect<.8 ? 74 : 62; camera.updateProjectionMatrix(); }
 addEventListener('resize',()=>{ resize(); const a=innerAspect(); homeR = a<.8 ? 33 : a<1.2 ? 28 : 25; if (!sel) goalR=homeR; });
-const io=new IntersectionObserver(es=>{ running=es[0].isIntersecting; if (running){ last=performance.now(); requestAnimationFrame(frame); } },{threshold:0}); io.observe(canvas);
+let loopOn=false; function kick(){ if (!loopOn){ loopOn=true; last=performance.now(); requestAnimationFrame(frame); } }
+const io=new IntersectionObserver(es=>{ running=es[es.length-1].isIntersecting; if (running) kick(); },{threshold:0}); io.observe(canvas);
 let perfN=0, perfT=0, perfDone=false;
-function frame(now){ if (!running || document.hidden){ return; } requestAnimationFrame(frame); if (paused){ last=now; return; } const dt=Math.min(.05,(now-last)/1000); last=now; idle+=dt;
+function frame(now){ if (!running || document.hidden){ loopOn=false; return; } requestAnimationFrame(frame); if (paused){ last=now; return; } const dt=Math.min(.05,(now-last)/1000); last=now; idle+=dt;
   if (camAnim){ camAnim.t+=dt/camAnim.dur; const e=ease(Math.min(1,camAnim.t)); camera.position.lerpVectors(camAnim.p0,camAnim.p1,e); camera.quaternion.copy(camAnim.q0).slerp(camAnim.q1,e); if (camAnim.t>=1){ const d=camAnim.done; camAnim=null; if (d) d(); } }
   else if (mode==='doll'){ if (idle>5 && !reduce && !sel) orb.theta+=dt*.04; const k=Math.min(1,dt*2.6); tgt.lerp(goalT,k); orb.r+=(goalR-orb.r)*k; if (goalPhi!==null) orb.phi+=(goalPhi-orb.phi)*k; camera.position.copy(dollPose()); camera.lookAt(tgt); }
   else { if (walkTo){ const dx=walkTo.x-eye.x, dz=walkTo.z-eye.z, d=Math.hypot(dx,dz); if (d<.08) walkTo=null; else { const st=Math.min(d,dt*1.6); const nx=eye.x+dx/d*st, nz=eye.z+dz/d*st; if (blockedAt(nx,nz)) walkTo=null; else { eye.x=nx; eye.z=nz; walked=true; } } }
@@ -331,8 +334,11 @@ function frame(now){ if (!running || document.hidden){ return; } requestAnimatio
 
 // ---------- montar ----------
 build(); mergeStatic(); for (const c of ceilObjs) c.visible=false; setHour(9); updateEnv(envTop,envBot); envDirty=false; fitDoll(); homeR=goalR; resize();
-camera.position.copy(dollPose()); camera.lookAt(tgt);
-window.Lux3D={ focus, reset, enterRoom, toDoll, setHour, get mode(){ return mode; }, get hour(){ return hour; }, rooms:ROOMS, on:(e,f)=>{ (listeners[e]=listeners[e]||[]).push(f); }, sunAt,
-  _debug:{renderer,scene,camera,orb,frame:()=>renderer.render(scene,camera), settle:()=>{ if (camAnim){ camAnim.t=.999; } }, pause:v=>{ paused=v; }, step:(n)=>{ for (let i=0;i<(n||1);i++){ paused=false; frame(performance.now()+16*(i+1)); } paused=true; }, get anim(){ return camAnim; }} };
-requestAnimationFrame(frame); emit('ready');
+camera.position.copy(dollPose()); camera.lookAt(tgt); renderer.shadowMap.needsUpdate=true;
+window.Lux3D={ zoom:(k)=>{ idle=0; goalR=Math.max(9,Math.min(48,goalR*k)); goalPhi=goalPhi; }, focus, reset, enterRoom, toDoll, setHour, get mode(){ return mode; }, get hour(){ return hour; }, rooms:ROOMS, on:(e,f)=>{ (listeners[e]=listeners[e]||[]).push(f); }, sunAt,
+  _debug:{renderer,scene,camera,orb,frame:()=>renderer.render(scene,camera), settle:()=>{ if (camAnim){ camAnim.t=.999; } }, pause:v=>{ paused=v; }, get running(){ return running; }, get paused(){ return paused; }, step:(n)=>{ for (let i=0;i<(n||1);i++){ paused=false; frame(performance.now()+16*(i+1)); } paused=true; }, get anim(){ return camAnim; }} };
+kick(); document.addEventListener('visibilitychange',()=>{ if (!document.hidden && running) kick(); }); emit('ready'); window.dispatchEvent(new Event('lux3d-ready'));
+}
+const cv=document.getElementById('c3d'); if (!cv) return;
+const ob=new IntersectionObserver(es=>{ if (es[0].isIntersecting){ ob.disconnect(); setTimeout(boot,40); } },{rootMargin:'700px 0px'}); ob.observe(cv);
 })();
