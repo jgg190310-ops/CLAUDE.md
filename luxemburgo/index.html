@@ -4,6 +4,19 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Apto Luxemburgo · Belo Horizonte</title>
+<meta name="description" content="Apartamento reformado no Luxemburgo, BH: 120 m², 3 quartos (1 suíte), 3 banheiros e 2 vagas, com piso de ipê restaurado, a 600 m do Parque Tom Jobim. Faça a visita.">
+<meta name="theme-color" content="#f7f3ee">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="pt_BR">
+<meta property="og:site_name" content="Apto Luxemburgo">
+<meta property="og:title" content="Apto Luxemburgo · 120 m², 3 quartos, BH">
+<meta property="og:description" content="Reformado, com piso de ipê restaurado e sol da manhã, a 600 m do Parque Tom Jobim. Faça a visita pelo celular.">
+<meta property="og:url" content="https://jgg190310-ops.github.io/apto-luxemburgo/">
+<meta property="og:image" content="https://jgg190310-ops.github.io/apto-luxemburgo/img/og.jpg">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -131,6 +144,26 @@ h1 em,h2 em{font-style:italic;color:var(--ipe)}
 .card span{display:block;font-size:13.5px;line-height:1.35;color:var(--sub);margin-top:2px}
 .card .x{width:38px;height:38px;border-radius:19px;display:flex;align-items:center;justify-content:center;flex:none;align-self:flex-start}
 
+/* foto em tela cheia */
+.room .ph{cursor:zoom-in}
+.room .ph .zm{position:absolute;right:12px;top:12px;width:36px;height:36px;border-radius:18px;display:flex;align-items:center;justify-content:center;pointer-events:none}
+#lb{position:fixed;inset:0;z-index:30;background:rgba(18,13,9,.94);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s}
+#lb.on{opacity:1;pointer-events:auto}
+#lb .sc{position:absolute;inset:0;overflow:auto;display:flex;align-items:center;justify-content:center;touch-action:pan-x pan-y pinch-zoom;-webkit-overflow-scrolling:touch}
+#lb img{max-width:100%;max-height:100%;object-fit:contain;transition:transform .35s}
+#lb.z img{max-width:none;max-height:none;width:200%;cursor:zoom-out}
+#lb .x{position:absolute;top:calc(12px + var(--st));right:12px;width:44px;height:44px;border-radius:22px;display:flex;align-items:center;justify-content:center;z-index:2}
+#lb .cap{position:absolute;left:12px;bottom:calc(14px + var(--sb));height:34px;padding:0 14px;border-radius:17px;display:flex;align-items:center;font-size:13.5px;font-weight:600;z-index:2}
+/* compartilhar e avisos */
+#top .rt{display:flex;gap:8px}
+#top .sh{width:44px;height:44px;border-radius:22px;display:flex;align-items:center;justify-content:center}
+#toast{position:fixed;left:50%;top:calc(66px + var(--st));z-index:40;transform:translate(-50%,-20px);opacity:0;height:40px;padding:0 16px;border-radius:20px;display:flex;align-items:center;font-size:14px;font-weight:600;transition:opacity .3s,transform .4s var(--spring);pointer-events:none;white-space:nowrap}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+.swipe{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);height:34px;padding:0 14px;border-radius:17px;display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .4s}
+.swipe.on{opacity:1;animation:nudge 1.4s ease-in-out 2}
+@keyframes nudge{0%,100%{transform:translateX(-50%)}50%{transform:translateX(calc(-50% - 14px))}}
+.coverShare{position:absolute;top:calc(12px + var(--st));right:12px;z-index:2;height:40px;padding:0 14px;border-radius:20px;display:flex;align-items:center;gap:7px;font-size:13.5px;font-weight:600}
+
 /* antes e depois */
 .ba{flex:1;min-height:0;display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:12px;max-width:1100px;width:100%;margin:0 auto}
 .ba h2{font-size:clamp(36px,6vw,58px);line-height:1;margin-top:6px}
@@ -141,7 +174,7 @@ h1 em,h2 em{font-style:italic;color:var(--ipe)}
 .cmp .dep{clip-path:inset(0 0 0 var(--p))}
 .cmp.anim .dep{transition:clip-path .9s cubic-bezier(.6,0,.2,1)}
 .cmp.anim .hnd{transition:left .9s cubic-bezier(.6,0,.2,1)}
-.cmp .lb{position:absolute;top:12px;height:32px;padding:0 13px;border-radius:16px;display:flex;align-items:center;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;z-index:2;pointer-events:none}
+.cmp .lb{position:absolute;top:12px;height:32px;padding:0 13px;border-radius:16px;display:flex;align-items:center;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;z-index:4;cursor:pointer}
 .cmp .lb.a{left:12px}.cmp .lb.d{right:12px}
 .hnd{position:absolute;top:0;bottom:0;left:var(--p);width:2px;margin-left:-1px;background:#fff;box-shadow:0 0 12px rgba(0,0,0,.35);z-index:3;pointer-events:none}
 .hnd i{position:absolute;top:50%;left:50%;width:46px;height:46px;margin:-23px 0 0 -23px;border-radius:23px;display:flex;align-items:center;justify-content:center;gap:2px;color:var(--tinta)}
@@ -195,7 +228,7 @@ h1 em,h2 em{font-style:italic;color:var(--ipe)}
   .nb{grid-template-rows:none;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);align-items:center;gap:36px}
 }
 @media (max-height:700px){ .room p{display:none} .coverBox p{display:none} }
-@media (prefers-reduced-motion:reduce){ .step,.step.cur{transition:opacity .2s} .step{transform:none} .room .ph img{transform:none;transition:none} .press,.press:active{transition:none;transform:none} }
+@media (prefers-reduced-motion:reduce){ .swipe.on{animation:none}  .step,.step.cur{transition:opacity .2s} .step{transform:none} .room .ph img{transform:none;transition:none} .press,.press:active{transition:none;transform:none} }
 </style>
 </head>
 <body>
@@ -207,6 +240,8 @@ h1 em,h2 em{font-style:italic;color:var(--ipe)}
   <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></symbol>
   <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></symbol>
   <symbol id="i-back" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5M4 9h11a5 5 0 0 1 0 10h-3"/></symbol>
+  <symbol id="i-share" viewBox="0 0 24 24"><path d="M12 15V3M8 7l4-4 4 4M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1"/></symbol>
+  <symbol id="i-zoom" viewBox="0 0 24 24"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></symbol>
   <symbol id="i-rot" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v5h-5"/></symbol>
 </svg>
 
@@ -214,6 +249,7 @@ h1 em,h2 em{font-style:italic;color:var(--ipe)}
   <!-- 0 · capa -->
   <section class="step cur" data-name="Início">
     <div class="cover"><img src="img/pronto-sala.jpg" fetchpriority="high" alt="Sala e jantar integrados, com piso de ipê"><div class="veil"></div></div>
+    <button class="coverShare lg dark press" data-share aria-label="Compartilhar"><svg class="i"><use href="#i-share"/></svg>Compartilhar</button>
     <div class="coverBox">
       <span class="kicker">Luxemburgo · Belo Horizonte</span>
       <h1>Apto <em>Luxemburgo</em></h1>
@@ -226,7 +262,8 @@ h1 em,h2 em{font-style:italic;color:var(--ipe)}
 
 <header id="top" style="opacity:0;pointer-events:none">
   <button class="name lg press" id="homeBtn" aria-label="Voltar ao início">Apto Luxemburgo</button>
-  <button class="idx lg press" id="idxBtn" aria-label="Índice"><svg class="i"><use href="#i-list"/></svg><b id="stepNo">1/9</b></button>
+  <div class="rt"><button class="sh lg press" data-share aria-label="Compartilhar"><svg class="i"><use href="#i-share"/></svg></button>
+  <button class="idx lg press" id="idxBtn" aria-label="Índice"><svg class="i"><use href="#i-list"/></svg><b id="stepNo">1/9</b></button></div>
 </header>
 
 <nav id="nav" class="lg off" aria-label="Navegação da visita">
@@ -235,6 +272,8 @@ h1 em,h2 em{font-style:italic;color:var(--ipe)}
   <button id="next" class="press"><span id="nextTxt">Próximo</span><svg class="i"><use href="#i-r"/></svg></button>
 </nav>
 
+<div id="lb" role="dialog" aria-label="Foto em tela cheia" aria-hidden="true"><div class="sc" id="lbSc"><img id="lbImg" alt=""></div><button class="x lg dark press" id="lbX" aria-label="Fechar"><svg class="i"><use href="#i-x"/></svg></button><span class="cap lg dark" id="lbCap"></span></div>
+<div id="toast" class="lg" role="status" aria-live="polite"></div>
 <div id="menuBg"></div>
 <div id="menu" class="lg" role="dialog" aria-label="Índice da visita"><h3>Índice</h3><div id="menuList"></div></div>
 
@@ -274,27 +313,31 @@ const ROOMS = [
 const STEPS = [{name:'Início', img:'pronto-sala'}];
 const deck = $('deck');
 function add(name, html, img, is3d){ const s=document.createElement('section'); s.className='step'; s.dataset.name=name; if (is3d) s.dataset.three='1'; s.innerHTML='<div class="inner">'+html+'</div>'; deck.appendChild(s); STEPS.push({name, img}); }
-ROOMS.forEach(([f,n,t],i)=> add(n, `<div class="room"><div class="ph"><img src="img/${f}.jpg" alt="${n}" decoding="async"><span class="tag lg dark">${String(i+1).padStart(2,'0')} · Ambiente</span></div><div class="txt"><span class="kicker">${i+1} de ${ROOMS.length} ambientes</span><h2>${n}</h2><p>${t}</p></div></div>`, f));
+ROOMS.forEach(([f,n,t],i)=> add(n, `<div class="room"><div class="ph" data-full="img/${f}.jpg" data-cap="${n}" role="button" tabindex="0" aria-label="Ver ${n} em tela cheia"><img data-src="img/${f}.jpg" alt="${n}" decoding="async"><span class="tag lg dark">${String(i+1).padStart(2,'0')} · Ambiente</span><span class="zm lg dark"><svg class="i"><use href="#i-zoom"/></svg></span>${i?'':'<span class="swipe lg dark" id="swipeHint"><svg class="i"><use href="#i-l"/></svg>Deslize para o lado<svg class="i"><use href="#i-r"/></svg></span>'}</div><div class="txt"><span class="kicker">${i+1} de ${ROOMS.length} ambientes</span><h2>${n}</h2><p>${t}</p></div></div>`, f));
 const BA=[['sala','Sala de estar'],['estar','Estar e jantar'],['suite','Suíte'],['quarto','Quarto']];
 add('Antes e depois', `<div class="ba"><div class="head"><span class="kicker">Antes e depois</span><h2>Vazio hoje, <em>pronto para morar</em></h2><p>Arraste a linha para comparar. As fotos são do apartamento vazio; a mobília foi gerada por IA.</p></div>
   <div class="stage"><div class="cmp" id="cmp" role="slider" aria-label="Comparar antes e depois" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50" tabindex="0">
-    <img id="baA" src="img/antes-sala.jpg" alt="Antes: Sala de estar, sem móveis" decoding="async"><img class="dep" id="baD" src="img/depois-sala.jpg" alt="Depois: Sala de estar, com mobília gerada por IA" decoding="async">
+    <img id="baA" data-src="img/antes-sala.jpg" alt="Antes: Sala de estar, sem móveis" decoding="async"><img class="dep" id="baD" data-src="img/depois-sala.jpg" alt="Depois: Sala de estar, com mobília gerada por IA" decoding="async">
     <span class="lb a lg dark">Antes</span><span class="lb d lg dark">Depois · IA</span>
     <div class="hnd"><i class="lg"><svg class="i"><use href="#i-l"/></svg><svg class="i"><use href="#i-r"/></svg></i></div></div></div>
   <div class="seg lg" id="baSeg" role="group" aria-label="Ambiente">${BA.map(([k,n],i)=>`<button class="press${i?'':' on'}" data-k="${k}" data-n="${n}">${n}</button>`).join('')}</div></div>`, 'depois-sala');
-add('A planta', `<div class="plan"><div><span class="kicker">A planta</span><h2>120 m² <em>bem divididos</em></h2></div><div class="img"><img src="img/planta.jpg" alt="Planta humanizada do apartamento" decoding="async"></div><ul class="nums"><li><b>3</b><span>quartos</span></li><li><b>1</b><span>suíte</span></li><li><b>3</b><span>banheiros</span></li><li><b>2</b><span>vagas</span></li></ul></div>`, 'planta');
+add('A planta', `<div class="plan"><div><span class="kicker">A planta</span><h2>120 m² <em>bem divididos</em></h2></div><div class="img"><img data-src="img/planta.jpg" alt="Planta humanizada do apartamento" decoding="async"></div><ul class="nums"><li><b>3</b><span>quartos</span></li><li><b>1</b><span>suíte</span></li><li><b>3</b><span>banheiros</span></li><li><b>2</b><span>vagas</span></li></ul></div>`, 'planta');
 add('Maquete 3D', $('tpl3d').innerHTML, '', true);
-add('O bairro', `<div class="nb"><div class="img"><img src="img/parque.jpg" alt="Parque Mosteiro Tom Jobim" decoding="async"></div><div><span class="kicker">O bairro</span><h2>Rua quieta, <em>cidade perto</em></h2><ul class="dist"><li><b>600 m</b><span>Parque Tom Jobim</span></li><li><b>até 1 km</b><span>Escolas, mercado e farmácia</span></li><li><b>5 min de carro</b><span>Contorno e Raja Gabaglia</span></li><li><b>15 min de carro</b><span>Savassi e Centro</span></li></ul></div></div>`, 'parque');
+add('O bairro', `<div class="nb"><div class="img"><img data-src="img/parque.jpg" alt="Parque Mosteiro Tom Jobim" decoding="async"></div><div><span class="kicker">O bairro</span><h2>Rua quieta, <em>cidade perto</em></h2><ul class="dist"><li><b>600 m</b><span>Parque Tom Jobim</span></li><li><b>até 1 km</b><span>Escolas, mercado e farmácia</span></li><li><b>5 min de carro</b><span>Contorno e Raja Gabaglia</span></li><li><b>15 min de carro</b><span>Savassi e Centro</span></li></ul></div></div>`, 'parque');
 add('Visita', `<div class="visit"><span class="kicker">Para terminar</span><h2>Agende <em>uma visita</em></h2>
   <div class="rows"><div class="row"><span>Área privativa</span><b>120 m²</b></div><div class="row"><span>Quartos</span><b>3, sendo 1 suíte</b></div><div class="row"><span>Banheiros</span><b>3</b></div><div class="row"><span>Vagas</span><b>2 cobertas</b></div><div class="row"><span>Andar</span><b>1º</b></div><div class="row"><span>Sol</span><b>Manhã (leste)</b></div><div class="row"><span>Piso</span><b>Ipê e tacos de madeira</b></div></div>
-  <div class="contact"><b class="h">Valores sob consulta</b><p>Fale com quem enviou este link para combinar a visita.</p><div id="contactRows"></div><div class="btns" id="cBtns"><button class="pill line press" id="again">Rever do início</button></div></div>
+  <div class="contact"><b class="h">Valores sob consulta</b><p>Fale com quem enviou este link para combinar a visita.</p><div id="contactRows"></div><div class="btns" id="cBtns"><button class="pill line press" data-share><svg class="i"><use href="#i-share"/></svg>Compartilhar</button><button class="pill line press" id="again">Rever do início</button></div></div>
   <p class="fine" id="fine">Fotos com decoração ilustrativa. No antes e depois, as fotos são do imóvel vazio e a mobília foi gerada por inteligência artificial. Maquete 3D e planta ilustrativas. Informações sujeitas a confirmação documental e alteração sem aviso prévio.</p></div>`, '');
 
 const steps=[...deck.children]; let cur=0;
 $('bars').innerHTML = steps.slice(1).map(()=>'<i></i>').join('');
-$('menuList').innerHTML = STEPS.map((s,i)=>`<button class="press" data-i="${i}"><em>${i?String(i).padStart(2,'0'):''}</em>${s.name}${s.img?`<img src="img/${s.img}.jpg" alt="" loading="lazy">`:''}</button>`).join('');
+$('menuList').innerHTML = STEPS.map((s,i)=>`<button class="press" data-i="${i}"><em>${i?String(i).padStart(2,'0'):''}</em>${s.name}${s.img?`<img src="img/t/${s.img}.jpg" alt="" loading="lazy">`:''}</button>`).join('');
 
-function go(i){ i=Math.max(0,Math.min(steps.length-1,i)); if (i===cur) return; steps.forEach((s,k)=>{ s.classList.toggle('cur',k===i); s.classList.toggle('past',k<i); }); cur=i; ui(); if (steps[i].dataset.three) start3d(); if (steps[i].querySelector('.cmp')) baSweep(); }
+const SLUG=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+function warm(i){ for (let k=i-1;k<=i+2;k++){ const st=steps[k]; if (!st) continue; st.querySelectorAll('img[data-src]').forEach(im=>{ im.src=im.dataset.src; im.removeAttribute('data-src'); }); if (st.querySelector('.cmp') && !warm.ba){ warm.ba=1; BA.forEach(([k2])=>{ new Image().src='img/antes-'+k2+'.jpg'; new Image().src='img/depois-'+k2+'.jpg'; }); } } }
+function setHash(){ try{ history.replaceState(null,'', cur ? '#'+SLUG(STEPS[cur].name) : location.pathname+location.search); }catch(e){} }
+function hint(){ const h=$('swipeHint'); if (!h || hint.done || !matchMedia('(pointer:coarse)').matches) return; hint.done=1; setTimeout(()=>h.classList.add('on'),700); setTimeout(()=>h.classList.remove('on'),4200); }
+function go(i){ i=Math.max(0,Math.min(steps.length-1,i)); if (i===cur) return; warm(i); steps.forEach((s,k)=>{ s.classList.toggle('cur',k===i); s.classList.toggle('past',k<i); }); cur=i; ui(); setHash(); if (i===1) hint(); if (steps[i].dataset.three) start3d(); if (steps[i].querySelector('.cmp')) baSweep(); }
 function ui(){ const first=cur===0, last=cur===steps.length-1;
   $('nav').classList.toggle('off', first); const t=$('top'); t.style.opacity=first?0:1; t.style.pointerEvents=first?'none':'auto';
   $('stepNo').textContent=cur+'/'+(steps.length-1); [...$('bars').children].forEach((b,k)=>b.classList.toggle('done',k<cur));
@@ -306,12 +349,30 @@ const menuOpen=v=>{ $('menu').classList.toggle('on',v); $('menuBg').classList.to
 $('idxBtn').onclick=()=>menuOpen(true); $('menuBg').onclick=()=>menuOpen(false);
 $('menuList').querySelectorAll('button').forEach(b=> b.onclick=()=>{ menuOpen(false); go(+b.dataset.i); });
 document.addEventListener('click',e=>{ if (e.target.id==='again') go(0); });
-addEventListener('keydown',e=>{ if ($('menu').classList.contains('on')){ if (e.key==='Escape') menuOpen(false); return; } if (e.key==='ArrowRight'){ e.preventDefault(); if (cur<steps.length-1) go(cur+1); } if (e.key==='ArrowLeft') go(cur-1); });
+addEventListener('keydown',e=>{ if (lb.classList.contains('on')) return; if ($('menu').classList.contains('on')){ if (e.key==='Escape') menuOpen(false); return; } if (e.key==='ArrowRight'){ e.preventDefault(); if (cur<steps.length-1) go(cur+1); } if (e.key==='ArrowLeft') go(cur-1); });
 // deslizar para o lado troca de tela (menos na maquete, onde o dedo gira o 3D)
 let sx=null, sy=0, st=0;
 deck.addEventListener('touchstart',e=>{ if (steps[cur].dataset.three || cur===0 || e.target.closest('.cmp')) { sx=null; return; } const t=e.touches[0]; sx=t.clientX; sy=t.clientY; st=Date.now(); },{passive:true});
 deck.addEventListener('touchend',e=>{ if (sx===null) return; const t=e.changedTouches[0], dx=t.clientX-sx, dy=t.clientY-sy; sx=null; if (Math.abs(dx)>60 && Math.abs(dx)>Math.abs(dy)*1.4 && Date.now()-st<600) go(cur+(dx<0?1:-1)); },{passive:true});
-ui();
+ui(); warm(0);
+
+// ---------- compartilhar ----------
+const SITE='https://jgg190310-ops.github.io/apto-luxemburgo/';
+function toast(t){ const el=$('toast'); el.textContent=t; el.classList.add('on'); clearTimeout(toast.t); toast.t=setTimeout(()=>el.classList.remove('on'),2200); }
+async function share(){ const url=SITE+(cur?'#'+SLUG(STEPS[cur].name):''); const data={title:'Apto Luxemburgo · Belo Horizonte', text:'Apartamento reformado no Luxemburgo, BH: 120 m², 3 quartos, 2 vagas. Faça a visita:', url};
+  if (navigator.share){ try{ await navigator.share(data); }catch(e){} return; }
+  try{ await navigator.clipboard.writeText(url); toast('Link copiado'); }catch(e){ prompt('Copie o link:',url); } }
+document.addEventListener('click',e=>{ if (e.target.closest('[data-share]')) share(); });
+
+// ---------- foto em tela cheia ----------
+const lb=$('lb');
+function lbOpen(src,cap){ $('lbImg').src=src; $('lbImg').alt=cap; $('lbCap').textContent=cap; lb.classList.remove('z'); lb.classList.add('on'); lb.setAttribute('aria-hidden','false'); $('lbX').focus(); }
+function lbClose(){ lb.classList.remove('on','z'); lb.setAttribute('aria-hidden','true'); }
+deck.addEventListener('click',e=>{ const ph=e.target.closest('.ph[data-full]'); if (ph) lbOpen(ph.dataset.full, ph.dataset.cap); });
+deck.addEventListener('keydown',e=>{ const ph=e.target.closest&&e.target.closest('.ph[data-full]'); if (ph && (e.key==='Enter'||e.key===' ')){ e.preventDefault(); lbOpen(ph.dataset.full, ph.dataset.cap); } });
+$('lbX').onclick=lbClose; $('lbImg').onclick=e=>{ e.stopPropagation(); lb.classList.toggle('z'); };
+$('lbSc').onclick=e=>{ if (e.target===$('lbSc')) lbClose(); };
+addEventListener('keydown',e=>{ if (e.key==='Escape' && lb.classList.contains('on')) lbClose(); }, true);
 
 // ---------- antes e depois ----------
 const cmp=$('cmp'); let baP=50;
@@ -319,11 +380,12 @@ const setP=(v,anim)=>{ baP=Math.max(0,Math.min(100,v)); cmp.classList.toggle('an
 function baSweep(){ setP(100,false); requestAnimationFrame(()=>requestAnimationFrame(()=>setP(50,true))); }
 let baDrag=false;
 const baAt=e=>{ const r=cmp.getBoundingClientRect(); setP((e.clientX-r.left)/r.width*100,false); };
+cmp.querySelector('.lb.a').addEventListener('pointerdown',e=>{ e.stopPropagation(); setP(100,true); });
+cmp.querySelector('.lb.d').addEventListener('pointerdown',e=>{ e.stopPropagation(); setP(0,true); });
 cmp.addEventListener('pointerdown',e=>{ baDrag=true; cmp.setPointerCapture(e.pointerId); baAt(e); });
 cmp.addEventListener('pointermove',e=>{ if (baDrag) baAt(e); });
 ['pointerup','pointercancel'].forEach(t=>cmp.addEventListener(t,()=>{ baDrag=false; }));
 cmp.addEventListener('keydown',e=>{ if (e.key==='ArrowLeft'||e.key==='ArrowRight'){ e.preventDefault(); e.stopPropagation(); setP(baP+(e.key==='ArrowLeft'?-10:10),true); } });
-BA.forEach(([k])=>{ new Image().src='img/antes-'+k+'.jpg'; new Image().src='img/depois-'+k+'.jpg'; });
 $('baSeg').querySelectorAll('button').forEach(b=> b.onclick=()=>{ $('baSeg').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));
   const k=b.dataset.k, n=b.dataset.n; $('baA').src='img/antes-'+k+'.jpg'; $('baA').alt='Antes: '+n+', sem móveis'; $('baD').src='img/depois-'+k+'.jpg'; $('baD').alt='Depois: '+n+', com mobília gerada por IA'; baSweep(); });
 
@@ -346,6 +408,10 @@ setTimeout(()=>{ if (!window.THREE){ const l=$('loading'); if (l) l.textContent=
 if (B){ $('contactRows').innerHTML=[['Corretor',B.corretor],['CRECI',B.creci],['Site',B.site],['Instagram',B.instagram]].filter(r=>r[1]).map(r=>`<div class="crow"><span>${r[0]}</span><span>${r[1]}</span></div>`).join('');
   if (B.whatsapp) $('cBtns').insertAdjacentHTML('afterbegin',`<a class="pill ipe press" href="https://wa.me/${B.whatsapp.replace(/\D/g,'')}" target="_blank" rel="noopener">Agendar pelo WhatsApp</a>`);
   $('fine').textContent += ' Intermediação: '+B.corretor+' · '+B.creci+' · '+B.name+'.'; }
+// abrir direto numa tela pelo link (ex.: #antes-e-depois)
+function fromHash(){ const h=decodeURIComponent(location.hash.slice(1)); const k=h?STEPS.findIndex(s=>SLUG(s.name)===h):0; if (k>=0 && k!==cur) go(k); }
+addEventListener('hashchange',fromHash);
+fromHash();
 })();
 </script>
 </body>
