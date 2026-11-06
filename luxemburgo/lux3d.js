@@ -252,24 +252,25 @@ let envDirty=true, envTop=null, envBot=null, envT=0, baseExp=1, expF=1;
 
 // ---------- ambientes ----------
 const ROOMS=[
-  {id:'sala',  no:'01', n:'Sala de estar', l:[2.15,11.0], eye:[4.1,9.2], look:[1.0,.9,12.6], photo:'img/pronto-sala.jpg', t:'Sofá de linho, poltronas de couro e o assoalho de ipê restaurado. As duas janelas ficam à esquerda.'},
-  {id:'jantar',no:'02', n:'Jantar',        l:[2.15,7.9],  eye:[3.9,12.4],  look:[1.6,.9,7.4],  photo:'img/pronto-sala.jpg', t:'Mesa para 8 lugares, integrada à sala e aberta para a cozinha.'},
-  {id:'cozinha',no:'03',n:'Cozinha',       l:[6.9,9.3],   eye:[5.25,6.95], look:[9.0,.95,8.5],  photo:'img/pronto-cozinha.jpg', t:'Bancada de pedra sob a janela, marcenaria clara e área de serviço ao fundo.'},
-  {id:'suite', no:'04', n:'Suíte',         l:[1.8,1.85],  eye:[2.95,3.1],  look:[.4,.85,1.4],   photo:'img/pronto-suite.jpg', t:'O quarto que recebe o sol da manhã, com banheiro próprio e armário com portas de palhinha.'},
-  {id:'quarto',no:'05', n:'Quarto',        l:[6.6,1.85],  eye:[4.75,2.95], look:[8.6,.8,1.2],  photo:'img/pronto-quarto.jpg', t:'Duas camas de solteiro e uma escrivaninha junto à janela.'},
-  {id:'quarto3',no:'06',n:'Quarto 3',      l:[6.9,4.9],   eye:[5.35,5.3],  look:[8.7,.8,4.0],  photo:'', t:'Quarto de solteiro com armário de parede a parede.'},
-  {id:'banho1',no:'07', n:'Banho da suíte',l:[1.6,4.2],   eye:[2.85,4.3], look:[.4,1.05,4.7],  photo:'img/pronto-banheiro.jpg', t:'Bancada de pedra, espelho iluminado e box de vidro.'},
-  {id:'banho2',no:'08', n:'Banheiro',      l:[1.6,5.75],  eye:[2.75,5.95], look:[.6,1.0,5.6],  photo:'img/pronto-banheiro.jpg', t:'Banheiro social, entrando pelo corredor dos quartos.'}];
-const zoneOf=(x,z)=>{ if (z<3.44) return x<4 ? 'suite' : 'quarto'; if (z<6.43){ if (x<3.2) return z<5.03?'banho1':'banho2'; if (x>4.8) return 'quarto3'; return 'corr'; } if (x<4.79) return z<9.3?'jantar':'sala'; return 'cozinha'; };
+  {id:'sala',   no:'01', n:'Sala e jantar', l:[2.15,9.7], photo:'img/pronto-sala.jpg',     t:'Sala de estar e jantar integradas, sobre o assoalho de ipê, com duas janelas.'},
+  {id:'cozinha',no:'02', n:'Cozinha',       l:[6.9,9.2],  photo:'img/pronto-cozinha.jpg',  t:'Bancada de pedra sob a janela, marcenaria clara e área de serviço.'},
+  {id:'suite',  no:'03', n:'Suíte',         l:[1.8,1.85], photo:'img/pronto-suite.jpg',    t:'O quarto que recebe o sol da manhã, com banheiro próprio.'},
+  {id:'quarto', no:'04', n:'Quarto',        l:[6.6,1.85], photo:'img/pronto-quarto.jpg',   t:'Duas camas de solteiro e escrivaninha junto à janela.'},
+  {id:'quarto3',no:'05', n:'Quarto 3',      l:[6.9,4.9],  photo:'',                        t:'Quarto de solteiro com armário de parede a parede.'},
+  {id:'banho',  no:'06', n:'Banheiros',     l:[1.6,4.95], photo:'img/pronto-banheiro.jpg', t:'Banho da suíte e banheiro social, com bancada de pedra e box de vidro.'}];
+const zoneOf=(x,z)=>{ if (z<3.44) return x<4 ? 'suite' : 'quarto'; if (z<6.43){ if (x<3.2) return 'banho'; if (x>4.8) return 'quarto3'; return null; } if (x<4.79) return 'sala'; return 'cozinha'; };
 
 // ---------- câmera: maquete (órbita) e dentro (olhar em volta) ----------
-const tgt=new T.Vector3(4.6,0,6.9); const orb={theta:-.42, phi:.6, r:22};
+const tgt=new T.Vector3(4.6,0,6.9), home=tgt.clone(), goalT=tgt.clone(); let goalR=22, sel=null; const orb={theta:-.42, phi:.6, r:22};
 let mode='doll', camAnim=null, eye=new T.Vector3(), yaw=0, pitch=0, walkTo=null, idle=0, walked=false;
 function dollPose(){ const s=Math.sin(orb.phi); return new T.Vector3(tgt.x+orb.r*s*Math.sin(orb.theta), orb.r*Math.cos(orb.phi), tgt.z+orb.r*s*Math.cos(orb.theta)); }
 const eul=new T.Euler(0,0,0,'YXZ'); const q=(y,p)=>{ eul.set(p,y,0,'YXZ'); return new T.Quaternion().setFromEuler(eul); };
 function anim(p1,q1,dur,done){ camAnim={p0:camera.position.clone(),q0:camera.quaternion.clone(),p1,q1,t:0,dur,done}; }
 const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
-function fitDoll(){ const a=innerAspect(); orb.r = a<.8 ? 25 : a<1.2 ? 21 : 18.5; orb.phi = a<.8 ? .55 : .66; }
+function fitDoll(){ const a=innerAspect(); goalR = orb.r = a<.8 ? 25 : a<1.2 ? 21 : 18.5; orb.phi = a<.8 ? .55 : .66; }
+let homeR=22;
+function focus(id){ const r=ROOMS.find(x=>x.id===id); if (!r){ reset(); return; } sel=id; idle=0; goalT.set(r.l[0],0,r.l[1]); goalR=Math.max(9,homeR*.48); emit('room',r); }
+function reset(){ sel=null; goalT.copy(home); goalR=homeR; emit('room',null); }
 function innerAspect(){ const r=canvas.getBoundingClientRect(); return r.width/Math.max(1,r.height); }
 function enterRoom(id){ const r=ROOMS.find(x=>x.id===id); if (!r) return; idle=0; walkTo=null; walked=false; cur=id; const p=new T.Vector3(r.eye[0],1.55,r.eye[1]); const lk=new T.Vector3(...r.look).sub(p); yaw=Math.atan2(-lk.x,-lk.z); pitch=Math.atan2(lk.y,Math.hypot(lk.x,lk.z));
   const wasDoll = mode==='doll'; mode='inside'; for (const c of ceilObjs) c.visible=true; eye.copy(p);
@@ -292,22 +293,22 @@ canvas.addEventListener('wheel',e=>{ if (mode!=='doll') return; e.preventDefault
 const rc=new T.Raycaster(), ndc=new T.Vector2();
 function floorHit(cx,cy){ const r=canvas.getBoundingClientRect(); ndc.set((cx-r.left)/r.width*2-1, -((cy-r.top)/r.height)*2+1); rc.setFromCamera(ndc,camera); const o=rc.ray.origin, d=rc.ray.direction; if (d.y>=-.01) return null; const t=-o.y/d.y; const x=o.x+d.x*t, z=o.z+d.z*t; if (x<.25||x>8.95||z<.25||z>13.45||(x>4.79&&z>12.2)) return null; return new T.Vector3(x,0,z); }
 const blockedAt=(x,z)=>walls2D.some(w=>x>w.x0-.22&&x<w.x1+.22&&z>w.z0-.22&&z<w.z1+.22);
-function tapAt(cx,cy){ const f=floorHit(cx,cy); if (!f) return; if (mode==='doll'){ const id=zoneOf(f.x,f.z); enterRoom(id==='corr'?'sala':id); return; } walkTo=f; }
+function tapAt(cx,cy){ const f=floorHit(cx,cy); if (!f){ if (mode==='doll') reset(); return; } if (mode==='doll'){ const id=zoneOf(f.x,f.z); if (id) focus(id); else reset(); return; } walkTo=f; }
 
 // ---------- etiquetas da maquete ----------
-const labelBox=$('labels3d'); const labelEls=ROOMS.map(r=>{ const b=document.createElement('button'); b.className='lab lg press'; b.innerHTML='<b>'+r.no+'</b>'+r.n; b.onclick=()=>enterRoom(r.id); labelBox.appendChild(b); return {b,v:new T.Vector3(r.l[0],.9,r.l[1])}; });
+const labelBox=$('labels3d'); const labelEls=ROOMS.map(r=>{ const b=document.createElement('button'); b.className='lab lg press'; b.innerHTML='<b>'+r.no+'</b>'+r.n; b.onclick=()=>focus(r.id); b.dataset.id=r.id; labelBox.appendChild(b); return {b,v:new T.Vector3(r.l[0],.9,r.l[1])}; });
 function updateLabels(){ const r=canvas.getBoundingClientRect(); const show=mode==='doll' && !camAnim; labelBox.style.opacity=show?1:0; labelBox.style.pointerEvents=show?'auto':'none'; if (!show) return;
-  for (const L of labelEls){ const p=L.v.clone().project(camera); const vis=p.z<1&&Math.abs(p.x)<1.1&&Math.abs(p.y)<1.1; L.b.style.display=vis?'':'none'; if (vis) L.b.style.transform='translate('+((p.x*.5+.5)*r.width-L.b.offsetWidth/2).toFixed(1)+'px,'+((-p.y*.5+.5)*r.height-L.b.offsetHeight/2).toFixed(1)+'px)'; } }
+  for (const L of labelEls){ L.b.classList.toggle('on', L.b.dataset.id===sel); const p=L.v.clone().project(camera); const vis=p.z<1&&Math.abs(p.x)<1.1&&Math.abs(p.y)<1.1; L.b.style.display=vis?'':'none'; if (vis) L.b.style.transform='translate('+((p.x*.5+.5)*r.width-L.b.offsetWidth/2).toFixed(1)+'px,'+((-p.y*.5+.5)*r.height-L.b.offsetHeight/2).toFixed(1)+'px)'; } }
 
 // ---------- laço ----------
 let running=true, last=performance.now(), cur=null, paused=false;
 function resize(){ const r=canvas.getBoundingClientRect(); renderer.setSize(r.width,r.height,false); camera.aspect=r.width/Math.max(1,r.height); camera.fov = camera.aspect<.8 ? 58 : 42; if (mode==='inside') camera.fov = camera.aspect<.8 ? 74 : 62; camera.updateProjectionMatrix(); }
-addEventListener('resize',resize);
+addEventListener('resize',()=>{ resize(); const a=innerAspect(); homeR = a<.8 ? 25 : a<1.2 ? 21 : 18.5; if (!sel) goalR=homeR; });
 const io=new IntersectionObserver(es=>{ running=es[0].isIntersecting; if (running){ last=performance.now(); requestAnimationFrame(frame); } },{threshold:0}); io.observe(canvas);
 let perfN=0, perfT=0, perfDone=false;
 function frame(now){ if (!running || document.hidden){ return; } requestAnimationFrame(frame); if (paused){ last=now; return; } const dt=Math.min(.05,(now-last)/1000); last=now; idle+=dt;
   if (camAnim){ camAnim.t+=dt/camAnim.dur; const e=ease(Math.min(1,camAnim.t)); camera.position.lerpVectors(camAnim.p0,camAnim.p1,e); camera.quaternion.copy(camAnim.q0).slerp(camAnim.q1,e); if (camAnim.t>=1){ const d=camAnim.done; camAnim=null; if (d) d(); } }
-  else if (mode==='doll'){ if (idle>4 && !reduce) orb.theta+=dt*.05; camera.position.copy(dollPose()); camera.lookAt(tgt); }
+  else if (mode==='doll'){ if (idle>5 && !reduce && !sel) orb.theta+=dt*.04; const k=Math.min(1,dt*2.6); tgt.lerp(goalT,k); orb.r+=(goalR-orb.r)*k; camera.position.copy(dollPose()); camera.lookAt(tgt); }
   else { if (walkTo){ const dx=walkTo.x-eye.x, dz=walkTo.z-eye.z, d=Math.hypot(dx,dz); if (d<.08) walkTo=null; else { const st=Math.min(d,dt*1.6); const nx=eye.x+dx/d*st, nz=eye.z+dz/d*st; if (blockedAt(nx,nz)) walkTo=null; else { eye.x=nx; eye.z=nz; walked=true; } } }
     camera.position.copy(eye); camera.quaternion.copy(q(yaw,pitch)); const z=zoneOf(eye.x,eye.z); if (walked && z!==cur && z!=='corr'){ cur=z; emit('room',ROOMS.find(r=>r.id===z)); } }
   const fovT = mode==='inside' ? (camera.aspect<.8?74:62) : (camera.aspect<.8?58:42); if (Math.abs(camera.fov-fovT)>.05){ camera.fov+=(fovT-camera.fov)*Math.min(1,dt*3); camera.updateProjectionMatrix(); }
@@ -318,9 +319,9 @@ function frame(now){ if (!running || document.hidden){ return; } requestAnimatio
   if (!perfDone){ perfN++; perfT+=dt; if (perfN>=90){ const ms=perfT/perfN*1000; if (ms>26 && dpr>1){ dpr=Math.max(1,dpr-.35); renderer.setPixelRatio(dpr); resize(); perfN=perfT=0; } else perfDone=true; } } }
 
 // ---------- montar ----------
-build(); mergeStatic(); for (const c of ceilObjs) c.visible=false; setHour(8); updateEnv(envTop,envBot); envDirty=false; fitDoll(); resize();
+build(); mergeStatic(); for (const c of ceilObjs) c.visible=false; setHour(9); updateEnv(envTop,envBot); envDirty=false; fitDoll(); homeR=goalR; resize();
 camera.position.copy(dollPose()); camera.lookAt(tgt);
-window.Lux3D={ enterRoom, toDoll, setHour, get mode(){ return mode; }, get hour(){ return hour; }, rooms:ROOMS, on:(e,f)=>{ (listeners[e]=listeners[e]||[]).push(f); }, sunAt,
+window.Lux3D={ focus, reset, enterRoom, toDoll, setHour, get mode(){ return mode; }, get hour(){ return hour; }, rooms:ROOMS, on:(e,f)=>{ (listeners[e]=listeners[e]||[]).push(f); }, sunAt,
   _debug:{renderer,scene,camera,orb,frame:()=>renderer.render(scene,camera), settle:()=>{ if (camAnim){ camAnim.t=.999; } }, pause:v=>{ paused=v; }, step:(n)=>{ for (let i=0;i<(n||1);i++){ paused=false; frame(performance.now()+16*(i+1)); } paused=true; }, get anim(){ return camAnim; }} };
 requestAnimationFrame(frame); emit('ready');
 })();
