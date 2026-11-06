@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Apto Luxemburgo · Apresentação</title>
+<style>
+/* Apto Luxemburgo — apresentação em slides de 1600×900 para PDF, com a mesma identidade do site:
+   papel claro, tinta escura, o tom do ipê, Instrument Serif e Instrument Sans, fotos sem texto por cima. */
+@font-face{font-family:"IS";src:url(fonts/instrument-serif-latin-400-normal.woff2)}
+@font-face{font-family:"IS";font-style:italic;src:url(fonts/instrument-serif-latin-400-italic.woff2)}
+@font-face{font-family:"ISans";font-weight:400;src:url(fonts/instrument-sans-latin-400-normal.woff2)}
+@font-face{font-family:"ISans";font-weight:500;src:url(fonts/instrument-sans-latin-500-normal.woff2)}
+@font-face{font-family:"ISans";font-weight:600;src:url(fonts/instrument-sans-latin-600-normal.woff2)}
+@page{size:1600px 900px;margin:0}
+:root{--papel:#f2ede4;--papel2:#e7dfd2;--branco:#fbf9f5;--tinta:#1c1712;--sub:#6c6053;--fio:rgba(28,23,18,.14);--ipe:#8a4527;--ipe2:#b0603a;--esc:#1c1712}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#7d7468}
+body{font-family:"ISans",system-ui,sans-serif;color:var(--tinta);-webkit-font-smoothing:antialiased}
+.s{width:1600px;height:900px;position:relative;overflow:hidden;background:var(--papel);break-after:page;page-break-after:always;padding:84px 100px}
+.s.dk{background:var(--esc);color:#f2ede4}
+h1,h2,h3{font-family:"IS",Georgia,serif;font-weight:400;letter-spacing:-.02em;line-height:.96}
+h1 em,h2 em,h3 em{font-style:italic;color:var(--ipe)}
+.dk h1 em,.dk h2 em{color:#e7b48f}
+h2{font-size:80px}
+.lbl{font-size:14px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--sub)}
+.lbl.ip{color:var(--ipe)}
+.dk .lbl{color:rgba(242,237,228,.55)}
+.brand{position:absolute;top:34px;right:100px;display:flex;align-items:baseline;gap:10px}
+.brand b{font-family:"IS";font-weight:400;font-size:26px}
+.brand span{font-size:12px;font-weight:600;letter-spacing:.16em;color:var(--sub)}
+.dk .brand span{color:rgba(242,237,228,.5)}
+.pg{position:absolute;left:100px;bottom:48px;font-size:13px;font-weight:600;letter-spacing:.14em;color:var(--sub)}
+.dk .pg{color:rgba(242,237,228,.45)}
+.head{display:flex;justify-content:space-between;align-items:baseline;border-top:1.5px solid var(--tinta);padding-top:14px;margin-top:6px}
+.head .lbl{white-space:nowrap}
+/* antes e depois estático, como no site */
+.ba{position:relative;overflow:hidden;background:var(--papel2)}
+.ba img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.ba img.d{clip-path:inset(0 0 0 var(--p,50%))}
+.ba .ln{position:absolute;top:0;bottom:0;left:var(--p,50%);width:3px;margin-left:-1.5px;background:#fff;box-shadow:0 0 14px rgba(0,0,0,.3)}
+.ba .ln::after{content:"‹ ›";position:absolute;top:50%;left:50%;width:54px;height:54px;margin:-27px 0 0 -27px;border-radius:27px;background:#fff;color:var(--tinta);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:600;letter-spacing:5px;box-shadow:0 6px 18px -6px rgba(0,0,0,.45)}
+.ba .t{position:absolute;bottom:14px;height:30px;padding:0 12px;display:flex;align-items:center;font-size:12px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;background:rgba(251,249,245,.94);color:var(--tinta)}
+.ba .t.a{left:14px}.ba .t.b{right:14px;background:var(--tinta);color:#fff}
+.cap{display:flex;justify-content:space-between;gap:12px;margin-top:12px}
+.cap b{font-family:"IS";font-weight:400;font-size:30px;line-height:1}
+.cap span{font-size:14px;color:var(--sub);text-align:right;line-height:1.35}
+/* 1 · capa */
+.cover{display:grid;grid-template-columns:840px 1fr;gap:64px;padding:0}
+.cover .ba{height:900px}
+.cover .r{padding:84px 100px 80px 0;display:flex;flex-direction:column}
+.cover .brand{position:static}
+.cover h1{font-size:104px;margin-top:auto}
+.cover .lede{font-size:24px;line-height:1.45;color:var(--sub);margin-top:24px;max-width:30ch}
+.cover .chips{display:flex;gap:0;margin-top:36px;border-top:1.5px solid var(--tinta)}
+.cover .chips div{flex:1;padding:14px 0 0;font-size:15px;color:var(--sub)}
+.cover .chips b{display:block;font-family:"IS";font-weight:400;font-size:44px;line-height:1;color:var(--tinta)}
+/* 2 · o apartamento */
+.facts{display:grid;grid-template-columns:repeat(4,1fr);border-top:1.5px solid var(--tinta);margin-top:56px}
+.facts div{padding:22px 20px 20px;border-right:1px solid var(--fio);border-bottom:1px solid var(--fio)}
+.facts div:first-child{padding-left:0}.facts div:last-child{border-right:0}
+.facts b{display:block;font-family:"IS";font-weight:400;font-size:120px;line-height:.85}
+.facts b small{font-size:.4em;margin-left:3px}
+.facts span{display:block;font-size:18px;color:var(--sub);margin-top:10px}
+.lede2{font-family:"IS";font-size:48px;line-height:1.1;margin-top:60px;max-width:30ch}
+.lede2 em{font-style:italic;color:var(--ipe)}
+/* grades de antes e depois */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-top:30px}
+.g2 .ba{height:530px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-top:30px}
+.g4 .ba{height:450px}
+.g4 .cap b{font-size:25px}.g4 .cap span{font-size:13px}
+.solo{display:grid;grid-template-columns:1fr 470px;gap:56px;height:100%}
+.solo .ba{margin:-84px 0 -84px -100px;height:900px}
+.solo .tx{display:flex;flex-direction:column;justify-content:center}
+.solo .tx p{font-size:22px;line-height:1.5;color:var(--sub);margin-top:22px}
+/* book */
+.book{display:grid;grid-template-columns:1.25fr 1fr 1fr;grid-template-rows:1fr 1fr;gap:16px;margin-top:30px;height:610px}
+.book figure{position:relative;overflow:hidden;background:var(--papel2)}
+.book figure:first-child{grid-row:1/3}
+.book img{width:100%;height:100%;object-fit:cover}
+.book figcaption{position:absolute;left:12px;bottom:12px;height:30px;padding:0 12px;display:flex;align-items:center;font-size:13px;font-weight:600;background:rgba(251,249,245,.94)}
+/* planta */
+.planw{display:grid;grid-template-columns:560px 1fr;gap:64px;height:100%}
+.planw .pl{background:var(--branco);box-shadow:inset 0 0 0 1px var(--fio);padding:14px;margin:-40px 0 -40px;display:flex;align-items:center;justify-content:center}
+.planw .pl img{max-height:780px;width:auto}
+.ticks{list-style:none;margin-top:34px;border-top:1px solid var(--fio)}
+.ticks li{display:grid;grid-template-columns:160px 1fr;gap:16px;padding:16px 0;border-bottom:1px solid var(--fio);font-size:21px}
+.ticks li span{color:var(--sub)}
+/* bairro */
+.nbw{display:grid;grid-template-columns:1fr 560px;gap:56px;height:100%}
+.nbw img{width:100%;height:900px;object-fit:cover;margin:-84px 0 -84px -100px;width:calc(100% + 100px)}
+.dist{list-style:none;margin-top:34px;border-top:1px solid var(--fio)}
+.dist li{display:grid;grid-template-columns:170px 1fr;gap:16px;padding:18px 0;border-bottom:1px solid var(--fio);font-size:21px;align-items:baseline}
+.dist b{font-family:"IS";font-weight:400;font-size:36px;line-height:1;color:var(--ipe)}
+/* visita */
+.vis{display:grid;grid-template-columns:1fr 620px;gap:80px;align-items:center;height:100%}
+.vis h2{font-size:120px}
+.vis p{font-size:22px;line-height:1.5;color:rgba(242,237,228,.72);margin-top:22px;max-width:36ch}
+.vis .link{margin-top:40px;display:inline-flex;height:64px;padding:0 28px;align-items:center;background:#f2ede4;color:var(--tinta);font-size:20px;font-weight:600}
+.sheet{border-top:1px solid rgba(242,237,228,.22)}
+.sheet div{display:flex;justify-content:space-between;padding:15px 0;border-bottom:1px solid rgba(242,237,228,.14);font-size:20px}
+.sheet span{color:rgba(242,237,228,.6)}
+.fine{position:absolute;left:100px;right:100px;bottom:44px;font-size:12.5px;line-height:1.55;color:rgba(242,237,228,.45)}
+@media screen{ body{padding:24px 0} .s{margin:0 auto 24px;box-shadow:0 10px 40px -10px rgba(0,0,0,.5)} }
+@media print{ html,body{background:none} }
+</style>
+</head>
+<body>
+
+<!-- 1 · capa -->
+<section class="s cover">
+  <div class="ba" style="--p:46%"><img src="img/antes-sala.jpg" alt=""><img class="d" src="img/depois-sala.jpg" alt=""><div class="ln"></div><span class="t a">Hoje, vazio</span><span class="t b">Mobiliado · ilustração</span></div>
+  <div class="r">
+    <div class="brand"><b>Apto Luxemburgo</b><span>BH</span></div>
+    <span class="lbl ip" style="margin-top:auto">À venda · Luxemburgo, Belo Horizonte</span>
+    <h1 style="margin-top:16px">A casa que você <em>imagina</em> já tem endereço</h1>
+    <p class="lede">Reformado, com o ipê original restaurado e sol da manhã. A 600 metros do Parque Tom Jobim.</p>
+    <div class="chips"><div><b>120 m²</b>área</div><div><b>3</b>quartos</div><div><b>3</b>banheiros</div><div><b>2</b>vagas</div></div>
+  </div>
+</section>
+
+<!-- 2 · o apartamento -->
+<section class="s">
+  <div class="brand"><b>Apto Luxemburgo</b><span>BH</span></div>
+  <span class="lbl">O apartamento</span>
+  <h2 style="margin-top:14px">Em <em>números</em></h2>
+  <div class="facts"><div><b>120<small>m²</small></b><span>área privativa</span></div><div><b>3</b><span>quartos, sendo 1 suíte</span></div><div><b>3</b><span>banheiros</span></div><div><b>2</b><span>vagas cobertas</span></div></div>
+  <p class="lede2">Reformado por inteiro, com o <em>ipê original</em> restaurado nas salas, tacos de madeira nos quartos e o sol da manhã entrando pelo leste. 1º andar, numa rua quieta.</p>
+  <span class="pg">02</span>
+</section>
+
+<!-- 3 · antes e depois: salas -->
+<section class="s">
+  <div class="brand"><b>Apto Luxemburgo</b><span>BH</span></div>
+  <div class="head"><h2>Antes e <em>depois</em></h2><span class="lbl">Salas · 01–02</span></div>
+  <div class="g2">
+    <div><div class="ba" style="--p:44%"><img src="img/antes-sala.jpg" alt=""><img class="d" src="img/depois-sala.jpg" alt=""><div class="ln"></div><span class="t a">Antes</span><span class="t b">Depois</span></div><div class="cap"><b>Sala de estar</b><span>Foto real depois da obra · móveis por IA</span></div></div>
+    <div><div class="ba" style="--p:50%"><img src="img/antes-estar.jpg" alt=""><img class="d" src="img/depois-estar.jpg" alt=""><div class="ln"></div><span class="t a">Antes</span><span class="t b">Depois</span></div><div class="cap"><b>Estar e jantar</b><span>Foto real depois da obra · móveis por IA</span></div></div>
+  </div>
+  <span class="pg">03</span>
+</section>
+
+<!-- 4 · antes e depois: salas 2 -->
+<section class="s">
+  <div class="brand"><b>Apto Luxemburgo</b><span>BH</span></div>
+  <div class="head"><h2>A sala de <em>outros ângulos</em></h2><span class="lbl">Salas · 03–04</span></div>
+  <div class="g2">
+    <div><div class="ba" style="--p:48%"><img src="img/antes-janelas.jpg" alt=""><img class="d" src="img/depois-janelas.jpg" alt=""><div class="ln"></div><span class="t a">Antes</span><span class="t b">Depois</span></div><div class="cap"><b>Junto às janelas</b><span>Foto real depois da obra · móveis por IA</span></div></div>
+    <div><div class="ba" style="--p:50%"><img src="img/antes-corredor.jpg" alt=""><img class="d" src="img/depois-corredor.jpg" alt=""><div class="ln"></div><span class="t a">Antes</span><span class="t b">Depois</span></div><div class="cap"><b>Vista para os quartos</b><span>Foto real depois da obra · móveis por IA</span></div></div>
+  </div>
+  <span class="pg">04</span>
+</section>
+
+<!-- 5 · antes e depois: quartos -->
+<section class="s">
+  <div class="brand"><b>Apto Luxemburgo</b><span>BH</span></div>
+  <div class="head"><h2>Os <em>quartos</em></h2><span class="lbl">05–08</span></div>
+  <div class="g4">
+    <div><div class="ba"><img src="img/antes-saleta.jpg" alt=""><img class="d" src="img/depois-saleta.jpg" alt=""><div class="ln"></div></div><div class="cap"><b>Dois quartos</b><span>Foto da compra com limpeza digital · reforma e móveis por IA</span></div></div>
+    <div><div class="ba"><img src="img/antes-suite.jpg" alt=""><img class="d" src="img/depois-suite.jpg" alt=""><div class="ln"></div></div><div class="cap"><b>Quarto de casal</b><span>Foto real · móveis por IA</span></div></div>
+    <div><div class="ba"><img src="img/antes-quarto.jpg" alt=""><img class="d" src="img/depois-quarto.jpg" alt=""><div class="ln"></div></div><div class="cap"><b>Com escrivaninha</b><span>Foto real · móveis por IA</span></div></div>
+    <div><div class="ba"><img src="img/antes-quarto3.jpg" alt=""><img class="d" src="img/depois-quarto3.jpg" alt=""><div class="ln"></div></div><div class="cap"><b>Quarto 3</b><span>Foto real · móveis por IA</span></div></div>
+  </div>
+  <p style="margin-top:36px;font-size:19px;color:var(--sub);max-width:70ch">Todos com tacos de madeira restaurados. O lado esquerdo de cada foto mostra o quarto como está; o direito, uma sugestão de como mobiliar.</p>
+  <span class="pg">05</span>
+</section>
+
+<!-- 6 · antes e depois: armário e banheiro -->
+<section class="s">
+  <div class="brand"><b>Apto Luxemburgo</b><span>BH</span></div>
+  <div class="head"><h2>Armário e <em>banheiro</em></h2><span class="lbl">09–10</span></div>
+  <div class="g2">
+    <div><div class="ba" style="--p:50%"><img src="img/antes-armario.jpg" alt=""><img class="d" src="img/depois-armario.jpg" alt=""><div class="ln"></div><span class="t a">Antes</span><span class="t b">Depois</span></div><div class="cap"><b>Quarto com armário</b><span>Foto real com limpeza digital · móveis por IA</span></div></div>
+    <div><div class="ba" style="--p:50%"><img src="img/antes-banheiro.jpg" alt=""><img class="d" src="img/depois-banheiro.jpg" alt=""><div class="ln"></div><span class="t a">Antes</span><span class="t b">Depois</span></div><div class="cap"><b>Banheiro</b><span>Foto real depois da obra · decoração por IA</span></div></div>
+  </div>
+  <span class="pg">06</span>
+</section>
+
+<!-- 7 · pronto para morar -->
+<section class="s">
+  <div class="brand"><b>Apto Luxemburgo</b><span>BH</span></div>
+  <div class="head"><h2>Pronto para <em>morar</em></h2><span class="lbl">Fotos do book</span></div>
+  <div class="book">
+    <figure><img src="img/pronto-sala.jpg" alt=""><figcaption>Sala e jantar</figcaption></figure>
+    <figure><img src="img/pronto-cozinha.jpg" alt=""><figcaption>Cozinha</figcaption></figure>
+    <figure><img src="img/pronto-suite.jpg" alt=""><figcaption>Suíte</figcaption></figure>
+    <figure><img src="img/pronto-quarto.jpg" alt=""><figcaption>Quarto</figcaption></figure>
+    <figure><img src="img/pronto-banheiro.jpg" alt=""><figcaption>Banheiros</figcaption></figure>
+  </div>
+  <span class="pg">07</span>
+</section>
+
+<!-- 8 · planta -->
+<section class="s">
+  <div class="planw">
+    <div class="pl"><img src="img/planta.jpg" alt=""></div>
+    <div style="display:flex;flex-direction:column;justify-content:center">
+      <span class="lbl">120 m² bem divididos</span>
+      <h2 style="margin-top:14px">A <em>planta</em></h2>
+      <ul class="ticks"><li><span>Sala</span>Estar e jantar integrados, duas janelas</li><li><span>Cozinha</span>Bancada de pedra e área de serviço</li><li><span>Quartos</span>Três, sendo uma suíte</li><li><span>Banheiros</span>Três, com bancada de pedra</li><li><span>Piso</span>Ipê nas salas, tacos nos quartos</li><li><span>Sol</span>Manhã, face leste</li></ul>
+    </div>
+  </div>
+  <span class="pg" style="left:auto;right:100px">08</span>
+</section>
+
+<!-- 9 · bairro -->
+<section class="s">
+  <div class="nbw">
+    <img src="img/parque.jpg" alt="">
+    <div style="display:flex;flex-direction:column;justify-content:center">
+      <span class="lbl">O bairro</span>
+      <h2 style="margin-top:14px">Rua quieta, <em>cidade perto</em></h2>
+      <ul class="dist"><li><b>600 m</b><span>Parque Mosteiro Tom Jobim</span></li><li><b>até 1 km</b><span>Escolas, mercado e farmácia</span></li><li><b>5 min</b><span>de carro até a Contorno e a Raja Gabaglia</span></li><li><b>15 min</b><span>de carro até a Savassi e o Centro</span></li></ul>
+    </div>
+  </div>
+  <span class="pg" style="left:auto;right:100px">09</span>
+</section>
+
+<!-- 10 · visita -->
+<section class="s dk">
+  <div class="brand"><b>Apto Luxemburgo</b><span>BH</span></div>
+  <div class="vis">
+    <div><span class="lbl">Visita</span><h2 style="margin-top:14px">Venha ver <em>com os seus olhos</em></h2>
+      <p>Fale com quem enviou esta apresentação para combinar o dia. Todos os ambientes, com o antes e depois, estão também no site do imóvel.</p>
+      <span class="link">jgg190310-ops.github.io/apto-luxemburgo</span></div>
+    <div class="sheet"><div><span>Área privativa</span><b>120 m²</b></div><div><span>Quartos</span><b>3, sendo 1 suíte</b></div><div><span>Banheiros</span><b>3</b></div><div><span>Vagas</span><b>2 cobertas</b></div><div><span>Andar</span><b>1º</b></div><div><span>Sol</span><b>Manhã (leste)</b></div><div><span>Valor</span><b>Sob consulta</b></div></div>
+  </div>
+  <p class="fine">No antes e depois, as fotos da esquerda são reais e a mobília da direita foi gerada por inteligência artificial e é ilustrativa. Na foto dos dois quartos, tirada na compra, a reforma da direita também é ilustrativa; nela e na do quarto com armário, entulho, fios e marcas do piso foram removidos digitalmente. Fotos do book com decoração ilustrativa. Planta ilustrativa. Informações sujeitas a confirmação documental e alteração sem aviso prévio.</p>
+</section>
+
+</body>
+</html>
