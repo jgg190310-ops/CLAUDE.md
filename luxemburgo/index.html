@@ -5,280 +5,227 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Apto Luxemburgo · Belo Horizonte</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,300..600,0..100;1,9..144,300..600,0..100&family=Hanken+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-/* Apto Luxemburgo, segue a identidade do book de apresentação: noite e areia alternadas, bronze nos detalhes,
-   Cormorant Garamond para a voz, Montserrat espaçada para as legendas.
-   A abertura percorre os ambientes; um fio de bronze conduz da casa ao bairro.
-   Vidro (Liquid Glass em CSS) em tudo que flutua sobre as fotos. */
+/* Apto Luxemburgo. A página abre dentro do modelo 3D: a planta inteira, que se percorre ambiente por ambiente
+   e onde a luz do sol muda com a hora do dia (a fachada dá para o leste, sol da manhã).
+   Cores tiradas do próprio apartamento: ipê do piso, linho dos sofás, terracota das mantas, luz da manhã.
+   Fraunces para a voz, Hanken Grotesk para o texto, JetBrains Mono para medidas e números. Vidro sobre o 3D e as fotos. */
 :root{
-  --noite:#0e0d0c;  /* seções escuras */
-  --noite2:#171513;
-  --areia:#f2ede4;  /* seções claras */
-  --areia2:#e9e2d6;
-  --tinta:#1f1b16;  /* texto sobre areia */
-  --bronze:#9a7438; /* destaque sobre areia */
-  --ouro:#c9a96e;   /* destaque sobre noite */
-  --cal:#f6f2ea;    /* texto sobre noite */
-  --fd:"Cormorant Garamond","Cormorant",Garamond,"Times New Roman",serif;
-  --fs:"Montserrat",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --carvao:#15110e;  /* fundo escuro */
+  --carvao2:#1d1814;
+  --linho:#efe8dc;   /* fundo claro */
+  --tinta:#231b15;   /* texto sobre linho */
+  --ipe:#9a3f1f;     /* vermelho do assoalho de ipê: destaque */
+  --sol:#f4b862;     /* luz da manhã: estado ativo, sol */
+  --terra:#b8643c;   /* terracota das mantas */
+  --cal:#f7f2ea;     /* texto sobre carvão */
+  --fd:"Fraunces",Georgia,"Times New Roman",serif;
+  --fb:"Hanken Grotesk",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --fm:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,monospace;
   --spring:cubic-bezier(.3,1.45,.5,1);
   --st:env(safe-area-inset-top); --sb:env(safe-area-inset-bottom);
   color-scheme:dark;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 [hidden]{display:none!important}
-html{background:var(--noite);scroll-behavior:smooth;-webkit-text-size-adjust:100%}
-body{background:var(--noite);color:var(--cal);font-family:var(--fs);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;overflow-x:hidden}
-button,a{font:inherit;color:inherit;cursor:pointer;border:0;background:none;text-decoration:none}
-img,video{display:block;max-width:100%}
-:focus-visible{outline:2px solid var(--ouro);outline-offset:3px}
-svg.i{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:none}
-.cap{font-family:var(--fs);font-size:11px;font-weight:600;letter-spacing:.32em;text-transform:uppercase}
-.wrap{max-width:1180px;margin:0 auto;padding:0 clamp(20px,5vw,56px)}
-.light{background:var(--areia);color:var(--tinta)}
-.light .acc{color:var(--bronze)} .dark .acc,.acc{color:var(--ouro)}
-.light .acc{color:var(--bronze)}
-h1,h2,h3{font-family:var(--fd);font-weight:400;text-wrap:balance}
-em{font-style:italic}
+html{background:var(--carvao);-webkit-text-size-adjust:100%}
+body{background:var(--carvao);color:var(--cal);font-family:var(--fb);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;overflow-x:hidden}
+button,a,input{font:inherit;color:inherit;border:0;background:none}
+button,a{cursor:pointer;text-decoration:none}
+img{display:block;max-width:100%}
+:focus-visible{outline:2px solid var(--sol);outline-offset:3px}
+svg.i{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.mono{font-family:var(--fm);font-size:11px;letter-spacing:.06em;text-transform:uppercase;font-weight:500}
+.disp{font-family:var(--fd);font-variation-settings:"SOFT" 100,"opsz" 144;font-weight:330;letter-spacing:-.02em}
+.wrap{max-width:1200px;margin:0 auto;padding:0 clamp(18px,5vw,56px)}
+h2,h3{text-wrap:balance}
 
 /* ---------- Liquid Glass ---------- */
 .lg{position:relative;isolation:isolate;color:var(--cal);
-  background:linear-gradient(180deg,rgba(255,255,255,.17),rgba(255,255,255,.05)),rgba(24,20,16,.26);
-  -webkit-backdrop-filter:blur(22px) saturate(1.7);backdrop-filter:blur(22px) saturate(1.7);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.5),inset 0 0 0 1px rgba(255,255,255,.08),inset 0 -10px 18px -12px rgba(255,255,255,.22),0 16px 36px -16px rgba(0,0,0,.6)}
-.lg::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:-1;background:radial-gradient(130% 90% at 18% -10%,rgba(255,255,255,.26),rgba(255,255,255,0) 52%)}
+  background:linear-gradient(180deg,rgba(255,255,255,.18),rgba(255,255,255,.05)),rgba(26,20,15,.24);
+  -webkit-backdrop-filter:blur(22px) saturate(1.8);backdrop-filter:blur(22px) saturate(1.8);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.55),inset 0 0 0 1px rgba(255,255,255,.08),inset 0 -10px 18px -12px rgba(255,255,255,.22),0 16px 36px -16px rgba(0,0,0,.55)}
+.lg::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:-1;background:radial-gradient(130% 90% at 18% -10%,rgba(255,255,255,.28),rgba(255,255,255,0) 52%)}
 .lg::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;padding:1px;
-  background:linear-gradient(140deg,rgba(255,255,255,.85),rgba(255,255,255,.14) 26%,rgba(255,255,255,0) 50%,rgba(255,255,255,.06) 72%,rgba(255,255,255,.5));
+  background:linear-gradient(140deg,rgba(255,255,255,.9),rgba(255,255,255,.14) 26%,rgba(255,255,255,0) 50%,rgba(255,255,255,.06) 72%,rgba(255,255,255,.5));
   -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);mask-composite:exclude}
-.lg.dim{background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.03)),rgba(14,13,12,.5)}
-@media (prefers-reduced-transparency:reduce){.lg{background:rgba(20,18,16,.92);-webkit-backdrop-filter:none;backdrop-filter:none}}
+.lg.dim{background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.03)),rgba(18,14,11,.55)}
+@media (prefers-reduced-transparency:reduce){.lg{background:rgba(22,18,14,.92);-webkit-backdrop-filter:none;backdrop-filter:none}}
 .press{transition:transform .35s var(--spring),background-color .25s,color .25s,opacity .25s}
 .press:active{transform:scale(.95)}
-.lens{background:rgba(246,242,234,.94)!important;color:var(--tinta)!important;box-shadow:0 4px 12px -3px rgba(0,0,0,.4),inset 0 1px 0 #fff}
+.lens{background:rgba(247,242,234,.95)!important;color:var(--tinta)!important;box-shadow:0 4px 12px -3px rgba(0,0,0,.35),inset 0 1px 0 #fff}
 
-/* ---------- navegação fixa ---------- */
-#nav{position:fixed;top:calc(10px + var(--st));left:50%;transform:translate(-50%,-140%);z-index:20;display:flex;gap:2px;padding:4px;border-radius:26px;transition:transform .55s var(--spring);max-width:calc(100vw - 16px);overflow-x:auto;scrollbar-width:none}
-#nav::-webkit-scrollbar{display:none}
-#nav.show{transform:translate(-50%,0)}
-#nav a{height:38px;padding:0 15px;border-radius:19px;display:flex;align-items:center;font-size:12.5px;font-weight:500;letter-spacing:.04em;white-space:nowrap;color:rgba(246,242,234,.82)}
-#nav a b{font-weight:600;color:var(--ouro);margin-right:7px;font-size:11px}
-#nav a.lens b{color:var(--bronze)}
-
-/* ---------- abertura: o mesmo quarto em três tempos ---------- */
-.hero{position:relative;height:100vh;height:100svh;min-height:620px;max-height:1050px;overflow:hidden;background:#000}
-.hero .shot{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transform:scale(1.06);transition:opacity 1.2s ease,transform 7s cubic-bezier(.2,.7,.2,1)}
-.hero .shot.on{opacity:1;transform:scale(1)}
-.hero .veil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,7,6,.6) 0%,rgba(8,7,6,.05) 26%,rgba(8,7,6,.1) 48%,rgba(8,7,6,.86) 100%)}
-.top{position:absolute;left:0;right:0;top:0;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:calc(18px + var(--st)) clamp(18px,4vw,48px) 0;z-index:2}
-.book{display:flex;align-items:center;gap:12px}
-.book .ln{width:34px;height:1px;background:var(--ouro)}
-.book span{display:block;line-height:1.55}
-.top .pill{height:40px;padding:0 16px;border-radius:20px;display:flex;align-items:center;gap:8px;font-size:12px;font-weight:500;letter-spacing:.06em}
-.heroBody{position:absolute;left:0;right:0;bottom:calc(22px + var(--sb));padding:0 clamp(18px,4vw,48px);z-index:2;display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:24px 48px;align-items:end}
-.heroBody h1{font-size:clamp(54px,9.4vw,138px);font-weight:300;line-height:.88;letter-spacing:-.01em;margin:16px 0 18px}
-.heroBody h1 span{display:block}
-.heroBody .tag{font-family:var(--fd);font-style:italic;font-size:clamp(20px,2.1vw,27px);line-height:1.3;color:#e8d9bb;max-width:30ch}
-.phase{border-radius:30px;padding:14px;justify-self:end;width:min(460px,100%)}
-.phase .seg{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:4px;border-radius:22px;background:rgba(0,0,0,.2)}
-.phase .seg button{height:52px;border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:rgba(246,242,234,.78);position:relative;overflow:hidden}
-.phase .seg button b{font-family:var(--fs);font-size:10px;font-weight:600;letter-spacing:.22em;color:var(--ouro)}
-.phase .seg button span{font-size:13px;font-weight:500;letter-spacing:.02em}
-.phase .seg button.lens b{color:var(--bronze)}
-.phase .seg button i{position:absolute;left:14px;right:14px;bottom:6px;height:2px;border-radius:1px;background:rgba(154,116,56,.25);overflow:hidden}
-.phase .seg button i::after{content:"";position:absolute;inset:0;width:var(--p,0%);background:var(--bronze)}
-.phase .seg button:not(.lens) i{opacity:0}
-.phase p{font-family:var(--fd);font-style:italic;font-size:19px;line-height:1.35;color:#efe4cf;padding:12px 8px 2px;min-height:3.9em;transition:opacity .35s}
-.phase .meta{display:flex;justify-content:space-between;padding:4px 8px 2px;color:rgba(246,242,234,.6)}
+/* ---------- abertura: o modelo 3D ---------- */
+.stage{position:relative;height:100vh;height:100svh;min-height:620px;overflow:hidden;background:#cfd9e6}
+#c3d{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+#labels3d{position:absolute;inset:0;pointer-events:none;transition:opacity .4s;z-index:2}
+.lab{position:absolute;left:0;top:0;height:32px;padding:0 12px 0 6px;border-radius:16px;display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;white-space:nowrap;will-change:transform;pointer-events:auto}
+.lab b{font-family:var(--fm);font-size:10px;font-weight:500;width:22px;height:22px;border-radius:11px;display:flex;align-items:center;justify-content:center;background:var(--ipe);color:#fff}
+.loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:var(--carvao);z-index:6;transition:opacity .6s}
+.loading .mono{color:rgba(247,242,234,.7)}
+.hTop{position:absolute;left:0;right:0;top:0;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding:calc(12px + var(--st)) 12px 0;z-index:4;pointer-events:none}
+.hTop>*{pointer-events:auto}
+.mark{border-radius:24px;padding:10px 16px 11px}
+.mark .disp{font-size:23px;line-height:1;font-style:italic}
+.mark .mono{font-size:10px;margin-top:5px;color:rgba(247,242,234,.82)}
+.seg{display:flex;gap:2px;padding:4px;border-radius:24px}
+.seg button{height:38px;padding:0 14px;border-radius:19px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:7px;white-space:nowrap}
+.panel{position:absolute;left:12px;right:12px;bottom:calc(12px + var(--sb));border-radius:30px;padding:14px;z-index:4;max-width:620px;margin:0 auto}
+.rail{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:2px;margin:0 -2px 12px;-webkit-mask:linear-gradient(90deg,#000 88%,transparent);mask:linear-gradient(90deg,#000 88%,transparent)}
+.rail::-webkit-scrollbar{display:none}
+.rail button{flex:none;height:38px;padding:0 14px 0 8px;border-radius:19px;font-size:13.5px;font-weight:600;white-space:nowrap;display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.1)}
+.rail button em{font-style:normal;font-family:var(--fm);font-size:10px;color:var(--sol)}
+.rail button.lens em{color:var(--ipe)}
+.rail button:last-child{margin-right:36px}
+.sunRow{display:flex;align-items:center;gap:12px;padding:2px 6px}
+.sunRow .when{min-width:86px}
+.sunRow .when b{display:block;font-family:var(--fm);font-size:18px;font-weight:500;color:var(--sol);letter-spacing:0}
+.sunRow .when span{font-size:11px;color:rgba(247,242,234,.72)}
+input[type=range]{-webkit-appearance:none;appearance:none;flex:1;height:30px;background:transparent;cursor:pointer}
+input[type=range]::-webkit-slider-runnable-track{height:6px;border-radius:3px;background:linear-gradient(90deg,#33406a,#f7c78a 14%,#fff2d8 45%,#f7b777 78%,#4a3a5a 88%,#151a2c)}
+input[type=range]::-moz-range-track{height:6px;border-radius:3px;background:linear-gradient(90deg,#33406a,#f7c78a 14%,#fff2d8 45%,#f7b777 78%,#4a3a5a 88%,#151a2c)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;margin-top:-10px;border-radius:50%;background:var(--sol);box-shadow:0 0 0 4px rgba(244,184,98,.3),0 4px 12px rgba(0,0,0,.35)}
+input[type=range]::-moz-range-thumb{width:26px;height:26px;border:0;border-radius:50%;background:var(--sol);box-shadow:0 0 0 4px rgba(244,184,98,.3)}
+.inRoom{padding:2px 6px 4px}
+.inRoom .row1{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.inRoom .no{color:var(--sol)}
+.inRoom h2{font-family:var(--fd);font-variation-settings:"SOFT" 100,"opsz" 96;font-weight:360;font-size:32px;line-height:1;margin-top:4px;letter-spacing:-.02em}
+.inRoom p{font-size:14.5px;line-height:1.45;color:rgba(247,242,234,.86);margin:8px 0 12px;max-width:52ch}
+.inRoom .btns{display:flex;gap:8px;flex-wrap:wrap}
+.pill{height:42px;padding:0 16px;border-radius:21px;display:inline-flex;align-items:center;gap:8px;font-size:13.5px;font-weight:600;white-space:nowrap}
+.pill.solid{background:var(--cal);color:var(--tinta)}
+.pill.ghost{background:rgba(255,255,255,.12)}
+.hint{position:absolute;left:50%;top:calc(84px + var(--st));transform:translateX(-50%);padding:9px 15px;border-radius:16px;font-size:13px;font-weight:500;z-index:4;white-space:nowrap;transition:opacity .5s;pointer-events:none}
+.scrollCue{position:absolute;right:16px;bottom:calc(16px + var(--sb));z-index:3}
 
 /* ---------- seções ---------- */
-.sec{position:relative;padding:clamp(80px,11vw,140px) 0}
-.kick{display:flex;align-items:center;gap:14px;margin-bottom:22px}
-.kick .ln{width:40px;height:1px;background:currentColor;opacity:.6}
-.sec h2{font-size:clamp(40px,5.8vw,78px);line-height:.98;font-weight:400;letter-spacing:-.005em}
-.sec h2 em{font-weight:300}
-.lead{font-family:var(--fd);font-size:clamp(20px,2vw,25px);line-height:1.45;max-width:38ch;margin-top:22px}
-.light .lead{color:#3b342b} .dark .lead{color:#ddd3c2}
-.head{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:24px 56px;align-items:end;margin-bottom:clamp(40px,6vw,72px)}
-.head .lead{margin-top:0}
-.big{font-family:var(--fd);font-weight:300;font-size:clamp(110px,16vw,220px);line-height:.8;position:absolute;right:clamp(20px,5vw,56px);top:clamp(40px,6vw,80px);opacity:.09;pointer-events:none}
+.sec{padding:clamp(80px,11vw,140px) 0;position:relative}
+.light{background:var(--linho);color:var(--tinta)}
+.eyebrow{display:flex;align-items:center;gap:12px;margin-bottom:22px}
+.eyebrow .num{width:30px;height:30px;border-radius:15px;background:var(--ipe);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--fm);font-size:11px}
+.light .eyebrow .mono{color:var(--ipe)} .dark .eyebrow .mono{color:var(--sol)}
+.h2{font-family:var(--fd);font-variation-settings:"SOFT" 100,"opsz" 144;font-weight:320;font-size:clamp(44px,7vw,104px);line-height:.92;letter-spacing:-.035em}
+.h2 em{font-style:italic;font-weight:300}
+.light .h2 em{color:var(--ipe)} .dark .h2 em{color:var(--sol)}
+.lead{font-size:clamp(17px,1.6vw,20px);line-height:1.55;max-width:46ch;margin-top:22px}
+.light .lead{color:#4a3d32} .dark .lead{color:#d8ccbb}
 
-/* o fio de bronze que liga as fases */
-.thread{position:absolute;left:clamp(10px,2.6vw,30px);top:0;bottom:0;width:1px;background:linear-gradient(180deg,transparent,var(--ouro) 8%,var(--ouro) 92%,transparent);opacity:.45}
-.light .thread{background:linear-gradient(180deg,transparent,var(--bronze) 8%,var(--bronze) 92%,transparent)}
-.thread::before{content:"";position:absolute;left:-4px;top:clamp(80px,11vw,140px);width:9px;height:9px;border-radius:50%;border:1px solid currentColor;background:inherit}
+/* a luz */
+.light-sec{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:clamp(30px,5vw,70px);align-items:center}
+.sunArc{width:100%;height:auto}
+.hours{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-top:34px;border-top:1px solid rgba(154,63,31,.35)}
+.hours div{padding:16px 14px 0 0}
+.hours div+div{padding-left:14px;border-left:1px solid rgba(154,63,31,.2)}
+.hours b{display:block;font-family:var(--fm);font-weight:500;font-size:20px;color:var(--ipe)}
+.hours span{display:block;font-size:14px;line-height:1.45;color:#4a3d32;margin-top:6px}
 
-/* síntese */
-.synth{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:clamp(28px,5vw,64px);align-items:start}
-.planta{background:#f7f3ec;padding:clamp(10px,1.6vw,18px);box-shadow:0 30px 60px -30px rgba(60,40,10,.35)}
-.planta img{width:100%;height:auto}
-.planta figcaption{display:flex;justify-content:space-between;margin-top:12px;color:#7d6a4f}
-.nums{list-style:none;border-top:1px solid rgba(154,116,56,.5)}
-.nums li{display:flex;align-items:baseline;gap:18px;padding:18px 0;border-bottom:1px solid rgba(154,116,56,.5)}
-.nums b{font-family:var(--fd);font-weight:400;font-size:clamp(46px,5vw,64px);line-height:.9;color:var(--bronze);min-width:1.6em;font-variant-numeric:lining-nums}
-.nums b sup{font-size:.4em;vertical-align:.9em;margin-left:2px}
-.nums span{font-size:11.5px;font-weight:600;letter-spacing:.28em;text-transform:uppercase;color:#3b342b}
-.nums small{display:block;font-family:var(--fd);font-style:italic;font-size:17px;letter-spacing:0;text-transform:none;font-weight:400;color:#7d6a4f;margin-top:4px}
+/* ambientes */
+.rooms{display:grid;gap:clamp(56px,8vw,110px);margin-top:clamp(48px,7vw,80px)}
+.room{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:clamp(22px,4vw,56px);align-items:end}
+.room:nth-child(even){grid-template-columns:minmax(0,1fr) minmax(0,1.35fr)}
+.room:nth-child(even) .ph{order:2}
+.room .ph{position:relative;display:block;border-radius:6px;overflow:hidden;aspect-ratio:4/5;background:#2a221c}
+.room .ph img{width:100%;height:100%;object-fit:cover;transition:transform 1.4s cubic-bezier(.2,.8,.2,1)}
+.room .ph:hover img{transform:scale(1.035)}
+.room .ph .tag{position:absolute;left:12px;top:12px;height:32px;padding:0 12px;border-radius:16px;display:flex;align-items:center;gap:8px}
+.room .bigN{font-family:var(--fd);font-variation-settings:"SOFT" 100,"opsz" 144;font-weight:300;font-size:clamp(90px,12vw,170px);line-height:.8;color:var(--ipe);letter-spacing:-.04em}
+.dark .room .bigN{color:var(--sol);opacity:.9}
+.room h3{font-family:var(--fd);font-variation-settings:"SOFT" 100,"opsz" 72;font-weight:360;font-size:clamp(34px,3.6vw,48px);line-height:1;margin-top:14px;letter-spacing:-.02em}
+.room p{font-size:16px;line-height:1.6;color:#d8ccbb;margin:12px 0 20px;max-width:40ch}
+.room .go3d{height:44px;padding:0 18px;border-radius:22px;display:inline-flex;align-items:center;gap:9px;font-size:13.5px;font-weight:600;box-shadow:inset 0 0 0 1px rgba(244,184,98,.5);color:var(--sol)}
+.room .go3d:hover{background:rgba(244,184,98,.1)}
+.room .mono.meta{color:rgba(247,242,234,.5);margin-top:16px}
+.ipeBand{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(24px,4vw,56px);align-items:center;margin-top:clamp(70px,9vw,120px);padding-top:clamp(50px,7vw,80px);border-top:1px solid rgba(244,184,98,.2)}
+.ipeBand img{border-radius:6px;width:100%;aspect-ratio:3/2;object-fit:cover}
+.ipeBand q{font-family:var(--fd);font-variation-settings:"SOFT" 100,"opsz" 72;font-style:italic;font-weight:300;font-size:clamp(24px,2.6vw,34px);line-height:1.35;quotes:none;color:#f1e6d6}
+.ipeBand .mono{display:block;color:var(--sol);margin-top:16px}
+.note{margin-top:40px;font-size:12px;color:rgba(247,242,234,.5)}
 
-/* antes e depois */
-.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:22px}
-.tabs button{height:42px;padding:0 18px;border-radius:21px;font-size:13px;font-weight:500;letter-spacing:.04em;box-shadow:inset 0 0 0 1px rgba(201,169,110,.35);color:#e6dccb}
-.tabs button:hover{background:rgba(201,169,110,.1)}
-.tabs button.on{background:var(--ouro);color:#1a140c;box-shadow:none}
-.ba{position:relative;width:100%;aspect-ratio:4/3;overflow:hidden;border-radius:6px;background:#000;touch-action:pan-y;user-select:none;-webkit-user-select:none;cursor:ew-resize}
-.ba img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none}
-.ba .after{clip-path:inset(0 0 0 var(--x,50%))}
-.ba .bar{position:absolute;top:0;bottom:0;left:var(--x,50%);width:2px;margin-left:-1px;background:rgba(246,242,234,.9);box-shadow:0 0 16px rgba(0,0,0,.4)}
-.ba .knob{position:absolute;top:50%;left:var(--x,50%);width:58px;height:58px;margin:-29px 0 0 -29px;border-radius:50%;display:flex;align-items:center;justify-content:center;gap:2px}
-.ba .knob svg{width:16px;height:16px}
-.ba .lbl{position:absolute;top:14px;height:34px;padding:0 14px;border-radius:17px;display:flex;align-items:center;gap:8px;font-size:11px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;transition:opacity .3s}
-.ba .lbl.l{left:14px} .ba .lbl.r{right:14px}
-.ba .lbl b{color:var(--ouro);font-weight:600}
-.baCap{display:flex;justify-content:space-between;gap:16px;margin-top:16px;flex-wrap:wrap}
-.baCap p{font-family:var(--fd);font-size:21px;line-height:1.35;color:#e8dfcf;max-width:52ch}
-.baCap .cap{color:rgba(246,242,234,.55);white-space:nowrap}
-.stages{display:flex;gap:6px;margin-top:4px}
-.stages button{height:34px;padding:0 13px;border-radius:17px;font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:rgba(246,242,234,.7);box-shadow:inset 0 0 0 1px rgba(246,242,234,.18)}
-.stages button.on{color:#1a140c;background:var(--cal);box-shadow:none}
-
-/* galerias */
-.gal{display:grid;grid-template-columns:repeat(12,1fr);gap:clamp(14px,2vw,26px) clamp(10px,1.4vw,18px)}
-.fig{display:block;text-align:left;position:relative}
-.fig .im{display:block;overflow:hidden;border-radius:4px;background:#2a2622}
-.fig img{width:100%;height:100%;object-fit:cover;transition:transform 1.2s cubic-bezier(.2,.8,.2,1)}
-.fig:hover img{transform:scale(1.04)}
-.fig .fc{display:flex;gap:12px;margin-top:10px;font-family:var(--fd);font-size:17px;line-height:1.35}
-.fig .fc .cap{font-size:10px;padding-top:5px;flex:none}
-.light .fig .fc{color:#3b342b} .dark .fig .fc{color:#d9cfbe}
-.g1{grid-column:1/8}.g1 .im{aspect-ratio:4/3}
-.g2{grid-column:8/-1}.g2 .im{aspect-ratio:3/4}
-.g3{grid-column:1/5}.g3 .im{aspect-ratio:1/1}
-.g4{grid-column:5/9}.g4 .im{aspect-ratio:1/1}
-.g5{grid-column:9/-1}.g5 .im{aspect-ratio:1/1}
-.g6{grid-column:1/-1}.g6 .im{aspect-ratio:21/9}
-.found{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin:clamp(36px,5vw,56px) 0 clamp(40px,6vw,64px);border-top:1px solid rgba(154,116,56,.5)}
-.found li{list-style:none;padding:18px 18px 18px 0;border-bottom:1px solid rgba(154,116,56,.5)}
-.found li+li{padding-left:18px;border-left:1px solid rgba(154,116,56,.3)}
-.found b{display:block;font-family:var(--fd);font-weight:500;font-size:22px;line-height:1.15}
-.found span{display:block;font-size:13.5px;line-height:1.5;color:#5e5446;margin-top:6px}
-
-/* obra: vídeos e serviços */
-.vids{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.7fr) minmax(0,1fr);gap:clamp(14px,2vw,24px);align-items:start;margin-bottom:clamp(40px,6vw,64px)}
-.vid{position:relative;border-radius:22px;overflow:hidden;background:#000;aspect-ratio:9/16;box-shadow:0 30px 60px -30px rgba(0,0,0,.8)}
-.vid video{width:100%;height:100%;object-fit:cover}
-.vid .vl{position:absolute;left:10px;right:10px;bottom:10px;border-radius:18px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;gap:10px}
-.vid .vl b{display:block;font-family:var(--fd);font-size:19px;font-weight:500;line-height:1.15}
-.vid .vl span{display:block;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:rgba(246,242,234,.7);margin-top:3px}
-.vid .snd{width:40px;height:40px;border-radius:20px;display:flex;align-items:center;justify-content:center;flex:none}
-.done{list-style:none;border-top:1px solid rgba(201,169,110,.35)}
-.done li{display:grid;grid-template-columns:28px 1fr;gap:12px;padding:15px 0;border-bottom:1px solid rgba(201,169,110,.22)}
-.done svg{color:var(--ouro);margin-top:3px}
-.done b{display:block;font-family:var(--fd);font-size:21px;font-weight:500;line-height:1.2}
-.done span{display:block;font-size:13.5px;color:#b9ae9b;line-height:1.5;margin-top:3px}
-
-/* pronto */
-.quote{font-family:var(--fd);font-style:italic;font-size:clamp(24px,2.7vw,34px);line-height:1.42;max-width:30ch;color:#2b251e}
-.quote+.cap{margin-top:18px;color:var(--bronze)}
-.ed{display:grid;grid-template-columns:repeat(12,1fr);gap:clamp(18px,2.4vw,30px) clamp(12px,1.6vw,20px);margin-top:clamp(48px,7vw,84px)}
-.e1{grid-column:1/8}.e1 .im{aspect-ratio:4/5}
-.e2{grid-column:8/-1;align-self:end}.e2 .im{aspect-ratio:1/1}
-.e3{grid-column:1/6}.e3 .im{aspect-ratio:4/5}
-.e4{grid-column:6/-1;align-self:center}.e4 .im{aspect-ratio:5/4}
-.e5{grid-column:3/11}.e5 .im{aspect-ratio:16/10}
-.ed .fig .fc{flex-direction:column;gap:4px}
-.ed .fig .fc b{font-family:var(--fd);font-size:28px;font-weight:400;color:var(--bronze);line-height:1}
-.note{margin-top:28px;font-size:12px;color:#7d6a4f;letter-spacing:.02em}
+/* planta e números */
+.plan{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(30px,5vw,64px);align-items:center;margin-top:clamp(40px,6vw,64px)}
+.plan figure{background:#f7f2ea;padding:12px;border-radius:4px;box-shadow:0 30px 60px -30px rgba(90,50,20,.35)}
+.plan figcaption{display:flex;justify-content:space-between;color:#8a7360;margin-top:10px}
+.nums{list-style:none}
+.nums li{display:grid;grid-template-columns:auto 1fr;align-items:baseline;gap:18px;padding:16px 0;border-bottom:1px solid rgba(154,63,31,.28)}
+.nums li:first-child{border-top:1px solid rgba(154,63,31,.28)}
+.nums b{font-family:var(--fd);font-variation-settings:"SOFT" 100,"opsz" 144;font-weight:320;font-size:clamp(50px,5.4vw,72px);line-height:.85;color:var(--ipe);letter-spacing:-.03em;min-width:1.5em}
+.nums b small{font-family:var(--fm);font-size:15px;letter-spacing:0;margin-left:4px}
+.nums span{font-size:15px;font-weight:600;color:var(--tinta)}
+.nums i{display:block;font-style:normal;font-size:13.5px;font-weight:400;color:#7a6654;margin-top:2px}
 
 /* bairro */
-.bairroHero{position:relative;height:min(78vh,720px);overflow:hidden}
-.bairroHero img{width:100%;height:100%;object-fit:cover}
-.bairroHero .veil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,13,12,.3),rgba(14,13,12,0) 40%,rgba(14,13,12,.95))}
-.bairroHero .wrap{position:absolute;left:0;right:0;bottom:clamp(30px,5vw,60px)}
-.rings{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(28px,5vw,64px);align-items:center;margin-top:clamp(40px,6vw,72px)}
-.ringSvg{width:100%;max-width:460px;height:auto;justify-self:center}
-.ringSvg circle{fill:none}
-.dist{list-style:none}
-.dist li{display:grid;grid-template-columns:16px 1fr;gap:14px;padding:16px 0;border-bottom:1px solid rgba(201,169,110,.22)}
-.dist i{width:10px;height:10px;border-radius:50%;margin-top:7px}
-.dist b{display:block;font-size:12px;font-weight:600;letter-spacing:.18em;text-transform:uppercase}
-.dist span{display:block;font-family:var(--fd);font-size:21px;line-height:1.3;color:#e2d8c6;margin-top:3px}
-.park{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:clamp(24px,4vw,56px);align-items:center;margin-top:clamp(56px,8vw,100px)}
-.park .im{border-radius:4px;overflow:hidden;aspect-ratio:16/10}
-.park img{width:100%;height:100%;object-fit:cover}
-.park h3{font-size:clamp(32px,3.6vw,46px);line-height:1;margin:12px 0 14px}
-.park p{font-family:var(--fd);font-size:20px;line-height:1.45;color:#d9cfbe}
-.hist{display:grid;grid-template-columns:repeat(5,1fr);gap:0;margin-top:clamp(56px,8vw,100px);border-top:1px solid rgba(201,169,110,.35);position:relative}
-.hist li{list-style:none;padding:26px 18px 0 0;position:relative}
-.hist li::before{content:"";position:absolute;top:-5px;left:0;width:9px;height:9px;border-radius:50%;background:var(--noite);border:1px solid var(--ouro)}
-.hist .cap{color:var(--ouro);font-size:10px}
-.hist b{display:block;font-family:var(--fd);font-weight:400;font-size:23px;line-height:1.1;margin:10px 0 8px}
-.hist span{display:block;font-size:13px;line-height:1.55;color:#b9ae9b}
-.src{margin-top:26px;font-size:11.5px;color:#8a8070;line-height:1.6}
+.bairroImg{position:relative;height:min(74vh,700px);overflow:hidden}
+.bairroImg img{width:100%;height:100%;object-fit:cover}
+.bairroImg .veil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(21,17,14,.25),rgba(21,17,14,0) 40%,rgba(21,17,14,.95))}
+.bairroImg .wrap{position:absolute;left:0;right:0;bottom:clamp(28px,5vw,60px)}
+.dist{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:clamp(36px,5vw,56px);border-top:1px solid rgba(244,184,98,.25)}
+.dist div{padding:18px 16px 0 0}
+.dist div+div{padding-left:16px;border-left:1px solid rgba(244,184,98,.15)}
+.dist b{display:block;font-family:var(--fm);font-weight:500;font-size:13px;color:var(--sol)}
+.dist span{display:block;font-family:var(--fd);font-variation-settings:"SOFT" 100,"opsz" 36;font-size:21px;line-height:1.25;margin-top:8px;color:#efe4d3}
+.park{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:clamp(22px,4vw,56px);align-items:center;margin-top:clamp(56px,8vw,96px)}
+.park img{border-radius:6px;width:100%;aspect-ratio:16/10;object-fit:cover}
+.park h3{font-family:var(--fd);font-variation-settings:"SOFT" 100,"opsz" 72;font-weight:360;font-size:clamp(32px,3.4vw,44px);line-height:1;margin:10px 0 14px}
+.park p{font-size:16px;line-height:1.6;color:#d8ccbb}
+.hist{list-style:none;display:grid;grid-template-columns:repeat(5,1fr);margin-top:clamp(56px,8vw,96px);border-top:1px solid rgba(244,184,98,.3)}
+.hist li{padding:24px 16px 0 0;position:relative}
+.hist li::before{content:"";position:absolute;top:-5px;left:0;width:9px;height:9px;border-radius:50%;background:var(--carvao);border:1px solid var(--sol)}
+.hist .mono{color:var(--sol);font-size:10px}
+.hist b{display:block;font-family:var(--fd);font-variation-settings:"SOFT" 100,"opsz" 36;font-weight:400;font-size:22px;line-height:1.1;margin:10px 0 8px}
+.hist span{display:block;font-size:13.5px;line-height:1.55;color:#b7aa98}
+.src{margin-top:26px;font-size:11.5px;line-height:1.6;color:#8c8070}
 
 /* ficha */
-.ficha{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(28px,5vw,64px);align-items:start}
-.rows{border-top:1px solid rgba(154,116,56,.55)}
-.row{display:flex;justify-content:space-between;align-items:baseline;gap:20px;padding:16px 0;border-bottom:1px solid rgba(154,116,56,.55)}
-.row .cap{font-size:10.5px;color:#3b342b;font-weight:500}
-.row b{font-family:var(--fd);font-weight:400;font-size:24px;text-align:right}
-.contact{border-radius:6px;background:var(--noite);color:var(--cal);padding:clamp(26px,3.6vw,40px)}
-.contact h3{font-size:clamp(34px,3.6vw,48px);line-height:1}
-.contact p{font-family:var(--fd);font-style:italic;font-size:20px;color:#d8c8a6;margin:12px 0 24px}
-.contact .crow{display:flex;justify-content:space-between;gap:16px;padding:13px 0;border-top:1px solid rgba(201,169,110,.25);font-size:14px}
-.contact .crow .cap{color:var(--ouro);font-size:10px;padding-top:3px}
-.contact .btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:22px}
-.btn{height:52px;padding:0 24px;border-radius:26px;display:inline-flex;align-items:center;gap:10px;font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
-.btn.gold{background:var(--ouro);color:#1a140c}
-.btn.line{box-shadow:inset 0 0 0 1px rgba(201,169,110,.5);color:var(--cal)}
-.foot{padding:56px 24px calc(40px + var(--sb));text-align:center;background:var(--noite)}
-.foot .mark{font-family:var(--fd);font-size:34px;font-weight:300;letter-spacing:.02em}
-.foot p{max-width:720px;margin:14px auto 0;font-size:11.5px;line-height:1.7;color:#8a8070}
+.ficha{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(30px,5vw,64px);align-items:start;margin-top:clamp(36px,5vw,56px)}
+.row{display:flex;justify-content:space-between;align-items:baseline;gap:20px;padding:15px 0;border-bottom:1px solid rgba(154,63,31,.28)}
+.row:first-child{border-top:1px solid rgba(154,63,31,.28)}
+.row .mono{color:#7a6654}
+.row b{font-family:var(--fd);font-variation-settings:"SOFT" 100,"opsz" 36;font-weight:400;font-size:22px;text-align:right}
+.visit{border-radius:8px;background:var(--carvao);color:var(--cal);padding:clamp(24px,3.6vw,40px);position:relative;overflow:hidden}
+.visit::before{content:"";position:absolute;right:-80px;top:-80px;width:260px;height:260px;border-radius:50%;background:radial-gradient(circle,rgba(244,184,98,.5),rgba(244,184,98,0) 70%)}
+.visit h3{font-family:var(--fd);font-variation-settings:"SOFT" 100,"opsz" 96;font-weight:330;font-size:clamp(34px,3.6vw,50px);line-height:1;position:relative}
+.visit h3 em{font-style:italic;color:var(--sol)}
+.visit p{font-size:15.5px;color:#d8ccbb;margin:14px 0 22px;position:relative}
+.crow{display:flex;justify-content:space-between;gap:16px;padding:12px 0;border-top:1px solid rgba(244,184,98,.2);font-size:14px;position:relative}
+.crow .mono{color:var(--sol)}
+.visit .btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:22px;position:relative}
+.btn{height:52px;padding:0 22px;border-radius:26px;display:inline-flex;align-items:center;gap:10px;font-size:14px;font-weight:600}
+.btn.sun{background:var(--sol);color:#2a1a08}
+.btn.line{box-shadow:inset 0 0 0 1px rgba(247,242,234,.35)}
+.foot{padding:48px 24px calc(40px + var(--sb));text-align:center}
+.foot .disp{font-size:30px;font-style:italic}
+.foot p{max-width:720px;margin:12px auto 0;font-size:11.5px;line-height:1.7;color:#8c8070}
 
 /* visualizador */
-#lb{position:fixed;inset:0;z-index:50;background:rgba(6,5,4,.96);display:flex;align-items:center;justify-content:center;touch-action:pan-y}
-#lb img{max-width:100%;max-height:100%;object-fit:contain;transition:opacity .25s}
+#lb{position:fixed;inset:0;z-index:50;background:rgba(10,8,6,.96);display:flex;align-items:center;justify-content:center}
+#lb img{max-width:100%;max-height:100%;object-fit:contain}
 #lbTop{position:fixed;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding:calc(14px + var(--st)) 14px 0}
 #lbInfo{padding:12px 18px;border-radius:24px;max-width:calc(100vw - 90px)}
-#lbInfo .cap{color:var(--ouro);font-size:10px}
+#lbInfo .mono{color:var(--sol)}
 #lbCap{font-family:var(--fd);font-size:20px;line-height:1.25;margin-top:4px}
 .ib{width:48px;height:48px;border-radius:24px;display:flex;align-items:center;justify-content:center;flex:none}
-.lbn{position:fixed;top:50%;margin-top:-24px}#lbP{left:14px}#lbN{right:14px}
 
-/* entrada suave das seções */
-.rv{opacity:0;transform:translateY(26px);transition:opacity 1s ease,transform 1.1s cubic-bezier(.2,.8,.2,1)}
+.rv{opacity:0;transform:translateY(24px);transition:opacity 1s ease,transform 1.1s cubic-bezier(.2,.8,.2,1)}
 .rv.in{opacity:1;transform:none}
 
-@media (max-width:900px){
-  .heroBody{grid-template-columns:1fr}
-  .phase{justify-self:stretch;width:100%}
-  .head,.synth,.rings,.park,.ficha{grid-template-columns:1fr}
-  .found{grid-template-columns:1fr 1fr}
-  .found li:nth-child(3){padding-left:0;border-left:0}
-  .vids{grid-template-columns:1fr 1fr}
-  .vids .done{grid-column:1/-1}
-  .hist{grid-template-columns:1fr;border-top:0;border-left:1px solid rgba(201,169,110,.35);margin-left:4px}
-  .hist li{padding:0 0 26px 24px}
-  .hist li::before{top:6px;left:-5px}
-  .gal{grid-template-columns:repeat(6,1fr)}
-  .g1,.g6{grid-column:1/-1}.g2{grid-column:1/4}.g3{grid-column:4/-1;align-self:end}.g3 .im{aspect-ratio:3/4}
-  .g4{grid-column:1/4}.g5{grid-column:4/-1}
-  .ed{grid-template-columns:repeat(6,1fr)}
-  .e1{grid-column:1/-1}.e2{grid-column:1/4}.e3{grid-column:4/-1;align-self:end}.e4,.e5{grid-column:1/-1}
-  .lbn{display:none}
+@media (max-width:860px){
+  .light-sec,.plan,.ficha,.park,.ipeBand{grid-template-columns:1fr}
+  .room,.room:nth-child(even){grid-template-columns:1fr}
+  .room:nth-child(even) .ph{order:0}
+  .room .bigN{font-size:84px}
+  .dist{grid-template-columns:1fr 1fr}
+  .dist div:nth-child(3){padding-left:0;border-left:0}
+  .dist div{padding-bottom:18px}
+  .hist{grid-template-columns:1fr;border-top:0;border-left:1px solid rgba(244,184,98,.3);margin-left:4px}
+  .hist li{padding:0 0 24px 22px}
+  .hist li::before{top:5px;left:-5px}
+  .hours{grid-template-columns:1fr}
+  .hours div+div{padding-left:0;border-left:0}
+  .hours div{padding-bottom:14px;border-bottom:1px solid rgba(154,63,31,.15)}
 }
-@media (max-width:520px){
-  .heroBody h1{font-size:60px}
-  .phase .seg button span{font-size:12px}
-  .phase p{font-size:17.5px}
-  .top .book span:last-child{display:none}
-  .found{grid-template-columns:1fr}
-  .found li,.found li+li{padding:16px 0;border-left:0}
-  .vids{grid-template-columns:1fr}
-  .vid{aspect-ratio:4/5}
-  .ba{aspect-ratio:4/5}
-  .baCap p{font-size:19px}
-}
-@media (prefers-reduced-motion:reduce){ html{scroll-behavior:auto} .rv{opacity:1;transform:none;transition:none} .hero .shot{transition:opacity .4s} .press,.press:active{transition:none;transform:none} }
+@media (max-width:420px){ .mark .disp{font-size:20px} .seg button{padding:0 11px} .inRoom h2{font-size:28px} }
+@media (prefers-reduced-motion:reduce){ .rv{opacity:1;transform:none;transition:none} .press,.press:active{transition:none;transform:none} }
 </style>
 </head>
 <body>
@@ -286,226 +233,219 @@ em{font-style:italic}
   <symbol id="i-l" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></symbol>
   <symbol id="i-r" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></symbol>
   <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
-  <symbol id="i-ok" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12.5 2.8 2.8L16.5 9.5"/></symbol>
-  <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13l10.5-6.5z"/></symbol>
-  <symbol id="i-pause" viewBox="0 0 24 24"><path d="M8.5 5.5v13M15.5 5.5v13"/></symbol>
+  <symbol id="i-house" viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5M5.5 9.5V20h13V9.5M10 20v-5.5h4V20"/></symbol>
+  <symbol id="i-cam" viewBox="0 0 24 24"><path d="M4 8h3l2-2.5h6L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></symbol>
+  <symbol id="i-cube" viewBox="0 0 24 24"><path d="M12 2.8 20 7v10l-8 4.2L4 17V7z"/><path d="M4 7l8 4.3L20 7M12 11.3v9.9"/></symbol>
   <symbol id="i-down" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
-  <symbol id="i-ext" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></symbol>
 </svg>
 
-<nav id="nav" class="lg" aria-label="Seções">
-  <a href="#sintese" class="press"><b>00</b>Síntese</a>
-  <a href="#ambientes" class="press"><b>01</b>Ambientes</a>
-  <a href="#bairro" class="press"><b>02</b>Bairro</a>
-  <a href="#ficha" class="press"><b>03</b>Ficha</a>
-</nav>
-
-<!-- ============ ABERTURA ============ -->
-<header class="hero" id="topo">
-  <img class="shot" src="img/pronto-sala.jpg" alt="Sala e cozinha integradas, com piso de ipê e luz natural">
-  <img class="shot" src="img/pronto-suite.jpg" alt="A suíte, com cama de casal e janela para o verde">
-  <img class="shot" src="img/pronto-cozinha.jpg" alt="A cozinha, com marcenaria clara e bancada de pedra">
-  <img class="shot" src="img/pronto-quarto.jpg" alt="Quarto com duas camas de solteiro e escrivaninha">
-  <div class="veil"></div>
-  <div class="top">
-    <div class="book"><span class="ln"></span><div class="cap" style="font-size:10px;letter-spacing:.34em"><span>Book #102</span><span style="color:var(--ouro)">Luxemburgo · BH</span></div></div>
-    <a class="lg pill press" href="#ficha">Ficha técnica</a>
-  </div>
-  <div class="heroBody">
-    <div>
-      <div class="cap acc">Belo Horizonte · Minas Gerais</div>
-      <h1><span>Apto</span><span>Luxemburgo</span></h1>
-      <p class="tag">Há lugares que você visita. E há este, que você vive, e nunca mais quer sair.</p>
+<!-- ============ ABERTURA: O APARTAMENTO EM 3D ============ -->
+<section class="stage" id="topo" aria-label="Modelo 3D do apartamento">
+  <canvas id="c3d"></canvas>
+  <div id="labels3d"></div>
+  <div class="loading" id="loading"><span class="mono">Montando o apartamento…</span></div>
+  <div class="hTop">
+    <div class="mark lg"><div class="disp">Apto Luxemburgo</div><div class="mono">120 m² · 3 quartos · 1º andar · BH</div></div>
+    <div class="seg lg" role="group" aria-label="Vista">
+      <button class="press lens" id="vDoll"><svg class="i"><use href="#i-house"/></svg>Maquete</button>
+      <button class="press" id="vPhotos"><svg class="i"><use href="#i-cam"/></svg>Fotos</button>
     </div>
-    <div class="phase lg" role="group" aria-label="Ambientes">
-      <div class="seg" id="phaseSeg" style="grid-template-columns:repeat(4,1fr)">
-        <button class="press lens" data-p="0"><b>01</b><span>Sala</span><i></i></button>
-        <button class="press" data-p="1"><b>02</b><span>Suíte</span><i></i></button>
-        <button class="press" data-p="2"><b>03</b><span>Cozinha</span><i></i></button>
-        <button class="press" data-p="3"><b>04</b><span>Quarto</span><i></i></button>
+  </div>
+  <div class="hint lg dim" id="hint" style="opacity:0">Arraste para girar · toque num ambiente para entrar</div>
+  <div class="panel lg" id="panel">
+    <div id="dollUI">
+      <div class="rail" id="rail"></div>
+    </div>
+    <div class="inRoom" id="roomUI" hidden>
+      <div class="row1"><div><span class="mono no" id="rNo">01 · Ambiente</span><h2 id="rName">Sala de estar</h2></div></div>
+      <p id="rTxt"></p>
+      <div class="btns"><button class="pill solid press" id="rPhoto"><svg class="i"><use href="#i-cam"/></svg>Ver foto real</button><button class="pill ghost press" id="rBack"><svg class="i"><use href="#i-house"/></svg>Maquete</button></div>
+    </div>
+    <div class="sunRow">
+      <div class="when"><b id="hourTxt">08:00</b><span id="hourSub">sol da manhã</span></div>
+      <input type="range" id="hour" min="6" max="21" step="0.05" value="8" aria-label="Hora do dia">
+    </div>
+  </div>
+</section>
+
+<!-- ============ A LUZ ============ -->
+<section class="sec light">
+  <div class="wrap light-sec">
+    <div class="rv">
+      <div class="eyebrow"><span class="num">☀</span><span class="mono">Posição solar · leste</span></div>
+      <h2 class="h2">A casa acorda <em>com o sol</em></h2>
+      <p class="lead">A fachada dá para o leste. O sol entra pelos quartos logo cedo e, ao longo do dia, passa pela sala. No modelo acima, arraste a hora para ver a luz percorrer o apartamento.</p>
+      <div class="hours">
+        <div><b>07:00</b><span>Luz baixa e quente nos três quartos.</span></div>
+        <div><b>12:00</b><span>O sol passa pelo norte e ilumina a sala por igual.</span></div>
+        <div><b>19:00</b><span>As luminárias acendem e o ipê fica avermelhado.</span></div>
       </div>
-      <p id="phaseTxt">Sala e cozinha integradas, sobre o assoalho de ipê, com luz natural o dia todo.</p>
-      <div class="meta cap" style="font-size:9.5px"><span>120 m² · 3 quartos · 1º andar</span><span id="phaseNo">1 / 4</span></div>
     </div>
+    <svg class="sunArc rv" viewBox="0 0 460 300" aria-label="Arco do sol sobre a planta, do leste para o oeste passando pelo norte">
+      <defs><linearGradient id="arc" x1="0" x2="1"><stop offset="0" stop-color="#f4b862"/><stop offset=".5" stop-color="#ffe7bd"/><stop offset="1" stop-color="#d9773f"/></linearGradient></defs>
+      <rect x="150" y="150" width="90" height="130" rx="2" fill="#e5dccd" stroke="#9a3f1f" stroke-width="1.2"/>
+      <path d="M150 200h90M195 150v50" stroke="#9a3f1f" stroke-width=".8" opacity=".6"/>
+      <text x="195" y="246" text-anchor="middle" style="font:500 10px 'JetBrains Mono',monospace;fill:#9a3f1f;letter-spacing:.08em">APTO</text>
+      <path d="M60 240 A 170 170 0 0 1 400 240" fill="none" stroke="url(#arc)" stroke-width="2.4" stroke-dasharray="2 6" stroke-linecap="round"/>
+      <circle cx="96" cy="132" r="14" fill="#f4b862"/><circle cx="230" cy="70" r="11" fill="#ffe7bd" stroke="#f4b862"/><circle cx="364" cy="132" r="9" fill="#d9773f"/>
+      <text x="96" y="104" text-anchor="middle" style="font:500 10px 'JetBrains Mono',monospace;fill:#7a6654">07H · LESTE</text>
+      <text x="230" y="46" text-anchor="middle" style="font:500 10px 'JetBrains Mono',monospace;fill:#7a6654">12H · NORTE</text>
+      <text x="364" y="104" text-anchor="middle" style="font:500 10px 'JetBrains Mono',monospace;fill:#7a6654">17H · OESTE</text>
+    </svg>
   </div>
-</header>
+</section>
 
-<!-- ============ SÍNTESE ============ -->
-<section class="sec light" id="sintese">
+<!-- ============ AMBIENTES ============ -->
+<section class="sec dark" id="ambientes">
   <div class="wrap">
-    <div class="head rv">
-      <div><div class="kick cap acc"><span class="ln"></span>Em síntese</div><h2>O essencial, <em>em números</em></h2></div>
-      <p class="lead">Um apartamento de 120 m² no primeiro andar, com a planta inteira voltada para o sol da manhã.</p>
+    <div class="rv"><div class="eyebrow"><span class="num">01</span><span class="mono">Ambiente por ambiente</span></div><h2 class="h2">Pronto <em>para morar</em></h2><p class="lead">Os números são os mesmos do modelo 3D. Toque em “Ver no 3D” para entrar no ambiente.</p></div>
+    <div class="rooms" id="rooms"></div>
+    <div class="ipeBand rv">
+      <img src="img/ipe.jpg" alt="Detalhe do assoalho de ipê restaurado" loading="lazy">
+      <div><q>O ipê floresce na seca, quando parece que acabou. A madeira gasta conserva o veio por baixo do desgaste; basta alguém tirar o tempo de cima dela.</q><span class="mono">O piso de ipê original, restaurado</span></div>
     </div>
-    <div class="synth">
-      <figure class="planta rv"><img src="img/planta.jpg" alt="Planta humanizada do apartamento: três quartos, suíte, sala e cozinha integradas" loading="lazy"><figcaption class="cap" style="font-size:9.5px"><span>Planta humanizada</span><span>Ilustrativa</span></figcaption></figure>
+    <p class="note">Fotos com decoração ilustrativa, para mostrar o uso de cada ambiente. O modelo 3D é ilustrativo, feito a partir da planta humanizada.</p>
+  </div>
+</section>
+
+<!-- ============ PLANTA ============ -->
+<section class="sec light" id="planta">
+  <div class="wrap">
+    <div class="rv"><div class="eyebrow"><span class="num">02</span><span class="mono">A planta</span></div><h2 class="h2">120 m² <em>bem divididos</em></h2></div>
+    <div class="plan">
+      <figure class="rv"><img src="img/planta.jpg" alt="Planta humanizada: três quartos, suíte, sala e cozinha integradas" loading="lazy"><figcaption class="mono"><span>Planta humanizada</span><span>Ilustrativa</span></figcaption></figure>
       <ul class="nums rv">
-        <li><b>120<sup>m²</sup></b><span>Área privativa</span></li>
-        <li><b>3</b><span>Quartos<small>um deles é suíte</small></span></li>
-        <li><b>3</b><span>Banheiros</span></li>
+        <li><b>120<small>m²</small></b><span>Área privativa</span></li>
+        <li><b>3</b><span>Quartos<i>um deles é suíte</i></span></li>
+        <li><b>3</b><span>Banheiros<i>suíte, social e de serviço</i></span></li>
         <li><b>2</b><span>Vagas cobertas</span></li>
-        <li><b>1º</b><span>Andar<small>posição solar leste, sol da manhã</small></span></li>
+        <li><b>1º</b><span>Andar<i>fachada leste, sol da manhã</i></span></li>
       </ul>
     </div>
   </div>
 </section>
 
-<!-- ============ 01 AMBIENTES ============ -->
-<section class="sec light" id="ambientes">
-  <span class="thread" style="color:var(--bronze)"></span>
-  <span class="big" style="color:var(--bronze)">01</span>
-  <div class="wrap">
-    <div class="rv"><div class="kick cap acc"><span class="ln"></span>01 · O imóvel</div><h2>Pronto <em>para morar</em></h2></div>
-    <div class="synth" style="margin-top:clamp(36px,5vw,56px);align-items:center">
-      <div class="rv">
-        <p class="quote">“O ipê floresce na seca, quando parece que acabou. A madeira gasta conserva o veio por baixo do desgaste; basta alguém tirar o tempo de cima dela.”</p>
-        <div class="cap">O piso de ipê original, restaurado</div>
-      </div>
-      <button class="fig rv" data-src="img/ipe.jpg" data-cap="O piso de ipê, restaurado"><span class="im" style="aspect-ratio:3/2"><img src="img/ipe.jpg" alt="Detalhe do piso de ipê restaurado" loading="lazy"></span></button>
-    </div>
-    <div class="ed" id="galC"></div>
-    <p class="note">Fotos com decoração ilustrativa, para mostrar o uso de cada ambiente.</p>
-  </div>
-</section>
-
-<!-- ============ 04 BAIRRO ============ -->
+<!-- ============ BAIRRO ============ -->
 <section class="dark" id="bairro">
-  <div class="bairroHero">
+  <div class="bairroImg">
     <img src="img/bairro.jpg" alt="Vista aérea do bairro Luxemburgo, em Belo Horizonte" loading="lazy">
     <div class="veil"></div>
-    <div class="wrap rv"><div class="kick cap acc"><span class="ln"></span>02 · Vida no entorno</div><h2 style="font-size:clamp(44px,6.4vw,90px);line-height:.95;max-width:12ch">O ritmo certo entre <em>o movimento e a calma</em></h2></div>
+    <div class="wrap rv"><div class="eyebrow"><span class="num">03</span><span class="mono">Luxemburgo · Belo Horizonte</span></div><h2 class="h2" style="max-width:12ch">Rua quieta, <em>cidade perto</em></h2></div>
   </div>
-  <div class="sec" style="padding-top:clamp(56px,8vw,96px)">
+  <div class="sec" style="padding-top:clamp(50px,7vw,90px)">
     <div class="wrap">
-      <p class="lead rv" style="max-width:52ch">A manhã no Luxemburgo começa numa rua residencial ainda quieta. São 600 metros até o Parque Tom Jobim, onde a sombra vem dos ipês e das mangueiras. Na volta, mercado, farmácia e feira ficam a menos de 1 km de casa, e a rua continua quieta.</p>
-      <div class="rings rv">
-        <svg class="ringSvg" viewBox="0 0 400 400" aria-label="Esquema de distâncias a partir do apartamento, sem escala">
-          <circle cx="200" cy="200" r="190" stroke="rgba(201,169,110,.28)" stroke-dasharray="3 6"/>
-          <circle cx="200" cy="200" r="140" stroke="rgba(201,169,110,.32)" stroke-dasharray="3 6"/>
-          <circle cx="200" cy="200" r="92" stroke="rgba(201,169,110,.4)"/>
-          <circle cx="200" cy="200" r="48" stroke="rgba(201,169,110,.55)"/>
-          <circle cx="200" cy="200" r="9" fill="#c9a96e" style="fill:#c9a96e"/>
-          <circle cx="238" cy="174" r="7" style="fill:#a9c3a0"/>
-          <circle cx="278" cy="244" r="7" style="fill:#e6a78f"/>
-          <circle cx="104" cy="268" r="7" style="fill:#9fb7d6"/>
-          <circle cx="344" cy="122" r="7" style="fill:#ecd28f"/>
-          <text x="200" y="232" text-anchor="middle" style="font:500 10px Montserrat,sans-serif;letter-spacing:.2em;fill:#c9a96e">APTO</text>
-        </svg>
-        <ul class="dist">
-          <li><i style="background:#a9c3a0"></i><div><b style="color:#a9c3a0">600 m</b><span>Parque Mosteiro Tom Jobim</span></div></li>
-          <li><i style="background:#e6a78f"></i><div><b style="color:#e6a78f">Menos de 1 km</b><span>Escolas, mercado, farmácia, hospital e feira</span></div></li>
-          <li><i style="background:#9fb7d6"></i><div><b style="color:#9fb7d6">Menos de 5 min de carro</b><span>Contorno, Raja Gabaglia e Prudente de Morais</span></div></li>
-          <li><i style="background:#ecd28f"></i><div><b style="color:#ecd28f">Menos de 15 min de carro</b><span>Savassi e Centro</span></div></li>
-        </ul>
+      <p class="lead rv" style="max-width:56ch;margin-top:0">A manhã no Luxemburgo começa numa rua residencial ainda quieta. São 600 metros até o Parque Tom Jobim, onde a sombra vem dos ipês e das mangueiras. Na volta, mercado, farmácia e feira ficam a menos de 1 km de casa.</p>
+      <div class="dist rv">
+        <div><b>600 m</b><span>Parque Mosteiro Tom Jobim</span></div>
+        <div><b>&lt; 1 km</b><span>Escolas, mercado, farmácia, hospital e feira</span></div>
+        <div><b>&lt; 5 min de carro</b><span>Contorno, Raja Gabaglia e Prudente de Morais</span></div>
+        <div><b>&lt; 15 min de carro</b><span>Savassi e Centro</span></div>
       </div>
       <div class="park rv">
-        <div class="im"><img src="img/parque.jpg" alt="Caminho entre a mata no Parque Mosteiro Tom Jobim" loading="lazy"></div>
-        <div><div class="cap acc">A 600 metros</div><h3>Parque Mosteiro Tom Jobim</h3><p>Implantado em 2001, com cerca de 6.400 m², brinquedos, mesas de jogos, quadra e academia a céu aberto. Parte da vegetação é nativa, da Mata do Mosteiro: anjico, jacaré, sangra d’água, guapuruvu, embaúba. Nascentes preservadas mantêm o microclima ameno no coração do bairro.</p></div>
+        <img src="img/parque.jpg" alt="Caminho entre a mata no Parque Mosteiro Tom Jobim" loading="lazy">
+        <div><span class="mono" style="color:var(--sol)">A 600 metros</span><h3>Parque Mosteiro Tom Jobim</h3><p>Implantado em 2001, com cerca de 6.400 m², brinquedos, mesas de jogos, quadra e academia a céu aberto. Parte da vegetação é nativa, da Mata do Mosteiro, e as nascentes preservadas mantêm o microclima ameno no coração do bairro.</p></div>
       </div>
       <ol class="hist rv">
-        <li><span class="cap">Antes do bairro</span><b>Terra de chácaras</b><span>Parte da Colônia Afonso Pena, criada para abastecer a jovem capital, junto ao córrego Guaicuí.</span></li>
-        <li><span class="cap">1929</span><b>O nome veio de longe</b><span>O engenheiro Albert Scharlé, nascido em Steinfort, no Luxemburgo, chega a Minas para trabalhar na Belgo-Mineira.</span></li>
-        <li><span class="cap">Anos 1960</span><b>As chácaras viram lotes</b><span>Uma planta de 1963, no Arquivo Público da cidade, registra a subdivisão da antiga colônia.</span></li>
-        <li><span class="cap">Anos 1970</span><b>A cidade chega perto</b><span>A Avenida Prudente de Morais impulsiona a região. Em 1974, uma rua ganha o nome do engenheiro.</span></li>
-        <li><span class="cap">Hoje</span><b>O fio chega à porta</b><span>Das chácaras ficou a calma da rua residencial. O resto da cidade está a poucos minutos.</span></li>
+        <li><span class="mono">Antes do bairro</span><b>Terra de chácaras</b><span>Parte da Colônia Afonso Pena, criada para abastecer a jovem capital, junto ao córrego Guaicuí.</span></li>
+        <li><span class="mono">1929</span><b>O nome veio de longe</b><span>O engenheiro Albert Scharlé, nascido em Steinfort, no Luxemburgo, chega a Minas para trabalhar na Belgo-Mineira.</span></li>
+        <li><span class="mono">Anos 1960</span><b>As chácaras viram lotes</b><span>Uma planta de 1963, no Arquivo Público da cidade, registra a subdivisão da antiga colônia.</span></li>
+        <li><span class="mono">Anos 1970</span><b>A cidade chega perto</b><span>A Avenida Prudente de Morais impulsiona a região. Em 1974, uma rua ganha o nome do engenheiro.</span></li>
+        <li><span class="mono">Hoje</span><b>O fio chega à porta</b><span>Das chácaras ficou a calma da rua residencial. O resto da cidade está a poucos minutos.</span></li>
       </ol>
-      <p class="src">Fontes do book: Arquivo Público da Cidade de BH; Estado de Minas (2015); Colônia Luxemburguesa; Amalux. A origem do nome é uma explicação possível. Distâncias medidas a partir do apartamento, esquema sem escala.</p>
+      <p class="src">Fontes do book: Arquivo Público da Cidade de BH; Estado de Minas (2015); Colônia Luxemburguesa; Amalux. A origem do nome é uma explicação possível. Distâncias medidas a partir do apartamento.</p>
     </div>
   </div>
 </section>
 
-<!-- ============ 05 FICHA ============ -->
+<!-- ============ FICHA ============ -->
 <section class="sec light" id="ficha">
   <div class="wrap">
-    <div class="rv" style="margin-bottom:clamp(36px,5vw,56px)"><div class="kick cap acc"><span class="ln"></span>03 · Ficha técnica</div><h2>O apartamento <em>em detalhe</em></h2></div>
+    <div class="rv"><div class="eyebrow"><span class="num">04</span><span class="mono">Ficha técnica</span></div><h2 class="h2">Em <em>detalhe</em></h2></div>
     <div class="ficha">
-      <div class="rows rv">
-        <div class="row"><span class="cap">Área privativa</span><b>120 m²</b></div>
-        <div class="row"><span class="cap">Quartos</span><b>3, sendo 1 suíte</b></div>
-        <div class="row"><span class="cap">Banheiros</span><b>3</b></div>
-        <div class="row"><span class="cap">Vagas</span><b>2 cobertas</b></div>
-        <div class="row"><span class="cap">Andar</span><b>1º</b></div>
-        <div class="row"><span class="cap">Sol</span><b>Leste, sol da manhã</b></div>
-        <div class="row"><span class="cap">Piso</span><b>Ipê na sala, tacos nos quartos</b></div>
-        <div class="row"><span class="cap">Bairro</span><b>Luxemburgo, Belo Horizonte</b></div>
+      <div class="rv">
+        <div class="row"><span class="mono">Área privativa</span><b>120 m²</b></div>
+        <div class="row"><span class="mono">Quartos</span><b>3, sendo 1 suíte</b></div>
+        <div class="row"><span class="mono">Banheiros</span><b>3</b></div>
+        <div class="row"><span class="mono">Vagas</span><b>2 cobertas</b></div>
+        <div class="row"><span class="mono">Andar</span><b>1º</b></div>
+        <div class="row"><span class="mono">Sol</span><b>Leste, sol da manhã</b></div>
+        <div class="row"><span class="mono">Piso</span><b>Ipê na sala, tacos nos quartos</b></div>
+        <div class="row"><span class="mono">Bairro</span><b>Luxemburgo, Belo Horizonte</b></div>
       </div>
-      <div class="contact rv" id="contact">
-        <div class="cap acc">Visita</div>
-        <h3>Será um prazer <em>apresentar o imóvel</em></h3>
+      <div class="visit rv" id="contact">
+        <span class="mono" style="color:var(--sol);position:relative">Visita</span>
+        <h3 style="margin-top:10px">Venha ver <em>a luz da manhã</em> pessoalmente</h3>
         <p>Valores e condições sob consulta.</p>
         <div id="contactRows"></div>
-        <div class="btns"><a class="btn gold press" href="#ambientes">Ver os ambientes</a><a class="btn line press" href="#topo">Voltar ao início</a></div>
+        <div class="btns"><a class="btn sun press" href="#topo"><svg class="i"><use href="#i-cube"/></svg>Voltar ao 3D</a><a class="btn line press" href="#ambientes">Ver os ambientes</a></div>
       </div>
     </div>
   </div>
 </section>
 
 <footer class="foot">
-  <div class="mark">Apto Luxemburgo</div>
-  <p id="footNote">Fotos com decoração ilustrativa. Informações sujeitas a confirmação documental e alteração sem aviso prévio. Este material não constitui oferta vinculante.</p>
+  <div class="disp">Apto Luxemburgo</div>
+  <p id="footNote">Fotos com decoração ilustrativa. Modelo 3D e planta ilustrativos. Informações sujeitas a confirmação documental e alteração sem aviso prévio. Este material não constitui oferta vinculante.</p>
 </footer>
 
 <div id="lb" hidden>
   <img id="lbImg" alt="">
-  <div id="lbTop"><div id="lbInfo" class="lg dim"><div class="cap" id="lbNo"></div><div id="lbCap"></div></div><button id="lbX" class="ib lg dim press" aria-label="Fechar"><svg class="i"><use href="#i-x"/></svg></button></div>
-  <button id="lbP" class="ib lbn lg dim press" aria-label="Anterior"><svg class="i"><use href="#i-l"/></svg></button>
-  <button id="lbN" class="ib lbn lg dim press" aria-label="Próxima"><svg class="i"><use href="#i-r"/></svg></button>
+  <div id="lbTop"><div id="lbInfo" class="lg dim"><div class="mono" id="lbNo"></div><div id="lbCap"></div></div><button id="lbX" class="ib lg dim press" aria-label="Fechar"><svg class="i"><use href="#i-x"/></svg></button></div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/geometries/RoundedBoxGeometry.js"></script>
+<script src="lux3d.js"></script>
 <script src="brand.js"></script>
 <script>
 (function(){
 const $ = id => document.getElementById(id);
-const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const L = window.Lux3D;
+const fmtH = h => { const hh=Math.floor(h), mm=Math.round((h-hh)*60/5)*5; return String(mm===60?hh+1:hh).padStart(2,'0')+':'+String(mm===60?0:mm).padStart(2,'0'); };
+const subH = h => h<6.4 ? 'antes do sol' : h<10 ? 'sol da manhã' : h<14.5 ? 'meio do dia' : h<17.6 ? 'tarde' : h<18.6 ? 'pôr do sol' : 'noite, luzes acesas';
 
-// ---------- abertura: os ambientes, um a um ----------
-const PH = [
-  'Sala e cozinha integradas, sobre o assoalho de ipê, com luz natural o dia todo.',
-  'A suíte recebe o sol da manhã e tem vista para o verde.',
-  'Cozinha com marcenaria clara, bancada de pedra e mesa para as refeições.',
-  'Quarto com duas camas e escrivaninha junto à janela.'];
-const shots=[...document.querySelectorAll('.hero .shot')], segBtns=[...document.querySelectorAll('#phaseSeg button')];
-let ph=0, auto=!reduce, t0=performance.now(); const DUR=4200;
-function setPhase(i){ ph=i; shots.forEach((s,k)=>s.classList.toggle('on',k===i)); segBtns.forEach((b,k)=>{ b.classList.toggle('lens',k===i); b.querySelector('i').style.setProperty('--p','0%'); });
-  const p=$('phaseTxt'); p.style.opacity=0; setTimeout(()=>{ p.textContent=PH[i]; p.style.opacity=1; },220); $('phaseNo').textContent=(i+1)+' / '+PH.length; t0=performance.now(); }
-segBtns.forEach((b,k)=> b.onclick=()=>{ auto=false; setPhase(k); });
-setPhase(0);
-(function tick(now){ if (auto){ const k=Math.min(1,(now-t0)/DUR); segBtns[ph].querySelector('i').style.setProperty('--p',(k*100)+'%'); if (k>=1) setPhase((ph+1)%PH.length); } requestAnimationFrame(tick); })(performance.now());
+// ---------- 3D ----------
+if (L){
+  $('loading').style.opacity=0; setTimeout(()=>$('loading').remove(),600);
+  const rail=$('rail');
+  L.rooms.forEach(r=>{ const b=document.createElement('button'); b.className='press'; b.dataset.id=r.id; b.innerHTML='<em>'+r.no+'</em>'+r.n; b.onclick=()=>L.enterRoom(r.id); rail.appendChild(b); });
+  let curRoom=null;
+  L.on('room', r=>{ curRoom=r; [...rail.children].forEach(b=>b.classList.toggle('lens', !!r && b.dataset.id===r.id)); if (r){ $('rNo').textContent=r.no+' · Ambiente'; $('rName').textContent=r.n; $('rTxt').textContent=r.t; $('rPhoto').hidden=!r.photo; } });
+  L.on('mode', m=>{ $('dollUI').hidden = m!=='doll'; $('roomUI').hidden = m==='doll'; $('vDoll').classList.toggle('lens', m==='doll'); hint(m==='doll' ? 'Arraste para girar · toque num ambiente para entrar' : 'Arraste para olhar · toque no chão para andar'); });
+  $('rBack').onclick=()=>L.toDoll(); $('vDoll').onclick=()=>{ if (L.mode!=='doll') L.toDoll(); };
+  $('rPhoto').onclick=()=>{ if (curRoom && curRoom.photo) openLb(curRoom.photo, curRoom.no+' · '+curRoom.n, curRoom.t); };
+  const hr=$('hour'); const onH=()=>{ const h=+hr.value; L.setHour(h); $('hourTxt').textContent=fmtH(h); $('hourSub').textContent=subH(h); }; hr.addEventListener('input',onH); onH();
+  let ht=0; function hint(t){ const h=$('hint'); h.textContent=t; h.style.opacity=1; clearTimeout(ht); ht=setTimeout(()=>h.style.opacity=0,3200); }
+  setTimeout(()=>hint('Arraste para girar · toque num ambiente para entrar'),900);
+} else { $('loading').innerHTML='<span class="mono">O 3D não abriu neste navegador. As fotos estão logo abaixo.</span>'; }
+$('vPhotos').onclick=()=>$('ambientes').scrollIntoView({behavior:'smooth'});
 
-// ---------- navegação fixa ----------
-const nav=$('nav'), links=[...nav.querySelectorAll('a')];
-const secs=links.map(a=>document.querySelector(a.getAttribute('href')));
-function onScroll(){ nav.classList.toggle('show', scrollY > innerHeight*.8); let cur=0; secs.forEach((s,i)=>{ if (s && s.getBoundingClientRect().top < innerHeight*.4) cur=i; }); links.forEach((a,i)=>a.classList.toggle('lens',i===cur && scrollY>innerHeight*.8)); }
-addEventListener('scroll',onScroll,{passive:true}); onScroll();
-links.forEach(a=> a.addEventListener('click',()=>{ const l=a; setTimeout(()=>l.scrollIntoView({inline:'center',block:'nearest'}),50); }));
+// ---------- ambientes ----------
+const RM=[
+  {id:'sala', no:'01', n:'Sala de estar e jantar', img:'pronto-sala', t:'Sala e cozinha integradas sobre o assoalho de ipê. Sofá de linho, poltronas de couro, mesa para 8 e duas janelas para o verde.', meta:'Piso de ipê · 2 janelas'},
+  {id:'cozinha', no:'03', n:'Cozinha', img:'pronto-cozinha', t:'Marcenaria clara, bancada de pedra sob a janela, cooktop e mesa para as refeições do dia a dia. Área de serviço ao fundo.', meta:'Porcelanato · área de serviço'},
+  {id:'suite', no:'04', n:'A suíte', img:'pronto-suite', t:'O quarto que recebe o sol da manhã, com banheiro próprio e vista para o verde.', meta:'Tacos de madeira · banheiro privativo'},
+  {id:'quarto', no:'05', n:'Quarto', img:'pronto-quarto', t:'Duas camas de solteiro e uma escrivaninha junto à janela, com luz natural pela manhã.', meta:'Tacos de madeira'},
+  {id:'banho1', no:'07', n:'O banheiro', img:'pronto-banheiro', t:'Bacia suspensa, bancada de pedra, espelho iluminado e box de vidro.', meta:'Porcelanato · box de vidro'}];
+$('rooms').innerHTML = RM.map(r=>`<article class="room rv"><button class="ph" data-img="img/${r.img}.jpg" data-cap="${r.no} · ${r.n}" data-t="${r.t}"><img src="img/${r.img}.jpg" alt="${r.n}" loading="lazy"><span class="tag lg mono">${r.no}</span></button><div><div class="bigN">${r.no}</div><h3>${r.n}</h3><p>${r.t}</p><button class="go3d press" data-room="${r.id}"><svg class="i"><use href="#i-cube"/></svg>Ver no 3D</button><div class="mono meta">${r.meta}</div></div></article>`).join('');
+document.querySelectorAll('.room .ph').forEach(b=> b.onclick=()=>openLb(b.dataset.img,b.dataset.cap,b.dataset.t));
+document.querySelectorAll('.go3d').forEach(b=> b.onclick=()=>{ $('topo').scrollIntoView({behavior:'smooth'}); if (L) setTimeout(()=>L.enterRoom(b.dataset.room),550); });
 
 // ---------- entrada das seções ----------
 const io=new IntersectionObserver(es=>es.forEach(e=>{ if (e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } }),{rootMargin:'0px 0px -8% 0px'});
 document.querySelectorAll('.rv').forEach(el=>io.observe(el));
 
-// ---------- galerias ----------
-const GC=[['pronto-sala','e1','Sala e cozinha integradas','Assoalho de ipê, luz natural e espaço para jantar e estar.'],['pronto-suite','e2','A suíte','Luz natural pela manhã e vista para o verde.'],['pronto-cozinha','e3','A cozinha','Marcenaria clara, bancada de pedra e mesa para as refeições.'],['pronto-quarto','e4','Quarto de solteiro','Duas camas e uma escrivaninha junto à janela.'],['pronto-banheiro','e5','O banheiro','Espelho iluminado, bancada de pedra e box de vidro.']];
-const LBL=[]; function fig(list, prefix, cls){ return list.map(([f,c,cap,sub],k)=>{ const no=prefix+'.'+(k+1); LBL.push({src:'img/'+f+'.jpg',cap:sub?cap+'. '+sub:cap,no:'Fig. '+no}); const i=LBL.length-1;
-  return `<button class="fig ${c} rv" data-lb="${i}"><span class="im"><img src="img/${f}.jpg" alt="${cap}" loading="lazy"></span><span class="fc">${sub?`<b>${cap}</b><span>${sub}</span>`:`<span class="cap acc">${no}</span><span>${cap}</span>`}</span></button>`; }).join(''); }
-$('galC').innerHTML=fig(GC,'01');
-document.querySelectorAll('#galC .rv').forEach(el=>io.observe(el));
-document.querySelectorAll('[data-src]').forEach(b=>{ LBL.push({src:b.dataset.src,cap:b.dataset.cap,no:'Detalhe'}); b.dataset.lb=LBL.length-1; });
-
 // ---------- visualizador ----------
-let lbI=0; const lb=$('lb');
-function openLb(i){ lbI=i; lb.hidden=false; showLb(); document.body.style.overflow='hidden'; }
-function showLb(){ const p=LBL[lbI]; const im=$('lbImg'); im.style.opacity=0; im.onload=()=>{ im.style.opacity=1; }; im.src=p.src; im.alt=p.cap; $('lbCap').textContent=p.cap; $('lbNo').textContent=p.no+' · '+(lbI+1)+' de '+LBL.length; }
-function closeLb(){ lb.hidden=true; document.body.style.overflow=''; }
-document.querySelectorAll('[data-lb]').forEach(b=> b.addEventListener('click',()=>openLb(+b.dataset.lb)));
-$('lbX').onclick=closeLb; $('lbP').onclick=()=>{ lbI=(lbI-1+LBL.length)%LBL.length; showLb(); }; $('lbN').onclick=()=>{ lbI=(lbI+1)%LBL.length; showLb(); };
-let sx=null; lb.addEventListener('pointerdown',e=>{ sx=e.clientX; }); lb.addEventListener('pointerup',e=>{ if (sx===null) return; const dx=e.clientX-sx; sx=null; if (Math.abs(dx)>50) (dx<0?$('lbN'):$('lbP')).onclick(); else if (e.target===lb || e.target===$('lbImg')) {} });
-addEventListener('keydown',e=>{ if (lb.hidden) return; if (e.key==='Escape') closeLb(); if (e.key==='ArrowRight') $('lbN').onclick(); if (e.key==='ArrowLeft') $('lbP').onclick(); });
+function openLb(src,no,cap){ $('lbImg').src=src; $('lbNo').textContent=no; $('lbCap').textContent=cap||''; $('lb').hidden=false; document.body.style.overflow='hidden'; }
+function closeLb(){ $('lb').hidden=true; document.body.style.overflow=''; }
+$('lbX').onclick=closeLb; $('lb').addEventListener('click',e=>{ if (e.target.id==='lb') closeLb(); }); addEventListener('keydown',e=>{ if (e.key==='Escape') closeLb(); });
 
 // ---------- contato: só aparece quando o arquivo brand.js existe ----------
 const B=window.BRAND;
-if (B){ $('contactRows').innerHTML=[['Corretor',B.corretor],['CRECI',B.creci],['Site',B.site],['Instagram',B.instagram]].filter(r=>r[1]).map(r=>`<div class="crow"><span class="cap">${r[0]}</span><span>${r[1]}</span></div>`).join('');
-  if (B.whatsapp) $('contact').querySelector('.btns').insertAdjacentHTML('afterbegin',`<a class="btn gold press" href="https://wa.me/${B.whatsapp.replace(/\D/g,'')}" target="_blank" rel="noopener">Agendar visita</a>`);
-  document.querySelector('.foot .mark').insertAdjacentHTML('afterend',`<div class="cap acc" style="margin-top:10px">${B.name}</div>`); $('footNote').textContent += (B.creci ? ' Intermediação: '+B.corretor+' · '+B.creci+' · '+B.name+'.' : ''); }
+if (B){ $('contactRows').innerHTML=[['Corretor',B.corretor],['CRECI',B.creci],['Site',B.site],['Instagram',B.instagram]].filter(r=>r[1]).map(r=>`<div class="crow"><span class="mono">${r[0]}</span><span>${r[1]}</span></div>`).join('');
+  if (B.whatsapp) $('contact').querySelector('.btns').insertAdjacentHTML('afterbegin',`<a class="btn sun press" href="https://wa.me/${B.whatsapp.replace(/\D/g,'')}" target="_blank" rel="noopener">Agendar visita</a>`);
+  $('footNote').textContent += ' Intermediação: '+B.corretor+' · '+B.creci+' · '+B.name+'.'; }
 })();
 </script>
 </body>
